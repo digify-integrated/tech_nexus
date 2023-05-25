@@ -5,3 +5,16 @@ $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/dss/assets/employee/job_positi
 // Use for public_html
 $directory = '/assets/employee/job_position_attachment/';
 $file_destination = $_SERVER['DOCUMENT_ROOT'] . '/assets/employee/job_position_attachment/' . $file_new;
+
+# -------------------------------------------------------------
+#
+# Name       : Default environment configuration
+# Purpose    : This servers as the environment to be added on httpd.conf file
+#
+# -------------------------------------------------------------
+
+#SetEnv DB_HOST localhost
+#SetEnv DB_NAME nexusdb
+#SetEnv DB_USER nexus
+#SetEnv DB_PASS qKHJpbkgC6t93nQr
+#SetEnv ENCRYPTION_KEY 4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R
