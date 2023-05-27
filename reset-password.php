@@ -39,7 +39,7 @@
             <div class="auth-sidecontent">
                 <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
             </div>
-            <form class="auth-form" id="reset-password-form" method="post" action="#" reset-password-form-validate>
+            <form class="auth-form" id="reset-password-form" method="post" action="#">
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center">
@@ -55,11 +55,11 @@
                         <div class="form-group mb-3">
                             <input type="hidden" id="email" name="email" value="<?php echo $email; ?>">
                             <label class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" minlength="8" data-bouncer-message="Please choose a password that includes at least 1 uppercase character, 1 lowercase character, and 1 number." pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*" required>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                         </div>
                         <div class="form-group mb-3">
                             <label class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" data-bouncer-match="#password" data-bouncer-mismatch-message="Your passwords do not match." required>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" data-bouncer-match="#password">
                         </div>
                         <div class="d-grid mt-4">
                             <button id="reset-password" type="submit" class="btn btn-primary">Reset Password</button>

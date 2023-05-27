@@ -2,7 +2,6 @@
     'use strict';
 
     $(function() {
-        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
         checkNotification();
         uiCustomization();
         loadUISettings();
@@ -80,77 +79,6 @@
         });
     });
 })(jQuery);
-
-function displayDetails(transaction){
-    switch (transaction) {
-        case 'menu groups details':
-            var menu_group_id = $('#menu-group-id').text();
-            
-            $.ajax({
-                url: 'controller.php',
-                method: 'POST',
-                dataType: 'JSON',
-                data: {menu_group_id : menu_group_id, transaction : transaction},
-                success: function(response) {
-                    $('#menu_group').val(response[0].MENU_GROUP_NAME);
-                    $('#menu_group_order_sequence').val(response[0].ORDER_SEQUENCE);
-                    
-                    $('#menu_group_label').text(response[0].MENU_GROUP_NAME);
-                    $('#order_sequence_label').text(response[0].ORDER_SEQUENCE);
-                }
-            });
-            break;
-        case 'modal menu item details':
-            var menu_item_id = sessionStorage.getItem('menu_item_id');
-            
-            $.ajax({
-                url: 'controller.php',
-                method: 'POST',
-                dataType: 'JSON',
-                data: {menu_item_id : menu_item_id, transaction : transaction},
-                beforeSend: function() {
-                    resetModalForm('menu-item-form');
-                },
-                success: function(response) {
-                    $('#menu_item_id').val(menu_item_id);
-                    $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
-                    $('#menu_item_url').val(response[0].MENU_ITEM_URL);
-                    $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
-                    $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
-                    
-                    checkOptionExist('#parent_id', response[0].PARENT_ID, '');
-                }
-            });
-            break;
-            case 'menu item details':
-                var menu_item_id = $('#menu-item-id').text();
-                
-                $.ajax({
-                    url: 'controller.php',
-                    method: 'POST',
-                    dataType: 'JSON',
-                    data: {menu_item_id : menu_item_id, transaction : transaction},
-                    success: function(response) {
-                        $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
-                        $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
-                        $('#menu_item_url').val(response[0].MENU_ITEM_URL);
-                        $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
-                        
-                        $('#menu_item_name_label').text(response[0].MENU_ITEM_NAME);
-                        $('#order_sequence_label').text(response[0].ORDER_SEQUENCE);
-                        $('#menu_item_icon_label').text(response[0].MENU_ITEM_ICON);
-                        
-                        document.getElementById("menu_group_id_label").innerHTML = response[0].MENU_GROUP_NAME;
-                        document.getElementById("menu_item_url_label").innerHTML = response[0].MENU_ITEM_URL_LINK;
-                        document.getElementById("parent_id_label").innerHTML = response[0].PARENT_NAME;
-
-                        checkOptionExist('#menu_group_id', response[0].MENU_GROUP_ID, '');
-                        checkOptionExist('#parent_id', response[0].PARENT_ID, '');
-                    }
-                });
-                break;
-    }
-}
 
 function checkOptionExist(element, option, return_value){
     if ($(element).find('option[value="' + option + '"]').length) {

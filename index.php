@@ -1,9 +1,9 @@
 <?php
     require('session-check.php');
     require('config/config.php');
-    require('classes/api.php');
+    require('classes/global-class.php');
 
-    $api = new Api;
+    $api = new Global_Class();
     $page_title = 'Nexus Integrated Solutions';
     
     require('views/_interface_settings.php');
@@ -13,6 +13,7 @@
 <head>
     <?php include_once('views/_title.php'); ?>
     <?php include_once('views/_required_css.php'); ?>
+    <link rel="stylesheet" href="./assets/css/uikit.css">
 </head>
 
 <body>
@@ -31,7 +32,7 @@
                         </div>
                         <h4 class="text-center f-w-500 mb-3">Login with your email</h4>
                         <div class="form-group mb-3">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" data-bouncer-message="Invalid email address. Please enter a valid email address and try again." autocomplete="off">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" autocomplete="off">
                         </div>
                         <div class="form-group mb-3">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Password">

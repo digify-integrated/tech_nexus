@@ -38,31 +38,31 @@ CREATE TRIGGER users_trigger_update
 AFTER UPDATE ON admin_users
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
+    DECLARE admin_audit_log TEXT DEFAULT '';
 
     IF NEW.user_status <> OLD.user_status THEN
-        SET audit_log = CONCAT(audit_log, "User Status: ", OLD.user_status, " -> ", NEW.user_status, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "User Status: ", OLD.user_status, " -> ", NEW.user_status, "<br/>");
     END IF;
 
     IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
     END IF;
 
     IF NEW.failed_login <> OLD.failed_login THEN
-        SET audit_log = CONCAT(audit_log, "Failed Login: ", OLD.failed_login, " -> ", NEW.failed_login, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Failed Login: ", OLD.failed_login, " -> ", NEW.failed_login, "<br/>");
     END IF;
 
     IF NEW.last_failed_login <> OLD.last_failed_login THEN
-        SET audit_log = CONCAT(audit_log, "Last Failed Login: ", OLD.last_failed_login, " -> ", NEW.last_failed_login, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Last Failed Login: ", OLD.last_failed_login, " -> ", NEW.last_failed_login, "<br/>");
     END IF;
 
     IF NEW.last_connection_date <> OLD.last_connection_date THEN
-        SET audit_log = CONCAT(audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
     END IF;
     
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_users', NEW.external_id, audit_log, NEW.last_log_by, NOW());
+    IF LENGTH(admin_audit_log) > 0 THEN
+        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('admin_users', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -70,26 +70,26 @@ CREATE TRIGGER users_trigger_insert
 AFTER INSERT ON admin_users
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'User created. <br/>';
+    DECLARE admin_audit_log TEXT DEFAULT 'User created. <br/>';
 
     IF NEW.email_address <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Email Address: ", NEW.email_address);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Email Address: ", NEW.email_address);
     END IF;
 
     IF NEW.file_as <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>File As: ", NEW.file_as);
     END IF;
 
     IF NEW.user_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>User Status: ", NEW.user_status);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>User Status: ", NEW.user_status);
     END IF;
 
     IF NEW.password_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
     END IF;
 
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_users', NEW.external_id, audit_log, NEW.last_log_by, NOW());
+    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('admin_users', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
 END //
 
 CREATE PROCEDURE check_user_exist(IN p_external_id INT(10), IN p_email_address VARCHAR(100))
@@ -174,9 +174,9 @@ ADD FOREIGN KEY (external_id) REFERENCES admin_users(external_id);
 ALTER TABLE admin_password_history
 ADD FOREIGN KEY (email_address) REFERENCES admin_users(email_address);
 
-CREATE INDEX password_history_index_external_id ON password_history(external_id);
-CREATE INDEX password_history_index_user_id ON password_history(user_id);
-CREATE INDEX password_history_index_email_address ON password_history(email_address);
+CREATE INDEX password_history_index_external_id ON admin_password_history(external_id);
+CREATE INDEX password_history_index_user_id ON admin_password_history(user_id);
+CREATE INDEX password_history_index_email_address ON admin_password_history(email_address);
 
 CREATE PROCEDURE insert_password_history(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_password VARCHAR(500))
 BEGIN
@@ -209,23 +209,23 @@ CREATE TRIGGER role_trigger_update
 AFTER UPDATE ON admin_role
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
+    DECLARE admin_audit_log TEXT DEFAULT '';
 
     IF NEW.role_name <> OLD.role_name THEN
-        SET audit_log = CONCAT(audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
     END IF;
 
     IF NEW.role_description <> OLD.role_description THEN
-        SET audit_log = CONCAT(audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
     END IF;
 
     IF NEW.assignable <> OLD.assignable THEN
-        SET audit_log = CONCAT(audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
+        SET admin_audit_log = CONCAT(admin_audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
     END IF;
     
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_role', NEW.external_id, audit_log, NEW.last_log_by, NOW());
+    IF LENGTH(admin_audit_log) > 0 THEN
+        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('admin_role', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -233,22 +233,22 @@ CREATE TRIGGER role_trigger_insert
 AFTER INSERT ON admin_role
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Role created. <br/>';
+    DECLARE admin_audit_log TEXT DEFAULT 'Role created. <br/>';
 
     IF NEW.role_name <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role Name: ", NEW.role_name);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Role Name: ", NEW.role_name);
     END IF;
 
     IF NEW.role_description <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role Description: ", NEW.role_description);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Role Description: ", NEW.role_description);
     END IF;
 
     IF NEW.assignable <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Assignable: ", NEW.assignable);
+        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Assignable: ", NEW.assignable);
     END IF;
 
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_role', NEW.external_id, audit_log, NEW.last_log_by, NOW());
+    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('admin_role', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
 END //
 
 CREATE PROCEDURE get_role_details(IN p_external_id INT(10))
@@ -267,18 +267,7 @@ CREATE TABLE admin_role_users(
 ALTER TABLE admin_role_users
 ADD FOREIGN KEY (role_id) REFERENCES admin_role(external_id);
 
-CREATE INDEX role_users_index_external_id ON admin_role_users(role_id);
+CREATE INDEX role_users_index_role_id ON admin_role_users(role_id);
 CREATE INDEX role_users_index_user_id ON admin_role_users(user_id);
 
 INSERT INTO admin_role_users (external_id, user_id) VALUES ('1', '1');
-
-/* Subscription Key */
-CREATE TABLE admin_subscription_key (
-    external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    subscription_key VARCHAR(500) NOT NULL,
-    subscription_type VARCHAR(500) NOT NULL,
-    expiration_date VARCHAR(500) NOT NULL,
-    created_on DATETIME DEFAULT CURRENT_TIMESTAMP 
-);
-
-CREATE INDEX admin_subscription_key_index_external_id ON admin_subscription_key(external_id);

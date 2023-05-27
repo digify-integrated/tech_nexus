@@ -5,9 +5,6 @@ $(document).ready(function () {
         required: true,
         email: true
       },
-      choices_single_default: {
-        required: true
-      },
       password: {
         required: true
       }
@@ -16,9 +13,6 @@ $(document).ready(function () {
       email: {
         required: 'Please enter your email address',
         email: 'Please enter a valid email address'
-      },
-      choices_single_default: {
-        required: 'Please enter your choice'
       },
       password: {
         required: 'Please enter your password'
@@ -37,26 +31,26 @@ $(document).ready(function () {
     },
     highlight: function(element) {
       if ($(element).hasClass('select2-hidden-accessible')) {
-          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
       } 
       else {
-          $(element).addClass('is-invalid');
+        $(element).addClass('is-invalid');
       }
     },
     unhighlight: function(element) {
-        if ($(element).hasClass('select2-hidden-accessible')) {
-            $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
-        }
-        else {
-            $(element).removeClass('is-invalid');
-        }
+      if ($(element).hasClass('select2-hidden-accessible')) {
+        $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+      }
+      else {
+        $(element).removeClass('is-invalid');
+      }
     },
     submitHandler: function(form) {
       const transaction = 'authenticate';
-  
+
       $.ajax({
         type: 'POST',
-        url: 'controller.php',
+        url: 'controllers/administrator-controller.php',
         data: $(form).serialize() + '&transaction=' + transaction,
         dataType: 'JSON',
         beforeSend: function() {
@@ -67,7 +61,6 @@ $(document).ready(function () {
             case 'Authenticated':
               const email = $('#email').val();
               sessionStorage.setItem('email', email);
-  
               window.location = 'dashboard.php';
               break;
             case 'Incorrect':
@@ -88,13 +81,15 @@ $(document).ready(function () {
               break;
           }
         },
+        error: function(xhr, status, error) {
+          showNotification('Authentication Error', 'An error occurred while processing your request. Please try again later.', 'danger');
+        },
         complete: function() {
           enableFormSubmitButton('signin', 'Login');
         }
       });
-  
+
       return false;
     }
   });
-  
 });

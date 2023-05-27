@@ -1,6 +1,6 @@
 <?php
 
-class Api{
+class Global_Class{
     # @var object $db_connection The database connection
     public $db_connection = null;
 
@@ -12,7 +12,7 @@ class Api{
 
     # -------------------------------------------------------------
     #
-    # Name       : databaseConnection
+    # Name       : database_connection
     # Purpose    : Checks if database connection is opened.
     #              If not, then this method tries to open it.
     #              @return bool Success status of the
@@ -21,7 +21,7 @@ class Api{
     # Returns    : String
     #
     # -------------------------------------------------------------
-    public function databaseConnection(){
+    public function database_connection(){
         if ($this->db_connection) {
             return $this->db_connection;
         }
@@ -46,8 +46,8 @@ class Api{
     # Returns    : String
     #
     # -------------------------------------------------------------
-    public function backup_database($file_name, $username){
-        if ($this->databaseConnection()) {
+    public function backup_database($file_name){
+        if ($this->database_connection()) {
             $backup_file = 'backup/' . $file_name . '_' . time() . '.sql';
     
             if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -157,90 +157,21 @@ class Api{
     # Returns    : Number
     #
     # -------------------------------------------------------------
-    public function validate_email($email) {
-        $email = trim($email);
+    public function validate_email($p_email) {
+        $p_email = trim($p_email);
 
-        if (empty($email)) {
-            return 'Error: Missing email';
+        if (empty($p_email)) {
+            return 'Missing email';
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return 'Error: Invalid email';
+        if (!filter_var($p_email, FILTER_VALIDATE_EMAIL)) {
+            return 'Invalid email';
         }
+
         return true;
     }
     # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
-    #
-    # Name       : authenticate
-    # Purpose    : Authenticates the user.
-    #
-    # Returns    : String
-    #
-    # -------------------------------------------------------------
-    public function authenticate($email, $password){
-        if ($this->databaseConnection()) {
-            $check_user_exist = $this->check_user_exist(null, $email);
-           
-            if($check_user_exist === 1){
-                $user_details = $this->get_user_details(null, $email);
-                $user_status = $user_details[0]['USER_STATUS'];
-                $login_attempt = $user_details[0]['FAILED_LOGIN'];
-                $password_expiry_date = $user_details[0]['PASSWORD_EXPIRY_DATE'];
-
-                if($user_status == 'Active'){
-                    if($login_attempt < 5){
-                        $decrypted_password = $this->decrypt_data($user_details[0]['PASSWORD']);
-                        
-                        if($decrypted_password === $password){
-                            if(strtotime(date('Y-m-d')) > strtotime($password_expiry_date)){
-                                return 'Password Expired';
-                            }
-                            else{
-                                $update_user_login_attempt = $this->update_user_login_attempt(null, $email, 0, null);
-
-                                if($update_user_login_attempt){
-                                    $update_user_last_connection = $this->update_user_last_connection(null, $email);
-
-                                    if($update_user_last_connection){
-                                        return 'Authenticated';
-                                    }
-                                    else{
-                                        return $update_user_last_connection;
-                                    }
-                                }
-                                else{
-                                    return $update_user_login_attempt;
-                                }
-                            }
-                        }
-                        else{
-                            $update_user_login_attempt = $this->update_user_login_attempt(null, $email, ($login_attempt + 1), date('Y-m-d H:i:s'));
-
-                            if($update_user_login_attempt){
-                                return 'Incorrect';
-                            }
-                            else{
-                                return $update_user_login_attempt;
-                            }
-                        }
-                    }
-                    else{
-                        return 'Locked';
-                    }
-                }
-                else{
-                    return 'Inactive';
-                }
-
-            }
-            else{
-                return 'Incorrect';
-            }
-        }
-    }
-    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
@@ -302,30 +233,6 @@ class Api{
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Check data exist methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Update methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Insert methods
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Get details methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -365,10 +272,6 @@ class Api{
 
         return $sizes[$size] ?? null;
     }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Build methods
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------
