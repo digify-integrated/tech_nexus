@@ -1,9 +1,11 @@
 <?php
     require('session.php');
     require('config/config.php');
-    require('classes/api.php');
+    require('classes/global-class.php');
+    require('classes/administrator-class.php');
 
-    $api = new Api;
+    $global_class = new Global_Class;
+    $administrator_class = new Administrator_Class;
     $page_title = 'Dashboard';
 
     require('views/_interface_settings.php');

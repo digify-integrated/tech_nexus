@@ -15,8 +15,8 @@ $(document).ready(function () {
         required: 'Please enter password'
       },
       confirm_password: {
-        required: 'Please enter the password again.',
-        equalTo: 'Passwords do not match.'
+        required: 'Please re-enter your password for confirmation',
+        equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
       }
     },
     errorPlacement: function (error, element) {
@@ -47,7 +47,7 @@ $(document).ready(function () {
       }
     },
     submitHandler: function(form) {
-      const transaction = 'authenticate';
+      const transaction = 'reset password';
 
       $.ajax({
         type: 'POST',
@@ -55,7 +55,7 @@ $(document).ready(function () {
         data: $(form).serialize() + '&transaction=' + transaction,
         dataType: 'TEXT',
         beforeSend: function() {
-          disableFormSubmitButton('signin');
+          disableFormSubmitButton('reset-password');
         },
         success: function(response) {
           switch (response) {
@@ -75,10 +75,10 @@ $(document).ready(function () {
           }
         },
         error: function(xhr, status, error) {
-          showNotification('Authentication Error', 'An error occurred while processing your request. Please try again later.', 'danger');
+          showNotification('Reset Password Error', 'An error occurred while processing your request. Please try again later.', 'danger');
         },
         complete: function() {
-          enableFormSubmitButton('signin', 'Login');
+          enableFormSubmitButton('reset-password', 'Reset Password');
         }
       });
 

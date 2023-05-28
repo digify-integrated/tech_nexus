@@ -47,28 +47,30 @@ class Global_Class{
     #
     # -------------------------------------------------------------
     public function backup_database($file_name){
-        if ($this->database_connection()) {
-            $backup_file = 'backup/' . $file_name . '_' . time() . '.sql';
+        if (!$this->database_connection()) {
+            return 'Database Connection Error';
+        }
+
+        $backup_file = 'backup/' . $file_name . '_' . time() . '.sql';
     
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                $cmd = sprintf('C:\xampp\mysql\bin\mysqldump.exe --routines --single-transaction -u %s -p%s %s -r %s',
-                    escapeshellarg(DB_USER), escapeshellarg(DB_PASS), escapeshellarg(DB_NAME), escapeshellarg($backup_file)
-                );
-            }
-            else {
-                $cmd = sprintf('/usr/bin/mysqldump --routines --single-transaction -u %s -p%s %s -r %s',
-                    escapeshellarg(DB_USER), escapeshellarg(DB_PASS), escapeshellarg(DB_NAME), escapeshellarg($backup_file)
-                );
-            }
-            
-            exec($cmd, $output, $return);
-            
-            if ($return === 0) {
-                return true;
-            } 
-            else {
-                return 'Error: mysqldump command failed with error code ' . $return;
-            }
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmd = sprintf('C:\xampp\mysql\bin\mysqldump.exe --routines --single-transaction -u %s -p%s %s -r %s',
+                escapeshellarg(DB_USER), escapeshellarg(DB_PASS), escapeshellarg(DB_NAME), escapeshellarg($backup_file)
+            );
+        }
+        else {
+            $cmd = sprintf('/usr/bin/mysqldump --routines --single-transaction -u %s -p%s %s -r %s',
+                escapeshellarg(DB_USER), escapeshellarg(DB_PASS), escapeshellarg(DB_NAME), escapeshellarg($backup_file)
+            );
+        }
+        
+        exec($cmd, $output, $return);
+        
+        if ($return === 0) {
+            return true;
+        } 
+        else {
+            return 'Error: mysqldump command failed with error code ' . $return;
         }
     }
     # -------------------------------------------------------------

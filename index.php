@@ -3,7 +3,7 @@
     require('config/config.php');
     require('classes/global-class.php');
 
-    $api = new Global_Class();
+    $global_class = new Global_Class();
     $page_title = 'Nexus Integrated Solutions';
     
     require('views/_interface_settings.php');

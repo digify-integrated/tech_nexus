@@ -6,8 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // feather icon end
   // remove pre-loader start
   setTimeout(function () {
-    document.querySelector('.loader-bg').remove();
-  }, 400);
+    var loaderBg = document.querySelector('.loader-bg');
+    loaderBg.style.opacity = '0';
+    setTimeout(function() {
+      loaderBg.remove();
+    }, 500);
+  }, 500);
+  
   // remove pre-loader end
   if (document.querySelector('body').hasAttribute('data-pc-layout')) {
     if (document.querySelector('body').getAttribute('data-pc-layout') == 'horizontal') {
@@ -110,8 +115,6 @@ document.addEventListener('DOMContentLoaded', function () {
     new SimpleBar(document.querySelector('.profile-notification-scroll'));
   }
   // header dropdown scrollbar end
-
-
   var sidebar_hide = document.querySelector('#sidebar-hide');
   if (sidebar_hide) {
     sidebar_hide.addEventListener('click', function () {
@@ -302,9 +305,6 @@ for (var t = 0; t < vb.length; t++) {
 // =======================================================
 // =======================================================
 
-var rtl_flag = false;
-var dark_flag = false;
-
 // ----------    new setup start   ------------
 // preset color
 document.addEventListener('DOMContentLoaded', function () {
@@ -327,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new SimpleBar(document.querySelector('.pct-body'));
   }
 });
+
 function layout_sidebar_change(value) {
   if (value == 'true') {
     document.getElementsByTagName('body')[0].setAttribute('data-pc-theme_contrast', 'true');

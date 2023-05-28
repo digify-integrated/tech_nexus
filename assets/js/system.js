@@ -229,7 +229,7 @@ function saveCustomization(type, customization_value){
 
     $.ajax({
         type: 'POST',
-        url: 'controller.php',
+        url: 'controllers/administrator-controller.php',
         data: {transaction : transaction, email : email, type : type, customization_value : customization_value},
         dataType: 'TEXT',
         success: function (response) {
@@ -264,9 +264,6 @@ function getCustomization(email){
             sessionStorage.setItem('dark_layout', response[0].DARK_LAYOUT);
             sessionStorage.setItem('rtl_layout', response[0].RTL_LAYOUT);
             sessionStorage.setItem('box_container', response[0].BOX_CONTAINER);
-        },
-        complete: function(){
-            loadUISettings();
         }
     });
 }

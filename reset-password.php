@@ -1,15 +1,17 @@
 <?php
     require('session-check.php');
     require('config/config.php');
-    require('classes/api.php');
+    require('classes/global-class.php');
+    require('classes/administrator-class.php');
 
-    $api = new Api;
+    $global_class = new Global_Class;
+    $administrator_class = new Administrator_Class;
 
     if (isset($_GET['id']) && !empty($_GET['id'])) {
         $id = $_GET['id'];
-        $email = $api->decrypt_data($id);
+        $email = $global_class->decrypt_data($id);
     
-        $check_user_exist = $api->check_user_exist(null, $email);
+        $check_user_exist = $administrator_class->check_user_exist(null, $email);
     
         if ($check_user_exist == 0) {
             header('location: index.php');
@@ -50,7 +52,7 @@
                                 <h3 class="mb-0"><b>Reset Password</b></h3>
                                 <a href="index.php" class="link-primary">Back to Login</a>
                             </div>
-                            <p class="text-muted">Your password has expired. Please enter your new password.</p>
+                            <p class="text-muted">Your password has expired. For security reasons, please create a new password.</p>
                         </div>
                         <div class="form-group mb-3">
                             <input type="hidden" id="email" name="email" value="<?php echo $email; ?>">
@@ -72,6 +74,7 @@
     <?php 
         include_once('views/_required_js.php'); 
     ?>
+    <script src="./assets/js/form-validation-rules.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/reset-password.js?v=<?php echo rand(); ?>"></script>
 </body>
 
