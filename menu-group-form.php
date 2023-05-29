@@ -1,22 +1,26 @@
 <?php
 require('session.php');
 require('config/config.php');
-require('classes/api.php');
+require('classes/global-class.php');
+require('classes/administrator-class.php');
+require('classes/user-interface-class.php');
 
-$api = new Api;
+$global_class = new Global_Class;
+$administrator_class = new Administrator_Class;
+$user_interface_class = new User_Interface_Class;
 $page_title = 'Menu Group Form';
 
-$check_user_status = $api->check_user_status(null, $email);
+$check_user_status = $administrator_class->check_user_status(null, $email);
 
 if($check_user_status){    
-  $menu_group_read_access_right = $api->check_menu_access_rights($email, 2, 'read');
+  $menu_group_read_access_right = $administrator_class->check_menu_access_rights($email, 2, 'read');
       
   if($menu_group_read_access_right > 0){
     if(isset($_GET['id']) && !empty($_GET['id'])){
       $id = $_GET['id'];
-      $menu_group_id = $api->decrypt_data($id);
+      $menu_group_id = $global_class->decrypt_data($id);
 
-      $check_menu_groups_exist = $api->check_menu_groups_exist($menu_group_id);
+      $check_menu_groups_exist = $user_interface_class->check_menu_groups_exist($menu_group_id);
         
       if($check_menu_groups_exist === 0){
         header('location: 404.php');
@@ -26,12 +30,12 @@ if($check_user_status){
       $menu_group_id = null;
     }
 
-    $menu_group_create_access_right = $api->check_menu_access_rights($email, 2, 'create');
-    $menu_group_write_access_right = $api->check_menu_access_rights($email, 2, 'write');
-    $menu_group_delete_access_right = $api->check_menu_access_rights($email, 2, 'delete');
-    $menu_item_create_access_right = $api->check_menu_access_rights($email, 3, 'create');
-    $menu_item_write_access_right = $api->check_menu_access_rights($email, 3, 'write');
-    $assign_menu_item_role_access = $api->check_system_action_access_rights($email, 1);
+    $menu_group_create_access_right = $administrator_class->check_menu_access_rights($email, 2, 'create');
+    $menu_group_write_access_right = $administrator_class->check_menu_access_rights($email, 2, 'write');
+    $menu_group_delete_access_right = $administrator_class->check_menu_access_rights($email, 2, 'delete');
+    $menu_item_create_access_right = $administrator_class->check_menu_access_rights($email, 3, 'create');
+    $menu_item_write_access_right = $administrator_class->check_menu_access_rights($email, 3, 'write');
+    $assign_menu_item_role_access = $administrator_class->check_system_action_access_rights($email, 1);
         
     require('views/_interface_settings.php');
     require('views/_user_account_details.php');
@@ -182,7 +186,7 @@ else{
           }
 
           if(!empty($menu_group_id)){
-            echo $api->generate_log_notes('menu_groups', $menu_group_id);
+            echo $user_interface_class->generate_log_notes('menu_groups', $menu_group_id);
           }
 
           if($menu_item_create_access_right > 0 || $menu_item_write_access_right > 0){

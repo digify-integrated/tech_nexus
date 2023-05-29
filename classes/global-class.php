@@ -174,7 +174,6 @@ class Global_Class{
     }
     # -------------------------------------------------------------
 
-
     # -------------------------------------------------------------
     #
     # Name       : time_elapsed_string
@@ -289,7 +288,7 @@ class Global_Class{
     #
     # -------------------------------------------------------------
     public function check_image($image, $type){
-        $image = $image ?? '';
+        $image = $image ?? null;
         
         return (empty($image) || !file_exists($image)) ? $this->get_default_image($type) : $image;
     }
@@ -337,10 +336,6 @@ class Global_Class{
     
         return $fileName;
     }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #   Generate options methods
     # -------------------------------------------------------------
 
 }

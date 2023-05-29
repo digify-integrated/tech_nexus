@@ -52,6 +52,21 @@
                             <span class="pc-mtext">Dashboard</span>
                         </a>
                     </li>
+                    <li class="pc-item pc-hasmenu">
+                        <a href="JavaScript:void(0);" class="pc-link">
+                            <span class="pc-micon">
+                                <svg class="pc-icon">
+                                    <use xlink:href="#custom-row-vertical"></use>
+                                </svg>
+                            </span>
+                            <span class="pc-mtext">User Interface</span>
+                            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
+                        </a>
+                        <ul class="pc-submenu">
+                            <li class="pc-item"><a class="pc-link" href="menu-groups.php">Menu Groups</a></li>
+                            <li class="pc-item"><a class="pc-link" href="menu-item.php">Menu Item</a></li>
+                        </ul>
+                    </li>
 
                     <?php #echo $api->build_menu($email); ?>
                 </ul>

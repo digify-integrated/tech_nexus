@@ -28080,13 +28080,20 @@ File: style.css
   overflow: hidden;
 }
 
+[data-pc-theme="dark"] .loader-bg {
+  background-color: #131920;
+}
+
+[data-pc-theme="light"] .loader-bg {
+  background-color: #ffffff;
+}
+
 .loader-bg{
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #fff;
   z-index: 9999;
   transition-property: opacity;
   transition-duration: 0.5s;

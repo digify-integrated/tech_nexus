@@ -1,22 +1,24 @@
 <?php
 require('session.php');
 require('config/config.php');
-require('classes/api.php');
+require('classes/global-class.php');
+require('classes/administrator-class.php');
 
-$api = new Api;
+$global_class = new Global_Class;
+$administrator_class = new Administrator_Class;
 $page_title = 'Menu Groups';
 
-$check_user_status = $api->check_user_status(null, $email);
+$check_user_status = $administrator_class->check_user_status(null, $email);
     
 if($check_user_status){    
-  $menu_read_access_right = $api->check_menu_access_rights($email, 2, 'read');
+  $menu_read_access_right = $administrator_class->check_menu_access_rights($email, 2, 'read');
           
   if($menu_read_access_right > 0){
     require('views/_interface_settings.php');
     require('views/_user_account_details.php');
 
-    $menu_group_create_access_right = $api->check_menu_access_rights($email, 2, 'create');
-    $menu_group_delete_access_right = $api->check_menu_access_rights($email, 2, 'delete');
+    $menu_group_create_access_right = $administrator_class->check_menu_access_rights($email, 2, 'create');
+    $menu_group_delete_access_right = $administrator_class->check_menu_access_rights($email, 2, 'delete');
   }
   else{
     header('location: 404.php');
