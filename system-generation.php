@@ -60,6 +60,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
 
         # Menu item table
         case 'menu group menu item table':
@@ -134,6 +135,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
 
         # Menu item table
         case 'menu item table':
@@ -231,6 +233,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
 
         # Assign menu item role access table
         case 'assign menu item role access table':
@@ -297,6 +300,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
 
         # Submenu item table
         case 'submenu item table':
@@ -328,6 +332,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
 
         # File types table
         case 'file types table':
@@ -372,6 +377,7 @@ if(isset($_POST['type']) && !empty($_POST['type']) && isset($_POST['email_accoun
                 }
             }
         break;
+        # -------------------------------------------------------------
     }
 }
 

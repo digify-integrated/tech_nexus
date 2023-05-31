@@ -26,7 +26,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -78,7 +78,7 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller.php',
+                            url: 'controllers/administrator-controller.php',
                             data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
                             success: function (response) {
                                 switch (response) {
@@ -138,7 +138,7 @@ function initialized_menu_groups_table(datatable_name, buttons = false, show_all
 
     settings = {
         'ajax': { 
-            'url' : 'system-generation.php',
+            'url' : 'system-generations/administrator-system-generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'email_account' : email_account},

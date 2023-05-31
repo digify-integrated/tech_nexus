@@ -30,7 +30,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -82,7 +82,7 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller.php',
+                            url: 'controllers/administrator-controller.php',
                             data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                             success: function (response) {
                                 switch (response) {
@@ -161,7 +161,7 @@ function initialized_menu_items_table(datatable_name, buttons = false, show_all 
 
     settings = {
         'ajax': { 
-            'url' : 'system-generation.php',
+            'url' : 'system-generations/administrator-system-generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'email_account' : email_account, 'filter_menu_group_id' : filter_menu_group_id, 'filter_parent_id' : filter_parent_id},
@@ -221,7 +221,7 @@ function initializeAssignMenuItemRoleAccessTable(datatable_name, buttons = false
 
     settings = {
         'ajax': { 
-            'url' : 'system-generation.php',
+            'url' : 'system-generations/administrator-system-generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'email_account' : email_account, 'menu_item_id' : menu_item_id},
@@ -270,7 +270,7 @@ function initializeMenuItemRoleAccessForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
                 beforeSend: function() {
                     disableFormSubmitButton('submit-form');

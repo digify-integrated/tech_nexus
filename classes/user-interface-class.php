@@ -1,5 +1,13 @@
 <?php
 
+# -------------------------------------------------------------
+#
+# Name       : user-interface-class
+# Purpose    : This is to handle all of the generation on the user interface.
+# Installer  : Default
+#
+# -------------------------------------------------------------
+
 class User_Interface_Class {
     private $global;
     private $administrator;
@@ -8,447 +16,6 @@ class User_Interface_Class {
         $this->global = new Global_Class();
         $this->administrator = new Administrator_Class();
     }
-
-    # -------------------------------------------------------------
-    #   Check data exist methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : check_menu_groups_exist
-    # Purpose    : Checks if the menu groups exists.
-    #
-    # Returns    : Number
-    #
-    # -------------------------------------------------------------
-    public function check_menu_groups_exist($p_external_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL check_menu_groups_exist(:p_external_id)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-
-        if($sql->execute()){
-            $row = $sql->fetch();
-
-            return (int) $row['total'];
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Name       : check_menu_item_exist
-    # Purpose    : Checks if the menu item exists.
-    #
-    # Returns    : Number
-    #
-    # -------------------------------------------------------------
-    public function check_menu_item_exist($p_external_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL check_menu_item_exist(:p_external_id)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-
-        if($sql->execute()){
-            $row = $sql->fetch();
-
-            return (int) $row['total'];
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Name       : check_role_menu_item_access_right_exist
-    # Purpose    : Checks if the role menu item access right exists.
-    #
-    # Returns    : Number
-    #
-    # -------------------------------------------------------------
-    public function check_role_menu_item_access_right_exist($p_menu_item_id, $p_role_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL check_role_menu_item_access_right_exist(:p_menu_item_id, :p_role_id)');
-        $sql->bindValue(':p_menu_item_id', $p_menu_item_id);
-        $sql->bindValue(':p_role_id', $p_role_id);
-
-        if($sql->execute()){
-            $row = $sql->fetch();
-
-            return (int) $row['total'];
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Update methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : update_menu_groups
-    # Purpose    : Updates the menu groups.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function update_menu_groups($p_external_id, $p_menu_group_name, $p_order_sequence, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-        
-        $sql = $this->global->db_connection->prepare('CALL update_menu_groups(:p_external_id, :p_menu_group_name, :p_order_sequence, :p_last_log_by)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-        $sql->bindValue(':p_menu_group_name', $p_menu_group_name);
-        $sql->bindValue(':p_order_sequence', $p_order_sequence);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : update_menu_item
-    # Purpose    : Updates the menu item.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function update_menu_item($p_external_id, $p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-        
-        $sql = $this->global->db_connection->prepare('CALL update_menu_item(:p_external_id, :p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-        $sql->bindValue(':p_menu_item_name', $p_menu_item_name);
-        $sql->bindValue(':p_menu_group_id', $p_menu_group_id);
-        $sql->bindValue(':p_menu_item_url', $p_menu_item_url);
-        $sql->bindValue(':p_parent_id', $p_parent_id);
-        $sql->bindValue(':p_menu_item_icon', $p_menu_item_icon);
-        $sql->bindValue(':p_order_sequence', $p_order_sequence);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : update_role_menu_item_access_right
-    # Purpose    : Updates the role menu item access right.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function update_role_menu_item_access_right($p_external_id, $p_role_id, $p_access_type, $p_access){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL update_role_menu_item_access_right(:p_external_id, :p_role_id, :p_access_type, :p_access)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-        $sql->bindValue(':p_role_id', $p_role_id);
-        $sql->bindValue(':p_access_type', $p_access_type);
-        $sql->bindValue(':p_access', $p_access);
-
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Insert methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : insert_menu_groups
-    # Purpose    : Inserts the menu group.
-    #
-    # Returns    : Array
-    #
-    # -------------------------------------------------------------
-    public function insert_menu_groups($p_menu_group_name, $p_order_sequence, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL insert_menu_groups(:p_menu_group_name, :p_order_sequence, :p_last_log_by, @p_external_id)');
-        $sql->bindValue(':p_menu_group_name', $p_menu_group_name);
-        $sql->bindValue(':p_order_sequence', $p_order_sequence);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-
-        if($sql->execute()){
-            $result = $this->global->db_connection->query("SELECT @p_external_id AS external_id");
-            $external_id = $result->fetch(PDO::FETCH_ASSOC)['external_id'];
-            
-            $response[] = array(
-                'RESPONSE' => true,
-                'EXTERNAL_ID' => $this->global->encrypt_data($external_id)
-            );
-        }
-        else{
-            $response[] = array(
-                'RESPONSE' => $sql->errorInfo()[2]
-            );
-        }
-
-        return $response;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : insert_menu_item
-    # Purpose    : Inserts the menu item.
-    #
-    # Returns    : Array
-    #
-    # -------------------------------------------------------------
-    public function insert_menu_item($p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL insert_menu_item(:p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by, @p_menu_item_id)');
-        $sql->bindValue(':p_menu_item_name', $p_menu_item_name);
-        $sql->bindValue(':p_menu_group_id', $p_menu_group_id);
-        $sql->bindValue(':p_menu_item_url', $p_menu_item_url);
-        $sql->bindValue(':p_parent_id', $p_parent_id);
-        $sql->bindValue(':p_menu_item_icon', $p_menu_item_icon);
-        $sql->bindValue(':p_order_sequence', $p_order_sequence);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-
-        if($sql->execute()){
-            $result = $this->global->db_connection->query("SELECT @p_external_id AS external_id");
-            $external_id = $result->fetch(PDO::FETCH_ASSOC)['external_id'];
-            
-            $response[] = array(
-                'RESPONSE' => true,
-                'EXTERNAL_ID' => $this->global->encrypt_data($external_id)
-            );
-        }
-        else{
-            $response[] = array(
-                'RESPONSE' => $sql->errorInfo()[2]
-            );
-        }
-
-        return $response;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : insert_role_menu_item_access_right
-    # Purpose    : Inserts the role menu item access right.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function insert_role_menu_item_access_right($p_menu_item_id, $p_role_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL insert_role_menu_item_access_right(:p_menu_item_id, :p_role_id)');
-        $sql->bindValue(':p_menu_item_id', $p_menu_item_id);
-        $sql->bindValue(':p_role_id', $p_role_id);
-
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Delete methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : delete_menu_groups
-    # Purpose    : Delete the menu group.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function delete_menu_groups($p_external_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL delete_menu_groups(:p_external_id)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-    
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : delete_all_menu_item
-    # Purpose    : Delete the all menu item based on menu group.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function delete_all_menu_item($p_menu_group_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL delete_all_menu_item(:p_menu_group_id)');
-        $sql->bindValue(':p_menu_group_id', $p_menu_group_id);
-    
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : delete_menu_item
-    # Purpose    : Delete the menu item.
-    #
-    # Returns    : Bool/String
-    #
-    # -------------------------------------------------------------
-    public function delete_menu_item($p_external_id){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL delete_menu_item(:p_external_id)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-
-        if($sql->execute()){
-            return true;
-        }
-        else{
-            return $sql->errorInfo()[2];
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : duplicate_menu_groups
-    # Purpose    : Duplicates the menu group.
-    #
-    # Returns    : Array
-    #
-    # -------------------------------------------------------------
-    public function duplicate_menu_groups($p_external_id, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL duplicate_menu_groups(:p_external_id, :p_last_log_by, @p_new_external_id)');
-        $sql->bindValue(':p_external_id', $p_external_id);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-    
-        if($sql->execute()){
-            $result = $this->global->db_connection->query("SELECT @p_new_external_id AS external_id");
-            $external_id = $result->fetch(PDO::FETCH_ASSOC)['external_id'];
-                
-            $response[] = array(
-                'RESPONSE' => true,
-                'EXTERNAL_ID' => $this->global->encrypt_data($external_id)
-            );
-        }
-        else{
-            $response[] = array(
-                'RESPONSE' => $sql->errorInfo()[2]
-            );
-        }
-
-        return $response;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : duplicate_menu_item
-    # Purpose    : Duplicates the menu item.
-    #
-    # Returns    : Array
-    #
-    # -------------------------------------------------------------
-    public function duplicate_menu_item($menu_item_id, $p_last_log_by){
-        if (!$this->global->database_connection()) {
-            return 'Database Connection Error';
-        }
-
-        $sql = $this->global->db_connection->prepare('CALL duplicate_menu_item(:menu_item_id, :p_last_log_by, @p_new_external_id)');
-        $sql->bindValue(':menu_item_id', $menu_item_id);
-        $sql->bindValue(':p_last_log_by', $p_last_log_by);
-    
-        if($sql->execute()){
-            $result = $this->global->db_connection->query("SELECT @p_new_external_id AS external_id");
-            $external_id = $result->fetch(PDO::FETCH_ASSOC)['external_id'];
-                
-            $response[] = array(
-                'RESPONSE' => true,
-                'EXTERNAL_ID' => $this->global->encrypt_data($external_id)
-            );
-        }
-        else{
-            $response[] = array(
-                'RESPONSE' => $sql->errorInfo()[2]
-            );
-        }
-
-        return $response;
-    }
-    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Check methods
@@ -683,8 +250,8 @@ class User_Interface_Class {
 
         switch ($form_type){
             case 'menu groups form':
-                $menu_group_create_access_right = $this->check_menu_access_rights($email, 2, 'create');
-                $menu_group_write_access_right = $this->check_menu_access_rights($email, 2, 'write');
+                $menu_group_create_access_right = $this->administrator->check_menu_access_rights($email, 2, 'create');
+                $menu_group_write_access_right = $this->administrator->check_menu_access_rights($email, 2, 'write');
 
                 if(empty($reference_id) && $menu_group_create_access_right > 0){
                     $form_fields = '<div class="form-group row">
@@ -731,8 +298,8 @@ class User_Interface_Class {
                         </form>';
             break;
             case 'menu item form':
-                $menu_item_create_access_right = $this->check_menu_access_rights($email, 3, 'create');
-                $menu_item_write_access_right = $this->check_menu_access_rights($email, 3, 'write');
+                $menu_item_create_access_right = $this->administrator->check_menu_access_rights($email, 3, 'create');
+                $menu_item_write_access_right = $this->administrator->check_menu_access_rights($email, 3, 'write');
 
                 if(empty($reference_id) && $menu_item_create_access_right > 0){
                     $form_fields = '<div class="form-group row">
@@ -750,7 +317,7 @@ class User_Interface_Class {
                                         <div class="col-lg-4">
                                             <select class="form-control select2" name="menu_group_id" id="menu_group_id">
                                                 <option value="">--</option>
-                                                '. $this->generate_menu_group_options() .'
+                                                '. $this->administrator->generate_menu_group_options() .'
                                             </select>
                                         </div>
                                         <label class="col-lg-2 col-form-label">URL</label>
@@ -792,7 +359,7 @@ class User_Interface_Class {
                                             <div class="d-none form-edit">
                                                 <select class="form-control select2" name="menu_group_id" id="menu_group_id">
                                                     <option value="">--</option>
-                                                    '. $this->generate_menu_group_options() .'
+                                                    '. $this->administrator->generate_menu_group_options() .'
                                                 </select>
                                             </div>
                                         </div>
@@ -814,7 +381,7 @@ class User_Interface_Class {
                                             <div class="d-none form-edit">
                                                 <select class="form-control select2 d-none form-edit" name="parent_id" id="parent_id">
                                                     <option value="">--</option>
-                                                    '. $this->generate_menu_item_options() .'
+                                                    '. $this->administrator->generate_menu_item_options() .'
                                                 </select>
                                             </div>
                                         </div>
@@ -859,8 +426,8 @@ class User_Interface_Class {
                         </form>';
             break;
             case 'file type form':
-                $file_type_create_access_right = $this->check_menu_access_rights($email, 6, 'create');
-                $file_type_write_access_right = $this->check_menu_access_rights($email, 6, 'write');
+                $file_type_create_access_right = $this->administrator->check_menu_access_rights($email, 6, 'create');
+                $file_type_write_access_right = $this->administrator->check_menu_access_rights($email, 6, 'write');
 
                 if(empty($reference_id) && $file_type_create_access_right > 0){
                     $form_fields = '<div class="form-group row">
@@ -894,8 +461,8 @@ class User_Interface_Class {
                         </form>';
             break;
             case 'file extension form':
-                $file_extension_create_access_right = $this->check_menu_access_rights($email, 7, 'create');
-                $file_extension_write_access_right = $this->check_menu_access_rights($email, 7, 'write');
+                $file_extension_create_access_right = $this->administrator->check_menu_access_rights($email, 7, 'create');
+                $file_extension_write_access_right = $this->administrator->check_menu_access_rights($email, 7, 'write');
 
                 if(empty($reference_id) && $file_extension_create_access_right > 0){
                     $form_fields = '<div class="form-group row">
@@ -907,7 +474,7 @@ class User_Interface_Class {
                                         <div class="col-lg-4">
                                             <select class="form-control select2" name="file_type_id" id="file_type_id">
                                                 <option value="">--</option>
-                                                '. $this->generate_file_type_options() .'
+                                                '. $this->administrator->generate_file_type_options() .'
                                             </select>
                                         </div>
                                     </div>';
@@ -925,7 +492,7 @@ class User_Interface_Class {
                                             <div class="d-none form-edit">
                                                 <select class="form-control select2" name="file_type_id" id="file_type_id">
                                                     <option value="">--</option>
-                                                    '. $this->generate_file_type_options() .'
+                                                    '. $this->administrator->generate_file_type_options() .'
                                                 </select>
                                             </div>
                                         </div>
@@ -950,8 +517,8 @@ class User_Interface_Class {
                         </form>';
             break;
             case 'upload settings form':
-                $upload_setting_create_access_right = $this->check_menu_access_rights($email, 5, 'create');
-                $upload_setting_write_access_right = $this->check_menu_access_rights($email, 5, 'write');
+                $upload_setting_create_access_right = $this->administrator->check_menu_access_rights($email, 5, 'create');
+                $upload_setting_write_access_right = $this->administrator->check_menu_access_rights($email, 5, 'write');
 
                 if(empty($reference_id) && $upload_setting_create_access_right > 0){
                     $form_fields = '<div class="form-group row">

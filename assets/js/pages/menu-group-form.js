@@ -47,7 +47,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -93,7 +93,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
                         dataType: 'JSON',
                         success: function (response) {
@@ -165,7 +165,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -194,6 +194,50 @@
     });
 })(jQuery);
 
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'menu groups details':
+            var menu_group_id = $('#menu-group-id').text();
+            
+            $.ajax({
+                url: 'controllers/administrator-controller.php',
+                method: 'POST',
+                dataType: 'JSON',
+                data: {menu_group_id : menu_group_id, transaction : transaction},
+                success: function(response) {
+                    $('#menu_group_name').val(response[0].MENU_GROUP_NAME);
+                    $('#menu_group_order_sequence').val(response[0].ORDER_SEQUENCE);
+                    
+                    $('#menu_group_name_label').text(response[0].MENU_GROUP_NAME);
+                    $('#order_sequence_label').text(response[0].ORDER_SEQUENCE);
+                }
+            });
+            break;
+        case 'modal menu item details':
+            var menu_item_id = sessionStorage.getItem('menu_item_id');
+            
+            $.ajax({
+                url: 'controllers/administrator-controller.php',
+                method: 'POST',
+                dataType: 'JSON',
+                data: {menu_item_id : menu_item_id, transaction : transaction},
+                beforeSend: function() {
+                    resetModalForm('menu-item-form');
+                },
+                success: function(response) {
+                    $('#menu_item_id').val(menu_item_id);
+                    $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
+                    $('#menu_item_url').val(response[0].MENU_ITEM_URL);
+                    $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
+                    $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
+                    
+                    checkOptionExist('#parent_id', response[0].PARENT_ID, '');
+                }
+            });
+            break;
+    }
+}
+
 function initializeMenuItemTable(datatable_name, buttons = false, show_all = false){
     const menu_group_id = $('#menu-group-id').text();
     const email_account = $('#email_account').text();
@@ -201,7 +245,7 @@ function initializeMenuItemTable(datatable_name, buttons = false, show_all = fal
     var settings;
 
     const column = [ 
-        { 'data' : 'MENU_ITEM_ID' },
+        { 'data' : 'EXTERNAL_ID' },
         { 'data' : 'MENU_ITEM_NAME' },
         { 'data' : 'PARENT_ID' },
         { 'data' : 'ORDER_SEQUENCE' },
@@ -220,7 +264,7 @@ function initializeMenuItemTable(datatable_name, buttons = false, show_all = fal
 
     settings = {
         'ajax': { 
-            'url' : 'system-generation.php',
+            'url' : 'system-generations/administrator-system-generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'email_account' : email_account, 'menu_group_id' : menu_group_id},
@@ -274,7 +318,7 @@ function initializeAssignMenuItemRoleAccessTable(datatable_name, buttons = false
 
     settings = {
         'ajax': { 
-            'url' : 'system-generation.php',
+            'url' : 'system-generations/administrator-system-generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'email_account' : email_account, 'menu_item_id' : menu_item_id},
@@ -353,7 +397,7 @@ function initializeMenuGroupForm(){
           
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
@@ -440,7 +484,7 @@ function initializeMenuItemForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&menu_group_id=' + menu_group_id + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
@@ -497,7 +541,7 @@ function initializeMenuItemRoleAccessForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
                 beforeSend: function() {
                     disableFormSubmitButton('submit-form');

@@ -1,22 +1,24 @@
 <?php
 require('session.php');
 require('config/config.php');
-require('classes/api.php');
+require('classes/global-class.php');
+require('classes/administrator-class.php');
 
-$api = new Api;
+$global_class = new Global_Class;
+$administrator_class = new Administrator_Class;
 $page_title = 'Menu Item Form';
 
-$check_user_status = $api->check_user_status(null, $email);
+$check_user_status = $administrator_class->check_user_status(null, $email);
 
 if($check_user_status){    
-  $menu_item_read_access_right = $api->check_menu_access_rights($email, 3, 'read');
+  $menu_item_read_access_right = $administrator_class->check_menu_access_rights($email, 3, 'read');
       
   if($menu_item_read_access_right > 0){
     if(isset($_GET['id']) && !empty($_GET['id'])){
       $id = $_GET['id'];
-      $menu_item_id = $api->decrypt_data($id);
+      $menu_item_id = $global_class->decrypt_data($id);
 
-      $check_menu_item_exist = $api->check_menu_item_exist($menu_item_id);
+      $check_menu_item_exist = $administrator_class->check_menu_item_exist($menu_item_id);
         
       if($check_menu_item_exist === 0){
         header('location: 404.php');
@@ -26,10 +28,10 @@ if($check_user_status){
       $menu_item_id = null;
     }
 
-    $menu_item_create_access_right = $api->check_menu_access_rights($email, 3, 'create');
-    $menu_item_write_access_right = $api->check_menu_access_rights($email, 3, 'write');
-    $menu_item_delete_access_right = $api->check_menu_access_rights($email, 3, 'delete');
-    $assign_menu_item_role_access = $api->check_system_action_access_rights($email, 1);
+    $menu_item_create_access_right = $administrator_class->check_menu_access_rights($email, 3, 'create');
+    $menu_item_write_access_right = $administrator_class->check_menu_access_rights($email, 3, 'write');
+    $menu_item_delete_access_right = $administrator_class->check_menu_access_rights($email, 3, 'delete');
+    $assign_menu_item_role_access = $administrator_class->check_system_action_access_rights($email, 1);
         
     require('views/_interface_settings.php');
     require('views/_user_account_details.php');

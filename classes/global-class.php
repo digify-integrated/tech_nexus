@@ -1,10 +1,16 @@
 <?php
+# -------------------------------------------------------------
+#
+# Name       : global-class
+# Purpose    : This is to handle all of the global functions to be used throughout the system.
+# Installer  : Default
+#
+# -------------------------------------------------------------
 
 class Global_Class{
-    # @var object $db_connection The database connection
     public $db_connection = null;
 
-    public $response = array();
+    public $response = [];
 
     # -------------------------------------------------------------
     #   Custom methods
@@ -291,20 +297,6 @@ class Global_Class{
         $image = $image ?? null;
         
         return (empty($image) || !file_exists($image)) ? $this->get_default_image($type) : $image;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Name       : check_modal_scrollable
-    # Purpose    : Check if the modal to be generated
-    #              is scrollable or not.
-    #
-    # Returns    : String
-    #
-    # -------------------------------------------------------------
-    public function check_modal_scrollable($scrollable){
-        return $scrollable ? 'modal-dialog-scrollable' : null;
     }
     # -------------------------------------------------------------
 

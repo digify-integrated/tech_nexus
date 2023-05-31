@@ -1,5 +1,13 @@
 <?php
 
+# -------------------------------------------------------------
+#
+# Name       : ui-customization-class
+# Purpose    : This is to handle all of the ui customization of the user.
+# Installer  : Default
+#
+# -------------------------------------------------------------
+
 class UI_Customization_Class {
     private $global;
 

@@ -52,7 +52,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -98,7 +98,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller.php',
+                        url: 'controllers/administrator-controller.php',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         dataType: 'JSON',
                         success: function (response) {
@@ -186,7 +186,7 @@ function initializeMenuItemForm(){
           
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
@@ -344,7 +344,7 @@ function initializeMenuItemRoleAccessForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controllers/administrator-controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
                 beforeSend: function() {
                     disableFormSubmitButton('submit-form');
@@ -372,4 +372,36 @@ function initializeMenuItemRoleAccessForm(){
             return false;
         }
     });
+}
+
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'menu item details':
+                var menu_item_id = $('#menu-item-id').text();
+                
+                $.ajax({
+                    url: 'controllers/administrator-controller.php',
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: {menu_item_id : menu_item_id, transaction : transaction},
+                    success: function(response) {
+                        $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
+                        $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
+                        $('#menu_item_url').val(response[0].MENU_ITEM_URL);
+                        $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
+                        
+                        $('#menu_item_name_label').text(response[0].MENU_ITEM_NAME);
+                        $('#order_sequence_label').text(response[0].ORDER_SEQUENCE);
+                        $('#menu_item_icon_label').text(response[0].MENU_ITEM_ICON);
+                        
+                        document.getElementById("menu_group_id_label").innerHTML = response[0].MENU_GROUP_NAME;
+                        document.getElementById("menu_item_url_label").innerHTML = response[0].MENU_ITEM_URL_LINK;
+                        document.getElementById("parent_id_label").innerHTML = response[0].PARENT_NAME;
+
+                        checkOptionExist('#menu_group_id', response[0].MENU_GROUP_ID, '');
+                        checkOptionExist('#parent_id', response[0].PARENT_ID, '');
+                    }
+                });
+                break;
+    }
 }

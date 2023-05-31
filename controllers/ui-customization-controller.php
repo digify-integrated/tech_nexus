@@ -1,4 +1,12 @@
 <?php
+# -------------------------------------------------------------
+#
+# Name       : ui-customization-controller
+# Purpose    : This is to handle all of the ui customization of the user.
+# Installer  : Default
+#
+# -------------------------------------------------------------
+
 session_start();
 
 require('../config/config.php');

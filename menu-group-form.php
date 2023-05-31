@@ -20,7 +20,7 @@ if($check_user_status){
       $id = $_GET['id'];
       $menu_group_id = $global_class->decrypt_data($id);
 
-      $check_menu_groups_exist = $user_interface_class->check_menu_groups_exist($menu_group_id);
+      $check_menu_groups_exist = $administrator_class->check_menu_groups_exist($menu_group_id);
         
       if($check_menu_groups_exist === 0){
         header('location: 404.php');
@@ -140,7 +140,7 @@ else{
                 </div>
               </div>
               <div class="card-body">
-                <?php echo $api->generate_form('menu groups form', $menu_group_id, $email); ?>
+                <?php echo $user_interface_class->generate_form('menu groups form', $menu_group_id, $email); ?>
               </div>
             </div>
           </div>
@@ -190,11 +190,11 @@ else{
           }
 
           if($menu_item_create_access_right > 0 || $menu_item_write_access_right > 0){
-            echo $api->generate_modal('menu item form', 'menu-item-form', 'menu-item-modal', 'Menu Item');
+            echo $user_interface_class->generate_modal('menu item form', 'menu-item-form', 'menu-item-modal', 'Menu Item');
           }
 
           if($assign_menu_item_role_access > 0){
-            echo $api->generate_modal('assign menu item role access form', 'assign-menu-item-role-access-form', 'assign-menu-item-role-access-modal', 'Assign Menu Item Role Access', 'LG');
+            echo $user_interface_class->generate_modal('assign menu item role access form', 'assign-menu-item-role-access-form', 'assign-menu-item-role-access-modal', 'Assign Menu Item Role Access', 'LG');
           }
         ?>
         </div>

@@ -1,5 +1,13 @@
 <?php
 
+# -------------------------------------------------------------
+#
+# Name       : administrator-class
+# Purpose    : This is to handle all of the administrator side of the.
+# Installer  : Default
+#
+# -------------------------------------------------------------
+
 class Administrator_Class {
     private $global;
 
@@ -395,7 +403,7 @@ class Administrator_Class {
         }
 
         $user_details = $this->get_user_details(null, $p_email_address);
-        $p_user_id = $user_details[0]['USER_ID'];
+        $p_user_id = $user_details[0]['EXTERNAL_ID'];
 
         $sql = $this->global->db_connection->prepare('CALL check_menu_access_rights(:p_user_id, :p_menu_item_id, :p_access_type)');
         $sql->bindValue(':p_user_id', $p_user_id);
@@ -427,7 +435,7 @@ class Administrator_Class {
         }
 
         $user_details = $this->get_user_details(null, $p_email_address);
-        $p_user_id = $user_details[0]['USER_ID'];
+        $p_user_id = $user_details[0]['EXTERNAL_ID'];
 
         $sql = $this->global->db_connection->prepare('CALL check_system_action_access_rights(:p_user_id, :p_system_action_id)');
         $sql->bindValue(':p_user_id', $p_user_id);
