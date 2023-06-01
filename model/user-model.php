@@ -29,8 +29,7 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function updateLastConnection($userId, $ipAddress, $location, $connectionDate) {
-        $query = "";
+    public function updateLastConnection($userId, $ipAddress, $location, $connectionDate) {\
         $stmt = $this->db->getConnection()->prepare($query);
         $stmt->bindParam(':ip_address', $ipAddress);
         $stmt->bindParam(':location', $location);
@@ -39,12 +38,46 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function updateTwoFactorSecret($userId, $secretKey) {
-        $query = "UPDATE users SET two_factor_secret = :secret_key WHERE id = :user_id";
-        $stmt = $this->db->getConnection()->prepare($query);
-        $stmt->bindParam(':secret_key', $secretKey);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->execute();
+    public function generateOTP($p_otp_length) {
+        $unique_otp = false;
+        $otp = '';
+    
+        while (!$unique_otp) {
+            $random_bytes = random_bytes($p_otp_length);
+
+            $otp = bin2hex($random_bytes);
+    
+            $otp = substr($otp, 0, $p_otp_length);
+    
+            $unique_otp = $this->isOTPUnique($otp);
+        }
+    
+        return $otp;
+    }
+    
+    public function sendOTP($email, $otp) {
+        require 'vendor/autoload.php';
+
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        
+        $mailer->isSMTP();
+        $mailer->Host = 'smtp.example.com';
+        $mailer->SMTPAuth = true;
+        $mailer->Username = 'your_email@example.com';
+        $mailer->Password = 'your_password';
+        $mailer->SMTPSecure = 'tls';
+        $mailer->Port = 587;
+        
+        $mailer->setFrom('noreply@example.com', 'Your App');
+        $mailer->addAddress($email);
+        $mailer->Subject = 'One-Time Password (OTP) Verification';
+        $mailer->Body = 'Your OTP: ' . $otp;
+    
+        if ($mailer->send()) {
+            echo 'OTP sent successfully.';
+        } else {
+            echo 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+        }
     }
 }
 ?>

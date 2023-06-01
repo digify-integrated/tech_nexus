@@ -267,6 +267,12 @@ BEGIN
     WHERE email_address = BINARY p_email_address;
 END //
 
+CREATE PROCEDURE isOTPUnique(IN p_two_factor_secret VARCHAR(255))
+BEGIN
+	SELECT COUNT(*) FROM users 
+    WHERE two_factor_secret = p_two_factor_secret
+END //
+
 /* Audit log table */
 CREATE TABLE audit_log (
     audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
