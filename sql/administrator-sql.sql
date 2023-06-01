@@ -1,726 +1,282 @@
-/* Audit log table */
-CREATE TABLE admin_audit_log (
-    external_id int(50) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    table_name varchar(255) NOT NULL,
-    reference_id int(10) NOT NULL,
-    log TEXT NOT NULL,
-    changed_by varchar(255) NOT NULL,
-    changed_at datetime NOT NULL
-);
-
-CREATE INDEX audit_log_index_external_id ON admin_audit_log(external_id);
-CREATE INDEX audit_log_index_table_name ON admin_audit_log(table_name);
-CREATE INDEX audit_log_index_reference_id ON admin_audit_log(reference_id);
-
-/* Users table */
-CREATE TABLE admin_users (
-    external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    email_address VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(500) NOT NULL,
+/* User table */
+CREATE TABLE users (
+    user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     file_as VARCHAR(300) NOT NULL,
-    user_status CHAR(10) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     password_expiry_date DATE NOT NULL,
-    failed_login TINYINT(1) NOT NULL DEFAULT 0,
-    last_failed_login DATETIME DEFAULT NULL,
-    last_connection_date DATETIME DEFAULT NULL,
+    is_locked TINYINT(1) NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    last_failed_login_attempt DATETIME,
+    failed_login_attempts INT NOT NULL DEFAULT 0,
+    last_connection_date DATETIME,
+    last_ip_address VARCHAR(45),
+    last_location VARCHAR(255),
+    registration_date DATETIME NOT NULL,
+    verification_token VARCHAR(255),
+    reset_token VARCHAR(255),
+    password_reset_expiration DATETIME,
+    two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
+    two_factor_secret VARCHAR(255),
+    last_password_change DATETIME,
+    account_lock_duration INT NOT NULL DEFAULT 180,
+    email_verification_status TINYINT(1) NOT NULL DEFAULT 0,
+    email_verified_at DATETIME,
+    last_password_reset DATETIME,
+    remember_token VARCHAR(255),
+    activation_token VARCHAR(255),
+    account_activation_status TINYINT(1) NOT NULL DEFAULT 0,
     last_log_by INT(10) NOT NULL
 );
 
-CREATE INDEX users_index_external_id ON admin_users(external_id);
-CREATE INDEX users_index_email_address ON admin_users(email_address);
+CREATE INDEX users_index_user_id ON users(user_id);
+CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO admin_users (email_address, password, file_as, user_status, password_expiry_date, failed_login, last_log_by) VALUES ('admin@encorefinancials.com', 'vzyEJGDov2%2F%2BPkgMB9koyEUO6sl4GueUe%2FWC%2Bb%2FSP8Y%3D', 'Administrator', 'Active', '2023-12-30', 0, 1);
+INSERT INTO users (file_as, email, password, password_expiry_date, is_locked, is_active, registration_date, , last_log_by) VALUES ('Administrator', 'admin@encorefinancials.com', 'W5hvx4P278F8q50uZe2YFif%2ByRDeSeNaainzl5K9%2BQM%3D', '', 'Active', '2022-12-30', 0, 1);
 
-CREATE TRIGGER users_trigger_update
-AFTER UPDATE ON admin_users
+CREATE TRIGGER userTriggerUpdate
+AFTER UPDATE ON users
 FOR EACH ROW
 BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT '';
+    DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.user_status <> OLD.user_status THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "User Status: ", OLD.user_status, " -> ", NEW.user_status, "<br/>");
+    IF NEW.file_as <> OLD.file_as THEN
+        SET audit_log = CONCAT(audit_log, "File As: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
     END IF;
 
     IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
     END IF;
 
-    IF NEW.failed_login <> OLD.failed_login THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Failed Login: ", OLD.failed_login, " -> ", NEW.failed_login, "<br/>");
+    IF NEW.is_locked <> OLD.is_locked THEN
+        SET audit_log = CONCAT(audit_log, "Is Locked: ", OLD.is_locked, " -> ", NEW.is_locked, "<br/>");
     END IF;
 
-    IF NEW.last_failed_login <> OLD.last_failed_login THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Last Failed Login: ", OLD.last_failed_login, " -> ", NEW.last_failed_login, "<br/>");
+    IF NEW.is_active <> OLD.is_active THEN
+        SET audit_log = CONCAT(audit_log, "Is Active: ", OLD.is_active, " -> ", NEW.is_active, "<br/>");
+    END IF;
+
+    IF NEW.last_failed_login_attempt <> OLD.last_failed_login_attempt THEN
+        SET audit_log = CONCAT(audit_log, "Last Failed Login Attempt: ", OLD.last_failed_login_attempt, " -> ", NEW.last_failed_login_attempt, "<br/>");
+    END IF;
+
+    IF NEW.failed_login_attempts <> OLD.failed_login_attempts THEN
+        SET audit_log = CONCAT(audit_log, "Failed Login Attempts: ", OLD.failed_login_attempts, " -> ", NEW.failed_login_attempts, "<br/>");
     END IF;
 
     IF NEW.last_connection_date <> OLD.last_connection_date THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
+    END IF;
+
+    IF NEW.last_ip_address <> OLD.last_ip_address THEN
+        SET audit_log = CONCAT(audit_log, "Last IP Address: ", OLD.last_ip_address, " -> ", NEW.last_ip_address, "<br/>");
+    END IF;
+
+    IF NEW.last_location <> OLD.last_location THEN
+        SET audit_log = CONCAT(audit_log, "Last Location: ", OLD.last_location, " -> ", NEW.last_location, "<br/>");
+    END IF;
+
+    IF NEW.registration_date <> OLD.registration_date THEN
+        SET audit_log = CONCAT(audit_log, "Registration Date: ", OLD.registration_date, " -> ", NEW.registration_date, "<br/>");
+    END IF;
+
+    IF NEW.verification_token <> OLD.verification_token THEN
+        SET audit_log = CONCAT(audit_log, "Verification Token: ", OLD.verification_token, " -> ", NEW.verification_token, "<br/>");
+    END IF;
+
+    IF NEW.reset_token <> OLD.reset_token THEN
+        SET audit_log = CONCAT(audit_log, "Reset Token: ", OLD.reset_token, " -> ", NEW.reset_token, "<br/>");
+    END IF;
+
+    IF NEW.password_reset_expiration <> OLD.password_reset_expiration THEN
+        SET audit_log = CONCAT(audit_log, "Password Reset Expiration: ", OLD.password_reset_expiration, " -> ", NEW.password_reset_expiration, "<br/>");
+    END IF;
+
+    IF NEW.two_factor_auth <> OLD.two_factor_auth THEN
+        SET audit_log = CONCAT(audit_log, "2-Factor Authentication: ", OLD.two_factor_auth, " -> ", NEW.two_factor_auth, "<br/>");
+    END IF;
+
+    IF NEW.two_factor_secret <> OLD.two_factor_secret THEN
+        SET audit_log = CONCAT(audit_log, "2-Factor Secret: ", OLD.two_factor_secret, " -> ", NEW.two_factor_secret, "<br/>");
+    END IF;
+
+    IF NEW.last_password_change <> OLD.last_password_change THEN
+        SET audit_log = CONCAT(audit_log, "Last Password Change: ", OLD.last_password_change, " -> ", NEW.last_password_change, "<br/>");
+    END IF;
+
+    IF NEW.email_verification_status <> OLD.email_verification_status THEN
+        SET audit_log = CONCAT(audit_log, "Email Verification Status: ", OLD.email_verification_status, " -> ", NEW.email_verification_status, "<br/>");
+    END IF;
+
+    IF NEW.email_verified_at <> OLD.email_verified_at THEN
+        SET audit_log = CONCAT(audit_log, "Email Verification At: ", OLD.email_verified_at, " -> ", NEW.email_verified_at, "<br/>");
+    END IF;
+
+    IF NEW.last_password_reset <> OLD.last_password_reset THEN
+        SET audit_log = CONCAT(audit_log, "Last Password Reset: ", OLD.last_password_reset, " -> ", NEW.last_password_reset, "<br/>");
+    END IF;
+
+    IF NEW.remember_token <> OLD.remember_token THEN
+        SET audit_log = CONCAT(audit_log, "Remember Token: ", OLD.remember_token, " -> ", NEW.remember_token, "<br/>");
+    END IF;
+
+    IF NEW.activation_token <> OLD.activation_token THEN
+        SET audit_log = CONCAT(audit_log, "Activation Token: ", OLD.activation_token, " -> ", NEW.activation_token, "<br/>");
+    END IF;
+
+    IF NEW.account_activation_status <> OLD.account_activation_status THEN
+        SET audit_log = CONCAT(audit_log, "Account Activation Status: ", OLD.account_activation_status, " -> ", NEW.account_activation_status, "<br/>");
     END IF;
     
-    IF LENGTH(admin_audit_log) > 0 THEN
-        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_users', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
-CREATE TRIGGER users_trigger_insert
-AFTER INSERT ON admin_users
+CREATE TRIGGER userTriggerInsert
+AFTER INSERT ON users
 FOR EACH ROW
 BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT 'User created. <br/>';
-
-    IF NEW.email_address <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Email Address: ", NEW.email_address);
-    END IF;
+    DECLARE audit_log TEXT DEFAULT 'User created. <br/>';
 
     IF NEW.file_as <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>File As: ", NEW.file_as);
+        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
     END IF;
 
-    IF NEW.user_status <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>User Status: ", NEW.user_status);
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
     END IF;
 
     IF NEW.password_expiry_date <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
+        SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
     END IF;
 
-    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_users', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_user_exist(IN p_external_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM admin_users
-    WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE get_user_details(IN p_external_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-	SELECT external_id, email_address, password, file_as, user_status, password_expiry_date, failed_login, last_failed_login, last_connection_date, last_log_by
-	FROM admin_users 
-	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user_login_attempt(IN p_external_id INT(10), IN p_email_address VARCHAR(100), IN p_login_attempt TINYINT(1), IN p_last_failed_attempt_date DATETIME)
-BEGIN
-    IF p_login_attempt > 0 THEN
-        UPDATE admin_users
-        SET failed_login = p_login_attempt,
-            last_failed_login = p_last_failed_attempt_date
-        WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-    ELSE
-        UPDATE admin_users
-        SET failed_login = p_login_attempt
-        WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
+    IF NEW.is_locked <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Locked: ", NEW.is_locked);
     END IF;
-END//
 
-CREATE PROCEDURE update_user_last_connection(IN p_external_id INT(10), IN p_email_address VARCHAR(100), p_last_connection_date DATETIME)
-BEGIN
-	UPDATE admin_users 
-	SET last_connection_date = p_last_connection_date
-	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user_password(IN p_external_id INT(10), IN p_email_address VARCHAR(100), p_password VARCHAR(500), p_password_expiry_date DATE)
-BEGIN
-	UPDATE admin_users 
-	SET PASSWORD = p_password, PASSWORD_EXPIRY_DATE = p_password_expiry_date
-	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user(IN p_external_id INT(10), IN p_email_address VARCHAR(100), IN p_password VARCHAR(500), IN p_file_as VARCHAR (300), IN p_password_expiry_date DATE)
-BEGIN
-	IF p_password IS NOT NULL AND p_password <> '' THEN
-        UPDATE admin_users
-        SET file_as = p_file_as, password = p_password, password_expiry_date = p_password_expiry_date
-       	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
-    ELSE
-        UPDATE admin_users
-        SET file_as = p_file_as
-      	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
+    IF NEW.is_active <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Active: ", NEW.is_active);
     END IF;
+
+    IF NEW.last_failed_login_attempt <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Failed Login Attempt: ", NEW.last_failed_login_attempt);
+    END IF;
+
+    IF NEW.failed_login_attempts <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Failed Login Attempts: ", NEW.failed_login_attempts);
+    END IF;
+
+    IF NEW.last_connection_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Connection Date: ", NEW.last_connection_date);
+    END IF;
+
+    IF NEW.last_ip_address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last IP Address: ", NEW.last_ip_address);
+    END IF;
+
+    IF NEW.last_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Location: ", NEW.last_location);
+    END IF;
+
+    IF NEW.registration_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Registration Date: ", NEW.registration_date);
+    END IF;
+
+    IF NEW.verification_token <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Verification Token: ", NEW.verification_token);
+    END IF;
+
+    IF NEW.reset_token <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reset Token: ", NEW.reset_token);
+    END IF;
+
+    IF NEW.password_reset_expiration <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Password Reset Expiration: ", NEW.password_reset_expiration);
+    END IF;
+
+    IF NEW.two_factor_auth <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>2-Factor Authentication: ", NEW.two_factor_auth);
+    END IF;
+
+    IF NEW.two_factor_secret <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>2-Factor Secret: ", NEW.two_factor_secret);
+    END IF;
+
+    IF NEW.last_password_change <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Password Change: ", NEW.last_password_change);
+    END IF;
+
+    IF NEW.email_verification_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Verification Status: ", NEW.email_verification_status);
+    END IF;
+
+    IF NEW.email_verified_at <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Verification At: ", NEW.email_verified_at);
+    END IF;
+
+    IF NEW.last_password_reset <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Password Reset: ", NEW.last_password_reset);
+    END IF;
+
+    IF NEW.remember_token <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remember Token: ", NEW.remember_token);
+    END IF;
+
+    IF NEW.activation_token <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Activation Token: ", NEW.activation_token);
+    END IF;
+
+    IF NEW.account_activation_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Account Activation Status: ", NEW.account_activation_status);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
 END //
 
-CREATE PROCEDURE insert_user(IN p_email_address VARCHAR(100), IN p_password VARCHAR(500), IN p_file_as VARCHAR (300), IN p_password_expiry_date DATE)
+CREATE PROCEDURE getUserByEmail(IN p_email_address VARCHAR(255))
 BEGIN
-	INSERT INTO admin_users (email_address, password, file_as, user_status, password_expiry_date, failed_login) 
-	VALUES(p_email_address, p_password, p_file_as, "Inactive", p_password_expiry_date, 0);
+	SELECT * FROM users
+	WHERE email_address = BINARY p_email_address;
 END //
 
-CREATE PROCEDURE delete_user(IN p_external_id INT(10), IN p_email_address VARCHAR(100))
+CREATE PROCEDURE updateAccountLock(IN p_email_address VARCHAR(255), IN p_is_locked TINYINT(1) IN p_account_lock_duration INT)
 BEGIN
-	DELETE FROM admin_users 
-	WHERE external_id = p_external_id OR email_address = BINARY p_email_address;
+	UPDATE users 
+    SET is_locked = p_is_locked, account_lock_duration = p_account_lock_duration 
+    WHERE email_address = BINARY p_email_address;
 END //
 
-/* Password history table */
-CREATE TABLE admin_password_history (
-    external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    user_id INT(10) UNSIGNED NOT NULL,
-    email_address VARCHAR(100) NOT NULL,
-    password VARCHAR(500) NOT NULL,
-    password_change_date DATETIME DEFAULT CURRENT_TIMESTAMP
+CREATE PROCEDURE updateLoginAttempt(IN p_email_address VARCHAR(255), IN p_failed_login_attempts INT, IN p_last_failed_login_attempt DATETIME)
+BEGIN
+	UPDATE users 
+    SET failed_login_attempts = p_failed_login_attempts, last_failed_login_attempt = p_last_failed_login_attempt
+    WHERE email_address = BINARY p_email_address;
+END //
+
+CREATE PROCEDURE updateLastConnection(IN p_email_address VARCHAR(255), IN p_failed_login_attempts INT, IN p_last_failed_login_attempt DATETIME)
+BEGIN
+	UPDATE users 
+    SET last_ip_address = :ip_address, last_location = :location, last_connection_date = :connection_date
+    WHERE email_address = BINARY p_email_address;
+END //
+
+/* Audit log table */
+CREATE TABLE audit_log (
+    audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    table_name VARCHAR(255) NOT NULL,
+    reference_id int(10) NOT NULL,
+    log TEXT NOT NULL,
+    changed_by VARCHAR(255) NOT NULL,
+    changed_at datetime NOT NULL
 );
 
-ALTER TABLE admin_password_history
-ADD FOREIGN KEY (external_id) REFERENCES admin_users(external_id);
-
-ALTER TABLE admin_password_history
-ADD FOREIGN KEY (email_address) REFERENCES admin_users(email_address);
-
-CREATE INDEX password_history_index_external_id ON admin_password_history(external_id);
-CREATE INDEX password_history_index_user_id ON admin_password_history(user_id);
-CREATE INDEX password_history_index_email_address ON admin_password_history(email_address);
-
-CREATE PROCEDURE insert_password_history(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_password VARCHAR(500))
-BEGIN
-	INSERT INTO admin_password_history (user_id, email_address, password) 
-	VALUES(p_user_id, p_email_address, p_password);
-END //
-
-CREATE PROCEDURE get_user_password_history_details(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT password 
-	FROM admin_password_history 
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-/* Role table */
-CREATE TABLE admin_role(
-	external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	role_name VARCHAR(100) NOT NULL,
-	role_description VARCHAR(200) NOT NULL,
-	assignable TINYINT(1) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX role_index_external_id ON admin_role(external_id);
-
-INSERT INTO admin_role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Administrator', '1', '1');
-INSERT INTO admin_role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'Employee', '1', '1');
-
-CREATE TRIGGER role_trigger_update
-AFTER UPDATE ON admin_role
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT '';
-
-    IF NEW.role_name <> OLD.role_name THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
-    END IF;
-
-    IF NEW.role_description <> OLD.role_description THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
-    END IF;
-
-    IF NEW.assignable <> OLD.assignable THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
-    END IF;
-    
-    IF LENGTH(admin_audit_log) > 0 THEN
-        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_role', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER role_trigger_insert
-AFTER INSERT ON admin_role
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT 'Role created. <br/>';
-
-    IF NEW.role_name <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Role Name: ", NEW.role_name);
-    END IF;
-
-    IF NEW.role_description <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Role Description: ", NEW.role_description);
-    END IF;
-
-    IF NEW.assignable <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Assignable: ", NEW.assignable);
-    END IF;
-
-    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_role', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE get_role_details(IN p_external_id INT(10))
-BEGIN
-    SELECT role_name, role_description, assignable, last_log_by
-	FROM admin_role 
-	WHERE external_id = p_external_id;
-END //
-
-/* Role users table */
-CREATE TABLE admin_role_users(
-	role_id INT(10) UNSIGNED NOT NULL,
-	user_id INT(10) UNSIGNED NOT NULL
-);
-
-ALTER TABLE admin_role_users
-ADD FOREIGN KEY (role_id) REFERENCES admin_role(external_id);
-
-ALTER TABLE admin_role_users
-ADD FOREIGN KEY (user_id) REFERENCES admin_users(external_id);
-
-CREATE INDEX role_users_index_role_id ON admin_role_users(role_id);
-CREATE INDEX role_users_index_user_id ON admin_role_users(user_id);
-
-INSERT INTO admin_role_users (role_id, user_id) VALUES ('1', '1');
-
-/* Menu groups table */
-CREATE TABLE admin_menu_groups (
-    external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    menu_group_name VARCHAR(100) NOT NULL,
-    order_sequence TINYINT(10) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX menu_groups_index_external_id ON admin_menu_groups(external_id);
-
-INSERT INTO admin_menu_groups (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '999', '1');
-INSERT INTO admin_menu_groups (menu_group_name, order_sequence, last_log_by) VALUES ('Human Resources', '10', '1');
-
-CREATE TRIGGER menu_groups_trigger_update
-AFTER UPDATE ON admin_menu_groups
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT '';
-
-    IF NEW.menu_group_name <> OLD.menu_group_name THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Menu Group Name: ", OLD.menu_group_name, " -> ", NEW.menu_group_name, "<br/>");
-    END IF;
-
-    IF NEW.order_sequence <> OLD.order_sequence THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
-    END IF;
-    
-    IF LENGTH(admin_audit_log) > 0 THEN
-        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_menu_groups', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_groups_trigger_insert
-AFTER INSERT ON admin_menu_groups
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT 'Menu group created. <br/>';
-
-    IF NEW.menu_group_name <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Menu Group Name: ", NEW.menu_group_name);
-    END IF;
-
-    IF NEW.order_sequence <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
-    END IF;
-
-    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_menu_groups', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_menu_groups_exist(IN p_external_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM admin_menu_groups
-    WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE insert_menu_groups(IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10), OUT p_external_id INT(10))
-BEGIN
-    INSERT INTO admin_menu_groups (menu_group_name, order_sequence, last_log_by) 
-	VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
-	
-    SET p_external_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE duplicate_menu_groups(IN p_external_id INT(10), IN p_last_log_by INT(10), OUT p_new_external_id INT(10))
-BEGIN
-    DECLARE p_menu_group_name VARCHAR(255);
-    DECLARE p_order_sequence INT(10);
-    
-    SELECT menu_group_name, order_sequence 
-    INTO p_menu_group_name, p_order_sequence 
-    FROM admin_menu_groups 
-    WHERE external_id = p_external_id;
-    
-    INSERT INTO admin_menu_groups (menu_group_name, order_sequence, last_log_by) 
-    VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
-    
-    SET p_new_external_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE update_menu_groups(IN p_external_id INT(10), IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10))
-BEGIN
-	UPDATE admin_menu_groups
-        SET menu_group_name = p_menu_group_name,
-        order_sequence = p_order_sequence,
-        last_log_by = p_last_log_by
-       	WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE delete_menu_groups(IN p_external_id INT(10))
-BEGIN
-    DELETE FROM admin_menu_groups WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE get_menu_groups_details(IN p_external_id INT(10))
-BEGIN
-    SELECT menu_group_name, order_sequence, last_log_by
-	FROM admin_menu_groups 
-	WHERE external_id = p_external_id;
-END //
-
-/* Menu item table */
-CREATE TABLE admin_menu_item(
-	external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	menu_item_name VARCHAR(100) NOT NULL,
-	menu_group_id INT(10) UNSIGNED NOT NULL,
-	menu_item_url VARCHAR(50),
-	parent_id INT(10) UNSIGNED,
-	menu_item_icon VARCHAR(150),
-    order_sequence TINYINT(10) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX menu_item_index_external_id ON admin_menu_item(external_id);
-
-INSERT INTO admin_menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', 0, 'sidebar', '50', '1');
-INSERT INTO admin_menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-groups.php', 1, '', '51', '1');
-INSERT INTO admin_menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-items.php', 1, '', '52', '1');
-
-ALTER TABLE admin_menu_item
-ADD FOREIGN KEY (menu_group_id) REFERENCES admin_menu_groups(external_id);
-
-CREATE TRIGGER menu_item_trigger_update
-AFTER UPDATE ON admin_menu_item
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT '';
-
-    IF NEW.menu_item_name <> OLD.menu_item_name THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Menu Item Name: ", OLD.menu_item_name, " -> ", NEW.menu_item_name, "<br/>");
-    END IF;
-
-    IF NEW.menu_group_id <> OLD.menu_group_id THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
-    END IF;
-
-    IF NEW.menu_item_url <> OLD.parent_id THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
-    END IF;
-
-    IF NEW.parent_id <> OLD.parent_id THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Parent ID: ", OLD.parent_id, " -> ", NEW.parent_id, "<br/>");
-    END IF;
-
-    IF NEW.menu_item_icon <> OLD.menu_item_icon THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Menu Item Icon: ", OLD.menu_item_icon, " -> ", NEW.menu_item_icon, "<br/>");
-    END IF;
-
-    IF NEW.order_sequence <> OLD.order_sequence THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
-    END IF;
-    
-    IF LENGTH(admin_audit_log) > 0 THEN
-        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_menu_item', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_item_trigger_insert
-AFTER INSERT ON admin_menu_item
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT 'Menu item created. <br/>';
-
-    IF NEW.menu_item_name <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Menu Item Name: ", NEW.menu_item_name);
-    END IF;
-
-    IF NEW.menu_group_id <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Menu Group ID: ", NEW.menu_group_id);
-    END IF;
-
-    IF NEW.menu_item_url <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>URL: ", NEW.menu_item_url);
-    END IF;
-
-    IF NEW.parent_id <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Parent ID: ", NEW.parent_id);
-    END IF;
-
-    IF NEW.menu_item_icon <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Menu Item Icon: ", NEW.menu_item_icon);
-    END IF;
-
-    IF NEW.order_sequence <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
-    END IF;
-
-    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_menu_item', NEW.external_id, admin_audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_menu_item_exist(IN p_external_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM admin_menu_item
-    WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE insert_menu_item(IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT(10), IN p_menu_item_url VARCHAR(50), IN p_parent_id INT(10), IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10), OUT p_external_id INT(10))
-BEGIN
-    INSERT INTO admin_menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
-	VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
-	
-    SET p_external_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE duplicate_menu_item(IN p_external_id INT(10), IN p_last_log_by INT(10), OUT p_new_external_id INT(10))
-BEGIN
-    DECLARE p_menu_item_name VARCHAR(255);
-    DECLARE p_menu_group_id INT(10);
-    DECLARE p_menu_item_url VARCHAR(50);
-    DECLARE p_parent_id INT(10);
-    DECLARE p_menu_item_icon VARCHAR(150);
-    DECLARE p_order_sequence TINYINT(10);
-    
-    SELECT menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence 
-    INTO p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence 
-    FROM admin_menu_item  
-    WHERE external_id = p_external_id;
-    
-    INSERT INTO admin_menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
-    VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
-    
-    SET p_new_external_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE update_menu_item(IN p_external_id INT(10), IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT(10), IN p_menu_item_url VARCHAR(50), IN p_parent_id INT(10), IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10))
-BEGIN
-	UPDATE admin_menu_item
-        SET menu_item_name = p_menu_item_name,
-        menu_group_id = p_menu_group_id,
-        menu_item_url = p_menu_item_url,
-        parent_id = p_parent_id,
-        menu_item_icon = p_menu_item_icon,
-        order_sequence = p_order_sequence,
-        last_log_by = p_last_log_by
-       	WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE delete_menu_item(IN p_external_id INT(10))
-BEGIN
-    DELETE FROM admin_menu_item WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE get_menu_item_details(IN p_external_id INT(10))
-BEGIN
-    SELECT menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by
-	FROM admin_menu_item 
-	WHERE external_id = p_external_id;
-END //
-
-CREATE PROCEDURE delete_all_menu_item(IN p_menu_group_id INT(10))
-BEGIN
-    DELETE FROM admin_menu_item WHERE menu_group_id = p_menu_group_id;
-END //
-
-/* Build menu */
-CREATE PROCEDURE build_menu_group(IN p_user_id INT(10))
-BEGIN
-    SELECT DISTINCT(mg.external_id) as external_id, mg.menu_group_name
-    FROM admin_menu_groups mg
-    JOIN admin_menu_item mi ON mi.menu_group_id = mg.external_id
-    WHERE EXISTS (
-        SELECT 1
-        FROM admin_menu_access_right mar
-        WHERE mar.menu_item_id = mi.menu_item_id
-        AND mar.read_access = 1
-        AND mar.role_id IN (
-            SELECT role_id
-            FROM admin_role_users
-            WHERE user_id = p_user_id
-        )
-    )
-    ORDER BY mg.order_sequence;
-END //
-
-CREATE PROCEDURE build_menu_item(IN p_user_id INT(10), IN p_menu_group_id INT(10))
-BEGIN
-    SELECT mi.external_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
-    FROM admin_menu_item AS mi
-    INNER JOIN admin_menu_access_right AS mar ON mi.external_id = mar.menu_item_id
-    INNER JOIN admin_role_users AS ru ON mar.role_id = ru.role_id
-    WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
-    ORDER BY mi.order_sequence;
-END //
-
-/* Menu access right table */
-CREATE TABLE admin_menu_access_right(
-	external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	menu_item_id INT(10) NOT NULL,
-	role_id INT(10) UNSIGNED NOT NULL,
-	read_access TINYINT(1) NOT NULL,
-    write_access TINYINT(1) NOT NULL,
-    create_access TINYINT(1) NOT NULL,
-    delete_access TINYINT(1) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-INSERT INTO admin_menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, last_log_by) VALUES ('1', '1', '1', '1', '1', '1', '1');
-INSERT INTO admin_menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1');
-INSERT INTO admin_menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1');
-
-CREATE TRIGGER menu_access_right_trigger_update
-AFTER UPDATE ON admin_menu_access_right
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT '';
-
-    SET admin_audit_log = CONCAT(admin_audit_log, "Role ID: ", OLD.role_id, "<br/>");
-
-    IF NEW.read_access <> OLD.read_access THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
-    END IF;
-
-    IF NEW.write_access <> OLD.write_access THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
-    END IF;
-
-    IF NEW.create_access <> OLD.create_access THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
-    END IF;
-
-    IF NEW.delete_access <> OLD.delete_access THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
-    END IF;
-    
-    IF LENGTH(admin_audit_log) > 0 THEN
-        INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('admin_menu_access_right', NEW.menu_item_id, admin_audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_access_right_trigger_insert
-AFTER INSERT ON admin_menu_access_right
-FOR EACH ROW
-BEGIN
-    DECLARE admin_audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
-
-    IF NEW.role_id <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Role ID: ", NEW.role_id);
-    END IF;
-
-    IF NEW.read_access <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Read Access: ", NEW.read_access);
-    END IF;
-
-    IF NEW.write_access <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Write Access: ", NEW.write_access);
-    END IF;
-
-    IF NEW.create_access <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Create Access: ", NEW.create_access);
-    END IF;
-
-    IF NEW.delete_access <> '' THEN
-        SET admin_audit_log = CONCAT(admin_audit_log, "<br/>Delete Access: ", delete_access.menu_item_icon);
-    END IF;
-
-    INSERT INTO admin_audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('admin_menu_access_right', NEW.menu_item_id, admin_audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_role_menu_access_right_exist(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM admin_menu_access_right
-    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-END //
-
-CREATE PROCEDURE insert_role_menu_access_right(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    INSERT INTO admin_menu_access_right (menu_item_id, role_id) 
-	VALUES(p_menu_item_id, p_role_id);
-END //
-
-CREATE PROCEDURE update_role_menu_access_right(IN p_menu_item_id INT(10), IN p_role_id INT(10), IN p_access_type VARCHAR(10), IN p_access TINYINT(1))
-BEGIN
-	IF p_access_type = 'read' THEN
-        UPDATE admin_menu_access_right
-        SET read_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSEIF p_access_type = 'write' THEN
-        UPDATE admin_menu_access_right
-        SET write_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSEIF p_access_type = 'create' THEN
-        UPDATE admin_menu_access_right
-        SET create_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSE
-        UPDATE admin_menu_access_right
-        SET delete_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    END IF;
-END //
-
-CREATE PROCEDURE check_menu_access_rights(IN p_user_id INT(10), IN p_menu_item_id INT(10), IN p_access_type VARCHAR(10))
-BEGIN
-	IF p_access_type = 'read' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM admin_role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM admin_menu_access_right where read_access = '1' AND menu_item_id = p_menu_item_id);
-    ELSEIF p_access_type = 'write' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM admin_role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM admin_menu_access_right where write_access = '1' AND menu_item_id = p_menu_item_id);
-    ELSEIF p_access_type = 'create' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM admin_role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM admin_menu_access_right where create_access = '1' AND menu_item_id = p_menu_item_id);
-    ELSE
-        SELECT COUNT(role_id) AS TOTAL
-        FROM admin_role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM admin_menu_access_right where delete_access = '1' AND menu_item_id = p_menu_item_id);
-    END IF;
-END //
-
-CREATE PROCEDURE get_role_menu_access_rights(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    SELECT read_access, write_access, create_access, delete_access
-    FROM admin_menu_access_right 
-    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-END //
-
-/* System action */
-CREATE TABLE admin_system_action(
-	external_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	system_action_name VARCHAR(100) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX system_action_index_external_id ON admin_system_action(external_id);
-
-INSERT INTO admin_system_action (system_action_name, last_log_by) VALUES ('Assign Menu Item Role Access', '1');
-
-/* System action access rights */
-CREATE TABLE admin_system_action_access_rights(
-	system_action_id INT(10) UNSIGNED NOT NULL,
-	role_id INT(10) UNSIGNED NOT NULL
-);
-
-INSERT INTO admin_system_action_access_rights (system_action_id, role_id) VALUES ('1', '1');
-
-CREATE PROCEDURE check_system_action_access_rights(IN p_user_id INT(10), IN p_system_action_id INT(10))
-BEGIN
-	SELECT COUNT(role_id) AS TOTAL
-    FROM admin_role_users
-    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM admin_system_action_access_rights where system_action_id = p_system_action_id);
-END //
+CREATE INDEX audit_log_index_external_id ON audit_log(audit_log_id);
+CREATE INDEX audit_log_index_table_name ON audit_log(table_name);
+CREATE INDEX audit_log_index_reference_id ON audit_log(reference_id);
