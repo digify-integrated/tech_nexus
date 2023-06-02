@@ -62,7 +62,6 @@ define('DEFAULT_IMAGES_RELATIVE_PATH_FILE', './assets/images/');
 define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/dss/assets/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './assets/employee/');
 
-define('ACCOUNT_LOCK_DURATION', 2);
 define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
 
 ?>

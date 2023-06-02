@@ -1,10 +1,10 @@
 <?php
 
 class Database {
-    private static $instance;
-    private $connection;
+    public static $instance;
+    public $connection;
 
-    private function __construct() {
+    public function __construct() {
         $host = getenv('DB_HOST');
         $dbname = getenv('DB_NAME');
         $username = getenv('DB_USER');

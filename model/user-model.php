@@ -1,7 +1,7 @@
 <?php
 
 class UserModel {
-    private $db;
+    public $db;
 
     public function __construct(Database $db) {
         $this->db = $db;
@@ -13,70 +13,73 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateAccountLock($p_email, $p_is_locked, $p_lock_duration) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateAccountLock(:p_email, :p_is_locked, :p_lock_duration)");
-        $stmt->bindParam(':p_email', $p_email);
+    public function updateAccountLock($p_user_id, $p_is_locked, $p_lock_duration) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateAccountLock(:p_user_id, :p_is_locked, :p_lock_duration)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->bindParam(':p_is_locked', $p_is_locked);
         $stmt->bindParam(':p_lock_duration', $p_lock_duration);
         $stmt->execute();
     }
 
-    public function updateLoginAttempt($userId, $p_failed_login_attempts, $p_last_failed_login_attempt) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateLoginAttempt(:p_email, :p_failed_login_attempts, :p_last_failed_login_attempt)");
-        $stmt->bindParam(':p_email', $p_email);
+    public function updateLoginAttempt($p_user_id, $p_failed_login_attempts, $p_last_failed_login_attempt) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateLoginAttempt(:p_user_id, :p_failed_login_attempts, :p_last_failed_login_attempt)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->bindParam(':p_failed_login_attempts', $p_failed_login_attempts);
         $stmt->bindParam(':p_last_failed_login_attempt', $p_last_failed_login_attempt);
         $stmt->execute();
     }
 
-    public function updateLastConnection($userId, $ipAddress, $location, $connectionDate) {\
-        $stmt = $this->db->getConnection()->prepare($query);
-        $stmt->bindParam(':ip_address', $ipAddress);
-        $stmt->bindParam(':location', $location);
-        $stmt->bindParam(':connection_date', $connectionDate);
-        $stmt->bindParam(':user_id', $userId);
+    public function updateLastConnection($p_user_id, $p_last_connection_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateLoginAttempt(:p_user_id, :p_last_connection_date)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_last_connection_date', $p_last_connection_date);
         $stmt->execute();
     }
 
-    public function generateOTP($p_otp_length) {
-        $unique_otp = false;
-        $otp = '';
-    
-        while (!$unique_otp) {
-            $random_bytes = random_bytes($p_otp_length);
+    public function saveOTP($p_user_id, $p_otp, $p_otp_expiry_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL saveOTP(:p_user_id, :p_otp, :p_otp_expiry_date)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_otp', $p_otp);
+        $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);
+        $stmt->execute();
+    }
 
-            $otp = bin2hex($random_bytes);
+    public function generateOTP($p_otp_length = 6) {
+        $unique_otp = false;    
+        $max = pow(10, $p_otp_length) - 1;
     
-            $otp = substr($otp, 0, $p_otp_length);
+        $random_number = mt_rand(0, $max);
     
-            $unique_otp = $this->isOTPUnique($otp);
-        }
+        $otp = str_pad($random_number, $p_otp_length, '0', STR_PAD_LEFT);
     
         return $otp;
     }
     
     public function sendOTP($email, $otp) {
-        require 'vendor/autoload.php';
+        require('./assets/libs/PHPMailer/src/PHPMailer.php');
+        require('./assets/libs/PHPMailer/src/Exception.php');
+        require('./assets/libs/PHPMailer/src/SMTP.php');
 
         $mailer = new PHPMailer\PHPMailer\PHPMailer();
         
         $mailer->isSMTP();
-        $mailer->Host = 'smtp.example.com';
+        $mailer->Host = 'smtp.hostinger.com';
         $mailer->SMTPAuth = true;
-        $mailer->Username = 'your_email@example.com';
-        $mailer->Password = 'your_password';
-        $mailer->SMTPSecure = 'tls';
-        $mailer->Port = 587;
+        $mailer->Username = 'encore-noreply@encorefinancials.com';
+        $mailer->Password = 'P@ssw0rd';
+        $mailer->SMTPSecure = 'ssl';
+        $mailer->Port = 465;
         
-        $mailer->setFrom('noreply@example.com', 'Your App');
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'EIS');
         $mailer->addAddress($email);
         $mailer->Subject = 'One-Time Password (OTP) Verification';
         $mailer->Body = 'Your OTP: ' . $otp;
     
         if ($mailer->send()) {
-            echo 'OTP sent successfully.';
-        } else {
-            echo 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+            return true;
+        }
+        else {
+            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
         }
     }
 }

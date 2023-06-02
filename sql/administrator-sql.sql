@@ -4,6 +4,7 @@ CREATE TABLE users (
     file_as VARCHAR(300) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
+    company_id INT NOT NULL,
     password_expiry_date DATE NOT NULL,
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
@@ -17,7 +18,8 @@ CREATE TABLE users (
     reset_token VARCHAR(255),
     password_reset_expiration DATETIME,
     two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
-    two_factor_secret VARCHAR(255),
+    otp VARCHAR(255),
+    otp_expiry_date DATETIME,
     last_password_change DATETIME,
     account_lock_duration INT NOT NULL DEFAULT 180,
     email_verification_status TINYINT(1) NOT NULL DEFAULT 0,
@@ -32,7 +34,7 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, password_expiry_date, is_locked, is_active, registration_date, , last_log_by) VALUES ('Administrator', 'admin@encorefinancials.com', 'W5hvx4P278F8q50uZe2YFif%2ByRDeSeNaainzl5K9%2BQM%3D', '', 'Active', '2022-12-30', 0, 1);
+INSERT INTO users (file_as, email, password, password_expiry_date, is_locked, is_active, registration_date, , last_log_by) VALUES ('Administrator', 'admin@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '', 'Active', '2022-12-30', 0, 1);
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -100,8 +102,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "2-Factor Authentication: ", OLD.two_factor_auth, " -> ", NEW.two_factor_auth, "<br/>");
     END IF;
 
-    IF NEW.two_factor_secret <> OLD.two_factor_secret THEN
-        SET audit_log = CONCAT(audit_log, "2-Factor Secret: ", OLD.two_factor_secret, " -> ", NEW.two_factor_secret, "<br/>");
+    IF NEW.otp <> OLD.otp THEN
+        SET audit_log = CONCAT(audit_log, "OTP: ", OLD.otp, " -> ", NEW.otp, "<br/>");
+    END IF;
+
+    IF NEW.otp_expiry_date <> OLD.otp_expiry_date THEN
+        SET audit_log = CONCAT(audit_log, "OTP Expiry Date: ", OLD.otp_expiry_date, " -> ", NEW.otp_expiry_date, "<br/>");
     END IF;
 
     IF NEW.last_password_change <> OLD.last_password_change THEN
@@ -204,8 +210,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>2-Factor Authentication: ", NEW.two_factor_auth);
     END IF;
 
-    IF NEW.two_factor_secret <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>2-Factor Secret: ", NEW.two_factor_secret);
+    IF NEW.otp <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>OTP: ", NEW.otp);
+    END IF;
+
+    IF NEW.otp_expiry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>OTP Expiry Date: ", NEW.otp_expiry_date);
     END IF;
 
     IF NEW.last_password_change <> '' THEN
@@ -240,37 +250,38 @@ BEGIN
     VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
 END //
 
-CREATE PROCEDURE getUserByEmail(IN p_email_address VARCHAR(255))
+CREATE PROCEDURE getUserByEmail(IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM users
-	WHERE email_address = BINARY p_email_address;
+	WHERE email_address = BINARY p_email;
 END //
 
-CREATE PROCEDURE updateAccountLock(IN p_email_address VARCHAR(255), IN p_is_locked TINYINT(1) IN p_account_lock_duration INT)
+CREATE PROCEDURE updateAccountLock(IN p_user_id INT, IN p_is_locked TINYINT(1) IN p_account_lock_duration INT)
 BEGIN
 	UPDATE users 
     SET is_locked = p_is_locked, account_lock_duration = p_account_lock_duration 
-    WHERE email_address = BINARY p_email_address;
+    WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE updateLoginAttempt(IN p_email_address VARCHAR(255), IN p_failed_login_attempts INT, IN p_last_failed_login_attempt DATETIME)
+CREATE PROCEDURE updateLoginAttempt(IN p_user_id INT, IN p_failed_login_attempts INT, IN p_last_failed_login_attempt DATETIME)
 BEGIN
 	UPDATE users 
     SET failed_login_attempts = p_failed_login_attempts, last_failed_login_attempt = p_last_failed_login_attempt
-    WHERE email_address = BINARY p_email_address;
+    WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE updateLastConnection(IN p_email_address VARCHAR(255), IN p_failed_login_attempts INT, IN p_last_failed_login_attempt DATETIME)
+CREATE PROCEDURE updateLastConnection(IN p_user_id INT, IN p_last_ip_address VARCHAR(45), IN p_last_location VARCHAR(255), IN p_last_connection_date DATETIME)
 BEGIN
 	UPDATE users 
-    SET last_ip_address = :ip_address, last_location = :location, last_connection_date = :connection_date
-    WHERE email_address = BINARY p_email_address;
+    SET last_ip_address = last_ip_address, last_location = p_last_location, last_connection_date = p_last_connection_date
+    WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE isOTPUnique(IN p_two_factor_secret VARCHAR(255))
+CREATE PROCEDURE saveOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN otp_expiry_date DATETIME)
 BEGIN
-	SELECT COUNT(*) FROM users 
-    WHERE two_factor_secret = p_two_factor_secret
+	UPDATE users 
+    SET otp = p_otp, otp_expiry_date = p_otp_expiry_date
+    WHERE user_id = p_user_id;
 END //
 
 /* Audit log table */

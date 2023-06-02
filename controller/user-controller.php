@@ -26,25 +26,28 @@ class UserController {
                         exit;
                     }
                     else {
-                        $this->userModel->updateAccountLock($user['id'], 0, null);
+                        $this->userModel->updateAccountLock($user['user_id'], 0, null);
                     }
                 }
     
                 if (password_verify($password, $user['password'])) {
-                    $this->userModel->updateLoginAttempt($user['id'], 0, null);
+                    $this->userModel->updateLoginAttempt($user['user_id'], 0, null);
     
                     if ($user['two_factor_auth']) {
-                        $otp = generateOTP();
-                        sendOTP($user['email'], $otp);
+                        $otp = $this->userModel->generateOTP();
+
+                        $hashedOTP = password_hash($otp, PASSWORD_DEFAULT);
+                        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+
+                        $this->userModel->saveOTP($user['user_id'], $hashedOTP, $otpExpiryDate);
     
                         header("Location: otp_verification.php");
                         exit;
                     } 
                     else {
-                        $ipAddress = $_SERVER['REMOTE_ADDR'];
-                        $location = ''; // Retrieve location data based on IP address
                         $connectionDate = date('Y-m-d H:i:s');
-                        $this->userModel->updateLastConnection($user['id'], $ipAddress, $location, $connectionDate);
+
+                        $this->userModel->updateLastConnection($user['user_id'], $connectionDate);
     
                         if ($rememberMe) {
                             $rememberToken = bin2hex(random_bytes(16));
@@ -58,11 +61,12 @@ class UserController {
                 else {
                     $failedAttempts = $user['failed_login_attempts'] + 1;
                     $lastFailedLogin = date('Y-m-d H:i:s');
-                    $this->userModel->updateLoginAttempt($user['id'], $failedAttempts, $lastFailedLogin);
+
+                    $this->userModel->updateLoginAttempt($user['user_id'], $failedAttempts, $lastFailedLogin);
     
                     if ($failedAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-                        $lockDuration = $user['account_lock_duration'] + ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS + 2);
-                        $this->userModel->updateAccountLock($user['id'], 1, $lockDuration);
+                        $lockDuration = $user['account_lock_duration'] + ($failedAttempts + 1);
+                        $this->userModel->updateAccountLock($user['user_id'], 1, $lockDuration);
                         echo "Maximum number of failed login attempts reached. Your account has been locked for $lockDuration minutes.";
                         exit;
                     }
@@ -77,6 +81,5 @@ class UserController {
             }
         }
     }
-    
 }
 ?>
