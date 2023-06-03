@@ -277,7 +277,14 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE saveOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN otp_expiry_date DATETIME)
+CREATE PROCEDURE updateRememberToken(IN p_user_id INT, IN p_remember_token VARCHAR(255))
+BEGIN
+	UPDATE users 
+    SET remember_token = p_remember_token
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN otp_expiry_date DATETIME)
 BEGIN
 	UPDATE users 
     SET otp = p_otp, otp_expiry_date = p_otp_expiry_date

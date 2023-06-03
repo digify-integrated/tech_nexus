@@ -1,23 +1,24 @@
 <?php
-    require('session-check.php');
     require('config/config.php');
-    require('classes/global-class.php');
+    require('model/user-model.php');
 
-    $global_class = new Global_Class();
+    $userModel = new UserModel();
     $page_title = 'Nexus Integrated Solutions';
     
-    require('views/_interface_settings.php');
+    require('session-check.php');
+    require('config/_interface_settings.php');   
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php include_once('views/_title.php'); ?>
-    <?php include_once('views/_required_css.php'); ?>
+    <?php include_once('config/_title.php'); ?>
+    <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/uikit.css">
 </head>
 
 <body>
-    <?php include_once('views/_preloader.html'); ?>
+    <?php include_once('config/_preloader.html'); ?>
 
     <div class="auth-main">
         <div class="auth-wrapper v2">
@@ -53,7 +54,7 @@
         </div>
     </div>
     <?php 
-        include_once('views/_required_js.php');
+        include_once('config/_required_js.php');
     ?>
     <script src="./assets/js/pages/index.js?v=<?php echo rand(); ?>"></script>
 </body>

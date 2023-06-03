@@ -36,8 +36,15 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function saveOTP($p_user_id, $p_otp, $p_otp_expiry_date) {
-        $stmt = $this->db->getConnection()->prepare("CALL saveOTP(:p_user_id, :p_otp, :p_otp_expiry_date)");
+    public function updateRememberToken($p_user_id, $p_remember_token) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateRememberToken(:p_user_id, :p_remember_token)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_remember_token', $p_remember_token);
+        $stmt->execute();
+    }
+
+    public function updateOTP($p_user_id, $p_otp, $p_otp_expiry_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateOTP(:p_user_id, :p_otp, :p_otp_expiry_date)");
         $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->bindParam(':p_otp', $p_otp);
         $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);

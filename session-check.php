@@ -1,18 +1,26 @@
 <?php 
-session_start();
+ssession_start();
 
-if(isset($_COOKIE['remember_me'])){
-    $email = $_COOKIE['remember_me'];
+if (isset($_COOKIE['remember_token'])) {
+    $rememberToken = $_COOKIE['remember_token'];
 
-    $_SESSION['logged_in'] = 1;
-    $_SESSION['email'] = $email;
+    $user = $userModel->getUserByRememberToken($rememberToken);
+
+    if ($user) {
+        $_SESSION['user_id'] = $user['user_id'];
+
+        header("Location: dashboard.php");
+        exit;
+    } 
+    else {
+        setcookie('remember_token', '', time() - 3600, '/');
+        unset($_COOKIE['remember_token']);
+    }
 }
-else{
-    setcookie('remember_me', '', time() - 3600, '/');
-    unset($_COOKIE['remember_me']); 
-}
 
-if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == 1){
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     header('location: dashboard.php');
+    exit;
 }
+
 ?>

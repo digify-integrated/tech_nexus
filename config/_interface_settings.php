@@ -6,8 +6,13 @@
     $menu_logo = $global_class->check_image($activated_interface_setting_details[0]['MENU_LOGO'] ?? null, 'menu logo');
     $favicon = $global_class->check_image($activated_interface_setting_details[0]['FAVICON'] ?? null, 'favicon');*/
 
-    $login_background = $global_class->check_image(null, 'login background');
-    $login_logo = $global_class->check_image(null, 'login logo');
-    $menu_logo = $global_class->check_image(null, 'menu logo');
-    $favicon = $global_class->check_image(null, 'favicon');
+    #$login_background = $global_class->check_image(null, 'login background');
+    #$login_logo = $global_class->check_image(null, 'login logo');
+    #$menu_logo = $global_class->check_image(null, 'menu logo');
+    #$favicon = $global_class->check_image(null, 'favicon');
+    
+    $login_background = DEFAULT_BG_IMAGE;
+    $login_logo = DEFAULT_LOGIN_LOGO_IMAGE;
+    $menu_logo = DEFAULT_MENU_LOGO_IMAGE;
+    $favicon = DEFAULT_FAVICON_IMAGE;
 ?>
