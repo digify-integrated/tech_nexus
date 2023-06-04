@@ -79,7 +79,7 @@ $(document).ready(function () {
         success: function(response) {
           if (response.success) {
               if (response.twoFactorAuth) {
-                  window.location.href = 'otp_verification.php';
+                  window.location.href = 'otp_verification.php?id=' + encryptedUserID;
               }
               else if (response.resetPassword) {
                   var encryptedUserID = response.encryptedUserID;

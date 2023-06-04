@@ -36,6 +36,7 @@ class UserController {
     
             if ($user) {
                 $userID = $user['user_id'];
+                $encryptedUserID = $this->securityModel->encryptData($userID);
     
                 if ($user['is_locked']) {
                     $lockDuration = $user['account_lock_duration'];
@@ -53,7 +54,6 @@ class UserController {
                 }
     
                 if ($this->password_expiry_date($userID)) {
-                    $encryptedUserID = $this->securityModel->encryptData($userID);
     
                     echo json_encode(['success' => true, 'resetPassword' => true, 'encryptedUserID' => $encryptedUserID]);
                     exit;
@@ -70,7 +70,7 @@ class UserController {
     
                         $this->userModel->updateOTP($userID, $hashedOTP, $otpExpiryDate);
     
-                        echo json_encode(['success' => true, 'twoFactorAuth' => true]);
+                        echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
                         exit;
                     } 
                     else {
