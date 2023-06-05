@@ -20,21 +20,21 @@ CREATE TABLE users (
     two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
     otp VARCHAR(255),
     otp_expiry_date DATETIME,
+    failed_otp_attempts INT NOT NULL DEFAULT 0,
     last_password_change DATETIME,
-    account_lock_duration INT NOT NULL DEFAULT 180,
+    account_lock_duration INT NOT NULL DEFAULT 0,
     email_verification_status TINYINT(1) NOT NULL DEFAULT 0,
     email_verified_at DATETIME,
     last_password_reset DATETIME,
     remember_token VARCHAR(255),
     activation_token VARCHAR(255),
-    account_activation_status TINYINT(1) NOT NULL DEFAULT 0,
     last_log_by INT(10) NOT NULL
 );
 
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, password_expiry_date, is_locked, is_active, registration_date, , last_log_by) VALUES ('Administrator', 'admin@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '', 'Active', '2022-12-30', 0, 1);
+INSERT INTO users (file_as, email, password, company_id, password_expiry_date, is_locked, is_active, registration_date, two_factor_auth, email_verification_status, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '0', '2022-12-30', '0', '1', '2022-12-30', '1', '1', '1');
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -110,6 +110,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "OTP Expiry Date: ", OLD.otp_expiry_date, " -> ", NEW.otp_expiry_date, "<br/>");
     END IF;
 
+    IF NEW.failed_otp_attempts <> OLD.failed_otp_attempts THEN
+        SET audit_log = CONCAT(audit_log, "Failed OTP Attempts: ", OLD.failed_otp_attempts, " -> ", NEW.failed_otp_attempts, "<br/>");
+    END IF;
+
     IF NEW.last_password_change <> OLD.last_password_change THEN
         SET audit_log = CONCAT(audit_log, "Last Password Change: ", OLD.last_password_change, " -> ", NEW.last_password_change, "<br/>");
     END IF;
@@ -132,10 +136,6 @@ BEGIN
 
     IF NEW.activation_token <> OLD.activation_token THEN
         SET audit_log = CONCAT(audit_log, "Activation Token: ", OLD.activation_token, " -> ", NEW.activation_token, "<br/>");
-    END IF;
-
-    IF NEW.account_activation_status <> OLD.account_activation_status THEN
-        SET audit_log = CONCAT(audit_log, "Account Activation Status: ", OLD.account_activation_status, " -> ", NEW.account_activation_status, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -218,6 +218,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>OTP Expiry Date: ", NEW.otp_expiry_date);
     END IF;
 
+    IF NEW.failed_otp_attempts <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Failed OTP Attempts: ", NEW.failed_otp_attempts);
+    END IF;
+
     IF NEW.last_password_change <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Last Password Change: ", NEW.last_password_change);
     END IF;
@@ -242,10 +246,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Activation Token: ", NEW.activation_token);
     END IF;
 
-    IF NEW.account_activation_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Account Activation Status: ", NEW.account_activation_status);
-    END IF;
-
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
 END //
@@ -253,10 +253,16 @@ END //
 CREATE PROCEDURE getUserByEmail(IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM users
-	WHERE email_address = BINARY p_email;
+	WHERE email = BINARY p_email;
 END //
 
-CREATE PROCEDURE updateAccountLock(IN p_user_id INT, IN p_is_locked TINYINT(1) IN p_account_lock_duration INT)
+CREATE PROCEDURE getUserByID(IN p_user_id INT)
+BEGIN
+	SELECT * FROM users
+	WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateAccountLock(IN p_user_id INT, IN p_is_locked TINYINT(1), IN p_account_lock_duration INT)
 BEGIN
 	UPDATE users 
     SET is_locked = p_is_locked, account_lock_duration = p_account_lock_duration 

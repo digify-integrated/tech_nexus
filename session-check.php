@@ -1,5 +1,5 @@
 <?php 
-ssession_start();
+session_start();
 
 if (isset($_COOKIE['remember_token'])) {
     $rememberToken = $_COOKIE['remember_token'];

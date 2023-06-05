@@ -38,6 +38,11 @@ class UserController {
                 $userID = $user['user_id'];
                 $encryptedUserID = $this->securityModel->encryptData($userID);
     
+                if (!$user['is_active']) {
+                    echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
+                    exit;
+                }
+
                 if ($user['is_locked']) {
                     $lockDuration = $user['account_lock_duration'];
                     $lastFailedLogin = strtotime($user['last_failed_login_attempt']);
@@ -45,7 +50,7 @@ class UserController {
     
                     if (time() < $unlockTime) {
                         $remainingTime = round(($unlockTime - time()) / 60);
-                        echo json_encode(['success' => false, 'message' => "Your account is locked. Please try again in $remainingTime minutes."]);
+                        echo json_encode(['success' => false, 'message' => "Your account has been locked. Please try again in $remainingTime minutes."]);
                         exit;
                     }
                     else {
@@ -53,13 +58,12 @@ class UserController {
                     }
                 }
     
-                if ($this->password_expiry_date($userID)) {
-    
-                    echo json_encode(['success' => true, 'resetPassword' => true, 'encryptedUserID' => $encryptedUserID]);
-                    exit;
-                }
-    
                 if (password_verify($password, $user['password'])) {
+                    if ($this->password_expiry_date($userID)) {
+                        echo json_encode(['success' => true, 'passwordChange' => true, 'encryptedUserID' => $encryptedUserID]);
+                        exit;
+                    }
+
                     $this->userModel->updateLoginAttempt($userID, 0, null);
     
                     if ($user['two_factor_auth']) {
@@ -96,18 +100,18 @@ class UserController {
                     $this->userModel->updateLoginAttempt($userID, $failedAttempts, $lastFailedLogin);
     
                     if ($failedAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
-                        $lockDuration = $user['account_lock_duration'] + ($failedAttempts + 1);
+                        $lockDuration = $user['account_lock_duration'] + (($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS) + 5);
                         $this->userModel->updateAccountLock($userID, 1, $lockDuration);
-                        echo json_encode(['success' => false, 'message' => "Maximum number of failed login attempts reached. Your account has been locked for $lockDuration minutes."]);
+                        echo json_encode(['success' => false, 'message' => "You have reached the maximum number of failed login attempts. Your account has been locked for $lockDuration minutes."]);
                         exit;
                     }
     
-                    echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+                    echo json_encode(['success' => false, 'message' => 'The email or password you entered is invalid. Please double-check your credentials and try again.']);
                     exit;
                 }
             } 
             else {
-                echo json_encode(['success' => false, 'message' => 'Invalid email or password.']);
+                echo json_encode(['success' => false, 'message' => 'The email or password you entered is invalid. Please double-check your credentials and try again.']);
                 exit;
             }
         }
@@ -117,17 +121,24 @@ class UserController {
     private function password_expiry_date($userID) {
         $user = $this->userModel->getUserByID($userID);
         
-        if ($user) {
+        if ($user && $user['password_expiry_date']) {
             $expiryDate = strtotime($user['password_expiry_date']);
             $currentDate = time();
-            
-            return ($expiryDate && $expiryDate < $currentDate);
+
+            if(strtotime(date('Y-m-d')) > strtotime($expiryDate)){
+                return true;
+            }
         }
         
         return false;
     }
 }
 
-$controller = new UserController(new UserModel());
+require_once '../config/config.php';
+require_once '../model/database-model.php';
+require_once '../model/user-model.php';
+require_once '../model/security-model.php';
+
+$controller = new UserController(new UserModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

@@ -46,26 +46,6 @@ $(document).ready(function () {
       }
     },
     submitHandler: function(form) {
-      $.ajax({
-          url: 'controller/user-controller.php',
-          type: 'POST',
-          dataType: 'json',
-          data: $(this).serialize() + '&action=transaction',
-          success: function(response) {
-              if (response.success) {
-                  if (response.twoFactorAuth) {
-                      window.location.href = 'otp_verification.php';
-                  } else {
-                      window.location.href = 'dashboard.php';
-                  }
-              } else {
-                  alert(response.message);
-              }
-          },
-          error: function() {
-              alert('An error occurred. Please try again.');
-          }
-      });
       const transaction = 'authenticate';
 
       $.ajax({
@@ -79,18 +59,22 @@ $(document).ready(function () {
         success: function(response) {
           if (response.success) {
               if (response.twoFactorAuth) {
+                  var encryptedUserID = response.encryptedUserID;
                   window.location.href = 'otp_verification.php?id=' + encryptedUserID;
               }
               else if (response.resetPassword) {
                   var encryptedUserID = response.encryptedUserID;
-                  window.location.href = 'reset-password.php?id=' + encryptedUserID;
+                  window.location.href = 'password-change.php?id=' + encryptedUserID;
+              }
+              else if (response.passwordChange) {
+                  var encryptedUserID = response.encryptedUserID;
+                  window.location = 'reset-password.php?id=' + response[0]['EMAIL'];
               }
               else {
                   window.location.href = 'dashboard.php';
               }
           } 
           else {
-              alert(response.message);
               showNotification('Authentication Error', response.message, 'danger');
           }
         

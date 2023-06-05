@@ -1,8 +1,10 @@
 <?php
     require('config/config.php');
+    require('model/database-model.php');
     require('model/user-model.php');
 
-    $userModel = new UserModel();
+    $databaseModel = new DatabaseModel();
+    $userModel = new UserModel($databaseModel);
     $page_title = 'Nexus Integrated Solutions';
     
     require('session-check.php');

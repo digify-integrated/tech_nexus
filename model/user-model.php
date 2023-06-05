@@ -3,12 +3,20 @@
 class UserModel {
     public $db;
 
-    public function __construct(Database $db) {
+    public function __construct(DatabaseModel $db) {
         $this->db = $db;
     }
 
     public function getUserByEmail($p_email) {
         $stmt = $this->db->getConnection()->prepare("CALL getUserByEmail(:p_email)");
+        $stmt->bindParam(':p_email', $p_email);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserByID($p_user_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL getUserByID(:p_user_id)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

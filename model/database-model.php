@@ -1,6 +1,6 @@
 <?php
 
-class Database {
+class DatabaseModel {
     public static $instance;
     public $connection;
 
