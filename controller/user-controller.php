@@ -38,6 +38,11 @@ class UserController {
                 $userID = $user['user_id'];
                 $encryptedUserID = $this->securityModel->encryptData($userID);
     
+                if (!$user['email_verification_status']) {
+                    echo json_encode(['success' => false, 'message' => 'Your email address is not verified. Please verify your email before you can proceed']);
+                    exit;
+                }
+    
                 if (!$user['is_active']) {
                     echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
                     exit;
@@ -60,19 +65,25 @@ class UserController {
     
                 if (password_verify($password, $user['password'])) {
                     if ($this->password_expiry_date($userID)) {
-                        echo json_encode(['success' => true, 'passwordChange' => true, 'encryptedUserID' => $encryptedUserID]);
+                        $resetToken = $this->securityModel->encryptData($this->userModel->generateResetToken());
+                        $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+
+                        $this->userModel->updateResetToken($userID, $resetToken, $resetTokenExpiryDate);
+                        $this->userModel->sendPasswordReset($email, $resetToken);
+                        echo json_encode(['success' => false, 'message' => 'Your password has expired. Please check your email for instructions on how to reset it.']);
                         exit;
                     }
 
                     $this->userModel->updateLoginAttempt($userID, 0, null);
     
                     if ($user['two_factor_auth']) {
-                        $otp = $this->userModel->generateOTP();
+                        $otp = $this->userModel->generateOTP(6,6);
     
                         $hashedOTP = password_hash($otp, PASSWORD_DEFAULT);
                         $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
     
                         $this->userModel->updateOTP($userID, $hashedOTP, $otpExpiryDate);
+                        $this->userModel->sendOTP($email, $otp);
     
                         echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
                         exit;
@@ -99,7 +110,7 @@ class UserController {
     
                     $this->userModel->updateLoginAttempt($userID, $failedAttempts, $lastFailedLogin);
     
-                    if ($failedAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+                    if ($failedAttempts > MAX_FAILED_LOGIN_ATTEMPTS) {
                         $lockDuration = $user['account_lock_duration'] + (($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS) + 5);
                         $this->userModel->updateAccountLock($userID, 1, $lockDuration);
                         echo json_encode(['success' => false, 'message' => "You have reached the maximum number of failed login attempts. Your account has been locked for $lockDuration minutes."]);
@@ -122,7 +133,7 @@ class UserController {
         $user = $this->userModel->getUserByID($userID);
         
         if ($user && $user['password_expiry_date']) {
-            $expiryDate = strtotime($user['password_expiry_date']);
+            $expiryDate = $user['password_expiry_date'];
             $currentDate = time();
 
             if(strtotime(date('Y-m-d')) > strtotime($expiryDate)){
