@@ -62,14 +62,6 @@ $(document).ready(function () {
                   var encryptedUserID = response.encryptedUserID;
                   window.location.href = 'otp_verification.php?id=' + encryptedUserID;
               }
-              else if (response.resetPassword) {
-                  var encryptedUserID = response.encryptedUserID;
-                  window.location.href = 'password-change.php?id=' + encryptedUserID;
-              }
-              else if (response.passwordChange) {
-                  var encryptedUserID = response.encryptedUserID;
-                  window.location = 'reset-password.php?id=' + response[0]['EMAIL'];
-              }
               else {
                   window.location.href = 'dashboard.php';
               }

@@ -59,36 +59,97 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function generateOTP($p_otp_length = 6) {
-        $unique_otp = false;    
-        $max = pow(10, $p_otp_length) - 1;
+    public function updateResetToken($p_user_id, $p_reset_token, $p_reset_token_expiry_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateResetToken(:p_user_id, :p_reset_token, :p_reset_token_expiry_date)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_reset_token', $p_reset_token);
+        $stmt->bindParam(':p_reset_token_expiry_date', $p_reset_token_expiry_date);
+        $stmt->execute();
+    }
+
+    public function generateOTP($min_length = 6, $max_length = 8) {
+        $length = mt_rand($min_length, $max_length);
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $character_count = strlen($characters);
+        $otp = '';
     
-        $random_number = mt_rand(0, $max);
-    
-        $otp = str_pad($random_number, $p_otp_length, '0', STR_PAD_LEFT);
+        for ($i = 0; $i < $length; $i++) {
+            $index = mt_rand(0, $character_count - 1);
+            $otp .= $characters[$index];
+        }
     
         return $otp;
     }
     
+    public function generateResetToken($min_length = 10, $max_length = 12) {
+        $length = mt_rand($min_length, $max_length);
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $character_count = strlen($characters);
+        $reset_token = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $index = mt_rand(0, $character_count - 1);
+            $reset_token .= $characters[$index];
+        }
+    
+        return $reset_token;
+    }
+    
     public function sendOTP($email, $otp) {
-        require('./assets/libs/PHPMailer/src/PHPMailer.php');
-        require('./assets/libs/PHPMailer/src/Exception.php');
-        require('./assets/libs/PHPMailer/src/SMTP.php');
+        require('../assets/libs/PHPMailer/src/PHPMailer.php');
+        require('../assets/libs/PHPMailer/src/Exception.php');
+        require('../assets/libs/PHPMailer/src/SMTP.php');
+
+        $message = file_get_contents('../email-template/otp-email.html');
+        $message = str_replace('[OTP CODE]', $otp, $message);
 
         $mailer = new PHPMailer\PHPMailer\PHPMailer();
         
         $mailer->isSMTP();
-        $mailer->Host = 'smtp.hostinger.com';
-        $mailer->SMTPAuth = true;
-        $mailer->Username = 'encore-noreply@encorefinancials.com';
-        $mailer->Password = 'P@ssw0rd';
-        $mailer->SMTPSecure = 'ssl';
-        $mailer->Port = 465;
+        $mailer->isHTML(true);
+        $mailer->Host = MAIL_HOST;
+        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
+        $mailer->Username = MAIL_USERNAME;
+        $mailer->Password = MAIL_PASSWORD;
+        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
+        $mailer->Port = MAIL_PORT;
         
-        $mailer->setFrom('encore-noreply@encorefinancials.com', 'EIS');
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
         $mailer->addAddress($email);
-        $mailer->Subject = 'One-Time Password (OTP) Verification';
-        $mailer->Body = 'Your OTP: ' . $otp;
+        $mailer->Subject = 'EIS | One-Time Password (OTP)';
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    
+    public function sendPasswordReset($email, $reset_token) {
+        require('../assets/libs/PHPMailer/src/PHPMailer.php');
+        require('../assets/libs/PHPMailer/src/Exception.php');
+        require('../assets/libs/PHPMailer/src/SMTP.php');
+
+        $message = file_get_contents('../email-template/reset-password-email.html');
+        $message = str_replace('[RESET LINK]', 'http://localhost/tech_nexus/reset-password.php?id=' . $reset_token, $message);
+
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = MAIL_HOST;
+        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
+        $mailer->Username = MAIL_USERNAME;
+        $mailer->Password = MAIL_PASSWORD;
+        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
+        $mailer->Port = MAIL_PORT;
+        
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->addAddress($email);
+        $mailer->Subject = 'EIS | Reset Password';
+        $mailer->Body = $message;
     
         if ($mailer->send()) {
             return true;

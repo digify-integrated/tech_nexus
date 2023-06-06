@@ -16,6 +16,7 @@ CREATE TABLE users (
     registration_date DATETIME NOT NULL,
     verification_token VARCHAR(255),
     reset_token VARCHAR(255),
+    reset_token_expiry_date DATETIME,
     password_reset_expiration DATETIME,
     two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
     otp VARCHAR(255),
@@ -92,6 +93,10 @@ BEGIN
 
     IF NEW.reset_token <> OLD.reset_token THEN
         SET audit_log = CONCAT(audit_log, "Reset Token: ", OLD.reset_token, " -> ", NEW.reset_token, "<br/>");
+    END IF;
+
+    IF NEW.reset_token_expiry_date <> OLD.reset_token THEN
+        SET audit_log = CONCAT(audit_log, "Reset Token Expiry Date: ", OLD.reset_token_expiry_date, " -> ", NEW.reset_token_expiry_date, "<br/>");
     END IF;
 
     IF NEW.password_reset_expiration <> OLD.password_reset_expiration THEN
@@ -202,6 +207,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Reset Token: ", NEW.reset_token);
     END IF;
 
+    IF NEW.reset_token_expiry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reset Token Expiry Date: ", NEW.reset_token_expiry_date);
+    END IF;
+
     IF NEW.password_reset_expiration <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Password Reset Expiration: ", NEW.password_reset_expiration);
     END IF;
@@ -290,10 +299,17 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN otp_expiry_date DATETIME)
+CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN p_otp_expiry_date DATETIME)
 BEGIN
 	UPDATE users 
     SET otp = p_otp, otp_expiry_date = p_otp_expiry_date
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateResetToken(IN p_user_id INT, IN p_reset_token VARCHAR(255), IN p_reset_token_expiry_date DATETIME)
+BEGIN
+	UPDATE users 
+    SET reset_token = p_reset_token, reset_token_expiry_date = p_reset_token_expiry_date
     WHERE user_id = p_user_id;
 END //
 

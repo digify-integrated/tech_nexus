@@ -20,10 +20,10 @@ date_default_timezone_set('Asia/Manila');
 #
 # -------------------------------------------------------------
 
-define('DB_HOST', getenv('DB_HOST'));
-define('DB_NAME', getenv('DB_NAME'));
-define('DB_USER', getenv('DB_USER'));
-define('DB_PASS', getenv('DB_PASS'));
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'nexusdb');
+define('DB_USER', 'nexus');
+define('DB_PASS', 'qKHJpbkgC6t93nQr');
 
 # -------------------------------------------------------------
 #
@@ -32,7 +32,13 @@ define('DB_PASS', getenv('DB_PASS'));
 #
 # -------------------------------------------------------------
 
-define('ENCRYPTION_KEY', getenv('ENCRYPTION_KEY'));
+define('ENCRYPTION_KEY', '4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R');
+define('MAIL_HOST', 'smtp.hostinger.com');
+define('MAIL_SMTP_AUTH', true);
+define('MAIL_USERNAME', 'encore-noreply@encorefinancials.com');
+define('MAIL_PASSWORD', 'P@ssw0rd');
+define('MAIL_SMTP_SECURE', 'ssl');
+define('MAIL_PORT', 465);
 
 # -------------------------------------------------------------
 #
