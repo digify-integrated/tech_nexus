@@ -37,40 +37,49 @@ class UserController {
             if ($user) {
                 $userID = $user['user_id'];
                 $encryptedUserID = $this->securityModel->encryptData($userID);
-    
-                if (!$user['email_verification_status']) {
-                    echo json_encode(['success' => false, 'message' => 'Your email address is not verified. Please verify your email before you can proceed']);
-                    exit;
-                }
-    
-                if (!$user['is_active']) {
-                    echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
-                    exit;
-                }
 
-                if ($user['is_locked']) {
-                    $lockDuration = $user['account_lock_duration'];
-                    $lastFailedLogin = strtotime($user['last_failed_login_attempt']);
-                    $unlockTime = strtotime("+$lockDuration minutes", $lastFailedLogin);
-    
-                    if (time() < $unlockTime) {
-                        $remainingTime = round(($unlockTime - time()) / 60);
-                        echo json_encode(['success' => false, 'message' => "Your account has been locked. Please try again in $remainingTime minutes."]);
+                if (password_verify($password, $user['password'])) {
+                    if (!$user['email_verification_status']) {
+                        if (empty($user['email_verification_token']) || (!empty($user['email_verification_token']) && strtotime(date('Y-m-d')) > strtotime($user['email_verification_token_expiry_date']))) {
+                            $emailVerificationToken = $this->userModel->generateEmailVerificationToken();
+                            $encryptedVerificationToken =  $this->securityModel->encryptData($emailVerificationToken);
+                            $emailVerificationTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+24 hours'));
+        
+                            $this->userModel->updateEmailResetToken($userID, $encryptedVerificationToken, $emailVerificationTokenExpiryDate);
+                            $this->userModel->sendEmailVerification($email, $emailVerificationToken);
+                        }
+                        
+                        echo json_encode(['success' => true, 'emailVerification' => true, 'encryptedUserID' => $encryptedUserID]);
                         exit;
                     }
-                    else {
-                        $this->userModel->updateAccountLock($userID, 0, null);
+        
+                    if (!$user['is_active']) {
+                        echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
+                        exit;
                     }
-                }
     
-                if (password_verify($password, $user['password'])) {
+                    if ($user['is_locked']) {
+                        $lockDuration = $user['account_lock_duration'];
+                        $lastFailedLogin = strtotime($user['last_failed_login_attempt']);
+                        $unlockTime = strtotime("+$lockDuration minutes", $lastFailedLogin);
+        
+                        if (time() < $unlockTime) {
+                            $remainingTime = round(($unlockTime - time()) / 60);
+                            echo json_encode(['success' => false, 'message' => "Your account has been locked. Please try again in $remainingTime minutes."]);
+                            exit;
+                        }
+                        else {
+                            $this->userModel->updateAccountLock($userID, 0, null);
+                        }
+                    }
+    
                     if ($this->password_expiry_date($userID)) {
                         $resetToken = $this->securityModel->encryptData($this->userModel->generateResetToken());
                         $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
 
                         $this->userModel->updateResetToken($userID, $resetToken, $resetTokenExpiryDate);
                         $this->userModel->sendPasswordReset($email, $resetToken);
-                        echo json_encode(['success' => false, 'message' => 'Your password has expired. Please check your email for instructions on how to reset it.']);
+                        echo json_encode(['success' => true, 'passwordExpiry' => true, 'encryptedUserID' => $encryptedUserID]);
                         exit;
                     }
 
@@ -78,11 +87,10 @@ class UserController {
     
                     if ($user['two_factor_auth']) {
                         $otp = $this->userModel->generateOTP(6,6);
-    
-                        $hashedOTP = password_hash($otp, PASSWORD_DEFAULT);
+                        $encryptedOTP =  $this->securityModel->encryptData($otp);
                         $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
     
-                        $this->userModel->updateOTP($userID, $hashedOTP, $otpExpiryDate);
+                        $this->userModel->updateOTP($userID, $encryptedOTP, $otpExpiryDate);
                         $this->userModel->sendOTP($email, $otp);
     
                         echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
@@ -128,7 +136,6 @@ class UserController {
         }
     }
     
-
     private function password_expiry_date($userID) {
         $user = $this->userModel->getUserByID($userID);
         

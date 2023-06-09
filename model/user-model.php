@@ -67,6 +67,14 @@ class UserModel {
         $stmt->execute();
     }
 
+    public function updateEmailResetToken($p_user_id, $p_email_verification_token, $p_email_verification_token_expiry_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateEmailResetToken(:p_user_id, :p_email_verification_token, :p_email_verification_token_expiry_date)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_email_verification_token', $p_email_verification_token);
+        $stmt->bindParam(':p_email_verification_token_expiry_date', $p_email_verification_token_expiry_date);
+        $stmt->execute();
+    }
+
     public function generateOTP($min_length = 6, $max_length = 8) {
         $length = mt_rand($min_length, $max_length);
         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -93,6 +101,20 @@ class UserModel {
         }
     
         return $reset_token;
+    }
+    
+    public function generateEmailVerificationToken($min_length = 10, $max_length = 12) {
+        $length = mt_rand($min_length, $max_length);
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $character_count = strlen($characters);
+        $verification_token = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $index = mt_rand(0, $character_count - 1);
+            $verification_token .= $characters[$index];
+        }
+    
+        return $verification_token;
     }
     
     public function sendOTP($email, $otp) {
@@ -149,6 +171,38 @@ class UserModel {
         $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
         $mailer->addAddress($email);
         $mailer->Subject = 'EIS | Reset Password';
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    
+    public function sendEmailVerification($email, $verification_token) {
+        require('../assets/libs/PHPMailer/src/PHPMailer.php');
+        require('../assets/libs/PHPMailer/src/Exception.php');
+        require('../assets/libs/PHPMailer/src/SMTP.php');
+
+        $message = file_get_contents('../email-template/email-verification.html');
+        $message = str_replace('[VERIFICATION CODE]', $verification_token, $message);
+
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = MAIL_HOST;
+        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
+        $mailer->Username = MAIL_USERNAME;
+        $mailer->Password = MAIL_PASSWORD;
+        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
+        $mailer->Port = MAIL_PORT;
+        
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->addAddress($email);
+        $mailer->Subject = 'EIS | Email Verification';
         $mailer->Body = $message;
     
         if ($mailer->send()) {

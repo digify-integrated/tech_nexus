@@ -5,19 +5,15 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     company_id INT NOT NULL,
-    password_expiry_date DATE NOT NULL,
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     last_failed_login_attempt DATETIME,
     failed_login_attempts INT NOT NULL DEFAULT 0,
     last_connection_date DATETIME,
-    last_ip_address VARCHAR(45),
-    last_location VARCHAR(255),
+    password_expiry_date DATE NOT NULL,
     registration_date DATETIME NOT NULL,
-    verification_token VARCHAR(255),
     reset_token VARCHAR(255),
     reset_token_expiry_date DATETIME,
-    password_reset_expiration DATETIME,
     two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
     otp VARCHAR(255),
     otp_expiry_date DATETIME,
@@ -25,17 +21,18 @@ CREATE TABLE users (
     last_password_change DATETIME,
     account_lock_duration INT NOT NULL DEFAULT 0,
     email_verification_status TINYINT(1) NOT NULL DEFAULT 0,
+    email_verification_token VARCHAR(255),
+    email_verification_token_expiry_date DATETIME,
     email_verified_at DATETIME,
     last_password_reset DATETIME,
     remember_token VARCHAR(255),
-    activation_token VARCHAR(255),
     last_log_by INT(10) NOT NULL
 );
 
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, company_id, password_expiry_date, is_locked, is_active, registration_date, two_factor_auth, email_verification_status, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '0', '2022-12-30', '0', '1', '2022-12-30', '1', '1', '1');
+INSERT INTO users (file_as, email, password, company_id, is_locked, is_active, password_expiry_date, registration_date, two_factor_auth, email_verification_status, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '0', '0', '1', '2022-12-30', '2022-12-30', '1', '1', '1');
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -51,8 +48,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
     END IF;
 
-    IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
     END IF;
 
     IF NEW.is_locked <> OLD.is_locked THEN
@@ -75,32 +72,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
     END IF;
 
-    IF NEW.last_ip_address <> OLD.last_ip_address THEN
-        SET audit_log = CONCAT(audit_log, "Last IP Address: ", OLD.last_ip_address, " -> ", NEW.last_ip_address, "<br/>");
-    END IF;
-
-    IF NEW.last_location <> OLD.last_location THEN
-        SET audit_log = CONCAT(audit_log, "Last Location: ", OLD.last_location, " -> ", NEW.last_location, "<br/>");
+    IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
+        SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
     END IF;
 
     IF NEW.registration_date <> OLD.registration_date THEN
         SET audit_log = CONCAT(audit_log, "Registration Date: ", OLD.registration_date, " -> ", NEW.registration_date, "<br/>");
     END IF;
 
-    IF NEW.verification_token <> OLD.verification_token THEN
-        SET audit_log = CONCAT(audit_log, "Verification Token: ", OLD.verification_token, " -> ", NEW.verification_token, "<br/>");
-    END IF;
-
     IF NEW.reset_token <> OLD.reset_token THEN
         SET audit_log = CONCAT(audit_log, "Reset Token: ", OLD.reset_token, " -> ", NEW.reset_token, "<br/>");
     END IF;
 
-    IF NEW.reset_token_expiry_date <> OLD.reset_token THEN
+    IF NEW.reset_token_expiry_date <> OLD.reset_token_expiry_date THEN
         SET audit_log = CONCAT(audit_log, "Reset Token Expiry Date: ", OLD.reset_token_expiry_date, " -> ", NEW.reset_token_expiry_date, "<br/>");
-    END IF;
-
-    IF NEW.password_reset_expiration <> OLD.password_reset_expiration THEN
-        SET audit_log = CONCAT(audit_log, "Password Reset Expiration: ", OLD.password_reset_expiration, " -> ", NEW.password_reset_expiration, "<br/>");
     END IF;
 
     IF NEW.two_factor_auth <> OLD.two_factor_auth THEN
@@ -123,8 +108,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Last Password Change: ", OLD.last_password_change, " -> ", NEW.last_password_change, "<br/>");
     END IF;
 
+    IF NEW.account_lock_duration <> OLD.account_lock_duration THEN
+        SET audit_log = CONCAT(audit_log, "Account Lock Duration: ", OLD.account_lock_duration, " -> ", NEW.account_lock_duration, "<br/>");
+    END IF;
+
     IF NEW.email_verification_status <> OLD.email_verification_status THEN
         SET audit_log = CONCAT(audit_log, "Email Verification Status: ", OLD.email_verification_status, " -> ", NEW.email_verification_status, "<br/>");
+    END IF;
+
+    IF NEW.email_verification_token <> OLD.email_verification_token THEN
+        SET audit_log = CONCAT(audit_log, "Email Verification Token: ", OLD.email_verification_token, " -> ", NEW.email_verification_token, "<br/>");
+    END IF;
+
+    IF NEW.email_verification_token_expiry_date <> OLD.email_verification_token_expiry_date THEN
+        SET audit_log = CONCAT(audit_log, "Email Verification Token Expiry Date: ", OLD.email_verification_token_expiry_date, " -> ", NEW.email_verification_token_expiry_date, "<br/>");
     END IF;
 
     IF NEW.email_verified_at <> OLD.email_verified_at THEN
@@ -137,10 +134,6 @@ BEGIN
 
     IF NEW.remember_token <> OLD.remember_token THEN
         SET audit_log = CONCAT(audit_log, "Remember Token: ", OLD.remember_token, " -> ", NEW.remember_token, "<br/>");
-    END IF;
-
-    IF NEW.activation_token <> OLD.activation_token THEN
-        SET audit_log = CONCAT(audit_log, "Activation Token: ", OLD.activation_token, " -> ", NEW.activation_token, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -163,8 +156,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
     END IF;
 
-    IF NEW.password_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
     END IF;
 
     IF NEW.is_locked <> '' THEN
@@ -187,20 +180,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Last Connection Date: ", NEW.last_connection_date);
     END IF;
 
-    IF NEW.last_ip_address <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Last IP Address: ", NEW.last_ip_address);
-    END IF;
-
-    IF NEW.last_location <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Last Location: ", NEW.last_location);
+    IF NEW.password_expiry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
     END IF;
 
     IF NEW.registration_date <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Registration Date: ", NEW.registration_date);
-    END IF;
-
-    IF NEW.verification_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Verification Token: ", NEW.verification_token);
     END IF;
 
     IF NEW.reset_token <> '' THEN
@@ -209,10 +194,6 @@ BEGIN
 
     IF NEW.reset_token_expiry_date <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Reset Token Expiry Date: ", NEW.reset_token_expiry_date);
-    END IF;
-
-    IF NEW.password_reset_expiration <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Password Reset Expiration: ", NEW.password_reset_expiration);
     END IF;
 
     IF NEW.two_factor_auth <> '' THEN
@@ -235,8 +216,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Last Password Change: ", NEW.last_password_change);
     END IF;
 
+    IF NEW.account_lock_duration <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Account Lock Duration: ", NEW.account_lock_duration);
+    END IF;
+
     IF NEW.email_verification_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Email Verification Status: ", NEW.email_verification_status);
+    END IF;
+
+    IF NEW.email_verification_token <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Verification Token: ", NEW.email_verification_token);
+    END IF;
+
+    IF NEW.email_verification_token_expiry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Verification Token Expiry Date: ", NEW.email_verification_token_expiry_date);
     END IF;
 
     IF NEW.email_verified_at <> '' THEN
@@ -249,10 +242,6 @@ BEGIN
 
     IF NEW.remember_token <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Remember Token: ", NEW.remember_token);
-    END IF;
-
-    IF NEW.activation_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Activation Token: ", NEW.activation_token);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -310,6 +299,13 @@ CREATE PROCEDURE updateResetToken(IN p_user_id INT, IN p_reset_token VARCHAR(255
 BEGIN
 	UPDATE users 
     SET reset_token = p_reset_token, reset_token_expiry_date = p_reset_token_expiry_date
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateEmailResetToken(IN p_user_id INT, IN p_email_verification_token VARCHAR(255), IN p_email_verification_token_expiry_date DATETIME)
+BEGIN
+	UPDATE users 
+    SET email_verification_token = p_email_verification_token, email_verification_token_expiry_date = p_email_verification_token_expiry_date
     WHERE user_id = p_user_id;
 END //
 

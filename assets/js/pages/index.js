@@ -58,12 +58,20 @@ $(document).ready(function () {
         },
         success: function(response) {
           if (response.success) {
-              if (response.twoFactorAuth) {
-                  var encryptedUserID = response.encryptedUserID;
-                  window.location.href = 'otp_verification.php?id=' + encryptedUserID;
+              if (response.emailVerification) {
+                var encryptedUserID = response.encryptedUserID;
+                window.location.href = 'email-verification.php?id=' + encryptedUserID + '&type=email';
+              }
+              else if (response.passwordExpiry) {
+                var encryptedUserID = response.encryptedUserID;
+                window.location.href = 'password-reset.php?id=' + encryptedUserID + '&type=reset';
+              }
+              else if (response.twoFactorAuth) {
+                var encryptedUserID = response.encryptedUserID;
+                window.location.href = 'otp-verification.php?id=' + encryptedUserID;
               }
               else {
-                  window.location.href = 'dashboard.php';
+                window.location.href = 'dashboard.php';
               }
           } 
           else {

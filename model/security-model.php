@@ -35,5 +35,15 @@ class SecurityModel {
         
         return $plaintext;
     }
+
+    public function formatEmail($email) {
+        $parts = explode("@", $email);
+        $username = $parts[0];
+        $domain = $parts[1];
+      
+        $maskedUsername = substr($username, 0, 1) . str_repeat("*", strlen($username) - 1);
+      
+        return $maskedUsername . "@" . $domain;
+    }
 }
 ?>
