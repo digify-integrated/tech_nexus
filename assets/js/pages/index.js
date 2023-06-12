@@ -62,10 +62,6 @@ $(document).ready(function () {
                 var encryptedUserID = response.encryptedUserID;
                 window.location.href = 'email-verification.php?id=' + encryptedUserID + '&type=email';
               }
-              else if (response.passwordExpiry) {
-                var encryptedUserID = response.encryptedUserID;
-                window.location.href = 'password-reset.php?id=' + encryptedUserID + '&type=reset';
-              }
               else if (response.twoFactorAuth) {
                 var encryptedUserID = response.encryptedUserID;
                 window.location.href = 'otp-verification.php?id=' + encryptedUserID;
@@ -80,7 +76,12 @@ $(document).ready(function () {
         
         },
         error: function(xhr, status, error) {
-          showNotification('Authentication Error', 'An error occurred while processing your request. Please try again later.', 'danger');
+          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+
+          var response = xhr.responseText;
+          fullErrorMessage += ', Response: ' + response;
+        
+          showErrorDialog(fullErrorMessage);
         },
         complete: function() {
           enableFormSubmitButton('signin', 'Login');

@@ -24282,13 +24282,13 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
 }
 
 .construction-card-1 {
-  background: url("../images/pages/img-cunstruct-1-bg.png");
+  background: url("../images/default/img-cunstruct-1-bg.png");
   min-height: 100vh;
   background-size: 100%;
   background-repeat: no-repeat;
 }
 .construction-card-1 .construction-card-bottom {
-  background: url("../images/pages/img-cunstruct-1-bottom.svg");
+  background: url("../images/default/img-cunstruct-1-bottom.svg");
   background-size: contain;
   background-position: bottom;
   background-repeat: no-repeat;

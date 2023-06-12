@@ -32,7 +32,7 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, company_id, is_locked, is_active, password_expiry_date, registration_date, two_factor_auth, email_verification_status, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', '$2y$10$M3fsHaJP9bxY84ox5QSoA./iNmLcg3V.5TtASgcAFbiEPK92uv2vC', '0', '0', '1', '2022-12-30', '2022-12-30', '1', '1', '1');
+INSERT INTO users (file_as, email, password, company_id, is_locked, is_active, password_expiry_date, registration_date, two_factor_auth, email_verification_status, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'k8NG7lSkQSr7%2FHyZYyjRWWjgZtZHxU5yNDG61mHcJcM%3D', '0', '0', '1', '2022-12-30', '2022-12-30', '1', '1', '1');
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -274,10 +274,10 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE updateLastConnection(IN p_user_id INT, IN p_last_ip_address VARCHAR(45), IN p_last_location VARCHAR(255), IN p_last_connection_date DATETIME)
+CREATE PROCEDURE updateLastConnection(IN p_user_id INT, IN p_last_connection_date DATETIME)
 BEGIN
 	UPDATE users 
-    SET last_ip_address = last_ip_address, last_location = p_last_location, last_connection_date = p_last_connection_date
+    SET last_connection_date = p_last_connection_date
     WHERE user_id = p_user_id;
 END //
 
@@ -307,6 +307,51 @@ BEGIN
 	UPDATE users 
     SET email_verification_token = p_email_verification_token, email_verification_token_expiry_date = p_email_verification_token_expiry_date
     WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateEmaiVerificationStatus(IN p_user_id INT, IN p_email_verified_at DATETIME)
+BEGIN
+	UPDATE users 
+    SET email_verification_status = 1, email_verified_at = p_email_verified_at
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateUserPassword(IN p_user_id INT, IN p_email VARCHAR(255), IN p_password VARCHAR(255), IN p_password_expiry_date DATE, IN p_last_password_change DATETIME)
+BEGIN
+	UPDATE users 
+    SET password = p_password, password_expiry_date = p_password_expiry_date, last_password_change = p_last_password_change, is_locked = 0, failed_login_attempts = 0, account_lock_duration = 0
+    WHERE p_user_id = p_user_id OR email = BINARY p_email;
+END //
+
+/* Password history table */
+CREATE TABLE password_history (
+    password_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    password_change_date DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE password_history
+ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+ALTER TABLE password_history
+ADD FOREIGN KEY (email) REFERENCES users(email);
+
+CREATE INDEX password_history_index_password_history_id ON password_history(password_history_id);
+CREATE INDEX password_history_index_user_id ON password_history(user_id);
+CREATE INDEX password_history_index_email ON password_history(email);
+
+CREATE PROCEDURE getPasswordHistory(IN p_user_id INT, IN p_email VARCHAR(255))
+BEGIN
+	SELECT * FROM password_history
+	WHERE p_user_id = p_user_id OR email = BINARY p_email;
+END //
+
+CREATE PROCEDURE insertPasswordHistory(IN p_user_id INT, IN p_email VARCHAR(255), IN p_password VARCHAR(255), IN p_last_password_change DATETIME)
+BEGIN
+    INSERT INTO password_history (user_id, email, password, password_change_date) 
+    VALUES (p_user_id, p_email, p_password, p_last_password_change);
 END //
 
 /* Audit log table */

@@ -13,7 +13,16 @@
         $id = $_GET['id'];
         $userID = $securityModel->decryptData($id);
         $user = $userModel->getUserByID($userID);
+        $emailVerificationTokenExpiryDate = $user['email_verification_token_expiry_date'];
         $emailObscure = $securityModel->formatEmail($user['email']);
+
+        if (strtotime(date('Y-m-d H:i:s')) > strtotime($emailVerificationTokenExpiryDate)) {
+            header('location: error.php?type='. $securityModel->encryptData('email verification token expired'));
+            exit;
+        }
+    }
+    else {
+        header('location: 404.php');
     }
     
     require('session-check.php');
@@ -57,6 +66,7 @@
         </div>
     </div>
     <?php 
+        include_once('config/_error_modal.php');
         include_once('config/_required_js.php');
     ?>
     <script src="./assets/js/pages/email-verification.js?v=<?php echo rand(); ?>"></script>

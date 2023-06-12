@@ -77,6 +77,10 @@
         $(document).on('click','.datatable-checkbox-children',function() {
             toggleActionDropdown();
         });
+
+        $(document).on('click','#copy-error-message',function() {
+            copyToClipboard("error-dialog");
+        });
     });
 })(jQuery);
 
@@ -563,4 +567,22 @@ function toggleActionDropdown(){
 function toggleHideActionDropdown(){
     $('.action-dropdown').addClass('d-none');
     $('#datatable-checkbox').prop('checked', false);
+}
+
+function showErrorDialog(error){
+    document.getElementById("error-dialog").innerHTML = error;
+    $('#system-error-modal').modal('show');
+}
+
+function copyToClipboard(elementId) {
+    var element = document.getElementById(elementId);
+    var text = element.innerHTML;
+  
+    navigator.clipboard.writeText(text)
+      .then(function() {
+        showNotification('Copy Successful', 'Text copied to clipboard', 'success');
+      })
+      .catch(function(err) {
+        showNotification('Copy Error', err, 'danger');
+      });
 }

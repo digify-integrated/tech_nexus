@@ -45,5 +45,36 @@ class SecurityModel {
       
         return $maskedUsername . "@" . $domain;
     }
+
+    public function getErrorDetails($type) {
+        switch ($type){
+            case 'password reset token invalid':
+                $response[] = array(
+                    'TITLE' => 'Password Reset Token Invalid',
+                    'MESSAGE' => 'The password reset token is invalid. Please initiate the password reset process again to receive a new password reset link.'
+                );
+            break;
+            case 'password reset token expired':
+                $response[] = array(
+                    'TITLE' => 'Password Reset Token Expired',
+                    'MESSAGE' => 'The password reset token has expired. Please initiate the password reset process again to receive a new password reset link.'
+                );
+            break;
+            case 'email verification token expired':
+                $response[] = array(
+                    'TITLE' => 'Email Verification Token Expired',
+                    'MESSAGE' => 'The email verification token has expired. Please initiate the email verification process again to receive a new email verification token.'
+                );
+            break;
+            case 'invalid user':
+                $response[] = array(
+                    'TITLE' => 'Invalid User',
+                    'MESSAGE' => 'The user account is invalid or does not exist. Please check your credentials and try again.'
+                );
+            break;
+        }
+
+        return $response;
+    }
 }
 ?>

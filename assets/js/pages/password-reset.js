@@ -1,15 +1,24 @@
 $(document).ready(function () {  
-    $('#email-verification-form').validate({
-      rules: {
-        verification_code: {
-          required: true
-        }
-      },
-      messages: {
-        verification_code: {
-          required: 'Please enter the verification code'
-        }
-      },
+    $('#password-reset-form').validate({
+        rules: {
+            password: {
+              required: true,
+              password_strength: true
+            },
+            confirm_password: {
+              required: true,
+              equalTo: '#password'
+            }
+        },
+        messages: {
+            password: {
+              required: 'Please enter password'
+            },
+            confirm_password: {
+              required: 'Please re-enter your password for confirmation',
+              equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
+            }
+        },
       errorPlacement: function (error, element) {
         if (element.hasClass('select2')) {
           error.insertAfter(element.next('.select2-container'));
@@ -38,7 +47,7 @@ $(document).ready(function () {
         }
       },
       submitHandler: function(form) {
-        const transaction = 'verify email';
+        const transaction = 'password reset';
   
         $.ajax({
           type: 'POST',
@@ -50,7 +59,7 @@ $(document).ready(function () {
           },
           success: function(response) {
             if (response.success) {
-              setNotification('Email Verification Success', 'Congratulations! Your email address has been successfully verified. You can now proceed to log in.', 'success');
+              setNotification('Email Verification Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
               window.location.href = 'index.php';
             } 
             else {
