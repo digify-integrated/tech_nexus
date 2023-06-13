@@ -60,7 +60,7 @@ $(document).ready(function () {
           if (response.success) {
               if (response.emailVerification) {
                 var encryptedUserID = response.encryptedUserID;
-                window.location.href = 'email-verification.php?id=' + encryptedUserID + '&type=email';
+                window.location.href = 'email-verification.php?id=' + encryptedUserID;
               }
               else if (response.twoFactorAuth) {
                 var encryptedUserID = response.encryptedUserID;

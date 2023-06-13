@@ -1,15 +1,31 @@
 <?php
     require('config/config.php');
     require('model/database-model.php');
+    require('model/security-model.php');
     require('model/user-model.php');
 
     $databaseModel = new DatabaseModel();
+    $securityModel = new SecurityModel();
     $userModel = new UserModel($databaseModel);
-    $page_title = 'Forgot Password';
-    
-    require('session-check.php');
+    $page_title = 'OTP Verification';
+
+    if(isset($_GET['id']) && !empty($_GET['id'])){
+        $id = $_GET['id'];
+        $userID = $securityModel->decryptData($id);
+        $user = $userModel->getUserByID($userID);
+        $otpExpiryDate = $user['otp_expiry_date'];
+        $emailObscure = $securityModel->formatEmail($user['email']);
+
+        if (strtotime(date('Y-m-d H:i:s')) > strtotime($otpExpiryDate)) {
+            header('location: error.php?type='. $securityModel->encryptData('otp expired'));
+            exit;
+        }
+    }
+    else {
+        header('location: 404.php');
+    }
+
     require('config/_interface_settings.php');   
-    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,23 +43,20 @@
             <div class="auth-sidecontent">
                 <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
             </div>
-            <form class="auth-form" id="forgot-password-form" method="post" action="#">
+            <form class="auth-form" id="otp-form" method="post" action="#">
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center">
                             <a href="#"><img src="<?php echo $login_logo; ?>" alt="img"></a>
                         </div>
-                        <div class="d-flex justify-content-between align-items-end mb-4">
-                            <h3 class="mb-0"><b>Forgot Password</b></h3>
-                            <a href="index" class="link-primary">Back to Login</a>
-                        </div>
+                        <h3 class="mb-2"><b>Enter OTP</b></h3>
+                        <p class="">We`ve sent a OTP to your email - <?php echo $emailObscure; ?></p>
                         <div class="form-group mb-3">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" autocomplete="off">
+                            <input type="hidden" id="user_id" name="user_id" value="<?php echo $id; ?>>">
+                            <input type="text" class="form-control" id="otp" name="otp" placeholder="Verification Code" autocomplete="off">
                         </div>
-                        <p class="mt-4 text-sm text-muted">Do not forgot to check SPAM box.</p>
                         <div class="d-grid mt-4">
-                            <button id="forgot-password" type="submit" class="btn btn-primary">Send Password Reset Email</button>
+                            <button id="verify" type="submit" class="btn btn-primary">Continue</button>
                         </div>
                     </div>
                 </div>
@@ -54,7 +67,7 @@
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php');
     ?>
-    <script src="./assets/js/pages/forgot-password.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/otp-verification.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

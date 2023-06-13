@@ -25,6 +25,7 @@ CREATE TABLE users (
     email_verification_token_expiry_date DATETIME,
     email_verified_at DATETIME,
     last_password_reset DATETIME,
+    remember_me TINYINT(1) NOT NULL DEFAULT 0,
     remember_token VARCHAR(255),
     last_log_by INT(10) NOT NULL
 );
@@ -130,6 +131,10 @@ BEGIN
 
     IF NEW.last_password_reset <> OLD.last_password_reset THEN
         SET audit_log = CONCAT(audit_log, "Last Password Reset: ", OLD.last_password_reset, " -> ", NEW.last_password_reset, "<br/>");
+    END IF;
+
+    IF NEW.remember_me <> OLD.remember_me THEN
+        SET audit_log = CONCAT(audit_log, "Remember Me: ", OLD.remember_me, " -> ", NEW.remember_me, "<br/>");
     END IF;
 
     IF NEW.remember_token <> OLD.remember_token THEN
@@ -240,6 +245,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Last Password Reset: ", NEW.last_password_reset);
     END IF;
 
+    IF NEW.remember_me <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remember Me: ", NEW.remember_me);
+    END IF;
+
     IF NEW.remember_token <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Remember Token: ", NEW.remember_token);
     END IF;
@@ -258,6 +267,12 @@ CREATE PROCEDURE getUserByID(IN p_user_id INT)
 BEGIN
 	SELECT * FROM users
 	WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE getUserByRememberToken(IN p_remember_token VARCHAR(255))
+BEGIN
+	SELECT * FROM users
+	WHERE remember_token = p_remember_token;
 END //
 
 CREATE PROCEDURE updateAccountLock(IN p_user_id INT, IN p_is_locked TINYINT(1), IN p_account_lock_duration INT)
@@ -288,10 +303,10 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN p_otp_expiry_date DATETIME)
+CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN p_otp_expiry_date DATETIME, IN p_remember_me TINYINT(1))
 BEGIN
 	UPDATE users 
-    SET otp = p_otp, otp_expiry_date = p_otp_expiry_date
+    SET otp = p_otp, otp_expiry_date = p_otp_expiry_date, remember_me = p_remember_me
     WHERE user_id = p_user_id;
 END //
 

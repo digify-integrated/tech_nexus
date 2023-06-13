@@ -1,13 +1,20 @@
 <?php 
 session_start();
 
-if (isset($_COOKIE['remember_token'])) {
+if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
     $rememberToken = $_COOKIE['remember_token'];
 
     $user = $userModel->getUserByRememberToken($rememberToken);
 
     if ($user) {
-        $_SESSION['user_id'] = $user['user_id'];
+        $userID = $user['user_id'];
+
+        if(empty($userID)){
+            header("Location: index.php");
+            exit;
+        }
+
+        $_SESSION['user_id'] = $userID;
 
         header("Location: dashboard.php");
         exit;

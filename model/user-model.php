@@ -21,6 +21,13 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getUserByRememberToken($p_remember_token) {
+        $stmt = $this->db->getConnection()->prepare("CALL getUserByRememberToken(:p_remember_token)");
+        $stmt->bindParam(':p_remember_token', $p_remember_token);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getPasswordHistory($p_user_id, $p_email) {
         $stmt = $this->db->getConnection()->prepare("CALL getPasswordHistory(:p_user_id, :p_email)");
         $stmt->bindParam(':p_user_id', $p_user_id);
@@ -46,7 +53,7 @@ class UserModel {
     }
 
     public function updateLastConnection($p_user_id, $p_last_connection_date) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateLoginAttempt(:p_user_id, :p_last_connection_date)");
+        $stmt = $this->db->getConnection()->prepare("CALL updateLastConnection(:p_user_id, :p_last_connection_date)");
         $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->bindParam(':p_last_connection_date', $p_last_connection_date);
         $stmt->execute();
@@ -59,11 +66,12 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function updateOTP($p_user_id, $p_otp, $p_otp_expiry_date) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateOTP(:p_user_id, :p_otp, :p_otp_expiry_date)");
+    public function updateOTP($p_user_id, $p_otp, $p_otp_expiry_date, $p_remember_me) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateOTP(:p_user_id, :p_otp, :p_otp_expiry_date, :p_remember_me)");
         $stmt->bindParam(':p_user_id', $p_user_id);
         $stmt->bindParam(':p_otp', $p_otp);
         $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);
+        $stmt->bindParam(':p_remember_me', $p_remember_me);
         $stmt->execute();
     }
 
@@ -172,7 +180,7 @@ class UserModel {
         
         $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
         $mailer->addAddress($email);
-        $mailer->Subject = 'EIS | One-Time Password (OTP)';
+        $mailer->Subject = 'Login OTP - Secure Access to Your Account';
         $mailer->Body = $message;
     
         if ($mailer->send()) {
@@ -211,7 +219,7 @@ class UserModel {
             return true;
         }
         else {
-            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+            return 'Failed to send password reset email. Error: ' . $mailer->ErrorInfo;
         }
     }
     
@@ -243,7 +251,7 @@ class UserModel {
             return true;
         }
         else {
-            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+            return 'Failed to send email verification. Error: ' . $mailer->ErrorInfo;
         }
     }
 }

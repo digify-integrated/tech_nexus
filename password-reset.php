@@ -42,9 +42,7 @@
         exit;
     }
     
-    require('session-check.php');
-    require('config/_interface_settings.php');   
-    
+    require('config/_interface_settings.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

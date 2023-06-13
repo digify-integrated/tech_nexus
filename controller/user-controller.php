@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 class UserController {
     private $userModel;
     private $securityModel;
@@ -26,7 +28,7 @@ class UserController {
                     $this->forgotPassword();
                     break;
                 case 'otp authentication':
-                    $this->forgotPassword();
+                    $this->otpAuthentication();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -103,8 +105,15 @@ class UserController {
                         $otp = $this->userModel->generateOTP(6,6);
                         $encryptedOTP =  $this->securityModel->encryptData($otp);
                         $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+
+                        if($rememberMe){
+                            $rememberMe = 1;
+                        }
+                        else{
+                            $rememberMe = 0;
+                        }
     
-                        $this->userModel->updateOTP($userID, $encryptedOTP, $otpExpiryDate);
+                        $this->userModel->updateOTP($userID, $encryptedOTP, $otpExpiryDate, $rememberMe);
                         $this->userModel->sendOTP($email, $otp);
     
                         echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
@@ -158,14 +167,20 @@ class UserController {
             $user = $this->userModel->getUserByID($userID);
     
             if ($user) {
-                $email = $user['email'];
-                $emailVerificationToken = $this->securityModel->decryptData($user['email_verification_token']);
-                $emailVerificationTokenExpiryDate = $user['email_verification_token_expiry_date'];
+                $email = $user['email'] ?? null;
+
+                if(empty($email)){
+                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    exit;
+                }
 
                 if ($user['email_verification_status']) {
                     echo json_encode(['success' => true]);
                     exit;
                 }
+
+                $emailVerificationToken = $this->securityModel->decryptData($user['email_verification_token']);
+                $emailVerificationTokenExpiryDate = $user['email_verification_token_expiry_date'];
 
                 if($verificationCode == $emailVerificationToken){
                     if (strtotime(date('Y-m-d H:i:s')) > strtotime($emailVerificationTokenExpiryDate)) {
@@ -200,7 +215,13 @@ class UserController {
             $user = $this->userModel->getUserByID($userID);
     
             if ($user) {
-                $email = $user['email'];
+                $email = $user['email'] ?? null;
+                
+                if(empty($email)){
+                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    exit;
+                }
+
                 $resetTokenExpiryDate = $user['reset_token_expiry_date'];
 
                 if (strtotime(date('Y-m-d H:i:s')) > strtotime($resetTokenExpiryDate)) {
@@ -230,6 +251,93 @@ class UserController {
         }
     }
 
+    public function forgotPassword() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByEmail($email);
+    
+            if ($user) {
+                $userID = $user['user_id'] ?? null;
+                $encryptedUserID = $this->securityModel->encryptData($userID);
+
+                if(empty($userID)){
+                    echo json_encode(['success' => false, 'message' => 'The email address is invalid or does not exist.']);
+                    exit;
+                }
+
+                if (!$user['is_active']) {
+                    echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
+                    exit;
+                }
+
+                $resetToken = $this->userModel->generateResetToken();
+                $encryptedResetToken = $this->securityModel->encryptData($resetToken);
+                $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+    
+                $this->userModel->updateResetToken($userID, $encryptedResetToken, $resetTokenExpiryDate);
+                $this->userModel->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
+                echo json_encode(['success' => true]);
+                exit;
+            } 
+            else {
+                echo json_encode(['success' => false, 'message' => 'The email address is invalid or does not exist.']);
+                exit;
+            }
+        }
+    }
+
+    public function otpAuthentication() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userID = $this->securityModel->decryptData($_POST['user_id']);
+            $otp = htmlspecialchars($_POST['otp'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if ($user) {
+                $email = $user['email'] ?? null;
+                $rememberMe = $user['remember_me'] ?? 0;
+
+                if(empty($email)){
+                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    exit;
+                }
+
+                $userOTP = $this->securityModel->decryptData($user['otp']);
+                $userOTPExpiryDate = $user['otp_expiry_date'];
+
+                if($otp == $userOTP){
+                    if (strtotime(date('Y-m-d H:i:s')) > strtotime($userOTPExpiryDate)) {
+                        header('location: error.php?type='. $securityModel->encryptData('otp expired'));
+                        exit;
+                    }
+                   
+                    $connectionDate = date('Y-m-d H:i:s');
+
+                    if ($rememberMe) {
+                        $rememberToken = bin2hex(random_bytes(16));
+                        $this->userModel->updateRememberToken($userID, $rememberToken);
+                        setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
+                    }
+    
+                    $this->userModel->updateLastConnection($userID, $connectionDate);
+
+                    $_SESSION['user_id'] = $userID;
+                    echo json_encode(['success' => true]);
+                    exit;
+                }
+                else{
+                    echo json_encode(['success' => false, 'message' => 'The email verification code you entered is incorrect.']);
+                    exit;
+                }
+            } 
+            else {
+                header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                exit;
+            }
+        }
+    }
+    
     private function checkPasswordHistory($p_user_id, $p_email, $p_password) {
         $total = 0;
 

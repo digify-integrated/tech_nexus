@@ -72,6 +72,12 @@ class SecurityModel {
                     'MESSAGE' => 'The user account is invalid or does not exist. Please check your credentials and try again.'
                 );
             break;
+            case 'otp expired':
+                $response[] = array(
+                    'TITLE' => 'OTP Expired',
+                    'MESSAGE' => 'The OTP has expired. Please initiate the login process again to receive a new OTP.'
+                );
+            break;
         }
 
         return $response;

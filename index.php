@@ -50,6 +50,10 @@
                         <div class="d-grid mt-4">
                             <button id="signin" type="submit" class="btn btn-primary">Login</button>
                         </div>
+                        <div class="d-flex justify-content-between align-items-end mt-4">
+                            <h6 class="f-w-500 mb-0">Don't have an Account?</h6>
+                            <a href="register.php" class="link-primary">Create Account</a>
+                        </div>
                     </div>
                 </div>
             </form>
