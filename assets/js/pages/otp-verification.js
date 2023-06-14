@@ -53,7 +53,12 @@ $(document).ready(function () {
               window.location.href = 'dashboard.php';
             } 
             else {
-              showNotification('OTP Verification Error', response.message, 'danger');
+              if(response.errorRedirect){
+                window.location.href = 'error.php?type=' + response.errorType;
+              }
+              else{
+                showNotification('OTP Verification Error', response.message, 'danger');
+              }
             }          
           },
           error: function(xhr, status, error) {

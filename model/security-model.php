@@ -74,8 +74,14 @@ class SecurityModel {
             break;
             case 'otp expired':
                 $response[] = array(
-                    'TITLE' => 'OTP Expired',
-                    'MESSAGE' => 'The OTP has expired. Please initiate the login process again to receive a new OTP.'
+                    'TITLE' => 'One-Time Password (OTP) Expired',
+                    'MESSAGE' => 'The OTP has expired. Please initiate the login process again to receive a new One-Time Password (OTP).'
+                );
+            break;
+            case 'invalid otp':
+                $response[] = array(
+                    'TITLE' => 'Invalid One-Time Password (OTP)',
+                    'MESSAGE' =>  'The One-Time Password (OTP) you entered is invalid or you have exceeded the maximum number of attempts. Please initiate the login process again to receive a new One-Time Password (OTP).'
                 );
             break;
         }

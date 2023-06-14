@@ -12,7 +12,7 @@ class UserController {
 
     public function handleRequest() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : '';
+            $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
                 case 'authenticate':
@@ -170,7 +170,7 @@ class UserController {
                 $email = $user['email'] ?? null;
 
                 if(empty($email)){
-                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                     exit;
                 }
 
@@ -184,7 +184,7 @@ class UserController {
 
                 if($verificationCode == $emailVerificationToken){
                     if (strtotime(date('Y-m-d H:i:s')) > strtotime($emailVerificationTokenExpiryDate)) {
-                        header('location: error.php?type='. $securityModel->encryptData('email verification token expired'));
+                        echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('email verification token expired')]);
                         exit;
                     }
 
@@ -200,7 +200,7 @@ class UserController {
                 }
             } 
             else {
-                header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                 exit;
             }
         }
@@ -218,14 +218,14 @@ class UserController {
                 $email = $user['email'] ?? null;
                 
                 if(empty($email)){
-                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                     exit;
                 }
 
                 $resetTokenExpiryDate = $user['reset_token_expiry_date'];
 
                 if (strtotime(date('Y-m-d H:i:s')) > strtotime($resetTokenExpiryDate)) {
-                    header('location: error.php?type='. $securityModel->encryptData('password reset token expired'));
+                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('password reset token expired')]);
                     exit;
                 }
                 
@@ -245,7 +245,7 @@ class UserController {
                 exit;
             }
             else {
-                header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                 exit;
             }
         }
@@ -299,40 +299,49 @@ class UserController {
                 $rememberMe = $user['remember_me'] ?? 0;
 
                 if(empty($email)){
-                    header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                     exit;
                 }
 
                 $userOTP = $this->securityModel->decryptData($user['otp']);
                 $userOTPExpiryDate = $user['otp_expiry_date'];
+                $failedOPTAttempts = $user['failed_otp_attempts'];
 
-                if($otp == $userOTP){
-                    if (strtotime(date('Y-m-d H:i:s')) > strtotime($userOTPExpiryDate)) {
-                        header('location: error.php?type='. $securityModel->encryptData('otp expired'));
+                if($otp != $userOTP){
+                    if($failedOPTAttempts >= MAX_FAILED_OTP_ATTEMPTS){
+                        $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 month'));
+                        $this->userModel->updateOTPAsExpired($userID, $otpExpiryDate);
+                        
+                        echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid otp')]);
                         exit;
                     }
-                   
-                    $connectionDate = date('Y-m-d H:i:s');
-
-                    if ($rememberMe) {
-                        $rememberToken = bin2hex(random_bytes(16));
-                        $this->userModel->updateRememberToken($userID, $rememberToken);
-                        setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
-                    }
-    
-                    $this->userModel->updateLastConnection($userID, $connectionDate);
-
-                    $_SESSION['user_id'] = $userID;
-                    echo json_encode(['success' => true]);
-                    exit;
-                }
-                else{
+                    
+                    $this->userModel->updateFailedOTPAttempts($userID, $failedOPTAttempts + 1);
                     echo json_encode(['success' => false, 'message' => 'The email verification code you entered is incorrect.']);
                     exit;
                 }
+
+                if (strtotime(date('Y-m-d H:i:s')) > strtotime($userOTPExpiryDate)) {
+                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('otp expired')]);
+                    exit;
+                }
+
+                if ($rememberMe) {
+                    $rememberToken = bin2hex(random_bytes(16));
+                    $this->userModel->updateRememberToken($userID, $rememberToken);
+                    setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
+                }
+               
+                $connectionDate = date('Y-m-d H:i:s');
+
+                $this->userModel->updateLastConnection($userID, $connectionDate);
+
+                $_SESSION['user_id'] = $userID;
+                echo json_encode(['success' => true]);
+                exit;
             } 
             else {
-                header('location: error.php?type='. $securityModel->encryptData('invalid user'));
+                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                 exit;
             }
         }

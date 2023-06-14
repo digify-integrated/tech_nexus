@@ -75,6 +75,20 @@ class UserModel {
         $stmt->execute();
     }
 
+    public function updateFailedOTPAttempts($p_user_id, $p_failed_otp_attempts) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateFailedOTPAttempts(:p_user_id, :p_failed_otp_attempts)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_failed_otp_attempts', $p_failed_otp_attempts);
+        $stmt->execute();
+    }
+
+    public function updateOTPAsExpired($p_user_id, $p_otp_expiry_date) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateOTPAsExpired(:p_user_id, :p_otp_expiry_date)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);
+        $stmt->execute();
+    }
+
     public function updateResetToken($p_user_id, $p_resetToken, $p_resetToken_expiry_date) {
         $stmt = $this->db->getConnection()->prepare("CALL updateResetToken(:p_user_id, :p_resetToken, :p_resetToken_expiry_date)");
         $stmt->bindParam(':p_user_id', $p_user_id);

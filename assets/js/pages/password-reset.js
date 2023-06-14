@@ -55,15 +55,20 @@ $(document).ready(function () {
           data: $(form).serialize() + '&transaction=' + transaction,
           dataType: 'JSON',
           beforeSend: function() {
-            disableFormSubmitButton('verify');
+            disableFormSubmitButton('password-reset');
           },
           success: function(response) {
             if (response.success) {
-              setNotification('Email Verification Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
+              setNotification('Password Reset Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
               window.location.href = 'index.php';
             } 
             else {
-              showNotification('Email Verification Error', response.message, 'danger');
+              if(response.errorRedirect){
+                window.location.href = 'error.php?type=' + response.errorType;
+              }
+              else{
+                showNotification('Password Reset Error', response.message, 'danger');
+              }
             }          
           },
           error: function(xhr, status, error) {
@@ -75,7 +80,7 @@ $(document).ready(function () {
             showErrorDialog(fullErrorMessage);
           },
           complete: function() {
-            enableFormSubmitButton('verify', 'Continue');
+            enableFormSubmitButton('password-reset', 'Reset Password');
           }
         });
   

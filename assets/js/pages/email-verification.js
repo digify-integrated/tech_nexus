@@ -52,9 +52,14 @@ $(document).ready(function () {
             if (response.success) {
               setNotification('Email Verification Success', 'Congratulations! Your email address has been successfully verified. You can now proceed to log in.', 'success');
               window.location.href = 'index.php';
-            } 
+            }
             else {
-              showNotification('Email Verification Error', response.message, 'danger');
+              if(response.errorRedirect){
+                window.location.href = 'error.php?type=' + response.errorType;
+              }
+              else{
+                showNotification('Email Verification Error', response.message, 'danger');
+              }
             }          
           },
           error: function(xhr, status, error) {

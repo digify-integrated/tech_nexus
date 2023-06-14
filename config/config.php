@@ -69,5 +69,6 @@ define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/dss/assets/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './assets/employee/');
 
 define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
+define('MAX_FAILED_OTP_ATTEMPTS', 5);
 
 ?>

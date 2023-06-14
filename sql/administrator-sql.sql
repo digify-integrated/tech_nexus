@@ -306,7 +306,21 @@ END //
 CREATE PROCEDURE updateOTP(IN p_user_id INT, IN p_otp VARCHAR(255), IN p_otp_expiry_date DATETIME, IN p_remember_me TINYINT(1))
 BEGIN
 	UPDATE users 
-    SET otp = p_otp, otp_expiry_date = p_otp_expiry_date, remember_me = p_remember_me
+    SET otp = p_otp, otp_expiry_date = p_otp_expiry_date, remember_me = p_remember_me, failed_otp_attempts = 0
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateFailedOTPAttempts(IN p_user_id INT, IN p_failed_otp_attempts INT)
+BEGIN
+	UPDATE users 
+    SET failed_otp_attempts = p_failed_otp_attempts
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateOTPAsExpired(IN p_user_id INT, IN p_otp_expiry_date DATETIME)
+BEGIN
+	UPDATE users 
+    SET otp_expiry_date = p_otp_expiry_date
     WHERE user_id = p_user_id;
 END //
 

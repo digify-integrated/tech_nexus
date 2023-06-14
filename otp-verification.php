@@ -25,6 +25,7 @@
         header('location: 404.php');
     }
 
+    require('session-check.php');
     require('config/_interface_settings.php');   
 ?>
 <!DOCTYPE html>
@@ -49,7 +50,7 @@
                         <div class="text-center">
                             <a href="#"><img src="<?php echo $login_logo; ?>" alt="img"></a>
                         </div>
-                        <h3 class="mb-2"><b>Enter OTP</b></h3>
+                        <h3 class="mb-2"><b>Enter One-Time Password (OTP)</b></h3>
                         <p class="">We`ve sent a OTP to your email - <?php echo $emailObscure; ?></p>
                         <div class="form-group mb-3">
                             <input type="hidden" id="user_id" name="user_id" value="<?php echo $id; ?>>">
