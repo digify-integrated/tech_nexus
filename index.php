@@ -1,15 +1,14 @@
 <?php
+    require('session-check.php');
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
 
     $databaseModel = new DatabaseModel();
     $userModel = new UserModel($databaseModel);
+
     $page_title = 'Nexus Integrated Solutions';
-    
-    require('session-check.php');
-    require('config/_interface_settings.php');   
-    
+    require('config/_interface_settings.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,10 +48,6 @@
                         </div>
                         <div class="d-grid mt-4">
                             <button id="signin" type="submit" class="btn btn-primary">Login</button>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-end mt-4">
-                            <h6 class="f-w-500 mb-0">Don't have an Account?</h6>
-                            <a href="register.php" class="link-primary">Create Account</a>
                         </div>
                     </div>
                 </div>

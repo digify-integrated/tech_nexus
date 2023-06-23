@@ -12,7 +12,6 @@
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
                             <h6 class="mb-0"><?php echo $file_as; ?></h6>
-                            <small><?php echo $user_status; ?></small>
                         </div>
                         <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse" href="#pc_sidebar_userlink">
                         <svg class="pc-icon">

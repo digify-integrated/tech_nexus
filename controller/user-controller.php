@@ -18,9 +18,6 @@ class UserController {
                 case 'authenticate':
                     $this->authenticate();
                     break;
-                case 'verify email':
-                    $this->verifyEmail();
-                    break;
                 case 'password reset':
                     $this->passwordReset();
                     break;
@@ -29,6 +26,13 @@ class UserController {
                     break;
                 case 'otp authentication':
                     $this->otpAuthentication();
+                    break;
+                case 'save UI customization':
+                    $email = $_POST['email'];
+                    $type = $_POST['type'];
+                    $customizationValue = $_POST['customizationValue'];
+
+                    $this->saveUICustomization($email, $type, $customizationValue);
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -51,20 +55,6 @@ class UserController {
                 $encryptedUserID = $this->securityModel->encryptData($userID);
 
                 if ($password === $userPassword) {
-                    if (!$user['email_verification_status']) {
-                        if (empty($user['email_verification_token']) || (!empty($user['email_verification_token']) && strtotime(date('Y-m-d H:i:s')) > strtotime($user['email_verification_token_expiry_date']))) {
-                            $emailVerificationToken = $this->userModel->generateEmailVerificationToken();
-                            $encryptedVerificationToken =  $this->securityModel->encryptData($emailVerificationToken);
-                            $emailVerificationTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+24 hours'));
-        
-                            $this->userModel->updateEmailResetToken($userID, $encryptedVerificationToken, $emailVerificationTokenExpiryDate);
-                            $this->userModel->sendEmailVerification($email, $emailVerificationToken);
-                        }
-                        
-                        echo json_encode(['success' => true, 'emailVerification' => true, 'encryptedUserID' => $encryptedUserID]);
-                        exit;
-                    }
-        
                     if (!$user['is_active']) {
                         echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
                         exit;
@@ -102,7 +92,7 @@ class UserController {
                     $this->userModel->updateLoginAttempt($userID, 0, null);
     
                     if ($user['two_factor_auth']) {
-                        $otp = $this->userModel->generateOTP(6,6);
+                        $otp = $this->userModel->generateToken(6,6);
                         $encryptedOTP =  $this->securityModel->encryptData($otp);
                         $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
 
@@ -154,53 +144,6 @@ class UserController {
             } 
             else {
                 echo json_encode(['success' => false, 'message' => 'The email or password you entered is invalid. Please double-check your credentials and try again.']);
-                exit;
-            }
-        }
-    }
-
-    public function verifyEmail() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $userID = $this->securityModel->decryptData($_POST['user_id']);
-            $verificationCode = htmlspecialchars($_POST['verification_code'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if ($user) {
-                $email = $user['email'] ?? null;
-
-                if(empty($email)){
-                    echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
-                    exit;
-                }
-
-                if ($user['email_verification_status']) {
-                    echo json_encode(['success' => true]);
-                    exit;
-                }
-
-                $emailVerificationToken = $this->securityModel->decryptData($user['email_verification_token']);
-                $emailVerificationTokenExpiryDate = $user['email_verification_token_expiry_date'];
-
-                if($verificationCode == $emailVerificationToken){
-                    if (strtotime(date('Y-m-d H:i:s')) > strtotime($emailVerificationTokenExpiryDate)) {
-                        echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('email verification token expired')]);
-                        exit;
-                    }
-
-                    $emailVerificationDate = date('Y-m-d H:i:s');
-                    $this->userModel->updateEmaiVerificationStatus($userID, $emailVerificationDate);
-
-                    echo json_encode(['success' => true]);
-                    exit;
-                }
-                else{
-                    echo json_encode(['success' => false, 'message' => 'The email verification code you entered is incorrect.']);
-                    exit;
-                }
-            } 
-            else {
-                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                 exit;
             }
         }

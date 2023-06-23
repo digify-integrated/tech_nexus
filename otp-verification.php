@@ -1,4 +1,5 @@
 <?php
+    require('session-check.php');
     require('config/config.php');
     require('model/database-model.php');
     require('model/security-model.php');
@@ -23,9 +24,9 @@
     }
     else {
         header('location: 404.php');
+        exit;
     }
-
-    require('session-check.php');
+    
     require('config/_interface_settings.php');   
 ?>
 <!DOCTYPE html>

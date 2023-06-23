@@ -26,7 +26,7 @@ if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
 }
 
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
-    header('location: dashboard.php');
+    header('Location: dashboard.php');
     exit;
 }
 

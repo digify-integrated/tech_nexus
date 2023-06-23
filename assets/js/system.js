@@ -2,15 +2,9 @@
     'use strict';
 
     $(function() {
+        getdefaultLayout();
         checkNotification();
-        uiCustomization();
-        loadUISettings();
         intializeMaxLength();
-
-        if ($('#email_account').length) {
-            const email_account = $('#email_account').text();
-            getCustomization(email_account);
-        }
 
         if($('.log-notes-scroll').length){
             new SimpleBar(document.querySelector('.log-notes-scroll'));
@@ -227,302 +221,6 @@ function checkNotification(){
     }
 }
 
-function saveCustomization(type, customization_value){
-    const email = $('#email_account').text();
-    const transaction = 'submit user ui customization setting';
-
-    $.ajax({
-        type: 'POST',
-        url: 'controllers/ui-customization-controller.php',
-        data: {transaction : transaction, email : email, type : type, customization_value : customization_value},
-        dataType: 'TEXT',
-        success: function (response) {
-            switch (response) {
-                case 'Updated':
-                    showNotification('Update UI Settings Success', 'The UI settings has been updated successfully.', 'success');
-                    break;
-                case 'User Not Found':
-                case 'Inactive User':
-                    window.location = 'logout.php?logout';
-                    break;
-                default:
-                    showNotification('Update UI Settings Error', response, 'danger');
-                    break;
-            }
-        }
-    });
-}
-
-function getCustomization(email){
-    const transaction = 'ui customization settings details';
-
-    $.ajax({
-        url: 'controllers/ui-customization-controller.php',
-        method: 'POST',
-        dataType: 'JSON',
-        data: {email : email, transaction : transaction},
-        success: function(response) {
-            sessionStorage.setItem('theme_contrast', response[0].THEME_CONTRAST);
-            sessionStorage.setItem('caption_show', response[0].CAPTION_SHOW);
-            sessionStorage.setItem('preset_theme', response[0].PRESET_THEME);
-            sessionStorage.setItem('dark_layout', response[0].DARK_LAYOUT);
-            sessionStorage.setItem('rtl_layout', response[0].RTL_LAYOUT);
-            sessionStorage.setItem('box_container', response[0].BOX_CONTAINER);
-        }
-    });
-}
-
-function uiCustomization(){
-    $(document).on('click', '[id^="preset_"], #layout_light, #layout_dark, #light_contrast, #dark_contrast, #show_caption, #hide_caption, #ltr, #rtl, #full_layout, #boxed_layout', function() {
-        var id = this.id;
-      
-        switch (id) {
-          case 'layout_light':
-            layoutChange('light');
-            saveCustomization('dark_layout', 'false');
-            sessionStorage.setItem('dark_layout', 'false');
-            break;
-          case 'layout_dark':
-            layoutChange('dark');
-            saveCustomization('dark_layout', 'true');
-            sessionStorage.setItem('dark_layout', 'true');
-            break;
-          case 'light_contrast':
-            layoutSidebarChange('true');
-            saveCustomization('theme_contrast', 'true');
-            sessionStorage.setItem('theme_contrast', 'true');
-            break;
-          case 'dark_contrast':
-            layoutSidebarChange('false');
-            saveCustomization('theme_contrast', 'false');
-            sessionStorage.setItem('theme_contrast', 'false');
-            break;
-          case 'show_caption':
-            layoutCaptionChange('true');
-            saveCustomization('caption_show', 'true');
-            sessionStorage.setItem('caption_show', 'true');
-            break;
-          case 'hide_caption':
-            layoutCaptionChange('false');
-            saveCustomization('caption_show', 'false');
-            sessionStorage.setItem('caption_show', 'false');
-            break;
-          case 'ltr':
-            layoutRTLChange('false');
-            saveCustomization('rtl_layout', 'false');
-            sessionStorage.setItem('rtl_layout', 'false');
-            break;
-          case 'rtl':
-            layoutRTLChange('true');
-            saveCustomization('rtl_layout', 'true');
-            sessionStorage.setItem('rtl_layout', 'true');
-            break;
-          case 'full_layout':
-            changeBoxContainer('false');
-            saveCustomization('box_container', 'false');
-            sessionStorage.setItem('box_container', 'false');
-            break;
-          case 'boxed_layout':
-            changeBoxContainer('true');
-            saveCustomization('box_container', 'true');
-            sessionStorage.setItem('box_container', 'true');
-            break;
-          default:
-            var value = $(this).data('value');
-            saveCustomization('preset_theme', value);
-            sessionStorage.setItem('preset_theme', value);
-        }
-    });
-}
-
-function loadUISettings(){
-    const theme_contrast = sessionStorage.getItem('theme_contrast') || 'false';
-    const caption_show = sessionStorage.getItem('caption_show') || 'true';
-    const preset_theme = sessionStorage.getItem('preset_theme') || 'preset-1';
-    const dark_layout = sessionStorage.getItem('dark_layout') || 'false';
-    const rtl_layout = sessionStorage.getItem('rtl_layout') || 'false';
-    const box_container = sessionStorage.getItem('box_container') || 'false';
-
-    if (theme_contrast == 'true') {
-        layoutSidebarChange('true');
-    }
-    else {
-        layoutSidebarChange('false');
-    }
-    
-    if (caption_show == 'true') {
-        layoutCaptionChange('true');
-    }
-    else {
-        layoutCaptionChange('false');
-    }
-      
-    if (preset_theme != "") {
-        presetChange(preset_theme);
-    }
-      
-    if (rtl_layout == 'true') {
-        layoutRTLChange('true');
-    }
-    else {
-        layoutRTLChange('false');
-    }
-    
-    if(dark_layout == "default"){
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            dark_layout = 'true';
-        }
-        else{
-            dark_layout = 'false';
-        }
-    }
-      
-    if (dark_layout == 'true') {
-        layoutChange('dark');
-    }
-    else {
-        layoutChange('light');
-    }
-      
-    if (box_container == 'true') {
-        changeBoxContainer('true');
-    }
-    else {
-        changeBoxContainer('false');
-    }
-}
-
-function layoutSidebarChange(value) {
-    if (value == 'true') {
-        document.getElementsByTagName('body')[0].setAttribute('data-pc-theme_contrast', 'true');
-    
-        var control = document.querySelector('.theme-contrast .btn.active');
-        if (control) {
-          document.querySelector('.theme-contrast .btn.active').classList.remove('active');
-          document.querySelector(".theme-contrast .btn[data-value='true']").classList.add('active');
-        }
-    }
-    else {
-        document.getElementsByTagName('body')[0].setAttribute('data-pc-theme_contrast', '');
-        var control = document.querySelector('.theme-contrast .btn.active');
-        if (control) {
-          document.querySelector('.theme-contrast .btn.active').classList.remove('active');
-          document.querySelector(".theme-contrast .btn[data-value='false']").classList.add('active');
-        }
-    }
-}
-
-function layoutCaptionChange(value) {
-    var attributeValue = value === 'true' ? 'true' : 'false';
-    document.getElementsByTagName('body')[0].setAttribute('data-pc-sidebar-caption', attributeValue);
-
-    var activeButton = document.querySelector('.theme-nav-caption .btn.active');
-    if (activeButton) {
-        activeButton.classList.remove('active');
-        var buttonSelector = ".theme-nav-caption .btn[data-value='" + attributeValue + "']";
-        document.querySelector(buttonSelector).classList.add('active');
-    }
-}
-
-function presetChange(value) {
-    const body = document.getElementsByTagName('body')[0];
-    const presetValue = value.toString();
-    body.setAttribute('data-pc-preset', presetValue);
-    
-    const activeLink = document.querySelector('.preset-color > a.active');
-    if (activeLink) {
-        activeLink.classList.remove('active');
-    }
-    
-    const newActiveLink = document.querySelector(`.preset-color > a[data-value="${presetValue}"]`);
-    if (newActiveLink) {
-        newActiveLink.classList.add('active');
-    }    
-}
-
-function layoutRTLChange(value) {
-    const body = document.getElementsByTagName('body')[0];
-    const html = document.getElementsByTagName('html')[0];
-    const control = document.querySelector('.theme-direction .btn.active');
-
-    if (value === 'true') {
-        rtl_flag = true;
-        body.setAttribute('data-pc-direction', 'rtl');
-        html.setAttribute('dir', 'rtl');
-        html.setAttribute('lang', 'ar');
-    } 
-    else {
-        rtl_flag = false;
-        body.setAttribute('data-pc-direction', 'ltr');
-        html.removeAttribute('dir');
-        html.removeAttribute('lang');
-    }
-
-    if (control) {
-        control.classList.remove('active');
-        const newControl = document.querySelector(`.theme-direction .btn[data-value='${value}']`);
-        if (newControl) {
-            newControl.classList.add('active');
-        }
-    }
-}
-
-function layoutChange(layout) {
-    const body = document.getElementsByTagName('body')[0];
-    const control = document.querySelector('.pct-offcanvas');
-    const logoEl = document.querySelector('.pc-sidebar .m-header .logo-lg, .auth-header img');
-
-    body.setAttribute('data-pc-theme', layout);
-
-    const defaultBtn = document.querySelector('.theme-layout .btn[data-value="default"]');
-    if (defaultBtn) {
-        defaultBtn.classList.remove('active');
-    }
-
-    if (layout === 'dark') {
-        dark_flag = true;
-        if (control && logoEl) {
-            logoEl.setAttribute('src', '../assets/images/logo-white.svg');
-        }
-        document.querySelector('.theme-layout .btn.active')?.classList.remove('active');
-        document.querySelector('.theme-layout .btn[data-value="false"]')?.classList.add('active');
-    } 
-    else {
-        dark_flag = false;
-        if (control && logoEl) {
-            logoEl.setAttribute('src', '../assets/images/logo-dark.svg');
-        }
-        document.querySelector('.theme-layout .btn.active')?.classList.remove('active');
-        document.querySelector('.theme-layout .btn[data-value="true"]')?.classList.add('active');
-    }
-}
-
-function changeBoxContainer(value) {
-    if (document.querySelector('.pc-content')) {
-        if (value == 'true') {
-          document.querySelector('.pc-content').classList.add('container');
-            document.querySelector('.footer-wrapper').classList.add('container');
-            document.querySelector('.footer-wrapper').classList.remove('container-fluid');
-        
-            var control = document.querySelector('.theme-container .btn.active');
-            if (control) {
-                document.querySelector('.theme-container .btn.active').classList.remove('active');
-                document.querySelector(".theme-container .btn[data-value='true']").classList.add('active');
-            }
-        } 
-        else {
-            document.querySelector('.pc-content').classList.remove('container');
-            document.querySelector('.footer-wrapper').classList.remove('container');
-            document.querySelector('.footer-wrapper').classList.add('container-fluid');
-            var control = document.querySelector('.theme-container .btn.active');
-            if (control) {
-                document.querySelector('.theme-container .btn.active').classList.remove('active');
-                document.querySelector(".theme-container .btn[data-value='false']").classList.add('active');
-            }
-        }
-    }
-}
-
 function reloadDatatable(datatable){
     toggleHideActionDropdown();
     $(datatable).DataTable().ajax.reload();
@@ -585,4 +283,41 @@ function copyToClipboard(elementId) {
       .catch(function(err) {
         showNotification('Copy Error', err, 'danger');
       });
+}
+
+function saveCustomization(type, customizationValue){
+    const email = $('#email_account').text();
+    const transaction = 'save UI customization';
+
+    $.ajax({
+        type: 'POST',
+        url: 'controller/user-controller.php',
+        data: {transaction : transaction, email : email, type : type, customizationValue : customizationValue},
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.success) {
+                showNotification('Update UI Settings Success', 'The UI settings has been updated successfully', 'success');
+            } 
+            else {
+                showNotification('Update UI Settings Error', response.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+  
+            var response = xhr.responseText;
+            fullErrorMessage += ', Response: ' + response;
+          
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function getdefaultLayout(){
+    layout_change('light');
+    layout_sidebar_change('false');
+    change_box_container('false');
+    layout_caption_change('true');
+    layout_rtl_change('false');
+    preset_change("preset-1");
 }

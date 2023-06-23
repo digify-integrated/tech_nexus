@@ -1,4 +1,5 @@
 <?php
+    require('session-check.php');
     require('config/config.php');
     require('model/database-model.php');
     require('model/security-model.php');

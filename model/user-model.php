@@ -97,21 +97,6 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function updateEmailResetToken($p_user_id, $p_email_verificationToken, $p_email_verificationToken_expiry_date) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateEmailResetToken(:p_user_id, :p_email_verificationToken, :p_email_verificationToken_expiry_date)");
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_email_verificationToken', $p_email_verificationToken);
-        $stmt->bindParam(':p_email_verificationToken_expiry_date', $p_email_verificationToken_expiry_date);
-        $stmt->execute();
-    }
-
-    public function updateEmaiVerificationStatus($p_user_id, $p_email_verified_at) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateEmaiVerificationStatus(:p_user_id, :p_email_verified_at)");
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_email_verified_at', $p_email_verified_at);
-        $stmt->execute();
-    }
-
     public function updateUserPassword($p_user_id, $p_email, $p_password, $p_password_expiry_date, $p_last_password_change) {
         $stmt = $this->db->getConnection()->prepare("CALL updateUserPassword(:p_user_id, :p_email, :p_password, :p_password_expiry_date, :p_last_password_change)");
         $stmt->bindParam(':p_user_id', $p_user_id);
@@ -131,17 +116,14 @@ class UserModel {
         $stmt->execute();
     }
 
-    public function generateOTP($minLength = 6, $maxLength = 8) {
+    public function generateToken($minLength = 4, $maxLength = 4) {
         $length = mt_rand($minLength, $maxLength);
-        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-        $character_count = strlen($characters);
         $otp = '';
-    
+        
         for ($i = 0; $i < $length; $i++) {
-            $index = mt_rand(0, $character_count - 1);
-            $otp .= $characters[$index];
+            $otp .= mt_rand(0, 9);
         }
-    
+        
         return $otp;
     }
     
@@ -157,20 +139,6 @@ class UserModel {
         }
     
         return $resetToken;
-    }
-    
-    public function generateEmailVerificationToken($minLength = 10, $maxLength = 12) {
-        $length = mt_rand($minLength, $maxLength);
-        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-        $character_count = strlen($characters);
-        $verificationToken = '';
-    
-        for ($i = 0; $i < $length; $i++) {
-            $index = mt_rand(0, $character_count - 1);
-            $verificationToken .= $characters[$index];
-        }
-    
-        return $verificationToken;
     }
     
     public function sendOTP($email, $otp) {
