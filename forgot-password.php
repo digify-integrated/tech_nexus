@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./assets/css/uikit.css">
 </head>
 
-<body>
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
     <?php include_once('config/_preloader.html'); ?>
 
     <div class="auth-main">

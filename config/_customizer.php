@@ -19,29 +19,20 @@
               <h6 class="mb-1">Theme Mode</h6>
               <p class="text-muted text-sm">Choose light or dark mode or Auto</p>
               <div class="row theme-layout">
-                <div class="col-4">
+                <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn active" data-value="true" onclick="layout_change('light');">
+                    <button class="preset-btn btn active ui-layout" data-value="true" data-layout="light" onclick="layout_change('light');">
                       <svg class="pc-icon text-warning">
                         <use xlink:href="#custom-sun-1"></use>
                       </svg>
                     </button>
                   </div>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn" data-value="false" onclick="layout_change('dark');">
+                    <button class="preset-btn btn ui-layout" data-value="false" data-layout="dark" onclick="layout_change('dark');">
                       <svg class="pc-icon">
                         <use xlink:href="#custom-moon"></use>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="d-grid">
-                    <button class="preset-btn btn" data-value="default" onclick="layout_change_default();">
-                      <svg class="pc-icon">
-                        <use xlink:href="#custom-setting-2"></use>
                       </svg>
                     </button>
                   </div>
@@ -55,7 +46,7 @@
             <div class="row theme-contrast">
               <div class="col-6">
                 <div class="d-grid">
-                  <button class="preset-btn btn" data-value="true" onclick="layout_sidebar_change('true');">
+                  <button class="preset-btn btn ui-contrast" data-value="true" onclick="layout_sidebar_change('true');">
                     <svg class="pc-icon">
                       <use xlink:href="#custom-mask"></use>
                     </svg>
@@ -64,7 +55,7 @@
               </div>
               <div class="col-6">
                 <div class="d-grid">
-                  <button class="preset-btn btn active" data-value="false" onclick="layout_sidebar_change('false');">
+                  <button class="preset-btn btn active ui-contrast" data-value="false" onclick="layout_sidebar_change('false');">
                     <svg class="pc-icon">
                       <use xlink:href="#custom-mask-1-outline"></use>
                     </svg>
@@ -77,16 +68,16 @@
             <h6 class="mb-1">Custom Theme</h6>
             <p class="text-muted text-sm">Choose your Primary color</p>
             <div class="theme-color preset-color">
-              <a href="#!" class="active" data-value="preset-1"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-2"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-3"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-4"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-5"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-6"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-7"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-8"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-9"><i class="ti ti-check"></i></a>
-              <a href="#!" data-value="preset-10"><i class="ti ti-check"></i></a>
+              <a href="#!" class="active ui-preset" data-value="preset-1"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-2"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-3"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-4"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-5"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-6"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-7"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-8"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-9"><i class="ti ti-check"></i></a>
+              <a href="#!" class="ui-preset" data-value="preset-10"><i class="ti ti-check"></i></a>
             </div>
           </li>
           <li class="list-group-item">
@@ -95,14 +86,14 @@
             <div class="row theme-nav-caption">
               <div class="col-6">
                 <div class="d-grid">
-                  <button class="preset-btn btn active" data-value="true" onclick="layout_caption_change('true');">
+                  <button class="preset-btn btn active ui-caption" data-value="true" onclick="layout_caption_change('true');">
                     <img src="./assets/images/customizer/img-caption-1.svg" alt="img" class="img-fluid" width="70%" />
                   </button>
                 </div>
               </div>
               <div class="col-6">
                 <div class="d-grid">
-                  <button class="preset-btn btn" data-value="false" onclick="layout_caption_change('false');">
+                  <button class="preset-btn btn ui-caption" data-value="false" onclick="layout_caption_change('false');">
                     <img src="./assets/images/customizer/img-caption-2.svg" alt="img" class="img-fluid" width="70%" />
                   </button>
                 </div>
@@ -116,14 +107,14 @@
               <div class="row theme-direction">
                 <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn active" data-value="false" onclick="layout_rtl_change('false');">
+                    <button class="preset-btn btn active ui-rtl" data-value="false" onclick="layout_rtl_change('false');">
                       <img src="./assets/images/customizer/img-layout-1.svg" alt="img" class="img-fluid" width="70%" />
                     </button>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn" data-value="true" onclick="layout_rtl_change('true');">
+                    <button class="preset-btn btn ui-rtl" data-value="true" onclick="layout_rtl_change('true');">
                       <img src="./assets/images/customizer/img-layout-2.svg" alt="img" class="img-fluid" width="70%" />
                     </button>
                   </div>
@@ -138,7 +129,7 @@
               <div class="row theme-container">
                 <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn active" data-value="false" onclick="change_box_container('false')">
+                    <button class="preset-btn btn active ui-box-container" data-value="false" onclick="change_box_container('false')">
                       <img src="./assets/images/customizer/img-container-1.svg" alt="img" class="img-fluid"
                         width="70%" />
                     </button>
@@ -146,18 +137,13 @@
                 </div>
                 <div class="col-6">
                   <div class="d-grid">
-                    <button class="preset-btn btn" data-value="true" onclick="change_box_container('true')">
+                    <button class="preset-btn btn ui-box-container" data-value="true" onclick="change_box_container('true')">
                       <img src="./assets/images/customizer/img-container-2.svg" alt="img" class="img-fluid"
                         width="70%" />
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="d-grid">
-              <button class="btn btn-light-danger" id="layoutreset">Reset Layout</button>
             </div>
           </li>
         </ul>

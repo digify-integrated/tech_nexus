@@ -27,12 +27,14 @@ class UserController {
                 case 'otp authentication':
                     $this->otpAuthentication();
                     break;
-                case 'save UI customization':
-                    $email = $_POST['email'];
+                case 'save ui customization':
                     $type = $_POST['type'];
                     $customizationValue = $_POST['customizationValue'];
 
-                    $this->saveUICustomization($email, $type, $customizationValue);
+                    $this->saveUICustomization($type, $customizationValue);
+                    break;
+                case 'get ui customization':
+                    $this->getUICustomization();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -287,6 +289,51 @@ class UserController {
                 echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
                 exit;
             }
+        }
+    }
+
+    public function saveUICustomization($type, $customizationValue) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userID = $_SESSION['user_id'];
+
+            $user = $this->userModel->getUserByID($userID);
+
+            if (!$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+            $checkUICustomizationSettingExist = $this->userModel->checkUICustomizationSettingExist($userID);
+
+            if($checkUICustomizationSettingExist['total'] > 0){
+                $this->userModel->updateUICustomizationSetting($userID, $type, $customizationValue, $userID);
+    
+                echo json_encode(['success' => true]);
+                exit;
+            }
+            else{
+                $this->userModel->insertUICustomizationSetting($userID, $type, $customizationValue, $userID);
+    
+                echo json_encode(['success' => true]);
+                exit;
+            }
+        }
+    }
+
+    public function getUICustomization() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userID = $_SESSION['user_id'];
+
+            $user = $this->userModel->getUserByID($userID);
+
+            if (!$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+            $uiCustomizationSetting = $this->userModel->getUICustomizationSetting($userID);
+            echo json_encode(['success' => true, 'themeContrast' => $uiCustomizationSetting['theme_contrast'] ?? false, 'captionShow' => $uiCustomizationSetting['caption_show'] ?? true, 'presetTheme' => $uiCustomizationSetting['preset_theme'] ?? 'preset-1', 'darkLayout' => $uiCustomizationSetting['dark_layout'] ?? false, 'rtlLayout' => $uiCustomizationSetting['rtl_layout'] ?? false, 'boxContainer' => $uiCustomizationSetting['box_container'] ?? false]);
+            exit;
         }
     }
     

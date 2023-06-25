@@ -8,6 +8,14 @@
     $userModel = new UserModel($databaseModel);
 
     $page_title = 'Dashboard';
+
+    $user = $userModel->getUserByID($_SESSION['user_id']);
+
+    if (!$user['is_active']) {
+        header('location: logout.php?logout');
+        exit;
+    }
+
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
 ?>
@@ -18,15 +26,13 @@
     <?php include_once('config/_required_css.php'); ?>
 </head>
 
-<body>
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
     <?php 
         include_once('config/_preloader.html'); 
         include_once('config/_navbar.php'); 
         include_once('config/_header.php'); 
         include_once('config/_announcement.php'); 
-    ?>
-    
-    
+    ?>   
 
     
     <?php 

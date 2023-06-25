@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./assets/css/uikit.css">
 </head>
 
-<body>
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
     <?php include_once('config/_preloader.html'); ?>
 
     <div class="auth-main">
@@ -44,7 +44,7 @@
                                 <input class="form-check-input input-primary" type="checkbox" id="remember_me" name="remember_me">
                                 <label class="form-check-label text-muted" for="remember_me">Remember me?</label>
                             </div>
-                            <a href="forgot-password.php" class="text-secondary f-w-400 mb-0">Forgot Password?</a>
+                            <a href="forgot-password.php" class="f-w-400 mb-0">Forgot Password?</a>
                         </div>
                         <div class="d-grid mt-4">
                             <button id="signin" type="submit" class="btn btn-primary">Login</button>

@@ -11,7 +11,7 @@
                             <img src="./assets/images/default/default-avatar.png" alt="user-image" class="user-avtar wid-45 rounded-circle" />
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
-                            <h6 class="mb-0"><?php echo $file_as; ?></h6>
+                            <h6 class="mb-0"><?php echo $fileAs; ?></h6>
                         </div>
                         <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse" href="#pc_sidebar_userlink">
                         <svg class="pc-icon">

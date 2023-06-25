@@ -2,7 +2,7 @@
     'use strict';
 
     $(function() {
-        getdefaultLayout();
+        getUISettings();
         checkNotification();
         intializeMaxLength();
 
@@ -70,6 +70,42 @@
 
         $(document).on('click','.datatable-checkbox-children',function() {
             toggleActionDropdown();
+        });
+
+        $(document).on('click','.ui-layout',function() {
+            const value = $(this).data('layout');
+
+            saveUICustomization('dark layout', value);
+        });
+
+        $(document).on('click','.ui-contrast',function() {
+            const value = $(this).data('value');
+
+            saveUICustomization('theme contrast', value);
+        });
+
+        $(document).on('click','.ui-preset',function() {
+            const value = $(this).data('value');
+
+            saveUICustomization('preset theme', value);
+        });
+
+        $(document).on('click','.ui-caption',function() {
+            const value = $(this).data('value');
+
+            saveUICustomization('caption show', value);
+        });
+
+        $(document).on('click','.ui-rtl',function() {
+            const value = $(this).data('value');
+
+            saveUICustomization('rtl layout', value);
+        });
+
+        $(document).on('click','.ui-box-container',function() {
+            const value = $(this).data('value');
+
+            saveUICustomization('box container', value);
         });
 
         $(document).on('click','#copy-error-message',function() {
@@ -285,21 +321,25 @@ function copyToClipboard(elementId) {
       });
 }
 
-function saveCustomization(type, customizationValue){
-    const email = $('#email_account').text();
-    const transaction = 'save UI customization';
+function saveUICustomization(type, customizationValue){
+    const transaction = 'save ui customization';
 
     $.ajax({
         type: 'POST',
-        url: 'controller/user-controller.php',
-        data: {transaction : transaction, email : email, type : type, customizationValue : customizationValue},
+        url: './controller/user-controller.php',
+        data: {transaction : transaction, type : type, customizationValue : customizationValue},
         dataType: 'JSON',
         success: function (response) {
             if (response.success) {
                 showNotification('Update UI Settings Success', 'The UI settings has been updated successfully', 'success');
             } 
             else {
-                showNotification('Update UI Settings Error', response.message, 'danger');
+                if(response.isInactive){
+                    window.location = 'logout.php?logout';
+                }
+                else{
+                    showNotification('Update UI Settings Error', response.message, 'danger');
+                }
             }
         },
         error: function(xhr, status, error) {
@@ -313,11 +353,34 @@ function saveCustomization(type, customizationValue){
     });
 }
 
-function getdefaultLayout(){
-    layout_change('light');
-    layout_sidebar_change('false');
-    change_box_container('false');
-    layout_caption_change('true');
-    layout_rtl_change('false');
-    preset_change("preset-1");
+function getUISettings(){
+    const transaction = 'get ui customization';
+
+    $.ajax({
+        type: 'POST',
+        url: './controller/user-controller.php',
+        data: {transaction : transaction},
+        dataType: 'JSON',
+        success: function (response) {
+            if (response.success) {
+                layout_change(response.darkLayout);
+                layout_sidebar_change(response.themeContrast);
+                change_box_container(response.boxContainer);
+                layout_caption_change(response.captionShow);
+                layout_rtl_change(response.rtlLayout);
+                preset_change(response.presetTheme);
+            } 
+            else {
+                showNotification('UI Settings Error', response.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+  
+            var response = xhr.responseText;
+            fullErrorMessage += ', Response: ' + response;
+          
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }

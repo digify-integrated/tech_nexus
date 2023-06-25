@@ -116,6 +116,38 @@ class UserModel {
         $stmt->execute();
     }
 
+    public function checkUICustomizationSettingExist($p_user_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL checkUICustomizationSettingExist(:p_user_id)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertUICustomizationSetting($p_user_id, $p_type, $p_customization_value, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare("CALL insertUICustomizationSetting(:p_user_id, :p_type, :p_customization_value, :p_last_log_by)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_type', $p_type);
+        $stmt->bindParam(':p_customization_value', $p_customization_value);
+        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->execute();
+    }
+
+    public function updateUICustomizationSetting($p_user_id, $p_type, $p_customization_value, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateUICustomizationSetting(:p_user_id, :p_type, :p_customization_value, :p_last_log_by)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_type', $p_type);
+        $stmt->bindParam(':p_customization_value', $p_customization_value);
+        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->execute();
+    }
+
+    public function getUICustomizationSetting($p_user_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL getUICustomizationSetting(:p_user_id)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function generateToken($minLength = 4, $maxLength = 4) {
         $length = mt_rand($minLength, $maxLength);
         $otp = '';

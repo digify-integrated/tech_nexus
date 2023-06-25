@@ -10,10 +10,9 @@ CREATE TABLE users (
     failed_login_attempts INT NOT NULL DEFAULT 0,
     last_connection_date DATETIME,
     password_expiry_date DATE NOT NULL,
-    registration_date DATETIME NOT NULL,
     reset_token VARCHAR(255),
     reset_token_expiry_date DATETIME,
-    receive_notification TINYINT(1) NOT NULL DEFAULT 0,
+    receive_notification TINYINT(1) NOT NULL DEFAULT 1,
     two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
     otp VARCHAR(255),
     otp_expiry_date DATETIME,
@@ -29,7 +28,7 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, registration_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2022-12-30', '2022-12-30', '1', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '1');
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -67,10 +66,6 @@ BEGIN
 
     IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
         SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
-    END IF;
-
-    IF NEW.registration_date <> OLD.registration_date THEN
-        SET audit_log = CONCAT(audit_log, "Registration Date: ", OLD.registration_date, " -> ", NEW.registration_date, "<br/>");
     END IF;
 
     IF NEW.reset_token <> OLD.reset_token THEN
@@ -163,10 +158,6 @@ BEGIN
 
     IF NEW.password_expiry_date <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
-    END IF;
-
-    IF NEW.registration_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Registration Date: ", NEW.registration_date);
     END IF;
 
     IF NEW.reset_token <> '' THEN
@@ -346,3 +337,163 @@ CREATE TABLE audit_log (
 CREATE INDEX audit_log_index_external_id ON audit_log(audit_log_id);
 CREATE INDEX audit_log_index_table_name ON audit_log(table_name);
 CREATE INDEX audit_log_index_reference_id ON audit_log(reference_id);
+
+/* UI customization setting table */
+CREATE TABLE ui_customization_setting (
+    ui_customization_setting_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    theme_contrast VARCHAR(15) NOT NULL DEFAULT 'false',
+    caption_show VARCHAR(15) NOT NULL DEFAULT 'true',
+    preset_theme VARCHAR(15) NOT NULL DEFAULT 'preset-1',
+    dark_layout VARCHAR(15) NOT NULL DEFAULT 'false',
+    rtl_layout VARCHAR(15) NOT NULL DEFAULT 'false',
+    box_container VARCHAR(15) NOT NULL DEFAULT 'false',
+    last_log_by INT(10) NOT NULL
+);
+
+ALTER TABLE ui_customization_setting
+ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
+
+CREATE INDEX ui_customization_setting_index_ui_customization_setting_id ON ui_customization_setting(ui_customization_setting_id);
+CREATE INDEX ui_customization_setting_index_user_id ON ui_customization_setting(user_id);
+
+CREATE TRIGGER uiCustomizationSettingTriggerUpdate
+AFTER UPDATE ON ui_customization_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.theme_contrast <> OLD.theme_contrast THEN
+        SET audit_log = CONCAT(audit_log, "Theme Contrast: ", OLD.theme_contrast, " -> ", NEW.theme_contrast, "<br/>");
+    END IF;
+
+    IF NEW.caption_show <> OLD.caption_show THEN
+        SET audit_log = CONCAT(audit_log, "Caption Show: ", OLD.caption_show, " -> ", NEW.caption_show, "<br/>");
+    END IF;
+
+    IF NEW.preset_theme <> OLD.preset_theme THEN
+        SET audit_log = CONCAT(audit_log, "Preset Theme: ", OLD.preset_theme, " -> ", NEW.preset_theme, "<br/>");
+    END IF;
+
+    IF NEW.dark_layout <> OLD.dark_layout THEN
+        SET audit_log = CONCAT(audit_log, "Dark Layout: ", OLD.dark_layout, " -> ", NEW.dark_layout, "<br/>");
+    END IF;
+
+    IF NEW.rtl_layout <> OLD.rtl_layout THEN
+        SET audit_log = CONCAT(audit_log, "RTL Layout: ", OLD.rtl_layout, " -> ", NEW.rtl_layout, "<br/>");
+    END IF;
+
+    IF NEW.box_container <> OLD.box_container THEN
+        SET audit_log = CONCAT(audit_log, "Box Container: ", OLD.box_container, " -> ", NEW.box_container , "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('ui_customization_setting', NEW.ui_customization_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER uiCustomizationSettingTriggerInsert
+AFTER INSERT ON ui_customization_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'UI Customization created. <br/>';
+
+    IF NEW.theme_contrast <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Theme Contrast: ", NEW.theme_contrast);
+    END IF;
+
+    IF NEW.caption_show <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Caption Show: ", NEW.caption_show);
+    END IF;
+
+    IF NEW.preset_theme <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Preset Theme: ", NEW.preset_theme);
+    END IF;
+
+    IF NEW.dark_layout <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Dark Layout: ", NEW.dark_layout);
+    END IF;
+
+    IF NEW.rtl_layout <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>RTL Layout: ", NEW.rtl_layout);
+    END IF;
+
+    IF NEW.box_container <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Box Container: ", NEW.box_container);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('ui_customization_setting', NEW.ui_customization_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkUICustomizationSettingExist(IN p_user_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM ui_customization_setting
+	WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE insertUICustomizationSetting(IN p_user_id INT, IN p_type VARCHAR(30), IN p_customization_value VARCHAR(15), IN p_last_log_by INT(10))
+BEGIN
+	IF p_type = 'theme contrast' THEN
+        INSERT INTO ui_customization_setting (user_id, email_address, theme_contrast, last_log_by) 
+	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
+    ELSEIF p_type = 'caption show' THEN
+        INSERT INTO ui_customization_setting (user_id, caption_show, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+    ELSEIF p_type = 'preset theme' THEN
+        INSERT INTO ui_customization_setting (user_id, preset_theme, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+    ELSEIF p_type = 'dark layout' THEN
+        INSERT INTO ui_customization_setting (user_id, dark_layout, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+    ELSEIF p_type = 'rtl layout' THEN
+        INSERT INTO ui_customization_setting (user_id, rtl_layout, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+    ELSE
+        INSERT INTO ui_customization_setting (user_id, box_container, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+    END IF;
+END //
+
+CREATE PROCEDURE updateUICustomizationSetting(IN p_user_id INT, IN p_type VARCHAR(30), IN p_customization_value VARCHAR(15), IN p_last_log_by INT(10))
+BEGIN
+	IF p_type = 'theme contrast' THEN
+        UPDATE ui_customization_setting
+        SET theme_contrast = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    ELSEIF p_type = 'caption show' THEN
+        UPDATE ui_customization_setting
+        SET caption_show = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    ELSEIF p_type = 'preset theme' THEN
+        UPDATE ui_customization_setting
+        SET preset_theme = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    ELSEIF p_type = 'dark layout' THEN
+        UPDATE ui_customization_setting
+        SET dark_layout = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    ELSEIF p_type = 'rtl layout' THEN
+        UPDATE ui_customization_setting
+        SET rtl_layout = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    ELSE
+        UPDATE ui_customization_setting
+        SET box_container = p_customization_value,
+        last_log_by = p_last_log_by
+       	WHERE user_id = p_user_id;
+    END IF;
+END //
+
+CREATE PROCEDURE getUICustomizationSetting(IN p_user_id INT)
+BEGIN
+	SELECT * FROM ui_customization_setting
+	WHERE user_id = p_user_id;
+END //

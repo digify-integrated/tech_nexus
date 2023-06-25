@@ -6,8 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // feather icon end
   // remove pre-loader start
   setTimeout(function () {
-    document.querySelector('.loader-bg').remove();
-  }, 400);
+    var loaderBg = document.querySelector('.loader-bg');
+    loaderBg.style.opacity = '0';
+    setTimeout(function() {
+      loaderBg.remove();
+    }, 800);
+  }, 800);
+
   // remove pre-loader end
   if (document.querySelector('body').hasAttribute('data-pc-layout')) {
     if (document.querySelector('body').getAttribute('data-pc-layout') == 'horizontal') {
@@ -450,7 +455,6 @@ function layout_change(layout) {
       document.querySelector(".theme-layout .btn[data-value='true']").classList.add('active');
     }
   }
-  saveTheme($layout);
 }
 function change_box_container(value) {
   if (document.querySelector('.pc-content')) {

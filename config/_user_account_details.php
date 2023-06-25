@@ -1,5 +1,6 @@
 <?php
 $user = $userModel->getUserByID($user_id);
 $email = $user['email'];
-$file_as = $user['file_as'];
+$fileAs = $user['file_as'];
+$receiveNotification = $user['receive_notification'];
 ?>
