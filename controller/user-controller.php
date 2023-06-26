@@ -28,13 +28,19 @@ class UserController {
                     $this->otpAuthentication();
                     break;
                 case 'save ui customization':
-                    $type = $_POST['type'];
-                    $customizationValue = $_POST['customizationValue'];
-
-                    $this->saveUICustomization($type, $customizationValue);
+                    $this->saveUICustomization();
                     break;
                 case 'get ui customization':
                     $this->getUICustomization();
+                    break;
+                case 'update notification setting':
+                    $this->updateNotificationSetting();
+                    break;
+                case 'update two factor authentication':
+                    $this->updateTwoFactorAuthentication();
+                    break;
+                case 'change password shortcut':
+                    $this->updatePasswordShortcut();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -64,12 +70,12 @@ class UserController {
     
                     if ($this->password_expiry_date($userID)) {
                         if(strtotime(date('Y-m-d H:i:s')) > strtotime($user['reset_token_expiry_date'])){
-                            $resetToken = $this->userModel->generateResetToken();
+                            $resetToken = $this->generateResetToken();
                             $encryptedResetToken = $this->securityModel->encryptData($resetToken);
                             $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
     
                             $this->userModel->updateResetToken($userID, $encryptedResetToken, $resetTokenExpiryDate);
-                            $this->userModel->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
+                            $this->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
                         }
 
                         echo json_encode(['success' => false, 'message' => "Your password has expired. To reset your password, we have sent a password reset link to your registered email address. Please follow the instructions in the email to securely reset your password."]);
@@ -94,7 +100,7 @@ class UserController {
                     $this->userModel->updateLoginAttempt($userID, 0, null);
     
                     if ($user['two_factor_auth']) {
-                        $otp = $this->userModel->generateToken(6,6);
+                        $otp = $this->generateToken(6,6);
                         $encryptedOTP =  $this->securityModel->encryptData($otp);
                         $otpExpiryDate = date('Y-m-d H:i:s', strtotime('+5 minutes'));
 
@@ -106,7 +112,7 @@ class UserController {
                         }
     
                         $this->userModel->updateOTP($userID, $encryptedOTP, $otpExpiryDate, $rememberMe);
-                        $this->userModel->sendOTP($email, $otp);
+                        $this->sendOTP($email, $otp);
     
                         echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
                         exit;
@@ -216,12 +222,12 @@ class UserController {
                     exit;
                 }
 
-                $resetToken = $this->userModel->generateResetToken();
+                $resetToken = $this->generateResetToken();
                 $encryptedResetToken = $this->securityModel->encryptData($resetToken);
                 $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
     
                 $this->userModel->updateResetToken($userID, $encryptedResetToken, $resetTokenExpiryDate);
-                $this->userModel->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
+                $this->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
                 echo json_encode(['success' => true]);
                 exit;
             } 
@@ -292,8 +298,10 @@ class UserController {
         }
     }
 
-    public function saveUICustomization($type, $customizationValue) {
+    public function saveUICustomization() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $type = $_POST['type'];
+            $customizationValue = $_POST['customizationValue'];
             $userID = $_SESSION['user_id'];
 
             $user = $this->userModel->getUserByID($userID);
@@ -322,18 +330,110 @@ class UserController {
 
     public function getUICustomization() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+                $userID = $_SESSION['user_id'];
+
+                $user = $this->userModel->getUserByID($userID);
+    
+                if (!$user['is_active']) {
+                    echo json_encode(['success' => false, 'isInactive' => true]);
+                    exit;
+                }
+    
+                $uiCustomizationSetting = $this->userModel->getUICustomizationSetting($userID);
+                echo json_encode(['success' => true, 'themeContrast' => $uiCustomizationSetting['theme_contrast'] ?? false, 'captionShow' => $uiCustomizationSetting['caption_show'] ?? true, 'presetTheme' => $uiCustomizationSetting['preset_theme'] ?? 'preset-1', 'darkLayout' => $uiCustomizationSetting['dark_layout'] ?? false, 'rtlLayout' => $uiCustomizationSetting['rtl_layout'] ?? false, 'boxContainer' => $uiCustomizationSetting['box_container'] ?? false]);
+                exit;
+            }
+            else{
+                echo json_encode(['success' => true, 'themeContrast' => false, 'captionShow' => true, 'presetTheme' => 'preset-1', 'darkLayout' => false, 'rtlLayout' => false, 'boxContainer' => false]);
+                exit;
+            }
+        }
+    }
+
+    public function updateNotificationSetting() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userID = $_SESSION['user_id'];
+            $isChecked = $_POST['isChecked'];
 
             $user = $this->userModel->getUserByID($userID);
+            $isActive = $user['is_active'] ?? 0;
 
-            if (!$user['is_active']) {
+            if (!$isActive) {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }
 
-            $uiCustomizationSetting = $this->userModel->getUICustomizationSetting($userID);
-            echo json_encode(['success' => true, 'themeContrast' => $uiCustomizationSetting['theme_contrast'] ?? false, 'captionShow' => $uiCustomizationSetting['caption_show'] ?? true, 'presetTheme' => $uiCustomizationSetting['preset_theme'] ?? 'preset-1', 'darkLayout' => $uiCustomizationSetting['dark_layout'] ?? false, 'rtlLayout' => $uiCustomizationSetting['rtl_layout'] ?? false, 'boxContainer' => $uiCustomizationSetting['box_container'] ?? false]);
+            $this->userModel->updateNotificationSetting($userID, $isChecked, $userID);
+    
+            echo json_encode(['success' => true]);
             exit;
+        }
+    }
+
+    public function updateTwoFactorAuthentication() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userID = $_SESSION['user_id'];
+            $isChecked = $_POST['isChecked'];
+
+            $user = $this->userModel->getUserByID($userID);
+            $isActive = $user['is_active'] ?? 0;
+
+            if (!$isActive) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+
+            $this->userModel->updateTwoFactorAuthentication($userID, $isChecked, $userID);
+    
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+
+    public function updatePasswordShortcut() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userID = $_SESSION['user_id'];
+            $oldPassword = htmlspecialchars($_POST['shortcut_old_password'], ENT_QUOTES, 'UTF-8');
+            $newPassword = htmlspecialchars($_POST['shortcut_new_password'], ENT_QUOTES, 'UTF-8');
+            $encryptedPassword = $this->securityModel->encryptData($newPassword);
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if ($user) {
+                $email = $user['email'] ?? null;
+                $isActive = $user['is_active'] ?? 0;
+                $userPassword = $this->securityModel->decryptData($user['password']);
+
+                if (!$isActive) {
+                    echo json_encode(['success' => false, 'isInactive' => true]);
+                    exit;
+                }
+
+                if($oldPassword != $userPassword){
+                    echo json_encode(['success' => false, 'message' => 'Your old password does not match your current password.']);
+                    exit;
+                }
+
+                $checkPasswordHistory = $this->checkPasswordHistory($userID, $email, $newPassword);
+
+                if($checkPasswordHistory > 0){
+                    echo json_encode(['success' => false, 'message' => 'Your new password must not match your previous one. Please choose a different password.']);
+                    exit;
+                }
+
+                $lastPasswordChange = date('Y-m-d H:i:s');
+                $passwordExpiryDate = date('Y-m-d', strtotime('+6 months'));
+                $this->userModel->updateUserPassword($userID, $email, $encryptedPassword, $passwordExpiryDate, $lastPasswordChange);
+                $this->userModel->insertPasswordHistory($userID, $email, $encryptedPassword, $lastPasswordChange);
+
+                echo json_encode(['success' => true]);
+                exit;
+            }
+            else {
+                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
+                exit;
+            }
         }
     }
     
@@ -366,6 +466,95 @@ class UserController {
         }
         
         return false;
+    }
+
+    public function generateToken($minLength = 4, $maxLength = 4) {
+        $length = mt_rand($minLength, $maxLength);
+        $otp = '';
+        
+        for ($i = 0; $i < $length; $i++) {
+            $otp .= mt_rand(0, 9);
+        }
+        
+        return $otp;
+    }
+    
+    public function generateResetToken($minLength = 10, $maxLength = 12) {
+        $length = mt_rand($minLength, $maxLength);
+        $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        $character_count = strlen($characters);
+        $resetToken = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $index = mt_rand(0, $character_count - 1);
+            $resetToken .= $characters[$index];
+        }
+    
+        return $resetToken;
+    }
+
+    public function sendOTP($email, $otp) {
+        require('../assets/libs/PHPMailer/src/PHPMailer.php');
+        require('../assets/libs/PHPMailer/src/Exception.php');
+        require('../assets/libs/PHPMailer/src/SMTP.php');
+
+        $message = file_get_contents('../email-template/otp-email.html');
+        $message = str_replace('[OTP CODE]', $otp, $message);
+
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = MAIL_HOST;
+        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
+        $mailer->Username = MAIL_USERNAME;
+        $mailer->Password = MAIL_PASSWORD;
+        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
+        $mailer->Port = MAIL_PORT;
+        
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->addAddress($email);
+        $mailer->Subject = 'Login OTP - Secure Access to Your Account';
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    
+    public function sendPasswordReset($email, $userID, $resetToken) {
+        require('../assets/libs/PHPMailer/src/PHPMailer.php');
+        require('../assets/libs/PHPMailer/src/Exception.php');
+        require('../assets/libs/PHPMailer/src/SMTP.php');
+
+        $message = file_get_contents('../email-template/password-reset-email.html');
+        $message = str_replace('[RESET LINK]', 'http://localhost/tech_nexus/password-reset.php?id=' . $userID .'&token=' . $resetToken, $message);
+
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = MAIL_HOST;
+        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
+        $mailer->Username = MAIL_USERNAME;
+        $mailer->Password = MAIL_PASSWORD;
+        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
+        $mailer->Port = MAIL_PORT;
+        
+        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->addAddress($email);
+        $mailer->Subject = 'Password Reset Request - Action Required';
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send password reset email. Error: ' . $mailer->ErrorInfo;
+        }
     }
 }
 

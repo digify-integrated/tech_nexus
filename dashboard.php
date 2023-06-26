@@ -36,6 +36,7 @@
 
     
     <?php 
+        include_once('config/_change_password_modal.php');
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 

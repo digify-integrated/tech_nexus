@@ -54,20 +54,34 @@
                                         <img src="./assets/images/default/default-avatar.png" alt="user-image" class="user-avtar wid-35" />
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-1"><?php echo $fileAs; ?></h6>
-                                        <span id="email_account"><?php echo $email; ?></span>
+                                        <h6 class="mb-1 text-truncate"><?php echo $fileAs; ?></h6>
+                                        <span class="text-truncate" id="email_account"><?php echo $email; ?></span>
                                     </div>
                                 </div>
                                 <hr class="border-secondary border-opacity-50" />
-                                <div class="card">
+                                <div class="card mb-2">
                                     <div class="card-body py-3">
                                         <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="mb-0 d-inline-flex align-items-center">
-                                            <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-notification-outline"></use></svg> Notification</h5>
+                                        <h6 class="mb-0 d-inline-flex align-items-center">
+                                            <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-notification-outline"></use></svg> Notification</h6>
                                             <div class="form-check form-switch form-check-reverse m-0">
                                                 <?php
                                                     $checked = $receiveNotification ? 'checked' : '';
                                                     echo '<input class="form-check-input f-18" id="receive-notification" type="checkbox" role="switch" ' . $checked . ' />';
+                                                ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-body py-3">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                        <h6 class="mb-0 d-inline-flex align-items-center">
+                                            <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-lock-outline"></use></svg> 2-Factor Authentication</h6>
+                                            <div class="form-check form-switch form-check-reverse m-0">
+                                                <?php
+                                                    $checked = $twoFactorAuthentication ? 'checked' : '';
+                                                    echo '<input class="form-check-input f-18" id="enable-two-factor-authentication" type="checkbox" role="switch" ' . $checked . ' />';
                                                 ?>
                                             </div>
                                         </div>
@@ -80,7 +94,7 @@
                                         <span>Settings</span>
                                     </span>
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="javascript:void(0);" id="change-user-password" class="dropdown-item">
                                     <span>
                                         <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-lock-outline"></use></svg>
                                         <span>Change Password</span>

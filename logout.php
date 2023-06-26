@@ -5,10 +5,11 @@ if (isset($_GET['logout'])) {
     session_unset();
     session_destroy();
 
-    setcookie('remember_me', '', time() - 3600, '/');
-    unset($_COOKIE['remember_me']);
+    setcookie('remember_token', '', time() - 3600, '/');
+    unset($_COOKIE['remember_token']);
 
     header('Location: index.php');
+    echo 'asd';
     exit;
 }
 

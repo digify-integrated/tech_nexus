@@ -7,4 +7,5 @@
 <script src="./assets/js/plugins/feather.min.js"></script>
 <script src="./assets/js/plugins/notifier.js"></script>
 <script src="./assets/js/plugins/jquery.validate.min.js"></script>
+<script src="./assets/js/form-validation-rules.js?v=<?php echo rand(); ?>"></script>
 <script src="./assets/js/system.js?v=<?php echo rand(); ?>"></script>

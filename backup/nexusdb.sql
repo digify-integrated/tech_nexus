@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 25, 2023 at 02:42 PM
+-- Generation Time: Jun 26, 2023 at 12:18 PM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -107,6 +107,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLoginAttempt` (IN `p_user_id`
     WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_user_id` INT, IN `p_receive_notification` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET receive_notification = p_receive_notification, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTP` (IN `p_user_id` INT, IN `p_otp` VARCHAR(255), IN `p_otp_expiry_date` DATETIME, IN `p_remember_me` TINYINT(1))   BEGIN
 	UPDATE users 
     SET otp = p_otp, otp_expiry_date = p_otp_expiry_date, remember_me = p_remember_me, failed_otp_attempts = 0
@@ -128,6 +134,12 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateResetToken` (IN `p_user_id` INT, IN `p_reset_token` VARCHAR(255), IN `p_reset_token_expiry_date` DATETIME)   BEGIN
 	UPDATE users 
     SET reset_token = p_reset_token, reset_token_expiry_date = p_reset_token_expiry_date
+    WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateTwoFactorAuthentication` (IN `p_user_id` INT, IN `p_two_factor_auth` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET two_factor_auth = p_two_factor_auth, last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
 END$$
 
@@ -233,7 +245,62 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (38, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-25 20:40:10'),
 (39, 'ui_customization_setting', 1, 'Preset Theme: preset-9 -> preset-10<br/>', '1', '2023-06-25 20:41:56'),
 (40, 'ui_customization_setting', 1, 'Preset Theme: preset-10 -> preset-5<br/>', '1', '2023-06-25 20:41:57'),
-(41, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-25 20:42:01');
+(41, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-25 20:42:01'),
+(42, 'users', 1, 'OTP: 75okAGo5Rm52Ud0lxU4XuLolYef4r6%2F95MFiuYNjV7s%3D -> kJSx1OyXpxh%2B%2FnpA%2BsEiI4lhXuZW61aflsDKwKlyNjY%3D<br/>OTP Expiry Date: 2023-06-25 19:05:29 -> 2023-06-26 08:53:00<br/>', '1', '2023-06-26 08:48:00'),
+(43, 'users', 1, 'Remember Token: f8232c8830a8a9c8bb55378efb62e351 -> 5dfdbd03f3ac82bd990dc73cca634b11<br/>', '1', '2023-06-26 08:49:18'),
+(44, 'users', 1, 'Last Connection Date: 2023-06-25 19:01:03 -> 2023-06-26 08:49:18<br/>', '1', '2023-06-26 08:49:18'),
+(45, 'ui_customization_setting', 1, 'Preset Theme: preset-5 -> preset-1<br/>', '1', '2023-06-26 08:49:35'),
+(46, 'ui_customization_setting', 1, 'Preset Theme: preset-1 -> preset-10<br/>', '1', '2023-06-26 08:49:40'),
+(47, 'ui_customization_setting', 1, 'Preset Theme: preset-10 -> preset-9<br/>', '1', '2023-06-26 08:49:41'),
+(48, 'ui_customization_setting', 1, 'Preset Theme: preset-9 -> preset-6<br/>', '1', '2023-06-26 08:49:47'),
+(49, 'ui_customization_setting', 1, 'Preset Theme: preset-6 -> preset-1<br/>', '1', '2023-06-26 08:49:48'),
+(50, 'ui_customization_setting', 1, 'Preset Theme: preset-1 -> preset-7<br/>', '1', '2023-06-26 08:49:50'),
+(51, 'ui_customization_setting', 1, 'Preset Theme: preset-7 -> preset-6<br/>', '1', '2023-06-26 08:49:53'),
+(52, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-26 08:50:10'),
+(53, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-06-26 08:50:23'),
+(54, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-06-26 08:50:24'),
+(55, 'ui_customization_setting', 1, 'RTL Layout: false -> true<br/>', '1', '2023-06-26 08:50:46'),
+(56, 'ui_customization_setting', 1, 'RTL Layout: true -> false<br/>', '1', '2023-06-26 08:50:48'),
+(57, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-06-26 09:29:11'),
+(58, 'users', 1, 'Receive Notification: 1 -> 0<br/>', '1', '2023-06-26 09:30:07'),
+(59, 'users', 1, 'Receive Notification: 0 -> 1<br/>', '1', '2023-06-26 09:30:12'),
+(60, 'users', 1, '2-Factor Authentication: 0 -> 1<br/>', '1', '2023-06-26 09:30:12'),
+(61, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-26 09:31:24'),
+(62, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-26 09:31:25'),
+(63, 'users', 1, 'Receive Notification: 1 -> 0<br/>', '1', '2023-06-26 09:31:27'),
+(64, 'users', 1, 'Receive Notification: 0 -> 1<br/>', '1', '2023-06-26 09:31:32'),
+(65, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-26 09:31:46'),
+(66, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-26 10:35:47'),
+(67, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-26 10:35:51'),
+(68, 'users', 1, 'Receive Notification: 1 -> 0<br/>', '1', '2023-06-26 10:35:53'),
+(69, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-06-26 10:35:58'),
+(70, 'users', 1, 'Receive Notification: 0 -> 1<br/>', '1', '2023-06-26 10:36:02'),
+(71, 'users', 1, '2-Factor Authentication: 0 -> 1<br/>', '1', '2023-06-26 10:36:02'),
+(72, 'users', 1, 'OTP: kJSx1OyXpxh%2B%2FnpA%2BsEiI4lhXuZW61aflsDKwKlyNjY%3D -> %2FotseVtIu5cZAdX20cW8lVp1xntHkXJ7FnrbkwGQZ9Y%3D<br/>OTP Expiry Date: 2023-06-26 08:53:00 -> 2023-06-26 10:56:28<br/>', '1', '2023-06-26 10:51:28'),
+(73, 'users', 1, 'Remember Token: 5dfdbd03f3ac82bd990dc73cca634b11 -> bbac5da5b473c8b99d2f5db413e15a0b<br/>', '1', '2023-06-26 10:51:40'),
+(74, 'users', 1, 'Last Connection Date: 2023-06-26 08:49:18 -> 2023-06-26 10:51:40<br/>', '1', '2023-06-26 10:51:40'),
+(75, 'users', 1, 'OTP: %2FotseVtIu5cZAdX20cW8lVp1xntHkXJ7FnrbkwGQZ9Y%3D -> UhmDpAkVgnwdy%2BDDdJhnO4xu7X5S4aHpU2uxcgdUynw%3D<br/>OTP Expiry Date: 2023-06-26 10:56:28 -> 2023-06-26 11:00:29<br/>', '1', '2023-06-26 10:55:29'),
+(76, 'users', 1, 'Remember Token: bbac5da5b473c8b99d2f5db413e15a0b -> 8dd2bf3b9bdc3137bc8cd6ace846f6dc<br/>', '1', '2023-06-26 10:57:58'),
+(77, 'users', 1, 'Last Connection Date: 2023-06-26 10:51:40 -> 2023-06-26 10:57:58<br/>', '1', '2023-06-26 10:57:58'),
+(78, 'users', 1, 'Password Expiry Date: 2023-12-30 -> 2023-12-26<br/>', '1', '2023-06-26 11:14:15'),
+(79, 'users', 1, 'Last Password Change: 2023-06-26 11:14:15 -> 2023-06-26 11:20:09<br/>', '1', '2023-06-26 11:20:09'),
+(80, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-26 11:20:43'),
+(81, 'users', 1, 'Last Password Change: 2023-06-26 11:20:09 -> 2023-06-26 11:21:00<br/>', '1', '2023-06-26 11:21:00'),
+(82, 'users', 1, 'OTP: UhmDpAkVgnwdy%2BDDdJhnO4xu7X5S4aHpU2uxcgdUynw%3D -> 9d7ou1%2FgH%2F6gPc4uVzF5vmYGLQT%2BCyzFUJSm50gflzc%3D<br/>OTP Expiry Date: 2023-06-26 11:00:29 -> 2023-06-26 11:26:22<br/>Remember Me: 1 -> 0<br/>', '1', '2023-06-26 11:21:22'),
+(83, 'users', 1, 'Last Connection Date: 2023-06-26 10:57:58 -> 2023-06-26 11:21:42<br/>', '1', '2023-06-26 11:21:42'),
+(84, 'ui_customization_setting', 1, 'Caption Show: false -> true<br/>', '1', '2023-06-26 11:27:32'),
+(85, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-26 11:27:36'),
+(86, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-26 11:27:41'),
+(87, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-26 11:27:43'),
+(88, 'ui_customization_setting', 1, 'Preset Theme: preset-6 -> preset-5<br/>', '1', '2023-06-26 11:29:01'),
+(89, 'ui_customization_setting', 1, 'Preset Theme: preset-5 -> preset-3<br/>', '1', '2023-06-26 11:29:03'),
+(90, 'ui_customization_setting', 1, 'Preset Theme: preset-3 -> preset-1<br/>', '1', '2023-06-26 11:29:04'),
+(91, 'ui_customization_setting', 1, 'Preset Theme: preset-1 -> preset-9<br/>', '1', '2023-06-26 11:29:06'),
+(92, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:00'),
+(93, 'ui_customization_setting', 1, 'Box Container: false -> true<br/>', '1', '2023-06-26 15:48:01'),
+(94, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:02'),
+(95, 'ui_customization_setting', 1, 'Box Container: false -> true<br/>', '1', '2023-06-26 15:48:04'),
+(96, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:09');
 
 -- --------------------------------------------------------
 
@@ -248,6 +315,13 @@ CREATE TABLE `password_history` (
   `password` varchar(255) NOT NULL,
   `password_change_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_history`
+--
+
+INSERT INTO `password_history` (`password_history_id`, `user_id`, `email`, `password`, `password_change_date`) VALUES
+(1, 1, 'ldagulto@encorefinancials.com', 'Swr5ANKCD2DVNoB2xuk4cJ6kSkxvceEx8jknp82YVlM%3D', '2023-06-26 11:21:00');
 
 -- --------------------------------------------------------
 
@@ -272,7 +346,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'false', 'false', 'preset-5', 'light', 'false', 'true', 1);
+(1, 1, 'false', 'true', 'preset-9', 'light', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -383,7 +457,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-06-25 19:01:03', '2023-12-30', NULL, NULL, 1, 1, '75okAGo5Rm52Ud0lxU4XuLolYef4r6%2F95MFiuYNjV7s%3D', '2023-06-25 19:05:29', 0, NULL, 0, NULL, 1, 'f8232c8830a8a9c8bb55378efb62e351', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'Swr5ANKCD2DVNoB2xuk4cJ6kSkxvceEx8jknp82YVlM%3D', 0, 1, NULL, 0, '2023-06-26 11:21:42', '2023-12-26', NULL, NULL, 1, 1, '9d7ou1%2FgH%2F6gPc4uVzF5vmYGLQT%2BCyzFUJSm50gflzc%3D', '2023-06-26 11:26:22', 0, '2023-06-26 11:21:00', 0, NULL, 0, '8dd2bf3b9bdc3137bc8cd6ace846f6dc', 1);
 
 --
 -- Triggers `users`
@@ -615,13 +689,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT for table `password_history`
 --
 ALTER TABLE `password_history`
-  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

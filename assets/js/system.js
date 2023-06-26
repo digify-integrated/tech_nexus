@@ -61,6 +61,103 @@
             });
         }
 
+        if($('#change-password-modal').length){
+            $('#change-password-shortcut-form').validate({
+                rules: {
+                    shortcut_old_password: {
+                      required: true
+                    },
+                    shortcut_new_password: {
+                      required: true,
+                      password_strength: true
+                    },
+                    shortcut_confirm_password: {
+                      required: true,
+                      equalTo: '#shortcut_new_password'
+                    }
+                },
+                messages: {
+                    shortcut_old_password: {
+                      required: 'Please enter your old password'
+                    },
+                    shortcut_new_password: {
+                      required: 'Please enter your new password'
+                    },
+                    shortcut_confirm_password: {
+                      required: 'Please re-enter your password for confirmation',
+                      equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
+                    }
+                },
+              errorPlacement: function (error, element) {
+                if (element.hasClass('select2')) {
+                  error.insertAfter(element.next('.select2-container'));
+                }
+                else if (element.parent('.input-group').length) {
+                  error.insertAfter(element.parent());
+                }
+                else {
+                  error.insertAfter(element);
+                }
+              },
+              highlight: function(element) {
+                if ($(element).hasClass('select2-hidden-accessible')) {
+                  $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+                } 
+                else {
+                  $(element).addClass('is-invalid');
+                }
+              },
+              unhighlight: function(element) {
+                if ($(element).hasClass('select2-hidden-accessible')) {
+                  $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+                }
+                else {
+                  $(element).removeClass('is-invalid');
+                }
+              },
+              submitHandler: function(form) {
+                const transaction = 'change password shortcut';
+          
+                $.ajax({
+                  type: 'POST',
+                  url: 'controller/user-controller.php',
+                  data: $(form).serialize() + '&transaction=' + transaction,
+                  dataType: 'JSON',
+                  beforeSend: function() {
+                    disableFormSubmitButton('submit-password-form');
+                  },
+                  success: function(response) {
+                    if (response.success) {
+                        setNotification('Password Change Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
+                        window.location.href = 'logout.php?logout';
+                    }
+                    else{
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Password Change Error', response.message, 'danger');
+                        }
+                    }
+                  },
+                  error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+        
+                    var response = xhr.responseText;
+                    fullErrorMessage += ', Response: ' + response;
+                  
+                    showErrorDialog(fullErrorMessage);
+                  },
+                  complete: function() {
+                    enableFormSubmitButton('submit-password-form', 'Update Password');
+                  }
+                });
+          
+                return false;
+              }
+            });
+        }
+
         $(document).on('click','#datatable-checkbox',function() {
             var status = $(this).is(':checked') ? true : false;
             $('.datatable-checkbox-children').prop('checked',status);
@@ -106,6 +203,25 @@
             const value = $(this).data('value');
 
             saveUICustomization('box container', value);
+        });
+
+        $(document).on('click','#receive-notification',function() {
+            var checkbox = document.getElementById("receive-notification");
+            var isChecked = checkbox.checked ? 1 : 0;
+
+            updateNotificationSetting(isChecked);
+        });
+
+        $(document).on('click','#enable-two-factor-authentication',function() {
+            var checkbox = document.getElementById("enable-two-factor-authentication");
+            var isChecked = checkbox.checked ? 1 : 0;
+
+            updateTwoFactorAuthentication(isChecked);
+        });
+
+        $(document).on('click','#change-user-password',function() {
+            resetModalForm('change-password-shortcut-form');
+            $('#change-password-modal').modal('show');
         });
 
         $(document).on('click','#copy-error-message',function() {
@@ -330,10 +446,7 @@ function saveUICustomization(type, customizationValue){
         data: {transaction : transaction, type : type, customizationValue : customizationValue},
         dataType: 'JSON',
         success: function (response) {
-            if (response.success) {
-                showNotification('Update UI Settings Success', 'The UI settings has been updated successfully', 'success');
-            } 
-            else {
+            if (!response.success) {
                 if(response.isInactive){
                     window.location = 'logout.php?logout';
                 }
@@ -373,6 +486,64 @@ function getUISettings(){
             else {
                 showNotification('UI Settings Error', response.message, 'danger');
             }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+  
+            var response = xhr.responseText;
+            fullErrorMessage += ', Response: ' + response;
+          
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function updateNotificationSetting(isChecked){
+    const transaction = 'update notification setting';
+
+    $.ajax({
+        type: 'POST',
+        url: './controller/user-controller.php',
+        data: {transaction : transaction, isChecked : isChecked},
+        dataType: 'JSON',
+        success: function (response) {
+            if (!response.success) {
+                if(response.isInactive){
+                    window.location = 'logout.php?logout';
+                }
+                else{
+                    showNotification('Update Notification Setting Error', response.message, 'danger');
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+  
+            var response = xhr.responseText;
+            fullErrorMessage += ', Response: ' + response;
+          
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function updateTwoFactorAuthentication(isChecked){
+    const transaction = 'update two factor authentication';
+
+    $.ajax({
+        type: 'POST',
+        url: './controller/user-controller.php',
+        data: {transaction : transaction, isChecked : isChecked},
+        dataType: 'JSON',
+        success: function (response) {
+            if (!response.success) {
+                if(response.isInactive){
+                    window.location = 'logout.php?logout';
+                }
+                else{
+                    showNotification('Update Two Factor Authentication Error', response.message, 'danger');
+                }
+            } 
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;

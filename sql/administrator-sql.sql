@@ -293,6 +293,20 @@ BEGIN
     WHERE p_user_id = p_user_id OR email = BINARY p_email;
 END //
 
+CREATE PROCEDURE updateNotificationSetting(IN p_user_id INT, IN p_receive_notification TINYINT(1), IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET receive_notification = p_receive_notification, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE updateTwoFactorAuthentication(IN p_user_id INT, IN p_two_factor_auth TINYINT(1), IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET two_factor_auth = p_two_factor_auth, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
 /* Password history table */
 CREATE TABLE password_history (
     password_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,

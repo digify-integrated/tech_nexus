@@ -22,10 +22,6 @@
                     <div class="collapse pc-user-links" id="pc_sidebar_userlink">
                         <div class="pt-3">
                             <a href="JavaScript:void(0);">
-                                <i class="ti ti-user"></i>
-                                <span>My Account</span>
-                            </a>
-                            <a href="JavaScript:void(0);">
                                 <i class="ti ti-settings"></i>
                                 <span>Settings</span>
                             </a>
@@ -62,7 +58,7 @@
                             <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                         </a>
                         <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="menu-groups.php">Menu Groups</a></li>
+                            <li class="pc-item"><a class="pc-link" href="menu-group.php">Menu Group</a></li>
                             <li class="pc-item"><a class="pc-link" href="menu-item.php">Menu Item</a></li>
                         </ul>
                     </li>

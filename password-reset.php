@@ -94,7 +94,6 @@
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php');
     ?>
-    <script src="./assets/js/form-validation-rules.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/password-reset.js?v=<?php echo rand(); ?>"></script>
 </body>
 
