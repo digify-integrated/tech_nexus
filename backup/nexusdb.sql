@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 26, 2023 at 12:18 PM
+-- Generation Time: Jun 27, 2023 at 11:32 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -300,7 +300,448 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (93, 'ui_customization_setting', 1, 'Box Container: false -> true<br/>', '1', '2023-06-26 15:48:01'),
 (94, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:02'),
 (95, 'ui_customization_setting', 1, 'Box Container: false -> true<br/>', '1', '2023-06-26 15:48:04'),
-(96, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:09');
+(96, 'ui_customization_setting', 1, 'Box Container: true -> false<br/>', '1', '2023-06-26 15:48:09'),
+(97, 'users', 1, 'OTP: 9d7ou1%2FgH%2F6gPc4uVzF5vmYGLQT%2BCyzFUJSm50gflzc%3D -> VsRYccMvvZqSm4CAssIXuL%2F7%2BLS03fcIgJ6U%2Fj%2BcCGo%3D<br/>OTP Expiry Date: 2023-06-26 11:26:22 -> 2023-06-27 09:44:50<br/>Remember Me: 0 -> 1<br/>', '1', '2023-06-27 09:39:50'),
+(98, 'users', 1, 'Remember Token: 8dd2bf3b9bdc3137bc8cd6ace846f6dc -> 2c300c9bb4332919325314dc9de9351c<br/>', '1', '2023-06-27 09:40:23'),
+(99, 'users', 1, 'Last Connection Date: 2023-06-26 11:21:42 -> 2023-06-27 09:40:23<br/>', '1', '2023-06-27 09:40:23'),
+(100, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:27:27'),
+(101, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:27:27 -> 2023-06-27 13:27:29<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:27:29'),
+(102, 'users', 1, 'Failed Login Attempts: 2 -> 0<br/>', '1', '2023-06-27 13:31:16'),
+(103, 'users', 1, 'OTP: VsRYccMvvZqSm4CAssIXuL%2F7%2BLS03fcIgJ6U%2Fj%2BcCGo%3D -> CXUxrJDCsxX1LOkzJQSZXK3s7tJvhEdGt9E1C4jQRyo%3D<br/>OTP Expiry Date: 2023-06-27 09:44:50 -> 2023-06-27 13:36:16<br/>Remember Me: 1 -> 0<br/>', '1', '2023-06-27 13:31:16'),
+(104, 'users', 1, 'Last Connection Date: 2023-06-27 09:40:23 -> 2023-06-27 13:31:50<br/>', '1', '2023-06-27 13:31:50'),
+(105, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:39:40'),
+(106, 'users', 1, 'Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:39:40'),
+(107, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:40 -> 2023-06-27 13:39:41<br/>Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 13:39:41'),
+(108, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:41 -> 2023-06-27 13:39:42<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 13:39:42'),
+(109, 'users', 1, 'Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 13:39:42'),
+(110, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:42 -> 2023-06-27 13:39:43<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 13:39:43'),
+(111, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 6<br/>', '1', '2023-06-27 13:39:43'),
+(112, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:43 -> 2023-06-27 13:39:46<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 13:39:46'),
+(113, 'users', 1, 'Account Lock Duration: 6 -> 13<br/>', '1', '2023-06-27 13:39:46'),
+(114, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:46 -> 2023-06-27 13:39:47<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 13:39:47'),
+(115, 'users', 1, 'Account Lock Duration: 13 -> 21<br/>', '1', '2023-06-27 13:39:47'),
+(116, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:47 -> 2023-06-27 13:39:50<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 13:39:50'),
+(117, 'users', 1, 'Account Lock Duration: 21 -> 30<br/>', '1', '2023-06-27 13:39:50'),
+(118, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:50 -> 2023-06-27 13:39:51<br/>Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 13:39:51'),
+(119, 'users', 1, 'Account Lock Duration: 30 -> 40<br/>', '1', '2023-06-27 13:39:51'),
+(120, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:51 -> 2023-06-27 13:39:52<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 13:39:52'),
+(121, 'users', 1, 'Account Lock Duration: 40 -> 51<br/>', '1', '2023-06-27 13:39:52'),
+(122, 'users', 1, 'Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 13:39:52'),
+(123, 'users', 1, 'Account Lock Duration: 51 -> 63<br/>', '1', '2023-06-27 13:39:52'),
+(124, 'users', 1, 'Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 13:39:52'),
+(125, 'users', 1, 'Account Lock Duration: 63 -> 76<br/>', '1', '2023-06-27 13:39:52'),
+(126, 'users', 1, 'Failed Login Attempts: 13 -> 14<br/>', '1', '2023-06-27 13:39:52'),
+(127, 'users', 1, 'Account Lock Duration: 76 -> 90<br/>', '1', '2023-06-27 13:39:52'),
+(128, 'users', 1, 'Failed Login Attempts: 14 -> 15<br/>', '1', '2023-06-27 13:39:52'),
+(129, 'users', 1, 'Account Lock Duration: 90 -> 105<br/>', '1', '2023-06-27 13:39:52'),
+(130, 'users', 1, 'Failed Login Attempts: 15 -> 16<br/>', '1', '2023-06-27 13:39:52'),
+(131, 'users', 1, 'Account Lock Duration: 105 -> 121<br/>', '1', '2023-06-27 13:39:52'),
+(132, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:52 -> 2023-06-27 13:39:53<br/>Failed Login Attempts: 16 -> 17<br/>', '1', '2023-06-27 13:39:53'),
+(133, 'users', 1, 'Account Lock Duration: 121 -> 138<br/>', '1', '2023-06-27 13:39:53'),
+(134, 'users', 1, 'Failed Login Attempts: 17 -> 18<br/>', '1', '2023-06-27 13:39:53'),
+(135, 'users', 1, 'Account Lock Duration: 138 -> 156<br/>', '1', '2023-06-27 13:39:53'),
+(136, 'users', 1, 'Failed Login Attempts: 18 -> 19<br/>', '1', '2023-06-27 13:39:53'),
+(137, 'users', 1, 'Account Lock Duration: 156 -> 175<br/>', '1', '2023-06-27 13:39:53'),
+(138, 'users', 1, 'Failed Login Attempts: 19 -> 20<br/>', '1', '2023-06-27 13:39:53'),
+(139, 'users', 1, 'Account Lock Duration: 175 -> 195<br/>', '1', '2023-06-27 13:39:53'),
+(140, 'users', 1, 'Failed Login Attempts: 20 -> 21<br/>', '1', '2023-06-27 13:39:53'),
+(141, 'users', 1, 'Account Lock Duration: 195 -> 216<br/>', '1', '2023-06-27 13:39:53'),
+(142, 'users', 1, 'Failed Login Attempts: 21 -> 22<br/>', '1', '2023-06-27 13:39:53'),
+(143, 'users', 1, 'Account Lock Duration: 216 -> 238<br/>', '1', '2023-06-27 13:39:53'),
+(144, 'users', 1, 'Failed Login Attempts: 22 -> 23<br/>', '1', '2023-06-27 13:39:53'),
+(145, 'users', 1, 'Account Lock Duration: 238 -> 261<br/>', '1', '2023-06-27 13:39:53'),
+(146, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:53 -> 2023-06-27 13:39:54<br/>Failed Login Attempts: 23 -> 24<br/>', '1', '2023-06-27 13:39:54'),
+(147, 'users', 1, 'Account Lock Duration: 261 -> 285<br/>', '1', '2023-06-27 13:39:54'),
+(148, 'users', 1, 'Failed Login Attempts: 24 -> 25<br/>', '1', '2023-06-27 13:39:54'),
+(149, 'users', 1, 'Account Lock Duration: 285 -> 310<br/>', '1', '2023-06-27 13:39:54'),
+(150, 'users', 1, 'Failed Login Attempts: 25 -> 26<br/>', '1', '2023-06-27 13:39:54'),
+(151, 'users', 1, 'Account Lock Duration: 310 -> 336<br/>', '1', '2023-06-27 13:39:54'),
+(152, 'users', 1, 'Failed Login Attempts: 26 -> 27<br/>', '1', '2023-06-27 13:39:54'),
+(153, 'users', 1, 'Account Lock Duration: 336 -> 363<br/>', '1', '2023-06-27 13:39:54'),
+(154, 'users', 1, 'Failed Login Attempts: 27 -> 28<br/>', '1', '2023-06-27 13:39:54'),
+(155, 'users', 1, 'Account Lock Duration: 363 -> 391<br/>', '1', '2023-06-27 13:39:54'),
+(156, 'users', 1, 'Failed Login Attempts: 28 -> 29<br/>', '1', '2023-06-27 13:39:54'),
+(157, 'users', 1, 'Account Lock Duration: 391 -> 420<br/>', '1', '2023-06-27 13:39:54'),
+(158, 'users', 1, 'Failed Login Attempts: 29 -> 30<br/>', '1', '2023-06-27 13:39:54'),
+(159, 'users', 1, 'Account Lock Duration: 420 -> 450<br/>', '1', '2023-06-27 13:39:54'),
+(160, 'users', 1, 'Failed Login Attempts: 30 -> 31<br/>', '1', '2023-06-27 13:39:54'),
+(161, 'users', 1, 'Account Lock Duration: 450 -> 481<br/>', '1', '2023-06-27 13:39:54'),
+(162, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:54 -> 2023-06-27 13:39:55<br/>Failed Login Attempts: 31 -> 32<br/>', '1', '2023-06-27 13:39:55'),
+(163, 'users', 1, 'Account Lock Duration: 481 -> 513<br/>', '1', '2023-06-27 13:39:55'),
+(164, 'users', 1, 'Failed Login Attempts: 32 -> 33<br/>', '1', '2023-06-27 13:39:55'),
+(165, 'users', 1, 'Account Lock Duration: 513 -> 546<br/>', '1', '2023-06-27 13:39:55'),
+(166, 'users', 1, 'Failed Login Attempts: 33 -> 34<br/>', '1', '2023-06-27 13:39:55'),
+(167, 'users', 1, 'Account Lock Duration: 546 -> 580<br/>', '1', '2023-06-27 13:39:55'),
+(168, 'users', 1, 'Failed Login Attempts: 34 -> 35<br/>', '1', '2023-06-27 13:39:55'),
+(169, 'users', 1, 'Account Lock Duration: 580 -> 615<br/>', '1', '2023-06-27 13:39:55'),
+(170, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:39:55 -> 2023-06-27 13:43:06<br/>Failed Login Attempts: 35 -> 36<br/>', '1', '2023-06-27 13:43:06'),
+(171, 'users', 1, 'Account Lock Duration: 615 -> 2147483647<br/>', '1', '2023-06-27 13:43:06'),
+(172, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:43:06 -> 2023-06-27 13:43:07<br/>Failed Login Attempts: 36 -> 37<br/>', '1', '2023-06-27 13:43:07'),
+(173, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:43:07 -> 2023-06-27 13:43:08<br/>Failed Login Attempts: 37 -> 38<br/>', '1', '2023-06-27 13:43:08'),
+(174, 'users', 1, 'Failed Login Attempts: 38 -> 0<br/>', '1', '2023-06-27 13:43:37'),
+(175, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-06-27 13:43:42'),
+(176, 'users', 1, 'Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-06-27 13:44:01'),
+(177, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:43:08 -> 2023-06-27 13:44:20<br/>Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:44:20'),
+(178, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:20 -> 2023-06-27 13:44:21<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:44:21'),
+(179, 'users', 1, 'Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 13:44:21'),
+(180, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:21 -> 2023-06-27 13:44:22<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 13:44:22'),
+(181, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:22 -> 2023-06-27 13:44:23<br/>Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 13:44:23'),
+(182, 'users', 1, 'Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 13:44:23'),
+(183, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-06-27 13:44:23'),
+(184, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:23 -> 2023-06-27 13:44:26<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 13:44:26'),
+(185, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-06-27 13:44:26'),
+(186, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:26 -> 2023-06-27 13:44:27<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 13:44:27'),
+(187, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-06-27 13:44:27'),
+(188, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:27 -> 2023-06-27 13:44:28<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 13:44:28'),
+(189, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-06-27 13:44:28'),
+(190, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:28 -> 2023-06-27 13:44:31<br/>Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 13:44:31'),
+(191, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-06-27 13:44:31'),
+(192, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:31 -> 2023-06-27 13:44:32<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 13:44:32'),
+(193, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-06-27 13:44:32'),
+(194, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:32 -> 2023-06-27 13:44:33<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 13:44:33'),
+(195, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-06-27 13:44:33'),
+(196, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:44:33 -> 2023-06-27 13:44:35<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 13:44:35'),
+(197, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-06-27 13:44:35'),
+(198, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-06-27 13:45:19'),
+(199, 'users', 1, 'Failed Login Attempts: 13 -> 0<br/>', '1', '2023-06-27 13:45:21'),
+(200, 'users', 1, 'Account Lock Duration: 1280 -> 0<br/>', '1', '2023-06-27 13:45:32'),
+(201, 'users', 1, 'OTP: CXUxrJDCsxX1LOkzJQSZXK3s7tJvhEdGt9E1C4jQRyo%3D -> Xb9wJQO3U9wpSscvj99ZsQpIfZDfOqjlijzRE2EDDw0%3D<br/>OTP Expiry Date: 2023-06-27 13:36:16 -> 2023-06-27 13:50:45<br/>', '1', '2023-06-27 13:45:45'),
+(202, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:46:01'),
+(203, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:01 -> 2023-06-27 13:46:02<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:46:02'),
+(204, 'users', 1, 'Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 13:46:02'),
+(205, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:02 -> 2023-06-27 13:46:03<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 13:46:03'),
+(206, 'users', 1, 'Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 13:46:03'),
+(207, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:03 -> 2023-06-27 13:46:04<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 13:46:04'),
+(208, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-06-27 13:46:04'),
+(209, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:04 -> 2023-06-27 13:46:05<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 13:46:05'),
+(210, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-06-27 13:46:05'),
+(211, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:05 -> 2023-06-27 13:46:10<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 13:46:10'),
+(212, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-06-27 13:46:10'),
+(213, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:10 -> 2023-06-27 13:46:12<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 13:46:12'),
+(214, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-06-27 13:46:12'),
+(215, 'users', 1, 'Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 13:46:12'),
+(216, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-06-27 13:46:13'),
+(217, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:12 -> 2023-06-27 13:46:13<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 13:46:13'),
+(218, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-06-27 13:46:13'),
+(219, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:13 -> 2023-06-27 13:46:14<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 13:46:14'),
+(220, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-06-27 13:46:14'),
+(221, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:14 -> 2023-06-27 13:46:15<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 13:46:15'),
+(222, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-06-27 13:46:15'),
+(223, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:15 -> 2023-06-27 13:46:16<br/>Failed Login Attempts: 13 -> 14<br/>', '1', '2023-06-27 13:46:16'),
+(224, 'users', 1, 'Account Lock Duration: 1280 -> 2560<br/>', '1', '2023-06-27 13:46:16'),
+(225, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:16 -> 2023-06-27 13:46:18<br/>Failed Login Attempts: 14 -> 15<br/>', '1', '2023-06-27 13:46:18'),
+(226, 'users', 1, 'Account Lock Duration: 2560 -> 5120<br/>', '1', '2023-06-27 13:46:18'),
+(227, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:18 -> 2023-06-27 13:46:19<br/>Failed Login Attempts: 15 -> 16<br/>', '1', '2023-06-27 13:46:19'),
+(228, 'users', 1, 'Account Lock Duration: 5120 -> 10240<br/>', '1', '2023-06-27 13:46:19'),
+(229, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:19 -> 2023-06-27 13:46:21<br/>Failed Login Attempts: 16 -> 17<br/>', '1', '2023-06-27 13:46:21'),
+(230, 'users', 1, 'Account Lock Duration: 10240 -> 20480<br/>', '1', '2023-06-27 13:46:21'),
+(231, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:21 -> 2023-06-27 13:46:23<br/>Failed Login Attempts: 17 -> 18<br/>', '1', '2023-06-27 13:46:23'),
+(232, 'users', 1, 'Account Lock Duration: 20480 -> 40960<br/>', '1', '2023-06-27 13:46:23'),
+(233, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:23 -> 2023-06-27 13:46:24<br/>Failed Login Attempts: 18 -> 19<br/>', '1', '2023-06-27 13:46:24'),
+(234, 'users', 1, 'Account Lock Duration: 40960 -> 81920<br/>', '1', '2023-06-27 13:46:24'),
+(235, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:24 -> 2023-06-27 13:46:26<br/>Failed Login Attempts: 19 -> 20<br/>', '1', '2023-06-27 13:46:26'),
+(236, 'users', 1, 'Account Lock Duration: 81920 -> 163840<br/>', '1', '2023-06-27 13:46:26'),
+(237, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:26 -> 2023-06-27 13:46:27<br/>Failed Login Attempts: 20 -> 21<br/>', '1', '2023-06-27 13:46:27'),
+(238, 'users', 1, 'Account Lock Duration: 163840 -> 327680<br/>', '1', '2023-06-27 13:46:27'),
+(239, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:46:27 -> 2023-06-27 13:49:06<br/>Failed Login Attempts: 21 -> 22<br/>', '1', '2023-06-27 13:49:06'),
+(240, 'users', 1, 'Account Lock Duration: 327680 -> 655360<br/>', '1', '2023-06-27 13:49:06'),
+(241, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:06 -> 2023-06-27 13:49:08<br/>Failed Login Attempts: 22 -> 23<br/>', '1', '2023-06-27 13:49:08'),
+(242, 'users', 1, 'Account Lock Duration: 655360 -> 1310720<br/>', '1', '2023-06-27 13:49:08'),
+(243, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:08 -> 2023-06-27 13:49:09<br/>Failed Login Attempts: 23 -> 24<br/>', '1', '2023-06-27 13:49:09'),
+(244, 'users', 1, 'Account Lock Duration: 1310720 -> 2621440<br/>', '1', '2023-06-27 13:49:09'),
+(245, 'users', 1, 'Account Lock Duration: 2621440 -> 0<br/>', '1', '2023-06-27 13:49:16'),
+(246, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-06-27 13:49:21'),
+(247, 'users', 1, 'Failed Login Attempts: 24 -> 0<br/>', '1', '2023-06-27 13:49:25'),
+(248, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:09 -> 2023-06-27 13:49:27<br/>Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:49:27'),
+(249, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:27 -> 2023-06-27 13:49:31<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:49:31'),
+(250, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:31 -> 2023-06-27 13:49:32<br/>Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 13:49:32'),
+(251, 'users', 1, 'Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 13:49:32'),
+(252, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:32 -> 2023-06-27 13:49:33<br/>Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 13:49:33'),
+(253, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:33 -> 2023-06-27 13:49:34<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 13:49:34'),
+(254, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-06-27 13:49:34'),
+(255, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:34 -> 2023-06-27 13:49:36<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 13:49:36'),
+(256, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-06-27 13:49:36'),
+(257, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:36 -> 2023-06-27 13:49:37<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 13:49:37'),
+(258, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-06-27 13:49:37'),
+(259, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:37 -> 2023-06-27 13:49:38<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 13:49:38'),
+(260, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-06-27 13:49:38'),
+(261, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:38 -> 2023-06-27 13:49:40<br/>Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 13:49:40'),
+(262, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-06-27 13:49:40'),
+(263, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:40 -> 2023-06-27 13:49:42<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 13:49:42'),
+(264, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-06-27 13:49:42'),
+(265, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:42 -> 2023-06-27 13:49:43<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 13:49:43'),
+(266, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-06-27 13:49:43'),
+(267, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:43 -> 2023-06-27 13:49:44<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 13:49:44'),
+(268, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-06-27 13:49:44'),
+(269, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:44 -> 2023-06-27 13:49:45<br/>Failed Login Attempts: 13 -> 14<br/>', '1', '2023-06-27 13:49:45'),
+(270, 'users', 1, 'Account Lock Duration: 1280 -> 2560<br/>', '1', '2023-06-27 13:49:45'),
+(271, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:45 -> 2023-06-27 13:49:46<br/>Failed Login Attempts: 14 -> 15<br/>', '1', '2023-06-27 13:49:46'),
+(272, 'users', 1, 'Account Lock Duration: 2560 -> 5120<br/>', '1', '2023-06-27 13:49:46'),
+(273, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:46 -> 2023-06-27 13:49:50<br/>Failed Login Attempts: 15 -> 16<br/>', '1', '2023-06-27 13:49:50'),
+(274, 'users', 1, 'Account Lock Duration: 5120 -> 10240<br/>', '1', '2023-06-27 13:49:50'),
+(275, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:50 -> 2023-06-27 13:49:52<br/>Failed Login Attempts: 16 -> 17<br/>', '1', '2023-06-27 13:49:52'),
+(276, 'users', 1, 'Account Lock Duration: 10240 -> 20480<br/>', '1', '2023-06-27 13:49:52'),
+(277, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:52 -> 2023-06-27 13:49:54<br/>Failed Login Attempts: 17 -> 18<br/>', '1', '2023-06-27 13:49:54'),
+(278, 'users', 1, 'Account Lock Duration: 20480 -> 40960<br/>', '1', '2023-06-27 13:49:54'),
+(279, 'users', 1, 'Failed Login Attempts: 18 -> 19<br/>', '1', '2023-06-27 13:49:54'),
+(280, 'users', 1, 'Account Lock Duration: 40960 -> 81920<br/>', '1', '2023-06-27 13:49:54'),
+(281, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:54 -> 2023-06-27 13:49:55<br/>Failed Login Attempts: 19 -> 20<br/>', '1', '2023-06-27 13:49:55'),
+(282, 'users', 1, 'Account Lock Duration: 81920 -> 163840<br/>', '1', '2023-06-27 13:49:55'),
+(283, 'users', 1, 'Failed Login Attempts: 20 -> 21<br/>', '1', '2023-06-27 13:49:55'),
+(284, 'users', 1, 'Account Lock Duration: 163840 -> 327680<br/>', '1', '2023-06-27 13:49:55'),
+(285, 'users', 1, 'Failed Login Attempts: 21 -> 22<br/>', '1', '2023-06-27 13:49:55'),
+(286, 'users', 1, 'Account Lock Duration: 327680 -> 655360<br/>', '1', '2023-06-27 13:49:55'),
+(287, 'users', 1, 'Failed Login Attempts: 22 -> 23<br/>', '1', '2023-06-27 13:49:55'),
+(288, 'users', 1, 'Account Lock Duration: 655360 -> 1310720<br/>', '1', '2023-06-27 13:49:55'),
+(289, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:55 -> 2023-06-27 13:49:56<br/>Failed Login Attempts: 23 -> 24<br/>', '1', '2023-06-27 13:49:56'),
+(290, 'users', 1, 'Account Lock Duration: 1310720 -> 2621440<br/>', '1', '2023-06-27 13:49:56'),
+(291, 'users', 1, 'Failed Login Attempts: 24 -> 25<br/>', '1', '2023-06-27 13:49:56'),
+(292, 'users', 1, 'Account Lock Duration: 2621440 -> 5242880<br/>', '1', '2023-06-27 13:49:56'),
+(293, 'users', 1, 'Failed Login Attempts: 25 -> 26<br/>', '1', '2023-06-27 13:49:56'),
+(294, 'users', 1, 'Account Lock Duration: 5242880 -> 10485760<br/>', '1', '2023-06-27 13:49:56'),
+(295, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:49:56 -> 2023-06-27 13:50:47<br/>Failed Login Attempts: 26 -> 27<br/>', '1', '2023-06-27 13:50:47'),
+(296, 'users', 1, 'Account Lock Duration: 10485760 -> 20971520<br/>', '1', '2023-06-27 13:50:47'),
+(297, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:50:47 -> 2023-06-27 13:50:50<br/>Failed Login Attempts: 27 -> 28<br/>', '1', '2023-06-27 13:50:50'),
+(298, 'users', 1, 'Account Lock Duration: 20971520 -> 41943040<br/>', '1', '2023-06-27 13:50:50'),
+(299, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:50:50 -> 2023-06-27 13:50:51<br/>Failed Login Attempts: 28 -> 29<br/>', '1', '2023-06-27 13:50:51'),
+(300, 'users', 1, 'Account Lock Duration: 41943040 -> 83886080<br/>', '1', '2023-06-27 13:50:51'),
+(301, 'users', 1, 'Failed Login Attempts: 29 -> 30<br/>', '1', '2023-06-27 13:50:51'),
+(302, 'users', 1, 'Account Lock Duration: 83886080 -> 167772160<br/>', '1', '2023-06-27 13:50:51'),
+(303, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:50:51 -> 2023-06-27 13:50:52<br/>Failed Login Attempts: 30 -> 31<br/>', '1', '2023-06-27 13:50:52'),
+(304, 'users', 1, 'Account Lock Duration: 167772160 -> 335544320<br/>', '1', '2023-06-27 13:50:52'),
+(305, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:50:52 -> 2023-06-27 13:50:53<br/>Failed Login Attempts: 31 -> 32<br/>', '1', '2023-06-27 13:50:53'),
+(306, 'users', 1, 'Account Lock Duration: 335544320 -> 671088640<br/>', '1', '2023-06-27 13:50:53'),
+(307, 'users', 1, 'Failed Login Attempts: 32 -> 33<br/>', '1', '2023-06-27 13:50:53'),
+(308, 'users', 1, 'Account Lock Duration: 671088640 -> 1342177280<br/>', '1', '2023-06-27 13:50:53'),
+(309, 'users', 1, 'Failed Login Attempts: 33 -> 34<br/>', '1', '2023-06-27 13:50:53'),
+(310, 'users', 1, 'Account Lock Duration: 1342177280 -> 2147483647<br/>', '1', '2023-06-27 13:50:53'),
+(311, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:50:53 -> 2023-06-27 13:50:54<br/>Failed Login Attempts: 34 -> 35<br/>', '1', '2023-06-27 13:50:54'),
+(312, 'users', 1, 'Failed Login Attempts: 35 -> 36<br/>', '1', '2023-06-27 13:50:54'),
+(313, 'users', 1, 'Failed Login Attempts: 36 -> 37<br/>', '1', '2023-06-27 13:50:54'),
+(314, 'users', 1, 'Failed Login Attempts: 37 -> 38<br/>', '1', '2023-06-27 13:50:54'),
+(315, 'users', 1, 'Failed Login Attempts: 38 -> 39<br/>', '1', '2023-06-27 13:50:54'),
+(316, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-06-27 13:50:59'),
+(317, 'users', 1, 'Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-06-27 13:51:04'),
+(318, 'users', 1, 'Failed Login Attempts: 39 -> 0<br/>', '1', '2023-06-27 13:51:13'),
+(319, 'users', 1, 'OTP: Xb9wJQO3U9wpSscvj99ZsQpIfZDfOqjlijzRE2EDDw0%3D -> ymecq%2B%2FvOdQXLttC9hPFuTi3wZZ8goUar%2FJ4tPj2SfY%3D<br/>OTP Expiry Date: 2023-06-27 13:50:45 -> 2023-06-27 13:56:34<br/>', '1', '2023-06-27 13:51:34'),
+(320, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 13:51:51'),
+(321, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:51 -> 2023-06-27 13:51:52<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 13:51:52'),
+(322, 'users', 1, 'Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 13:51:52'),
+(323, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:52 -> 2023-06-27 13:51:53<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 13:51:53'),
+(324, 'users', 1, 'Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 13:51:53'),
+(325, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:53 -> 2023-06-27 13:51:54<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 13:51:54'),
+(326, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-06-27 13:51:54'),
+(327, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:54 -> 2023-06-27 13:51:56<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 13:51:56'),
+(328, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-06-27 13:51:56'),
+(329, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:56 -> 2023-06-27 13:51:58<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 13:51:58'),
+(330, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-06-27 13:51:58'),
+(331, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:58 -> 2023-06-27 13:51:59<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 13:51:59'),
+(332, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-06-27 13:51:59'),
+(333, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:51:59 -> 2023-06-27 13:52:00<br/>Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 13:52:00'),
+(334, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-06-27 13:52:00'),
+(335, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:00 -> 2023-06-27 13:52:01<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 13:52:01'),
+(336, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-06-27 13:52:01'),
+(337, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:01 -> 2023-06-27 13:52:02<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 13:52:02'),
+(338, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-06-27 13:52:02'),
+(339, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:02 -> 2023-06-27 13:52:03<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 13:52:03'),
+(340, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-06-27 13:52:03'),
+(341, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:03 -> 2023-06-27 13:52:04<br/>Failed Login Attempts: 13 -> 14<br/>', '1', '2023-06-27 13:52:04'),
+(342, 'users', 1, 'Account Lock Duration: 1280 -> 2560<br/>', '1', '2023-06-27 13:52:04'),
+(343, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:04 -> 2023-06-27 13:52:06<br/>Failed Login Attempts: 14 -> 15<br/>', '1', '2023-06-27 13:52:06'),
+(344, 'users', 1, 'Account Lock Duration: 2560 -> 5120<br/>', '1', '2023-06-27 13:52:06'),
+(345, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:06 -> 2023-06-27 13:52:07<br/>Failed Login Attempts: 15 -> 16<br/>', '1', '2023-06-27 13:52:07'),
+(346, 'users', 1, 'Account Lock Duration: 5120 -> 10240<br/>', '1', '2023-06-27 13:52:07'),
+(347, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:07 -> 2023-06-27 13:52:08<br/>Failed Login Attempts: 16 -> 17<br/>', '1', '2023-06-27 13:52:08'),
+(348, 'users', 1, 'Account Lock Duration: 10240 -> 20480<br/>', '1', '2023-06-27 13:52:08'),
+(349, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:08 -> 2023-06-27 13:52:10<br/>Failed Login Attempts: 17 -> 18<br/>', '1', '2023-06-27 13:52:10'),
+(350, 'users', 1, 'Account Lock Duration: 20480 -> 40960<br/>', '1', '2023-06-27 13:52:10'),
+(351, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:10 -> 2023-06-27 13:52:11<br/>Failed Login Attempts: 18 -> 19<br/>', '1', '2023-06-27 13:52:11'),
+(352, 'users', 1, 'Account Lock Duration: 40960 -> 81920<br/>', '1', '2023-06-27 13:52:11'),
+(353, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:11 -> 2023-06-27 13:52:13<br/>Failed Login Attempts: 19 -> 20<br/>', '1', '2023-06-27 13:52:13'),
+(354, 'users', 1, 'Account Lock Duration: 81920 -> 163840<br/>', '1', '2023-06-27 13:52:13'),
+(355, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:13 -> 2023-06-27 13:52:15<br/>Failed Login Attempts: 20 -> 21<br/>', '1', '2023-06-27 13:52:15'),
+(356, 'users', 1, 'Account Lock Duration: 163840 -> 327680<br/>', '1', '2023-06-27 13:52:15'),
+(357, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:15 -> 2023-06-27 13:52:17<br/>Failed Login Attempts: 21 -> 22<br/>', '1', '2023-06-27 13:52:17'),
+(358, 'users', 1, 'Account Lock Duration: 327680 -> 655360<br/>', '1', '2023-06-27 13:52:17'),
+(359, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:17 -> 2023-06-27 13:52:19<br/>Failed Login Attempts: 22 -> 23<br/>', '1', '2023-06-27 13:52:19'),
+(360, 'users', 1, 'Account Lock Duration: 655360 -> 1310720<br/>', '1', '2023-06-27 13:52:19'),
+(361, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:19 -> 2023-06-27 13:52:21<br/>Failed Login Attempts: 23 -> 24<br/>', '1', '2023-06-27 13:52:21'),
+(362, 'users', 1, 'Account Lock Duration: 1310720 -> 2621440<br/>', '1', '2023-06-27 13:52:21'),
+(363, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:21 -> 2023-06-27 13:52:22<br/>Failed Login Attempts: 24 -> 25<br/>', '1', '2023-06-27 13:52:22'),
+(364, 'users', 1, 'Account Lock Duration: 2621440 -> 5242880<br/>', '1', '2023-06-27 13:52:22'),
+(365, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:22 -> 2023-06-27 13:52:23<br/>Failed Login Attempts: 25 -> 26<br/>', '1', '2023-06-27 13:52:23'),
+(366, 'users', 1, 'Account Lock Duration: 5242880 -> 10485760<br/>', '1', '2023-06-27 13:52:23'),
+(367, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:23 -> 2023-06-27 13:52:24<br/>Failed Login Attempts: 26 -> 27<br/>', '1', '2023-06-27 13:52:24'),
+(368, 'users', 1, 'Account Lock Duration: 10485760 -> 20971520<br/>', '1', '2023-06-27 13:52:24'),
+(369, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:24 -> 2023-06-27 13:52:25<br/>Failed Login Attempts: 27 -> 28<br/>', '1', '2023-06-27 13:52:25'),
+(370, 'users', 1, 'Account Lock Duration: 20971520 -> 41943040<br/>', '1', '2023-06-27 13:52:25'),
+(371, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:25 -> 2023-06-27 13:52:26<br/>Failed Login Attempts: 28 -> 29<br/>', '1', '2023-06-27 13:52:26'),
+(372, 'users', 1, 'Account Lock Duration: 41943040 -> 83886080<br/>', '1', '2023-06-27 13:52:26'),
+(373, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:26 -> 2023-06-27 13:52:27<br/>Failed Login Attempts: 29 -> 30<br/>', '1', '2023-06-27 13:52:27'),
+(374, 'users', 1, 'Account Lock Duration: 83886080 -> 167772160<br/>', '1', '2023-06-27 13:52:27'),
+(375, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:27 -> 2023-06-27 13:52:28<br/>Failed Login Attempts: 30 -> 31<br/>', '1', '2023-06-27 13:52:28'),
+(376, 'users', 1, 'Account Lock Duration: 167772160 -> 335544320<br/>', '1', '2023-06-27 13:52:28'),
+(377, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:28 -> 2023-06-27 13:52:29<br/>Failed Login Attempts: 31 -> 32<br/>', '1', '2023-06-27 13:52:29'),
+(378, 'users', 1, 'Account Lock Duration: 335544320 -> 671088640<br/>', '1', '2023-06-27 13:52:29'),
+(379, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:29 -> 2023-06-27 13:52:30<br/>Failed Login Attempts: 32 -> 33<br/>', '1', '2023-06-27 13:52:30'),
+(380, 'users', 1, 'Account Lock Duration: 671088640 -> 1342177280<br/>', '1', '2023-06-27 13:52:30'),
+(381, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:30 -> 2023-06-27 13:52:32<br/>Failed Login Attempts: 33 -> 34<br/>', '1', '2023-06-27 13:52:32'),
+(382, 'users', 1, 'Account Lock Duration: 1342177280 -> 2147483647<br/>', '1', '2023-06-27 13:52:32'),
+(383, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:32 -> 2023-06-27 13:52:33<br/>Failed Login Attempts: 34 -> 35<br/>', '1', '2023-06-27 13:52:33'),
+(384, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:33 -> 2023-06-27 13:52:34<br/>Failed Login Attempts: 35 -> 36<br/>', '1', '2023-06-27 13:52:34'),
+(385, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:34 -> 2023-06-27 13:52:41<br/>Failed Login Attempts: 36 -> 37<br/>', '1', '2023-06-27 13:52:41'),
+(386, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:41 -> 2023-06-27 13:52:44<br/>Failed Login Attempts: 37 -> 38<br/>', '1', '2023-06-27 13:52:44'),
+(387, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:52:44 -> 2023-06-27 13:58:34<br/>Failed Login Attempts: 38 -> 39<br/>', '1', '2023-06-27 13:58:34'),
+(388, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:58:34 -> 2023-06-27 13:58:38<br/>Failed Login Attempts: 39 -> 40<br/>', '1', '2023-06-27 13:58:38'),
+(389, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:58:38 -> 2023-06-27 13:58:40<br/>Failed Login Attempts: 40 -> 41<br/>', '1', '2023-06-27 13:58:40'),
+(390, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:58:40 -> 2023-06-27 13:58:43<br/>Failed Login Attempts: 41 -> 42<br/>', '1', '2023-06-27 13:58:43'),
+(391, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 13:58:43 -> 2023-06-27 14:00:05<br/>Failed Login Attempts: 42 -> 43<br/>', '1', '2023-06-27 14:00:05'),
+(392, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:05 -> 2023-06-27 14:00:07<br/>Failed Login Attempts: 43 -> 44<br/>', '1', '2023-06-27 14:00:07'),
+(393, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:07 -> 2023-06-27 14:00:08<br/>Failed Login Attempts: 44 -> 45<br/>', '1', '2023-06-27 14:00:08'),
+(394, 'users', 1, 'Failed Login Attempts: 45 -> 46<br/>', '1', '2023-06-27 14:00:08'),
+(395, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:08 -> 2023-06-27 14:00:09<br/>Failed Login Attempts: 46 -> 47<br/>', '1', '2023-06-27 14:00:09'),
+(396, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:09 -> 2023-06-27 14:00:10<br/>Failed Login Attempts: 47 -> 48<br/>', '1', '2023-06-27 14:00:10'),
+(397, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-06-27 14:00:16'),
+(398, 'users', 1, 'Failed Login Attempts: 48 -> 0<br/>', '1', '2023-06-27 14:00:19'),
+(399, 'users', 1, 'Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-06-27 14:00:23'),
+(400, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:10 -> 2023-06-27 14:00:26<br/>Failed Login Attempts: 0 -> 1<br/>', '1', '2023-06-27 14:00:26'),
+(401, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:26 -> 2023-06-27 14:00:28<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-06-27 14:00:28'),
+(402, 'users', 1, 'Failed Login Attempts: 2 -> 3<br/>', '1', '2023-06-27 14:00:28'),
+(403, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:28 -> 2023-06-27 14:00:29<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-06-27 14:00:29'),
+(404, 'users', 1, 'Failed Login Attempts: 4 -> 5<br/>', '1', '2023-06-27 14:00:29'),
+(405, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:29 -> 2023-06-27 14:00:32<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-06-27 14:00:32'),
+(406, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-06-27 14:00:32'),
+(407, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:32 -> 2023-06-27 14:00:34<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-06-27 14:00:34'),
+(408, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-06-27 14:00:34'),
+(409, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:34 -> 2023-06-27 14:00:35<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-06-27 14:00:35'),
+(410, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-06-27 14:00:35'),
+(411, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:35 -> 2023-06-27 14:00:36<br/>Failed Login Attempts: 8 -> 9<br/>', '1', '2023-06-27 14:00:36'),
+(412, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-06-27 14:00:36'),
+(413, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:36 -> 2023-06-27 14:00:37<br/>Failed Login Attempts: 9 -> 10<br/>', '1', '2023-06-27 14:00:37'),
+(414, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-06-27 14:00:37'),
+(415, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:37 -> 2023-06-27 14:00:38<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-06-27 14:00:38'),
+(416, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-06-27 14:00:38'),
+(417, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:38 -> 2023-06-27 14:00:39<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-06-27 14:00:39'),
+(418, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-06-27 14:00:39'),
+(419, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:39 -> 2023-06-27 14:00:40<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-06-27 14:00:40'),
+(420, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-06-27 14:00:40'),
+(421, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:40 -> 2023-06-27 14:00:41<br/>Failed Login Attempts: 13 -> 14<br/>', '1', '2023-06-27 14:00:41'),
+(422, 'users', 1, 'Account Lock Duration: 1280 -> 2560<br/>', '1', '2023-06-27 14:00:41'),
+(423, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:41 -> 2023-06-27 14:00:43<br/>Failed Login Attempts: 14 -> 15<br/>', '1', '2023-06-27 14:00:43'),
+(424, 'users', 1, 'Account Lock Duration: 2560 -> 5120<br/>', '1', '2023-06-27 14:00:43'),
+(425, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:43 -> 2023-06-27 14:00:44<br/>Failed Login Attempts: 15 -> 16<br/>', '1', '2023-06-27 14:00:44'),
+(426, 'users', 1, 'Account Lock Duration: 5120 -> 10240<br/>', '1', '2023-06-27 14:00:44'),
+(427, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:44 -> 2023-06-27 14:00:46<br/>Failed Login Attempts: 16 -> 17<br/>', '1', '2023-06-27 14:00:46');
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(428, 'users', 1, 'Account Lock Duration: 10240 -> 20480<br/>', '1', '2023-06-27 14:00:46'),
+(429, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:46 -> 2023-06-27 14:00:47<br/>Failed Login Attempts: 17 -> 18<br/>', '1', '2023-06-27 14:00:47'),
+(430, 'users', 1, 'Account Lock Duration: 20480 -> 40960<br/>', '1', '2023-06-27 14:00:47'),
+(431, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:47 -> 2023-06-27 14:00:48<br/>Failed Login Attempts: 18 -> 19<br/>', '1', '2023-06-27 14:00:48'),
+(432, 'users', 1, 'Account Lock Duration: 40960 -> 81920<br/>', '1', '2023-06-27 14:00:48'),
+(433, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:48 -> 2023-06-27 14:00:49<br/>Failed Login Attempts: 19 -> 20<br/>', '1', '2023-06-27 14:00:49'),
+(434, 'users', 1, 'Account Lock Duration: 81920 -> 163840<br/>', '1', '2023-06-27 14:00:49'),
+(435, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:49 -> 2023-06-27 14:00:50<br/>Failed Login Attempts: 20 -> 21<br/>', '1', '2023-06-27 14:00:50'),
+(436, 'users', 1, 'Account Lock Duration: 163840 -> 327680<br/>', '1', '2023-06-27 14:00:50'),
+(437, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:50 -> 2023-06-27 14:00:52<br/>Failed Login Attempts: 21 -> 22<br/>', '1', '2023-06-27 14:00:52'),
+(438, 'users', 1, 'Account Lock Duration: 327680 -> 655360<br/>', '1', '2023-06-27 14:00:52'),
+(439, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:52 -> 2023-06-27 14:00:53<br/>Failed Login Attempts: 22 -> 23<br/>', '1', '2023-06-27 14:00:53'),
+(440, 'users', 1, 'Account Lock Duration: 655360 -> 1310720<br/>', '1', '2023-06-27 14:00:53'),
+(441, 'users', 1, 'Failed Login Attempts: 23 -> 24<br/>', '1', '2023-06-27 14:00:53'),
+(442, 'users', 1, 'Account Lock Duration: 1310720 -> 2621440<br/>', '1', '2023-06-27 14:00:53'),
+(443, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:53 -> 2023-06-27 14:00:54<br/>Failed Login Attempts: 24 -> 25<br/>', '1', '2023-06-27 14:00:54'),
+(444, 'users', 1, 'Account Lock Duration: 2621440 -> 5242880<br/>', '1', '2023-06-27 14:00:54'),
+(445, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:54 -> 2023-06-27 14:00:56<br/>Failed Login Attempts: 25 -> 26<br/>', '1', '2023-06-27 14:00:56'),
+(446, 'users', 1, 'Account Lock Duration: 5242880 -> 10485760<br/>', '1', '2023-06-27 14:00:56'),
+(447, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:56 -> 2023-06-27 14:00:58<br/>Failed Login Attempts: 26 -> 27<br/>', '1', '2023-06-27 14:00:58'),
+(448, 'users', 1, 'Account Lock Duration: 10485760 -> 20971520<br/>', '1', '2023-06-27 14:00:58'),
+(449, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:58 -> 2023-06-27 14:00:59<br/>Failed Login Attempts: 27 -> 28<br/>', '1', '2023-06-27 14:00:59'),
+(450, 'users', 1, 'Account Lock Duration: 20971520 -> 41943040<br/>', '1', '2023-06-27 14:00:59'),
+(451, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:00:59 -> 2023-06-27 14:01:00<br/>Failed Login Attempts: 28 -> 29<br/>', '1', '2023-06-27 14:01:00'),
+(452, 'users', 1, 'Account Lock Duration: 41943040 -> 83886080<br/>', '1', '2023-06-27 14:01:00'),
+(453, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:01:00 -> 2023-06-27 14:01:02<br/>Failed Login Attempts: 29 -> 30<br/>', '1', '2023-06-27 14:01:02'),
+(454, 'users', 1, 'Account Lock Duration: 83886080 -> 167772160<br/>', '1', '2023-06-27 14:01:02'),
+(455, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:01:02 -> 2023-06-27 14:01:03<br/>Failed Login Attempts: 30 -> 31<br/>', '1', '2023-06-27 14:01:03'),
+(456, 'users', 1, 'Account Lock Duration: 167772160 -> 335544320<br/>', '1', '2023-06-27 14:01:03'),
+(457, 'users', 1, 'Last Failed Login Attempt: 2023-06-27 14:01:03 -> 2023-06-27 14:01:04<br/>Failed Login Attempts: 31 -> 32<br/>', '1', '2023-06-27 14:01:04'),
+(458, 'users', 1, 'Account Lock Duration: 335544320 -> 671088640<br/>', '1', '2023-06-27 14:01:04'),
+(459, 'users', 1, 'Reset Token: JCM9O4VOd0RNaH%2FgMGdcLh3g%2FpGYivtqWrgpgJdON5o%3D -> FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D<br/>Reset Token Expiry Date: 2023-06-27 13:40:35 -> 2023-06-27 14:15:10<br/>', '1', '2023-06-27 14:05:10'),
+(460, 'users', 1, 'Is Locked: 1 -> 0<br/>Failed Login Attempts: 32 -> 0<br/>Password Expiry Date: 2023-12-26 -> 2023-12-27<br/>Last Password Change: 2023-06-26 11:21:00 -> 2023-06-27 14:05:38<br/>Account Lock Duration: 671088640 -> 0<br/>', '1', '2023-06-27 14:05:38'),
+(461, 'users', 1, 'OTP: ymecq%2B%2FvOdQXLttC9hPFuTi3wZZ8goUar%2FJ4tPj2SfY%3D -> OvJEe5tpqCK4051QMygslZG7ABuUiIQOA6EFjWTwZ24%3D<br/>OTP Expiry Date: 2023-06-27 13:56:34 -> 2023-06-27 14:10:53<br/>', '1', '2023-06-27 14:05:53'),
+(462, 'users', 1, 'Failed OTP Attempts: 0 -> 1<br/>', '1', '2023-06-27 14:06:18'),
+(463, 'users', 1, 'Failed OTP Attempts: 1 -> 2<br/>', '1', '2023-06-27 14:06:18'),
+(464, 'users', 1, 'Failed OTP Attempts: 2 -> 3<br/>', '1', '2023-06-27 14:06:19'),
+(465, 'users', 1, 'Failed OTP Attempts: 3 -> 4<br/>', '1', '2023-06-27 14:06:20'),
+(466, 'users', 1, 'Failed OTP Attempts: 4 -> 5<br/>', '1', '2023-06-27 14:06:21'),
+(467, 'users', 1, 'OTP Expiry Date: 2023-06-27 14:10:53 -> 2023-05-27 14:06:21<br/>', '1', '2023-06-27 14:06:21'),
+(468, 'users', 1, 'OTP: OvJEe5tpqCK4051QMygslZG7ABuUiIQOA6EFjWTwZ24%3D -> bpQ0d9bMHYV4vT9ZEX558WpMRP53XG0IOdo6KynF4Ls%3D<br/>OTP Expiry Date: 2023-05-27 14:06:21 -> 2023-06-27 14:13:53<br/>Failed OTP Attempts: 5 -> 0<br/>', '1', '2023-06-27 14:08:53'),
+(469, 'users', 1, 'Last Connection Date: 2023-06-27 13:31:50 -> 2023-06-27 14:09:32<br/>', '1', '2023-06-27 14:09:32'),
+(470, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-27 14:09:35'),
+(471, 'users', 1, 'OTP: bpQ0d9bMHYV4vT9ZEX558WpMRP53XG0IOdo6KynF4Ls%3D -> FhI0EI9Agk0THmxGZrYuyVQ1YxVUoKdURAGI5DhJkIE%3D<br/>OTP Expiry Date: 2023-06-27 14:13:53 -> 2023-06-27 14:14:49<br/>', '1', '2023-06-27 14:09:49'),
+(472, 'users', 1, 'Last Connection Date: 2023-06-27 14:09:32 -> 2023-06-27 14:10:09<br/>', '1', '2023-06-27 14:10:09'),
+(473, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-06-27 14:10:15'),
+(474, 'users', 1, 'Last Connection Date: 2023-06-27 14:10:09 -> 2023-06-27 14:10:25<br/>', '1', '2023-06-27 14:10:25'),
+(475, 'users', 1, '2-Factor Authentication: 0 -> 1<br/>', '1', '2023-06-27 14:10:28'),
+(476, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-27 14:11:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `menu_group`
+--
+
+CREATE TABLE `menu_group` (
+  `menu_group_id` int(10) UNSIGNED NOT NULL,
+  `menu_group_name` varchar(100) NOT NULL,
+  `order_sequence` tinyint(10) NOT NULL,
+  `last_log_by` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `menu_group`
+--
+
+INSERT INTO `menu_group` (`menu_group_id`, `menu_group_name`, `order_sequence`, `last_log_by`) VALUES
+(1, 'Administration', 1, 1);
+
+--
+-- Triggers `menu_group`
+--
+DELIMITER $$
+CREATE TRIGGER `menu_group_trigger_insert` AFTER INSERT ON `menu_group` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu group created. <br/>';
+
+    IF NEW.menu_group_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Group Name: ", NEW.menu_group_name);
+    END IF;
+
+    IF NEW.order_sequence <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `menu_group_trigger_update` AFTER UPDATE ON `menu_group` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.menu_group_name <> OLD.menu_group_name THEN
+        SET audit_log = CONCAT(audit_log, "Menu Group Name: ", OLD.menu_group_name, " -> ", NEW.menu_group_name, "<br/>");
+    END IF;
+
+    IF NEW.order_sequence <> OLD.order_sequence THEN
+        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -321,7 +762,96 @@ CREATE TABLE `password_history` (
 --
 
 INSERT INTO `password_history` (`password_history_id`, `user_id`, `email`, `password`, `password_change_date`) VALUES
-(1, 1, 'ldagulto@encorefinancials.com', 'Swr5ANKCD2DVNoB2xuk4cJ6kSkxvceEx8jknp82YVlM%3D', '2023-06-26 11:21:00');
+(1, 1, 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', '2023-06-27 14:05:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role`
+--
+
+CREATE TABLE `role` (
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `role_name` varchar(100) NOT NULL,
+  `role_description` varchar(200) NOT NULL,
+  `assignable` tinyint(1) NOT NULL DEFAULT 1,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role`
+--
+
+INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
+(1, 'Administrator', 'Administrator', 1, 1),
+(2, 'Employee', 'Employee', 1, 1);
+
+--
+-- Triggers `role`
+--
+DELIMITER $$
+CREATE TRIGGER `role_trigger_insert` AFTER INSERT ON `role` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Role created. <br/>';
+
+    IF NEW.role_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role Name: ", NEW.role_name);
+    END IF;
+
+    IF NEW.role_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role Description: ", NEW.role_description);
+    END IF;
+
+    IF NEW.assignable <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Assignable: ", NEW.assignable);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `role_trigger_update` AFTER UPDATE ON `role` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.role_name <> OLD.role_name THEN
+        SET audit_log = CONCAT(audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
+    END IF;
+
+    IF NEW.role_description <> OLD.role_description THEN
+        SET audit_log = CONCAT(audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
+    END IF;
+
+    IF NEW.assignable <> OLD.assignable THEN
+        SET audit_log = CONCAT(audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role_users`
+--
+
+CREATE TABLE `role_users` (
+  `role_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role_users`
+--
+
+INSERT INTO `role_users` (`role_id`, `user_id`, `last_log_by`) VALUES
+(1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -457,7 +987,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'Swr5ANKCD2DVNoB2xuk4cJ6kSkxvceEx8jknp82YVlM%3D', 0, 1, NULL, 0, '2023-06-26 11:21:42', '2023-12-26', NULL, NULL, 1, 1, '9d7ou1%2FgH%2F6gPc4uVzF5vmYGLQT%2BCyzFUJSm50gflzc%3D', '2023-06-26 11:26:22', 0, '2023-06-26 11:21:00', 0, NULL, 0, '8dd2bf3b9bdc3137bc8cd6ace846f6dc', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-06-27 14:10:25', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 1, 'FhI0EI9Agk0THmxGZrYuyVQ1YxVUoKdURAGI5DhJkIE%3D', '2023-06-27 14:14:49', 0, '2023-06-27 14:05:38', 0, NULL, 0, '2c300c9bb4332919325314dc9de9351c', 1);
 
 --
 -- Triggers `users`
@@ -657,6 +1187,13 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
+-- Indexes for table `menu_group`
+--
+ALTER TABLE `menu_group`
+  ADD PRIMARY KEY (`menu_group_id`),
+  ADD KEY `menu_group_index_menu_group_id` (`menu_group_id`);
+
+--
 -- Indexes for table `password_history`
 --
 ALTER TABLE `password_history`
@@ -664,6 +1201,20 @@ ALTER TABLE `password_history`
   ADD KEY `password_history_index_password_history_id` (`password_history_id`),
   ADD KEY `password_history_index_user_id` (`user_id`),
   ADD KEY `password_history_index_email` (`email`);
+
+--
+-- Indexes for table `role`
+--
+ALTER TABLE `role`
+  ADD PRIMARY KEY (`role_id`),
+  ADD KEY `role_index_role_id` (`role_id`);
+
+--
+-- Indexes for table `role_users`
+--
+ALTER TABLE `role_users`
+  ADD KEY `role_users_index_role_id` (`role_id`),
+  ADD KEY `role_users_index_user_id` (`user_id`);
 
 --
 -- Indexes for table `ui_customization_setting`
@@ -689,13 +1240,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=477;
+
+--
+-- AUTO_INCREMENT for table `menu_group`
+--
+ALTER TABLE `menu_group`
+  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `password_history`
 --
 ALTER TABLE `password_history`
   MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `role`
+--
+ALTER TABLE `role`
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

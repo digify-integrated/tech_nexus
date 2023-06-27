@@ -1,25 +1,25 @@
 <?php
-    require('config/config.php');
-    require('model/security-model.php');
+  require('config/config.php');
+  require('model/security-model.php');
 
-    $securityModel = new SecurityModel();
+  $securityModel = new SecurityModel();
 
-    $page_title = 'Error';    
+  $page_title = 'Error';    
 
-    if(isset($_GET['type']) && !empty($_GET['type'])){
-        $type = $securityModel->decryptData($_GET['type']);
-        $errorDetails = $securityModel->getErrorDetails($type);
-    }
-    else{
-        header('location: index.php');
-    }
+  if(isset($_GET['type']) && !empty($_GET['type'])){
+    $type = $securityModel->decryptData($_GET['type']);
+    $errorDetails = $securityModel->getErrorDetails($type);
+  }
+  else{
+    header('location: index.php');
+  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php include_once('config/_title.php'); ?>
-    <?php include_once('config/_required_css.php'); ?>
-    <link rel="stylesheet" href="./assets/css/uikit.css">
+  <?php include_once('config/_title.php'); ?>
+  <?php include_once('config/_required_css.php'); ?>
+  <link rel="stylesheet" href="./assets/css/uikit.css">
 </head>
 
 <body>
@@ -35,8 +35,8 @@
                   <div class="row justify-content-center align-items-center construction-card-bottom">
                     <div class="col-md-6">
                       <div class="text-center">
-                        <h1 class="mt-4"><b><?php echo $errorDetails[0]['TITLE']; ?></b></h1>
-                        <p class="mt-4 text-muted"><?php echo $errorDetails[0]['MESSAGE']; ?></p>
+                        <h1 class="mt-4"><b><?php echo $errorDetails['TITLE']; ?></b></h1>
+                        <p class="mt-4 text-muted"><?php echo $errorDetails['MESSAGE']; ?></p>
                         <a href="index.php" class="btn btn-primary mb-3">Back To Home</a>
                       </div>
                     </div>

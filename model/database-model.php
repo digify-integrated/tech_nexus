@@ -1,9 +1,18 @@
 <?php
-
+/**
+* Class DatabaseModel
+*
+* The DatabaseModel class handles database-related operations and interactions.
+*/
 class DatabaseModel {
     public static $instance;
     public $connection;
 
+    /**
+    * Constructs a new instance of the class and establishes a database connection.
+    *
+    * @return void
+    */
     public function __construct() {
         $host = getenv('DB_HOST');
         $dbname = getenv('DB_NAME');
@@ -26,6 +35,11 @@ class DatabaseModel {
         }
     }
 
+    /**
+    * Returns the singleton instance of the class.
+    *
+    * @return self
+    */
     public static function getInstance() {
         if (!self::$instance) {
             self::$instance = new self();
@@ -33,6 +47,11 @@ class DatabaseModel {
         return self::$instance;
     }
 
+    /**
+    * Retrieves the established database connection.
+    *
+    * @return PDO
+    */
     public function getConnection() {
         return $this->connection;
     }

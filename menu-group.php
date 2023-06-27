@@ -3,9 +3,11 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-
+    require('model/security-model.php');
+  
     $databaseModel = new DatabaseModel();
     $userModel = new UserModel($databaseModel);
+    $securityModel = new SecurityModel();
 
     $page_title = 'Menu Group';
 
@@ -14,6 +16,19 @@
     if (!$user['is_active']) {
         header('location: logout.php?logout');
         exit;
+    }
+
+    if(isset($_GET['id']) && !empty($_GET['id'])){
+      if(empty($_GET['id'])){
+        header('location: menu-group.php');
+        exit;
+      }
+
+      $id = $_GET['id'];
+      $menu_group_id = $securityModel->decryptData($id);
+    }
+    else{
+      $menu_group_id = null;
     }
 
     require('config/_interface_settings.php');
@@ -44,6 +59,11 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item"><a href="javascript: void(0)">User Interface</a></li>
                   <li class="breadcrumb-item" aria-current="page">Menu Groups</li>
+                  <?php
+                    if(!empty($menu_group_id)){
+                      echo '<li class="breadcrumb-item" id="menu-group-id">'. $menu_group_id .'</li>';
+                    }
+                  ?>
                 </ul>
               </div>
               <div class="col-md-12">
@@ -100,6 +120,10 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
+    <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
+    <script src="./assets/js/pages/menu-group.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

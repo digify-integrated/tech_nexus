@@ -28577,20 +28577,21 @@ File: style.css
 }
 
 [data-pc-theme="dark"] .loader-bg {
-  background-color: #131920;
+  background-color: #131920 !important;
 }
 
 [data-pc-theme="light"] .loader-bg {
-  background-color: #ffffff;
+  background-color: #fff !important;
 }
 
 .loader-bg{
+  background-color: #fff;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9999;
+  z-index: 9999999999;
   transition-property: opacity;
   transition-duration: 0.5s;
   transition-timing-function: ease;

@@ -511,3 +511,212 @@ BEGIN
 	SELECT * FROM ui_customization_setting
 	WHERE user_id = p_user_id;
 END //
+
+/* Role table */
+CREATE TABLE role(
+	role_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	role_name VARCHAR(100) NOT NULL,
+	role_description VARCHAR(200) NOT NULL,
+	assignable TINYINT(1) NOT NULL DEFAULT 1,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX role_index_role_id ON role(role_id);
+
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Administrator', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'Employee', '1', '1');
+
+CREATE TRIGGER role_trigger_update
+AFTER UPDATE ON role
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.role_name <> OLD.role_name THEN
+        SET audit_log = CONCAT(audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
+    END IF;
+
+    IF NEW.role_description <> OLD.role_description THEN
+        SET audit_log = CONCAT(audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
+    END IF;
+
+    IF NEW.assignable <> OLD.assignable THEN
+        SET audit_log = CONCAT(audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER role_trigger_insert
+AFTER INSERT ON role
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Role created. <br/>';
+
+    IF NEW.role_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role Name: ", NEW.role_name);
+    END IF;
+
+    IF NEW.role_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role Description: ", NEW.role_description);
+    END IF;
+
+    IF NEW.assignable <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Assignable: ", NEW.assignable);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* Role users table */
+CREATE TABLE role_users(
+	role_id INT NOT NULL,
+	user_id INT NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX role_users_index_role_id ON role_users(role_id);
+CREATE INDEX role_users_index_user_id ON role_users(user_id);
+
+INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '1');
+
+/* Menu group table */
+CREATE TABLE menu_group (
+    menu_group_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    menu_group_name VARCHAR(100) NOT NULL,
+    order_sequence TINYINT(10) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX menu_group_index_menu_group_id ON menu_group(menu_group_id);
+
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '1', '1');
+
+CREATE TRIGGER menu_group_trigger_update
+AFTER UPDATE ON menu_group
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.menu_group_name <> OLD.menu_group_name THEN
+        SET audit_log = CONCAT(audit_log, "Menu Group Name: ", OLD.menu_group_name, " -> ", NEW.menu_group_name, "<br/>");
+    END IF;
+
+    IF NEW.order_sequence <> OLD.order_sequence THEN
+        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER menu_group_trigger_insert
+AFTER INSERT ON menu_group
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu group created. <br/>';
+
+    IF NEW.menu_group_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Group Name: ", NEW.menu_group_name);
+    END IF;
+
+    IF NEW.order_sequence <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* Menu table */
+CREATE TABLE menu_item(
+	menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	menu_item_name VARCHAR(100) NOT NULL,
+	menu_group_id INT UNSIGNED NOT NULL,
+	menu_item_url VARCHAR(50),
+	parent_id INT UNSIGNED,
+	menu_item_icon VARCHAR(150),
+    order_sequence TINYINT(10) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX menu_item_index_menu_item_id ON menu_item(menu_item_id);
+
+ALTER TABLE menu_item
+ADD FOREIGN KEY (menu_group_id) REFERENCES menu_groups(menu_group_id);
+
+CREATE TRIGGER menu_item_trigger_update
+AFTER UPDATE ON menu_item
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.menu_item_name <> OLD.menu_item_name THEN
+        SET audit_log = CONCAT(audit_log, "Menu Item Name: ", OLD.menu_item_name, " -> ", NEW.menu_item_name, "<br/>");
+    END IF;
+
+    IF NEW.menu_group_id <> OLD.menu_group_id THEN
+        SET audit_log = CONCAT(audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
+    END IF;
+
+    IF NEW.menu_item_url <> OLD.parent_id THEN
+        SET audit_log = CONCAT(audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
+    END IF;
+
+    IF NEW.parent_id <> OLD.parent_id THEN
+        SET audit_log = CONCAT(audit_log, "Parent ID: ", OLD.parent_id, " -> ", NEW.parent_id, "<br/>");
+    END IF;
+
+    IF NEW.menu_item_icon <> OLD.menu_item_icon THEN
+        SET audit_log = CONCAT(audit_log, "Menu Item Icon: ", OLD.menu_item_icon, " -> ", NEW.menu_item_icon, "<br/>");
+    END IF;
+
+    IF NEW.order_sequence <> OLD.order_sequence THEN
+        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER menu_item_trigger_insert
+AFTER INSERT ON menu_item
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu item created. <br/>';
+
+    IF NEW.menu_item_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Name: ", NEW.menu_item_name);
+    END IF;
+
+    IF NEW.menu_group_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Group ID: ", NEW.menu_group_id);
+    END IF;
+
+    IF NEW.menu_item_url <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>URL: ", NEW.menu_item_url);
+    END IF;
+
+    IF NEW.parent_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parent ID: ", NEW.parent_id);
+    END IF;
+
+    IF NEW.menu_item_icon <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Icon: ", NEW.menu_item_icon);
+    END IF;
+
+    IF NEW.order_sequence <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END //
