@@ -14,10 +14,10 @@ class DatabaseModel {
     * @return void
     */
     public function __construct() {
-        $host = getenv('DB_HOST');
-        $dbname = getenv('DB_NAME');
-        $username = getenv('DB_USER');
-        $password = getenv('DB_PASS');
+        $host = DB_HOST;
+        $dbname = DB_NAME;
+        $username = DB_USER;
+        $password = DB_PASS;
 
         try {
             $options = [

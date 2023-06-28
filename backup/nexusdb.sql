@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 27, 2023 at 11:32 AM
+-- Generation Time: Jun 28, 2023 at 02:33 PM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- PHP Version: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,6 +25,36 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemAccessRights` (IN `p_user_id` INT, IN `p_menu_item_id` INT, IN `p_access_type` VARCHAR(10))   BEGIN
+	IF p_access_type = 'read' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where read_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'write' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where write_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'create' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where create_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'delete' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
+    ELSE
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionAccessRights` (IN `p_user_id` INT, IN `p_system_action_id` INT)   BEGIN
+	SELECT COUNT(role_id) AS TOTAL
+    FROM role_users
+    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM system_action_access_rights where system_action_id = p_system_action_id);
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (IN `p_user_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM ui_customization_setting
@@ -681,7 +711,114 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (473, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-06-27 14:10:15'),
 (474, 'users', 1, 'Last Connection Date: 2023-06-27 14:10:09 -> 2023-06-27 14:10:25<br/>', '1', '2023-06-27 14:10:25'),
 (475, 'users', 1, '2-Factor Authentication: 0 -> 1<br/>', '1', '2023-06-27 14:10:28'),
-(476, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-27 14:11:54');
+(476, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-27 14:11:54'),
+(477, 'users', 1, 'OTP: FhI0EI9Agk0THmxGZrYuyVQ1YxVUoKdURAGI5DhJkIE%3D -> nt8nqyDovz%2FHk9Qeu5QXnEcqMTesGgGFkAesc1zdrWs%3D<br/>OTP Expiry Date: 2023-06-27 14:14:49 -> 2023-06-28 17:02:06<br/>', '1', '2023-06-28 16:57:06'),
+(478, 'users', 1, 'Last Connection Date: 2023-06-27 14:10:25 -> 2023-06-28 16:57:33<br/>', '1', '2023-06-28 16:57:33'),
+(479, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-28 16:57:37'),
+(480, 'ui_customization_setting', 1, 'Preset Theme: preset-9 -> preset-6<br/>', '1', '2023-06-28 16:59:05'),
+(481, 'ui_customization_setting', 1, 'Preset Theme: preset-6 -> preset-5<br/>', '1', '2023-06-28 16:59:07'),
+(482, 'ui_customization_setting', 1, 'Preset Theme: preset-5 -> preset-10<br/>', '1', '2023-06-28 16:59:08'),
+(483, 'ui_customization_setting', 1, 'Preset Theme: preset-10 -> preset-1<br/>', '1', '2023-06-28 16:59:11'),
+(484, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-06-28 16:59:11'),
+(485, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-06-28 16:59:12'),
+(486, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-28 16:59:13'),
+(487, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-28 16:59:14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `menu_access_right`
+--
+
+CREATE TABLE `menu_access_right` (
+  `menu_item_id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `read_access` tinyint(1) NOT NULL,
+  `write_access` tinyint(1) NOT NULL,
+  `create_access` tinyint(1) NOT NULL,
+  `delete_access` tinyint(1) NOT NULL,
+  `duplicate_access` tinyint(1) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `menu_access_right`
+--
+
+INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `write_access`, `create_access`, `delete_access`, `duplicate_access`, `last_log_by`) VALUES
+(1, 1, 0, 0, 0, 0, 0, 1),
+(2, 1, 1, 1, 1, 1, 1, 1),
+(3, 1, 1, 1, 1, 1, 1, 1);
+
+--
+-- Triggers `menu_access_right`
+--
+DELIMITER $$
+CREATE TRIGGER `menu_access_right_insert` AFTER INSERT ON `menu_access_right` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
+
+    IF NEW.role_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
+    END IF;
+
+    IF NEW.read_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Read Access: ", NEW.read_access);
+    END IF;
+
+    IF NEW.write_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Write Access: ", NEW.write_access);
+    END IF;
+
+    IF NEW.create_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Create Access: ", NEW.create_access);
+    END IF;
+
+    IF NEW.delete_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Delete Access: ", NEW.delete_access);
+    END IF;
+
+    IF NEW.duplicate_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Duplicate Access: ", NEW.duplicate_access);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `menu_access_right_update` AFTER UPDATE ON `menu_access_right` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
+
+    IF NEW.read_access <> OLD.read_access THEN
+        SET audit_log = CONCAT(audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
+    END IF;
+
+    IF NEW.write_access <> OLD.write_access THEN
+        SET audit_log = CONCAT(audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
+    END IF;
+
+    IF NEW.create_access <> OLD.create_access THEN
+        SET audit_log = CONCAT(audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
+    END IF;
+
+    IF NEW.delete_access <> OLD.delete_access THEN
+        SET audit_log = CONCAT(audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
+    END IF;
+
+    IF NEW.duplicate_access <> OLD.duplicate_access THEN
+        SET audit_log = CONCAT(audit_log, "Duplicate Access: ", OLD.duplicate_access, " -> ", NEW.duplicate_access, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -693,7 +830,7 @@ CREATE TABLE `menu_group` (
   `menu_group_id` int(10) UNSIGNED NOT NULL,
   `menu_group_name` varchar(100) NOT NULL,
   `order_sequence` tinyint(10) NOT NULL,
-  `last_log_by` int(10) NOT NULL
+  `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -738,6 +875,104 @@ CREATE TRIGGER `menu_group_trigger_update` AFTER UPDATE ON `menu_group` FOR EACH
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `menu_item`
+--
+
+CREATE TABLE `menu_item` (
+  `menu_item_id` int(10) UNSIGNED NOT NULL,
+  `menu_item_name` varchar(100) NOT NULL,
+  `menu_group_id` int(10) UNSIGNED NOT NULL,
+  `menu_item_url` varchar(50) DEFAULT NULL,
+  `parent_id` int(10) UNSIGNED DEFAULT NULL,
+  `menu_item_icon` varchar(150) DEFAULT NULL,
+  `order_sequence` tinyint(10) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `menu_item`
+--
+
+INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `menu_item_url`, `parent_id`, `menu_item_icon`, `order_sequence`, `last_log_by`) VALUES
+(1, 'User Interface', 1, '', 0, 'sidebar', 50, 1),
+(2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 1),
+(3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 1);
+
+--
+-- Triggers `menu_item`
+--
+DELIMITER $$
+CREATE TRIGGER `menu_item_trigger_insert` AFTER INSERT ON `menu_item` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu item created. <br/>';
+
+    IF NEW.menu_item_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Name: ", NEW.menu_item_name);
+    END IF;
+
+    IF NEW.menu_group_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Group ID: ", NEW.menu_group_id);
+    END IF;
+
+    IF NEW.menu_item_url <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>URL: ", NEW.menu_item_url);
+    END IF;
+
+    IF NEW.parent_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parent ID: ", NEW.parent_id);
+    END IF;
+
+    IF NEW.menu_item_icon <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Icon: ", NEW.menu_item_icon);
+    END IF;
+
+    IF NEW.order_sequence <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `menu_item_trigger_update` AFTER UPDATE ON `menu_item` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.menu_item_name <> OLD.menu_item_name THEN
+        SET audit_log = CONCAT(audit_log, "Menu Item Name: ", OLD.menu_item_name, " -> ", NEW.menu_item_name, "<br/>");
+    END IF;
+
+    IF NEW.menu_group_id <> OLD.menu_group_id THEN
+        SET audit_log = CONCAT(audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
+    END IF;
+
+    IF NEW.menu_item_url <> OLD.parent_id THEN
+        SET audit_log = CONCAT(audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
+    END IF;
+
+    IF NEW.parent_id <> OLD.parent_id THEN
+        SET audit_log = CONCAT(audit_log, "Parent ID: ", OLD.parent_id, " -> ", NEW.parent_id, "<br/>");
+    END IF;
+
+    IF NEW.menu_item_icon <> OLD.menu_item_icon THEN
+        SET audit_log = CONCAT(audit_log, "Menu Item Icon: ", OLD.menu_item_icon, " -> ", NEW.menu_item_icon, "<br/>");
+    END IF;
+
+    IF NEW.order_sequence <> OLD.order_sequence THEN
+        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -856,6 +1091,43 @@ INSERT INTO `role_users` (`role_id`, `user_id`, `last_log_by`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `system_action`
+--
+
+CREATE TABLE `system_action` (
+  `system_action_id` int(10) UNSIGNED NOT NULL,
+  `system_action_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_action`
+--
+
+INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log_by`) VALUES
+(1, 'Assign Menu Item Role Access', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_action_access_rights`
+--
+
+CREATE TABLE `system_action_access_rights` (
+  `system_action_id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_action_access_rights`
+--
+
+INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`) VALUES
+(1, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `ui_customization_setting`
 --
 
@@ -876,7 +1148,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'false', 'true', 'preset-9', 'light', 'false', 'false', 1);
+(1, 1, 'false', 'true', 'preset-1', 'dark', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -987,7 +1259,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-06-27 14:10:25', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 1, 'FhI0EI9Agk0THmxGZrYuyVQ1YxVUoKdURAGI5DhJkIE%3D', '2023-06-27 14:14:49', 0, '2023-06-27 14:05:38', 0, NULL, 0, '2c300c9bb4332919325314dc9de9351c', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-06-28 16:57:33', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 1, 'nt8nqyDovz%2FHk9Qeu5QXnEcqMTesGgGFkAesc1zdrWs%3D', '2023-06-28 17:02:06', 0, '2023-06-27 14:05:38', 0, NULL, 0, '2c300c9bb4332919325314dc9de9351c', 1);
 
 --
 -- Triggers `users`
@@ -1187,11 +1459,26 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
+-- Indexes for table `menu_access_right`
+--
+ALTER TABLE `menu_access_right`
+  ADD KEY `role_id` (`role_id`),
+  ADD KEY `menu_item_id` (`menu_item_id`);
+
+--
 -- Indexes for table `menu_group`
 --
 ALTER TABLE `menu_group`
   ADD PRIMARY KEY (`menu_group_id`),
   ADD KEY `menu_group_index_menu_group_id` (`menu_group_id`);
+
+--
+-- Indexes for table `menu_item`
+--
+ALTER TABLE `menu_item`
+  ADD PRIMARY KEY (`menu_item_id`),
+  ADD KEY `menu_item_index_menu_item_id` (`menu_item_id`),
+  ADD KEY `menu_group_id` (`menu_group_id`);
 
 --
 -- Indexes for table `password_history`
@@ -1217,6 +1504,20 @@ ALTER TABLE `role_users`
   ADD KEY `role_users_index_user_id` (`user_id`);
 
 --
+-- Indexes for table `system_action`
+--
+ALTER TABLE `system_action`
+  ADD PRIMARY KEY (`system_action_id`),
+  ADD KEY `system_action_index_system_action_id` (`system_action_id`);
+
+--
+-- Indexes for table `system_action_access_rights`
+--
+ALTER TABLE `system_action_access_rights`
+  ADD KEY `role_id` (`role_id`),
+  ADD KEY `system_action_id` (`system_action_id`);
+
+--
 -- Indexes for table `ui_customization_setting`
 --
 ALTER TABLE `ui_customization_setting`
@@ -1240,13 +1541,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=477;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=488;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
   MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `menu_item`
+--
+ALTER TABLE `menu_item`
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `password_history`
@@ -1259,6 +1566,12 @@ ALTER TABLE `password_history`
 --
 ALTER TABLE `role`
   MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `system_action`
+--
+ALTER TABLE `system_action`
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -1277,11 +1590,31 @@ ALTER TABLE `users`
 --
 
 --
+-- Constraints for table `menu_access_right`
+--
+ALTER TABLE `menu_access_right`
+  ADD CONSTRAINT `menu_access_right_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`),
+  ADD CONSTRAINT `menu_access_right_ibfk_2` FOREIGN KEY (`menu_item_id`) REFERENCES `menu_item` (`menu_item_id`);
+
+--
+-- Constraints for table `menu_item`
+--
+ALTER TABLE `menu_item`
+  ADD CONSTRAINT `menu_item_ibfk_1` FOREIGN KEY (`menu_group_id`) REFERENCES `menu_group` (`menu_group_id`);
+
+--
 -- Constraints for table `password_history`
 --
 ALTER TABLE `password_history`
   ADD CONSTRAINT `password_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `password_history_ibfk_2` FOREIGN KEY (`email`) REFERENCES `users` (`email`);
+
+--
+-- Constraints for table `system_action_access_rights`
+--
+ALTER TABLE `system_action_access_rights`
+  ADD CONSTRAINT `system_action_access_rights_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`),
+  ADD CONSTRAINT `system_action_access_rights_ibfk_2` FOREIGN KEY (`system_action_id`) REFERENCES `system_action` (`system_action_id`);
 
 --
 -- Constraints for table `ui_customization_setting`

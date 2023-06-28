@@ -1,5 +1,4 @@
 <?php
-    require('session-check.php');
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
@@ -9,6 +8,7 @@
 
     $page_title = 'Nexus Integrated Solutions';
     require('config/_interface_settings.php');
+    require('session-check.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

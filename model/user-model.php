@@ -454,5 +454,53 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Check methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkMenuItemAccessRights
+    # Description: Checks if a user has a access to menu item based on access type.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_menu_item_id (int): The menu item ID.
+    # - $p_access_type (string): The type of access ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkMenuItemAccessRights($p_user_id, $p_menu_item_id, $p_access_type) {
+        $stmt = $this->db->getConnection()->prepare("CALL checkMenuItemAccessRights(:p_user_id, :p_menu_item_id, :p_access_type)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
+        $stmt->bindParam(':p_access_type', $p_access_type);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkSystemActionAccessRights
+    # Description: Checks if a user has a access to server action.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_system_action_id (int): The system action ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSystemActionAccessRights($p_user_id, $p_system_action_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL checkSystemActionAccessRights(:p_user_id, :p_system_action_id)");
+        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
 }
 ?>

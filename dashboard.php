@@ -9,7 +9,7 @@
 
     $page_title = 'Dashboard';
 
-    $user = $userModel->getUserByID($_SESSION['user_id']);
+    $user = $userModel->getUserByID($user_id);
 
     if (!$user['is_active']) {
         header('location: logout.php?logout');
@@ -35,7 +35,7 @@
     ?>   
 
     
-    <?php 
+    <?php
         include_once('config/_change_password_modal.php');
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php'); 

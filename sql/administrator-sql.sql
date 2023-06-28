@@ -649,7 +649,11 @@ CREATE TABLE menu_item(
 CREATE INDEX menu_item_index_menu_item_id ON menu_item(menu_item_id);
 
 ALTER TABLE menu_item
-ADD FOREIGN KEY (menu_group_id) REFERENCES menu_groups(menu_group_id);
+ADD FOREIGN KEY (menu_group_id) REFERENCES menu_group(menu_group_id);
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', '', 'sidebar', '50', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-group.php', '1', '', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-item.php', '1', '', '2', '1');
 
 CREATE TRIGGER menu_item_trigger_update
 AFTER UPDATE ON menu_item
@@ -719,4 +723,151 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* Menu access right table */
+CREATE TABLE menu_access_right(
+	menu_item_id INT UNSIGNED NOT NULL,
+	role_id INT UNSIGNED NOT NULL,
+	read_access TINYINT(1) NOT NULL,
+    write_access TINYINT(1) NOT NULL,
+    create_access TINYINT(1) NOT NULL,
+    delete_access TINYINT(1) NOT NULL,
+    duplicate_access TINYINT(1) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+ALTER TABLE menu_access_right
+ADD FOREIGN KEY (role_id) REFERENCES role(role_id);
+
+ALTER TABLE menu_access_right
+ADD FOREIGN KEY (menu_item_id) REFERENCES menu_item(menu_item_id);
+
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '0', '0', '0', '0', '0', '1');
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '1');
+
+CREATE TRIGGER menu_access_right_update
+AFTER UPDATE ON menu_access_right
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
+
+    IF NEW.read_access <> OLD.read_access THEN
+        SET audit_log = CONCAT(audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
+    END IF;
+
+    IF NEW.write_access <> OLD.write_access THEN
+        SET audit_log = CONCAT(audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
+    END IF;
+
+    IF NEW.create_access <> OLD.create_access THEN
+        SET audit_log = CONCAT(audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
+    END IF;
+
+    IF NEW.delete_access <> OLD.delete_access THEN
+        SET audit_log = CONCAT(audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
+    END IF;
+
+    IF NEW.duplicate_access <> OLD.duplicate_access THEN
+        SET audit_log = CONCAT(audit_log, "Duplicate Access: ", OLD.duplicate_access, " -> ", NEW.duplicate_access, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER menu_access_right_insert
+AFTER INSERT ON menu_access_right
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
+
+    IF NEW.role_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
+    END IF;
+
+    IF NEW.read_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Read Access: ", NEW.read_access);
+    END IF;
+
+    IF NEW.write_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Write Access: ", NEW.write_access);
+    END IF;
+
+    IF NEW.create_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Create Access: ", NEW.create_access);
+    END IF;
+
+    IF NEW.delete_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Delete Access: ", NEW.delete_access);
+    END IF;
+
+    IF NEW.duplicate_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Duplicate Access: ", NEW.duplicate_access);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkMenuItemAccessRights(IN p_user_id INT, IN p_menu_item_id INT, IN p_access_type VARCHAR(10))
+BEGIN
+	IF p_access_type = 'read' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where read_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'write' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where write_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'create' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where create_access = 1 AND menu_item_id = menu_item_id);
+    ELSEIF p_access_type = 'delete' THEN
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
+    ELSE
+        SELECT COUNT(role_id) AS total
+        FROM role_users
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
+    END IF;
+END //
+
+/* System action table */
+CREATE TABLE system_action(
+	system_action_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	system_action_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX system_action_index_system_action_id ON system_action(system_action_id);
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign Menu Item Role Access', '1');
+
+/* System action table */
+CREATE TABLE system_action_access_rights(
+	system_action_id INT UNSIGNED NOT NULL,
+	role_id INT UNSIGNED NOT NULL
+);
+
+ALTER TABLE system_action_access_rights
+ADD FOREIGN KEY (role_id) REFERENCES role(role_id);
+
+ALTER TABLE system_action_access_rights
+ADD FOREIGN KEY (system_action_id) REFERENCES system_action(system_action_id);
+
+INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('1', '1');
+
+CREATE PROCEDURE checkSystemActionAccessRights(IN p_user_id INT, IN p_system_action_id INT)
+BEGIN
+	SELECT COUNT(role_id) AS TOTAL
+    FROM role_users
+    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM system_action_access_rights where system_action_id = p_system_action_id);
 END //

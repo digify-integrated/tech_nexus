@@ -24,7 +24,7 @@
                     <div class="text-center">
                         <h1 class="mt-5"><b>Page Not Found</b></h1>
                         <p class="mt-2 mb-4 text-muted">The page you are looking was moved, removed,<br> renamed, or might never exist!</p>
-                        <a href="index.php" class="btn btn-primary mb-3">Go to home</a>
+                        <a href="dashboard.php" class="btn btn-primary mb-3">Go to home</a>
                     </div>
                     </div>
                 </div>
