@@ -59,7 +59,7 @@ $(document).ready(function () {
               else{
                 showNotification('OTP Verification Error', response.message, 'danger');
               }
-            }          
+            }
           },
           error: function(xhr, status, error) {
             var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
