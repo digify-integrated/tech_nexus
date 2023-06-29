@@ -3,11 +3,15 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/menu-item-model.php');
     require('model/security-model.php');
   
     $databaseModel = new DatabaseModel();
     $userModel = new UserModel($databaseModel);
+    $menuItemModel = new MenuItemModel($databaseModel);
     $securityModel = new SecurityModel();
+
+    $user = $userModel->getUserByID($user_id);
 
     $page_title = 'Menu Group';
     
@@ -19,9 +23,6 @@
     $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
     $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
     $assignMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
-
-    $user = $userModel->getUserByID($user_id);
-    $newRecord = isset($_GET['new']);
 
     if ($menuGroupReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -40,11 +41,13 @@
       }
 
       $id = $_GET['id'];
-      $menu_group_id = $securityModel->decryptData($id);
+      $menuGroupID = $securityModel->decryptData($id);
     }
     else{
-      $menu_group_id = null;
+      $menuGroupID = null;
     }
+
+    $newRecord = isset($_GET['new']);
 
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
@@ -53,7 +56,9 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <?php include_once('config/_required_css.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
 
 <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
@@ -72,18 +77,22 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item"><a href="javascript: void(0)">User Interface</a></li>
-                  <li class="breadcrumb-item" aria-current="page">Menu Groups</li>
+                  <li class="breadcrumb-item">User Interface</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="menu-group.php">Menu Group</a></li>
                   <?php
-                    if(!empty($menu_group_id)){
-                      echo '<li class="breadcrumb-item" id="menu-group-id">'. $menu_group_id .'</li>';
+                    if(!empty($menuGroupID)){
+                      echo '<li class="breadcrumb-item" id="menu-group-id">'. $menuGroupID .'</li>';
+                    }
+
+                    if($newRecord){
+                      echo '<li class="breadcrumb-item">New</li>';
                     }
                   ?>
                 </ul>
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Menu Groups</h2>
+                  <h2 class="mb-0">Menu Group</h2>
                 </div>
               </div>
             </div>
@@ -93,11 +102,11 @@
           if($newRecord){
             require_once('view/_menu_group_new.php');
           }
-          else if(empty($menu_group_id)){
+          else if(empty($menuGroupID)){
             require_once('view/_menu_group.php');
           }
           else{
-
+            require_once('view/_menu_group_details.php');
           }
         ?>
       </div>
@@ -114,6 +123,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
+    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/menu-group.js?v=<?php echo rand(); ?>"></script>
 </body>
 

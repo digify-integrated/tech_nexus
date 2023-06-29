@@ -5,7 +5,7 @@
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-md-6">
-                      <h5>Menu Group New</h5>
+                      <h5>Menu Group</h5>
                     </div>
                     <?php                            
                         if (empty($menu_group_id) && $menuGroupCreateAccess > 0) {
@@ -19,8 +19,8 @@
                 </div>
               </div>
               <div class="card-body">
-                <div class="form-group row">
-                    <form id="menu-group-form" method="post" action="#">
+                <form id="menu-group-form" method="post" action="#">
+                  <div class="form-group row">
                         <label class="col-lg-2 col-form-label">Menu Group Name <span class="text-danger">*</span></label>
                         <div class="col-lg-4">
                             <input type="text" class="form-control" id="menu_group_name" name="menu_group_name" maxlength="100" autocomplete="off">
@@ -30,7 +30,7 @@
                                 <input type="number" class="form-control" id="menu_group_order_sequence" name="menu_group_order_sequence" min="0">
                             </div>
                         </div>
-                    </form>
-                </div>
+                  </div>
+                </form>
             </div>
           </div>

@@ -481,9 +481,9 @@ class UserController {
             return;
         }
     
-        $type = $_POST['type'] ?? '';
-        $customizationValue = $_POST['customizationValue'] ?? '';
         $userID = $_SESSION['user_id'];
+        $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
+        $customizationValue = htmlspecialchars($_POST['customizationValue'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -628,13 +628,7 @@ class UserController {
         $newPassword = htmlspecialchars($_POST['shortcut_new_password'], ENT_QUOTES, 'UTF-8');
         $encryptedPassword = $this->securityModel->encryptData($newPassword);
     
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user) {
-            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
-            exit;
-        }
-    
+        $user = $this->userModel->getUserByID($userID);    
         $email = $user['email'] ?? null;
         $isActive = $user['is_active'] ?? 0;
         $userPassword = $this->securityModel->decryptData($user['password']);

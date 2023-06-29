@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loaderBg.style.opacity = '0';
     setTimeout(function() {
       loaderBg.remove();
-    }, 800);
-  }, 800);
+    }, 300);
+  }, 300);
 
   // remove pre-loader end
   if (document.querySelector('body').hasAttribute('data-pc-layout')) {

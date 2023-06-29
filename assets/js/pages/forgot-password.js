@@ -55,7 +55,7 @@ $(document).ready(function () {
             } 
             else {
               showNotification('Forgot Password Error', response.message, 'danger');
-            }          
+            }
           },
           error: function(xhr, status, error) {
             var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;

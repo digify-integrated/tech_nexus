@@ -1,5 +1,9 @@
 <?php
-
+/**
+* Class UserModel
+*
+* The UserModel class handles user-related operations and interactions.
+*/
 class UserModel {
     public $db;
 

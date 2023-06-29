@@ -634,6 +634,42 @@ BEGIN
     VALUES ('menu_group', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkMenuGroupExist(IN p_menu_group_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM menu_group
+    WHERE menu_group_id = p_menu_group_id;
+END //
+
+CREATE PROCEDURE insertMenuGroup(IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT, OUT p_menu_group_id INT(10))
+BEGIN
+    INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) 
+	VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
+	
+    SET p_menu_group_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateMenuGroup(IN p_menu_group_id INT, IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT)
+BEGIN
+	UPDATE menu_group
+    SET menu_group_name = p_menu_group_name,
+    order_sequence = p_order_sequence,
+    last_log_by = p_last_log_by
+    WHERE menu_group_id = p_menu_group_id;
+END //
+
+CREATE PROCEDURE deleteMenuGroup(IN p_menu_group_id INT)
+BEGIN
+	DELETE FROM menu_group
+    WHERE menu_group_id = p_menu_group_id;
+END //
+
+CREATE PROCEDURE getMenuGroup(IN p_menu_group_id INT)
+BEGIN
+	SELECT * FROM menu_group
+	WHERE menu_group_id = p_menu_group_id;
+END //
+
 /* Menu table */
 CREATE TABLE menu_item(
 	menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -723,6 +759,12 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE generateMenuItemOptions()
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+	ORDER BY menu_item_name;
 END //
 
 /* Menu access right table */

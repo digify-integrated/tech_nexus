@@ -59,12 +59,10 @@ $(document).ready(function () {
         success: function(response) {
           if (response.success) {
               if (response.emailVerification) {
-                var encryptedUserID = response.encryptedUserID;
-                window.location.href = 'email-verification.php?id=' + encryptedUserID;
+                window.location.href = 'email-verification.php?id=' + response.encryptedUserID;
               }
               else if (response.twoFactorAuth) {
-                var encryptedUserID = response.encryptedUserID;
-                window.location.href = 'otp-verification.php?id=' + encryptedUserID;
+                window.location.href = 'otp-verification.php?id=' + response.encryptedUserID;
               }
               else {
                 window.location.href = 'dashboard.php';

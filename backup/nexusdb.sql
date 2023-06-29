@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 28, 2023 at 02:33 PM
+-- Generation Time: Jun 29, 2023 at 11:36 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,6 +25,12 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuGroupExist` (IN `p_menu_group_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM menu_group
+    WHERE menu_group_id = p_menu_group_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemAccessRights` (IN `p_user_id` INT, IN `p_menu_item_id` INT, IN `p_access_type` VARCHAR(10))   BEGIN
 	IF p_access_type = 'read' THEN
         SELECT COUNT(role_id) AS total
@@ -61,6 +67,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
+	DELETE FROM menu_group
+    WHERE menu_group_id = p_menu_group_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemOptions` ()   BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+	ORDER BY menu_item_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
+	SELECT * FROM menu_group
+	WHERE menu_group_id = p_menu_group_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
 	SELECT * FROM password_history
 	WHERE p_user_id = p_user_id OR email = BINARY p_email;
@@ -84,6 +105,13 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserByRememberToken` (IN `p_remember_token` VARCHAR(255))   BEGIN
 	SELECT * FROM users
 	WHERE remember_token = p_remember_token;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuGroup` (IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT, OUT `p_menu_group_id` INT(10))   BEGIN
+    INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) 
+	VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
+	
+    SET p_menu_group_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_last_password_change` DATETIME)   BEGIN
@@ -135,6 +163,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLoginAttempt` (IN `p_user_id`
 	UPDATE users 
     SET failed_login_attempts = p_failed_login_attempts, last_failed_login_attempt = p_last_failed_login_attempt
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMenuGroup` (IN `p_menu_group_id` INT, IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT)   BEGIN
+	UPDATE menu_group
+    SET menu_group_name = p_menu_group_name,
+    order_sequence = p_order_sequence,
+    last_log_by = p_last_log_by
+    WHERE menu_group_id = p_menu_group_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_user_id` INT, IN `p_receive_notification` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
@@ -722,7 +758,20 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (484, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-06-28 16:59:11'),
 (485, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-06-28 16:59:12'),
 (486, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-28 16:59:13'),
-(487, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-28 16:59:14');
+(487, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-06-28 16:59:14'),
+(488, 'users', 1, 'OTP: nt8nqyDovz%2FHk9Qeu5QXnEcqMTesGgGFkAesc1zdrWs%3D -> uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D<br/>OTP Expiry Date: 2023-06-28 17:02:06 -> 2023-06-29 10:58:26<br/>', '1', '2023-06-29 10:53:26'),
+(489, 'users', 1, 'Last Connection Date: 2023-06-28 16:57:33 -> 2023-06-29 10:53:55<br/>', '1', '2023-06-29 10:53:55'),
+(490, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-06-29 10:54:00'),
+(491, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-06-29 11:52:34'),
+(492, 'users', 1, 'Last Connection Date: 2023-06-29 10:53:55 -> 2023-06-29 14:53:22<br/>', '1', '2023-06-29 14:53:22'),
+(493, 'users', 1, 'Last Connection Date: 2023-06-29 14:53:22 -> 2023-06-29 14:54:03<br/>', '1', '2023-06-29 14:54:03'),
+(494, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-06-29 17:30:41'),
+(495, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-06-29 17:31:15'),
+(496, 'menu_group', 4, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-06-29 17:31:41'),
+(497, 'menu_group', 5, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-06-29 17:32:05'),
+(498, 'menu_group', 6, 'Menu group created. <br/><br/>Menu Group Name: Test2<br/>Order Sequence: 2', '1', '2023-06-29 17:35:00'),
+(499, 'menu_group', 7, 'Menu group created. <br/><br/>Menu Group Name: asd<br/>Order Sequence: 2', '1', '2023-06-29 17:35:33'),
+(500, 'menu_group', 8, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 3', '1', '2023-06-29 17:35:50');
 
 -- --------------------------------------------------------
 
@@ -838,7 +887,14 @@ CREATE TABLE `menu_group` (
 --
 
 INSERT INTO `menu_group` (`menu_group_id`, `menu_group_name`, `order_sequence`, `last_log_by`) VALUES
-(1, 'Administration', 1, 1);
+(1, 'Administration', 1, 1),
+(2, 'test', 2, 1),
+(3, 'test', 2, 1),
+(4, 'test', 2, 1),
+(5, 'test', 2, 1),
+(6, 'Test2', 2, 1),
+(7, 'asd', 2, 1),
+(8, 'test', 3, 1);
 
 --
 -- Triggers `menu_group`
@@ -1148,7 +1204,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'false', 'true', 'preset-1', 'dark', 'false', 'false', 1);
+(1, 1, 'false', 'true', 'preset-1', 'light', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -1259,7 +1315,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-06-28 16:57:33', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 1, 'nt8nqyDovz%2FHk9Qeu5QXnEcqMTesGgGFkAesc1zdrWs%3D', '2023-06-28 17:02:06', 0, '2023-06-27 14:05:38', 0, NULL, 0, '2c300c9bb4332919325314dc9de9351c', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-06-29 14:54:03', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '2c300c9bb4332919325314dc9de9351c', 1);
 
 --
 -- Triggers `users`
@@ -1541,13 +1597,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=488;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=501;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
-  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `menu_item`

@@ -21,7 +21,7 @@
                           }
 
                           if($menuGroupCreateAccess > 0){
-                            $action .= '<a href="menu-group-form.php" class="btn btn-success">Create</a>';
+                            $action .= '<a href="menu-group.php?new" class="btn btn-success">Create</a>';
                           }
 
                         $action .= '</div>';
