@@ -2,12 +2,28 @@
     'use strict';
 
     $(function() {
-        if($('#menu-groups-table').length){
-            initialized_menu_groups_table('#menu-groups-table');
+        if($('#menu-group-table').length){
+            initialized_menu_group_table('#menu-group-table');
         }
 
         if($('#menu-group-form').length){
             initializeMenuGroupForm();
+        }
+
+        if($('#menu-group-id').length){
+            displayDetails('get menu group details');
+
+            /*if($('#menu-item-table').length){
+                initializeMenuItemTable('#menu-item-table');
+            }
+
+            if($('#menu-item-modal').length){
+                initializeMenuItemForm();
+            }
+
+            if($('#assign-menu-item-role-access-modal').length){
+                initializeMenuItemRoleAccessForm();
+            }*/
         }
 
         $(document).on('click','.delete-menu-group',function() {
@@ -28,26 +44,35 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controllers/administrator-controller.php',
+                        url: 'controller/menu-group-controller.php',
+                        dataType: 'JSON',
                         data: {menu_group_id : menu_group_id, transaction : transaction},
                         success: function (response) {
-                            switch (response) {
-                                case 'Deleted':
-                                    showNotification('Delete Menu Group Success', 'The menu group has been deleted successfully.', 'success');
-                                    reloadDatatable('#menu-groups-table');
-                                    break;
-                                case 'Not Found':
-                                    showNotification('Delete Menu Group Error', 'The menu group does not exist.', 'danger');
-                                    reloadDatatable('#menu-groups-table');
-                                    break;
-                                case 'Inactive User':
-                                case 'User Not Found':
-                                    window.location = 'logout.php?logout';
-                                    break;
-                                default:
-                                    showNotification('Delete Menu Group Error', response, 'danger');
-                                    break;
+                            if (response.success) {
+                                showNotification('Delete Menu Group Success', 'The menu group has been deleted successfully.', 'success');
+                                reloadDatatable('#menu-group-table');
                             }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Menu Group Error', 'The menu group does not exist.', 'danger');
+                                    reloadDatatable('#menu-group-table');
+                                }
+                                else {
+                                    showNotification('Delete Menu Group Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                
+                          var response = xhr.responseText;
+                          fullErrorMessage += ', Response: ' + response;
+                        
+                          showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -80,22 +105,31 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controllers/administrator-controller.php',
-                            data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
+                            url: 'controller/menu-group-controller.php',
+                            dataType: 'JSON',
+                            data: {menu_group_id : menu_group_id, transaction : transaction},
                             success: function (response) {
-                                switch (response) {
-                                    case 'Deleted':
-                                        showNotification('Delete Menu Group Success', 'The selected menu groups have been deleted successfully.', 'success');
-                                        reloadDatatable('#menu-groups-table');
-                                        break;
-                                    case 'User Not Found':
-                                    case 'Inactive User':
-                                        window.location = 'logout.php?logout';
-                                        break;
-                                    default:
-                                        showNotification('Menu Group Deletion Error', response, 'danger');
-                                        break;
+                                if (response.success) {
+                                    showNotification('Delete Menu Group Success', 'The selected menu groups have been deleted successfully.', 'success');
+                                        reloadDatatable('#menu-group-table');
                                 }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Delete Menu Group Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                              var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    
+                              var response = xhr.responseText;
+                              fullErrorMessage += ', Response: ' + response;
+                            
+                              showErrorDialog(fullErrorMessage);
                             },
                             complete: function(){
                                 toggleHideActionDropdown();
@@ -112,7 +146,6 @@
         });
 
         $(document).on('click','#delete-menu-group-details',function() {
-            const email_account = $('#email_account').text();
             const menu_group_id = $(this).data('menu-group-id');
             const transaction = 'delete menu group';
     
@@ -130,26 +163,34 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controllers/administrator-controller.php',
-                        data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
+                        url: 'controller/menu-group-controller.php',
+                        dataType: 'JSON',
+                        data: {menu_group_id : menu_group_id, transaction : transaction},
                         success: function (response) {
-                            switch (response) {
-                                case 'Deleted':
-                                    setNotification('Deleted Menu Group Success', 'The menu group has been deleted successfully.', 'success');
-                                    window.location = 'menu-groups.php';
-                                    break;
-                                case 'Not Found':
-                                    setNotification('Delete Menu Group Error', 'The menu group does not exist.', 'danger');
-                                    window.location = '404.php';
-                                    break;
-                                case 'User Not Found':
-                                case 'Inactive User':
-                                    window.location = 'logout.php?logout';
-                                    break;
-                                default:
-                                    show_toastr('Delete Menu Group Error', response, 'danger');
-                                    break;
+                            if (response.success) {
+                                setNotification('Deleted Menu Group Success', 'The menu group has been deleted successfully.', 'success');
+                                window.location = 'menu-group.php';
                             }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Menu Group Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                
+                          var response = xhr.responseText;
+                          fullErrorMessage += ', Response: ' + response;
+                        
+                          showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -166,7 +207,6 @@
         });
 
         $(document).on('click','#duplicate-menu-group',function() {
-            const email_account = $('#email_account').text();
             const menu_group_id = $(this).data('menu-group-id');
             const transaction = 'duplicate menu group';
     
@@ -184,27 +224,35 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controllers/administrator-controller.php',
-                        data: {email_account : email_account, menu_group_id : menu_group_id, transaction : transaction},
+                        url: 'controller/menu-group-controller.php',
                         dataType: 'JSON',
+                        data: {menu_group_id : menu_group_id, transaction : transaction},
                         success: function (response) {
-                            switch (response[0]['RESPONSE']) {
-                                case 'Duplicated':
-                                    setNotification('Duplicate Menu Group Success', 'The menu group has been duplicated successfully.', 'success');
-                                    window.location = 'menu-group-form.php?id=' + response[0]['MENU_GROUP_ID'];
-                                    break;
-                                case 'Not Found':
-                                    setNotification('Duplicate Menu Group Error', 'The source menu group does not exist.', 'danger');
-                                    window.location = '404.php';
-                                    break;
-                                case 'User Not Found':
-                                case 'Inactive User':
-                                    window.location = 'logout.php?logout';
-                                    break;
-                                default:
-                                    setNotification('Transaction Error', response[0]['RESPONSE'], 'danger');
-                                    break;
+                            if (response.success) {
+                                setNotification('Duplicate Menu Group Success', 'The menu group has been duplicated successfully.', 'success');
+                                window.location = 'menu-group.php?id=' + response.menuGroupID;
                             }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Duplicate Menu Group Error', 'The menu group does not exist.', 'danger');
+                                    reloadDatatable('#menu-group-table');
+                                }
+                                else {
+                                    showNotification('Duplicate Menu Group Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                
+                          var response = xhr.responseText;
+                          fullErrorMessage += ', Response: ' + response;
+                        
+                          showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -256,7 +304,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controllers/administrator-controller.php',
+                        url: 'controller/menu-group-controller.php',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             switch (response) {
@@ -285,7 +333,7 @@
     });
 })(jQuery);
 
-function initialized_menu_groups_table(datatable_name, buttons = false, show_all = false){
+function initialized_menu_group_table(datatable_name, buttons = false, show_all = false){
     toggleHideActionDropdown();
 
     const type = 'menu group table';
@@ -442,4 +490,74 @@ function initializeMenuGroupForm(){
             return false;
         }
     });
+}
+
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'get menu group details':
+            var menu_group_id = $('#menu-group-id').text();
+            
+            $.ajax({
+                url: 'controller/menu-group-controller.php',
+                method: 'POST',
+                dataType: 'JSON',
+                data: {menu_group_id : menu_group_id, transaction : transaction},
+                success: function(response) {
+                    if (response.success) {
+                        $('#menu_group_name').val(response.menuGroupName);
+                        $('#menu_group_order_sequence').val(response.orderSequence);
+                        
+                        $('#menu_group_name_label').text(response.menuGroupName);
+                        $('#order_sequence_label').text(response.orderSequence);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Menu Group Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+          
+                    var response = xhr.responseText;
+                    fullErrorMessage += ', Response: ' + response;
+                  
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'modal menu item details':
+            var menu_item_id = sessionStorage.getItem('menu_item_id');
+            
+            $.ajax({
+                url: 'controller/menu-group-controller.php',
+                method: 'POST',
+                dataType: 'JSON',
+                data: {menu_item_id : menu_item_id, transaction : transaction},
+                beforeSend: function() {
+                    resetModalForm('menu-item-form');
+                },
+                success: function(response) {
+                    $('#menu_item_id').val(menu_item_id);
+                    $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
+                    $('#menu_item_url').val(response[0].MENU_ITEM_URL);
+                    $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
+                    $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
+                    
+                    checkOptionExist('#parent_id', response[0].PARENT_ID, '');
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+          
+                    var response = xhr.responseText;
+                    fullErrorMessage += ', Response: ' + response;
+                  
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+    }
 }

@@ -3,11 +3,13 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
   
     $databaseModel = new DatabaseModel();
     $userModel = new UserModel($databaseModel);
+    $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -40,8 +42,15 @@
         exit;
       }
 
-      $id = $_GET['id'];
-      $menuGroupID = $securityModel->decryptData($id);
+      $menuGroupID = $securityModel->decryptData( $_GET['id']);
+
+      $checkMenuGroupExist = $menuGroupModel->checkMenuGroupExist($menuGroupID);
+      $total = $checkMenuGroupExist['total'] ?? 0;
+
+      if($total == 0){
+        header('location: 404.php');
+        exit;
+      }
     }
     else{
       $menuGroupID = null;

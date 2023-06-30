@@ -44,6 +44,9 @@ class MenuGroupController {
                 case 'save menu group':
                     $this->saveMenuGroup();
                     break;
+                case 'get menu group details':
+                    $this->getMenuGroupDetails();
+                    break;
                 case 'delete menu group':
                     $this->deleteMenuGroup();
                     break;
@@ -84,18 +87,154 @@ class MenuGroupController {
         }
     
         $checkMenuGroupExist = $this->menuGroupModel->checkMenuGroupExist($menuGroupID);
-        $total = $checkUICustomizationSettingExist['total'] ?? 0;
+        $total = $checkMenuGroupExist['total'] ?? 0;
     
         if ($total > 0) {
             $this->menuGroupModel->updateMenuGroup($menuGroupID, $menuGroupName, $menuGroupOrderSequence, $userID);
             
-            echo json_encode(['success' => true]);
+            echo json_encode(['success' => true, 'menuGroupID' => $menuGroupID]);
             exit;
         } 
         else {
             $menuGroupID = $this->menuGroupModel->insertMenuGroup($menuGroupName, $menuGroupOrderSequence, $userID);
 
             echo json_encode(['success' => true, 'menuGroupID' =>  $this->securityModel->encryptData($menuGroupID)]);
+            exit;
+        }
+    }
+
+    /**
+    * Deletes the menu group.
+    * Delete the menu group if it exists; otherwise, return an error message.
+    *
+    * @return void
+    */
+    public function deleteMenuGroup() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $menuGroupID = htmlspecialchars($_POST['menu_group_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkMenuGroupExist = $this->menuGroupModel->checkMenuGroupExist($menuGroupID);
+        $total = $checkMenuGroupExist['total'] ?? 0;
+
+        if($total == 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->menuGroupModel->deleteLinkedMenuItem($menuGroupID);
+        $this->menuGroupModel->deleteMenuGroup($menuGroupID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
+    * Deletes multiple menu groups.
+    * Delete the selected menu groups if it exists; otherwise, skip it.
+    *
+    * @return void
+    */
+    public function deleteMultipleMenuGroup() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $menuGroupIDs = $_POST['menu_group_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($menuGroupIDs as $menuGroupID){
+            $this->menuGroupModel->deleteLinkedMenuItem($menuGroupID);
+            $this->menuGroupModel->deleteMenuGroup($menuGroupID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
+    * Deuplicates the menu group.
+    * Deuplocates the menu group if it exists; otherwise, return an error message.
+    *
+    * @return void
+    */
+    public function duplicateMenuGroup() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $menuGroupID = htmlspecialchars($_POST['menu_group_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkMenuGroupExist = $this->menuGroupModel->checkMenuGroupExist($menuGroupID);
+        $total = $checkMenuGroupExist['total'] ?? 0;
+
+        if($total == 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $menuGroupID = $this->menuGroupModel->duplicateMenuGroup($menuGroupID, $userID);
+
+        echo json_encode(['success' => true, 'menuGroupID' =>  $this->securityModel->encryptData($menuGroupID)]);
+        exit;
+    }
+
+    /**
+    * Retrieves the menu group details.
+    * Handles the retrieval of menu group details such as menu group name, order sequence, etc.
+    *
+    * @return void
+    */
+    public function getMenuGroupDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['menu_group_id']) && !empty($_POST['menu_group_id'])) {
+            $userID = $_SESSION['user_id'];
+            $menuGroupID = $_POST['menu_group_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $menuGroupDetails = $this->menuGroupModel->getMenuGroup($menuGroupID);
+
+            $response = [
+                'success' => true,
+                'menuGroupName' => $menuGroupDetails['menu_group_name'],
+                'orderSequence' => $menuGroupDetails['order_sequence']
+            ];
+
+            echo json_encode($response);
             exit;
         }
     }

@@ -664,10 +664,31 @@ BEGIN
     WHERE menu_group_id = p_menu_group_id;
 END //
 
+CREATE PROCEDURE deleteLinkedMenuItem(IN p_menu_group_id INT)
+BEGIN
+    DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
+END //
+
 CREATE PROCEDURE getMenuGroup(IN p_menu_group_id INT)
 BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
+END //
+
+CREATE PROCEDURE duplicateMenuGroup(IN p_menu_group_id INT(10), IN p_last_log_by INT(10), OUT p_new_menu_group_id INT(10))
+BEGIN
+    DECLARE p_menu_group_name VARCHAR(100);
+    DECLARE p_order_sequence TINYINT(10);
+    
+    SELECT menu_group_name, order_sequence 
+    INTO p_menu_group_name, p_order_sequence 
+    FROM menu_group 
+    WHERE menu_group_id = p_menu_group_id;
+    
+    INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) 
+    VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
+    
+    SET p_new_menu_group_id = LAST_INSERT_ID();
 END //
 
 /* Menu table */

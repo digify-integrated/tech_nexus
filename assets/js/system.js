@@ -484,7 +484,12 @@ function getUISettings(){
                 preset_change(response.presetTheme);
             } 
             else {
-                showNotification('UI Settings Error', response.message, 'danger');
+                if(response.isInactive){
+                    window.location = 'logout.php?logout';
+                }
+                else{
+                    showNotification('UI Settings Error', response.message, 'danger');
+                }
             }
         },
         error: function(xhr, status, error) {

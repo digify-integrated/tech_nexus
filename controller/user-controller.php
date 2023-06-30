@@ -554,7 +554,7 @@ class UserController {
             echo json_encode($response);
             exit;
         }
-    }    
+    }
 
     /**
     * Updates the notification setting for the user.

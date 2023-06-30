@@ -116,6 +116,54 @@ class MenuGroupModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedMenuItem
+    # Description: Deletes all the linked menu item on the menu group.
+    #
+    # Parameters:
+    # - $p_menu_group_id (int): The menu group ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedMenuItem($p_menu_group_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL deleteLinkedMenuItem(:p_menu_group_id)");
+        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Duplicate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateMenuGroup
+    # Description: Inserts the menu group.
+    #
+    # Parameters:
+    # - $p_menu_group_name (string): The menu group name.
+    # - $p_order_sequence (int): The order sequence of menu group.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function duplicateMenuGroup($p_menu_group_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare("CALL duplicateMenuGroup(:p_menu_group_id, :p_last_log_by, @p_new_menu_group_id)");
+        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_new_menu_group_id AS menu_group_id");
+        $menu_group_id = $result->fetch(PDO::FETCH_ASSOC)['menu_group_id'];
+
+        return $menu_group_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
