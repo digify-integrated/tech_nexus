@@ -2,17 +2,22 @@
 /**
 * Class DatabaseModel
 *
-* The DatabaseModel class handles database-related operations and interactions.
+* The DatabaseModel class handles database related operations and interactions.
 */
 class DatabaseModel {
     public static $instance;
     public $connection;
 
-    /**
-    * Constructs a new instance of the class and establishes a database connection.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: __construct
+    # Description: Constructs a new instance of the class and establishes a database connection.
+    #
+    # Parameters:None
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     public function __construct() {
         $host = DB_HOST;
         $dbname = DB_NAME;
@@ -34,27 +39,40 @@ class DatabaseModel {
             die('An error occurred while connecting to the database. Please try again later.');
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Returns the singleton instance of the class.
-    *
-    * @return self
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getInstance
+    # Description: Returns the singleton instance of the class.
+    #
+    # Parameters:None
+    #
+    # Returns: self
+    #
+    # -------------------------------------------------------------
     public static function getInstance() {
         if (!self::$instance) {
             self::$instance = new self();
         }
         return self::$instance;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the established database connection.
-    *
-    * @return PDO
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getConnection
+    # Description: Retrieves the established database connection.
+    #
+    # Parameters:None
+    #
+    # Returns: PDO
+    #
+    # -------------------------------------------------------------
     public function getConnection() {
         return $this->connection;
     }
+    # -------------------------------------------------------------
 }
 
 ?>

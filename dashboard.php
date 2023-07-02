@@ -3,9 +3,11 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/system-model.php');
 
     $databaseModel = new DatabaseModel();
-    $userModel = new UserModel($databaseModel);
+    $systemModel = new SystemModel();
+    $userModel = new UserModel($databaseModel, $systemModel);
 
     $page_title = 'Dashboard';
 

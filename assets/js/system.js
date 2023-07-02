@@ -32,13 +32,6 @@
             });
         }
 
-        if($('#edit-form').length){
-            $(document).on('click','#edit-form',function() {
-                $('.form-details').addClass('d-none');
-                $('.form-edit').removeClass('d-none');
-            });
-        }
-
         if($('#discard-update').length){
             $(document).on('click','#discard-update',() => {
                 Swal.fire({
@@ -273,22 +266,23 @@ function resetForm(){
     $('.form-edit').addClass('d-none');
 }
 
-function resetModalForm(form_id){
+function resetModalForm(form_id) {
     var form = document.getElementById(form_id);
-
-    form.reset();
-
-    var errorMessages = document.querySelectorAll('.error');
-
-    errorMessages.forEach(function(errorMessage) {
+  
+    // Reset form inputs, including hidden inputs and select2 fields
+    $(form)
+      .find(':input')
+      .not(':button, :submit, :reset')
+      .val('')
+      .trigger('change.select2')
+      .removeClass('is-invalid');
+  
+    // Remove error messages
+    var errorMessages = form.querySelectorAll('.error');
+    errorMessages.forEach(function (errorMessage) {
       errorMessage.parentNode.removeChild(errorMessage);
     });
-
-    var invalidInputs = form.querySelectorAll('.is-invalid');
-    invalidInputs.forEach(function(invalidInput) {
-        invalidInput.classList.remove('is-invalid');
-    });
-}
+}  
 
 function discardCreate(windows_location){
     Swal.fire({

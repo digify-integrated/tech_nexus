@@ -5,29 +5,42 @@
 * The SecurityModel class handles security-related operations and interactions. 
 */
 class SecurityModel {
-    /**
-    * Encrypts the given plaintext using AES-256-CBC encryption.
-    *
-    * @param string $plaintext The plaintext to encrypt.
-    * @return string|false The encrypted ciphertext or false on failure.
-    */
-    public function encryptData($plaintext) {
-        if (empty(trim($plaintext))) return false;
+    # -------------------------------------------------------------
+    #
+    # Function: encryptData
+    # Description: Encrypts the given text using AES-256-CBC encryption.
+    #
+    # Parameters:
+    # - $plainText (string): The text to encrypt.
+    #
+    # Returns:
+    # - A encrypted text.
+    #
+    # -------------------------------------------------------------
+    public function encryptData($plainText) {
+        if (empty(trim($plainText))) return false;
     
         $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
-        $ciphertext = openssl_encrypt(trim($plaintext), 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
+        $ciphertext = openssl_encrypt(trim($plainText), 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
         
         if (!$ciphertext) return false;
         
         return rawurlencode(base64_encode($iv . $ciphertext));
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Decrypts the given ciphertext using AES-256-CBC decryption.
-    *
-    * @param string $ciphertext The ciphertext to decrypt.
-    * @return string|false The decrypted plaintext or false on failure.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: decryptData
+    # Description: Decrypts the given text using AES-256-CBC decryption.
+    #
+    # Parameters:
+    # - $plainText (string): The encrypted text to decrypt.
+    #
+    # Returns:
+    # - A decrypted text.
+    #
+    # -------------------------------------------------------------
     public function decryptData($ciphertext) {
         $ciphertext = base64_decode(rawurldecode($ciphertext));
     
@@ -44,21 +57,28 @@ class SecurityModel {
         $iv = substr($ciphertext, 0, $iv_length);
         $ciphertext = substr($ciphertext, $iv_length);
         
-        $plaintext = openssl_decrypt($ciphertext, 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
+        $plainText = openssl_decrypt($ciphertext, 'aes-256-cbc', ENCRYPTION_KEY, OPENSSL_RAW_DATA, $iv);
         
-        if (!$plaintext) {
+        if (!$plainText) {
             return false;
         }
         
-        return $plaintext;
+        return $plainText;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Formats the email address by masking the username.
-    *
-    * @param string $email The email address to format.
-    * @return string The formatted email address with the masked username.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: formatEmail
+    # Description: Formats the email address by masking the username.
+    #
+    # Parameters:
+    # - $email (string): The encrypted text to decrypt.
+    #
+    # Returns:
+    # - The formatted email address with the masked username.
+    #
+    # -------------------------------------------------------------
     public function formatEmail($email) {
         $parts = explode("@", $email);
         $username = $parts[0];
@@ -68,25 +88,39 @@ class SecurityModel {
     
         return $maskedUsername . "@" . $domain;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Masks the username by replacing all characters except the first with asterisks.
-    *
-    * @param string $username The username to mask.
-    * @return string The masked username.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: maskUsername
+    # Description: Masks the username by replacing all characters except the first with asterisks.
+    #
+    # Parameters:
+    # - $username (string): The username to mask.
+    #
+    # Returns:
+    # - The masked username.
+    #
+    # -------------------------------------------------------------
     private function maskUsername($username) {
         $firstChar = substr($username, 0, 1);
         $maskedUsername = $firstChar . str_repeat("*", strlen($username) - 1);
         return $maskedUsername;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the error details based on the error type.
-    *
-    * @param string $type The error type.
-    * @return array The error details containing the title and message.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getErrorDetails
+    # Description: Retrieves the error details based on the error type.
+    #
+    # Parameters:
+    # - $type (string): The error typek.
+    #
+    # Returns:
+    # - The error details containing the title and message.
+    #
+    # -------------------------------------------------------------
     public function getErrorDetails($type) {
         $response = [];
     
@@ -130,6 +164,7 @@ class SecurityModel {
         }
     
         return $response;
-    }    
+    }
+    # -------------------------------------------------------------
 }
 ?>

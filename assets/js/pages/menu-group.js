@@ -3,7 +3,7 @@
 
     $(function() {
         if($('#menu-group-table').length){
-            initialized_menu_group_table('#menu-group-table');
+            initializedMenuGroupTable('#menu-group-table');
         }
 
         if($('#menu-group-form').length){
@@ -13,7 +13,7 @@
         if($('#menu-group-id').length){
             displayDetails('get menu group details');
 
-            /*if($('#menu-item-table').length){
+            if($('#menu-item-table').length){
                 initializeMenuItemTable('#menu-item-table');
             }
 
@@ -23,7 +23,7 @@
 
             if($('#assign-menu-item-role-access-modal').length){
                 initializeMenuItemRoleAccessForm();
-            }*/
+            }
         }
 
         $(document).on('click','.delete-menu-group',function() {
@@ -201,9 +201,11 @@
         $(document).on('click','#discard-create',function() {
             discardCreate('menu-group.php');
         });
-
         $(document).on('click','#edit-form',function() {
-            displayDetails('menu groups details');
+            displayDetails('get menu group details');
+
+            $('.form-details').addClass('d-none');
+            $('.form-edit').removeClass('d-none');
         });
 
         $(document).on('click','#duplicate-menu-group',function() {
@@ -261,9 +263,9 @@
         });
 
         $(document).on('click','#create-menu-item',function() {
-            $('#menu-item-modal').modal('show');
-
             resetModalForm("menu-item-form");
+
+            $('#menu-item-modal').modal('show');
         });
 
         $(document).on('click','.assign-menu-item-role-access',function() {
@@ -272,7 +274,7 @@
             sessionStorage.setItem('menu_item_id', menu_item_id);
 
             $('#assign-menu-item-role-access-modal').modal('show');
-            initializeAssignMenuItemRoleAccessTable('#assign-menu-item-role-access-table');
+            initializeRoleAccessTable('#assign-menu-item-role-access-table');
         });
 
         $(document).on('click','.update-menu-item',function() {
@@ -280,7 +282,7 @@
     
             sessionStorage.setItem('menu_item_id', menu_item_id);
             
-            displayDetails('modal menu item details');
+            displayDetails('get menu item details');
     
             $('#menu-item-modal').modal('show');
         });
@@ -304,26 +306,34 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/menu-group-controller.php',
+                        url: 'controller/menu-item-controller.php',
+                        dataType: 'JSON',
                         data: {email_account : email_account, menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
-                            switch (response) {
-                                case 'Deleted':
-                                    showNotification('Delete Menu Item Success', 'The menu item has been deleted successfully.', 'success');
-                                    reloadDatatable('#menu-item-table');
-                                    break;
-                                case 'Not Found':
-                                    showNotification('Delete Menu Item Error', 'The menu item does not exist or has already been deleted.', 'warning');
-                                    reloadDatatable('#menu-item-table');
-                                    break;
-                                case 'User Not Found':
-                                case 'Inactive User':
-                                    window.location = '404.php';
-                                    break;
-                                default:
-                                    showNotification('Menu Item Deletion Error', response, 'danger');
-                                    break;
+                            if (response.success) {
+                                showNotification('Delete Menu Item Success', 'The menu item has been deleted successfully.', 'success');
+                                reloadDatatable('#menu-item-table');
                             }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Menu Item Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                
+                          var response = xhr.responseText;
+                          fullErrorMessage += ', Response: ' + response;
+                        
+                          showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -333,7 +343,7 @@
     });
 })(jQuery);
 
-function initialized_menu_group_table(datatable_name, buttons = false, show_all = false){
+function initializedMenuGroupTable(datatable_name, buttons = false, show_all = false){
     toggleHideActionDropdown();
 
     const type = 'menu group table';
@@ -381,6 +391,130 @@ function initialized_menu_group_table(datatable_name, buttons = false, show_all 
         'fnDrawCallback': function( oSettings ) {
             readjustDatatableColumn();
         },
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function initializeMenuItemTable(datatable_name, buttons = false, show_all = false){
+    const menu_group_id = $('#menu-group-id').text();
+    const type = 'menu group menu item table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'MENU_ITEM_ID' },
+        { 'data' : 'MENU_ITEM_NAME' },
+        { 'data' : 'PARENT_ID' },
+        { 'data' : 'ORDER_SEQUENCE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '7%', 'aTargets': 0 },
+        { 'width': '32%', 'aTargets': 1 },
+        { 'width': '32%', 'aTargets': 2 },
+        { 'width': '14%', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_menu_group_generation.php',
+            'method' : 'POST',
+            'dataType': 'JSON',
+            'data': {'type' : type, 'menu_group_id' : menu_group_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+      
+                var response = xhr.responseText;
+                fullErrorMessage += ', Response: ' + response;
+              
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
+    const menu_item_id = sessionStorage.getItem('menu_item_id');
+    const type = 'assign menu item role access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'READ_ACCESS' },
+        { 'data' : 'WRITE_ACCESS' },
+        { 'data' : 'CREATE_ACCESS' },
+        { 'data' : 'DELETE_ACCESS' },
+        { 'data' : 'DUPLICATE_ACCESS' }
+    ];
+
+    const column_definition = [
+        { 'width': '40%', 'aTargets': 0 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 2 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 3 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 4 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_menu_item_generation.php',
+            'method' : 'POST',
+            'dataType': 'JSON',
+            'data': {'type' : type, 'menu_item_id' : menu_item_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+      
+                var response = xhr.responseText;
+                fullErrorMessage += ', Response: ' + response;
+              
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
         'language': {
@@ -492,6 +626,158 @@ function initializeMenuGroupForm(){
     });
 }
 
+function initializeMenuItemForm(){
+    $('#menu-item-form').validate({
+        rules: {
+            menu_item_name: {
+                required: true
+            },
+            menu_item_order_sequence: {
+                required: true
+            }
+        },
+        messages: {
+            menu_item_name: {
+                required: 'Please enter the menu item name'
+            },
+            menu_item_order_sequence: {
+                required: 'Please enter the order sequence'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2')) {
+                error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+                error.insertAfter(element.parent());
+            }
+            else {
+                error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            if ($(element).hasClass('select2-hidden-accessible')) {
+                $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+            } 
+            else {
+                $(element).addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            if ($(element).hasClass('select2-hidden-accessible')) {
+                $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+                $(element).removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const menu_group_id = $('#menu-group-id').text();
+            const transaction = 'save menu item';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/menu-item-controller.php',
+                data: $(form).serialize() + '&menu_group_id=' + menu_group_id + '&transaction=' + transaction,
+                dataType: 'JSON',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-menu-item-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Menu Item Success' : 'Update Menu Item Success';
+                        const notificationDescription = response.insertRecord ? 'The menu item has been inserted successfully.' : 'The menu item has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+        
+                  var response = xhr.responseText;
+                  fullErrorMessage += ', Response: ' + response;
+                
+                  showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-menu-item-form', 'Submit');
+                    $('#menu-item-modal').modal('hide');
+                    reloadDatatable('#menu-item-table');
+                    resetModalForm('menu-item-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function initializeMenuItemRoleAccessForm(){
+    $('#assign-menu-item-role-access-form').validate({
+        submitHandler: function(form) {
+            const transaction = 'save role access';
+
+            var menu_item_id = sessionStorage.getItem('menu_item_id');
+            
+            var permission = [];
+        
+            $('.role-access').each(function(){
+                if($(this).is(':checked')){  
+                    permission.push(this.value + '-1' );  
+                }
+                else{
+                    permission.push(this.value + '-0' );
+                }
+            });
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/role-controller.php',
+                data: $(form).serialize() + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
+                dataType: 'JSON',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-menu-access-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Menu Item Role Access Success', 'The menu item role access has been updated successfully.', 'success')
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+        
+                  var response = xhr.responseText;
+                  fullErrorMessage += ', Response: ' + response;
+                
+                  showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-menu-access-form', 'Submit');
+                    $('#assign-menu-item-role-access-modal').modal('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get menu group details':
@@ -529,11 +815,11 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'modal menu item details':
+        case 'get menu item details':
             var menu_item_id = sessionStorage.getItem('menu_item_id');
             
             $.ajax({
-                url: 'controller/menu-group-controller.php',
+                url: 'controller/menu-item-controller.php',
                 method: 'POST',
                 dataType: 'JSON',
                 data: {menu_item_id : menu_item_id, transaction : transaction},
@@ -541,13 +827,23 @@ function displayDetails(transaction){
                     resetModalForm('menu-item-form');
                 },
                 success: function(response) {
-                    $('#menu_item_id').val(menu_item_id);
-                    $('#menu_item_name').val(response[0].MENU_ITEM_NAME);
-                    $('#menu_item_url').val(response[0].MENU_ITEM_URL);
-                    $('#menu_item_icon').val(response[0].MENU_ITEM_ICON);
-                    $('#menu_item_order_sequence').val(response[0].ORDER_SEQUENCE);
-                    
-                    checkOptionExist('#parent_id', response[0].PARENT_ID, '');
+                    if (response.success) {
+                        $('#menu_item_id').val(menu_item_id);
+                        $('#menu_item_name').val(response.menuItemName);
+                        $('#menu_item_url').val(response.menuItemURL);
+                        $('#menu_item_icon').val(response.menuItemIcon);
+                        $('#menu_item_order_sequence').val(response.orderSequence);
+                        
+                        checkOptionExist('#parent_id', response.parentID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Menu Group Details Error', response.message, 'danger');
+                        }
+                    }
                 },
                 error: function(xhr, status, error) {
                     var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;

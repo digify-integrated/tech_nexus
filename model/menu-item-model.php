@@ -17,13 +17,12 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getUICustomizationSetting
-    # Description: Retrieves the UI customization setting for a user.
+    # Function: generateMenuItemOptions
+    # Description: Generates the menu item options.
     #
-    # Parameters:
-    # - $p_user_id (int): The user ID.
+    # Parameters:None
     #
-    # Returns: The UI customization setting as an associative array.
+    # Returns: String.
     #
     # -------------------------------------------------------------
     public function generateMenuItemOptions() {
@@ -36,10 +35,10 @@ class MenuItemModel {
             $htmlOptions = '';
 
             foreach ($options as $row) {
-                $menu_item_id = $row['menu_item_id'];
-                $menu_item_name = $row['menu_item_name'];
+                $menuItemID = $row['menu_item_id'];
+                $menuItemName = $row['menu_item_name'];
 
-                $htmlOptions .= "<option value='". htmlspecialchars($menu_item_id, ENT_QUOTES) ."'>". htmlspecialchars($menu_item_name, ENT_QUOTES) ."</option>";
+                $htmlOptions .= "<option value='". htmlspecialchars($menuItemID, ENT_QUOTES) ."'>". htmlspecialchars($menuItemName, ENT_QUOTES) ."</option>";
             }
 
             return $htmlOptions;
@@ -53,22 +52,30 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateMenuGroup
-    # Description: Updates the menu group.
+    # Function: updateMenuItem
+    # Description: Updates the menu item.
     #
     # Parameters:
+    # - $p_menu_item_id (int): The menu item ID.
+    # - $p_menu_item_name (string): The menu item name.
     # - $p_menu_group_id (int): The menu group ID.
-    # - $p_menu_group_name (string): The menu group name.
-    # - $p_order_sequence (int): The order sequence of menu group.
+    # - $p_menu_item_url (string): The menu item url.
+    # - $p_parent_id (int): The menu item's parent ID.
+    # - $p_menu_item_icon (string): The menu item icon.
+    # - $p_order_sequence (int): The order sequence of menu item.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateMenuGroup($p_menu_group_id, $p_menu_group_name, $p_order_sequence, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateMenuGroup(:p_menu_group_id, :p_menu_group_name, :p_order_sequence, :p_last_log_by)");
+    public function updateMenuItem($p_menu_item_id, $p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare("CALL updateMenuItem(:p_menu_item_id, :p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by)");
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
+        $stmt->bindParam(':p_menu_item_name', $p_menu_item_name);
         $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
-        $stmt->bindParam(':p_menu_group_name', $p_menu_group_name);
+        $stmt->bindParam(':p_menu_item_url', $p_menu_item_url);
+        $stmt->bindParam(':p_parent_id', $p_parent_id);
+        $stmt->bindParam(':p_menu_item_icon', $p_menu_item_icon);
         $stmt->bindParam(':p_order_sequence', $p_order_sequence);
         $stmt->bindParam(':p_last_log_by', $p_last_log_by);
         $stmt->execute();
@@ -81,20 +88,28 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: insertMenuGroup
-    # Description: Inserts the menu group.
+    # Function: insertMenuItem
+    # Description: Inserts the menu item.
     #
     # Parameters:
-    # - $p_menu_group_name (string): The menu group name.
-    # - $p_order_sequence (int): The order sequence of menu group.
+    # - $p_menu_item_name (string): The menu item name.
+    # - $p_menu_group_id (int): The menu group ID.
+    # - $p_menu_item_url (string): The menu item url.
+    # - $p_parent_id (int): The menu item's parent ID.
+    # - $p_menu_item_icon (string): The menu item icon.
+    # - $p_order_sequence (int): The order sequence of menu item.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertMenuGroup($p_menu_group_name, $p_order_sequence, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL insertMenuGroup(:p_menu_group_name, :p_order_sequence, :p_last_log_by)");
-        $stmt->bindParam(':p_menu_group_name', $p_menu_group_name);
+    public function insertMenuItem($p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare("CALL insertMenuItem(:p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by, @p_menu_item_id)");
+        $stmt->bindParam(':p_menu_item_name', $p_menu_item_name);
+        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindParam(':p_menu_item_url', $p_menu_item_url);
+        $stmt->bindParam(':p_parent_id', $p_parent_id);
+        $stmt->bindParam(':p_menu_item_icon', $p_menu_item_icon);
         $stmt->bindParam(':p_order_sequence', $p_order_sequence);
         $stmt->bindParam(':p_last_log_by', $p_last_log_by);
         $stmt->execute();
@@ -107,18 +122,18 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: checkMenuGroupExist
-    # Description: Checks if a menu group exists.
+    # Function: checkMenuItemExist
+    # Description: Checks if a menu item exists.
     #
     # Parameters:
-    # - $p_menu_group_id (int): The menu group ID.
+    # - $p_menu_item_id (int): The menu item ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkMenuGroupExist($p_menu_group_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL checkMenuGroupExist(:p_user_id)");
-        $stmt->bindParam(':p_user_id', $p_user_id);
+    public function checkMenuItemExist($p_menu_item_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL checkMenuItemExist(:p_menu_item_id)");
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -130,18 +145,18 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMenuGroup
-    # Description: Deletes the menu group.
+    # Function: deleteMenuItem
+    # Description: Deletes the menu item.
     #
     # Parameters:
-    # - $p_menu_group_id (int): The menu group ID.
+    # - $p_menu_item_id (int): The menu item ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteMenuGroup($p_menu_group_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL deleteMenuGroup(:p_user_id)");
-        $stmt->bindParam(':p_user_id', $p_user_id);
+    public function deleteMenuItem($p_menu_item_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL deleteMenuItem(:p_menu_item_id)");
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -152,19 +167,19 @@ class MenuItemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getMenuGroup
-    # Description: Retrieves the details of a menu group.
+    # Function: getMenuItem
+    # Description: Retrieves the details of a menu item.
     #
     # Parameters:
-    # - $p_menu_group_id (int): The menu group ID.
+    # - $p_menu_item_id (int): The menu item ID.
     #
     # Returns:
-    # - An array containing the menu group details.
+    # - An array containing the menu item details.
     #
     # -------------------------------------------------------------
-    public function getMenuGroup($p_menu_group_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL getMenuGroup(:p_menu_group_id)");
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+    public function getMenuItem($p_menu_item_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL getMenuItem(:p_menu_item_id)");
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

@@ -819,10 +819,11 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
+require_once '../model/system-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel), new SecurityModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

@@ -6,9 +6,11 @@
 */
 class UserModel {
     public $db;
+    public $systemModel;
 
-    public function __construct(DatabaseModel $db) {
+    public function __construct(DatabaseModel $db, SystemModel $systemModel) {
         $this->db = $db;
+        $this->systemModel = $systemModel;
     }
 
     # -------------------------------------------------------------
@@ -504,6 +506,70 @@ class UserModel {
         $stmt->bindParam(':p_system_action_id', $p_system_action_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateLogNotes
+    # Description: Retrieves the log notes.
+    #
+    # Parameters:
+    # - $p_table_name (string): The table name.
+    # - $p_reference_id (int): The reference inside the table.
+    #
+    # Returns: The log notes as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function generateLogNotes($p_table_name, $p_reference_id) {
+        $stmt = $this->db->getConnection()->prepare("CALL generateLogNotes(:p_table_name, :p_reference_id)");
+        $stmt->bindParam(':p_table_name', $p_table_name);
+        $stmt->bindParam(':p_reference_id', $p_reference_id);
+        $stmt->execute();
+        $count = $stmt->rowCount();
+
+        if($count > 0){
+            $htmlOptions = '<div class="comment-block">';
+
+            $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+
+            foreach ($options as $row) {
+                $log = $row['log'];
+                $timeElapsed = $this->systemModel->timeElapsedString($row['changed_at']);
+
+                $getUserByID = $this->getUserByID($row['changed_by']);
+                $fileAs = $getUserByID['file_as'];
+
+                $htmlOptions .= '<div class="comment">
+                                    <div class="media align-items-start">
+                                        <div class="chat-avtar flex-shrink-0">
+                                            <img class="rounded-circle img-fluid wid-40" src="./assets/images/default/default-avatar.png" alt="User image" />
+                                        </div>
+                                        <div class="media-body ms-3">
+                                            <h5 class="mb-0">'. $fileAs .'</h5>
+                                            <span class="text-sm text-muted">'. $timeElapsed .'</span>
+                                        </div>
+                                    </div>
+                                    <div class="comment-content">
+                                        <p class="mb-0">
+                                            '. $log .'
+                                        </p>
+                                    </div>
+                                </div>';
+            }
+
+            $htmlOptions .= '</div>';
+        }
+        else{
+            $htmlOptions = '<div class="alert alert-secondary" role="alert">No log notes found.</div>';
+        }
+        
+        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

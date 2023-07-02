@@ -6,9 +6,11 @@
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
+    require('model/system-model.php');
   
     $databaseModel = new DatabaseModel();
-    $userModel = new UserModel($databaseModel);
+    $systemModel = new SystemModel();
+    $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
     $securityModel = new SecurityModel();

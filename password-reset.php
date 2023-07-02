@@ -3,10 +3,12 @@
     require('model/database-model.php');
     require('model/security-model.php');
     require('model/user-model.php');
+    require('model/system-model.php');
 
     $databaseModel = new DatabaseModel();
     $securityModel = new SecurityModel();
-    $userModel = new UserModel($databaseModel);
+    $systemModel = new SystemModel();
+    $userModel = new UserModel($databaseModel, $systemModel);
     $page_title = 'Password Reset';
 
     if(isset($_GET['id']) && !empty($_GET['id']) && isset($_GET['token']) && !empty($_GET['token'])){

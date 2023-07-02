@@ -92,13 +92,13 @@ class MenuGroupController {
         if ($total > 0) {
             $this->menuGroupModel->updateMenuGroup($menuGroupID, $menuGroupName, $menuGroupOrderSequence, $userID);
             
-            echo json_encode(['success' => true, 'menuGroupID' => $menuGroupID]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'menuGroupID' => $this->securityModel->encryptData($menuGroupID)]);
             exit;
         } 
         else {
             $menuGroupID = $this->menuGroupModel->insertMenuGroup($menuGroupName, $menuGroupOrderSequence, $userID);
 
-            echo json_encode(['success' => true, 'menuGroupID' =>  $this->securityModel->encryptData($menuGroupID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'menuGroupID' => $this->securityModel->encryptData($menuGroupID)]);
             exit;
         }
     }
@@ -245,7 +245,8 @@ require_once '../model/database-model.php';
 require_once '../model/menu-group-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
+require_once '../model/system-model.php';
 
-$controller = new MenuGroupController(new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel), new SecurityModel());
+$controller = new MenuGroupController(new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

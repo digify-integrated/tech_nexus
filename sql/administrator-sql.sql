@@ -342,15 +342,22 @@ END //
 CREATE TABLE audit_log (
     audit_log_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     table_name VARCHAR(255) NOT NULL,
-    reference_id int(10) NOT NULL,
+    reference_id INT NOT NULL,
     log TEXT NOT NULL,
     changed_by VARCHAR(255) NOT NULL,
-    changed_at datetime NOT NULL
+    changed_at DATETIME NOT NULL
 );
 
 CREATE INDEX audit_log_index_external_id ON audit_log(audit_log_id);
 CREATE INDEX audit_log_index_table_name ON audit_log(table_name);
 CREATE INDEX audit_log_index_reference_id ON audit_log(reference_id);
+
+CREATE PROCEDURE generateLogNotes(IN p_table_name VARCHAR(255), IN p_reference_id INT)
+BEGIN
+	SELECT log, changed_by, changed_at FROM audit_log
+    WHERE table_name = p_table_name AND reference_id = p_reference_id
+    ORDER BY changed_at DESC;
+END //
 
 /* UI customization setting table */
 CREATE TABLE ui_customization_setting (
@@ -641,7 +648,7 @@ BEGIN
     WHERE menu_group_id = p_menu_group_id;
 END //
 
-CREATE PROCEDURE insertMenuGroup(IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT, OUT p_menu_group_id INT(10))
+CREATE PROCEDURE insertMenuGroup(IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT, OUT p_menu_group_id INT)
 BEGIN
     INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) 
 	VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
@@ -675,7 +682,7 @@ BEGIN
 	WHERE menu_group_id = p_menu_group_id;
 END //
 
-CREATE PROCEDURE duplicateMenuGroup(IN p_menu_group_id INT(10), IN p_last_log_by INT(10), OUT p_new_menu_group_id INT(10))
+CREATE PROCEDURE duplicateMenuGroup(IN p_menu_group_id INT, IN p_last_log_by INT, OUT p_new_menu_group_id INT)
 BEGIN
     DECLARE p_menu_group_name VARCHAR(100);
     DECLARE p_order_sequence TINYINT(10);
@@ -689,6 +696,12 @@ BEGIN
     VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
     
     SET p_new_menu_group_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateMenuGroupOptions()
+BEGIN
+	SELECT menu_group_id, menu_group_name FROM menu_group
+	ORDER BY menu_group_name;
 END //
 
 /* Menu table */
@@ -782,6 +795,66 @@ BEGIN
     VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkMenuItemExist(IN p_menu_item_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM menu_item
+    WHERE menu_item_id = p_menu_item_id;
+END //
+
+CREATE PROCEDURE insertMenuItem(IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT, IN p_menu_item_url VARCHAR(50), IN p_parent_id INT, IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT, OUT p_menu_item_id INT)
+BEGIN
+    INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
+	VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
+	
+    SET p_menu_item_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateMenuItem(IN p_menu_item_id INT, IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT, IN p_menu_item_url VARCHAR(50), IN p_parent_id INT, IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT)
+BEGIN
+	UPDATE menu_item
+    SET menu_item_name = p_menu_item_name,
+    menu_group_id = p_menu_group_id,
+    menu_item_url = p_menu_item_url,
+    parent_id = p_parent_id,
+    menu_item_icon = p_menu_item_icon,
+    order_sequence = p_order_sequence,
+    last_log_by = p_last_log_by
+    WHERE menu_item_id = p_menu_item_id;
+END //
+
+CREATE PROCEDURE deleteMenuItem(IN p_menu_item_id INT)
+BEGIN
+	DELETE FROM menu_item
+    WHERE menu_item_id = p_menu_item_id;
+END //
+
+CREATE PROCEDURE getMenuItem(IN p_menu_item_id INT)
+BEGIN
+	SELECT * FROM menu_item
+	WHERE menu_item_id = p_menu_item_id;
+END //
+
+CREATE PROCEDURE duplicateMenuItem(IN p_menu_item_id INT, IN p_last_log_by INT, OUT p_new_menu_item_id INT)
+BEGIN
+    DECLARE p_menu_item_name VARCHAR(100);
+    DECLARE p_menu_group_id INT;
+    DECLARE p_menu_item_url VARCHAR(50);
+    DECLARE p_parent_id INT;
+    DECLARE p_menu_item_icon VARCHAR(150);
+    DECLARE p_order_sequence TINYINT(10);
+    
+    SELECT menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence 
+    INTO p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence
+    FROM menu_item 
+    WHERE menu_item_id = p_menu_item_id;
+    
+    INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
+    VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
+    
+    SET p_new_menu_item_id = LAST_INSERT_ID();
+END //
+
 CREATE PROCEDURE generateMenuItemOptions()
 BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
@@ -799,12 +872,6 @@ CREATE TABLE menu_access_right(
     duplicate_access TINYINT(1) NOT NULL,
     last_log_by INT NOT NULL
 );
-
-ALTER TABLE menu_access_right
-ADD FOREIGN KEY (role_id) REFERENCES role(role_id);
-
-ALTER TABLE menu_access_right
-ADD FOREIGN KEY (menu_item_id) REFERENCES menu_item(menu_item_id);
 
 INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '0', '0', '0', '0', '0', '1');
 INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
@@ -878,6 +945,49 @@ BEGIN
     VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkRoleMenuAccessExist(IN p_menu_item_id INT, IN p_role_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM menu_access_right
+    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE insertRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO menu_access_right (menu_item_id, role_id, last_log_by) 
+	VALUES(p_menu_item_id, p_role_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT, IN p_access_type VARCHAR(10), IN p_access TINYINT(1), IN p_last_log_by INT)
+BEGIN
+    IF p_access_type = 'read' THEN
+        UPDATE menu_access_right
+        SET read_access = p_access,
+        last_log_by = p_last_log_by
+        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+    ELSEIF p_access_type = 'write' THEN
+        UPDATE menu_access_right
+        SET write_access = p_access,
+        last_log_by = p_last_log_by
+        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+    ELSEIF p_access_type = 'create' THEN
+        UPDATE menu_access_right
+        SET create_access = p_access,
+        last_log_by = p_last_log_by
+        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+    ELSEIF p_access_type = 'delete' THEN
+      UPDATE menu_access_right
+        SET delete_access = p_access,
+        last_log_by = p_last_log_by
+        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+    ELSE
+        UPDATE menu_access_right
+        SET duplicate_access = p_access,
+        last_log_by = p_last_log_by
+        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+    END IF;
+END //
+
 CREATE PROCEDURE checkMenuItemAccessRights(IN p_user_id INT, IN p_menu_item_id INT, IN p_access_type VARCHAR(10))
 BEGIN
 	IF p_access_type = 'read' THEN
@@ -901,6 +1011,13 @@ BEGIN
         FROM role_users
         WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
     END IF;
+END //
+
+CREATE PROCEDURE getRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT)
+BEGIN
+    SELECT read_access, write_access, create_access, delete_access, duplicate_access
+    FROM menu_access_right 
+    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END //
 
 /* System action table */

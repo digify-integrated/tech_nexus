@@ -2,7 +2,7 @@
 /**
 * Class MenuGroupModel
 *
-* The MenuGroupModel class handles menu item related operations and interactions.
+* The MenuGroupModel class handles menu group related operations and interactions.
 */
 class MenuGroupModel {
     public $db;
@@ -184,6 +184,41 @@ class MenuGroupModel {
         $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateMenuGroupOptions
+    # Description: Generates the menu group options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateMenuGroupOptions() {
+        $stmt = $this->db->getConnection()->prepare("CALL generateMenuGroupOptions()");
+        $stmt->execute();
+        $count = $stmt->rowCount();
+
+        if($count > 0){
+            $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $htmlOptions = '';
+
+            foreach ($options as $row) {
+                $menuGroupID = $row['menu_group_id'];
+                $menuGroupName = $row['menu_group_name'];
+
+                $htmlOptions .= "<option value='". htmlspecialchars($menuGroupID, ENT_QUOTES) ."'>". htmlspecialchars($menuGroupName, ENT_QUOTES) ."</option>";
+            }
+
+            return $htmlOptions;
+        }
     }
     # -------------------------------------------------------------
 }
