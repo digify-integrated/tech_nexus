@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 02, 2023 at 07:04 AM
+-- Generation Time: Jul 05, 2023 at 11:43 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -133,14 +133,45 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name
     ORDER BY changed_at DESC;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuGroupMenuItemTable` (IN `p_menu_group_id` INT)   BEGIN
+	SELECT menu_item_id, menu_item_name, parent_id, order_sequence 
+    FROM menu_item
+    WHERE menu_group_id = p_menu_group_id 
+    ORDER BY menu_item_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuGroupOptions` ()   BEGIN
 	SELECT menu_group_id, menu_group_name FROM menu_group
 	ORDER BY menu_group_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuGroupTable` ()   BEGIN
+	SELECT menu_group_id, menu_group_name, order_sequence 
+    FROM menu_group 
+    ORDER BY menu_group_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemOptions` ()   BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
 	ORDER BY menu_item_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemRoleTable` ()   BEGIN
+	SELECT role_id, role_name FROM role
+    ORDER BY role_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemTable` ()   BEGIN
+	SELECT menu_item_id, menu_item_name, menu_group_id, parent_id, order_sequence 
+    FROM menu_item
+    ORDER BY menu_item_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSubMenuItemTable` (IN `p_parent_id` INT)   BEGIN
+	SELECT menu_item_name, menu_group_id, order_sequence 
+    FROM menu_item
+    WHERE parent_id = p_parent_id
+    ORDER BY menu_item_name;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
@@ -468,7 +499,54 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (65, 'menu_access_right', 6, 'Role ID: 2<br/>', '1', '2023-07-02 13:00:32'),
 (66, 'menu_access_right', 6, 'Role ID: 2<br/>', '1', '2023-07-02 13:00:32'),
 (67, 'menu_access_right', 6, 'Role ID: 2<br/>', '1', '2023-07-02 13:00:32'),
-(68, 'menu_group', 15, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 1', '1', '2023-07-02 13:01:59');
+(68, 'menu_group', 15, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 1', '1', '2023-07-02 13:01:59'),
+(69, 'users', 1, 'Last Connection Date: 2023-07-01 18:03:21 -> 2023-07-04 09:02:55<br/>', '1', '2023-07-04 09:02:55'),
+(70, 'menu_access_right', 1, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-04 09:54:39'),
+(71, 'menu_access_right', 1, 'Role ID: 1<br/>', '1', '2023-07-04 09:54:39'),
+(72, 'menu_access_right', 1, 'Role ID: 1<br/>', '1', '2023-07-04 09:54:39'),
+(73, 'menu_access_right', 1, 'Role ID: 1<br/>', '1', '2023-07-04 09:54:39'),
+(74, 'menu_access_right', 1, 'Role ID: 1<br/>', '1', '2023-07-04 09:54:39'),
+(75, 'menu_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-04 09:54:39'),
+(76, 'menu_access_right', 1, 'Role ID: 2<br/>', '1', '2023-07-04 09:54:39'),
+(77, 'menu_access_right', 1, 'Role ID: 2<br/>', '1', '2023-07-04 09:54:39'),
+(78, 'menu_access_right', 1, 'Role ID: 2<br/>', '1', '2023-07-04 09:54:39'),
+(79, 'menu_access_right', 1, 'Role ID: 2<br/>', '1', '2023-07-04 09:54:39'),
+(80, 'menu_access_right', 1, 'Role ID: 2<br/>', '1', '2023-07-04 09:54:39'),
+(81, 'ui_customization_setting', 1, 'Preset Theme: preset-10 -> preset-1<br/>', '1', '2023-07-04 14:00:22'),
+(82, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>Order Sequence: 2', '1', '2023-07-04 16:31:37'),
+(83, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: test2<br/>Menu Group ID: 1<br/>Order Sequence: 2', '1', '2023-07-04 16:34:18'),
+(84, 'users', 1, 'Last Connection Date: 2023-07-04 09:02:55 -> 2023-07-05 11:38:03<br/>', '1', '2023-07-05 11:38:03'),
+(85, 'users', 1, 'Remember Token: f232915da9163c3b163cf317ba03906a -> 3bc368b66a3959677f2c3e05aa8f3817<br/>', '1', '2023-07-05 11:38:03'),
+(86, 'menu_item', 3, 'URL: menu-item.php -> menu-items.php<br/>', '1', '2023-07-05 11:57:24'),
+(87, 'menu_item', 3, 'URL: menu-items.php -> menu-item.php<br/>', '1', '2023-07-05 11:57:30'),
+(88, 'menu_item', 3, 'URL: menu-item.php -> menu-item.php<br/>', '1', '2023-07-05 11:57:37'),
+(89, 'menu_item', 3, 'URL: menu-item.php -> menu-item.php<br/>', '1', '2023-07-05 11:58:36'),
+(90, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>Order Sequence: 2', '1', '2023-07-05 12:31:55'),
+(91, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>Order Sequence: 2', '1', '2023-07-05 12:32:03'),
+(92, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>URL: test.php<br/>Order Sequence: 2', '1', '2023-07-05 13:15:56'),
+(93, 'menu_item', 11, 'Parent ID: 0 -> 1<br/>', '1', '2023-07-05 13:16:06'),
+(94, 'menu_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-05 13:33:41'),
+(95, 'menu_access_right', 11, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(96, 'menu_access_right', 11, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(97, 'menu_access_right', 11, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(98, 'menu_access_right', 11, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(99, 'menu_access_right', 11, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(100, 'menu_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-05 13:33:41'),
+(101, 'menu_access_right', 11, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(102, 'menu_access_right', 11, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(103, 'menu_access_right', 11, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(104, 'menu_access_right', 11, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(105, 'menu_access_right', 11, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-05 13:33:41'),
+(106, 'menu_access_right', 11, 'Role ID: 1<br/>', '1', '2023-07-05 13:33:49'),
+(107, 'menu_access_right', 11, 'Role ID: 1<br/>', '1', '2023-07-05 13:33:49'),
+(108, 'menu_access_right', 11, 'Role ID: 1<br/>', '1', '2023-07-05 13:33:49'),
+(109, 'menu_access_right', 11, 'Role ID: 1<br/>', '1', '2023-07-05 13:33:49'),
+(110, 'menu_access_right', 11, 'Role ID: 1<br/>', '1', '2023-07-05 13:33:49'),
+(111, 'menu_access_right', 11, 'Role ID: 2<br/>Read Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
+(112, 'menu_access_right', 11, 'Role ID: 2<br/>Write Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
+(113, 'menu_access_right', 11, 'Role ID: 2<br/>Create Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
+(114, 'menu_access_right', 11, 'Role ID: 2<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
+(115, 'menu_access_right', 11, 'Role ID: 2<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49');
 
 -- --------------------------------------------------------
 
@@ -492,11 +570,14 @@ CREATE TABLE `menu_access_right` (
 --
 
 INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `write_access`, `create_access`, `delete_access`, `duplicate_access`, `last_log_by`) VALUES
-(1, 1, 0, 0, 0, 0, 0, 1),
+(1, 1, 1, 0, 0, 0, 0, 1),
 (2, 1, 1, 1, 1, 1, 1, 1),
 (3, 1, 1, 1, 1, 1, 1, 1),
 (6, 1, 1, 1, 1, 1, 1, 1),
-(6, 2, 0, 0, 0, 0, 0, 1);
+(6, 2, 0, 0, 0, 0, 0, 1),
+(1, 2, 0, 0, 0, 0, 0, 1),
+(11, 1, 1, 1, 1, 1, 1, 1),
+(11, 2, 0, 0, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_access_right`
@@ -653,7 +734,9 @@ CREATE TABLE `menu_item` (
 INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `menu_item_url`, `parent_id`, `menu_item_icon`, `order_sequence`, `last_log_by`) VALUES
 (1, 'User Interface', 1, '', 0, 'sidebar', 50, 1),
 (2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 1),
-(3, 'Menu Item', 1, 'menu-item.php', 1, '', 3, 1);
+(3, 'Menu Item', 1, 'menu-item.php', 1, '', 3, 1),
+(7, 'test', 1, '', 0, '', 2, 1),
+(11, 'test', 1, 'test.php', 1, '', 2, 1);
 
 --
 -- Triggers `menu_item`
@@ -703,7 +786,7 @@ CREATE TRIGGER `menu_item_trigger_update` AFTER UPDATE ON `menu_item` FOR EACH R
         SET audit_log = CONCAT(audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
     END IF;
 
-    IF NEW.menu_item_url <> OLD.parent_id THEN
+    IF NEW.menu_item_url <> OLD.menu_item_url THEN
         SET audit_log = CONCAT(audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
     END IF;
 
@@ -897,7 +980,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'false', 'true', 'preset-10', 'light', 'false', 'false', 1);
+(1, 1, 'false', 'true', 'preset-1', 'light', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -1008,7 +1091,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-01 18:03:21', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, 'f232915da9163c3b163cf317ba03906a', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-05 11:38:03', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '3bc368b66a3959677f2c3e05aa8f3817', 1);
 
 --
 -- Triggers `users`
@@ -1290,7 +1373,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1302,7 +1385,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `password_history`

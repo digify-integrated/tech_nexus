@@ -7,7 +7,7 @@
                     <div class="col-md-6">
                       <h5>Menu Group</h5>
                     </div>
-                    <?php                            
+                    <?php
                         if (empty($menu_group_id) && $menuGroupCreateAccess > 0) {
                           echo ' <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                                     <button type="submit" form="menu-group-form" class="btn btn-success form-edit" id="submit-data">Save</button>

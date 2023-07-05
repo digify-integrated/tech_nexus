@@ -704,7 +704,22 @@ BEGIN
 	ORDER BY menu_group_name;
 END //
 
-/* Menu table */
+CREATE PROCEDURE generateMenuGroupTable()
+BEGIN
+	SELECT menu_group_id, menu_group_name, order_sequence 
+    FROM menu_group 
+    ORDER BY menu_group_id;
+END //
+
+CREATE PROCEDURE generateMenuGroupMenuItemTable(IN p_menu_group_id INT)
+BEGIN
+	SELECT menu_item_id, menu_item_name, parent_id, order_sequence 
+    FROM menu_item
+    WHERE menu_group_id = p_menu_group_id 
+    ORDER BY menu_item_id;
+END //
+
+/* Menu item table */
 CREATE TABLE menu_item(
 	menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	menu_item_name VARCHAR(100) NOT NULL,
@@ -739,7 +754,7 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
     END IF;
 
-    IF NEW.menu_item_url <> OLD.parent_id THEN
+    IF NEW.menu_item_url <> OLD.menu_item_url THEN
         SET audit_log = CONCAT(audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
     END IF;
 
@@ -859,6 +874,27 @@ CREATE PROCEDURE generateMenuItemOptions()
 BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
 	ORDER BY menu_item_name;
+END //
+
+CREATE PROCEDURE generateMenuItemTable()
+BEGIN
+	SELECT menu_item_id, menu_item_name, menu_group_id, parent_id, order_sequence 
+    FROM menu_item
+    ORDER BY menu_item_id;
+END //
+
+CREATE PROCEDURE generateSubMenuItemTable(IN p_parent_id INT)
+BEGIN
+	SELECT menu_item_name, menu_group_id, order_sequence 
+    FROM menu_item
+    WHERE parent_id = p_parent_id
+    ORDER BY menu_item_name;
+END //
+
+CREATE PROCEDURE generateMenuItemRoleTable()
+BEGIN
+	SELECT role_id, role_name FROM role
+    ORDER BY role_name;
 END //
 
 /* Menu access right table */

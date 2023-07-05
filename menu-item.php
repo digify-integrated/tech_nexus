@@ -17,18 +17,16 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Menu Group';
+    $page_title = 'Menu Item';
     
-    $menuGroupReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
-    $menuGroupCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
-    $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
-    $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
-    $menuGroupDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
+    $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'read');
     $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
     $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
+    $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
+    $menuItemDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'duplicate');
     $assignMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
 
-    if ($menuGroupReadAccess['total'] == 0) {
+    if ($menuItemReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -40,14 +38,14 @@
 
     if(isset($_GET['id'])){
       if(empty($_GET['id'])){
-        header('location: menu-group.php');
+        header('location: menu-item.php');
         exit;
       }
 
-      $menuGroupID = $securityModel->decryptData($_GET['id']);
+      $menuItemID = $securityModel->decryptData($_GET['id']);
 
-      $checkMenuGroupExist = $menuGroupModel->checkMenuGroupExist($menuGroupID);
-      $total = $checkMenuGroupExist['total'] ?? 0;
+      $checkMenuItemExist = $menuItemModel->checkMenuItemExist($menuItemID);
+      $total = $checkMenuItemExist['total'] ?? 0;
 
       if($total == 0){
         header('location: 404.php');
@@ -55,7 +53,7 @@
       }
     }
     else{
-      $menuGroupID = null;
+      $menuItemID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -89,10 +87,10 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="menu-group.php">Menu Group</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="menu-item.php">Menu Item</a></li>
                   <?php
-                    if(!empty($menuGroupID)){
-                      echo '<li class="breadcrumb-item" id="menu-group-id">'. $menuGroupID .'</li>';
+                    if(!empty($menuItemID)){
+                      echo '<li class="breadcrumb-item" id="menu-item-id">'. $menuItemID .'</li>';
                     }
 
                     if($newRecord){
@@ -103,7 +101,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Menu Group</h2>
+                  <h2 class="mb-0">Menu Item</h2>
                 </div>
               </div>
             </div>
@@ -111,13 +109,13 @@
         </div>
         <?php
           if($newRecord){
-            require_once('view/_menu_group_new.php');
+            require_once('view/_menu_item_new.php');
           }
-          else if(empty($menuGroupID)){
-            require_once('view/_menu_group.php');
+          else if(empty($menuItemID)){
+            require_once('view/_menu_item.php');
           }
           else{
-            require_once('view/_menu_group_details.php');
+            require_once('view/_menu_item_details.php');
           }
         ?>
       </div>
@@ -135,7 +133,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/menu-group.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/menu-item.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

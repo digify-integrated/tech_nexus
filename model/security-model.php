@@ -80,13 +80,13 @@ class SecurityModel {
     #
     # -------------------------------------------------------------
     public function formatEmail($email) {
-        $parts = explode("@", $email);
+        $parts = explode('@', $email);
         $username = $parts[0];
         $domain = $parts[1];
     
         $maskedUsername = $this->maskUsername($username);
     
-        return $maskedUsername . "@" . $domain;
+        return $maskedUsername . '@' . $domain;
     }
     # -------------------------------------------------------------
     
@@ -104,7 +104,7 @@ class SecurityModel {
     # -------------------------------------------------------------
     private function maskUsername($username) {
         $firstChar = substr($username, 0, 1);
-        $maskedUsername = $firstChar . str_repeat("*", strlen($username) - 1);
+        $maskedUsername = $firstChar . str_repeat('*', strlen($username) - 1);
         return $maskedUsername;
     }
     # -------------------------------------------------------------

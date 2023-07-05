@@ -34,7 +34,7 @@
                     </div>
                 </div>
 
-                <ul class="pc-navbar">
+                <ul class="pc-navbar" id="menu-navbar">
                     <li class="pc-item pc-caption">
                         <label>Navigation</label>
                         <i class="ti ti-dashboard"></i>
@@ -62,8 +62,6 @@
                             <li class="pc-item"><a class="pc-link" href="menu-item.php">Menu Item</a></li>
                         </ul>
                     </li>
-
-                    <?php #echo $api->build_menu($email); ?>
                 </ul>
             </div>
         </div>

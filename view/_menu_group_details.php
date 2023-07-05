@@ -130,7 +130,7 @@
                               </div>
                             </div>
                           </div>
-                          <div class="log-notes-scroll" style="height: auto; position: relative;">
+                          <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
                             <div class="card-body p-b-0">
                               '. $userModel->generateLogNotes('menu_group', $menuGroupID) .'
                             </div>

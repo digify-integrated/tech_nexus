@@ -26,7 +26,7 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function generateMenuItemOptions() {
-        $stmt = $this->db->getConnection()->prepare("CALL generateMenuItemOptions()");
+        $stmt = $this->db->getConnection()->prepare('CALL generateMenuItemOptions()');
         $stmt->execute();
         $count = $stmt->rowCount();
 
@@ -69,7 +69,7 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function updateMenuItem($p_menu_item_id, $p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateMenuItem(:p_menu_item_id, :p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by)");
+        $stmt = $this->db->getConnection()->prepare('CALL updateMenuItem(:p_menu_item_id, :p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->bindParam(':p_menu_item_name', $p_menu_item_name);
         $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
@@ -100,11 +100,11 @@ class MenuItemModel {
     # - $p_order_sequence (int): The order sequence of menu item.
     # - $p_last_log_by (int): The last logged user.
     #
-    # Returns: None
+    # Returns: String
     #
     # -------------------------------------------------------------
     public function insertMenuItem($p_menu_item_name, $p_menu_group_id, $p_menu_item_url, $p_parent_id, $p_menu_item_icon, $p_order_sequence, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL insertMenuItem(:p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by, @p_menu_item_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL insertMenuItem(:p_menu_item_name, :p_menu_group_id, :p_menu_item_url, :p_parent_id, :p_menu_item_icon, :p_order_sequence, :p_last_log_by, @p_menu_item_id)');
         $stmt->bindParam(':p_menu_item_name', $p_menu_item_name);
         $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
         $stmt->bindParam(':p_menu_item_url', $p_menu_item_url);
@@ -113,6 +113,11 @@ class MenuItemModel {
         $stmt->bindParam(':p_order_sequence', $p_order_sequence);
         $stmt->bindParam(':p_last_log_by', $p_last_log_by);
         $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_menu_item_id AS p_menu_item_id");
+        $p_menu_item_id = $result->fetch(PDO::FETCH_ASSOC)['p_menu_item_id'];
+
+        return $p_menu_item_id;
     }
     # -------------------------------------------------------------
 
@@ -132,7 +137,7 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function checkMenuItemExist($p_menu_item_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL checkMenuItemExist(:p_menu_item_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL checkMenuItemExist(:p_menu_item_id)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -155,7 +160,7 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function deleteMenuItem($p_menu_item_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL deleteMenuItem(:p_menu_item_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL deleteMenuItem(:p_menu_item_id)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
     }
@@ -178,10 +183,39 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function getMenuItem($p_menu_item_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL getMenuItem(:p_menu_item_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL getMenuItem(:p_menu_item_id)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Duplicate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateMenuItem
+    # Description: Duplicates the menu item.
+    #
+    # Parameters:
+    # - $p_menu_item_id (int): The menu item ID.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function duplicateMenuItem($p_menu_item_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL duplicateMenuItem(:p_menu_item_id, :p_last_log_by, @p_new_menu_item_id)');
+        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
+        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_new_menu_item_id AS menu_item_id");
+        $menu_item_id = $result->fetch(PDO::FETCH_ASSOC)['menu_item_id'];
+
+        return $menu_item_id;
     }
     # -------------------------------------------------------------
 }

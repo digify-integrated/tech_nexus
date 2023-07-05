@@ -8,6 +8,7 @@ session_start();
 */
 class MenuItemController {
     private $menuItemModel;
+    private $menuGroupModel;
     private $userModel;
     private $securityModel;
 
@@ -22,8 +23,9 @@ class MenuItemController {
     * @param SecurityModel $securityModel   The SecurityModel instance for security-related operations.
     * @return void
     */
-    public function __construct(MenuItemModel $menuItemModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(MenuItemModel $menuItemModel, MenuGroupModel $menuGroupModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->menuItemModel = $menuItemModel;
+        $this->menuGroupModel = $menuGroupModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
@@ -229,13 +231,42 @@ class MenuItemController {
             }
     
             $menuItemDetails = $this->menuItemModel->getMenuItem($menuItemID);
+            $menuGroupID = $menuItemDetails['menu_group_id'];
+            $parentID = $menuItemDetails['parent_id'];
+            $menuItemURL = $menuItemDetails['menu_item_url'];
+
+            $menuGroupDetails = $this->menuGroupModel->getMenuGroup($menuGroupID);
+            $menuGroupName = $menuGroupDetails['menu_group_name'];
+
+            $menuGroupIDEncrypted = $this->securityModel->encryptData($menuGroupID);
+            $parentIDEncrypted = $this->securityModel->encryptData($parentID);
+
+            if(!empty($parentID)){
+                $menuItemParentIDDetails = $this->menuItemModel->getMenuItem($parentID);
+                $parentName = $menuItemParentIDDetails['menu_item_name'];
+
+                $parentName = '<a href="menu-item.php?id='. $parentIDEncrypted .'">'. $parentName .'</a>';
+            }
+            else{
+                $parentName = null;
+            }
+
+            if(!empty($menuItemURL)){
+                $menuItemURLLink = '<a href="'. $menuItemURL .'">'. $menuItemURL .'</a>';
+            }
+            else{
+                $menuItemURLLink = null;
+            }
 
             $response = [
                 'success' => true,
                 'menuItemName' => $menuItemDetails['menu_item_name'],
-                'menuGroupID' => $menuItemDetails['menu_group_id'],
-                'menuItemURL' => $menuItemDetails['menu_item_url'],
-                'parentID' => $menuItemDetails['parent_id'],
+                'menuGroupID' => $menuGroupID,
+                'menuGroupName' => '<a href="menu-group.php?id='. $menuGroupIDEncrypted .'">'. $menuGroupName .'</a>',
+                'menuItemURL' => $menuItemURL,
+                'menuItemURLLink' => $menuItemURLLink,
+                'parentID' => $parentID,
+                'parentName' => $parentName,
                 'menuItemIcon' => $menuItemDetails['menu_item_icon'],
                 'orderSequence' => $menuItemDetails['order_sequence']
             ];
@@ -249,10 +280,11 @@ class MenuItemController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/menu-item-model.php';
+require_once '../model/menu-group-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new MenuItemController(new MenuItemModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new MenuItemController(new MenuItemModel(new DatabaseModel), new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

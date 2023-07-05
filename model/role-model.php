@@ -28,7 +28,7 @@ class RoleModel {
     #
     # -------------------------------------------------------------
     public function checkRoleMenuAccessExist($p_menu_item_id, $p_role_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL checkRoleMenuAccessExist(:p_menu_item_id, :p_role_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL checkRoleMenuAccessExist(:p_menu_item_id, :p_role_id)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->bindParam(':p_role_id', $p_role_id);
         $stmt->execute();
@@ -56,7 +56,7 @@ class RoleModel {
     #
     # -------------------------------------------------------------
     public function updateRoleMenuAccess($p_menu_item_id, $p_role_id, $p_access_type, $p_access, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL updateRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_access_type, :p_access, :p_last_log_by)");
+        $stmt = $this->db->getConnection()->prepare('CALL updateRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_access_type, :p_access, :p_last_log_by)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->bindParam(':p_role_id', $p_role_id);
         $stmt->bindParam(':p_access_type', $p_access_type);
@@ -84,7 +84,7 @@ class RoleModel {
     #
     # -------------------------------------------------------------
     public function insertRoleMenuAccess($p_menu_item_id, $p_role_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare("CALL insertRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_last_log_by)");
+        $stmt = $this->db->getConnection()->prepare('CALL insertRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_last_log_by)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->bindParam(':p_role_id', $p_role_id);
         $stmt->bindParam(':p_last_log_by', $p_last_log_by);
@@ -110,7 +110,7 @@ class RoleModel {
     #
     # -------------------------------------------------------------
     public function getRoleMenuAccess($p_menu_item_id, $p_role_id) {
-        $stmt = $this->db->getConnection()->prepare("CALL getRoleMenuAccess(:p_menu_item_id, :p_role_id)");
+        $stmt = $this->db->getConnection()->prepare('CALL getRoleMenuAccess(:p_menu_item_id, :p_role_id)');
         $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
         $stmt->bindParam(':p_role_id', $p_role_id);
         $stmt->execute();
