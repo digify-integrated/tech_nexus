@@ -9,7 +9,46 @@ class MenuItemModel {
 
     public function __construct(DatabaseModel $db) {
         $this->db = $db;
+    } 
+    
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: buildMenuItem
+    # Description: Generates the menu item options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function buildMenuItem($p_user_id, $p_menu_group_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL buildMenuItem(:p_user_id, :p_menu_group_id)');
+        $stmt->bindValue(':p_user_id', $user_id);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id);
+        $stmt->execute();
+        $count = $stmt->rowCount();
+
+        if($count > 0){
+            $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
+            
+            $htmlOptions = '';
+
+            foreach ($options as $row) {
+                $menuItemID = $row['menu_item_id'];
+                $menuItemName = $row['menu_item_name'];
+
+                $htmlOptions .= "<option value='". htmlspecialchars($menuItemID, ENT_QUOTES) ."'>". htmlspecialchars($menuItemName, ENT_QUOTES) ."</option>";
+            }
+
+            return $htmlOptions;
+        }
     }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Generate methods
@@ -32,6 +71,7 @@ class MenuItemModel {
 
         if($count > 0){
             $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
             $htmlOptions = '';
 
             foreach ($options as $row) {

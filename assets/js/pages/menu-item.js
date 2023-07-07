@@ -405,6 +405,7 @@ function initializeSubMenuItemTable(datatable_name, buttons = false, show_all = 
 
     $(datatable_name).dataTable(settings);
 }
+
 function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
     const menu_item_id = sessionStorage.getItem('menu_item_id');
     const type = 'assign menu item role access table';
@@ -652,9 +653,9 @@ function displayDetails(transaction){
                         $('#order_sequence_label').text(response.orderSequence);
                         $('#menu_item_icon_label').text(response.menuItemIcon);
                         
-                        document.getElementById("menu_group_id_label").innerHTML = response.menuGroupName;
-                        document.getElementById("menu_item_url_label").innerHTML = response.menuItemURLLink;
-                        document.getElementById("parent_id_label").innerHTML = response.parentName;
+                        document.getElementById('menu_group_id_label').innerHTML = response.menuGroupName;
+                        document.getElementById('menu_item_url_label').innerHTML = response.menuItemURLLink;
+                        document.getElementById('parent_id_label').innerHTML = response.parentName;
                         
                         checkOptionExist('#menu_group_id', response.menuGroupID, '');
                         checkOptionExist('#parent_id', response.parentID, '');
