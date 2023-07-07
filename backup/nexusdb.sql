@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 05, 2023 at 11:43 AM
+-- Generation Time: Jul 07, 2023 at 02:55 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -25,6 +25,33 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuGroup` (IN `p_user_id` INT)   BEGIN
+    SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
+    FROM menu_group mg
+    JOIN menu_item mi ON mi.menu_group_id = mg.menu_group_id
+    WHERE EXISTS (
+        SELECT 1
+        FROM menu_access_right mar
+        WHERE mar.menu_item_id = mi.menu_item_id
+        AND mar.read_access = 1
+        AND mar.role_id IN (
+            SELECT role_id
+            FROM role_users
+            WHERE user_id = p_user_id
+        )
+    )
+    ORDER BY mg.order_sequence;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT, IN `p_menu_group_id` INT)   BEGIN
+    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
+    FROM menu_item AS mi
+    INNER JOIN menu_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
+    INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
+    WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
+    ORDER BY mi.order_sequence;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuGroupExist` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM menu_group
