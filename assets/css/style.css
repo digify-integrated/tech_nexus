@@ -3534,7 +3534,7 @@ textarea.is-invalid.dataTable-input {
 }
 
 .dropdown-menu {
-  --bs-dropdown-zindex: 1026;
+  --bs-dropdown-zindex: 1030 !important;
   --bs-dropdown-min-width: 12rem;
   --bs-dropdown-padding-x: 0.5rem;
   --bs-dropdown-padding-y: 0.5rem;

@@ -1,7 +1,7 @@
  <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div id="sticky-action" class="sticky-action">
+              <div class="sticky-action">
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-md-6">
@@ -28,7 +28,7 @@
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-menu-item-id="' . $menuItemID . '" id="delete-menu-item-details">Delete Menu Item</button></li>';
                             }
                             
-                            if ($menuItemDeleteAccess['total'] > 0) {
+                            if ($assignMenuItemRoleAccess > 0) {
                                 $dropdown .= '<li><div class="dropdown-divider"></div></li>
                                             <li><button class="dropdown-item" type="button" data-menu-item-id="' . $menuItemID . '" id="assign-menu-item-role-access">Menu Item Role Access</button></li>';
                             }
@@ -145,7 +145,7 @@
             echo '<div class="row">
                     <div class="col-lg-12">
                       <div class="card">
-                        <div id="sticky-action" class="sticky-action">
+                        <div class="sticky-action">
                           <div class="card-header">
                             <div class="row align-items-center">
                               <div class="col-sm-12">
@@ -174,7 +174,7 @@
                   <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                          <div id="sticky-action" class="sticky-action">
+                          <div>
                             <div class="card-header">
                               <div class="row align-items-center">
                                 <div class="col-sm-6">

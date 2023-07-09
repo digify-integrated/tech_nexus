@@ -5,10 +5,6 @@
         getUISettings();
         checkNotification();
         intializeMaxLength();
-        
-        if($('#menu-navbar').length){
-            generateNavbarMenu();
-        }
 
         if($('.log-notes-scroll').length){
             new SimpleBar(document.querySelector('.log-notes-scroll'));
@@ -547,38 +543,6 @@ function updateTwoFactorAuthentication(isChecked){
                     showNotification('Update Two Factor Authentication Error', response.message, 'danger');
                 }
             } 
-        },
-        error: function(xhr, status, error) {
-            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-  
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
-          
-            showErrorDialog(fullErrorMessage);
-        }
-    });
-}
-
-function generateNavbarMenu(){
-    const transaction = 'generate navbar menu';
-
-    $.ajax({
-        type: 'POST',
-        url: 'view/_system_interface_generation.php',
-        data: {transaction : transaction},
-        dataType: 'JSON',
-        success: function (response) {
-            if (response.success) {
-                document.getElementById('menu-navbar').innerHTML = response.menuNavbar;
-            }
-            else{
-                if(response.isInactive){
-                    window.location = 'logout.php?logout';
-                }
-                else{
-                    showNotification('Generate Navbar Menu Error', response.message, 'danger');
-                }
-            }
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;

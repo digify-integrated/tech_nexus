@@ -12,7 +12,7 @@ class MenuItemModel {
     } 
     
     # -------------------------------------------------------------
-    #   Generate methods
+    #   Build methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -20,14 +20,18 @@ class MenuItemModel {
     # Function: buildMenuItem
     # Description: Generates the menu item options.
     #
-    # Parameters:None
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_menu_group_id (int): The menu group ID.
     #
     # Returns: String.
     #
     # -------------------------------------------------------------
     public function buildMenuItem($p_user_id, $p_menu_group_id) {
+        $menuItems = array();
+
         $stmt = $this->db->getConnection()->prepare('CALL buildMenuItem(:p_user_id, :p_menu_group_id)');
-        $stmt->bindValue(':p_user_id', $user_id);
+        $stmt->bindValue(':p_user_id', $p_user_id);
         $stmt->bindValue(':p_menu_group_id', $p_menu_group_id);
         $stmt->execute();
         $count = $stmt->rowCount();
@@ -41,12 +45,118 @@ class MenuItemModel {
             foreach ($options as $row) {
                 $menuItemID = $row['menu_item_id'];
                 $menuItemName = $row['menu_item_name'];
+                $menuItemURL = $row['menu_item_url'];
+                $parentID = $row['parent_id'];
+                $menuItemIcon = $row['menu_item_icon'];
 
-                $htmlOptions .= "<option value='". htmlspecialchars($menuItemID, ENT_QUOTES) ."'>". htmlspecialchars($menuItemName, ENT_QUOTES) ."</option>";
+                $menuItem = array(
+                    'MENU_ITEM_ID' => $menuItemID,
+                    'MENU_ITEM_NAME' => $menuItemName,
+                    'MENU_ITEM_URL' => $menuItemURL,
+                    'PARENT_ID' => $parentID,
+                    'MENU_ITEM_ICON' => $menuItemIcon,
+                    'CHILDREN' => array()
+                );
+
+                $menuItems[$menuItemID] = $menuItem;
             }
 
-            return $htmlOptions;
+            foreach ($menuItems as $menuItem) {
+                if (!empty($menuItem['PARENT_ID']) && isset($menuItems[$menuItem['PARENT_ID']])) {
+                    $menuItems[$menuItem['PARENT_ID']]['CHILDREN'][] = &$menuItems[$menuItem['MENU_ITEM_ID']];
+                }
+            }
+
+            $rootMenuItems = array_filter($menuItems, function ($item) {
+                return empty($item['PARENT_ID']);
+            });
+
+            $html = '';
+
+            foreach ($rootMenuItems as $rootMenuItem) {
+                $html .= $this->buildMenuItemHTML($rootMenuItem);
+            }
+
+            return $html;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: buildMenuItemHTML
+    # Description: Generates the menu item html.
+    #
+    # Parameters:
+    # - $p_menu_item (array): The menu item details.
+    # - $level (int): The menu item level.
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function buildMenuItemHTML($p_menu_item, $level = 1) {
+        $html = '';
+        $menu_item_name = $p_menu_item['MENU_ITEM_NAME'];
+        $menu_item_icon = $p_menu_item['MENU_ITEM_ICON'];
+        $menu_item_url = $p_menu_item['MENU_ITEM_URL'];
+        $children = $p_menu_item['CHILDREN'];
+    
+        if ($level === 1) {
+            if (empty($children)) {
+                $html .= '<li class="pc-item">';
+                $html .= '<a href="' . $menu_item_url . '" class="pc-link">';
+                $html .= '<span class="pc-micon">';
+                $html .= '<i data-feather="'. $menu_item_icon .'"></i>';
+                $html .= '</span>';
+                $html .= '<span class="pc-mtext">' . $menu_item_name . '</span>';
+                $html .= '</a>';
+                $html .= '</li>';
+            } 
+            else {
+                $html .= '<li class="pc-item pc-hasmenu">';
+                $html .= '<a href="JavaScript:void(0);" class="pc-link">';
+                $html .= '<span class="pc-micon">';
+                $html .= ' <i data-feather="'. $menu_item_icon .'"></i>';
+                $html .= '</span>';
+                $html .= '<span class="pc-mtext">' . $menu_item_name . '</span>';
+                $html .= '<span class="pc-arrow"><i data-feather="chevron-right"></i></span>';
+                $html .= '</a>';
+                $html .= '<ul class="pc-submenu">';
+    
+                foreach ($children as $child) {
+                    $html .= $this->buildMenuItemHTML($child, $level + 1);
+                }
+    
+                $html .= '</ul>';
+                $html .= '</li>';
+            }
+        }
+        else {
+            if (empty($children)) {
+                $html .= '<li class="pc-item">';
+                $html .= '<a href="' . $menu_item_url . '" class="pc-link">';
+                $html .= '<span class="pc-mtext">' . $menu_item_name . '</span>';
+                $html .= '</a>';
+                $html .= '</li>';
+            } 
+            else {
+                $html .= '<li class="pc-item pc-hasmenu">';
+                $html .= '<a href="JavaScript:void(0);" class="pc-link">';
+                $html .= '<span class="pc-mtext">' . $menu_item_name . '</span>';
+                $html .= '<span class="pc-arrow"><i data-feather="chevron-right"></i></span>';
+                $html .= '</a>';
+                $html .= '<ul class="pc-submenu">';
+    
+                foreach ($children as $child) {
+                    $html .= $this->buildMenuItemHTML($child, $level + 1);
+                }
+    
+                $html .= '</ul>';
+                $html .= '</li>';
+            }
+        }
+    
+        return $html;
     }
     # -------------------------------------------------------------
 
@@ -154,10 +264,10 @@ class MenuItemModel {
         $stmt->bindParam(':p_last_log_by', $p_last_log_by);
         $stmt->execute();
 
-        $result = $this->db->getConnection()->query("SELECT @p_menu_item_id AS p_menu_item_id");
-        $p_menu_item_id = $result->fetch(PDO::FETCH_ASSOC)['p_menu_item_id'];
+        $result = $this->db->getConnection()->query("SELECT @p_menu_item_id AS menu_item_id");
+        $menuItemID = $result->fetch(PDO::FETCH_ASSOC)['menu_item_id'];
 
-        return $p_menu_item_id;
+        return $menuItemID;
     }
     # -------------------------------------------------------------
 
@@ -253,9 +363,9 @@ class MenuItemModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_menu_item_id AS menu_item_id");
-        $menu_item_id = $result->fetch(PDO::FETCH_ASSOC)['menu_item_id'];
+        $menuItemID = $result->fetch(PDO::FETCH_ASSOC)['menu_item_id'];
 
-        return $menu_item_id;
+        return $menuItemID;
     }
     # -------------------------------------------------------------
 }

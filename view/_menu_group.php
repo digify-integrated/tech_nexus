@@ -1,11 +1,11 @@
 <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div id="sticky-action" class="sticky-action">
+              <div class="sticky-action">
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-sm-6">
-                      <h5>Menu Groups List</h5>
+                      <h5>Menu Group List</h5>
                     </div>
                     <?php
                       if($menuGroupCreateAccess > 0 || $menuGroupDeleteAccess > 0){

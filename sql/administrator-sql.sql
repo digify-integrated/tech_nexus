@@ -601,7 +601,7 @@ CREATE TABLE menu_group (
 
 CREATE INDEX menu_group_index_menu_group_id ON menu_group(menu_group_id);
 
-INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '1', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '1', '1');
 
 CREATE TRIGGER menu_group_trigger_update
 AFTER UPDATE ON menu_group
@@ -1095,6 +1095,107 @@ CREATE TABLE system_action(
 CREATE INDEX system_action_index_system_action_id ON system_action(system_action_id);
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign Menu Item Role Access', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign System Action Role Access', '1');
+
+CREATE TRIGGER system_action_trigger_update
+AFTER UPDATE ON system_action
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.system_action_name <> OLD.system_action_name THEN
+        SET audit_log = CONCAT(audit_log, "System Action Name: ", OLD.system_action_name, " -> ", NEW.system_action_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('system_action', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER system_action_trigger_insert
+AFTER INSERT ON system_action
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System action created. <br/>';
+
+    IF NEW.system_action_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Action Name: ", NEW.system_action_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('system_action', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkSystemActionExist(IN p_system_action_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM system_action
+    WHERE system_action_id = p_system_action_id;
+END //
+
+CREATE PROCEDURE insertSystemAction(IN p_system_action_name VARCHAR(100), IN p_last_log_by INT, OUT p_system_action_id INT)
+BEGIN
+    INSERT INTO system_action (system_action_name, last_log_by) 
+	VALUES(p_system_action_name, p_last_log_by);
+	
+    SET p_system_action_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateSystemAction(IN p_system_action_id INT, IN p_system_action_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE system_action
+    SET system_action_name = p_system_action_name,
+    last_log_by = p_last_log_by
+    WHERE system_action_id = p_system_action_id;
+END //
+
+CREATE PROCEDURE deleteSystemAction(IN p_system_action_id INT)
+BEGIN
+	DELETE FROM system_action
+    WHERE system_action_id = p_system_action_id;
+END //
+
+CREATE PROCEDURE getSystemAction(IN p_system_action_id INT)
+BEGIN
+	SELECT * FROM system_action
+    WHERE system_action_id = p_system_action_id;
+END //
+
+CREATE PROCEDURE duplicateSystemAction(IN p_system_action_id INT, IN p_last_log_by INT, OUT p_new_system_action_id INT)
+BEGIN
+    DECLARE p_system_action_name VARCHAR(100);
+    
+    SELECT system_action_name 
+    INTO p_system_action_name
+    FROM system_action 
+    WHERE system_action_id = p_system_action_id;
+    
+    INSERT INTO system_action (system_action_name, last_log_by) 
+    VALUES(p_system_action_name, p_last_log_by);
+    
+    SET p_new_system_action_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateSystemActionTable()
+BEGIN
+	SELECT system_action_id, system_action_name 
+    FROM system_action
+    ORDER BY system_action_id;
+END //
+
+CREATE PROCEDURE generateSystemActionRoleTable()
+BEGIN
+	SELECT role_id, role_name FROM role
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE checkSystemActionRoleExist(IN p_system_action_id INT, IN p_role_id INT)
+BEGIN
+	SELECT COUNT(*) AS total 
+    FROM system_action_access_rights 
+    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END //
 
 /* System action table */
 CREATE TABLE system_action_access_rights(
@@ -1109,10 +1210,11 @@ ALTER TABLE system_action_access_rights
 ADD FOREIGN KEY (system_action_id) REFERENCES system_action(system_action_id);
 
 INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('2', '1');
 
 CREATE PROCEDURE checkSystemActionAccessRights(IN p_user_id INT, IN p_system_action_id INT)
 BEGIN
-	SELECT COUNT(role_id) AS TOTAL
-    FROM role_users
-    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM system_action_access_rights where system_action_id = p_system_action_id);
+    SELECT role_id 
+    FROM system_action_access_rights 
+    WHERE system_action_id = p_system_action_id AND role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_id);
 END //

@@ -34,7 +34,7 @@
                     </div>
                 </div>
 
-                <ul class="pc-navbar" id="menu-navbar">
+                <ul class="pc-navbar">
                     <li class="pc-item pc-caption">
                         <label>Navigation</label>
                         <i class="ti ti-dashboard"></i>
@@ -46,22 +46,27 @@
                             </span>
                             <span class="pc-mtext">Dashboard</span>
                         </a>
-                    </li>
-                    <li class="pc-item pc-hasmenu">
-                        <a href="JavaScript:void(0);" class="pc-link">
-                            <span class="pc-micon">
-                                <svg class="pc-icon">
-                                    <use xlink:href="#custom-row-vertical"></use>
-                                </svg>
-                            </span>
-                            <span class="pc-mtext">User Interface</span>
-                            <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
-                        </a>
-                        <ul class="pc-submenu">
-                            <li class="pc-item"><a class="pc-link" href="menu-group.php">Menu Group</a></li>
-                            <li class="pc-item"><a class="pc-link" href="menu-item.php">Menu Item</a></li>
-                        </ul>
-                    </li>
+                    </li><?php
+                        $menu = '';
+                        $sql = $databaseModel->getConnection()->prepare('CALL buildMenuGroup(:userID)');
+                        $sql->bindValue(':userID', $user_id);
+                        $sql->execute();
+                        $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                        $sql->closeCursor();
+            
+                        foreach ($options as $row) {
+                            $_menuGroupID = $row['menu_group_id'];
+                            $_menuGroupName = $row['menu_group_name'];
+            
+                            $menu .= '<li class="pc-item pc-caption">
+                                        <label>'. $_menuGroupName .'</label>
+                                    </li>';
+            
+                            $menu .= $menuItemModel->buildMenuItem($user_id, $_menuGroupID);
+                        }
+            
+                        echo $menu;
+                    ?>
                 </ul>
             </div>
         </div>

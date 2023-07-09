@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 07, 2023 at 02:55 AM
+-- Generation Time: Jul 09, 2023 at 12:20 PM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- PHP Version: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -95,9 +95,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleMenuAccessExist` (IN `p_me
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionAccessRights` (IN `p_user_id` INT, IN `p_system_action_id` INT)   BEGIN
-	SELECT COUNT(role_id) AS TOTAL
-    FROM role_users
-    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM system_action_access_rights where system_action_id = p_system_action_id);
+    SELECT role_id 
+    FROM system_action_access_rights 
+    WHERE system_action_id = p_system_action_id AND role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_id);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionExist` (IN `p_system_action_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM system_action
+    WHERE system_action_id = p_system_action_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionRoleExist` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
+	SELECT COUNT(*) AS total 
+    FROM system_action_access_rights 
+    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (IN `p_user_id` INT)   BEGIN
@@ -118,6 +130,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItem` (IN `p_menu_item_id` INT)   BEGIN
 	DELETE FROM menu_item
     WHERE menu_item_id = p_menu_item_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemAction` (IN `p_system_action_id` INT)   BEGIN
+	DELETE FROM system_action
+    WHERE system_action_id = p_system_action_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -152,6 +169,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuItem` (IN `p_menu_item
     VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
     
     SET p_new_menu_item_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_system_action_id` INT, IN `p_last_log_by` INT, OUT `p_new_system_action_id` INT)   BEGIN
+    DECLARE p_system_action_name VARCHAR(100);
+    
+    SELECT system_action_name 
+    INTO p_system_action_name
+    FROM system_action 
+    WHERE system_action_id = p_system_action_id;
+    
+    INSERT INTO system_action (system_action_name, last_log_by) 
+    VALUES(p_system_action_name, p_last_log_by);
+    
+    SET p_new_system_action_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
@@ -201,6 +232,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSubMenuItemTable` (IN `p_pa
     ORDER BY menu_item_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionRoleTable` ()   BEGIN
+	SELECT role_id, role_name FROM role
+    ORDER BY role_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEGIN
+	SELECT system_action_id, system_action_name 
+    FROM system_action
+    ORDER BY system_action_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
@@ -220,6 +262,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getRoleMenuAccess` (IN `p_menu_item
     SELECT read_access, write_access, create_access, delete_access, duplicate_access
     FROM menu_access_right 
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSystemAction` (IN `p_system_action_id` INT)   BEGIN
+	SELECT * FROM system_action
+    WHERE system_action_id = p_system_action_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUICustomizationSetting` (IN `p_user_id` INT)   BEGIN
@@ -264,6 +311,13 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_last_log_by` INT)   BEGIN
     INSERT INTO menu_access_right (menu_item_id, role_id, last_log_by) 
 	VALUES(p_menu_item_id, p_role_id, p_last_log_by);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSystemAction` (IN `p_system_action_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_system_action_id` INT)   BEGIN
+    INSERT INTO system_action (system_action_name, last_log_by) 
+	VALUES(p_system_action_name, p_last_log_by);
+	
+    SET p_system_action_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUICustomizationSetting` (IN `p_user_id` INT, IN `p_type` VARCHAR(30), IN `p_customization_value` VARCHAR(15), IN `p_last_log_by` INT(10))   BEGIN
@@ -389,6 +443,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRoleMenuAccess` (IN `p_menu_i
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateSystemAction` (IN `p_system_action_id` INT, IN `p_system_action_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE system_action
+    SET system_action_name = p_system_action_name,
+    last_log_by = p_last_log_by
+    WHERE system_action_id = p_system_action_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateTwoFactorAuthentication` (IN `p_user_id` INT, IN `p_two_factor_auth` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
@@ -573,7 +634,53 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (112, 'menu_access_right', 11, 'Role ID: 2<br/>Write Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
 (113, 'menu_access_right', 11, 'Role ID: 2<br/>Create Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
 (114, 'menu_access_right', 11, 'Role ID: 2<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
-(115, 'menu_access_right', 11, 'Role ID: 2<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49');
+(115, 'menu_access_right', 11, 'Role ID: 2<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-05 13:33:49'),
+(116, 'users', 1, 'Last Connection Date: 2023-07-05 11:38:03 -> 2023-07-07 09:16:36<br/>', '1', '2023-07-07 09:16:36'),
+(117, 'menu_item', 3, 'Order Sequence: 3 -> 2<br/>', '1', '2023-07-07 11:24:04'),
+(118, 'menu_item', 7, 'Order Sequence: 2 -> 1<br/>', '1', '2023-07-07 11:24:18'),
+(119, 'menu_item', 11, 'Order Sequence: 2 -> 99<br/>', '1', '2023-07-07 11:24:44'),
+(120, 'menu_item', 11, 'Parent ID: 1 -> 3<br/>', '1', '2023-07-07 11:24:53'),
+(121, 'menu_item', 11, 'Parent ID: 3 -> 1<br/>', '1', '2023-07-07 11:25:03'),
+(122, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 1<br/>Menu Item Icon: sidebar<br/>Order Sequence: 50', '1', '2023-07-07 11:33:44'),
+(123, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 1<br/>URL: menu-group.php<br/>Parent ID: 1<br/>Order Sequence: 1', '1', '2023-07-07 11:33:44'),
+(124, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 1<br/>URL: menu-item.php<br/>Parent ID: 1<br/>Order Sequence: 2', '1', '2023-07-07 11:33:44'),
+(125, 'users', 1, 'Last Connection Date: 2023-07-07 09:16:36 -> 2023-07-07 17:07:15<br/>', '1', '2023-07-07 17:07:15'),
+(126, 'users', 1, 'Remember Token: 3bc368b66a3959677f2c3e05aa8f3817 -> 8dbc4dc2764fce151cd28f97a48a7aff<br/>', '1', '2023-07-07 17:07:15'),
+(127, 'menu_group', 16, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 1', '1', '2023-07-07 18:08:18'),
+(128, 'menu_group', 17, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 1', '1', '2023-07-07 18:09:13'),
+(129, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 1', '1', '2023-07-07 18:10:48'),
+(130, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 1<br/>Menu Item Icon: sidebar<br/>Order Sequence: 50', '1', '2023-07-07 18:10:48'),
+(131, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 1<br/>URL: menu-group.php<br/>Parent ID: 1<br/>Order Sequence: 1', '1', '2023-07-07 18:10:48'),
+(132, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 1<br/>URL: menu-item.php<br/>Parent ID: 1<br/>Order Sequence: 2', '1', '2023-07-07 18:10:48'),
+(133, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Administration<br/>Menu Group ID: 1<br/>Menu Item Icon: shield<br/>Order Sequence: 1', '1', '2023-07-07 18:24:17'),
+(134, 'menu_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-07 18:24:27'),
+(135, 'menu_access_right', 4, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-07 18:24:27'),
+(136, 'menu_access_right', 4, 'Role ID: 1<br/>', '1', '2023-07-07 18:24:27'),
+(137, 'menu_access_right', 4, 'Role ID: 1<br/>', '1', '2023-07-07 18:24:27'),
+(138, 'menu_access_right', 4, 'Role ID: 1<br/>', '1', '2023-07-07 18:24:27'),
+(139, 'menu_access_right', 4, 'Role ID: 1<br/>', '1', '2023-07-07 18:24:27'),
+(140, 'menu_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-07 18:24:27'),
+(141, 'menu_access_right', 4, 'Role ID: 2<br/>', '1', '2023-07-07 18:24:27'),
+(142, 'menu_access_right', 4, 'Role ID: 2<br/>', '1', '2023-07-07 18:24:27'),
+(143, 'menu_access_right', 4, 'Role ID: 2<br/>', '1', '2023-07-07 18:24:27'),
+(144, 'menu_access_right', 4, 'Role ID: 2<br/>', '1', '2023-07-07 18:24:27'),
+(145, 'menu_access_right', 4, 'Role ID: 2<br/>', '1', '2023-07-07 18:24:27'),
+(146, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: System Action<br/>Menu Group ID: 1<br/>URL: system-action.php<br/>Parent ID: 4<br/>Order Sequence: 10', '1', '2023-07-07 18:25:16'),
+(147, 'menu_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-07 18:25:27'),
+(148, 'menu_access_right', 5, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-07 18:25:27'),
+(149, 'menu_access_right', 5, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-07 18:25:27'),
+(150, 'menu_access_right', 5, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-07 18:25:27'),
+(151, 'menu_access_right', 5, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-07 18:25:27'),
+(152, 'menu_access_right', 5, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-07 18:25:27'),
+(153, 'menu_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-07 18:25:27'),
+(154, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
+(155, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
+(156, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
+(157, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
+(158, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
+(159, 'system_action', 2, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-08 10:00:19'),
+(160, 'system_action', 3, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-09 10:57:07'),
+(161, 'system_action', 4, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-09 11:13:38');
 
 -- --------------------------------------------------------
 
@@ -604,7 +711,11 @@ INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `writ
 (6, 2, 0, 0, 0, 0, 0, 1),
 (1, 2, 0, 0, 0, 0, 0, 1),
 (11, 1, 1, 1, 1, 1, 1, 1),
-(11, 2, 0, 0, 0, 0, 0, 1);
+(11, 2, 0, 0, 0, 0, 0, 1),
+(4, 1, 1, 0, 0, 0, 0, 1),
+(4, 2, 0, 0, 0, 0, 0, 1),
+(5, 1, 1, 1, 1, 1, 1, 1),
+(5, 2, 0, 0, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_access_right`
@@ -694,8 +805,7 @@ CREATE TABLE `menu_group` (
 --
 
 INSERT INTO `menu_group` (`menu_group_id`, `menu_group_name`, `order_sequence`, `last_log_by`) VALUES
-(1, 'Administration', 1, 1),
-(15, 'Administration', 1, 1);
+(1, 'Technical', 1, 1);
 
 --
 -- Triggers `menu_group`
@@ -761,9 +871,9 @@ CREATE TABLE `menu_item` (
 INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `menu_item_url`, `parent_id`, `menu_item_icon`, `order_sequence`, `last_log_by`) VALUES
 (1, 'User Interface', 1, '', 0, 'sidebar', 50, 1),
 (2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 1),
-(3, 'Menu Item', 1, 'menu-item.php', 1, '', 3, 1),
-(7, 'test', 1, '', 0, '', 2, 1),
-(11, 'test', 1, 'test.php', 1, '', 2, 1);
+(3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 1),
+(4, 'Administration', 1, '', 0, 'shield', 1, 1),
+(5, 'System Action', 1, 'system-action.php', 4, '', 10, 1);
 
 --
 -- Triggers `menu_item`
@@ -964,7 +1074,40 @@ CREATE TABLE `system_action` (
 --
 
 INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log_by`) VALUES
-(1, 'Assign Menu Item Role Access', 1);
+(1, 'Assign Menu Item Role Access', 1),
+(2, 'Assign System Action Role Access', 1);
+
+--
+-- Triggers `system_action`
+--
+DELIMITER $$
+CREATE TRIGGER `system_action_trigger_insert` AFTER INSERT ON `system_action` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System action created. <br/>';
+
+    IF NEW.system_action_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Action Name: ", NEW.system_action_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('system_action', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `system_action_trigger_update` AFTER UPDATE ON `system_action` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.system_action_name <> OLD.system_action_name THEN
+        SET audit_log = CONCAT(audit_log, "System Action Name: ", OLD.system_action_name, " -> ", NEW.system_action_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('system_action', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -982,7 +1125,8 @@ CREATE TABLE `system_action_access_rights` (
 --
 
 INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`) VALUES
-(1, 1);
+(1, 1),
+(2, 1);
 
 -- --------------------------------------------------------
 
@@ -1118,7 +1262,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-05 11:38:03', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '3bc368b66a3959677f2c3e05aa8f3817', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-07 17:07:15', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '8dbc4dc2764fce151cd28f97a48a7aff', 1);
 
 --
 -- Triggers `users`
@@ -1400,19 +1544,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=162;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
-  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `password_history`
@@ -1430,7 +1574,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

@@ -44,6 +44,9 @@ class RoleController {
                 case 'save role access':
                     $this->saveRoleAccess();
                     break;
+                case 'save role system action access':
+                    $this->saveRoleSystemActionAccess();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -79,6 +82,43 @@ class RoleController {
             $accessType = $parts[1];
             $access = $parts[2];
 
+            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
+            $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+            if ($total == 0) {
+                $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
+            }
+
+            $this->roleModel->updateRoleMenuAccess($menuItemID, $roleID, $accessType, $access, $userID);
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
+    * Saves the role access.
+    * Updates the existing role access of the role.
+    *
+    * @return void
+    */
+    public function saveRoleSystemActionAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
+        $roles = explode(',', $_POST['role']);
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach ($roles as $role) {
             $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
             $total = $checkRoleMenuAccessExist['total'] ?? 0;
         

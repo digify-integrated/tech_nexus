@@ -37,6 +37,27 @@ class RoleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkSystemActionRoleExist
+    # Description: Checks if a system action role exists.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The system action ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSystemActionRoleExist($p_system_action_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkSystemActionRoleExist(:p_system_action_id, :p_role_id)');
+        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
 

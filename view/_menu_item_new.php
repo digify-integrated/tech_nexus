@@ -1,7 +1,7 @@
  <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div id="sticky-action" class="sticky-action">
+              <div class="sticky-action">
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-md-6">

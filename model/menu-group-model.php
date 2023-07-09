@@ -64,9 +64,9 @@ class MenuGroupModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_menu_group_id AS menu_group_id");
-        $menu_group_id = $result->fetch(PDO::FETCH_ASSOC)['menu_group_id'];
+        $menuGroupID = $result->fetch(PDO::FETCH_ASSOC)['menu_group_id'];
 
-        return $menu_group_id;
+        return $menuGroupID;
     }
     # -------------------------------------------------------------
 

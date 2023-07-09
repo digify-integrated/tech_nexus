@@ -1,7 +1,7 @@
  <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div id="sticky-action" class="sticky-action">
+              <div class="sticky-action">
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-md-6">
@@ -87,7 +87,7 @@
             echo '<div class="row">
                     <div class="col-lg-12">
                       <div class="card">
-                        <div id="sticky-action" class="sticky-action">
+                        <div class="sticky-action">
                           <div class="card-header">
                             <div class="row align-items-center">
                               <div class="col-sm-6">
@@ -121,7 +121,7 @@
                   <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                          <div id="sticky-action" class="sticky-action">
+                          <div>
                             <div class="card-header">
                               <div class="row align-items-center">
                                 <div class="col-sm-6">
