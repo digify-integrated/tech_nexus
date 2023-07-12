@@ -603,7 +603,8 @@ function initializeMenuGroupForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }

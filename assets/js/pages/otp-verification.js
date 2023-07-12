@@ -1,4 +1,4 @@
-$(document).ready(function () {  
+$(document).ready(function () {
     $('#otp-form').validate({
       rules: {
         otp: {
@@ -77,4 +77,4 @@ $(document).ready(function () {
         return false;
       }
     });
-  });
+});

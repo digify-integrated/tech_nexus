@@ -2,29 +2,29 @@
     'use strict';
 
     $(function() {
-        if($('#system-action-table').length){
-            initializeSystemActionTable('#system-action-table');
+        if($('#role-table').length){
+            initializeRoleTable('#role-table');
         }
 
-        if($('#system-action-form').length){
-            initializeSystemActionForm();
+        if($('#role-form').length){
+            initializeRoleForm();
         }
 
-        if($('#system-action-id').length){
-            displayDetails('get system action details');
+        if($('#role-id').length){
+            displayDetails('get role details');
 
-            if($('#assign-system-action-role-access-modal').length){
-                initializeSystemActionRoleAccessForm();
+            if($('#assign-menu-item-access-modal').length){
+                initializeMenuItemAccessForm();
             }
         }
 
-        $(document).on('click','.delete-system-action',function() {
-            const system_action_id = $(this).data('system-action-id');
-            const transaction = 'delete system action';
+        $(document).on('click','.delete-role',function() {
+            const role_id = $(this).data('role-id');
+            const transaction = 'delete role';
     
             Swal.fire({
-                title: 'Confirm System Action Deletion',
-                text: 'Are you sure you want to delete this system action?',
+                title: 'Confirm Role Deletion',
+                text: 'Are you sure you want to delete this role?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -36,13 +36,13 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/system-action-controller.php',
+                        url: 'controller/role-controller.php',
                         dataType: 'JSON',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete System Action Success', 'The system action has been deleted successfully.', 'success');
-                                reloadDatatable('#system-action-table');
+                                showNotification('Delete Role Success', 'The role has been deleted successfully.', 'success');
+                                reloadDatatable('#role-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -50,11 +50,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete System Action Error', 'The system action does not exist.', 'danger');
-                                    reloadDatatable('#system-action-table');
+                                    showNotification('Delete Role Error', 'The role does not exist.', 'danger');
+                                    reloadDatatable('#role-table');
                                 }
                                 else {
-                                    showNotification('Delete System Action Error', response.message, 'danger');
+                                    showNotification('Delete Role Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -72,20 +72,20 @@
             });
         });
 
-        $(document).on('click','#delete-system-action',function() {
-            let system_action_id = [];
-            const transaction = 'delete multiple system action';
+        $(document).on('click','#delete-role',function() {
+            let role_id = [];
+            const transaction = 'delete multiple role';
 
             $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    system_action_id.push(element.value);
+                    role_id.push(element.value);
                 }
             });
     
-            if(system_action_id.length > 0){
+            if(role_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple System Actions Deletion',
-                    text: 'Are you sure you want to delete these system actions?',
+                    title: 'Confirm Multiple Roles Deletion',
+                    text: 'Are you sure you want to delete these roles?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -97,13 +97,13 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/system-action-controller.php',
+                            url: 'controller/role-controller.php',
                             dataType: 'JSON',
-                            data: {system_action_id : system_action_id, transaction : transaction},
+                            data: {role_id : role_id, transaction : transaction},
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete System Action Success', 'The selected system actions have been deleted successfully.', 'success');
-                                        reloadDatatable('#system-action-table');
+                                    showNotification('Delete Role Success', 'The selected roles have been deleted successfully.', 'success');
+                                        reloadDatatable('#role-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -111,7 +111,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete System Action Error', response.message, 'danger');
+                                        showNotification('Delete Role Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple System Action Error', 'Please select the system actions you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Role Error', 'Please select the roles you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-system-action-details',function() {
-            const system_action_id = $(this).data('system-action-id');
-            const transaction = 'delete system action';
+        $(document).on('click','#delete-role-details',function() {
+            const role_id = $(this).data('role-id');
+            const transaction = 'delete role';
     
             Swal.fire({
-                title: 'Confirm System Action Deletion',
-                text: 'Are you sure you want to delete this system action?',
+                title: 'Confirm Role Deletion',
+                text: 'Are you sure you want to delete this role?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,13 +155,13 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/system-action-controller.php',
+                        url: 'controller/role-controller.php',
                         dataType: 'JSON',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted System Action Success', 'The system action has been deleted successfully.', 'success');
-                                window.location = 'system-action.php';
+                                setNotification('Deleted Role Success', 'The role has been deleted successfully.', 'success');
+                                window.location = 'role.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -172,7 +172,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete System Action Error', response.message, 'danger');
+                                    showNotification('Delete Role Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -191,22 +191,22 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('system-action.php');
+            discardCreate('role.php');
         });
         $(document).on('click','#edit-form',function() {
-            displayDetails('get system action details');
+            displayDetails('get role details');
 
             $('.form-details').addClass('d-none');
             $('.form-edit').removeClass('d-none');
         });
 
-        $(document).on('click','#duplicate-system-action',function() {
-            const system_action_id = $(this).data('system-action-id');
-            const transaction = 'duplicate system action';
+        $(document).on('click','#duplicate-role',function() {
+            const role_id = $(this).data('role-id');
+            const transaction = 'duplicate role';
     
             Swal.fire({
-                title: 'Confirm System Action Duplication',
-                text: 'Are you sure you want to duplicate this system action?',
+                title: 'Confirm Role Duplication',
+                text: 'Are you sure you want to duplicate this role?',
                 icon: 'info',
                 showCancelButton: !0,
                 confirmButtonText: 'Duplicate',
@@ -218,13 +218,13 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/system-action-controller.php',
+                        url: 'controller/role-controller.php',
                         dataType: 'JSON',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate System Action Success', 'The system action has been duplicated successfully.', 'success');
-                                window.location = 'system-action.php?id=' + response.systemActionID;
+                                setNotification('Duplicate Role Success', 'The role has been duplicated successfully.', 'success');
+                                window.location = 'role.php?id=' + response.menuItemID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -232,11 +232,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate System Action Error', 'The system action does not exist.', 'danger');
-                                    reloadDatatable('#system-action-table');
+                                    showNotification('Duplicate Role Error', 'The role does not exist.', 'danger');
+                                    reloadDatatable('#role-table');
                                 }
                                 else {
-                                    showNotification('Duplicate System Action Error', response.message, 'danger');
+                                    showNotification('Duplicate Role Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -254,56 +254,58 @@
             });
         });
 
-        $(document).on('click','#create-system-action',function() {
-            resetModalForm("system-action-form");
+        $(document).on('click','#create-role',function() {
+            resetModalForm("role-form");
 
-            $('#system-action-modal').modal('show');
+            $('#role-modal').modal('show');
         });
 
-        $(document).on('click','#assign-system-action-role-access',function() {
-            const system_action_id = $(this).data('system-action-id');
+        $(document).on('click','#assign-role-role-access',function() {
+            const role_id = $(this).data('role-id');
 
-            sessionStorage.setItem('system_action_id', system_action_id);
+            sessionStorage.setItem('role_id', role_id);
 
-            $('#assign-system-action-role-access-modal').modal('show');
-            initializeRoleAccessTable('#assign-system-action-role-access-table');
+            $('#assign-menu-item-access-modal').modal('show');
+            initializeRoleAccessTable('#assign-menu-item-access-table');
         });
 
-        $(document).on('click','.update-system-action',function() {
-            const system_action_id = $(this).data('system-action-id');
+        $(document).on('click','.update-role',function() {
+            const role_id = $(this).data('role-id');
     
-            sessionStorage.setItem('system_action_id', system_action_id);
+            sessionStorage.setItem('role_id', role_id);
             
-            displayDetails('get system action details');
+            displayDetails('get role details');
     
-            $('#system-action-modal').modal('show');
+            $('#role-modal').modal('show');
         });
     });
 })(jQuery);
 
-function initializeSystemActionTable(datatable_name, buttons = false, show_all = false){
-    const type = 'system action table';
+function initializeRoleTable(datatable_name, buttons = false, show_all = false){
+    const type = 'role table';
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'SYSTEM_ACTION_ID' },
-        { 'data' : 'SYSTEM_ACTION_NAME' },
+        { 'data' : 'ROLE_ID' },
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'ASSIGNABLE' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '6%', 'aTargets': 1 },
-        { 'width': '78%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': '63%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type},
@@ -340,28 +342,36 @@ function initializeSystemActionTable(datatable_name, buttons = false, show_all =
 }
 
 function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
-    const system_action_id = sessionStorage.getItem('system_action_id');
-    const type = 'assign system action role access table';
+    const role_id = sessionStorage.getItem('role_id');
+    const type = 'assign role role access table';
     var settings;
 
     const column = [ 
-        { 'data' : 'ROLE_ID' },
-        { 'data' : 'ROLE_NAME' }
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'READ_ACCESS' },
+        { 'data' : 'WRITE_ACCESS' },
+        { 'data' : 'CREATE_ACCESS' },
+        { 'data' : 'DELETE_ACCESS' },
+        { 'data' : 'DUPLICATE_ACCESS' }
     ];
 
     const column_definition = [
-        { 'width': '2%', 'bSortable': false, 'aTargets': 0 },
-        { 'width': '98%', 'aTargets': 1 },
+        { 'width': '40%', 'aTargets': 0 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 2 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 3 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 4 },
+        { 'width': '12%', 'bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
-            'data': {'type' : type, 'system_action_id' : system_action_id},
+            'data': {'type' : type, 'role_id' : role_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
@@ -372,7 +382,7 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 0, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -394,16 +404,22 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
     $(datatable_name).dataTable(settings);
 }
 
-function initializeSystemActionForm(){
-    $('#system-action-form').validate({
+function initializeRoleForm(){
+    $('#role-form').validate({
         rules: {
-            system_action_name: {
+            role_name: {
+                required: true
+            },
+            role_description: {
                 required: true
             }
         },
         messages: {
-            system_action_name: {
-                required: 'Please enter the system action name'
+            role_name: {
+                required: 'Please enter the role name'
+            },
+            role_description: {
+                required: 'Please enter the role description'
             }
         },
         errorPlacement: function (error, element) {
@@ -434,24 +450,24 @@ function initializeSystemActionForm(){
             }
         },
         submitHandler: function(form) {
-            const system_action_id = $('#system-action-id').text();
-            const transaction = 'save system action';
+            const role_id = $('#role-id').text();
+            const transaction = 'save role';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/system-action-controller.php',
-                data: $(form).serialize() + '&system_action_id=' + system_action_id + '&transaction=' + transaction,
+                url: 'controller/role-controller.php',
+                data: $(form).serialize() + '&role_id=' + role_id + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert System Action Success' : 'Update System Action Success';
-                        const notificationDescription = response.insertRecord ? 'The system action has been inserted successfully.' : 'The system action has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Role Success' : 'Update Role Success';
+                        const notificationDescription = response.insertRecord ? 'The role has been inserted successfully.' : 'The role has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'system-action.php?id=' + response.systemActionID;
+                        window.location = 'role.php?id=' + response.menuItemID;
                     }
                     else {
                         if (response.isInactive) {
@@ -473,9 +489,9 @@ function initializeSystemActionForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
-                    $('#system-action-modal').modal('hide');
-                    reloadDatatable('#system-action-table');
-                    resetModalForm('system-action-form');
+                    $('#role-modal').modal('hide');
+                    reloadDatatable('#role-table');
+                    resetModalForm('role-form');
                 }
             });
         
@@ -484,32 +500,35 @@ function initializeSystemActionForm(){
     });
 }
 
-function initializeSystemActionRoleAccessForm(){
-    $('#assign-system-action-role-access-form').validate({
+function initializeMenuItemAccessForm(){
+    $('#assign-role-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'save role system action access';
+            const transaction = 'save role access';
 
-            var system_action_id = sessionStorage.getItem('system_action_id');
+            var role_id = sessionStorage.getItem('role_id');
             
-            var role = [];
+            var permission = [];
         
             $('.role-access').each(function(){
                 if($(this).is(':checked')){  
-                    role.push(this.value);
+                    permission.push(this.value + '-1' );  
+                }
+                else{
+                    permission.push(this.value + '-0' );
                 }
             });
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&system_action_id=' + system_action_id + '&role=' + role + '&transaction=' + transaction,
+                data: $(form).serialize() + '&role_id=' + role_id + '&permission=' + permission + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-menu-access-form');
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Update System Action Role Access Success', 'The system action role access has been updated successfully.', 'success')
+                        showNotification('Update Role Role Access Success', 'The role role access has been updated successfully.', 'success')
                     }
                     else {
                         if (response.isInactive) {
@@ -530,7 +549,7 @@ function initializeSystemActionRoleAccessForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-menu-access-form', 'Submit');
-                    $('#assign-system-action-role-access-modal').modal('hide');
+                    $('#assign-menu-item-access-modal').modal('hide');
                 }
             });
         
@@ -541,30 +560,42 @@ function initializeSystemActionRoleAccessForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get system action details':
-            const system_action_id = $('#system-action-id').text();
+        case 'get role details':
+            const role_id = $('#role-id').text();
             
             $.ajax({
-                url: 'controller/system-action-controller.php',
+                url: 'controller/role-controller.php',
                 method: 'POST',
                 dataType: 'JSON',
-                data: {system_action_id : system_action_id, transaction : transaction},
+                data: {role_id : role_id, transaction : transaction},
                 beforeSend: function() {
-                    resetModalForm('system-action-form');
+                    resetModalForm('role-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#system_action_id').val(system_action_id);
-                        $('#system_action_name').val(response.systemActionName);
+                        $('#role_id').val(role_id);
+                        $('#role_name').val(response.menuItemName);
+                        $('#role_url').val(response.menuItemURL);
+                        $('#role_icon').val(response.menuItemIcon);
+                        $('#role_order_sequence').val(response.orderSequence);
 
-                        $('#system_action_name_label').text(response.systemActionName);
+                        $('#role_name_label').text(response.menuItemName);
+                        $('#order_sequence_label').text(response.orderSequence);
+                        $('#role_icon_label').text(response.menuItemIcon);
+                        
+                        document.getElementById('menu_group_id_label').innerHTML = response.menuGroupName;
+                        document.getElementById('role_url_label').innerHTML = response.menuItemURLLink;
+                        document.getElementById('parent_id_label').innerHTML = response.parentName;
+                        
+                        checkOptionExist('#menu_group_id', response.menuGroupID, '');
+                        checkOptionExist('#parent_id', response.parentID, '');
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get System Action Details Error', response.message, 'danger');
+                            showNotification('Get Role Details Error', response.message, 'danger');
                         }
                     }
                 },

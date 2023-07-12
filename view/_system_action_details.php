@@ -113,7 +113,7 @@
                                 <table id="assign-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                     <tr>
-                                        <th class="all">Role</th>
+                                        <th class="all">Access</th>
                                         <th class="all">Role</th>
                                     </tr>
                                     </thead>

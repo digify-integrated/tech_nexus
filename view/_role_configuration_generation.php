@@ -23,7 +23,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
     switch ($type) {
         # Menu group menu item table
-        case 'assign menu item role access table':
+        case 'assign menu item access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
@@ -92,32 +92,32 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 echo json_encode($response);
             }
         break;
-        # Menu item table
-        case 'menu item table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemTable()');
+        # Role table
+        case 'role table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateRoleTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
+            $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'delete');
 
             foreach ($options as $row) {
-                $menuItemID = $row['menu_item_id'];
-                $menuGroupID = $row['menu_group_id'];
-                $menuItemName = $row['menu_item_name'];
-                $parentID = $row['parent_id'];
-                $orderSequence = $row['order_sequence'];
+                $roleID = $row['role_id'];
+                $roleName = $row['role_name'];
+                $roleDescription = $row['role_description'];
+                $assignable = $row['assignable'];
 
-                $menuItemIDEncrypted = $securityModel->encryptData($menuItemID);
+                if($assignable){
+                    $assignable = '<span class="badge bg-success">True</span>';
+                }
+                else{
+                    $assignable = '<span class="badge bg-danger">False</span>';
+                }
 
-                $menuGroupDetails = $menuGroupModel->getMenuGroup($menuGroupID);
-                $menuGroupName = $menuGroupDetails['menu_group_name'] ?? null;
+                $roleIDEncrypted = $securityModel->encryptData($roleID);
 
-                $menuItemDetails = $menuItemModel->getMenuItem($parentID);
-                $parentMenuItemName = $menuItemDetails['menu_item_name'] ?? '';
-
-                if($menuItemDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
+                if($roleDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-role" data-role-id="'. $roleID .'" title="Delete Role">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
@@ -126,48 +126,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = array(
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $menuItemID .'">',
-                    'MENU_ITEM_ID' => $menuItemID,
-                    'MENU_ITEM_NAME' => $menuItemName,
-                    'MENU_GROUP_ID' => $menuGroupName,
-                    'PARENT_ID' => $parentMenuItemName,
-                    'ORDER_SEQUENCE' => $orderSequence,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $roleID .'">',
+                    'ROLE_ID' => $roleID,
+                    'ROLE_NAME' => $roleName . '<p class="text-muted mb-0>'. $roleDescription .'</p>',
+                    'ASSIGNABLE' => $assignable,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="menu-item.php?id='. $menuItemIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="role.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'
                                 </div>'
-                );
-            }
-
-            echo json_encode($response);
-        break;
-        # Sub menu item table
-        case 'sub menu item table':
-            $menuItemID = $_POST['menu_item_id'];
-
-            $sql = $databaseModel->getConnection()->prepare('CALL generateSubMenuItemTable(:menuItemID)');
-            $sql->bindParam(':menuItemID', $menuItemID);
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            foreach ($options as $row) {
-                $menuGroupID = $row['menu_group_id'];
-                $menuItemName = $row['menu_item_name'];
-                $orderSequence = $row['order_sequence'];
-
-                $menuItemIDEncrypted = $securityModel->encryptData($menuItemID);
-                $menuGroupIDEncrypted = $securityModel->encryptData($menuGroupID);
-
-                $menuGroupDetails = $menuGroupModel->getMenuGroup($menuGroupID);
-                $menuGroupName = $menuGroupDetails['menu_group_name'] ?? null;
-
-                $response[] = array(
-                    'MENU_ITEM_NAME' => '<a href="menu-item.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
-                    'MENU_GROUP_ID' => '<a href="menu-group.php?id='. $menuGroupIDEncrypted .'">'. $menuGroupName . '</a>',
-                    'ORDER_SEQUENCE' => $orderSequence
                 );
             }
 

@@ -8,7 +8,7 @@
                       <h5>Menu Item</h5>
                     </div>
                     <?php
-                        if (empty($menu_item_id) && $menuItemCreateAccess > 0) {
+                        if (empty($menuItemID) && $menuItemCreateAccess > 0) {
                           echo ' <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                                     <button type="submit" form="menu-item-form" class="btn btn-success form-edit" id="submit-data">Save</button>
                                     <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>
@@ -52,7 +52,6 @@
                         <div class="col-lg-4">
                             <select class="form-control select2" name="parent_id" id="parent_id">
                                 <option value="">--</option>
-                                '. $this->generate_menu_item_options() .'
                                 <?php echo $menuItemModel->generateMenuItemOptions(); ?>
                             </select>
                         </div>

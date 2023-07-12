@@ -138,5 +138,51 @@ class RoleModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Insert methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertRoleSystemActionAccessRights
+    # Description: Inserts the system action role access righte.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The system action ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertRoleSystemActionAccessRights($p_system_action_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertRoleSystemActionAccessRights(:p_system_action_id, :p_role_id)');
+        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Delete methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteAllRoleSystemActionAccessRights
+    # Description: Deletes the roles based on system action ID.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The system action ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteAllRoleSystemActionAccessRights($p_system_action_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteAllRoleSystemActionAccessRights(:p_system_action_id)');
+        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 }
 ?>

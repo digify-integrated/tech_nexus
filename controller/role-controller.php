@@ -97,8 +97,8 @@ class RoleController {
     }
 
     /**
-    * Saves the role access.
-    * Updates the existing role access of the role.
+    * Saves the role system action access.
+    * Updates the system action access of the role.
     *
     * @return void
     */
@@ -118,15 +118,10 @@ class RoleController {
             exit;
         }
 
-        foreach ($roles as $role) {
-            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
-            $total = $checkRoleMenuAccessExist['total'] ?? 0;
-        
-            if ($total == 0) {
-                $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
-            }
+        $this->roleModel->deleteAllRoleSystemActionAccessRights($systemActionID);
 
-            $this->roleModel->updateRoleMenuAccess($menuItemID, $roleID, $accessType, $access, $userID);
+        foreach ($roles as $role) {
+            $this->roleModel->insertRoleSystemActionAccessRights($systemActionID, $role);
         }
 
         echo json_encode(['success' => true]);

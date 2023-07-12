@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 09, 2023 at 12:20 PM
+-- Generation Time: Jul 12, 2023 at 11:28 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -118,6 +118,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllRoleSystemActionAccessRights` (IN `p_system_action_id` INT)   BEGIN
+	DELETE FROM system_action_access_rights
+    WHERE system_action_id = p_system_action_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItem` (IN `p_menu_group_id` INT)   BEGIN
     DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
 END$$
@@ -225,6 +230,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemTable` ()   BEGIN
     ORDER BY menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleTable` ()   BEGIN
+	SELECT role_id, role_name, role_description, assignable
+    FROM role 
+    ORDER BY role_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSubMenuItemTable` (IN `p_parent_id` INT)   BEGIN
 	SELECT menu_item_name, menu_group_id, order_sequence 
     FROM menu_item
@@ -311,6 +322,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_last_log_by` INT)   BEGIN
     INSERT INTO menu_access_right (menu_item_id, role_id, last_log_by) 
 	VALUES(p_menu_item_id, p_role_id, p_last_log_by);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRoleSystemActionAccessRights` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
+    INSERT INTO system_action_access_rights (system_action_id, role_id) 
+	VALUES(p_system_action_id, p_role_id);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSystemAction` (IN `p_system_action_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_system_action_id` INT)   BEGIN
@@ -680,7 +696,17 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (158, 'menu_access_right', 5, 'Role ID: 2<br/>', '1', '2023-07-07 18:25:27'),
 (159, 'system_action', 2, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-08 10:00:19'),
 (160, 'system_action', 3, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-09 10:57:07'),
-(161, 'system_action', 4, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-09 11:13:38');
+(161, 'system_action', 4, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-09 11:13:38'),
+(162, 'users', 1, 'Last Connection Date: 2023-07-07 17:07:15 -> 2023-07-10 15:07:07<br/>', '1', '2023-07-10 15:07:07'),
+(163, 'system_action', 5, 'System action created. <br/><br/>System Action Name: test', '1', '2023-07-10 15:07:16'),
+(164, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 1<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 2', '1', '2023-07-10 15:29:44'),
+(165, 'system_action', 6, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-10 15:32:27'),
+(166, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-07-10 15:47:28'),
+(167, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-07-10 15:47:29'),
+(168, 'users', 1, 'Last Connection Date: 2023-07-10 15:07:07 -> 2023-07-12 09:48:29<br/>', '1', '2023-07-12 09:48:29'),
+(169, 'users', 1, 'Remember Token: 8dbc4dc2764fce151cd28f97a48a7aff -> 458284e66026ca9f6d8b96a5d4d58207<br/>', '1', '2023-07-12 09:48:29'),
+(170, 'menu_item', 6, 'Menu Item Name: Role -> Role Configuration<br/>', '1', '2023-07-12 16:59:34'),
+(171, 'menu_item', 6, 'URL: role.php -> role-configuration.php<br/>', '1', '2023-07-12 16:59:42');
 
 -- --------------------------------------------------------
 
@@ -873,7 +899,8 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 1),
 (3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 1),
 (4, 'Administration', 1, '', 0, 'shield', 1, 1),
-(5, 'System Action', 1, 'system-action.php', 4, '', 10, 1);
+(5, 'System Action', 1, 'system-action.php', 4, '', 10, 1),
+(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 2, 1);
 
 --
 -- Triggers `menu_item`
@@ -1075,7 +1102,8 @@ CREATE TABLE `system_action` (
 
 INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log_by`) VALUES
 (1, 'Assign Menu Item Role Access', 1),
-(2, 'Assign System Action Role Access', 1);
+(2, 'Assign System Action Role Access', 1),
+(6, 'Assign System Action Role Access', 1);
 
 --
 -- Triggers `system_action`
@@ -1126,7 +1154,8 @@ CREATE TABLE `system_action_access_rights` (
 
 INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`) VALUES
 (1, 1),
-(2, 1);
+(2, 1),
+(5, 1);
 
 -- --------------------------------------------------------
 
@@ -1262,7 +1291,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-07 17:07:15', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '8dbc4dc2764fce151cd28f97a48a7aff', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-12 09:48:29', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '458284e66026ca9f6d8b96a5d4d58207', 1);
 
 --
 -- Triggers `users`
@@ -1544,7 +1573,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=162;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=172;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1556,7 +1585,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `password_history`
@@ -1574,7 +1603,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -1604,13 +1633,6 @@ ALTER TABLE `menu_item`
 ALTER TABLE `password_history`
   ADD CONSTRAINT `password_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `password_history_ibfk_2` FOREIGN KEY (`email`) REFERENCES `users` (`email`);
-
---
--- Constraints for table `system_action_access_rights`
---
-ALTER TABLE `system_action_access_rights`
-  ADD CONSTRAINT `system_action_access_rights_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`),
-  ADD CONSTRAINT `system_action_access_rights_ibfk_2` FOREIGN KEY (`system_action_id`) REFERENCES `system_action` (`system_action_id`);
 
 --
 -- Constraints for table `ui_customization_setting`

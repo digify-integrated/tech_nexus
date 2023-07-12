@@ -579,6 +579,13 @@ BEGIN
     VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE generateRoleTable()
+BEGIN
+	SELECT role_id, role_name, role_description, assignable
+    FROM role 
+    ORDER BY role_id;
+END //
+
 /* Role users table */
 CREATE TABLE role_users(
 	role_id INT NOT NULL,
@@ -1203,12 +1210,6 @@ CREATE TABLE system_action_access_rights(
 	role_id INT UNSIGNED NOT NULL
 );
 
-ALTER TABLE system_action_access_rights
-ADD FOREIGN KEY (role_id) REFERENCES role(role_id);
-
-ALTER TABLE system_action_access_rights
-ADD FOREIGN KEY (system_action_id) REFERENCES system_action(system_action_id);
-
 INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('2', '1');
 
@@ -1217,4 +1218,16 @@ BEGIN
     SELECT role_id 
     FROM system_action_access_rights 
     WHERE system_action_id = p_system_action_id AND role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_id);
+END //
+
+CREATE PROCEDURE insertRoleSystemActionAccessRights(IN p_system_action_id INT, IN p_role_id INT)
+BEGIN
+    INSERT INTO system_action_access_rights (system_action_id, role_id) 
+	VALUES(p_system_action_id, p_role_id);
+END //
+
+CREATE PROCEDURE deleteAllRoleSystemActionAccessRights(IN p_system_action_id INT)
+BEGIN
+	DELETE FROM system_action_access_rights
+    WHERE system_action_id = p_system_action_id;
 END //
