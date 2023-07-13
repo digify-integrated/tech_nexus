@@ -2,11 +2,11 @@
     'use strict';
 
     $(function() {
-        if($('#role-table').length){
-            initializeRoleTable('#role-table');
+        if($('#role-configuration-table').length){
+            initializeRoleTable('#role-configuration-table');
         }
 
-        if($('#role-form').length){
+        if($('#role-configuration-form').length){
             initializeRoleForm();
         }
 
@@ -42,7 +42,7 @@
                         success: function (response) {
                             if (response.success) {
                                 showNotification('Delete Role Success', 'The role has been deleted successfully.', 'success');
-                                reloadDatatable('#role-table');
+                                reloadDatatable('#role-configuration-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -51,7 +51,7 @@
                                 }
                                 else if (response.notExist) {
                                     showNotification('Delete Role Error', 'The role does not exist.', 'danger');
-                                    reloadDatatable('#role-table');
+                                    reloadDatatable('#role-configuration-table');
                                 }
                                 else {
                                     showNotification('Delete Role Error', response.message, 'danger');
@@ -103,7 +103,7 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Role Success', 'The selected roles have been deleted successfully.', 'success');
-                                        reloadDatatable('#role-table');
+                                        reloadDatatable('#role-configuration-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -161,7 +161,7 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Deleted Role Success', 'The role has been deleted successfully.', 'success');
-                                window.location = 'role.php';
+                                window.location = 'role-configuration.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -191,8 +191,9 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('role.php');
+            discardCreate('role-configuration.php');
         });
+
         $(document).on('click','#edit-form',function() {
             displayDetails('get role details');
 
@@ -224,7 +225,7 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Duplicate Role Success', 'The role has been duplicated successfully.', 'success');
-                                window.location = 'role.php?id=' + response.menuItemID;
+                                window.location = 'role-configuration.php?id=' + response.menuItemID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -233,7 +234,7 @@
                                 }
                                 else if (response.notExist) {
                                     showNotification('Duplicate Role Error', 'The role does not exist.', 'danger');
-                                    reloadDatatable('#role-table');
+                                    reloadDatatable('#role-configuration-table');
                                 }
                                 else {
                                     showNotification('Duplicate Role Error', response.message, 'danger');
@@ -255,18 +256,18 @@
         });
 
         $(document).on('click','#create-role',function() {
-            resetModalForm("role-form");
+            resetModalForm("role-configuration-form");
 
             $('#role-modal').modal('show');
         });
 
-        $(document).on('click','#assign-role-role-access',function() {
+        $(document).on('click','#assign-menu-item-access',function() {
             const role_id = $(this).data('role-id');
 
             sessionStorage.setItem('role_id', role_id);
 
             $('#assign-menu-item-access-modal').modal('show');
-            initializeRoleAccessTable('#assign-menu-item-access-table');
+            initializeMenuItemAccessTable('#assign-menu-item-access-table');
         });
 
         $(document).on('click','.update-role',function() {
@@ -282,7 +283,7 @@
 })(jQuery);
 
 function initializeRoleTable(datatable_name, buttons = false, show_all = false){
-    const type = 'role table';
+    const type = 'role configuration table';
     var settings;
 
     const column = [ 
@@ -305,7 +306,7 @@ function initializeRoleTable(datatable_name, buttons = false, show_all = false){
 
     settings = {
         'ajax': { 
-            'url' : 'view/_role_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type},
@@ -341,13 +342,13 @@ function initializeRoleTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
+function initializeMenuItemAccessTable(datatable_name, buttons = false, show_all = false){
     const role_id = sessionStorage.getItem('role_id');
-    const type = 'assign role role access table';
+    const type = 'assign menu item access table';
     var settings;
 
     const column = [ 
-        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'MENU_ITEM_NAME' },
         { 'data' : 'READ_ACCESS' },
         { 'data' : 'WRITE_ACCESS' },
         { 'data' : 'CREATE_ACCESS' },
@@ -368,7 +369,7 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
 
     settings = {
         'ajax': { 
-            'url' : 'view/_role_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'JSON',
             'data': {'type' : type, 'role_id' : role_id},
@@ -405,7 +406,7 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
 }
 
 function initializeRoleForm(){
-    $('#role-form').validate({
+    $('#role-configuration-form').validate({
         rules: {
             role_name: {
                 required: true
@@ -467,7 +468,7 @@ function initializeRoleForm(){
                         const notificationDescription = response.insertRecord ? 'The role has been inserted successfully.' : 'The role has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'role.php?id=' + response.menuItemID;
+                        window.location = 'role-configuration.php?id=' + response.roleID;
                     }
                     else {
                         if (response.isInactive) {
@@ -490,8 +491,8 @@ function initializeRoleForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
                     $('#role-modal').modal('hide');
-                    reloadDatatable('#role-table');
-                    resetModalForm('role-form');
+                    reloadDatatable('#role-configuration-table');
+                    resetModalForm('role-configuration-form');
                 }
             });
         
@@ -568,27 +569,17 @@ function displayDetails(transaction){
                 method: 'POST',
                 dataType: 'JSON',
                 data: {role_id : role_id, transaction : transaction},
-                beforeSend: function() {
-                    resetModalForm('role-form');
-                },
                 success: function(response) {
                     if (response.success) {
                         $('#role_id').val(role_id);
-                        $('#role_name').val(response.menuItemName);
-                        $('#role_url').val(response.menuItemURL);
-                        $('#role_icon').val(response.menuItemIcon);
-                        $('#role_order_sequence').val(response.orderSequence);
+                        $('#role_name').val(response.roleName);
+                        $('#role_description').val(response.roleDescription);
 
-                        $('#role_name_label').text(response.menuItemName);
-                        $('#order_sequence_label').text(response.orderSequence);
-                        $('#role_icon_label').text(response.menuItemIcon);
+                        $('#role_name_label').text(response.roleName);
+                        $('#role_description_label').text(response.roleDescription);
+                        $('#assignable_label').text(response.assignableLabel);
                         
-                        document.getElementById('menu_group_id_label').innerHTML = response.menuGroupName;
-                        document.getElementById('role_url_label').innerHTML = response.menuItemURLLink;
-                        document.getElementById('parent_id_label').innerHTML = response.parentName;
-                        
-                        checkOptionExist('#menu_group_id', response.menuGroupID, '');
-                        checkOptionExist('#parent_id', response.parentID, '');
+                        checkOptionExist('#assignable', response.assignable, '');
                     } 
                     else {
                         if(response.isInactive){

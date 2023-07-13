@@ -21,7 +21,7 @@
                         }
 
                         if($roleCreateAccess > 0){
-                            $action .= '<a href="role.php?new" class="btn btn-success">Create</a>';
+                            $action .= '<a href="role-configuration.php?new" class="btn btn-success">Create</a>';
                         }
 
                         $action .= '</div>';
@@ -34,7 +34,7 @@
               </div>
               <div class="card-body">
                 <div class="table-responsive dt-responsive">
-                  <table id="role-table" class="table table-striped table-hover table-bordered nowrap w-100">
+                  <table id="role-configuration-table" class="table table-striped table-hover table-bordered nowrap w-100">
                     <thead>
                       <tr>
                         <th class="all">

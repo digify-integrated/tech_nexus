@@ -639,9 +639,6 @@ function displayDetails(transaction){
                 method: 'POST',
                 dataType: 'JSON',
                 data: {menu_item_id : menu_item_id, transaction : transaction},
-                beforeSend: function() {
-                    resetModalForm('menu-item-form');
-                },
                 success: function(response) {
                     if (response.success) {
                         $('#menu_item_id').val(menu_item_id);

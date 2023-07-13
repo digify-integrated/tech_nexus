@@ -17,7 +17,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Role';
+    $page_title = 'Role Configuration';
     
     $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'read');
     $roleCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'create');
@@ -39,7 +39,7 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: role.php');
+            header('location: role-configuration.php');
             exit;
         }
 
@@ -88,7 +88,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="role.php">Role</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="role-configuration.php">Role Configuration</a></li>
                   <?php
                     if(!empty($roleID)){
                       echo '<li class="breadcrumb-item" id="role-id">'. $roleID .'</li>';
@@ -102,7 +102,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Role</h2>
+                  <h2 class="mb-0">Role Configuration</h2>
                 </div>
               </div>
             </div>
@@ -110,13 +110,13 @@
         </div>
         <?php
           if($newRecord){
-            require_once('view/_role_new.php');
+            require_once('view/_role_configuration_new.php');
           }
           else if(empty($roleID)){
-            require_once('view/_role.php');
+            require_once('view/_role_configuration.php');
           }
           else{
-            require_once('view/_role_details.php');
+            require_once('view/_role_configuration_details.php');
           }
         ?>
       </div>
@@ -134,7 +134,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/role.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/role-configuration.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

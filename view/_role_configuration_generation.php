@@ -22,19 +22,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = array();
     
     switch ($type) {
-        # Menu group menu item table
+        # Assign menu item table
         case 'assign menu item access table':
-            if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
-                $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
+                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable()');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemAccessTable()');
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
 
                 foreach ($options as $row) {
-                    $roleID = $row['role_id'];
-                    $role_name = $row['role_name'];
+                    $menuItemID = $row['menu_item_id'];
+                    $menuItemName = $row['menu_item_name'];
     
                     $roleMenuAccessDetails = $roleModel->getRoleMenuAccess($menuItemID, $roleID);
 
@@ -80,21 +80,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = array(
-                        'ROLE_NAME' => $role_name,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .'></div>',
-                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .'></div>',
-                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .'></div>',
-                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .'></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .'></div>'
+                        'MENU_ITEM_NAME' => $menuItemName,
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-read" '. $readChecked .'></div>',
+                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-write" '. $writeChecked .'></div>',
+                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-create" '. $createChecked .'></div>',
+                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-delete" '. $deleteChecked .'></div>',
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-duplicate" '. $duplicateChecked .'></div>'
                     );
                 }
     
                 echo json_encode($response);
             }
         break;
-        # Role table
-        case 'role table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateRoleTable()');
+        # Role configuration table
+        case 'role configuration table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateRoleConfigurationTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -108,10 +108,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $assignable = $row['assignable'];
 
                 if($assignable){
-                    $assignable = '<span class="badge bg-success">True</span>';
+                    $assignable = '<span class="badge bg-success">Yes</span>';
                 }
                 else{
-                    $assignable = '<span class="badge bg-danger">False</span>';
+                    $assignable = '<span class="badge bg-danger">No</span>';
                 }
 
                 $roleIDEncrypted = $securityModel->encryptData($roleID);
@@ -131,7 +131,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'ROLE_NAME' => $roleName . '<p class="text-muted mb-0>'. $roleDescription .'</p>',
                     'ASSIGNABLE' => $assignable,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="role.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="role-configuration.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

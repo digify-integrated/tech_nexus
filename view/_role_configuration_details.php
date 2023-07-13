@@ -5,7 +5,7 @@
                 <div class="card-header">
                   <div class="row align-items-center">
                     <div class="col-md-6">
-                      <h5>Role</h5>
+                      <h5>Role Configuration</h5>
                     </div>
                     <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                     <?php                            
@@ -17,7 +17,7 @@
                                   <ul class="dropdown-menu dropdown-menu-end">';
                           
                             if ($roleCreateAccess['total'] > 0) {
-                                $dropdown .= '<li><a class="dropdown-item" href="role.php?new">Create Role</a></li>';
+                                $dropdown .= '<li><a class="dropdown-item" href="role-configuration.php?new">Create Role</a></li>';
                             }
                             
                             if ($roleDuplicateAccess['total'] > 0) {
@@ -27,15 +27,17 @@
                             if ($roleDeleteAccess['total'] > 0) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="delete-role-details">Delete Role</button></li>';
                             }
-                            
-                            if ($assignMenuItemRoleAccess > 0) {
-                                $dropdown .= '<li><div class="dropdown-divider"></div></li>
-                                            <li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-menu-item-access">Menu Item Access</button></li>';
-                            }
-                            
-                            if ($assignSystemActionRoleAccess > 0) {
-                                $dropdown .= '<li><div class="dropdown-divider"></div></li>
-                                            <li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-system-action-access">System Action Access</button></li>';
+
+                            if($assignMenuItemRoleAccess > 0 || $assignSystemActionRoleAccess > 0){
+                              $dropdown .= '<li><div class="dropdown-divider"></div></li>';
+
+                              if ($assignMenuItemRoleAccess > 0) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-menu-item-access">Menu Item Access</button></li>';
+                              }
+                              
+                              if ($assignSystemActionRoleAccess > 0) {
+                                  $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-system-action-access">System Action Access</button></li>';
+                              }
                             }
                           
                             $dropdown .= '</ul>
@@ -46,7 +48,7 @@
 
                       if (!empty($roleID) && $roleWriteAccess['total'] > 0) {
                         echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
-                              <button type="submit" form="role-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
+                              <button type="submit" form="role-configuration-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
                       }          
                     ?>
@@ -55,7 +57,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <form id="role-form" method="post" action="#">
+                <form id="role-configuration-form" method="post" action="#">
                       <?php
                         if(!empty($roleID) && $roleWriteAccess['total'] > 0){
                            echo '<div class="form-group row">

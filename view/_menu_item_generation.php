@@ -34,7 +34,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $roleID = $row['role_id'];
-                    $role_name = $row['role_name'];
+                    $roleName = $row['role_name'];
     
                     $roleMenuAccessDetails = $roleModel->getRoleMenuAccess($menuItemID, $roleID);
 
@@ -80,7 +80,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = array(
-                        'ROLE_NAME' => $role_name,
+                        'ROLE_NAME' => $roleName,
                         'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .'></div>',
                         'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .'></div>',
                         'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .'></div>',

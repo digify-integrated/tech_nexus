@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 12, 2023 at 11:28 AM
+-- Generation Time: Jul 13, 2023 at 11:38 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -88,6 +88,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemExist` (IN `p_menu_ite
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleExist` (IN `p_role_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM role
+    WHERE role_id = p_role_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleMenuAccessExist` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM menu_access_right
@@ -137,6 +143,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItem` (IN `p_menu_item_id
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRole` (IN `p_role_id` INT)   BEGIN
+	DELETE FROM role
+    WHERE role_id = p_role_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemAction` (IN `p_system_action_id` INT)   BEGIN
 	DELETE FROM system_action
     WHERE system_action_id = p_system_action_id;
@@ -174,6 +185,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuItem` (IN `p_menu_item
     VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
     
     SET p_new_menu_item_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateRole` (IN `p_role_id` INT, IN `p_last_log_by` INT, OUT `p_new_role_id` INT)   BEGIN
+    DECLARE p_role_name VARCHAR(100);
+    DECLARE p_role_description VARCHAR(200);
+    DECLARE p_assignable TINYINT(1);
+    
+    SELECT role_name, role_description, assignable
+    INTO p_role_name, p_role_description, p_assignable
+    FROM role 
+    WHERE role_id = p_role_id;
+    
+    INSERT INTO role (role_name, role_description, assignable, last_log_by) 
+    VALUES(p_role_name, p_role_description, p_assignable, p_last_log_by);
+    
+    SET p_new_role_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_system_action_id` INT, IN `p_last_log_by` INT, OUT `p_new_system_action_id` INT)   BEGIN
@@ -214,6 +241,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuGroupTable` ()   BEGIN
     ORDER BY menu_group_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemAccessTable` ()   BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    ORDER BY menu_item_name;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemOptions` ()   BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
 	ORDER BY menu_item_name;
@@ -230,7 +262,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemTable` ()   BEGIN
     ORDER BY menu_item_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleTable` ()   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleConfigurationTable` ()   BEGIN
 	SELECT role_id, role_name, role_description, assignable
     FROM role 
     ORDER BY role_id;
@@ -267,6 +299,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
 	SELECT * FROM password_history
 	WHERE p_user_id = p_user_id OR email = BINARY p_email;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getRole` (IN `p_role_id` INT)   BEGIN
+	SELECT * FROM role
+    WHERE role_id = p_role_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
@@ -317,6 +354,13 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_last_password_change` DATETIME)   BEGIN
     INSERT INTO password_history (user_id, email, password, password_change_date) 
     VALUES (p_user_id, p_email, p_password, p_last_password_change);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRole` (IN `p_role_name` VARCHAR(100), IN `p_role_description` VARCHAR(200), IN `p_assignable` TINYINT(1), IN `p_last_log_by` INT, OUT `p_role_id` INT)   BEGIN
+    INSERT INTO role (role_name, role_description, assignable, last_log_by) 
+	VALUES(p_role_name, p_role_description, p_assignable, p_last_log_by);
+	
+    SET p_role_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_last_log_by` INT)   BEGIN
@@ -430,6 +474,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateResetToken` (IN `p_user_id` I
 	UPDATE users 
     SET reset_token = p_reset_token, reset_token_expiry_date = p_reset_token_expiry_date
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRole` (IN `p_role_id` INT, IN `p_role_name` VARCHAR(100), IN `p_role_description` VARCHAR(200), IN `p_assignable` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
+	UPDATE role
+    SET role_name = p_role_name,
+    role_name = p_role_name,
+    role_description = p_role_description,
+    assignable = p_assignable,
+    last_log_by = p_last_log_by
+    WHERE role_id = p_role_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_access_type` VARCHAR(10), IN `p_access` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
@@ -706,7 +760,12 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (168, 'users', 1, 'Last Connection Date: 2023-07-10 15:07:07 -> 2023-07-12 09:48:29<br/>', '1', '2023-07-12 09:48:29'),
 (169, 'users', 1, 'Remember Token: 8dbc4dc2764fce151cd28f97a48a7aff -> 458284e66026ca9f6d8b96a5d4d58207<br/>', '1', '2023-07-12 09:48:29'),
 (170, 'menu_item', 6, 'Menu Item Name: Role -> Role Configuration<br/>', '1', '2023-07-12 16:59:34'),
-(171, 'menu_item', 6, 'URL: role.php -> role-configuration.php<br/>', '1', '2023-07-12 16:59:42');
+(171, 'menu_item', 6, 'URL: role.php -> role-configuration.php<br/>', '1', '2023-07-12 16:59:42'),
+(172, 'role', 3, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:40:35'),
+(173, 'role', 4, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:41:05'),
+(174, 'role', 4, 'Role Name: test -> test2<br/>Role Description: test -> test2<br/>Assignable: 1 -> 0<br/>', '1', '2023-07-13 16:42:00'),
+(175, 'role', 5, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:42'),
+(176, 'role', 6, 'Role created. <br/><br/>Role Name: teste<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:58');
 
 -- --------------------------------------------------------
 
@@ -1015,7 +1074,8 @@ CREATE TABLE `role` (
 
 INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
 (1, 'Administrator', 'Administrator', 1, 1),
-(2, 'Employee', 'Employee', 1, 1);
+(2, 'Employee', 'Employee', 1, 1),
+(6, 'teste', 'test', 1, 1);
 
 --
 -- Triggers `role`
@@ -1573,7 +1633,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=172;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1597,7 +1657,7 @@ ALTER TABLE `password_history`
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `system_action`

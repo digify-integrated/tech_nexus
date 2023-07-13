@@ -579,11 +579,72 @@ BEGIN
     VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
 END //
 
-CREATE PROCEDURE generateRoleTable()
+CREATE PROCEDURE checkRoleExist(IN p_role_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM role
+    WHERE role_id = p_role_id;
+END //
+
+CREATE PROCEDURE insertRole(IN p_role_name VARCHAR(100), IN p_role_description VARCHAR(200), IN p_assignable TINYINT(1), IN p_last_log_by INT, OUT p_role_id INT)
+BEGIN
+    INSERT INTO role (role_name, role_description, assignable, last_log_by) 
+	VALUES(p_role_name, p_role_description, p_assignable, p_last_log_by);
+	
+    SET p_role_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateRole(IN p_role_id INT, IN p_role_name VARCHAR(100), IN p_role_description VARCHAR(200), IN p_assignable TINYINT(1), IN p_last_log_by INT)
+BEGIN
+	UPDATE role
+    SET role_name = p_role_name,
+    role_name = p_role_name,
+    role_description = p_role_description,
+    assignable = p_assignable,
+    last_log_by = p_last_log_by
+    WHERE role_id = p_role_id;
+END //
+
+CREATE PROCEDURE deleteRole(IN p_role_id INT)
+BEGIN
+	DELETE FROM role
+    WHERE role_id = p_role_id;
+END //
+
+CREATE PROCEDURE getRole(IN p_role_id INT)
+BEGIN
+	SELECT * FROM role
+    WHERE role_id = p_role_id;
+END //
+
+CREATE PROCEDURE duplicateRole(IN p_role_id INT, IN p_last_log_by INT, OUT p_new_role_id INT)
+BEGIN
+    DECLARE p_role_name VARCHAR(100);
+    DECLARE p_role_description VARCHAR(200);
+    DECLARE p_assignable TINYINT(1);
+    
+    SELECT role_name, role_description, assignable
+    INTO p_role_name, p_role_description, p_assignable
+    FROM role 
+    WHERE role_id = p_role_id;
+    
+    INSERT INTO role (role_name, role_description, assignable, last_log_by) 
+    VALUES(p_role_name, p_role_description, p_assignable, p_last_log_by);
+    
+    SET p_new_role_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateRoleConfigurationTable()
 BEGIN
 	SELECT role_id, role_name, role_description, assignable
     FROM role 
     ORDER BY role_id;
+END //
+
+CREATE PROCEDURE generateMenuItemAccessTable()
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    ORDER BY menu_item_name;
 END //
 
 /* Role users table */
