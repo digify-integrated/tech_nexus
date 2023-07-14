@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 13, 2023 at 11:38 AM
+-- Generation Time: Jul 14, 2023 at 11:27 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -217,6 +217,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_syste
     SET p_new_system_action_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddMenuItemRoleTable` (IN `p_menu_item_id` INT)   BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id NOT IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
 	SELECT log, changed_by, changed_at FROM audit_log
     WHERE table_name = p_table_name AND reference_id = p_reference_id 
@@ -251,8 +257,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemOptions` ()   BEGIN
 	ORDER BY menu_item_name;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemRoleTable` ()   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemRoleTable` (IN `p_menu_item_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
 END$$
 
@@ -765,7 +772,9 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (173, 'role', 4, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:41:05'),
 (174, 'role', 4, 'Role Name: test -> test2<br/>Role Description: test -> test2<br/>Assignable: 1 -> 0<br/>', '1', '2023-07-13 16:42:00'),
 (175, 'role', 5, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:42'),
-(176, 'role', 6, 'Role created. <br/><br/>Role Name: teste<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:58');
+(176, 'role', 6, 'Role created. <br/><br/>Role Name: teste<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:58'),
+(177, 'role', 6, 'Role Name: teste -> Test ROle<br/>', '1', '2023-07-14 16:16:59'),
+(178, 'system_action', 7, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-14 17:05:12');
 
 -- --------------------------------------------------------
 
@@ -1075,7 +1084,7 @@ CREATE TABLE `role` (
 INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
 (1, 'Administrator', 'Administrator', 1, 1),
 (2, 'Employee', 'Employee', 1, 1),
-(6, 'teste', 'test', 1, 1);
+(6, 'Test Role', 'test', 1, 1);
 
 --
 -- Triggers `role`
@@ -1633,7 +1642,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1663,7 +1672,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

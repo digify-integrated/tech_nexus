@@ -17,8 +17,8 @@
         if($('#menu-item-id').length){
             displayDetails('get menu item details');
 
-            if($('#assign-menu-item-role-access-modal').length){
-                initializeMenuItemRoleAccessForm();
+            if($('#update-role-access-table').length){
+                initializeUpdateRoleAccessTable('#update-role-access-table');
             }
         }
 
@@ -197,6 +197,7 @@
         $(document).on('click','#discard-create',function() {
             discardCreate('menu-item.php');
         });
+        
         $(document).on('click','#edit-form',function() {
             displayDetails('get menu item details');
 
@@ -264,13 +265,13 @@
             $('#menu-item-modal').modal('show');
         });
 
-        $(document).on('click','#assign-menu-item-role-access',function() {
+        $(document).on('click','#add-role-access',function() {
             const menu_item_id = $(this).data('menu-item-id');
 
             sessionStorage.setItem('menu_item_id', menu_item_id);
 
-            $('#assign-menu-item-role-access-modal').modal('show');
-            initializeRoleAccessTable('#assign-menu-item-role-access-table');
+            $('#add-role-access-modal').modal('show');
+            initializeAddRoleAccessTable('#add-role-access-table');
         });
 
         $(document).on('click','.update-menu-item',function() {
@@ -406,9 +407,9 @@ function initializeSubMenuItemTable(datatable_name, buttons = false, show_all = 
     $(datatable_name).dataTable(settings);
 }
 
-function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
+function initializeUpdateRoleAccessTable(datatable_name, buttons = false, show_all = false){
     const menu_item_id = sessionStorage.getItem('menu_item_id');
-    const type = 'assign menu item role access table';
+    const type = 'update role access table';
     var settings;
 
     const column = [ 
@@ -421,12 +422,67 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
     ];
 
     const column_definition = [
-        { 'width': '40%', 'aTargets': 0 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 1 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 2 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 3 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 4 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 5 }
+        { 'width': '50%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 3 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 4 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_menu_item_generation.php',
+            'method' : 'POST',
+            'dataType': 'JSON',
+            'data': {'type' : type, 'menu_item_id' : menu_item_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+      
+                var response = xhr.responseText;
+                fullErrorMessage += ', Response: ' + response;
+              
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function initializeAddRoleAccessTable(datatable_name, buttons = false, show_all = false){
+    const menu_item_id = sessionStorage.getItem('menu_item_id');
+    const type = 'add role access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
@@ -571,8 +627,8 @@ function initializeMenuItemForm(){
     });
 }
 
-function initializeMenuItemRoleAccessForm(){
-    $('#assign-menu-item-role-access-form').validate({
+function initializeAddRoleAccessForm(){
+    $('#add-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'save role access';
 
@@ -595,17 +651,18 @@ function initializeMenuItemRoleAccessForm(){
                 data: $(form).serialize() + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
                 dataType: 'JSON',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-access-form');
+                    disableFormSubmitButton('add-menu-access-form');
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Update Menu Item Role Access Success', 'The menu item role access has been updated successfully.', 'success')
+                        showNotification('Add Role Access Success', 'The menu item role access has been added successfully.', 'success')
                     }
                     else {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -619,8 +676,9 @@ function initializeMenuItemRoleAccessForm(){
                   showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-menu-access-form', 'Submit');
-                    $('#assign-menu-item-role-access-modal').modal('hide');
+                    enableFormSubmitButton('add-menu-access-form', 'Submit');
+                    $('#add-role-access-modal').modal('hide');
+                    reloadDatatable('#update-role-access-table');                    
                 }
             });
         

@@ -988,9 +988,17 @@ BEGIN
     ORDER BY mi.order_sequence;
 END //
 
-CREATE PROCEDURE generateMenuItemRoleTable()
+CREATE PROCEDURE generateMenuItemRoleTable(IN p_menu_item_id INT)
 BEGIN
 	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddMenuItemRoleTable(IN p_menu_item_id INT)
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id NOT IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
 END //
 

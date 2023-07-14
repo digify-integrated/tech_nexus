@@ -22,12 +22,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = array();
     
     switch ($type) {
-        # Menu group menu item table
-        case 'assign menu item role access table':
+        # Update access table
+        case 'update role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable()');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable(:menuItemID)');
+                $sql->bindParam(':menuItemID', $menuItemID);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -81,11 +82,35 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = array(
                         'ROLE_NAME' => $roleName,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .'></div>',
-                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .'></div>',
-                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .'></div>',
-                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .'></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .'></div>'
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .' disabled></div>',
+                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .' disabled></div>',
+                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .' disabled></div>',
+                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .' disabled></div>',
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>'
+                    );
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # Add role access table
+        case 'add role access table':
+            if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
+                $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddMenuItemRoleTable(:menuItemID)');
+                $sql->bindParam(':menuItemID', $menuItemID);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $response[] = array(
+                        'ROLE_NAME' => $roleName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>',
                     );
                 }
     
