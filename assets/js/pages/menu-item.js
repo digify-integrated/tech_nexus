@@ -20,6 +20,10 @@
             if($('#update-role-access-table').length){
                 initializeUpdateRoleAccessTable('#update-role-access-table');
             }
+
+            if($('#add-role-access-modal').length){
+                initializeAddRoleAccessForm();
+            }
         }
 
         $(document).on('click','.delete-menu-item',function() {
@@ -41,7 +45,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/menu-item-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -63,12 +67,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -102,7 +105,7 @@
                         $.ajax({
                             type: 'POST',
                             url: 'controller/menu-item-controller.php',
-                            dataType: 'JSON',
+                            dataType: 'json',
                             data: {menu_item_id : menu_item_id, transaction : transaction},
                             success: function (response) {
                                 if (response.success) {
@@ -120,12 +123,11 @@
                                 }
                             },
                             error: function(xhr, status, error) {
-                              var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                    
-                              var response = xhr.responseText;
-                              fullErrorMessage += ', Response: ' + response;
-                            
-                              showErrorDialog(fullErrorMessage);
+                                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                      
+                                fullErrorMessage += ', Response: ' + xhr.responseText;
+                              
+                                showErrorDialog(fullErrorMessage);
                             },
                             complete: function(){
                                 toggleHideActionDropdown();
@@ -160,7 +162,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/menu-item-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -181,12 +183,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -224,7 +225,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/menu-item-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {menu_item_id : menu_item_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -246,12 +247,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -316,14 +316,13 @@ function initializeMenuItemTable(datatable_name, buttons = false, show_all = fal
         'ajax': { 
             'url' : 'view/_menu_item_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -373,14 +372,13 @@ function initializeSubMenuItemTable(datatable_name, buttons = false, show_all = 
         'ajax': { 
             'url' : 'view/_menu_item_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -408,7 +406,7 @@ function initializeSubMenuItemTable(datatable_name, buttons = false, show_all = 
 }
 
 function initializeUpdateRoleAccessTable(datatable_name, buttons = false, show_all = false){
-    const menu_item_id = sessionStorage.getItem('menu_item_id');
+    const menu_item_id = $('#menu-item-id').text();
     const type = 'update role access table';
     var settings;
 
@@ -436,14 +434,13 @@ function initializeUpdateRoleAccessTable(datatable_name, buttons = false, show_a
         'ajax': { 
             'url' : 'view/_menu_item_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -491,14 +488,13 @@ function initializeAddRoleAccessTable(datatable_name, buttons = false, show_all 
         'ajax': { 
             'url' : 'view/_menu_item_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -584,7 +580,7 @@ function initializeMenuItemForm(){
                 type: 'POST',
                 url: 'controller/menu-item-controller.php',
                 data: $(form).serialize() + '&menu_item_id=' + menu_item_id + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
@@ -607,12 +603,11 @@ function initializeMenuItemForm(){
                     }
                 },
                 error: function(xhr, status, error) {
-                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-        
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
-                
-                  showErrorDialog(fullErrorMessage);
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+          
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                  
+                    showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
@@ -630,32 +625,32 @@ function initializeMenuItemForm(){
 function initializeAddRoleAccessForm(){
     $('#add-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'save role access';
-
+            const transaction = 'add role access';
             var menu_item_id = sessionStorage.getItem('menu_item_id');
-            
-            var permission = [];
-        
+            var role_id = [];
+
             $('.role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
+                if ($(this).is(':checked')){  
+                    role_id.push(this.value);  
                 }
             });
-        
+
             $.ajax({
                 type: 'POST',
                 url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&menu_item_id=' + menu_item_id + '&permission=' + permission + '&transaction=' + transaction,
-                dataType: 'JSON',
-                beforeSend: function() {
-                    disableFormSubmitButton('add-menu-access-form');
+                data: {
+                    form: $(form).serialize(),
+                    menu_item_id: menu_item_id,
+                    role_id: role_id.join(','),
+                    transaction: transaction
                 },
-                success: function (response) {
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('add-menu-access');
+                },
+                success: function(response) {
                     if (response.success) {
-                        showNotification('Add Role Access Success', 'The menu item role access has been added successfully.', 'success')
+                        showNotification('Add Role Access Success', 'The menu item role access has been added successfully.', 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -668,20 +663,16 @@ function initializeAddRoleAccessForm(){
                     }
                 },
                 error: function(xhr, status, error) {
-                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-        
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
-                
-                  showErrorDialog(fullErrorMessage);
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('add-menu-access-form', 'Submit');
+                    enableFormSubmitButton('add-menu-access', 'Submit');
                     $('#add-role-access-modal').modal('hide');
-                    reloadDatatable('#update-role-access-table');                    
+                    reloadDatatable('#update-role-access-table');
                 }
             });
-        
             return false;
         }
     });
@@ -695,7 +686,7 @@ function displayDetails(transaction){
             $.ajax({
                 url: 'controller/menu-item-controller.php',
                 method: 'POST',
-                dataType: 'JSON',
+                dataType: 'json',
                 data: {menu_item_id : menu_item_id, transaction : transaction},
                 success: function(response) {
                     if (response.success) {
@@ -728,8 +719,7 @@ function displayDetails(transaction){
                 error: function(xhr, status, error) {
                     var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
           
-                    var response = xhr.responseText;
-                    fullErrorMessage += ', Response: ' + response;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
                   
                     showErrorDialog(fullErrorMessage);
                 }

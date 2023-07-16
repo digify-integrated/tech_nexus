@@ -41,6 +41,9 @@ class RoleController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
+                case 'add role access':
+                    $this->addRoleAccess();
+                    break;
                 case 'save role':
                     $this->saveRole();
                     break;
@@ -88,7 +91,7 @@ class RoleController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -126,7 +129,7 @@ class RoleController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -134,7 +137,7 @@ class RoleController {
         $checkRoleExist = $this->roleModel->checkRoleExist($roleID);
         $total = $checkRoleExist['total'] ?? 0;
 
-        if($total == 0){
+        if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
@@ -161,7 +164,7 @@ class RoleController {
 
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -190,7 +193,7 @@ class RoleController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -198,7 +201,7 @@ class RoleController {
         $checkRoleExist = $this->roleModel->checkRoleExist($roleID);
         $total = $checkRoleExist['total'] ?? 0;
 
-        if($total == 0){
+        if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
@@ -226,7 +229,7 @@ class RoleController {
     
             $user = $this->userModel->getUserByID($userID);
     
-            if (!$user['is_active']) {
+            if (!$user || !$user['is_active']) {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }
@@ -257,6 +260,41 @@ class RoleController {
     }
 
     /**
+    * Adds the role access.
+    * Add the role access.
+    *
+    * @return void
+    */
+    public function addRoleAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+        $roleIDs = explode(',', $_POST['role_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($roleIDs as $roleID) {
+            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
+            $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
     * Saves the role access.
     * Updates the existing role access of the role.
     *
@@ -273,7 +311,7 @@ class RoleController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -287,7 +325,7 @@ class RoleController {
             $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
             $total = $checkRoleMenuAccessExist['total'] ?? 0;
         
-            if ($total == 0) {
+            if ($total === 0) {
                 $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
             }
 
@@ -315,7 +353,7 @@ class RoleController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }

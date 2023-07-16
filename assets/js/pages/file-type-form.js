@@ -91,7 +91,7 @@
                         type: 'POST',
                         url: 'controller.php',
                         data: {email_account : email_account, file_type_id : file_type_id, transaction : transaction},
-                        dataType: 'JSON',
+                        dataType: 'json',
                         success: function (response) {
                             switch (response[0]['RESPONSE']) {
                                 case 'Duplicated':
@@ -214,7 +214,7 @@ function initializeFileExtensionTable(datatable_name, buttons = false, show_all 
         'ajax': { 
             'url' : 'system-generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'email_account' : email_account, 'file_type_id' : file_type_id},
             'dataSrc' : ''
         },
@@ -287,7 +287,7 @@ function initializeFileTypeForm(){
                 type: 'POST',
                 url: 'controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
@@ -374,7 +374,7 @@ function initializeFileExtensionForm(){
                 type: 'POST',
                 url: 'controller.php',
                 data: $(form).serialize() + '&email_account=' + email_account + '&file_type_id=' + file_type_id + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },

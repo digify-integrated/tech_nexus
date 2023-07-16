@@ -37,7 +37,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/role-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -59,12 +59,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -98,7 +97,7 @@
                         $.ajax({
                             type: 'POST',
                             url: 'controller/role-controller.php',
-                            dataType: 'JSON',
+                            dataType: 'json',
                             data: {role_id : role_id, transaction : transaction},
                             success: function (response) {
                                 if (response.success) {
@@ -116,12 +115,11 @@
                                 }
                             },
                             error: function(xhr, status, error) {
-                              var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                    
-                              var response = xhr.responseText;
-                              fullErrorMessage += ', Response: ' + response;
-                            
-                              showErrorDialog(fullErrorMessage);
+                                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                      
+                                fullErrorMessage += ', Response: ' + xhr.responseText;
+                              
+                                showErrorDialog(fullErrorMessage);
                             },
                             complete: function(){
                                 toggleHideActionDropdown();
@@ -156,7 +154,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/role-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -177,12 +175,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -220,7 +217,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/role-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {role_id : role_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -242,12 +239,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                  
+                            fullErrorMessage += ', Response: ' + xhr.responseText;
+                          
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -308,14 +304,13 @@ function initializeRoleTable(datatable_name, buttons = false, show_all = false){
         'ajax': { 
             'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -371,14 +366,13 @@ function initializeMenuItemAccessTable(datatable_name, buttons = false, show_all
         'ajax': { 
             'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -458,7 +452,7 @@ function initializeRoleForm(){
                 type: 'POST',
                 url: 'controller/role-controller.php',
                 data: $(form).serialize() + '&role_id=' + role_id + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
@@ -483,8 +477,7 @@ function initializeRoleForm(){
                 error: function(xhr, status, error) {
                   var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
         
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
+                  fullErrorMessage += ', Response: ' + xhr.responseText;
                 
                   showErrorDialog(fullErrorMessage);
                 },
@@ -523,7 +516,7 @@ function initializeMenuItemAccessForm(){
                 type: 'POST',
                 url: 'controller/role-controller.php',
                 data: $(form).serialize() + '&role_id=' + role_id + '&permission=' + permission + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-menu-access-form');
                 },
@@ -543,8 +536,7 @@ function initializeMenuItemAccessForm(){
                 error: function(xhr, status, error) {
                   var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
         
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
+                  fullErrorMessage += ', Response: ' + xhr.responseText;
                 
                   showErrorDialog(fullErrorMessage);
                 },
@@ -567,7 +559,7 @@ function displayDetails(transaction){
             $.ajax({
                 url: 'controller/role-controller.php',
                 method: 'POST',
-                dataType: 'JSON',
+                dataType: 'json',
                 data: {role_id : role_id, transaction : transaction},
                 success: function(response) {
                     if (response.success) {
@@ -593,8 +585,7 @@ function displayDetails(transaction){
                 error: function(xhr, status, error) {
                     var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
           
-                    var response = xhr.responseText;
-                    fullErrorMessage += ', Response: ' + response;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
                   
                     showErrorDialog(fullErrorMessage);
                 }

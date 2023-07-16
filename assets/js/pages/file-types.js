@@ -138,7 +138,7 @@ function initialized_menu_groups_table(datatable_name, buttons = false, show_all
         'ajax': { 
             'url' : 'system-generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'email_account' : email_account},
             'dataSrc' : ''
         },

@@ -103,7 +103,7 @@ class UserController {
             return;
         }
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
             exit;
         }
@@ -389,7 +389,7 @@ class UserController {
             exit;
         }
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
             exit;
         }
@@ -487,7 +487,7 @@ class UserController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -522,7 +522,7 @@ class UserController {
     
             $user = $this->userModel->getUserByID($userID);
     
-            if (!$user['is_active']) {
+            if (!$user || !$user['is_active']) {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }

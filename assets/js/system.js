@@ -115,7 +115,7 @@
                   type: 'POST',
                   url: 'controller/user-controller.php',
                   data: $(form).serialize() + '&transaction=' + transaction,
-                  dataType: 'JSON',
+                  dataType: 'json',
                   beforeSend: function() {
                     disableFormSubmitButton('submit-password-form');
                   },
@@ -150,6 +150,11 @@
               }
             });
         }
+
+        $(document).on('click','#edit-access',function() {
+            $('.update-access').removeClass('d-none');
+            $('.edit-access-details').addClass('d-none'); 
+        });
 
         $(document).on('click','#datatable-checkbox',function() {
             var status = $(this).is(':checked') ? true : false;
@@ -438,7 +443,7 @@ function saveUICustomization(type, customizationValue){
         type: 'POST',
         url: './controller/user-controller.php',
         data: {transaction : transaction, type : type, customizationValue : customizationValue},
-        dataType: 'JSON',
+        dataType: 'json',
         success: function (response) {
             if (!response.success) {
                 if(response.isInactive){
@@ -467,7 +472,7 @@ function getUISettings(){
         type: 'POST',
         url: './controller/user-controller.php',
         data: {transaction : transaction},
-        dataType: 'JSON',
+        dataType: 'json',
         success: function (response) {
             if (response.success) {
                 layout_change(response.darkLayout);
@@ -504,7 +509,7 @@ function updateNotificationSetting(isChecked){
         type: 'POST',
         url: './controller/user-controller.php',
         data: {transaction : transaction, isChecked : isChecked},
-        dataType: 'JSON',
+        dataType: 'json',
         success: function (response) {
             if (!response.success) {
                 if(response.isInactive){
@@ -533,7 +538,7 @@ function updateTwoFactorAuthentication(isChecked){
         type: 'POST',
         url: './controller/user-controller.php',
         data: {transaction : transaction, isChecked : isChecked},
-        dataType: 'JSON',
+        dataType: 'json',
         success: function (response) {
             if (!response.success) {
                 if(response.isInactive){

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 14, 2023 at 11:27 AM
+-- Generation Time: Jul 16, 2023 at 03:59 PM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- PHP Version: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -774,7 +774,24 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (175, 'role', 5, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:42'),
 (176, 'role', 6, 'Role created. <br/><br/>Role Name: teste<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-13 16:48:58'),
 (177, 'role', 6, 'Role Name: teste -> Test ROle<br/>', '1', '2023-07-14 16:16:59'),
-(178, 'system_action', 7, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-14 17:05:12');
+(178, 'system_action', 7, 'System action created. <br/><br/>System Action Name: Assign System Action Role Access', '1', '2023-07-14 17:05:12'),
+(179, 'users', 1, 'Last Connection Date: 2023-07-12 09:48:29 -> 2023-07-15 13:42:18<br/>', '1', '2023-07-15 13:42:18'),
+(180, 'users', 1, 'Last Connection Date: 2023-07-15 13:42:18 -> 2023-07-16 11:02:59<br/>', '1', '2023-07-16 11:02:59'),
+(181, 'users', 1, 'Remember Token: 458284e66026ca9f6d8b96a5d4d58207 -> d4e1caeaf2aaccada9b28e2071d643ba<br/>', '1', '2023-07-16 11:02:59'),
+(182, 'menu_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-16 12:24:47'),
+(183, 'role', 7, 'Role created. <br/><br/>Role Name: test2<br/>Role Description: test<br/>Assignable: 1', '1', '2023-07-16 12:25:12'),
+(184, 'menu_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-16 12:27:52'),
+(185, 'menu_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 7', '1', '2023-07-16 12:27:52'),
+(186, 'menu_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-16 12:29:25'),
+(187, 'menu_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-16 12:33:50'),
+(188, 'menu_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 7', '1', '2023-07-16 12:37:04'),
+(189, 'menu_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-16 12:40:32'),
+(190, 'menu_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-16 12:52:39'),
+(191, 'menu_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 7', '1', '2023-07-16 12:57:38'),
+(192, 'menu_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 7', '1', '2023-07-16 13:03:51'),
+(193, 'menu_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-16 13:04:33'),
+(194, 'menu_access_right', 2, 'Menu item access rights created. <br/>', '1', '2023-07-16 13:06:32'),
+(195, 'menu_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 7', '1', '2023-07-16 13:08:13');
 
 -- --------------------------------------------------------
 
@@ -809,7 +826,20 @@ INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `writ
 (4, 1, 1, 0, 0, 0, 0, 1),
 (4, 2, 0, 0, 0, 0, 0, 1),
 (5, 1, 1, 1, 1, 1, 1, 1),
-(5, 2, 0, 0, 0, 0, 0, 1);
+(5, 2, 0, 0, 0, 0, 0, 1),
+(4, 6, 0, 0, 0, 0, 0, 1),
+(6, 6, 0, 0, 0, 0, 0, 1),
+(6, 7, 0, 0, 0, 0, 0, 1),
+(2, 2, 0, 0, 0, 0, 0, 1),
+(2, 6, 0, 0, 0, 0, 0, 1),
+(2, 7, 0, 0, 0, 0, 0, 1),
+(3, 2, 0, 0, 0, 0, 0, 1),
+(3, 6, 0, 0, 0, 0, 0, 1),
+(3, 7, 0, 0, 0, 0, 0, 1),
+(4, 7, 0, 0, 0, 0, 0, 1),
+(5, 6, 0, 0, 0, 0, 0, 1),
+(2, 0, 0, 0, 0, 0, 0, 1),
+(5, 7, 0, 0, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_access_right`
@@ -1084,7 +1114,8 @@ CREATE TABLE `role` (
 INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
 (1, 'Administrator', 'Administrator', 1, 1),
 (2, 'Employee', 'Employee', 1, 1),
-(6, 'Test Role', 'test', 1, 1);
+(6, 'Test Role', 'test', 1, 1),
+(7, 'test2', 'test', 1, 1);
 
 --
 -- Triggers `role`
@@ -1224,7 +1255,8 @@ CREATE TABLE `system_action_access_rights` (
 INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`) VALUES
 (1, 1),
 (2, 1),
-(5, 1);
+(5, 1),
+(6, 1);
 
 -- --------------------------------------------------------
 
@@ -1360,7 +1392,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-12 09:48:29', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, '458284e66026ca9f6d8b96a5d4d58207', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '%2FnHtFs4nssZsrx%2F%2BhCyTDkBV%2FHMyu8%2BloCp8YRzuzw4%3D', 0, 1, NULL, 0, '2023-07-16 11:02:59', '2023-12-27', 'FoL0D0dploLRggOHQpGyHDSQB%2BNOD4az3BbtGJI86Js%3D', '2023-06-27 14:15:10', 1, 0, 'uoJ04qcrOcuN3ykmxi3ur%2B4wUyS0%2FMONdUXrcAs%2Bv1M%3D', '2023-06-29 10:58:26', 0, '2023-06-27 14:05:38', 0, NULL, 0, 'd4e1caeaf2aaccada9b28e2071d643ba', 1);
 
 --
 -- Triggers `users`
@@ -1642,7 +1674,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1666,7 +1698,7 @@ ALTER TABLE `password_history`
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `system_action`

@@ -81,7 +81,7 @@ class MenuGroupController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -119,7 +119,7 @@ class MenuGroupController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -127,7 +127,7 @@ class MenuGroupController {
         $checkMenuGroupExist = $this->menuGroupModel->checkMenuGroupExist($menuGroupID);
         $total = $checkMenuGroupExist['total'] ?? 0;
 
-        if($total == 0){
+        if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
@@ -155,7 +155,7 @@ class MenuGroupController {
 
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -185,7 +185,7 @@ class MenuGroupController {
     
         $user = $this->userModel->getUserByID($userID);
     
-        if (!$user['is_active']) {
+        if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
@@ -193,7 +193,7 @@ class MenuGroupController {
         $checkMenuGroupExist = $this->menuGroupModel->checkMenuGroupExist($menuGroupID);
         $total = $checkMenuGroupExist['total'] ?? 0;
 
-        if($total == 0){
+        if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
@@ -221,7 +221,7 @@ class MenuGroupController {
     
             $user = $this->userModel->getUserByID($userID);
     
-            if (!$user['is_active']) {
+            if (!$user || !$user['is_active']) {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }

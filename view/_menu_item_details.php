@@ -135,9 +135,9 @@
           if(!empty($menuItemID)){
             if($assignMenuItemRoleAccess > 0){
                 $menu_item_create = '<button type="button" class="btn btn-success" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
-                              <button type="submit" class="btn btn-info access-form-details" id="edit-access">Edit</button>
-                              <button type="submit" form="update-role-access-form" class="btn btn-success access-form-edit d-none" id="submit-data">Save</button>
-                              <button type="button" id="discard-update" class="btn btn-outline-danger access-form-edit d-none">Discard</button>';
+                              <button type="submit" class="btn btn-info edit-access-details" id="edit-access">Edit</button>
+                              <button type="submit" form="update-role-access-form" class="btn btn-success update-access d-none" id="update-menu-access-form">Save</button>
+                              <button type="button" id="discard-access-update" class="btn btn-outline-danger update-access d-none">Discard</button>';
             }
 
             echo '<div class="row">
@@ -191,11 +191,11 @@
                                 <thead>
                                   <tr>
                                     <th>Role</th>
-                                    <th class="all">Read</th>
-                                    <th class="all">Write</th>
-                                    <th class="all">Create</th>
-                                    <th class="all">Delete</th>
-                                    <th class="all">Duplicate</th>
+                                    <th class="all">Read Access</th>
+                                    <th class="all">Write Access</th>
+                                    <th class="all">Create Access</th>
+                                    <th class="all">Delete Access</th>
+                                    <th class="all">Duplicate Access</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -236,24 +236,26 @@
                                 <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign Role Access</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body" id="modal-body"><form id="add-role-access-form" method="post" action="#">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <table id="add-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                                        <thead>
-                                        <tr>
-                                            <th class="all">Role</th>
-                                            <th class="all">Assign</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+                            <div class="modal-body" id="modal-body">
+                              <form id="add-role-access-form" method="post" action="#">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table id="add-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                            <thead>
+                                            <tr>
+                                                <th class="all">Role</th>
+                                                <th class="all">Assign</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
                                 </div>
+                              </form>
                             </div>
-                        </form></div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" id="add-menu-access-form" form="add-role-access-form">Submit</button>
+                                <button type="submit" class="btn btn-primary" id="add-menu-access" form="add-role-access-form">Submit</button>
                             </div>
                             </div>
                         </div>

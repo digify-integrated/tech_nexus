@@ -37,7 +37,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {system_action_id : system_action_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -61,8 +61,7 @@
                         error: function(xhr, status, error) {
                           var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
                 
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
+                          fullErrorMessage += ', Response: ' + xhr.responseText;
                         
                           showErrorDialog(fullErrorMessage);
                         }
@@ -98,7 +97,7 @@
                         $.ajax({
                             type: 'POST',
                             url: 'controller/system-action-controller.php',
-                            dataType: 'JSON',
+                            dataType: 'json',
                             data: {system_action_id : system_action_id, transaction : transaction},
                             success: function (response) {
                                 if (response.success) {
@@ -118,8 +117,7 @@
                             error: function(xhr, status, error) {
                               var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
                     
-                              var response = xhr.responseText;
-                              fullErrorMessage += ', Response: ' + response;
+                              fullErrorMessage += ', Response: ' + xhr.responseText;
                             
                               showErrorDialog(fullErrorMessage);
                             },
@@ -156,7 +154,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {system_action_id : system_action_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -179,8 +177,7 @@
                         error: function(xhr, status, error) {
                           var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
                 
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
+                          fullErrorMessage += ', Response: ' + xhr.responseText;
                         
                           showErrorDialog(fullErrorMessage);
                         }
@@ -219,7 +216,7 @@
                     $.ajax({
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
-                        dataType: 'JSON',
+                        dataType: 'json',
                         data: {system_action_id : system_action_id, transaction : transaction},
                         success: function (response) {
                             if (response.success) {
@@ -243,8 +240,7 @@
                         error: function(xhr, status, error) {
                           var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
                 
-                          var response = xhr.responseText;
-                          fullErrorMessage += ', Response: ' + response;
+                          fullErrorMessage += ', Response: ' + xhr.responseText;
                         
                           showErrorDialog(fullErrorMessage);
                         }
@@ -305,14 +301,13 @@ function initializeSystemActionTable(datatable_name, buttons = false, show_all =
         'ajax': { 
             'url' : 'view/_system_action_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -360,14 +355,13 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
         'ajax': { 
             'url' : 'view/_system_action_generation.php',
             'method' : 'POST',
-            'dataType': 'JSON',
+            'dataType': 'json',
             'data': {'type' : type, 'system_action_id' : system_action_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
       
-                var response = xhr.responseText;
-                fullErrorMessage += ', Response: ' + response;
+                fullErrorMessage += ', Response: ' + xhr.responseText;
               
                 showErrorDialog(fullErrorMessage);
             }
@@ -441,7 +435,7 @@ function initializeSystemActionForm(){
                 type: 'POST',
                 url: 'controller/system-action-controller.php',
                 data: $(form).serialize() + '&system_action_id=' + system_action_id + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
@@ -466,8 +460,7 @@ function initializeSystemActionForm(){
                 error: function(xhr, status, error) {
                   var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
         
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
+                  fullErrorMessage += ', Response: ' + xhr.responseText;
                 
                   showErrorDialog(fullErrorMessage);
                 },
@@ -503,7 +496,7 @@ function initializeSystemActionRoleAccessForm(){
                 type: 'POST',
                 url: 'controller/role-controller.php',
                 data: $(form).serialize() + '&system_action_id=' + system_action_id + '&role=' + role + '&transaction=' + transaction,
-                dataType: 'JSON',
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-menu-access-form');
                 },
@@ -523,8 +516,7 @@ function initializeSystemActionRoleAccessForm(){
                 error: function(xhr, status, error) {
                   var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
         
-                  var response = xhr.responseText;
-                  fullErrorMessage += ', Response: ' + response;
+                  fullErrorMessage += ', Response: ' + xhr.responseText;
                 
                   showErrorDialog(fullErrorMessage);
                 },
@@ -547,7 +539,7 @@ function displayDetails(transaction){
             $.ajax({
                 url: 'controller/system-action-controller.php',
                 method: 'POST',
-                dataType: 'JSON',
+                dataType: 'json',
                 data: {system_action_id : system_action_id, transaction : transaction},
                 beforeSend: function() {
                     resetModalForm('system-action-form');
@@ -571,8 +563,7 @@ function displayDetails(transaction){
                 error: function(xhr, status, error) {
                     var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
           
-                    var response = xhr.responseText;
-                    fullErrorMessage += ', Response: ' + response;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
                   
                     showErrorDialog(fullErrorMessage);
                 }

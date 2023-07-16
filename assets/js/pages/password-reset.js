@@ -53,7 +53,7 @@ $(document).ready(function () {
           type: 'POST',
           url: 'controller/user-controller.php',
           data: $(form).serialize() + '&transaction=' + transaction,
-          dataType: 'JSON',
+          dataType: 'json',
           beforeSend: function() {
             disableFormSubmitButton('password-reset');
           },
@@ -73,9 +73,8 @@ $(document).ready(function () {
           },
           error: function(xhr, status, error) {
             var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
+  
+            fullErrorMessage += ', Response: ' + xhr.responseText;
           
             showErrorDialog(fullErrorMessage);
           },
