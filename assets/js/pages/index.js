@@ -30,19 +30,21 @@ $(document).ready(function () {
       }
     },
     highlight: function(element) {
-      if ($(element).hasClass('select2-hidden-accessible')) {
-        $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
-      } 
+      var inputElement = $(element);
+      if (inputElement.hasClass('select2-hidden-accessible')) {
+        inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+      }
       else {
-        $(element).addClass('is-invalid');
+        inputElement.addClass('is-invalid');
       }
     },
     unhighlight: function(element) {
-      if ($(element).hasClass('select2-hidden-accessible')) {
-        $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+      var inputElement = $(element);
+      if (inputElement.hasClass('select2-hidden-accessible')) {
+        inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
       }
       else {
-        $(element).removeClass('is-invalid');
+        inputElement.removeClass('is-invalid');
       }
     },
     submitHandler: function(form) {
@@ -73,10 +75,10 @@ $(document).ready(function () {
           }
         },
         error: function(xhr, status, error) {
-          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-
-          fullErrorMessage += ', Response: ' + xhr.responseText;
-        
+          var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+          if (xhr.responseText) {
+            fullErrorMessage += `, Response: ${xhr.responseText}`;
+          }
           showErrorDialog(fullErrorMessage);
         },
         complete: function() {

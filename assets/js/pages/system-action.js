@@ -3,18 +3,18 @@
 
     $(function() {
         if($('#system-action-table').length){
-            initializeSystemActionTable('#system-action-table');
+            systemActionTable('#system-action-table');
         }
 
         if($('#system-action-form').length){
-            initializeSystemActionForm();
+            systemActionForm();
         }
 
         if($('#system-action-id').length){
             displayDetails('get system action details');
 
             if($('#assign-system-action-role-access-modal').length){
-                initializeSystemActionRoleAccessForm();
+                systemActionRoleAccessForm();
             }
         }
 
@@ -38,7 +38,10 @@
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
                         dataType: 'json',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {
+                            system_action_id : system_action_id, 
+                            transaction : transaction
+                        },
                         success: function (response) {
                             if (response.success) {
                                 showNotification('Delete System Action Success', 'The system action has been deleted successfully.', 'success');
@@ -59,11 +62,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          fullErrorMessage += ', Response: ' + xhr.responseText;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -98,7 +101,10 @@
                             type: 'POST',
                             url: 'controller/system-action-controller.php',
                             dataType: 'json',
-                            data: {system_action_id : system_action_id, transaction : transaction},
+                            data: {
+                                system_action_id: system_action_id,
+                                transaction : transaction
+                            },
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete System Action Success', 'The selected system actions have been deleted successfully.', 'success');
@@ -115,11 +121,11 @@
                                 }
                             },
                             error: function(xhr, status, error) {
-                              var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                    
-                              fullErrorMessage += ', Response: ' + xhr.responseText;
-                            
-                              showErrorDialog(fullErrorMessage);
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
                             },
                             complete: function(){
                                 toggleHideActionDropdown();
@@ -155,7 +161,10 @@
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
                         dataType: 'json',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {
+                            system_action_id : system_action_id, 
+                            transaction : transaction
+                        },
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Deleted System Action Success', 'The system action has been deleted successfully.', 'success');
@@ -175,11 +184,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          fullErrorMessage += ', Response: ' + xhr.responseText;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -217,7 +226,10 @@
                         type: 'POST',
                         url: 'controller/system-action-controller.php',
                         dataType: 'json',
-                        data: {system_action_id : system_action_id, transaction : transaction},
+                        data: {
+                            system_action_id : system_action_id, 
+                            transaction : transaction
+                        },
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Duplicate System Action Success', 'The system action has been duplicated successfully.', 'success');
@@ -238,11 +250,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                          var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                
-                          fullErrorMessage += ', Response: ' + xhr.responseText;
-                        
-                          showErrorDialog(fullErrorMessage);
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
                         }
                     });
                     return false;
@@ -262,7 +274,7 @@
             sessionStorage.setItem('system_action_id', system_action_id);
 
             $('#assign-system-action-role-access-modal').modal('show');
-            initializeRoleAccessTable('#assign-system-action-role-access-table');
+            roleAccessTable('#assign-system-action-role-access-table');
         });
 
         $(document).on('click','.update-system-action',function() {
@@ -277,7 +289,7 @@
     });
 })(jQuery);
 
-function initializeSystemActionTable(datatable_name, buttons = false, show_all = false){
+function systemActionTable(datatable_name, buttons = false, show_all = false){
     const type = 'system action table';
     var settings;
 
@@ -305,10 +317,10 @@ function initializeSystemActionTable(datatable_name, buttons = false, show_all =
             'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
-                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-      
-                fullErrorMessage += ', Response: ' + xhr.responseText;
-              
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
                 showErrorDialog(fullErrorMessage);
             }
         },
@@ -334,7 +346,7 @@ function initializeSystemActionTable(datatable_name, buttons = false, show_all =
     $(datatable_name).dataTable(settings);
 }
 
-function initializeRoleAccessTable(datatable_name, buttons = false, show_all = false){
+function roleAccessTable(datatable_name, buttons = false, show_all = false){
     const system_action_id = sessionStorage.getItem('system_action_id');
     const type = 'assign system action role access table';
     var settings;
@@ -359,10 +371,10 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
             'data': {'type' : type, 'system_action_id' : system_action_id},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
-                var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-      
-                fullErrorMessage += ', Response: ' + xhr.responseText;
-              
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
                 showErrorDialog(fullErrorMessage);
             }
         },
@@ -388,7 +400,7 @@ function initializeRoleAccessTable(datatable_name, buttons = false, show_all = f
     $(datatable_name).dataTable(settings);
 }
 
-function initializeSystemActionForm(){
+function systemActionForm(){
     $('#system-action-form').validate({
         rules: {
             system_action_name: {
@@ -402,29 +414,31 @@ function initializeSystemActionForm(){
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2')) {
-                error.insertAfter(element.next('.select2-container'));
+              error.insertAfter(element.next('.select2-container'));
             }
-            else if (element.parent('.input-item').length) {
-                error.insertAfter(element.parent());
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
             }
             else {
-                error.insertAfter(element);
+              error.insertAfter(element);
             }
         },
         highlight: function(element) {
-            if ($(element).hasClass('select2-hidden-accessible')) {
-                $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
-            } 
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
             else {
-                $(element).addClass('is-invalid');
+              inputElement.addClass('is-invalid');
             }
         },
         unhighlight: function(element) {
-            if ($(element).hasClass('select2-hidden-accessible')) {
-                $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
             }
             else {
-                $(element).removeClass('is-invalid');
+              inputElement.removeClass('is-invalid');
             }
         },
         submitHandler: function(form) {
@@ -434,7 +448,7 @@ function initializeSystemActionForm(){
             $.ajax({
                 type: 'POST',
                 url: 'controller/system-action-controller.php',
-                data: $(form).serialize() + '&system_action_id=' + system_action_id + '&transaction=' + transaction,
+                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -458,11 +472,11 @@ function initializeSystemActionForm(){
                     }
                 },
                 error: function(xhr, status, error) {
-                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-        
-                  fullErrorMessage += ', Response: ' + xhr.responseText;
-                
-                  showErrorDialog(fullErrorMessage);
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
@@ -477,14 +491,14 @@ function initializeSystemActionForm(){
     });
 }
 
-function initializeSystemActionRoleAccessForm(){
+function systemActionRoleAccessForm(){
     $('#assign-system-action-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'save role system action access';
 
             var system_action_id = sessionStorage.getItem('system_action_id');
             
-            var role = [];
+            var role_id = [];
         
             $('.role-access').each(function(){
                 if($(this).is(':checked')){  
@@ -495,7 +509,7 @@ function initializeSystemActionRoleAccessForm(){
             $.ajax({
                 type: 'POST',
                 url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&system_action_id=' + system_action_id + '&role=' + role + '&transaction=' + transaction,
+                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&role_id=' + role_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-menu-access-form');
@@ -514,11 +528,11 @@ function initializeSystemActionRoleAccessForm(){
                     }
                 },
                 error: function(xhr, status, error) {
-                  var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-        
-                  fullErrorMessage += ', Response: ' + xhr.responseText;
-                
-                  showErrorDialog(fullErrorMessage);
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-menu-access-form', 'Submit');
@@ -540,7 +554,10 @@ function displayDetails(transaction){
                 url: 'controller/system-action-controller.php',
                 method: 'POST',
                 dataType: 'json',
-                data: {system_action_id : system_action_id, transaction : transaction},
+                data: {
+                    system_action_id : system_action_id, 
+                    transaction : transaction
+                },
                 beforeSend: function() {
                     resetModalForm('system-action-form');
                 },
@@ -561,10 +578,10 @@ function displayDetails(transaction){
                     }
                 },
                 error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-          
-                    fullErrorMessage += ', Response: ' + xhr.responseText;
-                  
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
                     showErrorDialog(fullErrorMessage);
                 }
             });

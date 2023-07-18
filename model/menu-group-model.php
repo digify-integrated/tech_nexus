@@ -31,10 +31,10 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function updateMenuGroup($p_menu_group_id, $p_menu_group_name, $p_order_sequence, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateMenuGroup(:p_menu_group_id, :p_menu_group_name, :p_order_sequence, :p_last_log_by)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
-        $stmt->bindParam(':p_menu_group_name', $p_menu_group_name);
-        $stmt->bindParam(':p_order_sequence', $p_order_sequence);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_menu_group_name', $p_menu_group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_order_sequence', $p_order_sequence, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -58,14 +58,14 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function insertMenuGroup($p_menu_group_name, $p_order_sequence, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertMenuGroup(:p_menu_group_name, :p_order_sequence, :p_last_log_by, @p_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_name', $p_menu_group_name);
-        $stmt->bindParam(':p_order_sequence', $p_order_sequence);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_menu_group_name', $p_menu_group_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_order_sequence', $p_order_sequence, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
-
+        
         $result = $this->db->getConnection()->query("SELECT @p_menu_group_id AS menu_group_id");
         $menuGroupID = $result->fetch(PDO::FETCH_ASSOC)['menu_group_id'];
-
+        
         return $menuGroupID;
     }
     # -------------------------------------------------------------
@@ -87,7 +87,7 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function checkMenuGroupExist($p_menu_group_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkMenuGroupExist(:p_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -110,7 +110,7 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function deleteMenuGroup($p_menu_group_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteMenuGroup(:p_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -128,7 +128,7 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function deleteLinkedMenuItem($p_menu_group_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedMenuItem(:p_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -151,8 +151,8 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function duplicateMenuGroup($p_menu_group_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL duplicateMenuGroup(:p_menu_group_id, :p_last_log_by, @p_new_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_menu_group_id AS menu_group_id");
@@ -180,7 +180,7 @@ class MenuGroupModel {
     # -------------------------------------------------------------
     public function getMenuGroup($p_menu_group_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getMenuGroup(:p_menu_group_id)');
-        $stmt->bindParam(':p_menu_group_id', $p_menu_group_id);
+        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -203,21 +203,17 @@ class MenuGroupModel {
     public function generateMenuGroupOptions() {
         $stmt = $this->db->getConnection()->prepare('CALL generateMenuGroupOptions()');
         $stmt->execute();
-        $count = $stmt->rowCount();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if($count > 0){
-            $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $htmlOptions = '';
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $menuGroupID = $row['menu_group_id'];
+            $menuGroupName = $row['menu_group_name'];
 
-            foreach ($options as $row) {
-                $menuGroupID = $row['menu_group_id'];
-                $menuGroupName = $row['menu_group_name'];
-
-                $htmlOptions .= "<option value='". htmlspecialchars($menuGroupID, ENT_QUOTES) ."'>". htmlspecialchars($menuGroupName, ENT_QUOTES) ."</option>";
-            }
-
-            return $htmlOptions;
+            $htmlOptions .= '<option value="' . htmlspecialchars($menuGroupID, ENT_QUOTES) . '">' . htmlspecialchars($menuGroupName, ENT_QUOTES) . '</option>';
         }
+
+        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

@@ -28,7 +28,7 @@ class RoleModel {
     # -------------------------------------------------------------
     public function checkRoleExist($p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkRoleExist(:p_role_id)');
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -48,8 +48,8 @@ class RoleModel {
     # -------------------------------------------------------------
     public function checkRoleMenuAccessExist($p_menu_item_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkRoleMenuAccessExist(:p_menu_item_id, :p_role_id)');
-        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -69,8 +69,8 @@ class RoleModel {
     # -------------------------------------------------------------
     public function checkSystemActionRoleExist($p_system_action_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSystemActionRoleExist(:p_system_action_id, :p_role_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -97,11 +97,11 @@ class RoleModel {
     # -------------------------------------------------------------
     public function updateRole($p_role_id, $p_role_name, $p_role_description, $p_assignable, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateRole(:p_role_id, :p_role_name, :p_role_description, :p_assignable, :p_last_log_by)');
-        $stmt->bindParam(':p_role_id', $p_role_id);
-        $stmt->bindParam(':p_role_name', $p_role_name);
-        $stmt->bindParam(':p_role_description', $p_role_description);
-        $stmt->bindParam(':p_assignable', $p_assignable);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_name', $p_role_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_role_description', $p_role_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_assignable', $p_assignable, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -123,11 +123,11 @@ class RoleModel {
     # -------------------------------------------------------------
     public function updateRoleMenuAccess($p_menu_item_id, $p_role_id, $p_access_type, $p_access, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_access_type, :p_access, :p_last_log_by)');
-        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
-        $stmt->bindParam(':p_access_type', $p_access_type);
-        $stmt->bindParam(':p_access', $p_access);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_access_type', $p_access_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_access', $p_access, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -152,10 +152,10 @@ class RoleModel {
     # -------------------------------------------------------------
     public function insertRole($p_role_name, $p_role_description, $p_assignable, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertRole(:p_role_name, :p_role_description, :p_assignable, :p_last_log_by, @p_role_id)');
-        $stmt->bindParam(':p_role_name', $p_role_name);
-        $stmt->bindParam(':p_role_description', $p_role_description);
-        $stmt->bindParam(':p_assignable', $p_assignable);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_role_name', $p_role_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_role_description', $p_role_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_assignable', $p_assignable, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_role_id AS role_id");
@@ -180,9 +180,9 @@ class RoleModel {
     # -------------------------------------------------------------
     public function insertRoleMenuAccess($p_menu_item_id, $p_role_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertRoleMenuAccess(:p_menu_item_id, :p_role_id, :p_last_log_by)');
-        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -201,8 +201,8 @@ class RoleModel {
     # -------------------------------------------------------------
     public function insertRoleSystemActionAccessRights($p_system_action_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL insertRoleSystemActionAccessRights(:p_system_action_id, :p_role_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -224,7 +224,7 @@ class RoleModel {
     # -------------------------------------------------------------
     public function deleteAllRoleSystemActionAccessRights($p_system_action_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteAllRoleSystemActionAccessRights(:p_system_action_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -243,7 +243,7 @@ class RoleModel {
     # -------------------------------------------------------------
     public function deleteRole($p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteRole(:p_role_id)');
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -267,8 +267,8 @@ class RoleModel {
     # -------------------------------------------------------------
     public function getRoleMenuAccess($p_menu_item_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getRoleMenuAccess(:p_menu_item_id, :p_role_id)');
-        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -288,7 +288,7 @@ class RoleModel {
     # -------------------------------------------------------------
     public function getRole($p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getRole(:p_role_id)');
-        $stmt->bindParam(':p_role_id', $p_role_id);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -312,8 +312,8 @@ class RoleModel {
     # -------------------------------------------------------------
     public function duplicateRole($p_role_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL duplicateRole(:p_role_id, :p_last_log_by, @p_new_role_id)');
-        $stmt->bindParam(':p_role_id', $p_role_id);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_role_id AS role_id");

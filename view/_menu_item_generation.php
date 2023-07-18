@@ -19,16 +19,15 @@ $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
     $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
-    $response = array();
+    $response = [];
     
     switch ($type) {
-        # Update access table
-        case 'update role access table':
+        # Update menu group role access table
+        case 'update menu group role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable(:menuItemID)');
-                $sql->bindParam(':menuItemID', $menuItemID);
+                $sql = $databaseModel->getConnection()->prepare('CALL generateShortcutMenuItemRoleTable()');
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -43,51 +42,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $writeAccess = $roleMenuAccessDetails['write_access'] ?? 0;
                     $createAccess = $roleMenuAccessDetails['create_access'] ?? 0;
                     $deleteAccess = $roleMenuAccessDetails['delete_access'] ?? 0;
-                    $duplicateAccess = $roleMenuAccessDetails['delete_access'] ?? 0;
-
-                    if($readAccess){
-                        $readChecked = 'checked';
-                    }
-                    else{
-                        $readChecked = null;
-                    }
-
-                    if($writeAccess){
-                        $writeChecked = 'checked';
-                    }
-                    else{
-                        $writeChecked = null;
-                    }
-
-                    if($createAccess){
-                        $createChecked = 'checked';
-                    }
-                    else{
-                        $createChecked = null;
-                    }
-
-                    if($deleteAccess){
-                        $deleteChecked = 'checked';
-                    }
-                    else{
-                        $deleteChecked = null;
-                    }
-
-                    if($duplicateAccess){
-                        $duplicateChecked = 'checked';
-                    }
-                    else{
-                        $duplicateChecked = null;
-                    }
+                    $duplicateAccess = $roleMenuAccessDetails['duplicate_access'] ?? 0;
+                
+                    $readChecked = $readAccess ? 'checked' : '';
+                    $writeChecked = $writeAccess ? 'checked' : '';
+                    $createChecked = $createAccess ? 'checked' : '';
+                    $deleteChecked = $deleteAccess ? 'checked' : '';
+                    $duplicateChecked = $duplicateAccess ? 'checked' : '';
     
-                    $response[] = array(
+                    $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .' disabled></div>',
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .'></div>',
+                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .'></div>',
+                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .'></div>',
+                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .'></div>',
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .'></div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # Update access table
+        case 'update role access table':
+            if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
+                $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable(:menuItemID)');
+                $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $roleMenuAccessDetails = $roleModel->getRoleMenuAccess($menuItemID, $roleID);
+
+                    $readAccess = $roleMenuAccessDetails['read_access'] ?? 0;
+                    $writeAccess = $roleMenuAccessDetails['write_access'] ?? 0;
+                    $createAccess = $roleMenuAccessDetails['create_access'] ?? 0;
+                    $deleteAccess = $roleMenuAccessDetails['delete_access'] ?? 0;
+                    $duplicateAccess = $roleMenuAccessDetails['duplicate_access'] ?? 0;
+                
+                    $readChecked = $readAccess ? 'checked' : '';
+                    $writeChecked = $writeAccess ? 'checked' : '';
+                    $createChecked = $createAccess ? 'checked' : '';
+                    $deleteChecked = $deleteAccess ? 'checked' : '';
+                    $duplicateChecked = $duplicateAccess ? 'checked' : '';
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .' disabled></div>',
                         'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .' disabled></div>',
                         'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .' disabled></div>',
                         'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .' disabled></div>',
                         'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>'
-                    );
+                    ];
                 }
     
                 echo json_encode($response);
@@ -99,7 +111,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateAddMenuItemRoleTable(:menuItemID)');
-                $sql->bindParam(':menuItemID', $menuItemID);
+                $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -108,10 +120,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $roleID = $row['role_id'];
                     $roleName = $row['role_name'];
     
-                    $response[] = array(
+                    $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>',
-                    );
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
+                    ];
                 }
     
                 echo json_encode($response);
@@ -141,16 +153,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $menuItemDetails = $menuItemModel->getMenuItem($parentID);
                 $parentMenuItemName = $menuItemDetails['menu_item_name'] ?? '';
 
+                $delete = '';
                 if($menuItemDeleteAccess['total'] > 0){
                     $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
-                else{
-                    $delete = null;
-                }
 
-                $response[] = array(
+                $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $menuItemID .'">',
                     'MENU_ITEM_ID' => $menuItemID,
                     'MENU_ITEM_NAME' => $menuItemName,
@@ -163,17 +173,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>
                                     '. $delete .'
                                 </div>'
-                );
+                ];
             }
 
             echo json_encode($response);
         break;
         # Sub menu item table
         case 'sub menu item table':
-            $menuItemID = $_POST['menu_item_id'];
+            $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
             $sql = $databaseModel->getConnection()->prepare('CALL generateSubMenuItemTable(:menuItemID)');
-            $sql->bindParam(':menuItemID', $menuItemID);
+            $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -189,11 +199,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $menuGroupDetails = $menuGroupModel->getMenuGroup($menuGroupID);
                 $menuGroupName = $menuGroupDetails['menu_group_name'] ?? null;
 
-                $response[] = array(
+                $response[] = [
                     'MENU_ITEM_NAME' => '<a href="menu-item.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
                     'MENU_GROUP_ID' => '<a href="menu-group.php?id='. $menuGroupIDEncrypted .'">'. $menuGroupName . '</a>',
                     'ORDER_SEQUENCE' => $orderSequence
-                );
+                ];
             }
 
             echo json_encode($response);

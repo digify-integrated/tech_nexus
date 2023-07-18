@@ -31,7 +31,7 @@ class UserModel {
     # -------------------------------------------------------------
     public function getUserByEmail($p_email) {
         $stmt = $this->db->getConnection()->prepare('CALL getUserByEmail(:p_email)');
-        $stmt->bindParam(':p_email', $p_email);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -51,7 +51,7 @@ class UserModel {
     # -------------------------------------------------------------
     public function getUserByID($p_user_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getUserByID(:p_user_id)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -71,7 +71,7 @@ class UserModel {
     # -------------------------------------------------------------
     public function getUserByRememberToken($p_remember_token) {
         $stmt = $this->db->getConnection()->prepare('CALL getUserByRememberToken(:p_remember_token)');
-        $stmt->bindParam(':p_remember_token', $p_remember_token);
+        $stmt->bindValue(':p_remember_token', $p_remember_token, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -92,8 +92,8 @@ class UserModel {
     # -------------------------------------------------------------
     public function getPasswordHistory($p_user_id, $p_email) {
         $stmt = $this->db->getConnection()->prepare('CALL getPasswordHistory(:p_user_id, :p_email)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_email', $p_email);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -112,7 +112,7 @@ class UserModel {
     # -------------------------------------------------------------
     public function getUICustomizationSetting($p_user_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getUICustomizationSetting(:p_user_id)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -137,9 +137,9 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateAccountLock($p_user_id, $p_is_locked, $p_lock_duration) {
         $stmt = $this->db->getConnection()->prepare('CALL updateAccountLock(:p_user_id, :p_is_locked, :p_lock_duration)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_is_locked', $p_is_locked);
-        $stmt->bindParam(':p_lock_duration', $p_lock_duration);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_is_locked', $p_is_locked, PDO::PARAM_INT);
+        $stmt->bindValue(':p_lock_duration', $p_lock_duration, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -152,16 +152,16 @@ class UserModel {
     # Parameters:
     # - $p_user_id (int): The user ID.
     # - $p_failed_login_attempts (int): The number of failed login attempts.
-    # - $p_last_failed_login_attempt (string): The date and time of the last failed login attempt.
+    # - $p_last_failed_login_attempt (datetime): The date and time of the last failed login attempt.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function updateLoginAttempt($p_user_id, $p_failed_login_attempts, $p_last_failed_login_attempt) {
         $stmt = $this->db->getConnection()->prepare('CALL updateLoginAttempt(:p_user_id, :p_failed_login_attempts, :p_last_failed_login_attempt)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_failed_login_attempts', $p_failed_login_attempts);
-        $stmt->bindParam(':p_last_failed_login_attempt', $p_last_failed_login_attempt);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_failed_login_attempts', $p_failed_login_attempts, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_failed_login_attempt', $p_last_failed_login_attempt, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -173,15 +173,15 @@ class UserModel {
     #
     # Parameters:
     # - $p_user_id (int): The user ID.
-    # - $p_last_connection_date (string): The date and time of the last connection.
+    # - $p_last_connection_date (datetime): The date and time of the last connection.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function updateLastConnection($p_user_id, $p_last_connection_date) {
         $stmt = $this->db->getConnection()->prepare('CALL updateLastConnection(:p_user_id, :p_last_connection_date)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_last_connection_date', $p_last_connection_date);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_connection_date', $p_last_connection_date, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -200,8 +200,8 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateRememberToken($p_user_id, $p_remember_token) {
         $stmt = $this->db->getConnection()->prepare('CALL updateRememberToken(:p_user_id, :p_remember_token)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_remember_token', $p_remember_token);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_remember_token', $p_remember_token, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -214,7 +214,7 @@ class UserModel {
     # Parameters:
     # - $p_user_id (int): The user ID.
     # - $p_otp (string): The new OTP.
-    # - $p_otp_expiry_date (string): The expiry date and time of the OTP.
+    # - $p_otp_expiry_date (datetime): The expiry date and time of the OTP.
     # - $p_remember_me (bool): Flag indicating whether "remember me" is enabled.
     #
     # Returns: None
@@ -222,10 +222,10 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateOTP($p_user_id, $p_otp, $p_otp_expiry_date, $p_remember_me) {
         $stmt = $this->db->getConnection()->prepare('CALL updateOTP(:p_user_id, :p_otp, :p_otp_expiry_date, :p_remember_me)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_otp', $p_otp);
-        $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);
-        $stmt->bindParam(':p_remember_me', $p_remember_me);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_otp', $p_otp, PDO::PARAM_STR);
+        $stmt->bindValue(':p_otp_expiry_date', $p_otp_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remember_me', $p_remember_me, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -244,8 +244,8 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateFailedOTPAttempts($p_user_id, $p_failed_otp_attempts) {
         $stmt = $this->db->getConnection()->prepare('CALL updateFailedOTPAttempts(:p_user_id, :p_failed_otp_attempts)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_failed_otp_attempts', $p_failed_otp_attempts);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_failed_otp_attempts', $p_failed_otp_attempts, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -257,15 +257,15 @@ class UserModel {
     #
     # Parameters:
     # - $p_user_id (int): The user ID.
-    # - $p_otp_expiry_date (string): The expiry date and time of the OTP.
+    # - $p_otp_expiry_date (datetime): The expiry date and time of the OTP.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function updateOTPAsExpired($p_user_id, $p_otp_expiry_date) {
         $stmt = $this->db->getConnection()->prepare('CALL updateOTPAsExpired(:p_user_id, :p_otp_expiry_date)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_otp_expiry_date', $p_otp_expiry_date);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_otp_expiry_date', $p_otp_expiry_date, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -278,16 +278,16 @@ class UserModel {
     # Parameters:
     # - $p_user_id (int): The user ID.
     # - $p_resetToken (string): The new reset token.
-    # - $p_resetToken_expiry_date (string): The expiry date and time of the reset token.
+    # - $p_resetToken_expiry_date (datetime): The expiry date and time of the reset token.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function updateResetToken($p_user_id, $p_resetToken, $p_resetToken_expiry_date) {
         $stmt = $this->db->getConnection()->prepare('CALL updateResetToken(:p_user_id, :p_resetToken, :p_resetToken_expiry_date)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_resetToken', $p_resetToken);
-        $stmt->bindParam(':p_resetToken_expiry_date', $p_resetToken_expiry_date);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_resetToken', $p_resetToken, PDO::PARAM_STR);
+        $stmt->bindValue(':p_resetToken_expiry_date', $p_resetToken_expiry_date, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -301,19 +301,19 @@ class UserModel {
     # - $p_user_id (int): The user ID.
     # - $p_email (string): The email address of the user.
     # - $p_password (string): The new password.
-    # - $p_password_expiry_date (string): The expiry date and time of the password.
-    # - $p_last_password_change (string): The date and time of the last password change.
+    # - $p_password_expiry_date (date): The expiry date of the password.
+    # - $p_last_password_change (datetime): The date and time of the last password change.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function updateUserPassword($p_user_id, $p_email, $p_password, $p_password_expiry_date, $p_last_password_change) {
         $stmt = $this->db->getConnection()->prepare('CALL updateUserPassword(:p_user_id, :p_email, :p_password, :p_password_expiry_date, :p_last_password_change)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_email', $p_email);
-        $stmt->bindParam(':p_password', $p_password);
-        $stmt->bindParam(':p_password_expiry_date', $p_password_expiry_date);
-        $stmt->bindParam(':p_last_password_change', $p_last_password_change);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_password', $p_password, PDO::PARAM_STR);
+        $stmt->bindValue(':p_password_expiry_date', $p_password_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_password_change', $p_last_password_change, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -333,9 +333,9 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateNotificationSetting($p_user_id, $p_receive_notification, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateNotificationSetting(:p_user_id, :p_receive_notification, :p_last_log_by)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_receive_notification', $p_receive_notification);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receive_notification', $p_receive_notification, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -355,9 +355,9 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateTwoFactorAuthentication($p_user_id, $p_two_factor_auth, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateTwoFactorAuthentication(:p_user_id, :p_two_factor_auth, :p_last_log_by)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_two_factor_auth', $p_two_factor_auth);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_two_factor_auth', $p_two_factor_auth, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -378,10 +378,10 @@ class UserModel {
     # -------------------------------------------------------------
     public function updateUICustomizationSetting($p_user_id, $p_type, $p_customization_value, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateUICustomizationSetting(:p_user_id, :p_type, :p_customization_value, :p_last_log_by)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_type', $p_type);
-        $stmt->bindParam(':p_customization_value', $p_customization_value);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_customization_value', $p_customization_value, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -399,17 +399,17 @@ class UserModel {
     # - $p_user_id (int): The user ID.
     # - $p_email (string): The email address of the user.
     # - $p_password (string): The password to be stored in the history.
-    # - $p_last_password_change (string): The date and time of the last password change.
+    # - $p_last_password_change (datetime): The date and time of the last password change.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
     public function insertPasswordHistory($p_user_id, $p_email, $p_password, $p_last_password_change) {
         $stmt = $this->db->getConnection()->prepare('CALL insertPasswordHistory(:p_user_id, :p_email, :p_password, :p_last_password_change)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_email', $p_email);
-        $stmt->bindParam(':p_password', $p_password);
-        $stmt->bindParam(':p_last_password_change', $p_last_password_change);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_password', $p_password, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_password_change', $p_last_password_change, PDO::PARAM_STR);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -430,10 +430,10 @@ class UserModel {
     # -------------------------------------------------------------
     public function insertUICustomizationSetting($p_user_id, $p_type, $p_customization_value, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertUICustomizationSetting(:p_user_id, :p_type, :p_customization_value, :p_last_log_by)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_type', $p_type);
-        $stmt->bindParam(':p_customization_value', $p_customization_value);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_type', $p_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_customization_value', $p_customization_value, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -455,7 +455,7 @@ class UserModel {
     # -------------------------------------------------------------
     public function checkUICustomizationSettingExist($p_user_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkUICustomizationSettingExist(:p_user_id)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -480,9 +480,9 @@ class UserModel {
     # -------------------------------------------------------------
     public function checkMenuItemAccessRights($p_user_id, $p_menu_item_id, $p_access_type) {
         $stmt = $this->db->getConnection()->prepare('CALL checkMenuItemAccessRights(:p_user_id, :p_menu_item_id, :p_access_type)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_menu_item_id', $p_menu_item_id);
-        $stmt->bindParam(':p_access_type', $p_access_type);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_access_type', $p_access_type, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -502,8 +502,8 @@ class UserModel {
     # -------------------------------------------------------------
     public function checkSystemActionAccessRights($p_user_id, $p_system_action_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSystemActionAccessRights(:p_user_id, :p_system_action_id)');
-        $stmt->bindParam(':p_user_id', $p_user_id);
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -527,49 +527,50 @@ class UserModel {
     # -------------------------------------------------------------
     public function generateLogNotes($p_table_name, $p_reference_id) {
         $stmt = $this->db->getConnection()->prepare('CALL generateLogNotes(:p_table_name, :p_reference_id)');
-        $stmt->bindParam(':p_table_name', $p_table_name);
-        $stmt->bindParam(':p_reference_id', $p_reference_id);
+        $stmt->bindValue(':p_table_name', $p_table_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_id', $p_reference_id, PDO::PARAM_INT);
         $stmt->execute();
-        $count = $stmt->rowCount();
-
-        if($count > 0){
-            $htmlOptions = '<div class="comment-block">';
-
-            $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt->closeCursor();
-
+        
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        $count = count($options);
+        
+        $htmlLogNotes = '';
+        if ($count > 0) {
+            $htmlLogNotes .= '<div class="comment-block">';
+        
             foreach ($options as $row) {
                 $log = $row['log'];
                 $timeElapsed = $this->systemModel->timeElapsedString($row['changed_at']);
-
+        
                 $getUserByID = $this->getUserByID($row['changed_by']);
                 $fileAs = $getUserByID['file_as'];
-
-                $htmlOptions .= '<div class="comment">
-                                    <div class="media align-items-start">
-                                        <div class="chat-avtar flex-shrink-0">
-                                            <img class="rounded-circle img-fluid wid-40" src="./assets/images/default/default-avatar.png" alt="User image" />
+        
+                $htmlLogNotes .= '<div class="comment">
+                                        <div class="media align-items-start">
+                                            <div class="chat-avtar flex-shrink-0">
+                                                <img class="rounded-circle img-fluid wid-40" src="./assets/images/default/default-avatar.png" alt="User image" />
+                                            </div>
+                                            <div class="media-body ms-3">
+                                                <h5 class="mb-0">'. $fileAs .'</h5>
+                                                <span class="text-sm text-muted">'. $timeElapsed .'</span>
+                                            </div>
                                         </div>
-                                        <div class="media-body ms-3">
-                                            <h5 class="mb-0">'. $fileAs .'</h5>
-                                            <span class="text-sm text-muted">'. $timeElapsed .'</span>
+                                        <div class="comment-content">
+                                            <p class="mb-0">
+                                                '. $log .'
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div class="comment-content">
-                                        <p class="mb-0">
-                                            '. $log .'
-                                        </p>
-                                    </div>
-                                </div>';
+                                    </div>';
             }
-
-            $htmlOptions .= '</div>';
+        
+            $htmlLogNotes .= '</div>';
         }
-        else{
-            $htmlOptions = '<div class="alert alert-secondary" role="alert">No log notes found.</div>';
+        else {
+            $htmlLogNotes = '<div class="alert alert-secondary" role="alert">No log notes found.</div>';
         }
         
-        return $htmlOptions;
+        return $htmlLogNotes;
     }
     # -------------------------------------------------------------
 }

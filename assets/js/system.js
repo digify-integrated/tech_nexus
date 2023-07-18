@@ -4,7 +4,7 @@
     $(function() {
         getUISettings();
         checkNotification();
-        intializeMaxLength();
+        maxLength();
 
         if($('.log-notes-scroll').length){
             new SimpleBar(document.querySelector('.log-notes-scroll'));
@@ -112,49 +112,43 @@
                 const transaction = 'change password shortcut';
           
                 $.ajax({
-                  type: 'POST',
-                  url: 'controller/user-controller.php',
-                  data: $(form).serialize() + '&transaction=' + transaction,
-                  dataType: 'json',
-                  beforeSend: function() {
-                    disableFormSubmitButton('submit-password-form');
-                  },
-                  success: function(response) {
-                    if (response.success) {
-                        setNotification('Password Change Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
-                        window.location.href = 'logout.php?logout';
-                    }
-                    else{
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
+                    type: 'POST',
+                    url: 'controller/user-controller.php',
+                    data: $(form).serialize() + '&transaction=' + transaction,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        disableFormSubmitButton('submit-password-form');
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            setNotification('Password Change Success', 'Your password has been successfully updated. For security reasons, please use your new password to log in.', 'success');
+                            window.location.href = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Password Change Error', response.message, 'danger');
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Password Change Error', response.message, 'danger');
+                            }
                         }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                            fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    },
+                    complete: function() {
+                        enableFormSubmitButton('submit-password-form', 'Update Password');
                     }
-                  },
-                  error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-        
-                    var response = xhr.responseText;
-                    fullErrorMessage += ', Response: ' + response;
-                  
-                    showErrorDialog(fullErrorMessage);
-                  },
-                  complete: function() {
-                    enableFormSubmitButton('submit-password-form', 'Update Password');
-                  }
                 });
           
                 return false;
               }
             });
         }
-
-        $(document).on('click','#edit-access',function() {
-            $('.update-access').removeClass('d-none');
-            $('.edit-access-details').addClass('d-none'); 
-        });
 
         $(document).on('click','#datatable-checkbox',function() {
             var status = $(this).is(':checked') ? true : false;
@@ -395,7 +389,7 @@ function readjustDatatableColumn() {
     $('a[data-bs-toggle="tab"], a[data-bs-toggle="pill"], #System-Modal').on('shown.bs.tab shown.bs.modal', adjustDataTable);
 }
 
-function intializeMaxLength(){
+function maxLength(){
     if ($('[maxlength]').length) {
         $('[maxlength]').maxlength({
             alwaysShow: true,
@@ -442,7 +436,11 @@ function saveUICustomization(type, customizationValue){
     $.ajax({
         type: 'POST',
         url: './controller/user-controller.php',
-        data: {transaction : transaction, type : type, customizationValue : customizationValue},
+        data: {
+            transaction : transaction, 
+            type : type, 
+            customizationValue : customizationValue
+        },
         dataType: 'json',
         success: function (response) {
             if (!response.success) {
@@ -455,11 +453,10 @@ function saveUICustomization(type, customizationValue){
             }
         },
         error: function(xhr, status, error) {
-            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-  
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
-          
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
             showErrorDialog(fullErrorMessage);
         }
     });
@@ -471,7 +468,9 @@ function getUISettings(){
     $.ajax({
         type: 'POST',
         url: './controller/user-controller.php',
-        data: {transaction : transaction},
+        data: {
+            transaction : transaction
+        },
         dataType: 'json',
         success: function (response) {
             if (response.success) {
@@ -492,11 +491,10 @@ function getUISettings(){
             }
         },
         error: function(xhr, status, error) {
-            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-  
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
-          
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
             showErrorDialog(fullErrorMessage);
         }
     });
@@ -508,7 +506,10 @@ function updateNotificationSetting(isChecked){
     $.ajax({
         type: 'POST',
         url: './controller/user-controller.php',
-        data: {transaction : transaction, isChecked : isChecked},
+        data: {
+            transaction : transaction, 
+            isChecked : isChecked
+        },
         dataType: 'json',
         success: function (response) {
             if (!response.success) {
@@ -521,11 +522,10 @@ function updateNotificationSetting(isChecked){
             }
         },
         error: function(xhr, status, error) {
-            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-  
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
-          
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
             showErrorDialog(fullErrorMessage);
         }
     });
@@ -537,7 +537,10 @@ function updateTwoFactorAuthentication(isChecked){
     $.ajax({
         type: 'POST',
         url: './controller/user-controller.php',
-        data: {transaction : transaction, isChecked : isChecked},
+        data: {
+            transaction : transaction, 
+            isChecked : isChecked
+        },
         dataType: 'json',
         success: function (response) {
             if (!response.success) {
@@ -550,11 +553,10 @@ function updateTwoFactorAuthentication(isChecked){
             } 
         },
         error: function(xhr, status, error) {
-            var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-  
-            var response = xhr.responseText;
-            fullErrorMessage += ', Response: ' + response;
-          
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
             showErrorDialog(fullErrorMessage);
         }
     });

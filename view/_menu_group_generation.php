@@ -15,7 +15,7 @@ $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
     $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
-    $response = array();
+    $response = [];
     
     switch ($type) {
         # Menu group table
@@ -34,27 +34,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $menuGroupIDEncrypted = $securityModel->encryptData($menuGroupID);
 
-                if($menuGroupDeleteAccess['total'] > 0){
+                $delete = '';
+                if ($menuGroupDeleteAccess['total'] > 0) {
                     $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-group" data-menu-group-id="' . $menuGroupID . '" title="Delete Menu Group">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-                else{
-                    $delete = null;
+                                    <i class="ti ti-trash"></i>
+                                </button>';
                 }
 
-                $response[] = array(
+                $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $menuGroupID .'">',
                     'MENU_GROUP_ID' => $menuGroupID,
                     'MENU_GROUP_NAME' => $menuGroupName,
                     'ORDER_SEQUENCE' => $orderSequence,
                     'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="menu-group.php?id='. $menuGroupIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                            <i class="ti ti-eye"></i>
-                                        </a>
-                                        '. $delete .'
-                                    </div>'
-                );
+                                    <a href="menu-group.php?id='. $menuGroupIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    '. $delete .'
+                                </div>'
+                ];
             }
 
             echo json_encode($response);
@@ -65,7 +63,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $menuGroupID = htmlspecialchars($_POST['menu_group_id'], ENT_QUOTES, 'UTF-8');
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateMenuGroupMenuItemTable(:menuGroupID)');
-                $sql->bindValue(':menuGroupID', $menuGroupID);
+                $sql->bindValue(':menuGroupID', $menuGroupID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -87,34 +85,28 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $menuItemDetails = $menuItemModel->getMenuItem($parentID);
                     $parentMenuItemName = $menuItemDetails['menu_item_name'] ?? null;
                         
+                    $update = '';
                     if($menuItemWriteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
                         $update = '<button type="button" class="btn btn-icon btn-info update-menu-item" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
-                    else{
-                        $update = null;
-                    }
 
+                    $delete = '';
                     if($menuItemDeleteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
-                    else{
-                        $delete = null;
-                    }
-    
+
+                    $assign = '';
                     if($assignMenuItemRoleAccess > 0 && $menuGroupWriteAccess['total'] > 0){
                         $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
                                             <i class="ti ti-user-check"></i>
                                         </button>';
                     }
-                    else{
-                        $assign = null;
-                    }
     
-                    $response[] = array(
+                    $response[] = [
                         'MENU_ITEM_ID' => $menuItemID,
                         'MENU_ITEM_NAME' => '<a href="menu-item-form.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
                         'PARENT_ID' => '<a href="menu-item-form.php?id='. $parentIDEncrypted .'">'. $parentMenuItemName . '</a>',
@@ -124,7 +116,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         '. $assign .'
                                         '. $delete .'
                                     </div>'
-                    );
+                    ];
                 }
     
                 echo json_encode($response);

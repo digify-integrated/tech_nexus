@@ -110,19 +110,19 @@ class UserController {
     
         if ($this->passwordHasExpired($user)) {
             $this->handlePasswordExpiration($user, $email, $encryptedUserID);
-            return;
+            exit;
         }
     
         if ($user['is_locked']) {
             $this->handleAccountLock($user);
-            return;
+            exit;
         }
     
         $this->userModel->updateLoginAttempt($userID, 0, null);
     
         if ($user['two_factor_auth']) {
             $this->handleTwoFactorAuth($user, $email, $encryptedUserID, $rememberMe);
-            return;
+            exit;
         }
     
         $this->updateConnectionAndRememberToken($user, $rememberMe);
@@ -149,45 +149,45 @@ class UserController {
         if ($failedAttempts > MAX_FAILED_LOGIN_ATTEMPTS) {
             $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) * 5;
             $this->userModel->updateAccountLock($userID, 1, $lockDuration);
-    
-            $minutes = ceil($lockDuration / 60);
-            $hours = floor($minutes / 60);
-            $days = floor($hours / 24);
-            $months = floor($days / 30);
-            $years = floor($months / 12);
-    
+            
             $durationParts = [];
-    
+            
+            $years = floor($lockDuration / (60 * 60 * 24 * 30 * 12));
+            $lockDuration %= (60 * 60 * 24 * 30 * 12);
             if ($years > 0) {
                 $durationParts[] = number_format($years) . " year" . (($years > 1) ? "s" : "");
             }
-    
+            
+            $months = floor($lockDuration / (60 * 60 * 24 * 30));
+            $lockDuration %= (60 * 60 * 24 * 30);
             if ($months > 0) {
                 $durationParts[] = number_format($months) . " month" . (($months > 1) ? "s" : "");
             }
-    
+            
+            $days = floor($lockDuration / (60 * 60 * 24));
+            $lockDuration %= (60 * 60 * 24);
             if ($days > 0) {
                 $durationParts[] = number_format($days) . " day" . (($days > 1) ? "s" : "");
             }
-    
+            
+            $hours = floor($lockDuration / (60 * 60));
+            $lockDuration %= (60 * 60);
             if ($hours > 0) {
                 $durationParts[] = number_format($hours) . " hour" . (($hours > 1) ? "s" : "");
             }
-    
+            
+            $minutes = floor($lockDuration / 60);
+            $lockDuration %= 60;
             if ($minutes > 0) {
-                $remainingMinutes = $minutes % 60;
-                $durationParts[] = number_format($remainingMinutes) . " minute" . (($remainingMinutes > 1) ? "s" : "");
+                $durationParts[] = number_format($minutes) . " minute" . (($minutes > 1) ? "s" : "");
             }
-    
+            
             $message = "You have reached the maximum number of failed login attempts. Your account has been locked";
-    
-            if (count($durationParts) > 1) {
-                $lastPart = array_pop($durationParts);
-                $message .= " for " . implode(", ", $durationParts) . " and " . $lastPart;
-            } else {
-                $message .= " for " . implode("", $durationParts);
+            
+            if (count($durationParts) > 0) {
+                $message .= " for " . implode(", ", $durationParts);
             }
-    
+            
             $message .= ".";
             echo json_encode(['success' => false, 'message' => $message]);
         } else {
@@ -205,12 +205,13 @@ class UserController {
     * @return void
     */
     private function passwordHasExpired($user) {
-        $passwordExpiryDate = $user['password_expiry_date'];
-    
-        if (strtotime(date('Y-m-d H:i:s')) > strtotime($passwordExpiryDate)) {
+        $passwordExpiryDate = new DateTime($user['password_expiry_date']);
+        $currentDate = new DateTime();
+        
+        if ($currentDate > $passwordExpiryDate) {
             return true;
         }
-    
+        
         return false;
     }
     

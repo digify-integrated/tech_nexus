@@ -30,9 +30,9 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function updateSystemAction($p_system_action_id, $p_system_action_name, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateSystemAction(:p_system_action_id, :p_system_action_name, :p_last_log_by)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
-        $stmt->bindParam(':p_system_action_name', $p_system_action_name);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_system_action_name', $p_system_action_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -55,8 +55,8 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function insertSystemAction($p_system_action_name, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertSystemAction(:p_system_action_name, :p_last_log_by, @p_system_action_id)');
-        $stmt->bindParam(':p_system_action_name', $p_system_action_name);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_system_action_name', $p_system_action_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_system_action_id AS p_system_action_id");
@@ -83,7 +83,7 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function checkSystemActionExist($p_system_action_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSystemActionExist(:p_system_action_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -106,7 +106,7 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function deleteSystemAction($p_system_action_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteSystemAction(:p_system_action_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -129,7 +129,7 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function getSystemAction($p_system_action_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getSystemAction(:p_system_action_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -153,8 +153,8 @@ class SystemActionModel {
     # -------------------------------------------------------------
     public function duplicateSystemAction($p_system_action_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL duplicateSystemAction(:p_system_action_id, :p_last_log_by, @p_new_system_action_id)');
-        $stmt->bindParam(':p_system_action_id', $p_system_action_id);
-        $stmt->bindParam(':p_last_log_by', $p_last_log_by);
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_system_action_id AS system_action_id");

@@ -123,8 +123,8 @@ class SecurityModel {
     # -------------------------------------------------------------
     public function getErrorDetails($type) {
         $response = [];
-    
-        switch ($type){
+
+        switch ($type) {
             case 'password reset token invalid':
                 $response = [
                     'TITLE' => 'Password Reset Token Invalid',
@@ -161,8 +161,14 @@ class SecurityModel {
                     'MESSAGE' => 'The One-Time Password (OTP) you entered is invalid or you have exceeded the maximum number of attempts. Please initiate the login process again to receive a new One-Time Password (OTP).'
                 ];
                 break;
+            default:
+                $response = [
+                    'TITLE' => 'Unknown Error',
+                    'MESSAGE' => 'An unknown error occurred.'
+                ];
+                break;
         }
-    
+        
         return $response;
     }
     # -------------------------------------------------------------

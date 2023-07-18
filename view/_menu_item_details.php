@@ -134,9 +134,9 @@
           <?php
           if(!empty($menuItemID)){
             if($assignMenuItemRoleAccess > 0){
-                $menu_item_create = '<button type="button" class="btn btn-success" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
+                $menu_item_create = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
                               <button type="submit" class="btn btn-info edit-access-details" id="edit-access">Edit</button>
-                              <button type="submit" form="update-role-access-form" class="btn btn-success update-access d-none" id="update-menu-access-form">Save</button>
+                              <button type="submit" form="update-role-access-form" class="btn btn-success update-access d-none" id="submit-menu-access">Save</button>
                               <button type="button" id="discard-access-update" class="btn btn-outline-danger update-access d-none">Discard</button>';
             }
 

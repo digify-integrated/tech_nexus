@@ -17,7 +17,7 @@ $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
     $type = htmlspecialchars($_POST['type'], ENT_QUOTES, 'UTF-8');
-    $response = array();
+    $response = [];
     
     switch ($type) {
         # Menu group system action table
@@ -32,21 +32,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 foreach ($options as $row) {
                     $roleID = $row['role_id'];
-                    $role_name = $row['role_name'];
+                    $roleName = $row['role_name'];
 
                     $checkSystemActionRoleExist = $roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
 
-                    if($checkSystemActionRoleExist['total'] > 0){
-                        $roleChecked = 'checked';
-                    }
-                    else{
-                        $roleChecked = null;
-                    }
-    
-                    $response[] = array(
+                    $roleChecked = $checkSystemActionRoleExist['total'] > 0 ? 'checked' : '';
+
+                    $response[] = [
                         'ROLE_ID' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'" '. $roleChecked .'></div>',
-                        'ROLE_NAME' => $role_name
-                    );
+                        'ROLE_NAME' => $roleName
+                    ];
                 }
     
                 echo json_encode($response);
@@ -67,16 +62,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $systemActionIDEncrypted = $securityModel->encryptData($systemActionID);
 
+                $delete = '';
                 if($systemActionDeleteAccess['total'] > 0){
                     $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action" data-system-action-id="'. $systemActionID .'" title="Delete System Action">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
-                else{
-                    $delete = null;
-                }
 
-                $response[] = array(
+                $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $systemActionID .'">',
                     'SYSTEM_ACTION_ID' => $systemActionID,
                     'SYSTEM_ACTION_NAME' => $systemActionName,
@@ -86,7 +79,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>
                                     '. $delete .'
                                 </div>'
-                );
+                ];
             }
 
             echo json_encode($response);

@@ -826,6 +826,9 @@ ADD FOREIGN KEY (menu_group_id) REFERENCES menu_group(menu_group_id);
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', '', 'sidebar', '50', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-group.php', '1', '', '1', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-item.php', '1', '', '2', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Administration', '1', '', '', 'shield', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Action', '1', 'system-action.php', '4', '', '10', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role Configuration', '1', 'role-configuration.php', '4', '', '10', '1');
 
 CREATE TRIGGER menu_item_trigger_update
 AFTER UPDATE ON menu_item
@@ -995,6 +998,13 @@ BEGIN
     ORDER BY role_name;
 END //
 
+CREATE PROCEDURE generateShortcutMenuItemRoleTable()
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM menu_access_right)
+    ORDER BY role_name;
+END //
+
 CREATE PROCEDURE generateAddMenuItemRoleTable(IN p_menu_item_id INT)
 BEGIN
 	SELECT role_id, role_name FROM role
@@ -1017,6 +1027,9 @@ CREATE TABLE menu_access_right(
 INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '0', '0', '0', '0', '0', '1');
 INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '0', '0', '0', '0', '0', '1');
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '1');
 
 CREATE TRIGGER menu_access_right_update
 AFTER UPDATE ON menu_access_right
