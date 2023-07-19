@@ -26,7 +26,7 @@
     $menuGroupDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
     $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
     $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
-    $assignMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
+    $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
 
     if ($menuGroupReadAccess['total'] == 0) {
         header('location: 404.php');

@@ -228,7 +228,6 @@ class RoleModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
-
     
     # -------------------------------------------------------------
     #
@@ -243,6 +242,25 @@ class RoleModel {
     # -------------------------------------------------------------
     public function deleteRole($p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteRole(:p_role_id)');
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRoleMenuAccess
+    # Description: Deletes the role access.
+    #
+    # Parameters:
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteRoleMenuAccess($p_menu_item_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteRoleMenuAccess(:p_menu_item_id, :p_role_id)');
+        $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -262,12 +280,34 @@ class RoleModel {
     # - $role_id (int): The role ID.
     #
     # Returns:
-    # - An array containing the role details.
+    # - An array containing the role menu access details.
     #
     # -------------------------------------------------------------
     public function getRoleMenuAccess($p_menu_item_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getRoleMenuAccess(:p_menu_item_id, :p_role_id)');
         $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getRoleSystemActionAccess
+    # Description: Retrieves the details of a role system action access.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The system action ID.
+    # - $role_id (int): The role ID.
+    #
+    # Returns:
+    # - An array containing the role system action details.
+    #
+    # -------------------------------------------------------------
+    public function getRoleSystemActionAccess($p_system_action_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getRoleSystemActionAccess(:p_system_action_id, :p_role_id)');
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

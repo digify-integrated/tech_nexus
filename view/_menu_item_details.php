@@ -133,8 +133,8 @@
           </div>
           <?php
           if(!empty($menuItemID)){
-            if($assignMenuItemRoleAccess > 0){
-                $menu_item_create = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
+            if($updateMenuItemRoleAccess['total'] > 0){
+                $menu_item_button = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
                               <button type="submit" class="btn btn-info edit-access-details" id="edit-access">Edit</button>
                               <button type="submit" form="update-role-access-form" class="btn btn-success update-access d-none" id="submit-menu-access">Save</button>
                               <button type="button" id="discard-access-update" class="btn btn-outline-danger update-access d-none">Discard</button>';
@@ -179,7 +179,7 @@
                                 <h5>Role Access</h5>
                               </div>
                               <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                              '. $menu_item_create .'
+                              '. $menu_item_button .'
                               </div>
                             </div>
                           </div>
@@ -196,6 +196,7 @@
                                     <th class="all">Create Access</th>
                                     <th class="all">Delete Access</th>
                                     <th class="all">Duplicate Access</th>
+                                    <th class="all">Action</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -226,39 +227,41 @@
                         </div>
                       </div>
                     </div>';
-            }
 
-            if($assignMenuItemRoleAccess > 0){
-                echo '<div id="add-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-add-role-access-modal" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                            <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign Role Access</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
-                              <form id="add-role-access-form" method="post" action="#">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <table id="add-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                                            <thead>
-                                            <tr>
-                                                <th class="all">Role</th>
-                                                <th class="all">Assign</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                              </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" id="add-menu-access" form="add-role-access-form">Submit</button>
-                            </div>
-                            </div>
-                        </div>
-                        </div>';
+
+                    if($updateMenuItemRoleAccess['total'] > 0){
+                      echo '<div id="add-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-add-role-access-modal" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                                  <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign Role Access</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body" id="modal-body">
+                                    <form id="add-role-access-form" method="post" action="#">
+                                      <div class="row">
+                                          <div class="col-md-12">
+                                              <table id="add-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                                  <thead>
+                                                  <tr>
+                                                      <th class="all">Role</th>
+                                                      <th class="all">Assign</th>
+                                                  </tr>
+                                                  </thead>
+                                                  <tbody></tbody>
+                                              </table>
+                                          </div>
+                                      </div>
+                                    </form>
+                                  </div>
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                      <button type="submit" class="btn btn-primary" id="add-menu-access" form="add-role-access-form">Submit</button>
+                                  </div>
+                                  </div>
+                              </div>
+                              </div>';
+                  }
+           
             }
         ?>

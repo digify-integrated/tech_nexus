@@ -20,27 +20,66 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        # Menu group system action table
-        case 'assign system action role access table':
+        # Update access table
+        case 'update role access table':
             if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
                 $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionRoleTable()');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionRoleTable(:systemActionID)');
+                $sql->bindValue(':systemActionID', $systemActionID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
                 
+                $deleteSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 4);
+
                 foreach ($options as $row) {
                     $roleID = $row['role_id'];
                     $roleName = $row['role_name'];
+    
+                    $roleSystemActionAccessDetails = $roleModel->getRoleSystemActionAccess($systemActionID, $roleID);
 
-                    $checkSystemActionRoleExist = $roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
+                    $roleAccess = $roleSystemActionAccessDetails['role_access'] ?? 0;
+                
+                    $roleChecked = $roleAccess ? 'checked' : '';
 
-                    $roleChecked = $checkSystemActionRoleExist['total'] > 0 ? 'checked' : '';
-
+                    $delete = '';
+                    if($deleteSystemActionRoleAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-menu-item-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
                     $response[] = [
-                        'ROLE_ID' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID .'" '. $roleChecked .'></div>',
-                        'ROLE_NAME' => $roleName
+                        'ROLE_NAME' => $roleName,
+                        'ROLE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'" '. $roleChecked .' disabled></div>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # Add role access table
+        case 'add role access table':
+            if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
+                $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddSystemActionRoleTable(:systemActionID)');
+                $sql->bindValue(':systemActionID', $systemActionID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
                     ];
                 }
     
@@ -54,7 +93,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
+            $systemActionDeleteAccess = $userModel->checkSystemActionAccessRights($user_id, 5, 'delete');
 
             foreach ($options as $row) {
                 $systemActionID = $row['system_action_id'];

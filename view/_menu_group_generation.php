@@ -72,7 +72,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
                 $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
                 $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
-                $assignMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);                
+                $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);                
 
                 foreach ($options as $row) {
                     $menuItemID = $row['menu_item_id'];
@@ -100,7 +100,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $assign = '';
-                    if($assignMenuItemRoleAccess > 0 && $menuGroupWriteAccess['total'] > 0){
+                    if($updateMenuItemRoleAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
                         $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
                                             <i class="ti ti-user-check"></i>
                                         </button>';

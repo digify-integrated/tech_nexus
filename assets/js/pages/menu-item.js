@@ -281,15 +281,6 @@
             $('#menu-item-modal').modal('show');
         });
 
-        $(document).on('click','#add-role-access',function() {
-            const menu_item_id = $(this).data('menu-item-id');
-
-            sessionStorage.setItem('menu_item_id', menu_item_id);
-
-            $('#add-role-access-modal').modal('show');
-            addRoleAccessTable('#add-role-access-table');
-        });
-
         $(document).on('click','.update-menu-item',function() {
             const menu_item_id = $(this).data('menu-item-id');
     
@@ -299,15 +290,82 @@
     
             $('#menu-item-modal').modal('show');
         });
+        
+        $(document).on('click','#add-role-access',function() {
+            const menu_item_id = $(this).data('menu-item-id');
+
+            sessionStorage.setItem('menu_item_id', menu_item_id);
+
+            $('#add-role-access-modal').modal('show');
+            addRoleAccessTable('#add-role-access-table');
+        });
 
         $(document).on('click','#edit-access',function() {
             $('.update-access').removeClass('d-none');
             $('.edit-access-details').addClass('d-none');
 
-            const elements = document.querySelectorAll('.update-role-access');
+            const updateAccess = document.querySelectorAll('.update-role-access');
 
-            elements.forEach(element => {
-                element.removeAttribute('disabled');
+            updateAccess.forEach(button => {
+                button.removeAttribute('disabled');
+            });
+        });
+
+        $(document).on('click','.delete-role-access',function() {
+            const menu_item_id = $(this).data('menu-item-id');
+            const role_id = $(this).data('role-id');
+            const transaction = 'delete role menu access';
+    
+            Swal.fire({
+                title: 'Confirm Role Access Deletion',
+                text: 'Are you sure you want to delete this role access?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/role-controller.php',
+                        dataType: 'json',
+                        data: {
+                            menu_item_id : menu_item_id, 
+                            role_id : role_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Role Access Success', 'The role access has been deleted successfully.', 'success');
+                                reloadDatatable('#update-role-access-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Role Access Error', 'The role access does not exist.', 'danger');
+                                    reloadDatatable('#update-role-access-table');
+                                }
+                                else {
+                                    showNotification('Delete Role Access Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                              fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
             });
         });
 
@@ -330,10 +388,10 @@
                     $('.update-access').addClass('d-none');
                     $('.edit-access-details').removeClass('d-none');
 
-                    const elements = document.querySelectorAll('.update-role-access');
+                    const updateAccess = document.querySelectorAll('.update-role-access');
 
-                    elements.forEach(element => {
-                        element.addAttribute('disabled');
+                    updateAccess.forEach(button => {
+                        button.setAttribute('disabled', 'disabled');
                     });
                 }
             });
@@ -471,16 +529,18 @@ function updateRoleAccessTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'WRITE_ACCESS' },
         { 'data' : 'CREATE_ACCESS' },
         { 'data' : 'DELETE_ACCESS' },
-        { 'data' : 'DUPLICATE_ACCESS' }
+        { 'data' : 'DUPLICATE_ACCESS' },
+        { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '50%', 'aTargets': 0 },
+        { 'width': '40%', 'aTargets': 0 },
         { 'width': '10%', 'bSortable': false, 'aTargets': 1 },
         { 'width': '10%', 'bSortable': false, 'aTargets': 2 },
         { 'width': '10%', 'bSortable': false, 'aTargets': 3 },
         { 'width': '10%', 'bSortable': false, 'aTargets': 4 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 5 }
+        { 'width': '10%', 'bSortable': false, 'aTargets': 5 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
@@ -723,6 +783,14 @@ function addRoleAccessForm(){
                     enableFormSubmitButton('add-menu-access', 'Submit');
                     $('#add-role-access-modal').modal('hide');
                     reloadDatatable('#update-role-access-table');
+                    $('.update-access').addClass('d-none');
+                    $('.edit-access-details').removeClass('d-none');
+
+                    const updateAccess = document.querySelectorAll('.update-role-access');
+
+                    updateAccess.forEach(button => {
+                        button.setAttribute('disabled', 'disabled');
+                    });
                 }
             });
             return false;

@@ -185,7 +185,7 @@
                 </div>';
           }
 
-          if($assignMenuItemRoleAccess > 0){
+          if($updateMenuItemRoleAccess['total'] > 0){
             echo '<div id="assign-menu-item-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-assign-menu-item-role-access-modal" aria-hidden="true">
                   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                     <div class="modal-content">

@@ -73,6 +73,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
+                
+                $deleteMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 2);
 
                 foreach ($options as $row) {
                     $roleID = $row['role_id'];
@@ -91,6 +93,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $createChecked = $createAccess ? 'checked' : '';
                     $deleteChecked = $deleteAccess ? 'checked' : '';
                     $duplicateChecked = $duplicateAccess ? 'checked' : '';
+
+                    $delete = '';
+                    if($deleteMenuItemRoleAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
     
                     $response[] = [
                         'ROLE_NAME' => $roleName,
@@ -98,7 +107,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .' disabled></div>',
                         'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .' disabled></div>',
                         'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .' disabled></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>'
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $delete .'
+                                </div>'
                     ];
                 }
     

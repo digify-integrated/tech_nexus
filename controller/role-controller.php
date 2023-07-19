@@ -62,6 +62,12 @@ class RoleController {
                 case 'save role access':
                     $this->saveRoleAccess();
                     break;
+                case 'delete role menu access':
+                    $this->deleteRoleMenuAccess();
+                    break;
+                case 'add system action role access':
+                    $this->addRoleSystemActionAccess();
+                    break;
                 case 'save role system action access':
                     $this->saveRoleSystemActionAccess();
                     break;
@@ -178,8 +184,44 @@ class RoleController {
     }
 
     /**
-    * Deuplicates the role.
-    * Deuplocates the role if it exists; otherwise, return an error message.
+    * Deletes the role access.
+    * Delete the role if it exists; otherwise, return an error message.
+    *
+    * @return void
+    */
+    public function deleteRoleMenuAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
+        $total = $checkRoleMenuAccessExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->roleModel->deleteRoleMenuAccess($menuItemID, $roleID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
+    * Duplicate the role.
+    * Duplicates the role if it exists; otherwise, return an error message.
     *
     * @return void
     */
@@ -295,6 +337,41 @@ class RoleController {
     }
 
     /**
+    * Adds the role system action access.
+    * Add the role system action access.
+    *
+    * @return void
+    */
+    public function addRoleSystemActionAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
+        $roleIDs = explode(',', $_POST['role_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($roleIDs as $roleID) {
+            $checkRoleSystemActionAccessExist = $this->roleModel->checkRoleSystemActionAccessExist($systemActionID, $roleID);
+            $total = $checkRoleSystemActionAccessExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleMenuAccess($systemActionID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    /**
     * Saves the role access.
     * Updates the existing role access of the role.
     *
@@ -337,8 +414,8 @@ class RoleController {
     }
 
     /**
-    * Saves the role system action access.
-    * Updates the system action access of the role.
+    * Saves the role access.
+    * Updates the existing role access of the role.
     *
     * @return void
     */
@@ -349,7 +426,7 @@ class RoleController {
     
         $userID = $_SESSION['user_id'];
         $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
-        $roles = explode(',', $_POST['role']);
+        $permissions = explode(',', $_POST['permission']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -358,10 +435,19 @@ class RoleController {
             exit;
         }
 
-        $this->roleModel->deleteAllRoleSystemActionAccessRights($systemActionID);
+        foreach ($permissions as $permission) {
+            $parts = explode('-', $permission);
+            $roleID = $parts[0];
+            $access = $parts[1];
 
-        foreach ($roles as $role) {
-            $this->roleModel->insertRoleSystemActionAccessRights($systemActionID, $role);
+            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($systemActionID, $roleID);
+            $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleMenuAccess($systemActionID, $roleID, $userID);
+            }
+
+            $this->roleModel->updateRoleMenuAccess($systemActionID, $roleID, $access, $userID);
         }
 
         echo json_encode(['success' => true]);

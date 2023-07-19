@@ -24,7 +24,7 @@
     $systemActionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'write');
     $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
     $systemActionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'duplicate');
-    $assignSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 2);
+    $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
 
     if ($systemActionReadAccess['total'] == 0) {
         header('location: 404.php');
