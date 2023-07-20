@@ -1,41 +1,57 @@
 <?php
 session_start();
 
-/**
-* Class SystemActionController
-*
-* The SystemActionController class handles system action related operations and interactions.
-*/
+# -------------------------------------------------------------
+#
+# Function: SystemActionController
+# Description: 
+# The SystemActionController class handles system action related operations and interactions.
+#
+# Parameters: None
+#
+# Returns: None
+#
+# -------------------------------------------------------------
 class SystemActionController {
     private $systemActionModel;
     private $userModel;
     private $securityModel;
 
-    /**
-    * Create a new instance of the class.
-    *
-    * The constructor initializes the object with the provided UserModel and SecurityModel instances.
-    * These instances are used for user-related operations and security-related operations, respectively.
-    *
-    * @param SystemActionModel $systemActionModel     The SystemActionModel instance for system action related operations.
-    * @param UserModel $userModel     The UserModel instance for user related operations.
-    * @param SecurityModel $securityModel   The SecurityModel instance for security-related operations.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: __construct
+    # Description: 
+    # The constructor initializes the object with the provided SystemActionModel, UserModel and SecurityModel instances.
+    # These instances are used for system action related, user related operations and security related operations, respectively.
+    #
+    # Parameters:
+    # - @param SystemActionModel $systemActionModel     The SystemActionModel instance for system action related operations.
+    # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     public function __construct(SystemActionModel $systemActionModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->systemActionModel = $systemActionModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Handle the incoming request.
-    *
-    * This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    * The transaction determines which action should be performed.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleRequest
+    # Description: 
+    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
+    # The transaction determines which action should be performed.
+    #
+    # Parameters:
+    # - $transaction (string): The type of transaction.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -62,13 +78,19 @@ class SystemActionController {
             }
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Saves the system action.
-    * Updates the existing system action if it exists; otherwise, inserts a new system action.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveSystemAction
+    # Description: 
+    # Updates the existing system action if it exists; otherwise, inserts a new system action.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveSystemAction() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -101,13 +123,19 @@ class SystemActionController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes the system action.
-    * Delete the system action if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteSystemAction
+    # Description: 
+    # Delete the system action if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteSystemAction() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -136,13 +164,19 @@ class SystemActionController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes multiple system actions.
-    * Delete the selected system actions if it exists; otherwise, skip it.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteMultipleSystemAction
+    # Description: 
+    # Delete the selected system actions if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteMultipleSystemAction() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -165,13 +199,19 @@ class SystemActionController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deuplicates the system action.
-    * Deuplocates the system action if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateSystemAction
+    # Description: 
+    # Duplicates the system action if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function duplicateSystemAction() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -200,13 +240,19 @@ class SystemActionController {
         echo json_encode(['success' => true, 'systemActionID' =>  $this->securityModel->encryptData($systemActionID)]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the system action details.
-    * Handles the retrieval of system action details such as system action name, order sequence, etc.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getSystemActionDetails
+    # Description: 
+    # Handles the retrieval of system action details such as system action name, order sequence, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function getSystemActionDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -234,7 +280,9 @@ class SystemActionController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 }
+# -------------------------------------------------------------
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';

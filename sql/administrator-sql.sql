@@ -1224,7 +1224,7 @@ BEGIN
     VALUES ('system_action', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
 END //
 
-CREATE PROCEDURE checkSystemActionExist(IN p_system_action_id INT)
+CREATE PROCEDURE checkSystemActionExist (IN p_system_action_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
     FROM system_action
@@ -1281,17 +1281,12 @@ BEGIN
     ORDER BY system_action_id;
 END //
 
-CREATE PROCEDURE generateSystemActionRoleTable()
-BEGIN
-	SELECT role_id, role_name FROM role
-    ORDER BY role_name;
-END //
-
 /* System action table */
 CREATE TABLE system_action_access_rights(
 	system_action_id INT UNSIGNED NOT NULL,
 	role_id INT UNSIGNED NOT NULL,
-	role_access TINYINT(1) NOT NULL
+	role_access TINYINT(1) NOT NULL,
+    last_log_by INT NOT NULL
 );
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('1', '1', '1');
@@ -1306,13 +1301,13 @@ BEGIN
     WHERE system_action_id = p_system_action_id AND role_access = 1 AND role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_id);
 END //
 
-CREATE PROCEDURE insertRoleSystemActionAccessRights(IN p_system_action_id INT, IN p_role_id INT)
+CREATE PROCEDURE insertRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_id INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO system_action_access_rights (system_action_id, role_id) 
-	VALUES(p_system_action_id, p_role_id);
+    INSERT INTO system_action_access_rights (system_action_id, role_id, last_log_by) 
+	VALUES(p_system_action_id, p_role_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE checkRoleSystemActionAccessExist(IN p_system_action_id INT, IN p_role_id INT)
+CREATE PROCEDURE checkSystemActionRoleExist(IN p_system_action_id INT, IN p_role_id INT)
 BEGIN
 	SELECT COUNT(*) AS total 
     FROM system_action_access_rights 
@@ -1337,5 +1332,19 @@ CREATE PROCEDURE getRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_
 BEGIN
     SELECT role_access
     FROM system_action_access_rights 
+    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE updateRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_id INT, IN p_access TINYINT(1), IN p_last_log_by INT)
+BEGIN
+    UPDATE system_action_access_rights
+    SET role_access = p_access,
+    last_log_by = p_last_log_by
+    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE deleteRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_id INT)
+BEGIN
+	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END //

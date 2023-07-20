@@ -1,43 +1,59 @@
 <?php
 session_start();
 
-/**
-* Class MenuItemController
-*
-* The MenuItemController class handles menu item related operations and interactions.
-*/
+# -------------------------------------------------------------
+#
+# Function: MenuItemController
+# Description: 
+# The MenuItemController class handles menu item related operations and interactions.
+#
+# Parameters: None
+#
+# Returns: None
+#
+# -------------------------------------------------------------
 class MenuItemController {
     private $menuItemModel;
     private $menuGroupModel;
     private $userModel;
     private $securityModel;
 
-    /**
-    * Create a new instance of the class.
-    *
-    * The constructor initializes the object with the provided UserModel and SecurityModel instances.
-    * These instances are used for user-related operations and security-related operations, respectively.
-    *
-    * @param MenuItemModel $menuItemModel     The MenuItemModel instance for menu item related operations.
-    * @param UserModel $userModel     The UserModel instance for user related operations.
-    * @param SecurityModel $securityModel   The SecurityModel instance for security-related operations.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: __construct
+    # Description: 
+    # The constructor initializes the object with the provided MenuItemModel, MenuGroupModel, UserModel and SecurityModel instances.
+    # These instances are used for menu item related operations, menu group related operations, user related operations and security related operations, respectively.
+    #
+    # Parameters:
+    # - @param MenuItemModel $menuItemModel     The MenuItemModel instance for menu item related operations.
+    # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     public function __construct(MenuItemModel $menuItemModel, MenuGroupModel $menuGroupModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->menuItemModel = $menuItemModel;
         $this->menuGroupModel = $menuGroupModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Handle the incoming request.
-    *
-    * This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    * The transaction determines which action should be performed.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleRequest
+    # Description: 
+    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
+    # The transaction determines which action should be performed.
+    #
+    # Parameters:
+    # - $transaction (string): The type of transaction.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -64,13 +80,19 @@ class MenuItemController {
             }
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Saves the menu item.
-    * Updates the existing menu item if it exists; otherwise, inserts a new menu item.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveMenuItem
+    # Description: 
+    # Updates the existing menu item if it exists; otherwise, inserts a new menu item.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveMenuItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -108,13 +130,19 @@ class MenuItemController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes the menu item.
-    * Delete the menu item if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteMenuItem
+    # Description: 
+    # Delete the menu item if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteMenuItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -143,13 +171,19 @@ class MenuItemController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes multiple menu items.
-    * Delete the selected menu items if it exists; otherwise, skip it.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteMultipleMenuItem
+    # Description: 
+    # Delete the selected menu items if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteMultipleMenuItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -172,13 +206,19 @@ class MenuItemController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deuplicates the menu item.
-    * Deuplocates the menu item if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateMenuItem
+    # Description: 
+    # Duplicates the menu item if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function duplicateMenuItem() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -207,13 +247,19 @@ class MenuItemController {
         echo json_encode(['success' => true, 'menuItemID' =>  $this->securityModel->encryptData($menuItemID)]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the menu item details.
-    * Handles the retrieval of menu item details such as menu item name, order sequence, etc.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getMenuItemDetails
+    # Description: 
+    # Handles the retrieval of menu item details such as menu item name, order sequence, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function getMenuItemDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -275,7 +321,9 @@ class MenuItemController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 }
+# -------------------------------------------------------------
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
@@ -287,4 +335,5 @@ require_once '../model/system-model.php';
 
 $controller = new MenuItemController(new MenuItemModel(new DatabaseModel), new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
+
 ?>

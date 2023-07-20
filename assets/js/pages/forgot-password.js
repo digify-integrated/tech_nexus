@@ -52,11 +52,11 @@ $(document).ready(function () {
         },
         success: function(response) {
           if (response.success) {
-            setNotification('Forgot Password Success', 'We have sent a password reset link to your registered email address. Please follow the instructions in the email to securely reset your password.', 'success');
+            setNotification('Password Reset Success', 'A password reset link has been sent to your registered email address. Please check your inbox and follow the instructions in the email to securely reset your password. If you don’t receive the email within a few minutes, please check your spam folder as well.', 'success');
             window.location.href = 'index.php';
           } 
           else {
-            showNotification('Forgot Password Error', response.message, 'danger');
+            showNotification('Password Reset Error', response.message, 'danger');
           }
         },
         error: function(xhr, status, error) {

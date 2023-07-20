@@ -1,38 +1,54 @@
 <?php
 session_start();
 
-/**
-* Class UserController
-*
-* The UserController class handles user-related operations and interactions.
-*/
+# -------------------------------------------------------------
+#
+# Function: UserController
+# Description: 
+# The UserController class handles user related related operations and interactions.
+#
+# Parameters: None
+#
+# Returns: None
+#
+# -------------------------------------------------------------
 class UserController {
     private $userModel;
     private $securityModel;
 
-    /**
-    * Create a new instance of the class.
-    *
-    * The constructor initializes the object with the provided UserModel and SecurityModel instances.
-    * These instances are used for user-related operations and security-related operations, respectively.
-    *
-    * @param UserModel $userModel     The UserModel instance for user-related operations.
-    * @param SecurityModel $securityModel   The SecurityModel instance for security-related operations.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: __construct
+    # Description: 
+    # The constructor initializes the object with the provided SystemActionModel, UserModel and SecurityModel instances.
+    # These instances are used for user related operations and security related operations, respectively.
+    #
+    # Parameters:
+    # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     public function __construct(UserModel $userModel, SecurityModel $securityModel) {
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Handle the incoming request.
-    *
-    * This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    * The transaction determines which action should be performed.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleRequest
+    # Description: 
+    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
+    # The transaction determines which action should be performed.
+    #
+    # Parameters:
+    # - $transaction (string): The type of transaction.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -71,13 +87,19 @@ class UserController {
             }
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Authenticates the user based on the provided email and password.
-    * Handles the login process, including two-factor authentication and account locking.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: authenticate
+    # Description: 
+    # Handles the login process, including two-factor authentication and account locking.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function authenticate() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -131,14 +153,20 @@ class UserController {
         echo json_encode(['success' => true, 'twoFactorAuth' => false]);
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Handles the case when invalid credentials are provided during login.
-    * Updates the failed login attempts and, if the maximum attempts are reached, locks the account.
-    *
-    * @param array $user The user data.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleInvalidCredentials
+    # Description:
+    # Updates the failed login attempts and, if the maximum attempts are reached, locks the account.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function handleInvalidCredentials($user) {
         $userID = $user['user_id'];
         $failedAttempts = $user['failed_login_attempts'] + 1;
@@ -147,37 +175,42 @@ class UserController {
         $this->userModel->updateLoginAttempt($userID, $failedAttempts, $lastFailedLogin);
     
         if ($failedAttempts > MAX_FAILED_LOGIN_ATTEMPTS) {
-            $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) * 5;
+            $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) # 5;
             $this->userModel->updateAccountLock($userID, 1, $lockDuration);
             
             $durationParts = [];
             
             $years = floor($lockDuration / (60 * 60 * 24 * 30 * 12));
             $lockDuration %= (60 * 60 * 24 * 30 * 12);
+
             if ($years > 0) {
                 $durationParts[] = number_format($years) . " year" . (($years > 1) ? "s" : "");
             }
             
             $months = floor($lockDuration / (60 * 60 * 24 * 30));
             $lockDuration %= (60 * 60 * 24 * 30);
+
             if ($months > 0) {
                 $durationParts[] = number_format($months) . " month" . (($months > 1) ? "s" : "");
             }
             
             $days = floor($lockDuration / (60 * 60 * 24));
             $lockDuration %= (60 * 60 * 24);
+
             if ($days > 0) {
                 $durationParts[] = number_format($days) . " day" . (($days > 1) ? "s" : "");
             }
             
             $hours = floor($lockDuration / (60 * 60));
             $lockDuration %= (60 * 60);
+
             if ($hours > 0) {
                 $durationParts[] = number_format($hours) . " hour" . (($hours > 1) ? "s" : "");
             }
             
             $minutes = floor($lockDuration / 60);
             $lockDuration %= 60;
+
             if ($minutes > 0) {
                 $durationParts[] = number_format($minutes) . " minute" . (($minutes > 1) ? "s" : "");
             }
@@ -190,20 +223,27 @@ class UserController {
             
             $message .= ".";
             echo json_encode(['success' => false, 'message' => $message]);
-        } else {
+        }
+        else {
             echo json_encode(['success' => false, 'message' => 'The email or password you entered is invalid. Please double-check your credentials and try again.']);
         }
     
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Handles the case when user's password has expired.
-    * Checks if the user's password is expired.
-    *
-    * @param array $user The user data.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: passwordHasExpired
+    # Description:
+    # Checks if the user's password is expired.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    #
+    # Returns: Bool
+    #
+    # -------------------------------------------------------------
     private function passwordHasExpired($user) {
         $passwordExpiryDate = new DateTime($user['password_expiry_date']);
         $currentDate = new DateTime();
@@ -214,16 +254,22 @@ class UserController {
         
         return false;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Handles the case when the user's password has expired.
-    * Updates the reset token and sends a password reset link to the user's email address.
-    *
-    * @param array $user The user data.
-    * @param string $email The user's email address.
-    * @param string $encryptedUserID The encrypted user ID.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handlePasswordExpiration
+    # Description:
+    # Updates the reset token and sends a password reset link to the user's email address.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    # - $email (string): The email address of the user.
+    # - $encryptedUserID (string): The encrypted user ID.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function handlePasswordExpiration($user, $email, $encryptedUserID) {
         $userID = $user['user_id'];
         $resetTokenExpiryDate = $user['reset_token_expiry_date'];
@@ -241,15 +287,21 @@ class UserController {
     
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Handles the case when the user's account is locked.
-    * Checks the account lock duration and displays the remaining lock time.
-    * If the lock time has expired, unlocks the account.
-    *
-    * @param array $user The user data.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleAccountLock
+    # Description:
+    # Checks the account lock duration and displays the remaining lock time.
+    # If the lock time has expired, unlocks the account.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function handleAccountLock($user) {
         $userID = $user['user_id'];
         $lockDuration = $user['account_lock_duration'];
@@ -259,23 +311,30 @@ class UserController {
         if (time() < $unlockTime) {
             $remainingTime = round(($unlockTime - time()) / 60);
             echo json_encode(['success' => false, 'message' => "Your account has been locked. Please try again in $remainingTime minutes."]);
-        } else {
+        }
+        else {
             $this->userModel->updateAccountLock($userID, 0, null);
         }
     
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Handles the two-factor authentication process.
-    * Generates and encrypts an OTP, sets the OTP expiry date, and sends the OTP to the user's email.
-    *
-    * @param array $user The user data.
-    * @param string $email The user's email address.
-    * @param string $encryptedUserID The encrypted user ID.
-    * @param bool $rememberMe Flag indicating if "Remember Me" is selected.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleTwoFactorAuth
+    # Description:
+    # Generates and encrypts an OTP, sets the OTP expiry date, and sends the OTP to the user's email.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    # - $email (string): The email address of the user.
+    # - $encryptedUserID (string): The encrypted user ID.
+    # - $rememberMe (bool): The remember me value.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function handleTwoFactorAuth($user, $email, $encryptedUserID, $rememberMe) {
         $userID = $user['user_id'];
         $otp = $this->generateToken(6, 6);
@@ -290,14 +349,21 @@ class UserController {
         echo json_encode(['success' => true, 'twoFactorAuth' => true, 'encryptedUserID' => $encryptedUserID]);
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Updates the user's last connection timestamp and sets the remember token if "Remember Me" is selected.
-    *
-    * @param array $user The user data.
-    * @param bool $rememberMe Flag indicating if "Remember Me" is selected.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: updateConnectionAndRememberToken
+    # Description: 
+    # Updates the user's last connection timestamp and sets the remember token if "Remember Me" is selected.
+    #
+    # Parameters: 
+    # - $user (array): The user details.
+    # - $rememberMe (bool): The remember me value.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function updateConnectionAndRememberToken($user, $rememberMe) {
         $userID = $user['user_id'];
         $connectionDate = date('Y-m-d H:i:s');
@@ -310,13 +376,19 @@ class UserController {
             setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Resets the user's password based on the provided user ID and new password.
-    * Handles the password reset process, including validation and password history check.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: passwordReset
+    # Description: 
+    # Handles the password reset process, including validation and password history check.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function passwordReset() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -361,14 +433,20 @@ class UserController {
     
         echo json_encode(['success' => true]);
         exit;
-    }    
+    }
+    # -------------------------------------------------------------
 
-    /**
-    * Sends a password reset email to the provided email address.
-    * Generates a reset token and updates the user's reset token and expiry date.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: authenticate
+    # Description: 
+    # Generates a reset token and updates the user's reset token and expiry date.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function forgotPassword() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -405,13 +483,19 @@ class UserController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Authenticates the user based on the provided user ID and OTP (One-Time Password).
-    * Handles the OTP authentication process, including OTP validation, expiry check, and remember me functionality.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: otpAuthentication
+    # Description: 
+    # Handles the OTP authentication process, including OTP validation, expiry check, and remember me functionality.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function otpAuthentication() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -470,13 +554,19 @@ class UserController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Saves the UI customization settings for the user.
-    * Updates the existing customization setting if it exists; otherwise, inserts a new setting.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveUICustomization
+    # Description: 
+    # Updates the existing customization setting if it exists; otherwise, inserts a new setting.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveUICustomization() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -505,14 +595,20 @@ class UserController {
     
         echo json_encode(['success' => true]);
         exit;
-    }    
+    }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the UI customization settings for the user.
-    * Handles the retrieval of UI customization options such as theme, contrast, caption display, etc.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getUICustomization
+    # Description: 
+    # Handles the retrieval of UI customization options such as theme, contrast, caption display, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function getUICustomization() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -541,7 +637,8 @@ class UserController {
 
             echo json_encode($response);
             exit;
-        } else {
+        }
+        else {
             $response = [
                 'success' => true,
                 'themeContrast' => false,
@@ -556,13 +653,19 @@ class UserController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Updates the notification setting for the user.
-    * Handles the update of the notification setting based on the provided user ID and checked state.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: updateNotificationSetting
+    # Description: 
+    # Handles the update of the notification setting based on the provided user ID and checked state.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function updateNotificationSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -583,14 +686,20 @@ class UserController {
     
         echo json_encode(['success' => true]);
         exit;
-    }    
+    }
+    # -------------------------------------------------------------
 
-    /**
-    * Updates the two-factor authentication setting for the user.
-    * Handles the update of the two-factor authentication setting based on the provided user ID and checked state.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: updateTwoFactorAuthentication
+    # Description: 
+    # Handles the update of the two-factor authentication setting based on the provided user ID and checked state.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function updateTwoFactorAuthentication() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -612,13 +721,19 @@ class UserController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Updates the user's password.
-    * Handles the update of the password by verifying the user's old password and updating it to the new password.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: updatePasswordShortcut
+    # Description: 
+    # Handles the update of the password by verifying the user's old password and updating it to the new password.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function updatePasswordShortcut() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -653,21 +768,29 @@ class UserController {
     
         $lastPasswordChange = date('Y-m-d H:i:s');
         $passwordExpiryDate = date('Y-m-d', strtotime('+6 months'));
+
         $this->userModel->updateUserPassword($userID, $email, $encryptedPassword, $passwordExpiryDate, $lastPasswordChange);
         $this->userModel->insertPasswordHistory($userID, $email, $encryptedPassword, $lastPasswordChange);
     
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Checks the password history for a given user ID and email to determine if the new password matches any previous passwords.
-    *
-    * @param string $p_user_id The user ID.
-    * @param string $p_email The user's email.
-    * @param string $p_password The new password to check against the password history.
-    * @return int The count of matching passwords found in the password history.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: checkPasswordHistory
+    # Description: 
+    # Checks the password history for a given user ID and email to determine if the new password matches any previous passwords.
+    #
+    # Parameters: 
+    # - $p_user_id (array): The user ID.
+    # - $p_email (string): The email address of the user.
+    # - $p_password (string): The password of the user.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function checkPasswordHistory($p_user_id, $p_email, $p_password) {
         $total = 0;
         $passwordHistory = $this->userModel->getPasswordHistory($p_user_id, $p_email);
@@ -682,13 +805,20 @@ class UserController {
     
         return $total;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Checks if the user's password has expired based on the provided user ID.
-    *
-    * @param string $userID The user ID.
-    * @return bool True if the password has expired, false otherwise.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: password_expiry_date
+    # Description: 
+    # Checks if the user's password has expired based on the provided user ID.
+    #
+    # Parameters: 
+    # - $userID (array): The user ID.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     private function password_expiry_date($userID) {
         $user = $this->userModel->getUserByID($userID);
         
@@ -703,28 +833,42 @@ class UserController {
         
         return false;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Generates a random token/OTP (One-Time Password) of specified length.
-    *
-    * @param int $minLength The minimum length of the generated token. Default is 4.
-    * @param int $maxLength The maximum length of the generated token. Default is 4.
-    * @return string The generated token/OTP.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: generateToken
+    # Description: 
+    # Generates a random token/OTP (One-Time Password) of specified length.
+    #
+    # Parameters: 
+    # - $minLength (int): The minimum length of the generated token. Default is 4.
+    # - $maxLength (int): The maximum length of the generated token. Default is 4.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function generateToken($minLength = 4, $maxLength = 4) {
         $length = mt_rand($minLength, $maxLength);
         $otp = random_int(pow(10, $length - 1), pow(10, $length) - 1);
         
         return (string) $otp;
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Generates a random password reset token of specified length.
-    *
-    * @param int $minLength The minimum length of the generated token. Default is 10.
-    * @param int $maxLength The maximum length of the generated token. Default is 12.
-    * @return string The generated password reset token.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: generateResetToken
+    # Description: 
+    # Generates a random reset token of specified length.
+    #
+    # Parameters: 
+    # - $minLength (int): The minimum length of the generated token. Default is 10.
+    # - $maxLength (int): The maximum length of the generated token. Default is 12.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function generateResetToken($minLength = 10, $maxLength = 12) {
         $length = mt_rand($minLength, $maxLength);
         $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -733,14 +877,21 @@ class UserController {
         
         return $resetToken;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Sends an OTP (One-Time Password) to the user's email address.
-    *
-    * @param string $email The recipient's email address.
-    * @param string $otp The OTP code to be sent.
-    * @return bool|string True if the OTP was sent successfully, otherwise an error message.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function sendOTP($email, $otp) {
         $message = file_get_contents('../email-template/otp-email.html');
         $message = str_replace('[OTP CODE]', $otp, $message);
@@ -756,23 +907,31 @@ class UserController {
         try {
             if ($mailer->send()) {
                 return true;
-            } else {
+            }
+            else {
                 return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
             }
-        } catch (Exception $e) {
-            // Handle the exception here (e.g., log the error, display an error message)
+        }
+        catch (Exception $e) {
             return 'Failed to send OTP. Error: ' . $e->getMessage();
         }
     }
+    # -------------------------------------------------------------
     
-    /**
-    * Sends a password reset email containing a password reset link to the user's email address.
-    *
-    * @param string $email The recipient's email address.
-    * @param string $userID The user ID for identifying the user.
-    * @param string $resetToken The password reset token to be included in the reset link.
-    * @return bool|string True if the password reset email was sent successfully, otherwise an error message.
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: sendPasswordReset
+    # Description: 
+    # Sends a password reset email containing a password reset link to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $userID (int): The user ID.
+    # - $resetToken (string): The reset token generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function sendPasswordReset($email, $userID, $resetToken) {
         $message = file_get_contents('../email-template/password-reset-email.html');
         $message = str_replace('[RESET LINK]', 'http://localhost/tech_nexus/password-reset.php?id=' . $userID .'&token=' . $resetToken, $message);
@@ -797,13 +956,20 @@ class UserController {
             return 'Failed to send password reset email. Error: ' . $e->getMessage();
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Sets the SMTP configuration
-    *
-    * @param string $mailer The PHPmailer plugin.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: configureSMTP
+    # Description: 
+    # Sets the SMTP configuration
+    #
+    # Parameters: 
+    # - $mailer (array): The PHP mailer.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     private function configureSMTP($mailer) {
         $mailer->isSMTP();
         $mailer->isHTML(true);
@@ -814,7 +980,9 @@ class UserController {
         $mailer->SMTPSecure = MAIL_SMTP_SECURE;
         $mailer->Port = MAIL_PORT;
     }
+    # -------------------------------------------------------------
 }
+# -------------------------------------------------------------
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';

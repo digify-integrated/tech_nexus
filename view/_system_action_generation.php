@@ -45,7 +45,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteSystemActionRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-menu-item-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

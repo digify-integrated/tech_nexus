@@ -1,41 +1,57 @@
 <?php
 session_start();
 
-/**
-* Class RoleController
-*
-* The RoleController class handles role related operations and interactions.
-*/
+# -------------------------------------------------------------
+#
+# Function: RoleController
+# Description: 
+# The RoleController class handles role related operations and interactions.
+#
+# Parameters: None
+#
+# Returns: None
+#
+# -------------------------------------------------------------
 class RoleController {
     private $roleModel;
     private $userModel;
     private $securityModel;
 
-    /**
-    * Create a new instance of the class.
-    *
-    * The constructor initializes the object with the provided UserModel and SecurityModel instances.
-    * These instances are used for user-related operations and security-related operations, respectively.
-    *
-    * @param RoleModel $menuItemModel     The RoleModel instance for role related operations.
-    * @param UserModel $userModel     The UserModel instance for user related operations.
-    * @param SecurityModel $securityModel   The SecurityModel instance for security-related operations.
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: __construct
+    # Description: 
+    # The constructor initializes the object with the provided RoleModel, UserModel and SecurityModel instances.
+    # These instances are used for role related operations, user related operations and security related operations, respectively.
+    #
+    # Parameters:
+    # - @param RoleModel $menuItemModel     The RoleModel instance for role related operations.
+    # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
     public function __construct(RoleModel $roleModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->roleModel = $roleModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Handle the incoming request.
-    *
-    * This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
-    * The transaction determines which action should be performed.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: handleRequest
+    # Description: 
+    # This method checks the request method and dispatches the corresponding transaction based on the provided transaction parameter.
+    # The transaction determines which action should be performed.
+    #
+    # Parameters:
+    # - $transaction (string): The type of transaction.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
@@ -71,19 +87,28 @@ class RoleController {
                 case 'save role system action access':
                     $this->saveRoleSystemActionAccess();
                     break;
+                case 'delete role system action access':
+                    $this->deleteRoleSystemActionAccess();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
             }
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Saves the role.
-    * Updates the existing role if it exists; otherwise, inserts a new role.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveRole
+    # Description: 
+    # Updates the existing role if it exists; otherwise, inserts a new role.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveRole() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -118,13 +143,19 @@ class RoleController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes the role.
-    * Delete the role if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRole
+    # Description:
+    # Delete the role if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteRole() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -153,13 +184,19 @@ class RoleController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes multiple roles.
-    * Delete the selected roles if it exists; otherwise, skip it.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteMultipleRole
+    # Description:
+    # Delete the selected roles if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteMultipleRole() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -182,13 +219,19 @@ class RoleController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Deletes the role access.
-    * Delete the role if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRoleMenuAccess
+    # Description:
+    # Delete the role if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function deleteRoleMenuAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -218,13 +261,61 @@ class RoleController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Duplicate the role.
-    * Duplicates the role if it exists; otherwise, return an error message.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRoleSystemActionAccess
+    # Description:
+    # Delete the role if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteRoleSystemActionAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSystemActionRoleExist = $this->roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
+        $total = $checkSystemActionRoleExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->roleModel->deleteRoleSystemActionAccess($systemActionID, $roleID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateRole
+    # Description:
+    # Duplicates the role if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function duplicateRole() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -253,13 +344,19 @@ class RoleController {
         echo json_encode(['success' => true, 'roleID' =>  $this->securityModel->encryptData($roleID)]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Retrieves the role details.
-    * Handles the retrieval of role details such as role name, etc.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getRoleDetails
+    # Description:
+    # Handles the retrieval of role details such as role name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function getRoleDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -300,13 +397,19 @@ class RoleController {
             exit;
         }
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Adds the role access.
-    * Add the role access.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: getRoleDetails
+    # Description:
+    # Add the role access.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function addRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -335,13 +438,19 @@ class RoleController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Adds the role system action access.
-    * Add the role system action access.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: addRoleSystemActionAccess
+    # Description:
+    # Add the role system action access.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function addRoleSystemActionAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -359,24 +468,30 @@ class RoleController {
         }
         
         foreach ($roleIDs as $roleID) {
-            $checkRoleSystemActionAccessExist = $this->roleModel->checkRoleSystemActionAccessExist($systemActionID, $roleID);
-            $total = $checkRoleSystemActionAccessExist['total'] ?? 0;
+            $checkSystemActionRoleExist = $this->roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
+            $total = $checkSystemActionRoleExist['total'] ?? 0;
         
             if ($total === 0) {
-                $this->roleModel->insertRoleMenuAccess($systemActionID, $roleID, $userID);
+                $this->roleModel->insertRoleSystemActionAccess($systemActionID, $roleID, $userID);
             }
         }
         
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Saves the role access.
-    * Updates the existing role access of the role.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveRoleAccess
+    # Description:
+    # Updates the existing role access of the role.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -412,13 +527,19 @@ class RoleController {
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 
-    /**
-    * Saves the role access.
-    * Updates the existing role access of the role.
-    *
-    * @return void
-    */
+    # -------------------------------------------------------------
+    #
+    # Function: saveRoleSystemActionAccess
+    # Description:
+    # Updates the existing role access of the role.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
     public function saveRoleSystemActionAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
@@ -444,16 +565,18 @@ class RoleController {
             $total = $checkRoleMenuAccessExist['total'] ?? 0;
         
             if ($total === 0) {
-                $this->roleModel->insertRoleMenuAccess($systemActionID, $roleID, $userID);
+                $this->roleModel->insertRoleSystemActionAccess($systemActionID, $roleID, $userID);
             }
 
-            $this->roleModel->updateRoleMenuAccess($systemActionID, $roleID, $access, $userID);
+            $this->roleModel->updateRoleSystemActionAccess($systemActionID, $roleID, $access, $userID);
         }
 
         echo json_encode(['success' => true]);
         exit;
     }
+    # -------------------------------------------------------------
 }
+# -------------------------------------------------------------
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';

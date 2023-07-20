@@ -319,7 +319,7 @@
         $(document).on('click','.delete-role-access',function() {
             const system_action_id = $(this).data('system-action-id');
             const role_id = $(this).data('role-id');
-            const transaction = 'delete role menu access';
+            const transaction = 'delete role system action access';
     
             Swal.fire({
                 title: 'Confirm Role Access Deletion',
@@ -462,7 +462,7 @@ function systemActionTable(datatable_name, buttons = false, show_all = false){
 }
 
 function roleAccessTable(datatable_name, buttons = false, show_all = false){
-    const system_action_id = sessionStorage.getItem('system_action_id');
+    const system_action_id = $('#system-action-id').text();
     const type = 'assign system action role access table';
     var settings;
 
@@ -572,7 +572,7 @@ function updateRoleAccessTable(datatable_name, buttons = false, show_all = false
 }
 
 function addRoleAccessTable(datatable_name, buttons = false, show_all = false){
-    const system_action_id = sessionStorage.getItem('system_action_id');
+    const system_action_id = $('#system-action-id').text();
     const type = 'add role access table';
     var settings;
 
@@ -716,65 +716,11 @@ function systemActionForm(){
     });
 }
 
-function systemActionRoleAccessForm(){
-    $('#assign-system-action-role-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save role system action access';
-
-            var system_action_id = sessionStorage.getItem('system_action_id');
-            
-            var role_id = [];
-        
-            $('.role-access').each(function(){
-                if($(this).is(':checked')){  
-                    role.push(this.value);
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&role_id=' + role_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-access-form');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update System Action Role Access Success', 'The system action role access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-menu-access-form', 'Submit');
-                    $('#assign-system-action-role-access-modal').modal('hide');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
 function addRoleAccessForm(){
     $('#add-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'add system action role access';
-            var system_action_id = sessionStorage.getItem('system_action_id');
+            const system_action_id = $('#system-action-id').text();
             var role_id = [];
 
             $('.role-access').each(function(){
@@ -793,7 +739,7 @@ function addRoleAccessForm(){
                 },
                 success: function(response) {
                     if (response.success) {
-                        showNotification('Add Role Access Success', 'The menu item role access has been added successfully.', 'success');
+                        showNotification('Add Role Access Success', 'The role access has been added successfully.', 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -832,7 +778,7 @@ function addRoleAccessForm(){
 function updateRoleAccessForm(){
     $('#update-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'save role access';
+            const transaction = 'save role system action access';
 
             const system_action_id = $('#system-action-id').text();
             
@@ -853,11 +799,11 @@ function updateRoleAccessForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&permission=' + permission,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-access');
+                    disableFormSubmitButton('submit-system-action-access');
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Update Menu Item Role Access Success', 'The menu item role access has been updated successfully.', 'success')
+                        showNotification('Update Role Access Success', 'The role access has been updated successfully.', 'success')
                     }
                     else {
                         if (response.isInactive) {
@@ -876,7 +822,7 @@ function updateRoleAccessForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-menu-access', 'Save');
+                    enableFormSubmitButton('submit-system-action-access', 'Save');
                     reloadDatatable('#update-role-access-table');
 
                     $('.update-access').addClass('d-none');

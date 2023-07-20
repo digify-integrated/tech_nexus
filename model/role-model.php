@@ -133,6 +133,30 @@ class RoleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateRoleSystemActionAccess
+    # Description: Updates the system action access of the role.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The menu item ID.
+    # - $p_role_id (int): The role ID.
+    # - $p_access (bool): The access either true or false.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateRoleSystemActionAccess($p_system_action_id, $p_role_id, $p_access, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateRoleSystemActionAccess(:p_system_action_id, :p_role_id, :p_access, :p_last_log_by)');
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_access', $p_access, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -189,8 +213,8 @@ class RoleModel {
 
     # -------------------------------------------------------------
     #
-    # Function: insertRoleSystemActionAccessRights
-    # Description: Inserts the system action role access righte.
+    # Function: insertRoleSystemActionAccess
+    # Description: Inserts the system action access of the role.
     #
     # Parameters:
     # - $p_system_action_id (int): The system action ID.
@@ -199,10 +223,11 @@ class RoleModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertRoleSystemActionAccessRights($p_system_action_id, $p_role_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertRoleSystemActionAccessRights(:p_system_action_id, :p_role_id)');
+    public function insertRoleSystemActionAccess($p_system_action_id, $p_role_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertRoleSystemActionAccess(:p_system_action_id, :p_role_id, :p_last_log_by)');
         $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -253,6 +278,7 @@ class RoleModel {
     # Description: Deletes the role access.
     #
     # Parameters:
+    # - $p_menu_item_id (int): The menu item ID.
     # - $p_role_id (int): The role ID.
     #
     # Returns: None
@@ -261,6 +287,26 @@ class RoleModel {
     public function deleteRoleMenuAccess($p_menu_item_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteRoleMenuAccess(:p_menu_item_id, :p_role_id)');
         $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRoleSystemActionAccess
+    # Description: Deletes the role access.
+    #
+    # Parameters:
+    # - $p_system_action_id (int): The system action ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteRoleSystemActionAccess($p_system_action_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteRoleSystemActionAccess(:p_system_action_id, :p_role_id)');
+        $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }

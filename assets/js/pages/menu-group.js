@@ -24,6 +24,87 @@
             if($('#assign-menu-item-role-access-modal').length){
                 menuItemRoleAccessForm();
             }
+
+            $(document).on('click','#create-menu-item',function() {
+                resetModalForm("menu-item-form");
+
+                $('#menu-item-modal').modal('show');
+            });
+
+            $(document).on('click','.assign-menu-item-role-access',function() {
+                const menu_item_id = $(this).data('menu-item-id');
+
+                sessionStorage.setItem('menu_item_id', menu_item_id);
+
+                $('#assign-menu-item-role-access-modal').modal('show');
+                
+                roleAccessTable('#assign-menu-item-role-access-table');
+            });
+
+            $(document).on('click','.update-menu-item',function() {
+                const menu_item_id = $(this).data('menu-item-id');
+        
+                sessionStorage.setItem('menu_item_id', menu_item_id);
+                
+                displayDetails('get menu item details');
+        
+                $('#menu-item-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-menu-item',function() {
+                const menu_item_id = $(this).data('menu-item-id');
+                const transaction = 'delete menu item';
+        
+                Swal.fire({
+                    title: 'Confirm Menu Item Deletion',
+                    text: 'Are you sure you want to delete this menu item?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/menu-item-controller.php',
+                            dataType: 'json',
+                            data: {
+                                menu_item_id : menu_item_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Menu Item Success', 'The menu item has been deleted successfully.', 'success');
+                                    reloadDatatable('#menu-item-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Menu Item Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
         }
 
         $(document).on('click','.delete-menu-group',function() {
@@ -207,6 +288,7 @@
         $(document).on('click','#discard-create',function() {
             discardCreate('menu-group.php');
         });
+
         $(document).on('click','#edit-form',function() {
             displayDetails('get menu group details');
 
@@ -254,86 +336,6 @@
                                 }
                                 else {
                                     showNotification('Duplicate Menu Group Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#create-menu-item',function() {
-            resetModalForm("menu-item-form");
-
-            $('#menu-item-modal').modal('show');
-        });
-
-        $(document).on('click','.assign-menu-item-role-access',function() {
-            const menu_item_id = $(this).data('menu-item-id');
-
-            sessionStorage.setItem('menu_item_id', menu_item_id);
-
-            $('#assign-menu-item-role-access-modal').modal('show');
-            roleAccessTable('#assign-menu-item-role-access-table');
-        });
-
-        $(document).on('click','.update-menu-item',function() {
-            const menu_item_id = $(this).data('menu-item-id');
-    
-            sessionStorage.setItem('menu_item_id', menu_item_id);
-            
-            displayDetails('get menu item details');
-    
-            $('#menu-item-modal').modal('show');
-        });
-
-        $(document).on('click','.delete-menu-item',function() {
-            const menu_item_id = $(this).data('menu-item-id');
-            const transaction = 'delete menu item';
-    
-            Swal.fire({
-                title: 'Confirm Menu Item Deletion',
-                text: 'Are you sure you want to delete this menu item?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/menu-item-controller.php',
-                        dataType: 'json',
-                        data: {
-                            menu_item_id : menu_item_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                showNotification('Delete Menu Item Success', 'The menu item has been deleted successfully.', 'success');
-                                reloadDatatable('#menu-item-table');
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Delete Menu Item Error', response.message, 'danger');
                                 }
                             }
                         },

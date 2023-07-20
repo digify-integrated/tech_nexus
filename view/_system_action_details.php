@@ -27,11 +27,6 @@
                             if ($systemActionDeleteAccess['total'] > 0) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-system-action-id="' . $systemActionID . '" id="delete-system-action-details">Delete System Action</button></li>';
                             }
-
-                            if ($updateSystemActionRoleAccess['total'] > 0) {
-                                $dropdown .= '<li><div class="dropdown-divider"></div></li>
-                                            <li><button class="dropdown-item" type="button" data-system-action-id="' . $systemActionID . '" id="assign-system-action-role-access">System Action Role Access</button></li>';
-                            }
                           
                           $dropdown .= '</ul>
                               </div>';
