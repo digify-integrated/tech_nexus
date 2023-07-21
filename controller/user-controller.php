@@ -175,7 +175,7 @@ class UserController {
         $this->userModel->updateLoginAttempt($userID, $failedAttempts, $lastFailedLogin);
     
         if ($failedAttempts > MAX_FAILED_LOGIN_ATTEMPTS) {
-            $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) # 5;
+            $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) * 5;
             $this->userModel->updateAccountLock($userID, 1, $lockDuration);
             
             $durationParts = [];

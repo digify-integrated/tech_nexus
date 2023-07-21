@@ -18,7 +18,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        # Menu group table
+        # -------------------------------------------------------------
+        #
+        # Type: menu group table
+        # Description:
+        # Generates the menu group table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'menu group table':
             $sql = $databaseModel->getConnection()->prepare('CALL generateMenuGroupTable()');
             $sql->execute();
@@ -57,7 +67,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
-        # Menu group menu item table
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: menu group menu item table
+        # Description:
+        # Generates the menu item table on menu group page.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'menu group menu item table':
             if(isset($_POST['menu_group_id']) && !empty($_POST['menu_group_id'])){
                 $menuGroupID = htmlspecialchars($_POST['menu_group_id'], ENT_QUOTES, 'UTF-8');
@@ -122,6 +144,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 echo json_encode($response);
             }
         break;
+        # -------------------------------------------------------------
     }
 }
 

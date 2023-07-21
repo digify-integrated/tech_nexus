@@ -23,6 +23,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
     switch ($type) {
         # Update menu group role access table
+        # -------------------------------------------------------------
+        #
+        # Type: update menu group role access table
+        # Description:
+        # Generates the menu item role access table on menu group page.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'update menu group role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
@@ -63,6 +74,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 echo json_encode($response);
             }
         break;
+        # -------------------------------------------------------------
+
         # Update access table
         case 'update role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
