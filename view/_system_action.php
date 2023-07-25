@@ -1,13 +1,12 @@
 <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="sticky-action">
-                <div class="card-header">
-                  <div class="row align-items-center">
-                    <div class="col-sm-6">
-                      <h5>System Action List</h5>
-                    </div>
-                    <?php
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>System Action List</h5>
+                  </div>
+                  <?php
                       if($systemActionCreateAccess > 0 || $systemActionDeleteAccess > 0){
                         $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
                         
@@ -28,8 +27,7 @@
                           
                         echo $action;
                       }
-                    ?>
-                  </div>
+                  ?>
                 </div>
               </div>
               <div class="card-body">

@@ -20,7 +20,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        # Update access table
+        # -------------------------------------------------------------
+        #
+        # Type: update role access table
+        # Description:
+        # Generates the system action role access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'update role access table':
             if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
                 $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
@@ -62,7 +72,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 echo json_encode($response);
             }
         break;
-        # Add role access table
+        # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: add role access table
+        # Description:
+        # Generates the role table not in system action access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'add role access table':
             if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
                 $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
@@ -86,7 +108,109 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 echo json_encode($response);
             }
         break;
-        # System action table
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: update system action access table
+        # Description:
+        # Generates the system action access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'update system action access table':
+            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
+                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateRoleSystemActionTable(:roleID)');
+                $sql->bindValue(':roleID', $roleID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $deleteSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 4);
+
+                foreach ($options as $row) {
+                    $systemActionID = $row['system_action_id'];
+                    $systemActionName = $row['system_action_name'];
+    
+                    $roleSystemActionAccessDetails = $roleModel->getRoleSystemActionAccess($systemActionID, $roleID);
+
+                    $roleAccess = $roleSystemActionAccessDetails['role_access'] ?? 0;
+                
+                    $roleChecked = $roleAccess ? 'checked' : '';
+
+                    $delete = '';
+                    if($deleteSystemActionRoleAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action-access" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete System Action Access">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'SYSTEM_ACTION_NAME' => $systemActionName,
+                        'ROLE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $systemActionID .'" '. $roleChecked .' disabled></div>',
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: add system action access table
+        # Description:
+        # Generates the role table not in system action access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'add system action access table':
+            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
+                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddRoleSystemActionTable(:roleID)');
+                $sql->bindValue(':roleID', $roleID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: system action table
+        # Description:
+        # Generates the role table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'system action table':
             $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionTable()');
             $sql->execute();
@@ -123,6 +247,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        # -------------------------------------------------------------
     }
 }
 

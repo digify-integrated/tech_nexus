@@ -998,6 +998,13 @@ BEGIN
     ORDER BY role_name;
 END //
 
+CREATE PROCEDURE generateRoleMenuItemAccessTable(IN p_role_id INT)
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    WHERE menu_item_id IN (SELECT role_id FROM menu_access_right WHERE role_id = p_role_id)
+    ORDER BY menu_item_name;
+END //
+
 CREATE PROCEDURE generateShortcutMenuItemRoleTable()
 BEGIN
 	SELECT role_id, role_name FROM role
@@ -1009,6 +1016,13 @@ CREATE PROCEDURE generateAddMenuItemRoleTable(IN p_menu_item_id INT)
 BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddRoleMenuItemTable(IN p_role_id INT)
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_access_right WHERE role_id = p_role_id)
     ORDER BY role_name;
 END //
 
@@ -1321,11 +1335,25 @@ BEGIN
     ORDER BY role_name;
 END //
 
+CREATE PROCEDURE generateRoleSystemActionTable(IN p_role_id INT)
+BEGIN
+	SELECT system_action_id, system_action_name FROM system_action
+    WHERE system_action_id IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
+    ORDER BY system_action_name;
+END //
+
 CREATE PROCEDURE generateAddSystemActionRoleTable(IN p_system_action_id INT)
 BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM system_action_access_rights WHERE system_action_id = p_system_action_id)
     ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddRoleSystemActionTable(IN p_role_id INT)
+BEGIN
+	SELECT system_action_id, system_action_name FROM system_action
+    WHERE system_action_id NOT IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
+    ORDER BY system_action_name;
 END //
 
 CREATE PROCEDURE getRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_id INT)

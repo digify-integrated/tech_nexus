@@ -1,13 +1,12 @@
  <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="sticky-action">
-                <div class="card-header">
-                  <div class="row align-items-center">
-                    <div class="col-md-6">
-                      <h5>System Action</h5>
-                    </div>
-                    <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <h5>System Action</h5>
+                  </div>
+                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                     <?php                            
                        if (!empty($systemActionID)) {
                           $dropdown = '<div class="btn-group m-r-5">
@@ -40,7 +39,6 @@
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
                       }          
                     ?>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -81,15 +79,13 @@
               echo '<div class="row">
                     <div class="col-lg-12">
                       <div class="card">
-                        <div class="sticky-action">
-                          <div class="card-header">
-                            <div class="row align-items-center">
-                              <div class="col-sm-6">
-                                <h5>Role Access</h5>
-                              </div>
-                              <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                              '. $system_action_button .'
-                              </div>
+                        <div class="card-header">
+                          <div class="row align-items-center">
+                            <div class="col-sm-6">
+                              <h5>Role Access</h5>
+                            </div>
+                            <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                            '. $system_action_button .'
                             </div>
                           </div>
                         </div>
@@ -115,12 +111,10 @@
                   <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                          <div>
-                            <div class="card-header">
-                              <div class="row align-items-center">
-                                <div class="col-sm-6">
-                                  <h5>Log Notes</h5>
-                                </div>
+                          <div class="card-header">
+                            <div class="row align-items-center">
+                              <div class="col-sm-6">
+                                <h5>Log Notes</h5>
                               </div>
                             </div>
                           </div>

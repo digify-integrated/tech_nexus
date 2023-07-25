@@ -583,7 +583,7 @@ function updateRoleAccessTable(datatable_name, buttons = false, show_all = false
 }
 
 function addRoleAccessTable(datatable_name, buttons = false, show_all = false){
-    const menu_item_id = sessionStorage.getItem('menu_item_id');
+    const menu_item_id = $('#menu-item-id').text();
     const type = 'add role access table';
     var settings;
 

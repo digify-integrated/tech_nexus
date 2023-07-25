@@ -24,8 +24,8 @@
     $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'write');
     $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'delete');
     $roleDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'duplicate');
-    $assignMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
-    $assignSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 2);
+    $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
+    $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
 
     if ($roleReadAccess['total'] == 0) {
         header('location: 404.php');

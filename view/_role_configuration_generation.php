@@ -22,48 +22,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-        # Assign menu item table
-        case 'assign menu item access table':
-            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
-                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemAccessTable()');
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-
-                foreach ($options as $row) {
-                    $menuItemID = $row['menu_item_id'];
-                    $menuItemName = $row['menu_item_name'];
-    
-                    $roleMenuAccessDetails = $roleModel->getRoleMenuAccess($menuItemID, $roleID);
-
-                    $readAccess = $roleMenuAccessDetails['read_access'] ?? 0;
-                    $writeAccess = $roleMenuAccessDetails['write_access'] ?? 0;
-                    $createAccess = $roleMenuAccessDetails['create_access'] ?? 0;
-                    $deleteAccess = $roleMenuAccessDetails['delete_access'] ?? 0;
-                    $duplicateAccess = $roleMenuAccessDetails['delete_access'] ?? 0;
-
-                    $readChecked = $readAccess ? 'checked' : '';
-                    $writeChecked = $writeAccess ? 'checked' : '';
-                    $createChecked = $createAccess ? 'checked' : '';
-                    $deleteChecked = $deleteAccess ? 'checked' : '';
-                    $duplicateChecked = $duplicateAccess ? 'checked' : '';
-    
-                    $response[] = [
-                        'MENU_ITEM_NAME' => $menuItemName,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-read" '. $readChecked .'></div>',
-                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-write" '. $writeChecked .'></div>',
-                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-create" '. $createChecked .'></div>',
-                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-delete" '. $deleteChecked .'></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-access" type="checkbox" value="'. $menuItemID .'-duplicate" '. $duplicateChecked .'></div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # Role configuration table
+        # -------------------------------------------------------------
+        #
+        # Type: role configuration table
+        # Description:
+        # Generates the role table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
         case 'role configuration table':
             $sql = $databaseModel->getConnection()->prepare('CALL generateRoleConfigurationTable()');
             $sql->execute();
@@ -105,6 +74,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
+        # -------------------------------------------------------------
     }
 }
 

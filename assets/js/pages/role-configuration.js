@@ -13,8 +13,12 @@
         if($('#role-id').length){
             displayDetails('get role details');
 
-            if($('#assign-menu-item-access-modal').length){
-                menuItemAccessForm();
+            if($('#update-menu-item-access-table').length){
+                updateMenuItemAccessTable('#update-menu-item-access-table');
+            }
+
+            if($('#update-system-action-access-table').length){
+                updateSystemActionAccessTable('#update-system-action-access-table');
             }
         }
 
@@ -349,9 +353,9 @@ function roleTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function menuItemAccessTable(datatable_name, buttons = false, show_all = false){
-    const role_id = sessionStorage.getItem('role_id');
-    const type = 'assign menu item access table';
+function updateMenuItemAccessTable(datatable_name, buttons = false, show_all = false){
+    const role_id = $('#role-id').text();
+    const type = 'update menu item access table';
     var settings;
 
     const column = [ 
@@ -360,23 +364,81 @@ function menuItemAccessTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'WRITE_ACCESS' },
         { 'data' : 'CREATE_ACCESS' },
         { 'data' : 'DELETE_ACCESS' },
-        { 'data' : 'DUPLICATE_ACCESS' }
+        { 'data' : 'DUPLICATE_ACCESS' },
+        { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '40%', 'aTargets': 0 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 1 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 2 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 3 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 4 },
-        { 'width': '12%', 'bSortable': false, 'aTargets': 5 }
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 3 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 4 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 5 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_role_configuration_generation.php',
+            'url' : 'view/_menu_item_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'role_id' : role_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function updateSystemActionAccessTable(datatable_name, buttons = false, show_all = false){
+    const role_id = $('#role-id').text();
+    const type = 'update system action access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SYSTEM_ACTION_NAME' },
+        { 'data' : 'ROLE_ACCESS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '70%', 'aTargets': 0 },
+        { 'width': '20%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_system_action_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -500,63 +562,6 @@ function roleForm(){
                     $('#role-modal').modal('hide');
                     reloadDatatable('#role-configuration-table');
                     resetModalForm('role-configuration-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function menuItemAccessForm(){
-    $('#assign-role-role-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save role access';
-
-            var role_id = sessionStorage.getItem('role_id');
-            
-            var permission = [];
-        
-            $('.role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&role_id=' + role_id + '&permission=' + permission,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-access-form');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Role Role Access Success', 'The role role access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-menu-access-form', 'Submit');
-                    $('#assign-menu-item-access-modal').modal('hide');
                 }
             });
         

@@ -1,13 +1,12 @@
  <div class="row">
           <div class="col-lg-12">
             <div class="card">
-              <div class="sticky-action">
-                <div class="card-header">
-                  <div class="row align-items-center">
-                    <div class="col-md-6">
-                      <h5>Role Configuration</h5>
-                    </div>
-                    <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <h5>Role Configuration</h5>
+                  </div>
+                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                     <?php                            
                        if (!empty($roleID)) {
                           $dropdown = '<div class="btn-group m-r-5">
@@ -27,18 +26,6 @@
                             if ($roleDeleteAccess['total'] > 0) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="delete-role-details">Delete Role</button></li>';
                             }
-
-                            if($assignMenuItemRoleAccess > 0 || $assignSystemActionRoleAccess > 0){
-                              $dropdown .= '<li><div class="dropdown-divider"></div></li>';
-
-                              if ($assignMenuItemRoleAccess > 0) {
-                                $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-menu-item-access">Menu Item Access</button></li>';
-                              }
-                              
-                              if ($assignSystemActionRoleAccess > 0) {
-                                  $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="assign-system-action-access">System Action Access</button></li>';
-                              }
-                            }
                           
                             $dropdown .= '</ul>
                               </div>';
@@ -52,7 +39,6 @@
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
                       }          
                     ?>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -109,19 +95,95 @@
           </div>
           <?php
           if(!empty($roleID)){
-            if($roleCreateAccess['total'] > 0){
-                $menu_item_create = '<button type="button" class="btn btn-success" id="create-role">Create</button>';
+            if($updateMenuItemRoleAccess['total'] > 0){
+              $menu_item_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-menu-item-access">Add Menu Item</button>
+                            <button type="submit" class="btn btn-info edit-menu-item-access-details" id="edit-menu-item-access">Edit</button>
+                            <button type="submit" form="update-menu-item-access-form" class="btn btn-success update-menu-item-access d-none" id="submit-menu-item-access">Save</button>
+                            <button type="button" id="discard-menu-item-access-update" class="btn btn-outline-danger update-menu-item-access d-none">Discard</button>';
+            }
+
+            if($updateSystemActionRoleAccess['total'] > 0){
+              $system_action_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-system-action-access">Add System Action</button>
+                            <button type="submit" class="btn btn-info edit-system-action-access-details" id="edit-system-action-access">Edit</button>
+                            <button type="submit" form="update-system-action-access-form" class="btn btn-success update-system-action-access d-none" id="submit-system-action-access">Save</button>
+                            <button type="button" id="discard-system-action-access-update" class="btn btn-outline-danger update-system-action-access d-none">Discard</button>';
             }
 
             echo '<div class="row">
                     <div class="col-lg-12">
+                      <div class="card">
+                        <div class="card-header">
+                          <div class="row align-items-center">
+                            <div class="col-sm-6">
+                              <h5>Menu Item Access</h5>
+                            </div>
+                            <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                            '. $menu_item_button .'
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card-body">
+                        <form id="update-menu-item-access-form" method="post" action="#">
+                          <div class="dt-responsive table-responsive">
+                              <table id="update-menu-item-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                <thead>
+                                  <tr>
+                                    <th>Menu Item</th>
+                                    <th class="all">Read Access</th>
+                                    <th class="all">Write Access</th>
+                                    <th class="all">Create Access</th>
+                                    <th class="all">Delete Access</th>
+                                    <th class="all">Duplicate Access</th>
+                                    <th class="all">Action</th>
+                                  </tr>
+                                </thead>
+                                <tbody></tbody>
+                              </table>
+                          </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
                         <div class="card">
-                          <div>
-                            <div class="card-header">
-                              <div class="row align-items-center">
-                                <div class="col-sm-6">
-                                  <h5>Log Notes</h5>
-                                </div>
+                          <div class="card-header">
+                            <div class="row align-items-center">
+                              <div class="col-sm-6">
+                                <h5>System Action Access</h5>
+                              </div>
+                              <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                '. $system_action_button .'
+                              </div>
+                            </div>
+                          </div>
+                          <div class="card-body">
+                            <form id="update-system-action-access-form" method="post" action="#">
+                              <div class="dt-responsive table-responsive">
+                                <table id="update-system-action-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                  <thead>
+                                    <tr>
+                                        <th>System Action</th>
+                                        <th class="all">Access</th>
+                                        <th class="all">Action</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="card">
+                          <div class="card-header">
+                            <div class="row align-items-center">
+                              <div class="col-sm-6">
+                                <h5>Log Notes</h5>
                               </div>
                             </div>
                           </div>

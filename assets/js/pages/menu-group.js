@@ -482,7 +482,7 @@ function menuItemTable(datatable_name, buttons = false, show_all = false){
 }
 
 function roleAccessTable(datatable_name, buttons = false, show_all = false){
-    const menu_item_id = sessionStorage.getItem('menu_item_id');
+    const menu_group_id = $('#menu-group-id').text();
     const type = 'update menu group role access table';
     var settings;
 
