@@ -132,10 +132,10 @@
           <?php
           if(!empty($menuItemID)){
             if($updateMenuItemRoleAccess['total'] > 0){
-                $menu_item_button = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-role-access">Add Role</button>
-                              <button type="submit" class="btn btn-info edit-access-details" id="edit-access">Edit</button>
-                              <button type="submit" form="update-role-access-form" class="btn btn-success update-access d-none" id="submit-menu-access">Save</button>
-                              <button type="button" id="discard-access-update" class="btn btn-outline-danger update-access d-none">Discard</button>';
+                $menu_item_button = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-menu-item-role-access">Add Role</button>
+                              <button type="submit" class="btn btn-info edit-menu-item-access-details" id="edit-menu-item-access">Edit</button>
+                              <button type="submit" form="update-menu-item-role-access-form" class="btn btn-success update-menu-item-access d-none" id="submit-menu-item-role-access">Save</button>
+                              <button type="button" id="discard-menu-item-role-access-update" class="btn btn-outline-danger update-menu-item-access d-none">Discard</button>';
             }
 
             echo '<div class="row">
@@ -179,9 +179,9 @@
                           </div>
                         </div>
                         <div class="card-body">
-                        <form id="update-role-access-form" method="post" action="#">
+                        <form id="update-menu-item-role-access-form" method="post" action="#">
                           <div class="dt-responsive table-responsive">
-                              <table id="update-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                              <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                 <thead>
                                   <tr>
                                     <th>Role</th>
@@ -220,20 +220,19 @@
                       </div>
                     </div>';
 
-
                     if($updateMenuItemRoleAccess['total'] > 0){
-                      echo '<div id="add-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-add-role-access-modal" aria-hidden="true">
+                      echo '<div id="add-menu-item-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-menu-item-role-access-modal-title" aria-hidden="true">
                               <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                                   <div class="modal-content">
                                   <div class="modal-header">
-                                      <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign Role Access</h5>
+                                      <h5 class="modal-title" id="add-menu-item-role-access-modal-title">Assign Role Access</h5>
                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body" id="modal-body">
-                                    <form id="add-role-access-form" method="post" action="#">
+                                    <form id="add-menu-item-role-access-form" method="post" action="#">
                                       <div class="row">
                                           <div class="col-md-12">
-                                              <table id="add-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                              <table id="add-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                                   <thead>
                                                   <tr>
                                                       <th class="all">Role</th>
@@ -248,7 +247,7 @@
                                   </div>
                                   <div class="modal-footer">
                                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                      <button type="submit" class="btn btn-primary" id="add-menu-access" form="add-role-access-form">Submit</button>
+                                      <button type="submit" class="btn btn-primary" id="submit-add-menu-item-role-access" form="add-menu-item-role-access-form">Submit</button>
                                   </div>
                                   </div>
                               </div>

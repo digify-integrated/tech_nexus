@@ -1023,7 +1023,7 @@ CREATE PROCEDURE generateAddRoleMenuItemTable(IN p_role_id INT)
 BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
     WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_access_right WHERE role_id = p_role_id)
-    ORDER BY role_name;
+    ORDER BY menu_item_name;
 END //
 
 /* Menu access right table */

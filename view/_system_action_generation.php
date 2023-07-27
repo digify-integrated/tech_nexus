@@ -114,7 +114,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # Type: update system action access table
         # Description:
-        # Generates the system action access table.
+        # Generates the system action table in system action access table.
         #
         # Parameters: None
         #
@@ -168,7 +168,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # Type: add system action access table
         # Description:
-        # Generates the role table not in system action access table.
+        # Generates the system action table not in system action access table.
         #
         # Parameters: None
         #
@@ -186,12 +186,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
 
                 foreach ($options as $row) {
-                    $roleID = $row['role_id'];
-                    $roleName = $row['role_name'];
+                    $systemActionID = $row['system_action_id'];
+                    $systemActionName = $row['system_action_name'];
     
                     $response[] = [
-                        'ROLE_NAME' => $roleName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
+                        'SYSTEM_ACTION_NAME' => $systemActionName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $systemActionID.'"></div>'
                     ];
                 }
     

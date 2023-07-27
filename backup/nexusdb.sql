@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 25, 2023 at 10:57 AM
+-- Generation Time: Jul 27, 2023 at 11:35 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -237,7 +237,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleMenuItemTable` (IN `p_role_id` INT)   BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
     WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_access_right WHERE role_id = p_role_id)
-    ORDER BY role_name;
+    ORDER BY menu_item_name;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleSystemActionTable` (IN `p_role_id` INT)   BEGIN
@@ -1462,7 +1462,97 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (801, 'menu_access_right', 0, 'Role ID: 11<br/>', '1', '2023-07-20 14:17:46'),
 (802, 'users', 1, 'Last Connection Date: 2023-07-20 10:13:47 -> 2023-07-21 14:07:54<br/>', '1', '2023-07-21 14:07:54'),
 (803, 'users', 1, 'Last Connection Date: 2023-07-21 14:07:54 -> 2023-07-24 08:56:36<br/>', '1', '2023-07-24 08:56:36'),
-(804, 'users', 1, 'Last Connection Date: 2023-07-24 08:56:36 -> 2023-07-25 10:23:55<br/>', '1', '2023-07-25 10:23:55');
+(804, 'users', 1, 'Last Connection Date: 2023-07-24 08:56:36 -> 2023-07-25 10:23:55<br/>', '1', '2023-07-25 10:23:55'),
+(805, 'users', 1, 'Last Connection Date: 2023-07-25 10:23:55 -> 2023-07-26 13:24:21<br/>', '1', '2023-07-26 13:24:21'),
+(806, 'users', 1, 'Last Connection Date: 2023-07-26 13:24:21 -> 2023-07-27 12:00:27<br/>', '1', '2023-07-27 12:00:27'),
+(807, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>Order Sequence: 12', '1', '2023-07-27 13:13:13'),
+(808, 'menu_access_right', 10, 'Menu item access rights created. <br/>', '1', '2023-07-27 15:25:35'),
+(809, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-27 15:28:54'),
+(810, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-27 15:28:54'),
+(811, 'menu_access_right', 10, 'Role ID: 0<br/>', '1', '2023-07-27 15:37:05'),
+(812, 'menu_access_right', 10, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-27 15:37:35'),
+(813, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:37:35'),
+(814, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:37:35'),
+(815, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:37:35'),
+(816, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:37:35'),
+(817, 'menu_access_right', 10, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-27 15:37:35'),
+(818, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:37:35'),
+(819, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:37:35'),
+(820, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:37:35'),
+(821, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:37:35'),
+(822, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:47'),
+(823, 'menu_access_right', 10, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-27 15:40:47'),
+(824, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:47'),
+(825, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:47'),
+(826, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:47'),
+(827, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:47'),
+(828, 'menu_access_right', 10, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-27 15:40:47'),
+(829, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:47'),
+(830, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:47'),
+(831, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:47'),
+(832, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:54'),
+(833, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:54'),
+(834, 'menu_access_right', 10, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-27 15:40:54'),
+(835, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:54'),
+(836, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:40:54'),
+(837, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:54'),
+(838, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:54'),
+(839, 'menu_access_right', 10, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-27 15:40:54'),
+(840, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:54'),
+(841, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:40:54'),
+(842, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-27 15:43:26'),
+(843, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-27 15:43:26'),
+(844, 'menu_access_right', 10, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-27 15:43:29'),
+(845, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:43:29'),
+(846, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:43:29'),
+(847, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:43:29'),
+(848, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 15:43:29'),
+(849, 'menu_access_right', 10, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-27 15:43:29'),
+(850, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:43:29'),
+(851, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:43:29'),
+(852, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:43:29'),
+(853, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 15:43:29'),
+(854, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-27 15:45:57'),
+(855, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-27 15:45:57'),
+(856, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-27 15:45:57'),
+(857, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 11', '1', '2023-07-27 15:45:57'),
+(858, 'menu_access_right', 10, 'Role ID: 6<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-27 16:13:02'),
+(859, 'menu_access_right', 10, 'Role ID: 6<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-27 16:13:02'),
+(860, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:02'),
+(861, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:02'),
+(862, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:02'),
+(863, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:06'),
+(864, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:06'),
+(865, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:06'),
+(866, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:06'),
+(867, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:06'),
+(868, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:32'),
+(869, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:32'),
+(870, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:32'),
+(871, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:32'),
+(872, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:13:32'),
+(873, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:10'),
+(874, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:10'),
+(875, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:10'),
+(876, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:10'),
+(877, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:10'),
+(878, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-27 16:19:13'),
+(879, 'menu_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-27 16:19:13'),
+(880, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 16:19:17'),
+(881, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 16:19:17'),
+(882, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 16:19:17'),
+(883, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 16:19:17'),
+(884, 'menu_access_right', 10, 'Role ID: 1<br/>', '1', '2023-07-27 16:19:17'),
+(885, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 16:19:17'),
+(886, 'menu_access_right', 10, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-27 16:19:17'),
+(887, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 16:19:17'),
+(888, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 16:19:17'),
+(889, 'menu_access_right', 10, 'Role ID: 2<br/>', '1', '2023-07-27 16:19:17'),
+(890, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
+(891, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
+(892, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
+(893, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
+(894, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17');
 
 -- --------------------------------------------------------
 
@@ -1533,7 +1623,9 @@ INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `writ
 (0, 2, 0, 0, 0, 0, 0, 1),
 (6, 11, 0, 0, 0, 0, 0, 1),
 (6, 6, 0, 0, 0, 0, 0, 1),
-(0, 11, 0, 0, 0, 0, 0, 1);
+(0, 11, 0, 0, 0, 0, 0, 1),
+(10, 0, 0, 0, 0, 0, 0, 1),
+(10, 2, 0, 1, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_access_right`
@@ -1693,7 +1785,8 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 1),
 (4, 'Administration', 1, '', 0, 'shield', 1, 1),
 (5, 'System Action', 1, 'system-action.php', 4, '', 10, 1),
-(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 1);
+(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 1),
+(10, 'test', 1, '', 0, '', 12, 1);
 
 --
 -- Triggers `menu_item`
@@ -2095,7 +2188,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-25 10:23:55', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-27 12:00:27', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
 
 --
 -- Triggers `users`
@@ -2370,7 +2463,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=805;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=895;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -2382,7 +2475,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `password_history`

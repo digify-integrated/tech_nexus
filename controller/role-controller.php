@@ -57,9 +57,6 @@ class RoleController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'add role access':
-                    $this->addRoleAccess();
-                    break;
                 case 'save role':
                     $this->saveRole();
                     break;
@@ -75,20 +72,23 @@ class RoleController {
                 case 'get role details':
                     $this->getRoleDetails();
                     break;
-                case 'save role access':
-                    $this->saveRoleAccess();
+                case 'add menu item role access':
+                    $this->addMenuItemRoleAccess();
                     break;
-                case 'delete role menu access':
-                    $this->deleteRoleMenuAccess();
+                case 'save menu item role access':
+                    $this->saveMenuItemRoleAccess();
+                    break;
+                case 'delete menu item role access':
+                    $this->deleteMenuItemRoleAccess();
                     break;
                 case 'add system action role access':
-                    $this->addRoleSystemActionAccess();
+                    $this->addSystemActionRoleAccess();
                     break;
-                case 'save role system action access':
-                    $this->saveRoleSystemActionAccess();
+                case 'save system action role access':
+                    $this->saveSystemActionRoleAccess();
                     break;
-                case 'delete role system action access':
-                    $this->deleteRoleSystemActionAccess();
+                case 'delete system action role access':
+                    $this->deleteSystemActionRoleAccess();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -223,7 +223,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteRoleMenuAccess
+    # Function: deleteMenuItemRoleAccess
     # Description:
     # Delete the role if it exists; otherwise, return an error message.
     #
@@ -232,7 +232,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteRoleMenuAccess() {
+    public function deleteMenuItemRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -265,7 +265,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteRoleSystemActionAccess
+    # Function: deleteSystemActionRoleAccess
     # Description:
     # Delete the role if it exists; otherwise, return an error message.
     #
@@ -274,7 +274,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteRoleSystemActionAccess() {
+    public function deleteSystemActionRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -298,7 +298,7 @@ class RoleController {
             exit;
         }
     
-        $this->roleModel->deleteRoleSystemActionAccess($systemActionID, $roleID);
+        $this->roleModel->deleteSystemActionRoleAccess($systemActionID, $roleID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -401,7 +401,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: getRoleDetails
+    # Function: addMenuItemRoleAccess
     # Description:
     # Add the role access.
     #
@@ -410,7 +410,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function addRoleAccess() {
+    public function addMenuItemRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -442,7 +442,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: addRoleSystemActionAccess
+    # Function: addSystemActionRoleAccess
     # Description:
     # Add the role system action access.
     #
@@ -451,7 +451,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function addRoleSystemActionAccess() {
+    public function addSystemActionRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -483,7 +483,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveRoleAccess
+    # Function: saveMenuItemRoleAccess
     # Description:
     # Updates the existing role access of the role.
     #
@@ -492,7 +492,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveRoleAccess() {
+    public function saveMenuItemRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -531,7 +531,7 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveRoleSystemActionAccess
+    # Function: saveSystemActionRoleAccess
     # Description:
     # Updates the existing role access of the role.
     #
@@ -540,7 +540,7 @@ class RoleController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveRoleSystemActionAccess() {
+    public function saveSystemActionRoleAccess() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }

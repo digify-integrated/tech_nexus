@@ -77,7 +77,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: update role access table
+        # Type: update menu item role access table
         # Description:
         # Generates the menu item role access table.
         #
@@ -86,7 +86,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'update role access table':
+        case 'update menu item role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
@@ -118,18 +118,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteMenuItemRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
     
                     $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .' disabled></div>',
-                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .' disabled></div>',
-                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .' disabled></div>',
-                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .' disabled></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>',
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $roleID .'-read" '. $readChecked .' disabled></div>',
+                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $roleID .'-write" '. $writeChecked .' disabled></div>',
+                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $roleID .'-create" '. $createChecked .' disabled></div>',
+                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $roleID .'-delete" '. $deleteChecked .' disabled></div>',
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $roleID .'-duplicate" '. $duplicateChecked .' disabled></div>',
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $delete .'
                                 </div>'
@@ -143,16 +143,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: add role access table
+        # Type: add menu item role access table
         # Description:
-        # Generates the role table not in menu item access table.
+        # Generates the role not in menu item role access table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'add role access table':
+        case 'add menu item role access table':
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
@@ -168,7 +168,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-role-access" type="checkbox" value="'. $roleID.'"></div>'
                     ];
                 }
     
@@ -179,16 +179,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: update menu item access table
+        # Type: update menu item role access table
         # Description:
-        # Generates the menu item role access table.
+        # Generates the menu item table in menu item access table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'update menu item access table':
+        /*case 'update menu item role access table':
             if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
                 $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
 
@@ -220,18 +220,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteMenuItemRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Menu Item Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Menu Item Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
     
                     $response[] = [
                         'MENU_ITEM_NAME' => $menuItemName,
-                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-access" type="checkbox" value="'. $menuItemID .'-read" '. $readChecked .' disabled></div>',
-                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-access" type="checkbox" value="'. $menuItemID .'-write" '. $writeChecked .' disabled></div>',
-                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-access" type="checkbox" value="'. $menuItemID .'-create" '. $createChecked .' disabled></div>',
-                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-access" type="checkbox" value="'. $menuItemID .'-delete" '. $deleteChecked .' disabled></div>',
-                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-access" type="checkbox" value="'. $menuItemID .'-duplicate" '. $duplicateChecked .' disabled></div>',
+                        'READ_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $menuItemID .'-read" '. $readChecked .' disabled></div>',
+                        'WRITE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $menuItemID .'-write" '. $writeChecked .' disabled></div>',
+                        'CREATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $menuItemID .'-create" '. $createChecked .' disabled></div>',
+                        'DELETE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $menuItemID .'-delete" '. $deleteChecked .' disabled></div>',
+                        'DUPLICATE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-menu-item-role-access" type="checkbox" value="'. $menuItemID .'-duplicate" '. $duplicateChecked .' disabled></div>',
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $delete .'
                                 </div>'
@@ -240,7 +240,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                 echo json_encode($response);
             }
-        break;
+        break;*/
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------
@@ -254,7 +254,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'add menu item access table':
+        /*case 'add menu item access table':
             if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
                 $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
 
@@ -276,7 +276,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                 echo json_encode($response);
             }
-        break;
+        break;*/
         # -------------------------------------------------------------
 
         # -------------------------------------------------------------
