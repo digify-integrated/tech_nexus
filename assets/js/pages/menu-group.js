@@ -482,7 +482,7 @@ function menuItemTable(datatable_name, buttons = false, show_all = false){
 }
 
 function roleAccessTable(datatable_name, buttons = false, show_all = false){
-    const menu_group_id = $('#menu-group-id').text();
+    var menu_item_id = sessionStorage.getItem('menu_item_id');
     const type = 'update menu group role access table';
     var settings;
 
@@ -734,7 +734,7 @@ function menuItemForm(){
 function menuItemRoleAccessForm(){
     $('#assign-menu-item-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'save role access';
+            const transaction = 'save menu item role access';
 
             var menu_item_id = sessionStorage.getItem('menu_item_id');
             

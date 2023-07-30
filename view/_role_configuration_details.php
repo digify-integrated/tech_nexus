@@ -96,17 +96,11 @@
           <?php
           if(!empty($roleID)){
             if($updateMenuItemRoleAccess['total'] > 0){
-              $menu_item_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-menu-item-access">Add Menu Item</button>
-                            <button type="submit" class="btn btn-info edit-menu-item-access-details" id="edit-menu-item-access">Edit</button>
-                            <button type="submit" form="update-menu-item-access-form" class="btn btn-success update-menu-item-access d-none" id="submit-update-menu-item-access">Save</button>
-                            <button type="button" id="discard-menu-item-access-update" class="btn btn-outline-danger update-menu-item-access d-none">Discard</button>';
+              $menu_item_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-menu-item-role-access">Add Menu Item</button>';
             }
 
             if($updateSystemActionRoleAccess['total'] > 0){
-              $system_action_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-system-action-access">Add System Action</button>
-                            <button type="submit" class="btn btn-info edit-system-action-access-details" id="edit-system-action-access">Edit</button>
-                            <button type="submit" form="update-system-action-access-form" class="btn btn-success update-system-action-access d-none" id="submit-update-system-action-access">Save</button>
-                            <button type="button" id="discard-system-action-access-update" class="btn btn-outline-danger update-system-action-access d-none">Discard</button>';
+              $system_action_button = '<button type="button" class="btn btn-warning" data-role-id="' . $roleID . '" id="add-system-action-role-access">Add System Action</button>';
             }
 
             echo '<div class="row">
@@ -115,7 +109,7 @@
                         <div class="card-header">
                           <div class="row align-items-center">
                             <div class="col-sm-6">
-                              <h5>Menu Item Access</h5>
+                              <h5>Role Access</h5>
                             </div>
                             <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                             '. $menu_item_button .'
@@ -123,9 +117,9 @@
                           </div>
                         </div>
                         <div class="card-body">
-                        <form id="update-menu-item-access-form" method="post" action="#">
+                        <form id="update-menu-item-role-access-form" method="post" action="#">
                           <div class="dt-responsive table-responsive">
-                              <table id="update-menu-item-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                              <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                 <thead>
                                   <tr>
                                     <th>Menu Item</th>
@@ -146,37 +140,37 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                          <div class="card-header">
-                            <div class="row align-items-center">
-                              <div class="col-sm-6">
-                                <h5>System Action Access</h5>
-                              </div>
-                              <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                '. $system_action_button .'
-                              </div>
-                            </div>
+                  <div class="col-lg-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <div class="row align-items-center">
+                          <div class="col-sm-6">
+                            <h5>Role Access</h5>
                           </div>
-                          <div class="card-body">
-                            <form id="update-system-action-access-form" method="post" action="#">
-                              <div class="dt-responsive table-responsive">
-                                <table id="update-system-action-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                                  <thead>
-                                    <tr>
-                                        <th>System Action</th>
-                                        <th class="all">Access</th>
-                                        <th class="all">Action</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                              </div>
-                            </form>
+                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                          '. $system_action_button .'
                           </div>
                         </div>
                       </div>
+                      <div class="card-body">
+                        <form id="update-system-action-role-access-form" method="post" action="#">
+                          <div class="dt-responsive table-responsive">
+                            <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                              <thead>
+                                <tr>
+                                  <th>System Action</th>
+                                  <th class="all">Access</th>
+                                  <th class="all">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                        </div>
+                        </form>
+                      </div>
                     </div>
+                  </div>
+                </div>
                     <div class="row">
                       <div class="col-lg-12">
                         <div class="card">
@@ -197,21 +191,21 @@
                     </div>';
 
                     if($updateMenuItemRoleAccess['total'] > 0){
-                      echo '<div id="add-menu-item-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-add-menu-item-access-modal" aria-hidden="true">
+                      echo '<div id="add-menu-item-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-menu-item-role-access-modal-title" aria-hidden="true">
                               <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                                   <div class="modal-content">
                                   <div class="modal-header">
-                                      <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign Menu Item Access</h5>
+                                      <h5 class="modal-title" id="add-menu-item-role-access-modal-title">Assign Role Access</h5>
                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body" id="modal-body">
-                                    <form id="add-menu-item-access-form" method="post" action="#">
+                                    <form id="add-menu-item-role-access-form" method="post" action="#">
                                       <div class="row">
                                           <div class="col-md-12">
-                                              <table id="add-menu-item-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                              <table id="add-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                                   <thead>
                                                   <tr>
-                                                      <th class="all">Menu Item</th>
+                                                      <th class="all">Role</th>
                                                       <th class="all">Assign</th>
                                                   </tr>
                                                   </thead>
@@ -223,46 +217,46 @@
                                   </div>
                                   <div class="modal-footer">
                                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                      <button type="submit" class="btn btn-primary" id="submit-menu-item-access" form="add-menu-item-access-form">Submit</button>
+                                      <button type="submit" class="btn btn-primary" id="submit-add-menu-item-role-access" form="add-menu-item-role-access-form">Submit</button>
                                   </div>
                                   </div>
                               </div>
                               </div>';
-                      }
-        
-                      if($updateSystemActionRoleAccess['total'] > 0){
-                        echo '<div id="add-system-action-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-add-system-action-access-modal" aria-hidden="true">
-                          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                              <div class="modal-content">
-                              <div class="modal-header">
-                                  <h5 class="modal-title" id="modal-add-role-access-modal-title">Assign System Action Access</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body" id="modal-body">
-                                <form id="add-system-action-access-form" method="post" action="#">
-                                  <div class="row">
-                                      <div class="col-md-12">
-                                          <table id="add-system-action-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                                              <thead>
-                                              <tr>
-                                                  <th class="all">System Action</th>
-                                                  <th class="all">Assign</th>
-                                              </tr>
-                                              </thead>
-                                              <tbody></tbody>
-                                          </table>
-                                      </div>
-                                  </div>
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                  <button type="submit" class="btn btn-primary" id="submit-system-action-access" form="add-system-action-access-form">Submit</button>
-                              </div>
-                              </div>
-                          </div>
-                        </div>';
-                      }
+                  }
+
+                  if($updateSystemActionRoleAccess['total'] > 0){
+                    echo '<div id="add-system-action-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-system-action-role-access-modal-title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="add-system-action-role-access-modal-title">Assign Role Access</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="modal-body">
+                          <form id="add-system-action-role-access-form" method="post" action="#">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table id="add-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                        <thead>
+                                        <tr>
+                                            <th class="all">Role</th>
+                                            <th class="all">Assign</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="submit-add-system-action-role-access" form="add-system-action-role-access-form">Submit</button>
+                        </div>
+                        </div>
+                    </div>
+                    </div>';
+                }
             }
 
         ?>

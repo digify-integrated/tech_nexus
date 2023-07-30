@@ -256,7 +256,7 @@ class RoleController {
             exit;
         }
     
-        $this->roleModel->deleteRoleMenuAccess($menuItemID, $roleID);
+        $this->roleModel->deleteMenuItemRoleAccess($menuItemID, $roleID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -498,8 +498,11 @@ class RoleController {
         }
     
         $userID = $_SESSION['user_id'];
+        $updateMenuItemRoleAccess = $this->userModel->checkSystemActionAccessRights($userID, 1);
         $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
-        $permissions = explode(',', $_POST['permission']);
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $accessType = htmlspecialchars($_POST['access_type'], ENT_QUOTES, 'UTF-8');
+        $access = htmlspecialchars($_POST['access'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -508,21 +511,19 @@ class RoleController {
             exit;
         }
 
-        foreach ($permissions as $permission) {
-            $parts = explode('-', $permission);
-            $roleID = $parts[0];
-            $accessType = $parts[1];
-            $access = $parts[2];
-
-            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
-            $total = $checkRoleMenuAccessExist['total'] ?? 0;
-        
-            if ($total === 0) {
-                $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
-            }
-
-            $this->roleModel->updateRoleMenuAccess($menuItemID, $roleID, $accessType, $access, $userID);
+        if($updateMenuItemRoleAccess == 0){
+            echo json_encode(['success' => false, 'message' => 'You do not have the necessary permissions to update role access.']);
+            exit;
         }
+
+        $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
+        $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+        if ($total === 0) {
+            $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
+        }
+
+        $this->roleModel->updateRoleMenuAccess($menuItemID, $roleID, $accessType, $access, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -546,8 +547,10 @@ class RoleController {
         }
     
         $userID = $_SESSION['user_id'];
+        $updateSystemActionRoleAccess = $this->userModel->checkSystemActionAccessRights($userID, 3);
         $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
-        $permissions = explode(',', $_POST['permission']);
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $access = htmlspecialchars($_POST['access'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -556,20 +559,19 @@ class RoleController {
             exit;
         }
 
-        foreach ($permissions as $permission) {
-            $parts = explode('-', $permission);
-            $roleID = $parts[0];
-            $access = $parts[1];
-
-            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($systemActionID, $roleID);
-            $total = $checkRoleMenuAccessExist['total'] ?? 0;
-        
-            if ($total === 0) {
-                $this->roleModel->insertRoleSystemActionAccess($systemActionID, $roleID, $userID);
-            }
-
-            $this->roleModel->updateRoleSystemActionAccess($systemActionID, $roleID, $access, $userID);
+        if($updateSystemActionRoleAccess == 0){
+            echo json_encode(['success' => false, 'message' => 'You do not have the necessary permissions to update role access.']);
+            exit;
         }
+
+        $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($systemActionID, $roleID);
+        $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+        if ($total === 0) {
+            $this->roleModel->insertRoleSystemActionAccess($systemActionID, $roleID, $userID);
+        }
+
+        $this->roleModel->updateRoleSystemActionAccess($systemActionID, $roleID, $access, $userID);
 
         echo json_encode(['success' => true]);
         exit;

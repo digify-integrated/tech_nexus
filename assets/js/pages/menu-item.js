@@ -18,27 +18,12 @@
             displayDetails('get menu item details');
 
             if($('#update-menu-item-role-access-table').length){
-                updateRoleAccessTable('#update-menu-item-role-access-table');
-            }
-
-            if($('#update-menu-item-role-access-form').length){
-                updateRoleAccessForm();
+                updateMenuItemRoleAccessTable('#update-menu-item-role-access-table');
             }
 
             if($('#add-menu-item-role-access-modal').length){
-                addRoleAccessForm();
+                addMenuItemRoleAccessForm();
             }
-    
-            $(document).on('click','#edit-menu-item-access',function() {
-                $('.update-menu-item-access').removeClass('d-none');
-                $('.edit-menu-item-access-details').addClass('d-none');
-    
-                const updateAccess = document.querySelectorAll('.update-menu-item-role-access');
-    
-                updateAccess.forEach(button => {
-                    button.removeAttribute('disabled');
-                });
-            });
 
             $(document).on('click','#add-menu-item-role-access',function() {
                 const menu_item_id = $(this).data('menu-item-id');
@@ -46,7 +31,56 @@
                 sessionStorage.setItem('menu_item_id', menu_item_id);
     
                 $('#add-menu-item-role-access-modal').modal('show');
-                addRoleAccessTable('#add-menu-item-role-access-table');
+                addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
+            });
+    
+            $(document).on('click','.update-menu-item-role-access',function() {
+                const menu_item_id = $(this).data('menu-item-id');
+                const role_id = $(this).data('role-id');
+                const access_type = $(this).data('access-type');
+                const transaction = 'save menu item role access';
+                var access;
+
+                if ($(this).is(':checked')){  
+                    access = '1';
+                }
+                else{
+                    access = '0';
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/role-controller.php',
+                    dataType: 'json',
+                    data: {
+                        menu_item_id : menu_item_id, 
+                        role_id : role_id, 
+                        access_type : access_type,
+                        access : access,
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (!response.success) {
+                            if (response.isInactive) {
+                                setNotification('User Inactive', response.message, 'danger');
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                showNotification('Update Role Access Error', 'The role access does not exist.', 'danger');
+                            }
+                            else {
+                                showNotification('Update Role Access Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                          fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
             });
     
             $(document).on('click','.delete-menu-item-role-access',function() {
@@ -78,7 +112,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Role Access Success', 'The role access has been deleted successfully.', 'success');
-                                    resetAccessForm();
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -87,7 +120,6 @@
                                     }
                                     else if (response.notExist) {
                                         showNotification('Delete Role Access Error', 'The role access does not exist.', 'danger');
-                                        resetAccessForm();
                                     }
                                     else {
                                         showNotification('Delete Role Access Error', response.message, 'danger');
@@ -100,29 +132,12 @@
                                   fullErrorMessage += `, Response: ${xhr.responseText}`;
                                 }
                                 showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                reloadDatatable('#update-menu-item-role-access-table');
                             }
                         });
                         return false;
-                    }
-                });
-            });
-    
-            $(document).on('click','#discard-menu-item-role-access-update',() => {
-                Swal.fire({
-                    title: 'Discard Changes Confirmation',
-                    text: 'Are you sure you want to discard the changes made to this item? The changes will be lost permanently once discarded.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Discard',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        confirmButton: 'btn btn-danger mt-2',
-                        cancelButton: 'btn btn-secondary ms-2 mt-2'
-                    },
-                    buttonsStyling: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        resetAccessForm();
                     }
                 });
             });
@@ -510,7 +525,7 @@ function subMenuItemTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function updateRoleAccessTable(datatable_name, buttons = false, show_all = false){
+function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = false){
     const menu_item_id = $('#menu-item-id').text();
     const type = 'update menu item role access table';
     var settings;
@@ -574,7 +589,7 @@ function updateRoleAccessTable(datatable_name, buttons = false, show_all = false
     $(datatable_name).dataTable(settings);
 }
 
-function addRoleAccessTable(datatable_name, buttons = false, show_all = false){
+function addMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = false){
     const menu_item_id = $('#menu-item-id').text();
     const type = 'add menu item role access table';
     var settings;
@@ -731,15 +746,15 @@ function menuItemForm(){
     });
 }
 
-function addRoleAccessForm(){
+function addMenuItemRoleAccessForm(){
     $('#add-menu-item-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'add menu item role access';
             var menu_item_id = sessionStorage.getItem('menu_item_id');
-;
+
             var role_id = [];
 
-                $('.menu-item-role-access').each(function(){
+            $('.menu-item-role-access').each(function(){
                 if ($(this).is(':checked')){  
                     role_id.push(this.value);  
                 }
@@ -775,80 +790,11 @@ function addRoleAccessForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-add-menu-item-role-access', 'Submit');
                     $('#add-menu-item-role-access-modal').modal('hide');
-                    resetAccessForm();
+                    reloadDatatable('#update-menu-item-role-access-table');
                 }
             });
             return false;
         }
-    });
-}
-
-function updateRoleAccessForm(){
-    $('#update-menu-item-role-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save menu item role access';
-
-            const menu_item_id = $('#menu-item-id').text();
-            
-            var permission = [];
-        
-            $('.update-menu-item-role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + menu_item_id + '&permission=' + permission,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-item-role-access');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Role Access Success', 'The role access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-menu-item-role-access', 'Save');
-                    resetAccessForm();
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function resetAccessForm(){
-    reloadDatatable('#update-menu-item-role-access-table');
-    $('.update-menu-item-access').addClass('d-none');
-    $('.edit-menu-item-access-details').removeClass('d-none');
-    
-    const updateAccess = document.querySelectorAll('.update-menu-item-role-access');
-    
-    updateAccess.forEach(button => {
-        button.setAttribute('disabled', 'disabled');
     });
 }
 

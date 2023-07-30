@@ -28,7 +28,7 @@ class MenuItemModel {
     #
     # -------------------------------------------------------------
     public function buildMenuItem($p_user_id, $p_menu_group_id) {
-        $menuItems = array();
+        $menuItems = [];
 
         $stmt = $this->db->getConnection()->prepare('CALL buildMenuItem(:p_user_id, :p_menu_group_id)');
         $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
@@ -39,8 +39,6 @@ class MenuItemModel {
         if($count > 0){
             $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt->closeCursor();
-            
-            $htmlOptions = '';
 
             foreach ($options as $row) {
                 $menuItemID = $row['menu_item_id'];
@@ -49,20 +47,20 @@ class MenuItemModel {
                 $parentID = $row['parent_id'];
                 $menuItemIcon = !empty($row['menu_item_icon']) ? $row['menu_item_icon'] : 'menu';
 
-                $menuItem = array(
+                $menuItem = [
                     'MENU_ITEM_ID' => $menuItemID,
                     'MENU_ITEM_NAME' => $menuItemName,
                     'MENU_ITEM_URL' => $menuItemURL,
                     'PARENT_ID' => $parentID,
                     'MENU_ITEM_ICON' => $menuItemIcon,
-                    'CHILDREN' => array()
-                );
+                    'CHILDREN' => []
+                ];
 
                 $menuItems[$menuItemID] = $menuItem;
             }
 
             foreach ($menuItems as $menuItem) {
-                if (!empty($menuItem['PARENT_ID']) && isset($menuItems[$menuItem['PARENT_ID']])) {
+                if (!empty($menuItem['PARENT_ID'])) {
                     $menuItems[$menuItem['PARENT_ID']]['CHILDREN'][] = &$menuItems[$menuItem['MENU_ITEM_ID']];
                 }
             }

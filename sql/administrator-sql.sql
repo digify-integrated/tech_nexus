@@ -787,24 +787,7 @@ BEGIN
     ORDER BY menu_item_id;
 END //
 
-CREATE PROCEDURE buildMenuGroup(IN p_user_id INT)
-BEGIN
-    SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
-    FROM menu_group mg
-    JOIN menu_item mi ON mi.menu_group_id = mg.menu_group_id
-    WHERE EXISTS (
-        SELECT 1
-        FROM menu_access_right mar
-        WHERE mar.menu_item_id = mi.menu_item_id
-        AND mar.read_access = 1
-        AND mar.role_id IN (
-            SELECT role_id
-            FROM role_users
-            WHERE user_id = p_user_id
-        )
-    )
-    ORDER BY mg.order_sequence;
-END //
+
 
 /* Menu item table */
 CREATE TABLE menu_item(
@@ -981,53 +964,8 @@ BEGIN
     ORDER BY menu_item_name;
 END //
 
-CREATE PROCEDURE buildMenuItem(IN p_user_id INT, IN p_menu_group_id INT)
-BEGIN
-    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
-    FROM menu_item AS mi
-    INNER JOIN menu_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
-    INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
-    WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
-    ORDER BY mi.order_sequence;
-END //
-
-CREATE PROCEDURE generateMenuItemRoleTable(IN p_menu_item_id INT)
-BEGIN
-	SELECT role_id, role_name FROM role
-    WHERE role_id IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
-    ORDER BY role_name;
-END //
-
-CREATE PROCEDURE generateRoleMenuItemAccessTable(IN p_role_id INT)
-BEGIN
-	SELECT menu_item_id, menu_item_name FROM menu_item
-    WHERE menu_item_id IN (SELECT role_id FROM menu_access_right WHERE role_id = p_role_id)
-    ORDER BY menu_item_name;
-END //
-
-CREATE PROCEDURE generateShortcutMenuItemRoleTable()
-BEGIN
-	SELECT role_id, role_name FROM role
-    WHERE role_id IN (SELECT role_id FROM menu_access_right)
-    ORDER BY role_name;
-END //
-
-CREATE PROCEDURE generateAddMenuItemRoleTable(IN p_menu_item_id INT)
-BEGIN
-	SELECT role_id, role_name FROM role
-    WHERE role_id NOT IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
-    ORDER BY role_name;
-END //
-
-CREATE PROCEDURE generateAddRoleMenuItemTable(IN p_role_id INT)
-BEGIN
-	SELECT menu_item_id, menu_item_name FROM menu_item
-    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_access_right WHERE role_id = p_role_id)
-    ORDER BY menu_item_name;
-END //
-
-/* Menu access right table */
-CREATE TABLE menu_access_right(
+/* Menu item access right table */
+CREATE TABLE menu_item_access_right(
 	menu_item_id INT UNSIGNED NOT NULL,
 	role_id INT UNSIGNED NOT NULL,
 	read_access TINYINT(1) NOT NULL,
@@ -1038,15 +976,15 @@ CREATE TABLE menu_access_right(
     last_log_by INT NOT NULL
 );
 
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '0', '0', '0', '0', '0', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '0', '0', '0', '0', '0', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '1');
 
-CREATE TRIGGER menu_access_right_update
-AFTER UPDATE ON menu_access_right
+CREATE TRIGGER menu_item_access_right_update
+AFTER UPDATE ON menu_item_access_right
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
@@ -1075,12 +1013,12 @@ BEGIN
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
-CREATE TRIGGER menu_access_right_insert
-AFTER INSERT ON menu_access_right
+CREATE TRIGGER menu_item_access_right_insert
+AFTER INSERT ON menu_item_access_right
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
@@ -1110,46 +1048,46 @@ BEGIN
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 CREATE PROCEDURE checkRoleMenuAccessExist(IN p_menu_item_id INT, IN p_role_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM menu_access_right
+    FROM menu_item_access_right
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END //
 
 CREATE PROCEDURE insertRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO menu_access_right (menu_item_id, role_id, last_log_by) 
+    INSERT INTO menu_item_access_right (menu_item_id, role_id, last_log_by) 
 	VALUES(p_menu_item_id, p_role_id, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT, IN p_access_type VARCHAR(10), IN p_access TINYINT(1), IN p_last_log_by INT)
 BEGIN
     IF p_access_type = 'read' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET read_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'write' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET write_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'create' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET create_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'delete' THEN
-      UPDATE menu_access_right
+      UPDATE menu_item_access_right
         SET delete_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSE
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET duplicate_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
@@ -1161,37 +1099,106 @@ BEGIN
 	IF p_access_type = 'read' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where read_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where read_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'write' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where write_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where write_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'create' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where create_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where create_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'delete' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
     ELSE
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
     END IF;
 END //
 
 CREATE PROCEDURE getRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT)
 BEGIN
     SELECT read_access, write_access, create_access, delete_access, duplicate_access
-    FROM menu_access_right 
+    FROM menu_item_access_right 
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteRoleMenuAccess(IN p_menu_item_id INT, IN p_role_id INT)
+CREATE PROCEDURE deleteMenuItemRoleAccess(IN p_menu_item_id INT, IN p_role_id INT)
 BEGIN
-	DELETE FROM menu_access_right
+	DELETE FROM menu_item_access_right
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE deleteAllMenuItemRoleAccess(IN p_menu_item_id INT)
+BEGIN
+	DELETE FROM menu_item_access_right
+    WHERE menu_item_id = p_menu_item_id;
+END //
+
+CREATE PROCEDURE buildMenuGroup(IN p_user_id INT)
+BEGIN
+    SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
+    FROM menu_group mg
+    JOIN menu_item mi ON mi.menu_group_id = mg.menu_group_id
+    WHERE EXISTS (
+        SELECT 1
+        FROM menu_item_access_right mar
+        WHERE mar.menu_item_id = mi.menu_item_id
+        AND mar.read_access = 1
+        AND mar.role_id IN (
+            SELECT role_id
+            FROM role_users
+            WHERE user_id = p_user_id
+        )
+    )
+    ORDER BY mg.order_sequence;
+END //
+
+CREATE PROCEDURE buildMenuItem(IN p_user_id INT, IN p_menu_group_id INT)
+BEGIN
+    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
+    FROM menu_item AS mi
+    INNER JOIN menu_item_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
+    INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
+    WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
+    ORDER BY mi.order_sequence;
+END //
+
+CREATE PROCEDURE generateMenuItemRoleAccessTable(IN p_menu_item_id INT)
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateRoleMenuItemAccessTable(IN p_role_id INT)
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    WHERE menu_item_id IN (SELECT menu_item_id FROM menu_item_access_right WHERE role_id = p_role_id)
+    ORDER BY menu_item_name;
+END //
+
+CREATE PROCEDURE generateShortcutMenuItemRoleTable()
+BEGIN
+	SELECT role_id, role_name FROM role
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddMenuItemRoleTable(IN p_menu_item_id INT)
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id NOT IN (SELECT role_id FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id)
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddRoleMenuItemTable(IN p_role_id INT)
+BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_item_access_right WHERE role_id = p_role_id)
+    ORDER BY menu_item_name;
 END //
 
 /* System action table */
@@ -1371,8 +1378,14 @@ BEGIN
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteRoleSystemActionAccess(IN p_system_action_id INT, IN p_role_id INT)
+CREATE PROCEDURE deleteSystemActionRoleAccess(IN p_system_action_id INT, IN p_role_id INT)
 BEGIN
 	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE deleteAllSystemActionRoleAccess(IN p_system_action_id INT)
+BEGIN
+	DELETE FROM system_action_access_rights
+    WHERE system_action_id = p_system_action_id;
 END //

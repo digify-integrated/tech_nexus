@@ -22,7 +22,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: update role access table
+        # Type: update system action role access table
         # Description:
         # Generates the system action role access table.
         #
@@ -31,7 +31,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'update role access table':
+        case 'update system action role access table':
             if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
                 $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
 
@@ -42,6 +42,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $deleteSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 4);
+                $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
+                $disabled = ($updateSystemActionRoleAccess['total'] == 0) ? 'disabled' : null;
 
                 foreach ($options as $row) {
                     $roleID = $row['role_id'];
@@ -55,14 +57,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteSystemActionRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-role-access" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action-role-access" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
     
                     $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'ROLE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $roleID .'" '. $roleChecked .' disabled></div>',
+                        'ROLE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-system-action-role-access" type="checkbox" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" '. $roleChecked .' '. $disabled .'></div>',
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $delete .'
                                 </div>'
@@ -76,7 +78,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         
         # -------------------------------------------------------------
         #
-        # Type: add role access table
+        # Type: add system action role access table
         # Description:
         # Generates the role table not in system action access table.
         #
@@ -85,7 +87,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'add role access table':
+        case 'add system action role access table':
             if(isset($_POST['system_action_id']) && !empty($_POST['system_action_id'])){
                 $systemActionID = htmlspecialchars($_POST['system_action_id'], ENT_QUOTES, 'UTF-8');
 
@@ -101,97 +103,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'ROLE_NAME' => $roleName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $roleID.'"></div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # -------------------------------------------------------------
-
-        # -------------------------------------------------------------
-        #
-        # Type: update system action access table
-        # Description:
-        # Generates the system action table in system action access table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'update system action access table':
-            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
-                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateRoleSystemActionTable(:roleID)');
-                $sql->bindValue(':roleID', $roleID, PDO::PARAM_INT);
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-                
-                $deleteSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 4);
-
-                foreach ($options as $row) {
-                    $systemActionID = $row['system_action_id'];
-                    $systemActionName = $row['system_action_name'];
-    
-                    $roleSystemActionAccessDetails = $roleModel->getRoleSystemActionAccess($systemActionID, $roleID);
-
-                    $roleAccess = $roleSystemActionAccessDetails['role_access'] ?? 0;
-                
-                    $roleChecked = $roleAccess ? 'checked' : '';
-
-                    $delete = '';
-                    if($deleteSystemActionRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action-access" data-system-action-id="'. $systemActionID .'" data-role-id="'. $roleID .'" title="Delete System Action Access">
-                                            <i class="ti ti-trash"></i>
-                                        </button>';
-                    }
-    
-                    $response[] = [
-                        'SYSTEM_ACTION_NAME' => $systemActionName,
-                        'ROLE_ACCESS' => '<div class="form-check form-switch mb-2"><input class="form-check-input update-role-access" type="checkbox" value="'. $systemActionID .'" '. $roleChecked .' disabled></div>',
-                        'ACTION' => '<div class="d-flex gap-2">
-                                    '. $delete .'
-                                </div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # -------------------------------------------------------------
-        
-        # -------------------------------------------------------------
-        #
-        # Type: add system action access table
-        # Description:
-        # Generates the system action table not in system action access table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'add system action access table':
-            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
-                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateAddRoleSystemActionTable(:roleID)');
-                $sql->bindValue(':roleID', $roleID, PDO::PARAM_INT);
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-
-                foreach ($options as $row) {
-                    $systemActionID = $row['system_action_id'];
-                    $systemActionName = $row['system_action_name'];
-    
-                    $response[] = [
-                        'SYSTEM_ACTION_NAME' => $systemActionName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input role-access" type="checkbox" value="'. $systemActionID.'"></div>'
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input system-action-role-access" type="checkbox" value="'. $roleID.'"></div>'
                     ];
                 }
     

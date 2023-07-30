@@ -132,10 +132,7 @@
           <?php
           if(!empty($menuItemID)){
             if($updateMenuItemRoleAccess['total'] > 0){
-                $menu_item_button = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-menu-item-role-access">Add Role</button>
-                              <button type="submit" class="btn btn-info edit-menu-item-access-details" id="edit-menu-item-access">Edit</button>
-                              <button type="submit" form="update-menu-item-role-access-form" class="btn btn-success update-menu-item-access d-none" id="submit-menu-item-role-access">Save</button>
-                              <button type="button" id="discard-menu-item-role-access-update" class="btn btn-outline-danger update-menu-item-access d-none">Discard</button>';
+                $menu_item_button = '<button type="button" class="btn btn-warning" data-menu-item-id="' . $menuItemID . '" id="add-menu-item-role-access">Add Role</button>';
             }
 
             echo '<div class="row">
@@ -179,8 +176,7 @@
                           </div>
                         </div>
                         <div class="card-body">
-                        <form id="update-menu-item-role-access-form" method="post" action="#">
-                          <div class="dt-responsive table-responsive">
+                        <div class="dt-responsive table-responsive">
                               <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                 <thead>
                                   <tr>
@@ -196,7 +192,6 @@
                                 <tbody></tbody>
                               </table>
                           </div>
-                          </form>
                         </div>
                       </div>
                     </div>

@@ -46,7 +46,8 @@
                             </span>
                             <span class="pc-mtext">Dashboard</span>
                         </a>
-                    </li><?php
+                    </li>
+                    <?php
                         $menu = '';
                         $sql = $databaseModel->getConnection()->prepare('CALL buildMenuGroup(:userID)');
                         $sql->bindValue(':userID', $user_id);
@@ -55,14 +56,14 @@
                         $sql->closeCursor();
             
                         foreach ($options as $row) {
-                            $_menuGroupID = $row['menu_group_id'];
-                            $_menuGroupName = $row['menu_group_name'];
+                            $menuGroupID = $row['menu_group_id'];
+                            $menuGroupName = $row['menu_group_name'];
             
                             $menu .= '<li class="pc-item pc-caption">
-                                        <label>'. $_menuGroupName .'</label>
+                                        <label>'. $menuGroupName .'</label>
                                     </li>';
             
-                            $menu .= $menuItemModel->buildMenuItem($user_id, $_menuGroupID);
+                            $menu .= $menuItemModel->buildMenuItem($user_id, $menuGroupID);
                         }
             
                         echo $menu;

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 27, 2023 at 11:35 AM
+-- Generation Time: Jul 30, 2023 at 02:41 PM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- PHP Version: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -31,7 +31,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuGroup` (IN `p_user_id` INT
     JOIN menu_item mi ON mi.menu_group_id = mg.menu_group_id
     WHERE EXISTS (
         SELECT 1
-        FROM menu_access_right mar
+        FROM menu_item_access_right mar
         WHERE mar.menu_item_id = mi.menu_item_id
         AND mar.read_access = 1
         AND mar.role_id IN (
@@ -46,7 +46,7 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT, IN `p_menu_group_id` INT)   BEGIN
     SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
     FROM menu_item AS mi
-    INNER JOIN menu_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
+    INNER JOIN menu_item_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
     INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
     WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
     ORDER BY mi.order_sequence;
@@ -62,23 +62,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemAccessRights` (IN `p_u
 	IF p_access_type = 'read' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where read_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where read_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'write' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where write_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where write_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'create' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where create_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where create_access = 1 AND menu_item_id = menu_item_id);
     ELSEIF p_access_type = 'delete' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
     ELSE
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
     END IF;
 END$$
 
@@ -96,7 +96,7 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleMenuAccessExist` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
-    FROM menu_access_right
+    FROM menu_item_access_right
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END$$
 
@@ -130,6 +130,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllMenuItemRoleAccess` (IN `p_menu_item_id` INT)   BEGIN
+	DELETE FROM menu_item_access_right
+    WHERE menu_item_id = p_menu_item_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllSystemActionRoleAccess` (IN `p_system_action_id` INT)   BEGIN
+	DELETE FROM system_action_access_rights
+    WHERE system_action_id = p_system_action_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItem` (IN `p_menu_group_id` INT)   BEGIN
     DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
 END$$
@@ -144,24 +154,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItem` (IN `p_menu_item_id
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItemRoleAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
+	DELETE FROM menu_item_access_right
+    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRole` (IN `p_role_id` INT)   BEGIN
 	DELETE FROM role
     WHERE role_id = p_role_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
-	DELETE FROM menu_access_right
-    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRoleSystemActionAccess` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
-	DELETE FROM system_action_access_rights
-    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
-END$$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemAction` (IN `p_system_action_id` INT)   BEGIN
 	DELETE FROM system_action
     WHERE system_action_id = p_system_action_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemActionRoleAccess` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
+	DELETE FROM system_action_access_rights
+    WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -230,13 +240,13 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddMenuItemRoleTable` (IN `p_menu_item_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
-    WHERE role_id NOT IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
+    WHERE role_id NOT IN (SELECT role_id FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleMenuItemTable` (IN `p_role_id` INT)   BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
-    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_access_right WHERE role_id = p_role_id)
+    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_item_access_right WHERE role_id = p_role_id)
     ORDER BY menu_item_name;
 END$$
 
@@ -286,9 +296,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemOptions` ()   BEGIN
 	ORDER BY menu_item_name;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemRoleTable` (IN `p_menu_item_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemRoleAccessTable` (IN `p_menu_item_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
-    WHERE role_id IN (SELECT role_id FROM menu_access_right WHERE menu_item_id = p_menu_item_id)
+    WHERE role_id IN (SELECT role_id FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
 END$$
 
@@ -306,7 +316,7 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleMenuItemAccessTable` (IN `p_role_id` INT)   BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
-    WHERE menu_item_id IN (SELECT role_id FROM menu_access_right WHERE role_id = p_role_id)
+    WHERE menu_item_id IN (SELECT menu_item_id FROM menu_item_access_right WHERE role_id = p_role_id)
     ORDER BY menu_item_name;
 END$$
 
@@ -318,7 +328,6 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateShortcutMenuItemRoleTable` ()   BEGIN
 	SELECT role_id, role_name FROM role
-    WHERE role_id IN (SELECT role_id FROM menu_access_right)
     ORDER BY role_name;
 END$$
 
@@ -363,7 +372,7 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
     SELECT read_access, write_access, create_access, delete_access, duplicate_access
-    FROM menu_access_right 
+    FROM menu_item_access_right 
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END$$
 
@@ -425,7 +434,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRole` (IN `p_role_name` VARCH
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_last_log_by` INT)   BEGIN
-    INSERT INTO menu_access_right (menu_item_id, role_id, last_log_by) 
+    INSERT INTO menu_item_access_right (menu_item_id, role_id, last_log_by) 
 	VALUES(p_menu_item_id, p_role_id, p_last_log_by);
 END$$
 
@@ -549,27 +558,27 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRoleMenuAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT, IN `p_access_type` VARCHAR(10), IN `p_access` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
     IF p_access_type = 'read' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET read_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'write' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET write_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'create' THEN
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET create_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'delete' THEN
-      UPDATE menu_access_right
+      UPDATE menu_item_access_right
         SET delete_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSE
-        UPDATE menu_access_right
+        UPDATE menu_item_access_right
         SET duplicate_access = p_access,
         last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
@@ -1552,150 +1561,142 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (891, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
 (892, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
 (893, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
-(894, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `menu_access_right`
---
-
-CREATE TABLE `menu_access_right` (
-  `menu_item_id` int(10) UNSIGNED NOT NULL,
-  `role_id` int(10) UNSIGNED NOT NULL,
-  `read_access` tinyint(1) NOT NULL,
-  `write_access` tinyint(1) NOT NULL,
-  `create_access` tinyint(1) NOT NULL,
-  `delete_access` tinyint(1) NOT NULL,
-  `duplicate_access` tinyint(1) NOT NULL,
-  `last_log_by` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `menu_access_right`
---
-
-INSERT INTO `menu_access_right` (`menu_item_id`, `role_id`, `read_access`, `write_access`, `create_access`, `delete_access`, `duplicate_access`, `last_log_by`) VALUES
-(1, 1, 1, 1, 0, 0, 0, 1),
-(2, 1, 1, 1, 1, 1, 1, 1),
-(3, 1, 1, 1, 1, 1, 1, 1),
-(6, 1, 1, 1, 1, 1, 1, 1),
-(6, 2, 1, 1, 1, 1, 0, 1),
-(1, 2, 0, 0, 0, 0, 0, 1),
-(11, 1, 1, 1, 1, 1, 1, 1),
-(11, 2, 0, 0, 0, 0, 0, 1),
-(4, 1, 1, 0, 0, 0, 0, 1),
-(4, 2, 0, 0, 0, 0, 0, 1),
-(5, 1, 1, 1, 1, 1, 1, 1),
-(5, 2, 0, 0, 0, 0, 0, 1),
-(4, 6, 0, 0, 0, 0, 0, 1),
-(6, 7, 0, 0, 0, 0, 0, 1),
-(2, 2, 0, 0, 0, 0, 0, 1),
-(2, 6, 0, 0, 0, 0, 0, 1),
-(2, 7, 0, 0, 0, 0, 0, 1),
-(3, 2, 0, 0, 0, 0, 0, 1),
-(3, 6, 0, 0, 0, 0, 0, 1),
-(3, 7, 0, 0, 0, 0, 0, 1),
-(4, 7, 0, 0, 0, 0, 0, 1),
-(5, 6, 0, 0, 0, 0, 0, 1),
-(2, 0, 0, 0, 0, 0, 0, 1),
-(5, 7, 0, 0, 0, 0, 0, 1),
-(9, 1, 0, 0, 0, 0, 0, 1),
-(0, 0, 0, 0, 0, 0, 0, 1),
-(1, 0, 0, 0, 0, 0, 0, 1),
-(1, 1, 0, 0, 0, 0, 0, 1),
-(2, 1, 1, 1, 1, 1, 1, 1),
-(3, 1, 1, 1, 1, 1, 1, 1),
-(4, 1, 0, 0, 0, 0, 0, 1),
-(5, 1, 1, 1, 1, 1, 1, 1),
-(6, 1, 1, 1, 1, 1, 1, 1),
-(7, 1, 1, 1, 1, 1, 1, 1),
-(7, 2, 0, 0, 0, 0, 0, 1),
-(7, 6, 0, 0, 0, 0, 0, 1),
-(7, 7, 0, 0, 0, 0, 0, 1),
-(1, 1, 0, 0, 0, 0, 0, 1),
-(2, 1, 1, 1, 1, 1, 1, 1),
-(3, 1, 1, 1, 1, 1, 1, 1),
-(4, 1, 0, 0, 0, 0, 0, 1),
-(5, 1, 1, 1, 1, 1, 1, 1),
-(6, 1, 1, 1, 1, 1, 1, 1),
-(0, 1, 0, 0, 0, 0, 0, 1),
-(0, 2, 0, 0, 0, 0, 0, 1),
-(6, 11, 0, 0, 0, 0, 0, 1),
-(6, 6, 0, 0, 0, 0, 0, 1),
-(0, 11, 0, 0, 0, 0, 0, 1),
-(10, 0, 0, 0, 0, 0, 0, 1),
-(10, 2, 0, 1, 0, 0, 0, 1);
-
---
--- Triggers `menu_access_right`
---
-DELIMITER $$
-CREATE TRIGGER `menu_access_right_insert` AFTER INSERT ON `menu_access_right` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
-
-    IF NEW.role_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
-    END IF;
-
-    IF NEW.read_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Read Access: ", NEW.read_access);
-    END IF;
-
-    IF NEW.write_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Write Access: ", NEW.write_access);
-    END IF;
-
-    IF NEW.create_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Create Access: ", NEW.create_access);
-    END IF;
-
-    IF NEW.delete_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Delete Access: ", NEW.delete_access);
-    END IF;
-
-    IF NEW.duplicate_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Duplicate Access: ", NEW.duplicate_access);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `menu_access_right_update` AFTER UPDATE ON `menu_access_right` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
-
-    IF NEW.read_access <> OLD.read_access THEN
-        SET audit_log = CONCAT(audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
-    END IF;
-
-    IF NEW.write_access <> OLD.write_access THEN
-        SET audit_log = CONCAT(audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
-    END IF;
-
-    IF NEW.create_access <> OLD.create_access THEN
-        SET audit_log = CONCAT(audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
-    END IF;
-
-    IF NEW.delete_access <> OLD.delete_access THEN
-        SET audit_log = CONCAT(audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
-    END IF;
-
-    IF NEW.duplicate_access <> OLD.duplicate_access THEN
-        SET audit_log = CONCAT(audit_log, "Duplicate Access: ", OLD.duplicate_access, " -> ", NEW.duplicate_access, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END
-$$
-DELIMITER ;
+(894, 'menu_access_right', 10, 'Role ID: 6<br/>', '1', '2023-07-27 16:19:17'),
+(895, 'users', 1, 'Last Connection Date: 2023-07-27 12:00:27 -> 2023-07-29 12:58:41<br/>', '1', '2023-07-29 12:58:41'),
+(896, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 5<br/>Parent ID: 4<br/>Order Sequence: 2', '1', '2023-07-29 15:12:54'),
+(897, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 5<br/>Order Sequence: 2', '1', '2023-07-30 08:34:15'),
+(898, 'menu_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-30 08:48:57'),
+(899, 'menu_access_right', 12, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 08:48:57'),
+(900, 'menu_access_right', 12, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 08:48:57'),
+(901, 'menu_access_right', 12, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-30 08:48:57'),
+(902, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:48:57'),
+(903, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:48:57'),
+(904, 'menu_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-30 08:48:57'),
+(905, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:48:57'),
+(906, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:48:57'),
+(907, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:48:57'),
+(908, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:48:57'),
+(909, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:48:57'),
+(910, 'menu_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-30 08:48:57'),
+(911, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:48:57'),
+(912, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:48:57'),
+(913, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:48:57'),
+(914, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:48:57'),
+(915, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:48:57'),
+(916, 'menu_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 11', '1', '2023-07-30 08:48:57'),
+(917, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:48:57'),
+(918, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:48:57'),
+(919, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:48:57'),
+(920, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:48:57'),
+(921, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:48:57'),
+(922, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:02'),
+(923, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:02'),
+(924, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:02'),
+(925, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:02'),
+(926, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:02'),
+(927, 'menu_access_right', 12, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 08:49:02'),
+(928, 'menu_access_right', 12, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 08:49:02'),
+(929, 'menu_access_right', 12, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-30 08:49:02'),
+(930, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:02'),
+(931, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:02'),
+(932, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:02'),
+(933, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:02'),
+(934, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:02'),
+(935, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:02'),
+(936, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:02'),
+(937, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:02'),
+(938, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:02'),
+(939, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:02'),
+(940, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:02'),
+(941, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:02'),
+(942, 'menu_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 11', '1', '2023-07-30 08:49:37'),
+(943, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:42'),
+(944, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:42'),
+(945, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:42'),
+(946, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:42'),
+(947, 'menu_access_right', 12, 'Role ID: 1<br/>', '1', '2023-07-30 08:49:42'),
+(948, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:42'),
+(949, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:42'),
+(950, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:42'),
+(951, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:42'),
+(952, 'menu_access_right', 12, 'Role ID: 2<br/>', '1', '2023-07-30 08:49:42'),
+(953, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:42'),
+(954, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:42'),
+(955, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:42'),
+(956, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:42'),
+(957, 'menu_access_right', 12, 'Role ID: 6<br/>', '1', '2023-07-30 08:49:42'),
+(958, 'menu_access_right', 12, 'Role ID: 11<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 08:49:42'),
+(959, 'menu_access_right', 12, 'Role ID: 11<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 08:49:42'),
+(960, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:42'),
+(961, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:42'),
+(962, 'menu_access_right', 12, 'Role ID: 11<br/>', '1', '2023-07-30 08:49:42'),
+(963, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '1', '2023-07-30 10:21:16'),
+(964, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-07-30 10:21:17'),
+(965, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-07-30 10:21:17'),
+(966, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '1', '2023-07-30 10:21:17'),
+(967, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-07-30 10:21:17'),
+(968, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-07-30 10:21:17'),
+(969, 'users', 1, 'Last Connection Date: 2023-07-29 12:58:41 -> 2023-07-30 18:40:57<br/>', '1', '2023-07-30 18:40:57'),
+(970, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-30 18:41:21'),
+(971, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-30 18:43:10'),
+(972, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-07-30 18:43:27'),
+(973, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-07-30 18:43:28'),
+(974, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-07-30 18:43:28'),
+(975, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-07-30 18:43:29'),
+(976, 'ui_customization_setting', 1, 'Dark Layout: light -> dark<br/>', '1', '2023-07-30 18:43:30'),
+(977, 'ui_customization_setting', 1, 'Dark Layout: dark -> light<br/>', '1', '2023-07-30 18:43:30'),
+(978, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-30 18:44:42'),
+(979, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-30 18:46:19'),
+(980, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-30 18:46:43'),
+(981, 'menu_item_access_right', 1, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 19:11:14'),
+(982, 'menu_item_access_right', 1, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-30 19:11:24'),
+(983, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-30 19:11:39'),
+(984, 'menu_item_access_right', 1, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 19:11:42'),
+(985, 'menu_item_access_right', 1, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 19:14:37'),
+(986, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:11'),
+(987, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:16'),
+(988, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:19'),
+(989, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:19'),
+(990, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:19'),
+(991, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:22'),
+(992, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:23'),
+(993, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:24'),
+(994, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:25'),
+(995, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:25'),
+(996, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:26'),
+(997, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:27'),
+(998, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:27'),
+(999, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:27'),
+(1000, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:27'),
+(1001, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:27'),
+(1002, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:27'),
+(1003, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:28'),
+(1004, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:28'),
+(1005, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:29'),
+(1006, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:34'),
+(1007, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:34'),
+(1008, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:37'),
+(1009, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:37');
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(1010, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:37'),
+(1011, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:39'),
+(1012, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:39'),
+(1013, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:40'),
+(1014, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:34:40'),
+(1015, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:34:40'),
+(1016, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:00'),
+(1017, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-07-30 20:35:29'),
+(1018, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:30'),
+(1019, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:35:30'),
+(1020, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:31'),
+(1021, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:35:31'),
+(1022, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:31'),
+(1023, 'menu_item_access_right', 1, 'Role ID: 1<br/>', '1', '2023-07-30 20:35:33'),
+(1024, 'menu_item_access_right', 1, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-30 20:35:33'),
+(1025, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:33'),
+(1026, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-30 20:36:19'),
+(1027, 'menu_item_access_right', 1, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 20:36:19'),
+(1028, 'menu_item_access_right', 1, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 20:36:46');
 
 -- --------------------------------------------------------
 
@@ -1780,13 +1781,12 @@ CREATE TABLE `menu_item` (
 --
 
 INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `menu_item_url`, `parent_id`, `menu_item_icon`, `order_sequence`, `last_log_by`) VALUES
-(1, 'User Interface', 1, '', 0, 'sidebar', 50, 1),
+(1, 'User Interface', 1, '', NULL, 'sidebar', 50, 1),
 (2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 1),
 (3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 1),
-(4, 'Administration', 1, '', 0, 'shield', 1, 1),
+(4, 'Administration', 1, '', NULL, 'shield', 1, 1),
 (5, 'System Action', 1, 'system-action.php', 4, '', 10, 1),
-(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 1),
-(10, 'test', 1, '', 0, '', 12, 1);
+(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 1);
 
 --
 -- Triggers `menu_item`
@@ -1863,6 +1863,106 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `menu_item_access_right`
+--
+
+CREATE TABLE `menu_item_access_right` (
+  `menu_item_id` int(10) UNSIGNED NOT NULL,
+  `role_id` int(10) UNSIGNED NOT NULL,
+  `read_access` tinyint(1) NOT NULL,
+  `write_access` tinyint(1) NOT NULL,
+  `create_access` tinyint(1) NOT NULL,
+  `delete_access` tinyint(1) NOT NULL,
+  `duplicate_access` tinyint(1) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `menu_item_access_right`
+--
+
+INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, `write_access`, `create_access`, `delete_access`, `duplicate_access`, `last_log_by`) VALUES
+(2, 1, 1, 1, 1, 1, 1, 1),
+(3, 1, 1, 1, 1, 1, 1, 1),
+(4, 1, 1, 0, 0, 0, 0, 1),
+(5, 1, 1, 1, 1, 1, 1, 1),
+(6, 1, 1, 1, 1, 1, 1, 1),
+(1, 2, 1, 1, 0, 0, 0, 1),
+(1, 1, 1, 1, 0, 0, 0, 1);
+
+--
+-- Triggers `menu_item_access_right`
+--
+DELIMITER $$
+CREATE TRIGGER `menu_item_access_right_insert` AFTER INSERT ON `menu_item_access_right` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
+
+    IF NEW.role_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
+    END IF;
+
+    IF NEW.read_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Read Access: ", NEW.read_access);
+    END IF;
+
+    IF NEW.write_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Write Access: ", NEW.write_access);
+    END IF;
+
+    IF NEW.create_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Create Access: ", NEW.create_access);
+    END IF;
+
+    IF NEW.delete_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Delete Access: ", NEW.delete_access);
+    END IF;
+
+    IF NEW.duplicate_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Duplicate Access: ", NEW.duplicate_access);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `menu_item_access_right_update` AFTER UPDATE ON `menu_item_access_right` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
+
+    IF NEW.read_access <> OLD.read_access THEN
+        SET audit_log = CONCAT(audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
+    END IF;
+
+    IF NEW.write_access <> OLD.write_access THEN
+        SET audit_log = CONCAT(audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
+    END IF;
+
+    IF NEW.create_access <> OLD.create_access THEN
+        SET audit_log = CONCAT(audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
+    END IF;
+
+    IF NEW.delete_access <> OLD.delete_access THEN
+        SET audit_log = CONCAT(audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
+    END IF;
+
+    IF NEW.duplicate_access <> OLD.duplicate_access THEN
+        SET audit_log = CONCAT(audit_log, "Duplicate Access: ", OLD.duplicate_access, " -> ", NEW.duplicate_access, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `password_history`
 --
 
@@ -1905,8 +2005,7 @@ CREATE TABLE `role` (
 INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
 (1, 'Administrator', 'Administrator', 1, 1),
 (2, 'Employee', 'Employee', 1, 1),
-(6, 'Test Role', 'test', 1, 1),
-(11, 'test2', 'test', 1, 1);
+(6, 'Test Role', 'test', 1, 1);
 
 --
 -- Triggers `role`
@@ -2052,7 +2151,15 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (3, 1, 1, NULL),
 (4, 1, 1, 1),
 (0, 1, 0, NULL),
-(4, 2, 0, 1);
+(4, 2, 1, 1),
+(4, 0, 0, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1),
+(4, 2, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -2188,7 +2295,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-27 12:00:27', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-30 18:40:57', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
 
 --
 -- Triggers `users`
@@ -2388,13 +2495,6 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
--- Indexes for table `menu_access_right`
---
-ALTER TABLE `menu_access_right`
-  ADD KEY `role_id` (`role_id`),
-  ADD KEY `menu_item_id` (`menu_item_id`);
-
---
 -- Indexes for table `menu_group`
 --
 ALTER TABLE `menu_group`
@@ -2463,7 +2563,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=895;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1029;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -2475,7 +2575,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `password_history`

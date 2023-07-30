@@ -15,6 +15,7 @@ session_start();
 class SystemActionController {
     private $systemActionModel;
     private $userModel;
+    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -27,14 +28,16 @@ class SystemActionController {
     # Parameters:
     # - @param SystemActionModel $systemActionModel     The SystemActionModel instance for system action related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SystemActionModel $systemActionModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(SystemActionModel $systemActionModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
         $this->systemActionModel = $systemActionModel;
         $this->userModel = $userModel;
+        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -160,6 +163,7 @@ class SystemActionController {
         }
     
         $this->systemActionModel->deleteSystemAction($systemActionID);
+        $this->roleModel->deleteAllSystemActionRoleAccess($systemActionID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -194,6 +198,7 @@ class SystemActionController {
 
         foreach($systemActionIDs as $systemActionID){
             $this->systemActionModel->deleteSystemAction($systemActionID);
+            $this->roleModel->deleteAllSystemActionRoleAccess($systemActionID);
         }
             
         echo json_encode(['success' => true]);
@@ -287,10 +292,11 @@ class SystemActionController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/system-action-model.php';
+require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new SystemActionController(new SystemActionModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new SystemActionController(new SystemActionModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

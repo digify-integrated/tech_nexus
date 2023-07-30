@@ -13,42 +13,80 @@
         if($('#role-id').length){
             displayDetails('get role details');
 
-            if($('#update-menu-item-access-table').length){
-                updateMenuItemAccessTable('#update-menu-item-access-table');
+            if($('#update-menu-item-role-access-table').length){
+                updateMenuItemRoleAccessTable('#update-menu-item-role-access-table');
             }
 
-            if($('#update-system-action-access-table').length){
-                updateSystemActionAccessTable('#update-system-action-access-table');
+            /*if($('#add-menu-item-role-access-modal').length){
+                addMenuItemRoleAccessForm();
             }
 
-            $(document).on('click','#add-menu-item-access',function() {
+            $(document).on('click','#add-menu-item-role-access',function() {
+                const menu_item_id = $(this).data('menu-item-id');
+    
+                sessionStorage.setItem('menu_item_id', menu_item_id);
+    
+                $('#add-menu-item-role-access-modal').modal('show');
+                addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
+            });*/
+    
+            $(document).on('click','.update-menu-item-role-access',function() {
+                const menu_item_id = $(this).data('menu-item-id');
                 const role_id = $(this).data('role-id');
+                const access_type = $(this).data('access-type');
+                const transaction = 'save menu item role access';
+                var access;
 
-                sessionStorage.setItem('role_id', role_id);
-
-                $('#add-menu-item-access-modal').modal('show');
-                addMenuItemAccessTable('#add-menu-item-access-table');
-            });
-
-            $(document).on('click','#edit-menu-item-access',function() {
-                $('.update-menu-item-access').removeClass('d-none');
-                $('.edit-menu-item-access-details').addClass('d-none');
-
-                const updateAccess = document.querySelectorAll('.update-menu-item-access');
-
-                updateAccess.forEach(button => {
-                    button.removeAttribute('disabled');
+                if ($(this).is(':checked')){  
+                    access = '1';
+                }
+                else{
+                    access = '0';
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/role-controller.php',
+                    dataType: 'json',
+                    data: {
+                        menu_item_id : menu_item_id, 
+                        role_id : role_id, 
+                        access_type : access_type,
+                        access : access,
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (!response.success) {
+                            if (response.isInactive) {
+                                setNotification('User Inactive', response.message, 'danger');
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                showNotification('Update Role Access Error', 'The role access does not exist.', 'danger');
+                            }
+                            else {
+                                showNotification('Update Role Access Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                          fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
                 });
             });
-
-            $(document).on('click','.delete-menu-item-access',function() {
+    
+            $(document).on('click','.delete-menu-item-role-access',function() {
                 const menu_item_id = $(this).data('menu-item-id');
                 const role_id = $(this).data('role-id');
                 const transaction = 'delete menu item role access';
         
                 Swal.fire({
-                    title: 'Confirm Menu Item Access Deletion',
-                    text: 'Are you sure you want to delete this menu item access?',
+                    title: 'Confirm Role Access Deletion',
+                    text: 'Are you sure you want to delete this role access?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -69,8 +107,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Menu Item Access Success', 'The menu item access has been deleted successfully.', 'success');
-                                    reloadDatatable('#update-menu-item-access-table');
+                                    showNotification('Delete Role Access Success', 'The role access has been deleted successfully.', 'success');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -78,157 +115,22 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else if (response.notExist) {
-                                        showNotification('Delete Menu Item Access Error', 'The menu item access does not exist.', 'danger');
-                                        reloadDatatable('#update-menu-item-access-table');
+                                        showNotification('Delete Role Access Error', 'The role access does not exist.', 'danger');
                                     }
                                     else {
-                                        showNotification('Delete Menu Item Access Error', response.message, 'danger');
+                                        showNotification('Delete Role Access Error', response.message, 'danger');
                                     }
                                 }
                             },
                             error: function(xhr, status, error) {
                                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
                                 if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                  fullErrorMessage += `, Response: ${xhr.responseText}`;
                                 }
                                 showErrorDialog(fullErrorMessage);
                             }
                         });
                         return false;
-                    }
-                });
-            });
-
-            $(document).on('click','#discard-menu-item-access-update',() => {
-                Swal.fire({
-                    title: 'Discard Changes Confirmation',
-                    text: 'Are you sure you want to discard the changes made to this item? The changes will be lost permanently once discarded.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Discard',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        confirmButton: 'btn btn-danger mt-2',
-                        cancelButton: 'btn btn-secondary ms-2 mt-2'
-                    },
-                    buttonsStyling: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        reloadDatatable('#update-menu-item-access-table');
-                        $('.update-menu-item-access').addClass('d-none');
-                        $('.edit-menu-item-access-details').removeClass('d-none');
-
-                        const updateAccess = document.querySelectorAll('.update-menu-item-access');
-
-                        updateAccess.forEach(button => {
-                            button.setAttribute('disabled', 'disabled');
-                        });
-                    }
-                });
-            });
-
-            $(document).on('click','#add-system-action-access',function() {
-                const role_id = $(this).data('role-id');
-
-                sessionStorage.setItem('role_id', role_id);
-
-                $('#add-system-action-access-modal').modal('show');
-                addSystemActionAccessTable('#add-system-action-access-table');
-            });
-
-            $(document).on('click','#edit-system-action-access',function() {
-                $('.update-system-action-access').removeClass('d-none');
-                $('.edit-system-action-access-details').addClass('d-none');
-
-                const updateAccess = document.querySelectorAll('.update-system-action-access');
-
-                updateAccess.forEach(button => {
-                    button.removeAttribute('disabled');
-                });
-            });
-
-            $(document).on('click','.delete-system-action-access',function() {
-                const system_action_id = $(this).data('system-action-id');
-                const role_id = $(this).data('role-id');
-                const transaction = 'delete system action role access';
-        
-                Swal.fire({
-                    title: 'Confirm System Action Access Deletion',
-                    text: 'Are you sure you want to delete this system action access?',
-                    icon: 'warning',
-                    showCancelButton: !0,
-                    confirmButtonText: 'Delete',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-danger mt-2',
-                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                    buttonsStyling: !1
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            type: 'POST',
-                            url: 'controller/role-controller.php',
-                            dataType: 'json',
-                            data: {
-                                system_action_id : system_action_id, 
-                                role_id : role_id, 
-                                transaction : transaction
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    showNotification('Delete System Action Access Success', 'The system action access has been deleted successfully.', 'success');
-                                    reloadDatatable('#update-system-action-access-table');
-                                }
-                                else {
-                                    if (response.isInactive) {
-                                        setNotification('User Inactive', response.message, 'danger');
-                                        window.location = 'logout.php?logout';
-                                    }
-                                    else if (response.notExist) {
-                                        showNotification('Delete System Action Access Error', 'The system action access does not exist.', 'danger');
-                                        reloadDatatable('#update-system-action-access-table');
-                                    }
-                                    else {
-                                        showNotification('Delete System Action Access Error', response.message, 'danger');
-                                    }
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                                if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                                }
-                                showErrorDialog(fullErrorMessage);
-                            }
-                        });
-                        return false;
-                    }
-                });
-            });
-
-            $(document).on('click','#discard-system-action-access-update',() => {
-                Swal.fire({
-                    title: 'Discard Changes Confirmation',
-                    text: 'Are you sure you want to discard the changes made to this item? The changes will be lost permanently once discarded.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Discard',
-                    cancelButtonText: 'Cancel',
-                    customClass: {
-                        confirmButton: 'btn btn-danger mt-2',
-                        cancelButton: 'btn btn-secondary ms-2 mt-2'
-                    },
-                    buttonsStyling: false
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        reloadDatatable('#update-system-action-access-table');
-                        $('.update-system-action-access').addClass('d-none');
-                        $('.edit-system-action-access-details').removeClass('d-none');
-
-                        const updateAccess = document.querySelectorAll('.update-system-action-access');
-
-                        updateAccess.forEach(button => {
-                            button.setAttribute('disabled', 'disabled');
-                        });
                     }
                 });
             });
@@ -485,15 +387,6 @@
             $('#role-modal').modal('show');
         });
 
-        $(document).on('click','#assign-menu-item-access',function() {
-            const role_id = $(this).data('role-id');
-
-            sessionStorage.setItem('role_id', role_id);
-
-            $('#assign-menu-item-access-modal').modal('show');
-            menuItemAccessTable('#assign-menu-item-access-table');
-        });
-
         $(document).on('click','.update-role',function() {
             const role_id = $(this).data('role-id');
     
@@ -565,63 +458,9 @@ function roleTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function addMenuItemAccessTable(datatable_name, buttons = false, show_all = false){
+function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = false){
     const role_id = $('#role-id').text();
-    const type = 'add menu item access table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'MENU_ITEM_NAME' },
-        { 'data' : 'ASSIGN' }
-    ];
-
-    const column_definition = [
-        { 'width': '90%', 'aTargets': 0 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'role_id' : role_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function updateMenuItemAccessTable(datatable_name, buttons = false, show_all = false){
-    const role_id = $('#role-id').text();
-    const type = 'update menu item access table';
+    const type = 'update role menu item access table';
     var settings;
 
     const column = [ 
@@ -649,116 +488,6 @@ function updateMenuItemAccessTable(datatable_name, buttons = false, show_all = f
     settings = {
         'ajax': { 
             'url' : 'view/_menu_item_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'role_id' : role_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function addSystemActionAccessTable(datatable_name, buttons = false, show_all = false){
-    const role_id = $('#role-id').text();
-    const type = 'add system action access table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SYSTEM_ACTION_NAME' },
-        { 'data' : 'ASSIGN' }
-    ];
-
-    const column_definition = [
-        { 'width': '90%', 'aTargets': 0 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_system_action_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'role_id' : role_id},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function updateSystemActionAccessTable(datatable_name, buttons = false, show_all = false){
-    const role_id = $('#role-id').text();
-    const type = 'update system action access table';
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SYSTEM_ACTION_NAME' },
-        { 'data' : 'ROLE_ACCESS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '70%', 'aTargets': 0 },
-        { 'width': '20%', 'bSortable': false, 'aTargets': 1 },
-        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_system_action_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -882,257 +611,6 @@ function roleForm(){
                     $('#role-modal').modal('hide');
                     reloadDatatable('#role-configuration-table');
                     resetModalForm('role-configuration-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function addMenuItemAccessForm(){
-    $('#add-menu-item-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'add menu item access';
-            var role_id = sessionStorage.getItem('role_id');
-            var menu_item_id = [];
-
-            $('.menu-item-access').each(function(){
-                if ($(this).is(':checked')){  
-                    menu_item_id.push(this.value);  
-                }
-            });
-
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&role_id=' + role_id + '&menu_item_id=' + menu_item_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-item-access');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification('Add Menu Item Access Success', 'The menu item access has been added successfully.', 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                    fullErrorMessage += ', Response: ' + xhr.responseText;
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-menu-item-access', 'Submit');
-                    $('#add-menu-item-access-modal').modal('hide');
-                    reloadDatatable('#update-menu-item-access-table');
-                    $('.update-menu-item-access').addClass('d-none');
-                    $('.edit-menu-item-access-details').removeClass('d-none');
-
-                    const updateAccess = document.querySelectorAll('.update-menu-item-access');
-
-                    updateAccess.forEach(button => {
-                        button.setAttribute('disabled', 'disabled');
-                    });
-                }
-            });
-            return false;
-        }
-    });
-}
-
-function updateMenuItemAccessForm(){
-    $('#update-menu-item-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save menu item access';
-
-            const menu_item_id = $('#menu-item-id').text();
-            
-            var permission = [];
-        
-            $('.update-role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + menu_item_id + '&permission=' + permission,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-update-menu-item-access');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Menu Item Access Success', 'The menu item access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-update-menu-item-access', 'Save');
-                    reloadDatatable('#update-menu-item-access-table');
-
-                    $('.update-menu-item-access').addClass('d-none');
-                    $('.edit-menu-item-access-details').removeClass('d-none');
-
-                    const elements = document.querySelectorAll('.update-menu-item-access');
-
-                    elements.forEach(element => {
-                        element.addAttribute('disabled');
-                    });
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function addSystemActionAccessForm(){
-    $('#add-system-action-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'add system action access';
-            const system_action_id = $('#system-action-id').text();
-            var role_id = [];
-
-            $('.role-access').each(function(){
-                if ($(this).is(':checked')){  
-                    role_id.push(this.value);  
-                }
-            });
-
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&role_id=' + role_id,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('add-system-action-access');
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showNotification('Add Role Access Success', 'The role access has been added successfully.', 'success');
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
-                    fullErrorMessage += ', Response: ' + xhr.responseText;
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('add-system-action-access', 'Submit');
-                    $('#add-role-access-modal').modal('hide');
-                    reloadDatatable('#update-role-access-table');
-                    $('.update-access').addClass('d-none');
-                    $('.edit-access-details').removeClass('d-none');
-
-                    const updateAccess = document.querySelectorAll('.update-role-access');
-
-                    updateAccess.forEach(button => {
-                        button.setAttribute('disabled', 'disabled');
-                    });
-                }
-            });
-            return false;
-        }
-    });
-}
-
-function updateRoleAccessForm(){
-    $('#update-role-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save role system action access';
-
-            const system_action_id = $('#system-action-id').text();
-            
-            var permission = [];
-        
-            $('.update-role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&permission=' + permission,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-system-action-access');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Role Access Success', 'The role access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-system-action-access', 'Save');
-                    reloadDatatable('#update-role-access-table');
-
-                    $('.update-access').addClass('d-none');
-                    $('.edit-access-details').removeClass('d-none');
-
-                    const elements = document.querySelectorAll('.update-role-access');
-
-                    elements.forEach(element => {
-                        element.addAttribute('disabled');
-                    });
                 }
             });
         

@@ -70,10 +70,7 @@
           <?php
            if(!empty($systemActionID)){
               if($updateSystemActionRoleAccess['total'] > 0){
-                $system_action_button = '<button type="button" class="btn btn-warning" data-system-action-id="' . $systemActionID . '" id="add-system-action-role-access">Add Role</button>
-                              <button type="submit" class="btn btn-info edit-system-action-access-details" id="edit-system-action-access">Edit</button>
-                              <button type="submit" form="update-system-action-access-access-form" class="btn btn-success update-system-action-access d-none" id="submit-system-action-access">Save</button>
-                              <button type="button" id="discard-access-update" class="btn btn-outline-danger update-system-action-access d-none">Discard</button>';
+                $system_action_button = '<button type="button" class="btn btn-warning" data-system-action-id="' . $systemActionID . '" id="add-system-action-role-access">Add Role</button>';
               }
 
               echo '<div class="row">
@@ -90,20 +87,18 @@
                           </div>
                         </div>
                         <div class="card-body">
-                          <form id="update-system-action-role-access-form" method="post" action="#">
-                            <div class="dt-responsive table-responsive">
-                              <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                                <thead>
-                                  <tr>
-                                    <th>Role</th>
-                                    <th class="all">Access</th>
-                                    <th class="all">Action</th>
-                                  </tr>
-                                </thead>
-                                <tbody></tbody>
-                              </table>
-                          </div>
-                          </form>
+                          <div class="dt-responsive table-responsive">
+                            <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                              <thead>
+                                <tr>
+                                  <th>Role</th>
+                                  <th class="all">Access</th>
+                                  <th class="all">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                        </div>
                         </div>
                       </div>
                     </div>
@@ -136,10 +131,10 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body" id="modal-body">
-                            <form id="add-system-action-access-form" method="post" action="#">
+                            <form id="add-system-action-role-access-form" method="post" action="#">
                               <div class="row">
                                   <div class="col-md-12">
-                                      <table id="add-system-action-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                      <table id="add-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                           <thead>
                                           <tr>
                                               <th class="all">Role</th>
