@@ -90,7 +90,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
                 $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleTable(:menuItemID)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateMenuItemRoleAccessTable(:menuItemID)');
                 $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -135,42 +135,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $delete .'
                                 </div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # -------------------------------------------------------------
-
-        # -------------------------------------------------------------
-        #
-        # Type: add menu item role access table
-        # Description:
-        # Generates the role not in menu item role access table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'add menu item role access table':
-            if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
-                $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateAddMenuItemRoleTable(:menuItemID)');
-                $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-
-                foreach ($options as $row) {
-                    $roleID = $row['role_id'];
-                    $roleName = $row['role_name'];
-    
-                    $response[] = [
-                        'ROLE_NAME' => $roleName,
-                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-role-access" type="checkbox" value="'. $roleID.'"></div>'
                     ];
                 }
     
@@ -239,6 +203,78 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $delete .'
                                 </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: add menu item role access table
+        # Description:
+        # Generates the role not in menu item role access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'add menu item role access table':
+            if(isset($_POST['menu_item_id']) && !empty($_POST['menu_item_id'])){
+                $menuItemID = htmlspecialchars($_POST['menu_item_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddMenuItemRoleAccessTable(:menuItemID)');
+                $sql->bindValue(':menuItemID', $menuItemID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-role-access" type="checkbox" value="'. $roleID.'"></div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: add role menu item access table
+        # Description:
+        # Generates the role not in menu item role access table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'add role menu item access table':
+            if(isset($_POST['role_id']) && !empty($_POST['role_id'])){
+                $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddRoleMenuItemAccessTable(:roleID)');
+                $sql->bindValue(':roleID', $roleID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $menuItemID = $row['menu_item_id'];
+                    $menuItemName = $row['menu_item_name'];
+    
+                    $response[] = [
+                        'MENU_ITEM_NAME' => $menuItemName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input menu-item-role-access" type="checkbox" value="'. $menuItemID.'"></div>'
                     ];
                 }
     

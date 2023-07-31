@@ -109,7 +109,7 @@
                         <div class="card-header">
                           <div class="row align-items-center">
                             <div class="col-sm-6">
-                              <h5>Role Access</h5>
+                              <h5>Menu Item Access</h5>
                             </div>
                             <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                             '. $menu_item_button .'
@@ -145,7 +145,7 @@
                       <div class="card-header">
                         <div class="row align-items-center">
                           <div class="col-sm-6">
-                            <h5>Role Access</h5>
+                            <h5>System Action Access</h5>
                           </div>
                           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                           '. $system_action_button .'

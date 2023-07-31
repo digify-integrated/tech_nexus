@@ -671,8 +671,8 @@ function addSystemActionRoleAccessForm(){
     $('#add-system-action-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'add system action role access';
-            var system_action_id = sessionStorage.getItem('system_action_id');
-;
+            const system_action_id = $('#system-action-id').text();
+
             var role_id = [];
 
                 $('.system-action-role-access').each(function(){

@@ -750,7 +750,7 @@ function addMenuItemRoleAccessForm(){
     $('#add-menu-item-role-access-form').validate({
         submitHandler: function(form) {
             const transaction = 'add menu item role access';
-            var menu_item_id = sessionStorage.getItem('menu_item_id');
+            const menu_item_id = $('#menu-item-id').text();
 
             var role_id = [];
 

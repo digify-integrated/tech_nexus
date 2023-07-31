@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 30, 2023 at 02:41 PM
+-- Generation Time: Jul 31, 2023 at 11:34 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -238,10 +238,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_syste
     SET p_new_system_action_id = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddMenuItemRoleTable` (IN `p_menu_item_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddMenuItemRoleAccessTable` (IN `p_menu_item_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id)
     ORDER BY role_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleMenuItemAccessTable` (IN `p_role_id` INT)   BEGIN
+	SELECT menu_item_id, menu_item_name FROM menu_item
+    WHERE menu_item_id NOT IN (SELECT menu_item_id FROM menu_item_access_right WHERE role_id = p_role_id)
+    ORDER BY menu_item_name;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleMenuItemTable` (IN `p_role_id` INT)   BEGIN
@@ -250,13 +256,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleMenuItemTable` (IN `
     ORDER BY menu_item_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleSystemActionAccessTable` (IN `p_role_id` INT)   BEGIN
+	SELECT system_action_id, system_action_name FROM system_action
+    WHERE system_action_id NOT IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
+    ORDER BY system_action_name;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddRoleSystemActionTable` (IN `p_role_id` INT)   BEGIN
 	SELECT system_action_id, system_action_name FROM system_action
     WHERE system_action_id NOT IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
     ORDER BY system_action_name;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddSystemActionRoleTable` (IN `p_system_action_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddSystemActionRoleAccessTable` (IN `p_system_action_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM system_action_access_rights WHERE system_action_id = p_system_action_id)
     ORDER BY role_name;
@@ -320,6 +332,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleMenuItemAccessTable` (I
     ORDER BY menu_item_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleSystemActionAccessTable` (IN `p_role_id` INT)   BEGIN
+	SELECT system_action_id, system_action_name FROM system_action
+    WHERE system_action_id IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
+    ORDER BY system_action_name;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleSystemActionTable` (IN `p_role_id` INT)   BEGIN
 	SELECT system_action_id, system_action_name FROM system_action
     WHERE system_action_id IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
@@ -338,7 +356,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSubMenuItemTable` (IN `p_pa
     ORDER BY menu_item_name;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionRoleTable` (IN `p_system_action_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionRoleAccessTable` (IN `p_system_action_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id IN (SELECT role_id FROM system_action_access_rights WHERE system_action_id = p_system_action_id)
     ORDER BY role_name;
@@ -1696,7 +1714,44 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (1025, 'menu_item_access_right', 1, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-30 20:35:33'),
 (1026, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-07-30 20:36:19'),
 (1027, 'menu_item_access_right', 1, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-30 20:36:19'),
-(1028, 'menu_item_access_right', 1, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 20:36:46');
+(1028, 'menu_item_access_right', 1, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-30 20:36:46'),
+(1029, 'users', 1, 'Last Connection Date: 2023-07-30 18:40:57 -> 2023-07-31 10:02:45<br/>', '1', '2023-07-31 10:02:45'),
+(1030, 'menu_item_access_right', 6, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-31 10:21:53'),
+(1031, 'menu_item_access_right', 6, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-31 10:21:54'),
+(1032, 'menu_item_access_right', 6, 'Role ID: 1<br/>Delete Access: 1 -> 0<br/>', '1', '2023-07-31 10:21:55'),
+(1033, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 10:22:01'),
+(1034, 'users', 1, 'Last Connection Date: 2023-07-31 10:02:45 -> 2023-07-31 15:03:24<br/>', '1', '2023-07-31 15:03:24'),
+(1035, 'menu_item_access_right', 4, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:04:40'),
+(1036, 'menu_item_access_right', 2, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:04:40'),
+(1037, 'menu_item_access_right', 3, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:08:11'),
+(1038, 'menu_item_access_right', 6, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:08:51'),
+(1039, 'menu_item_access_right', 5, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:08:51'),
+(1040, 'menu_item_access_right', 1, 'Menu item access rights created. <br/>', '1', '2023-07-31 17:09:08'),
+(1041, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:13:38'),
+(1042, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:13:38'),
+(1043, 'menu_item_access_right', 2, 'Role ID: 6<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-31 17:13:39'),
+(1044, 'menu_item_access_right', 4, 'Role ID: 6<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-31 17:13:40'),
+(1045, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:14:27'),
+(1046, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:14:27'),
+(1047, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:14:27'),
+(1048, 'menu_item_access_right', 4, 'Role ID: 6<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-31 17:14:28'),
+(1049, 'menu_item_access_right', 2, 'Role ID: 6<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-07-31 17:14:28'),
+(1050, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:17:16'),
+(1051, 'menu_item_access_right', 6, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-07-31 17:29:14'),
+(1052, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-07-31 17:30:16'),
+(1053, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:30:16'),
+(1054, 'menu_item_access_right', 6, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-31 17:30:19'),
+(1055, 'menu_item_access_right', 6, 'Role ID: 6<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-31 17:30:19'),
+(1056, 'menu_item_access_right', 6, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-31 17:30:28'),
+(1057, 'menu_item_access_right', 6, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-07-31 17:30:38'),
+(1058, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:31:28'),
+(1059, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:31:28'),
+(1060, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-07-31 17:31:28'),
+(1061, 'menu_item_access_right', 2, 'Role ID: 6<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-31 17:31:30'),
+(1062, 'menu_item_access_right', 3, 'Role ID: 6<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-31 17:31:30'),
+(1063, 'menu_item_access_right', 6, 'Role ID: 6<br/>Read Access: 0 -> 1<br/>', '1', '2023-07-31 17:31:31'),
+(1064, 'menu_item_access_right', 2, 'Role ID: 6<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-31 17:31:32'),
+(1065, 'menu_item_access_right', 3, 'Role ID: 6<br/>Write Access: 0 -> 1<br/>', '1', '2023-07-31 17:31:33');
 
 -- --------------------------------------------------------
 
@@ -1888,7 +1943,18 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (5, 1, 1, 1, 1, 1, 1, 1),
 (6, 1, 1, 1, 1, 1, 1, 1),
 (1, 2, 1, 1, 0, 0, 0, 1),
-(1, 1, 1, 1, 0, 0, 0, 1);
+(1, 1, 1, 1, 0, 0, 0, 1),
+(4, 0, 0, 0, 0, 0, 0, 1),
+(2, 0, 0, 0, 0, 0, 0, 1),
+(3, 0, 0, 0, 0, 0, 0, 1),
+(6, 0, 0, 0, 0, 0, 0, 1),
+(5, 0, 0, 0, 0, 0, 0, 1),
+(1, 0, 0, 0, 0, 0, 0, 1),
+(4, 6, 0, 0, 0, 0, 1, 1),
+(6, 2, 1, 1, 1, 0, 0, 1),
+(2, 6, 1, 1, 0, 0, 0, 1),
+(3, 6, 1, 1, 0, 0, 0, 1),
+(6, 6, 1, 0, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_item_access_right`
@@ -2151,15 +2217,14 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (3, 1, 1, NULL),
 (4, 1, 1, 1),
 (0, 1, 0, NULL),
-(4, 2, 1, 1),
 (4, 0, 0, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1),
-(4, 2, 1, 1);
+(2, 6, 1, 1),
+(2, 6, 1, 1),
+(2, 6, 1, 1),
+(4, 6, 1, 1),
+(3, 0, 0, 1),
+(4, 2, 0, 1),
+(1, 6, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -2295,7 +2360,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-30 18:40:57', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-07-31 15:03:24', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1);
 
 --
 -- Triggers `users`
@@ -2563,7 +2628,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1029;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1066;
 
 --
 -- AUTO_INCREMENT for table `menu_group`

@@ -75,6 +75,9 @@ class RoleController {
                 case 'add menu item role access':
                     $this->addMenuItemRoleAccess();
                     break;
+                case 'add role menu item access':
+                    $this->addRoleMenuItemAccess();
+                    break;
                 case 'save menu item role access':
                     $this->saveMenuItemRoleAccess();
                     break;
@@ -83,6 +86,9 @@ class RoleController {
                     break;
                 case 'add system action role access':
                     $this->addSystemActionRoleAccess();
+                    break;
+                case 'add role system action access':
+                    $this->addRoleSystemActionAccess();
                     break;
                 case 'save system action role access':
                     $this->saveSystemActionRoleAccess();
@@ -442,6 +448,47 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
+    # Function: addRoleMenuItemAccess
+    # Description:
+    # Add the role access.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addRoleMenuItemAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $menuItemIDs = explode(',', $_POST['menu_item_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($menuItemIDs as $menuItemID) {
+            $checkRoleMenuAccessExist = $this->roleModel->checkRoleMenuAccessExist($menuItemID, $roleID);
+            $total = $checkRoleMenuAccessExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: addSystemActionRoleAccess
     # Description:
     # Add the role system action access.
@@ -468,6 +515,47 @@ class RoleController {
         }
         
         foreach ($roleIDs as $roleID) {
+            $checkSystemActionRoleExist = $this->roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
+            $total = $checkSystemActionRoleExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleSystemActionAccess($systemActionID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addRoleSystemActionAccess
+    # Description:
+    # Add the role system action access.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addRoleSystemActionAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $systemActionIDs = explode(',', $_POST['system_action_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($systemActionIDs as $systemActionID) {
             $checkSystemActionRoleExist = $this->roleModel->checkSystemActionRoleExist($systemActionID, $roleID);
             $total = $checkSystemActionRoleExist['total'] ?? 0;
         

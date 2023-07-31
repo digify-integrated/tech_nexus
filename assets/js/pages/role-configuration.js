@@ -17,7 +17,7 @@
                 updateMenuItemRoleAccessTable('#update-menu-item-role-access-table');
             }
 
-            /*if($('#add-menu-item-role-access-modal').length){
+            if($('#add-menu-item-role-access-modal').length){
                 addMenuItemRoleAccessForm();
             }
 
@@ -28,8 +28,8 @@
     
                 $('#add-menu-item-role-access-modal').modal('show');
                 addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
-            });*/
-    
+            });
+
             $(document).on('click','.update-menu-item-role-access',function() {
                 const menu_item_id = $(this).data('menu-item-id');
                 const role_id = $(this).data('role-id');
@@ -128,6 +128,132 @@
                                   fullErrorMessage += `, Response: ${xhr.responseText}`;
                                 }
                                 showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                reloadDatatable('#update-menu-item-role-access-table');
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            if($('#update-system-action-role-access-table').length){
+                updateSystemActionRoleAccessTable('#update-system-action-role-access-table');
+            }
+
+            if($('#add-system-action-role-access-modal').length){
+                addSystemActionRoleAccessForm();
+            }
+
+            $(document).on('click','#add-system-action-role-access',function() {
+                const system_action_id = $(this).data('system-action-id');
+    
+                sessionStorage.setItem('system_action_id', system_action_id);
+    
+                $('#add-system-action-role-access-modal').modal('show');
+                addSystemActionRoleAccessTable('#add-system-action-role-access-table');
+            });
+
+            $(document).on('click','.update-system-action-role-access',function() {
+                const system_action_id = $(this).data('system-action-id');
+                const role_id = $(this).data('role-id');
+                const transaction = 'save system action role access';
+                var access;
+
+                if ($(this).is(':checked')){  
+                    access = '1';
+                }
+                else{
+                    access = '0';
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/role-controller.php',
+                    dataType: 'json',
+                    data: {
+                        system_action_id : system_action_id, 
+                        role_id : role_id, 
+                        access : access,
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (!response.success) {
+                            if (response.isInactive) {
+                                setNotification('User Inactive', response.message, 'danger');
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                showNotification('Update Role Access Error', 'The role access does not exist.', 'danger');
+                            }
+                            else {
+                                showNotification('Update Role Access Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                          fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+            });
+    
+            $(document).on('click','.delete-system-action-role-access',function() {
+                const system_action_id = $(this).data('system-action-id');
+                const role_id = $(this).data('role-id');
+                const transaction = 'delete system action role access';
+        
+                Swal.fire({
+                    title: 'Confirm Role Access Deletion',
+                    text: 'Are you sure you want to delete this role access?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/role-controller.php',
+                            dataType: 'json',
+                            data: {
+                                system_action_id : system_action_id, 
+                                role_id : role_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Role Access Success', 'The role access has been deleted successfully.', 'success');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        showNotification('Delete Role Access Error', 'The role access does not exist.', 'danger');
+                                    }
+                                    else {
+                                        showNotification('Delete Role Access Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                  fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                reloadDatatable('#update-system-action-role-access-table');
                             }
                         });
                         return false;
@@ -522,6 +648,170 @@ function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all
     $(datatable_name).dataTable(settings);
 }
 
+function updateSystemActionRoleAccessTable(datatable_name, buttons = false, show_all = false){
+    const role_id = $('#role-id').text();
+    const type = 'update role system action access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SYSTEM_ACTION_NAME' },
+        { 'data' : 'ROLE_ACCESS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '70%', 'aTargets': 0 },
+        { 'width': '20%', 'bSortable': false, 'aTargets': 1 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_system_action_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'role_id' : role_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function addMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = false){
+    const role_id = $('#role-id').text();
+    const type = 'add role menu item access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'MENU_ITEM_NAME' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_menu_item_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'role_id' : role_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function addSystemActionRoleAccessTable(datatable_name, buttons = false, show_all = false){
+    const role_id = $('#role-id').text();
+    const type = 'add role system action access table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SYSTEM_ACTION_NAME' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_system_action_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'role_id' : role_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function roleForm(){
     $('#role-configuration-form').validate({
         rules: {
@@ -614,6 +904,110 @@ function roleForm(){
                 }
             });
         
+            return false;
+        }
+    });
+}
+
+function addMenuItemRoleAccessForm(){
+    $('#add-menu-item-role-access-form').validate({
+        submitHandler: function(form) {
+            const transaction = 'add role menu item access';
+            const role_id = $('#role-id').text();
+
+            var menu_item_id = [];
+
+            $('.menu-item-role-access').each(function(){
+                if ($(this).is(':checked')){  
+                    menu_item_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/role-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + menu_item_id + '&role_id=' + role_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-menu-item-role-access');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Add Menu Item Access Success', 'The menu item access has been added successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-menu-item-role-access', 'Submit');
+                    $('#add-menu-item-role-access-modal').modal('hide');
+                    reloadDatatable('#update-menu-item-role-access-table');
+                }
+            });
+            return false;
+        }
+    });
+}
+
+function addSystemActionRoleAccessForm(){
+    $('#add-system-action-role-access-form').validate({
+        submitHandler: function(form) {
+            const transaction = 'add system action role access';
+            const role_id = $('#role-id').text();
+            
+            var system_action_id = [];
+
+            $('.system-action-role-access').each(function(){
+                if ($(this).is(':checked')){  
+                    system_action_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/role-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&system_action_id=' + system_action_id + '&role_id=' + role_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-system-action-role-access');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Add System Action Access Success', 'The system action access has been added successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-system-action-role-access', 'Submit');
+                    $('#add-system-action-role-access-modal').modal('hide');
+                    reloadDatatable('#update-system-action-role-access-table');
+                }
+            });
             return false;
         }
     });
