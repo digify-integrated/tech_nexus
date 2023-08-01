@@ -26,6 +26,7 @@
     $roleDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'duplicate');
     $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
     $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
+    $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
 
     if ($roleReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -109,14 +110,14 @@
           </div>
         </div>
         <?php
-          if($newRecord){
+          if($newRecord && $roleCreateAccess['total'] > 0){
             require_once('view/_role_configuration_new.php');
           }
-          else if(empty($roleID)){
-            require_once('view/_role_configuration.php');
+          else if(!empty($roleID && $roleWriteAccess['total'] > 0)){
+            require_once('view/_role_configuration_details.php');
           }
           else{
-            require_once('view/_role_configuration_details.php');
+            require_once('view/_role_configuration.php');
           }
         ?>
       </div>

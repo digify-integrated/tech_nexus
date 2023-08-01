@@ -29,6 +29,7 @@ CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
 INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '1');
 
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
@@ -307,6 +308,20 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
+CREATE PROCEDURE generateRoleUserAccountTable(IN p_role_id INT)
+BEGIN
+	SELECT user_id, file_as, email, last_connection_date FROM users
+    WHERE user_id IN (SELECT user_id FROM role_users WHERE role_id = p_role_id)
+    ORDER BY file_as;
+END //
+
+CREATE PROCEDURE generateAddRoleUserAccountTable(IN p_role_id INT)
+BEGIN
+	SELECT user_id, file_as, email, last_connection_date FROM users
+    WHERE user_id NOT IN (SELECT user_id FROM role_users WHERE role_id = p_role_id)
+    ORDER BY file_as;
+END //
+
 /* Password history table */
 CREATE TABLE password_history (
     password_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -530,8 +545,10 @@ CREATE TABLE role(
 
 CREATE INDEX role_index_role_id ON role(role_id);
 
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Administrator', '1', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'Employee', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Super Admin', 'This role has the highest level of access and full control over the entire system. Super Admins can perform all actions, including managing other user accounts, configuring system settings, and accessing all data.', '0', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'The typical user account with standard access to use the system features and functionalities.', '1', '1');
 
 CREATE TRIGGER role_trigger_update
 AFTER UPDATE ON role
@@ -641,6 +658,14 @@ BEGIN
     ORDER BY role_id;
 END //
 
+CREATE PROCEDURE generateRoleTable()
+BEGIN
+	SELECT role_id, role_name, role_description
+    FROM role
+    WHERE assignable = 1
+    ORDER BY role_id;
+END //
+
 CREATE PROCEDURE generateMenuItemAccessTable()
 BEGIN
 	SELECT menu_item_id, menu_item_name FROM menu_item
@@ -658,6 +683,25 @@ CREATE INDEX role_users_index_role_id ON role_users(role_id);
 CREATE INDEX role_users_index_user_id ON role_users(user_id);
 
 INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '1');
+
+CREATE PROCEDURE checkRoleUserExist(IN p_user_id INT, IN p_role_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM role_users
+    WHERE user_id = p_user_id AND role_id = p_role_id;
+END //
+
+CREATE PROCEDURE insertRoleUser(IN p_user_id INT, IN p_role_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO role_users (user_id, role_id, last_log_by) 
+	VALUES(p_user_id, p_role_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE deleteRoleUser(IN p_user_id INT, IN p_role_id INT)
+BEGIN
+	DELETE FROM role_users
+    WHERE user_id = p_user_id AND role_id = p_role_id;
+END //
 
 /* Menu group table */
 CREATE TABLE menu_group (
@@ -786,7 +830,6 @@ BEGIN
     WHERE menu_group_id = p_menu_group_id 
     ORDER BY menu_item_id;
 END //
-
 
 
 /* Menu item table */
@@ -1214,6 +1257,8 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update System Action Role Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete System Action Role Access', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign User Account To Role', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete User Account To Role', '1');
 
 CREATE TRIGGER system_action_trigger_update
 AFTER UPDATE ON system_action
@@ -1314,6 +1359,44 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access)
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('2', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('3', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('4', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('5', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('6', '1', '1');
+
+CREATE TRIGGER system_action_access_rights_update
+AFTER UPDATE ON system_action_access_rights
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
+
+    IF NEW.role_access <> OLD.role_access THEN
+        SET audit_log = CONCAT(audit_log, "Role Access: ", OLD.role_access, " -> ", NEW.role_access, "<br/>");
+    END IF;
+
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('system_action_access_rights', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER system_action_access_rights_insert
+AFTER INSERT ON system_action_access_rights
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System action access rights created. <br/>';
+
+    IF NEW.role_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
+    END IF;
+
+    IF NEW.role_access <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Role Access: ", NEW.role_access);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('system_action_access_rights', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+END //
 
 CREATE PROCEDURE checkSystemActionAccessRights(IN p_user_id INT, IN p_system_action_id INT)
 BEGIN

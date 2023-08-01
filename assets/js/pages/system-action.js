@@ -415,16 +415,14 @@ function systemActionTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'SYSTEM_ACTION_ID' },
         { 'data' : 'SYSTEM_ACTION_NAME' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '6%', 'aTargets': 1 },
-        { 'width': '78%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': '84%', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -483,7 +481,7 @@ function updateSystemActionRoleAccessTable(datatable_name, buttons = false, show
         { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 

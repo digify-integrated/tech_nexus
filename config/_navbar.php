@@ -56,14 +56,14 @@
                         $sql->closeCursor();
             
                         foreach ($options as $row) {
-                            $menuGroupID = $row['menu_group_id'];
-                            $menuGroupName = $row['menu_group_name'];
+                            $_menuGroupID = $row['menu_group_id'];
+                            $_menuGroupName = $row['menu_group_name'];
             
                             $menu .= '<li class="pc-item pc-caption">
-                                        <label>'. $menuGroupName .'</label>
+                                        <label>'. $_menuGroupName .'</label>
                                     </li>';
             
-                            $menu .= $menuItemModel->buildMenuItem($user_id, $menuGroupID);
+                            $menu .= $menuItemModel->buildMenuItem($user_id, $_menuGroupID);
                         }
             
                         echo $menu;

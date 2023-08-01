@@ -24,7 +24,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: role configuration table
+        # Type: role table
         # Description:
         # Generates the role table.
         #
@@ -33,8 +33,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'role configuration table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateRoleConfigurationTable()');
+        case 'role table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateRoleTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -45,9 +45,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $roleID = $row['role_id'];
                 $roleName = $row['role_name'];
                 $roleDescription = $row['role_description'];
-                $assignable = $row['assignable'];
-
-                $assignableBadge = $assignable ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
 
                 $roleIDEncrypted = $securityModel->encryptData($roleID);
 
@@ -59,11 +56,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $roleID .'">',
                     'ROLE_NAME' => $roleName . '<p class="text-muted mb-0>'. $roleDescription .'</p>',
-                    'ASSIGNABLE' => $assignableBadge,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="role-configuration.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="role.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

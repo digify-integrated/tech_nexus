@@ -77,6 +77,27 @@ class RoleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkRoleUserExist
+    # Description: Checks if a user role exists.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkRoleUserExist($p_user_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkRoleUserExist(:p_user_id, :p_role_id)');
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
 
@@ -233,6 +254,27 @@ class RoleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertRoleUser
+    # Description: Inserts the system action access of the role.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertRoleUser($p_user_id, $p_role_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertRoleUser(:p_user_id, :p_role_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
     
@@ -289,6 +331,26 @@ class RoleModel {
     public function deleteSystemActionRoleAccess($p_system_action_id, $p_role_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteSystemActionRoleAccess(:p_system_action_id, :p_role_id)');
         $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRoleUser
+    # Description: Deletes the user role access.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteRoleUser($p_user_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteRoleUser(:p_user_id, :p_role_id)');
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }

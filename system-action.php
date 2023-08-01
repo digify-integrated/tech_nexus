@@ -108,14 +108,14 @@
           </div>
         </div>
         <?php
-          if($newRecord){
+          if($newRecord && $systemActionCreateAccess['total'] > 0){
             require_once('view/_system_action_new.php');
           }
-          else if(empty($systemActionID)){
-            require_once('view/_system_action.php');
+          else if(!empty($systemActionID && $systemActionWriteAccess['total'] > 0)){
+            require_once('view/_system_action_details.php');
           }
           else{
-            require_once('view/_system_action_details.php');
+            require_once('view/_system_action.php');
           }
         ?>
       </div>

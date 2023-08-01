@@ -20,6 +20,55 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
+
+        # -------------------------------------------------------------
+        #
+        # Type: system action table
+        # Description:
+        # Generates the role table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'system action table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            $systemActionDeleteAccess = $userModel->checkSystemActionAccessRights($user_id, 5, 'delete');
+
+            foreach ($options as $row) {
+                $systemActionID = $row['system_action_id'];
+                $systemActionName = $row['system_action_name'];
+
+                $systemActionIDEncrypted = $securityModel->encryptData($systemActionID);
+
+                $delete = '';
+                if($systemActionDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action" data-system-action-id="'. $systemActionID .'" title="Delete System Action">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                }
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $systemActionID .'">',
+                    'SYSTEM_ACTION_NAME' => $systemActionName,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="system-action.php?id='. $systemActionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                    '. $delete .'
+                                </div>'
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
         # -------------------------------------------------------------
         #
         # Type: update system action role access table
@@ -201,55 +250,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                 echo json_encode($response);
             }
-        break;
-        # -------------------------------------------------------------
-
-        # -------------------------------------------------------------
-        #
-        # Type: system action table
-        # Description:
-        # Generates the role table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'system action table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionTable()');
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
-
-            $systemActionDeleteAccess = $userModel->checkSystemActionAccessRights($user_id, 5, 'delete');
-
-            foreach ($options as $row) {
-                $systemActionID = $row['system_action_id'];
-                $systemActionName = $row['system_action_name'];
-
-                $systemActionIDEncrypted = $securityModel->encryptData($systemActionID);
-
-                $delete = '';
-                if($systemActionDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action" data-system-action-id="'. $systemActionID .'" title="Delete System Action">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
-                $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $systemActionID .'">',
-                    'SYSTEM_ACTION_ID' => $systemActionID,
-                    'SYSTEM_ACTION_NAME' => $systemActionName,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="system-action.php?id='. $systemActionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-                                    '. $delete .'
-                                </div>'
-                ];
-            }
-
-            echo json_encode($response);
         break;
         # -------------------------------------------------------------
     }

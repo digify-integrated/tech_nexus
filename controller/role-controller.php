@@ -84,6 +84,9 @@ class RoleController {
                 case 'delete menu item role access':
                     $this->deleteMenuItemRoleAccess();
                     break;
+                case 'add role user account':
+                    $this->addRoleUserAccount();
+                    break;
                 case 'add system action role access':
                     $this->addSystemActionRoleAccess();
                     break;
@@ -95,6 +98,9 @@ class RoleController {
                     break;
                 case 'delete system action role access':
                     $this->deleteSystemActionRoleAccess();
+                    break;
+                case 'delete role user account':
+                    $this->deleteUserAccountRole();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -313,6 +319,48 @@ class RoleController {
 
     # -------------------------------------------------------------
     #
+    # Function: deleteUserAccountRole
+    # Description:
+    # Delete the user account if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteUserAccountRole() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkRoleUserExist = $this->roleModel->checkRoleUserExist($userAccountID, $roleID);
+        $total = $checkRoleUserExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->roleModel->deleteRoleUser($userAccountID, $roleID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: duplicateRole
     # Description:
     # Duplicates the role if it exists; otherwise, return an error message.
@@ -438,6 +486,47 @@ class RoleController {
         
             if ($total === 0) {
                 $this->roleModel->insertRoleMenuAccess($menuItemID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addRoleUserAccount
+    # Description:
+    # Add the user account to role.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addRoleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
+        $userAccountIDs = explode(',', $_POST['user_account_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($userAccountIDs as $userAccountID) {
+            $checkRoleUserExist = $this->roleModel->checkRoleUserExist($userAccountID, $roleID);
+            $total = $checkRoleUserExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleUser($userAccountID, $roleID, $userID);
             }
         }
         

@@ -53,7 +53,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $menuGroupID .'">',
-                    'MENU_GROUP_ID' => $menuGroupID,
                     'MENU_GROUP_NAME' => $menuGroupName,
                     'ORDER_SEQUENCE' => $orderSequence,
                     'ACTION' => '<div class="d-flex gap-2">

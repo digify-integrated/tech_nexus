@@ -40,7 +40,6 @@
                             <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                           </div>
                         </th>
-                        <th>#</th>
                         <th>Menu Item</th>
                         <th>Menu Group</th>
                         <th>Parent Menu Item</th>

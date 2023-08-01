@@ -108,14 +108,14 @@
           </div>
         </div>
         <?php
-          if($newRecord){
+          if($newRecord && $menuItemCreateAccess['total'] > 0){
             require_once('view/_menu_item_new.php');
           }
-          else if(empty($menuItemID)){
-            require_once('view/_menu_item.php');
+          else if(!empty($menuItemID) && $menuItemWriteAccess['total'] > 0){
+            require_once('view/_menu_item_details.php');
           }
           else{
-            require_once('view/_menu_item_details.php');
+            require_once('view/_menu_item.php');
           }
         ?>
       </div>

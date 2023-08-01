@@ -23,18 +23,18 @@
                         <div class="col-lg-4">
                             <input type="text" class="form-control" id="role_name" name="role_name" maxlength="100" autocomplete="off">
                         </div>
-                        <label class="col-lg-2 col-form-label">Role Description <span class="text-danger">*</span></label>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control" id="role_description" name="role_description" maxlength="200" autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="form-group row">
                         <label class="col-lg-2 col-form-label">Assignable</label>
                         <div class="col-lg-4">
                             <select class="form-control select2" name="assignable" id="assignable">
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Role Description <span class="text-danger">*</span></label>
+                        <div class="col-lg-4">
+                            <input type="text" class="form-control" id="role_description" name="role_description" maxlength="200" autocomplete="off">
                         </div>
                     </div>
                 </form>

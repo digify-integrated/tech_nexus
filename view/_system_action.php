@@ -40,7 +40,6 @@
                             <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                           </div>
                         </th>
-                        <th>#</th>
                         <th>System Action</th>
                         <th>Action</th>
                       </tr>

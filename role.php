@@ -3,7 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    require('model/menu-group-model.php');
+    require('model/role-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
@@ -11,24 +11,19 @@
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
+    $roleModel = new RoleModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Menu Group';
+    $page_title = 'Role';
     
-    $menuGroupReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
-    $menuGroupCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
-    $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
-    $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
-    $menuGroupDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
-    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
-    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
-    $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
+    $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 7, 'read');
+    $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 7, 'write');
+    $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
 
-    if ($menuGroupReadAccess['total'] == 0) {
+    if ($roleReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -39,26 +34,24 @@
     }
 
     if(isset($_GET['id'])){
-      if(empty($_GET['id'])){
-        header('location: menu-group.php');
-        exit;
-      }
+        if(empty($_GET['id'])){
+            header('location: role.php');
+            exit;
+        }
 
-      $menuGroupID = $securityModel->decryptData($_GET['id']);
+        $roleID = $securityModel->decryptData($_GET['id']);
 
-      $checkMenuGroupExist = $menuGroupModel->checkMenuGroupExist($menuGroupID);
-      $total = $checkMenuGroupExist['total'] ?? 0;
+        $checkRoleExist = $roleModel->checkRoleExist($roleID);
+        $total = $checkRoleExist['total'] ?? 0;
 
-      if($total == 0){
-        header('location: 404.php');
-        exit;
-      }
+        if($total == 0){
+            header('location: 404.php');
+            exit;
+        }
     }
     else{
-      $menuGroupID = null;
+        $roleID = null;
     }
-
-    $newRecord = isset($_GET['new']);
 
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
@@ -88,36 +81,29 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="menu-group.php">Menu Group</a></li>
+                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="role.php">Role</a></li>
                   <?php
-                    if(!empty($menuGroupID)){
-                      echo '<li class="breadcrumb-item" id="menu-group-id">'. $menuGroupID .'</li>';
-                    }
-
-                    if($newRecord){
-                      echo '<li class="breadcrumb-item">New</li>';
+                    if(!empty($roleID)){
+                      echo '<li class="breadcrumb-item" id="role-id">'. $roleID .'</li>';
                     }
                   ?>
                 </ul>
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Menu Group</h2>
+                  <h2 class="mb-0">Role</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $menuGroupCreateAccess['total'] > 0){
-            require_once('view/_menu_group_new.php');
-          }
-          else if(!empty($menuGroupID) && $menuGroupWriteAccess['total'] > 0){
-            require_once('view/_menu_group_details.php');
+          if(!empty($roleID && $roleWriteAccess['total'] > 0)){
+            require_once('view/_role_details.php');
           }
           else{
-            require_once('view/_menu_group.php');
+            require_once('view/_role.php');
           }
         ?>
       </div>
@@ -135,7 +121,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/menu-group.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/role.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

@@ -362,7 +362,6 @@ function menuGroupTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'MENU_GROUP_ID' },
         { 'data' : 'MENU_GROUP_NAME' },
         { 'data' : 'ORDER_SEQUENCE' },
         { 'data' : 'ACTION' }
@@ -370,10 +369,9 @@ function menuGroupTable(datatable_name, buttons = false, show_all = false){
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '10%', 'aTargets': 1 },
-        { 'width': '64%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '10%','bSortable': false, 'aTargets': 4 }
+        { 'width': '74%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '10%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
