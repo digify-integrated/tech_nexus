@@ -119,6 +119,29 @@ class UserModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Check exist methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkRoleExist
+    # Description: Checks if a role exists.
+    #
+    # Parameters:
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkRoleExist($p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkRoleExist(:p_role_id)');
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Update methods
     # -------------------------------------------------------------
 

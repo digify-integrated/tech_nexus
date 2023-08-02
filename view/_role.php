@@ -14,7 +14,7 @@
                     <thead>
                       <tr>
                         <th>Role</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

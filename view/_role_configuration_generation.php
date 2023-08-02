@@ -47,7 +47,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $roleDescription = $row['role_description'];
                 $assignable = $row['assignable'];
 
-                $assignableBadge = $assignable ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>';
+                $assignableBadge = $assignable ? '<span class="badge bg-light-success">Yes</span>' : '<span class="badge bg-light-danger">No</span>';
 
                 $roleIDEncrypted = $securityModel->encryptData($roleID);
 

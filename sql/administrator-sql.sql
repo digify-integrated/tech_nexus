@@ -4,6 +4,7 @@ CREATE TABLE users (
     file_as VARCHAR(300) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
+    profile_picture VARCHAR(500) NULL,
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     last_failed_login_attempt DATETIME,
@@ -213,6 +214,13 @@ BEGIN
     VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkUserExist(IN p_user_id INT, IN p_email VARCHAR(255))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE user_id = p_user_id OR email = p_email;
+END //
+
 CREATE PROCEDURE getUserByEmail(IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM users
@@ -320,6 +328,35 @@ BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users
     WHERE user_id NOT IN (SELECT user_id FROM role_users WHERE role_id = p_role_id)
     ORDER BY file_as;
+END //
+
+CREATE PROCEDURE generateUserAccountTable(IN p_is_active INT, IN p_is_locked INT)
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+    SET query = 'SELECT user_id, file_as, email, is_active, is_locked, last_connection_date FROM users';
+
+    IF p_is_active IS NOT NULL OR p_is_active <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' is_active = ', p_is_active);
+    END IF;
+
+    IF p_is_locked IS NOT NULL OR p_is_locked <> '' THEN
+        IF conditionList IS NOT NULL OR conditionList <> '' THEN
+            SET conditionList = CONCAT(conditionList, ' AND');
+        ELSE
+            SET conditionList = CONCAT(conditionList, ' WHERE');
+        END IF;
+        SET conditionList = CONCAT(conditionList, ' is_locked = ', p_is_locked);
+    END IF;
+
+    IF conditionList <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', conditionList);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY file_as;');
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 /* Password history table */

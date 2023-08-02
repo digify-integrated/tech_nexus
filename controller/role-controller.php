@@ -130,7 +130,7 @@ class RoleController {
         $roleID = htmlspecialchars($_POST['role_id'], ENT_QUOTES, 'UTF-8');
         $roleName = htmlspecialchars($_POST['role_name'], ENT_QUOTES, 'UTF-8');
         $roleDescription = htmlspecialchars($_POST['role_description'], ENT_QUOTES, 'UTF-8');
-        $assignable = htmlspecialchars($_POST['assignable'], ENT_QUOTES, 'UTF-8');
+        $assignable = isset($_POST['assignable']) ? htmlspecialchars($_POST['assignable'], ENT_QUOTES, 'UTF-8') : 0;
     
         $user = $this->userModel->getUserByID($userID);
     

@@ -44,7 +44,7 @@
                         <th>Menu Group</th>
                         <th>Parent Menu Item</th>
                         <th>Order Sequence</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

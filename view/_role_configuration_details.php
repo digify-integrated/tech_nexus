@@ -128,7 +128,7 @@
                                     <th>User Account</th>
                                     <th class="all">Login</th>
                                     <th class="all">Last Connection</th>
-                                    <th class="all">Action</th>
+                                    <th class="all">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -162,7 +162,7 @@
                                     <th class="all">Create Access</th>
                                     <th class="all">Delete Access</th>
                                     <th class="all">Duplicate Access</th>
-                                    <th class="all">Action</th>
+                                    <th class="all">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -192,7 +192,7 @@
                                 <tr>
                                   <th>System Action</th>
                                   <th class="all">Access</th>
-                                  <th class="all">Action</th>
+                                  <th class="all">Actions</th>
                                 </tr>
                               </thead>
                               <tbody></tbody>

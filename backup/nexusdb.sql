@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 01, 2023 at 10:54 AM
+-- Generation Time: Aug 02, 2023 at 11:30 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -134,6 +134,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	SELECT COUNT(*) AS total
     FROM ui_customization_setting
 	WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserExist` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE user_id = p_user_id OR email = p_email;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllMenuItemRoleAccess` (IN `p_menu_item_id` INT)   BEGIN
@@ -396,6 +402,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
 	SELECT system_action_id, system_action_name 
     FROM system_action
     ORDER BY system_action_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is_active` INT, IN `p_is_locked` INT)   BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+    SET query = 'SELECT user_id, file_as, email, is_active, is_locked, last_connection_date FROM users';
+
+    IF p_is_active IS NOT NULL OR p_is_active <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' is_active = ', p_is_active);
+    END IF;
+
+    IF p_is_locked IS NOT NULL OR p_is_locked <> '' THEN
+        IF conditionList IS NOT NULL OR conditionList <> '' THEN
+            SET conditionList = CONCAT(conditionList, ' AND');
+        ELSE
+            SET conditionList = CONCAT(conditionList, ' WHERE');
+        END IF;
+        SET conditionList = CONCAT(conditionList, ' is_locked = ', p_is_locked);
+    END IF;
+
+    IF conditionList <> '' THEN
+        SET query = CONCAT(query, ' WHERE ', conditionList);
+    END IF;
+
+    SET query = CONCAT(query, ' ORDER BY file_as;');
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
@@ -828,7 +862,10 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (106, 'menu_item_access_right', 7, 'Role ID: 1<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-08-01 16:38:41'),
 (107, 'menu_item_access_right', 7, 'Role ID: 2<br/>Create Access: 1 -> 0<br/>', '1', '2023-08-01 16:38:51'),
 (108, 'menu_item_access_right', 7, 'Role ID: 2<br/>Delete Access: 1 -> 0<br/>', '1', '2023-08-01 16:38:52'),
-(109, 'menu_item_access_right', 7, 'Role ID: 2<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-08-01 16:38:54');
+(109, 'menu_item_access_right', 7, 'Role ID: 2<br/>Duplicate Access: 1 -> 0<br/>', '1', '2023-08-01 16:38:54'),
+(110, 'users', 1, 'Last Connection Date: 2023-08-01 08:54:35 -> 2023-08-02 08:36:30<br/>', '1', '2023-08-02 08:36:30'),
+(111, 'role', 3, 'Assignable: 1 -> 0<br/>', '1', '2023-08-02 10:40:22'),
+(112, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-08-02 15:36:53');
 
 -- --------------------------------------------------------
 
@@ -1022,9 +1059,6 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (5, 1, 1, 1, 1, 1, 1, 1),
 (6, 1, 1, 1, 1, 1, 1, 1),
 (4, 2, 1, 0, 0, 0, 0, 1),
-(2, 2, 1, 1, 1, 1, 1, 1),
-(3, 2, 1, 1, 1, 1, 1, 1),
-(5, 2, 1, 1, 1, 1, 1, 1),
 (1, 2, 1, 0, 0, 0, 0, 1),
 (7, 2, 1, 1, 0, 0, 0, 1),
 (7, 1, 1, 1, 0, 0, 0, 1),
@@ -1136,7 +1170,7 @@ CREATE TABLE `role` (
 INSERT INTO `role` (`role_id`, `role_name`, `role_description`, `assignable`, `last_log_by`) VALUES
 (1, 'Super Admin', 'This role has the highest level of access and full control over the entire system. Super Admins can perform all actions, including managing other user accounts, configuring system settings, and access', 0, 1),
 (2, 'Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', 1, 1),
-(3, 'Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', 1, 1),
+(3, 'Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', 0, 1),
 (4, 'Employee', 'The typical user account with standard access to use the system features and functionalities.', 1, 1);
 
 --
@@ -1355,7 +1389,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'false', 'true', 'preset-1', 'light', 'false', 'false', 1);
+(1, 1, 'true', 'true', 'preset-1', 'light', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -1440,6 +1474,7 @@ CREATE TABLE `users` (
   `file_as` varchar(300) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `profile_picture` varchar(500) DEFAULT NULL,
   `is_locked` tinyint(1) NOT NULL DEFAULT 0,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `last_failed_login_attempt` datetime DEFAULT NULL,
@@ -1465,9 +1500,9 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, '2023-08-01 08:54:35', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1),
-(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
+INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-02 08:36:30', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '49ecad48f2f15e3ba7ba7579a041b590', 1),
+(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -1735,7 +1770,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `menu_group`

@@ -100,11 +100,10 @@
                             <table id="menu-item-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                               <thead>
                                 <tr>
-                                  <th>#</th>
                                   <th>Menu Item</th>
                                   <th>Parent Menu Item</th>
                                   <th>Order Sequence</th>
-                                  <th>Action</th>
+                                  <th>Actions</th>
                                 </tr>
                               </thead>
                               <tbody></tbody>

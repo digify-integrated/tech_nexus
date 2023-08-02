@@ -41,7 +41,7 @@
                           </div>
                         </th>
                         <th>System Action</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

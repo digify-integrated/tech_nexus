@@ -10,7 +10,7 @@
                     <?php
                       if (!empty($roleID) && $roleWriteAccess['total'] > 0) {
                         echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
-                              <button type="submit" form="role-configuration-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
+                              <button type="submit" form="role-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
                       }
                     ?>
@@ -18,7 +18,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <form id="role-configuration-form" method="post" action="#">
+                <form id="role-form" method="post" action="#">
                       <?php
                         if(!empty($roleID) && $roleWriteAccess['total'] > 0){
                            echo '<div class="form-group row">
@@ -27,23 +27,11 @@
                                         <label class="col-form-label form-details fw-normal" id="role_name_label"></label>
                                         <input type="text" class="form-control d-none form-edit" id="role_name" name="role_name" maxlength="100" autocomplete="off">
                                     </div>
-                                    <label class="col-lg-2 col-form-label">Assignable</label>
+                                    <label class="col-lg-2 col-form-label">Role Description <span class="text-danger d-none form-edit">*</span></label>
                                     <div class="col-lg-4">
-                                        <div class="col-form-label form-details fw-normal" id="assignable_label"></div>
-                                        <div class="d-none form-edit">
-                                            <select class="form-control select2" name="assignable" id="assignable">
-                                              <option value="1">Yes</option>
-                                              <option value="0">No</option>
-                                            </select>
-                                        </div>
+                                        <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
+                                        <input type="text" class="form-control d-none form-edit" id="role_description" name="role_description" maxlength="200" autocomplete="off">
                                     </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label class="col-lg-2 col-form-label">Role Description <span class="text-danger d-none form-edit">*</span></label>
-                                  <div class="col-lg-4">
-                                      <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
-                                      <input type="text" class="form-control d-none form-edit" id="role_description" name="role_description" maxlength="200" autocomplete="off">
-                                  </div>
                                 </div>';
                         }
                         else{
@@ -52,16 +40,10 @@
                                     <div class="col-lg-4">
                                         <label class="col-form-label form-details fw-normal" id="role_name_label"></label>
                                     </div>
-                                    <label class="col-lg-2 col-form-label">Assignable</label>
+                                    <label class="col-lg-2 col-form-label">Role Description</label>
                                     <div class="col-lg-4">
-                                        <div class="col-form-label form-details fw-normal" id="assignable_label"></div>
+                                        <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
                                     </div>
-                                </div>
-                                <div class="form-group row">
-                                  <label class="col-lg-2 col-form-label">Role Description</label>
-                                  <div class="col-lg-4">
-                                      <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
-                                  </div>
                                 </div>';
                         }
                       ?>
@@ -95,7 +77,7 @@
                                     <th>User Account</th>
                                     <th class="all">Login</th>
                                     <th class="all">Last Connection</th>
-                                    <th class="all">Action</th>
+                                    <th class="all">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -126,7 +108,7 @@
                                     <th class="all">Create Access</th>
                                     <th class="all">Delete Access</th>
                                     <th class="all">Duplicate Access</th>
-                                    <th class="all">Action</th>
+                                    <th class="all">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -153,7 +135,7 @@
                                 <tr>
                                   <th>System Action</th>
                                   <th class="all">Access</th>
-                                  <th class="all">Action</th>
+                                  <th class="all">Actions</th>
                                 </tr>
                               </thead>
                               <tbody></tbody>

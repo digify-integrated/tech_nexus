@@ -93,7 +93,7 @@
                                 <tr>
                                   <th>Role</th>
                                   <th class="all">Access</th>
-                                  <th class="all">Action</th>
+                                  <th class="all">Actions</th>
                                 </tr>
                               </thead>
                               <tbody></tbody>

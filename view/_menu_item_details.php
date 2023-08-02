@@ -186,7 +186,7 @@
                                     <th class="all">Create Access</th>
                                     <th class="all">Delete Access</th>
                                     <th class="all">Duplicate Access</th>
-                                    <th class="all">Action</th>
+                                    <th class="all">Actions</th>
                                   </tr>
                                 </thead>
                                 <tbody></tbody>

@@ -425,7 +425,6 @@ function menuItemTable(datatable_name, buttons = false, show_all = false){
     var settings;
 
     const column = [ 
-        { 'data' : 'MENU_ITEM_ID' },
         { 'data' : 'MENU_ITEM_NAME' },
         { 'data' : 'PARENT_ID' },
         { 'data' : 'ORDER_SEQUENCE' },
@@ -433,18 +432,17 @@ function menuItemTable(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': '7%', 'aTargets': 0 },
-        { 'width': '32%', 'aTargets': 1 },
-        { 'width': '32%', 'aTargets': 2 },
-        { 'width': '14%', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': '35%', 'aTargets': 0 },
+        { 'width': '35%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '15%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_group_generation.php',
+            'url' : 'view/_menu_item_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'menu_group_id' : menu_group_id},
