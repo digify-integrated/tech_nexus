@@ -14,6 +14,10 @@
             displayDetails('get user account details');
         }
 
+        $(document).on('click','#filter-datatable',function() {
+            userAccountTable('#user-account-table');
+        });
+
         $(document).on('click','.delete-user-account',function() {
             const user_account_id = $(this).data('user-account-id');
             const transaction = 'delete user account';
@@ -281,6 +285,8 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
     const type = 'user account table';
     var filter_status = $('#filter_status').val();
     var filter_locked = $('#filter_locked').val();
+    var filter_password_expiry_date_start_date = $('#filter_password_expiry_date_start_date').val();
+    var filter_password_expiry_date_end_date = $('#filter_password_expiry_date_end_date').val();
     var settings;
 
     const column = [ 
@@ -288,17 +294,23 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'FILE_AS' },
         { 'data' : 'IS_ACTIVE' },
         { 'data' : 'IS_LOCKED' },
+        { 'data' : 'PASSWORD_EXPIRY_DATE' },
         { 'data' : 'LAST_CONNECTION_DATE' },
+        { 'data' : 'LAST_PASSWORD_RESET' },
+        { 'data' : 'LAST_FAILED_LOGIN_ATTEMPT' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '30%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '10%','bSortable': false, 'aTargets': 5 }
+        { 'width': '29%', 'aTargets': 1 },
+        { 'width': '10%', 'aTargets': 2 },
+        { 'width': '10%', 'aTargets': 3 },
+        { 'width': '10%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%', 'aTargets': 6 },
+        { 'width': '10%', 'aTargets': 7 },
+        { 'width': '10%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -308,7 +320,7 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_user_account_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_status' : filter_status, 'filter_locked' : filter_locked},
+            'data': {'type' : type, 'filter_status' : filter_status, 'filter_locked' : filter_locked, 'filter_password_expiry_date_start_date' : filter_password_expiry_date_start_date, 'filter_password_expiry_date_end_date' : filter_password_expiry_date_end_date},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

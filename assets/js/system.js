@@ -16,6 +16,17 @@
             });
         }
 
+        if($('.filter-datepicker').length){
+            var filter_date_pickers = document.querySelectorAll('.filter-datepicker');
+            filter_date_pickers.forEach(function(element) {
+                var filter_date_picker = new Datepicker(element, {
+                    buttonClass: 'btn',
+                    todayHighlight: true,
+                    clearBtn: true
+                });
+            });
+        }
+
         if($('.modal-select2').length){
             $('.modal-select2').each(function() {
                 $(this).select2({

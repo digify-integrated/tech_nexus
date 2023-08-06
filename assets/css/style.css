@@ -5058,6 +5058,7 @@ textarea.is-invalid.dataTable-input {
   --bs-alert-bg: var(--bs-danger-bg-subtle);
   --bs-alert-border-color: var(--bs-danger-border-subtle);
   --bs-alert-link-color: var(--bs-danger-text);
+  word-wrap: break-word;
 }
 
 .alert-light {

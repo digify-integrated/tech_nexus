@@ -330,34 +330,41 @@ BEGIN
     ORDER BY file_as;
 END //
 
-CREATE PROCEDURE generateUserAccountTable(IN p_is_active INT, IN p_is_locked INT)
+DELIMITER //
+
+DROP PROCEDURE generateUserAccountTable//
+
+CREATE PROCEDURE generateUserAccountTable(
+    IN p_is_active VARCHAR(10),
+    IN p_is_locked VARCHAR(10),
+    IN p_password_expiry_date_start_date DATE,
+    IN p_password_expiry_date_end_date DATE
+)
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
-    SET query = 'SELECT user_id, file_as, email, is_active, is_locked, last_connection_date FROM users';
 
-    IF p_is_active IS NOT NULL OR p_is_active <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' is_active = ', p_is_active);
-    END IF;
+    SET query = 'SELECT * FROM users';
+    SET conditionList;
 
-    IF p_is_locked IS NOT NULL OR p_is_locked <> '' THEN
-        IF conditionList IS NOT NULL OR conditionList <> '' THEN
-            SET conditionList = CONCAT(conditionList, ' AND');
-        ELSE
+    IF p_is_active IS NOT NULL THEN
+        IF conditionList IS NOT NULL THEN
             SET conditionList = CONCAT(conditionList, ' WHERE');
         END IF;
-        SET conditionList = CONCAT(conditionList, ' is_locked = ', p_is_locked);
+
+        IF p_is_active = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' is_active = 1');
+        ELSE
+            SET conditionList = CONCAT(conditionList, ' is_active = 0');
+        END IF;
     END IF;
 
-    IF conditionList <> '' THEN
-        SET query = CONCAT(query, ' WHERE ', conditionList);
-    END IF;
-
+    SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY file_as;');
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-END //
+END;
 
 /* Password history table */
 CREATE TABLE password_history (

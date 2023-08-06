@@ -21,9 +21,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: role user account table
+        # Type: user account table
         # Description:
-        # Generates the user accounts assigned to role.
+        # Generates the user accounts table.
         #
         # Parameters: None
         #
@@ -31,13 +31,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'user account table':
-            if(isset($_POST['filter_status']) && isset($_POST['filter_locked'])){
+            if(isset($_POST['filter_status']) && isset($_POST['filter_locked']) && isset($_POST['filter_password_expiry_date_start_date']) && isset($_POST['filter_password_expiry_date_end_date'])){
                 $filterStatus = htmlspecialchars($_POST['filter_status'], ENT_QUOTES, 'UTF-8');
                 $filterLocked = htmlspecialchars($_POST['filter_locked'], ENT_QUOTES, 'UTF-8');
+                $filterPasswordExpiryDateStartDate = $systemModel->checkDate('empty', $_POST['filter_password_expiry_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterPasswordExpiryDateEndtDate = $systemModel->checkDate('empty', $_POST['filter_password_expiry_date_end_date'], '', 'Y-m-d', '', '', '');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateUserAccountTable(:filterStatus, :filterLocked)');
-                $sql->bindValue(':filterStatus', $filterStatus, PDO::PARAM_INT);
-                $sql->bindValue(':filterLocked', $filterLocked, PDO::PARAM_INT);
+                $sql = $databaseModel->getConnection()->prepare('CALL generateUserAccountTable(:filterStatus, :filterLocked, :filterPasswordExpiryDateStartDate, :filterPasswordExpiryDateEndtDate)');
+                $sql->bindValue(':filterStatus', $filterStatus, PDO::PARAM_STR);
+                $sql->bindValue(':filterLocked', $filterLocked, PDO::PARAM_STR);
+                $sql->bindValue(':filterPasswordExpiryDateStartDate', $filterPasswordExpiryDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterPasswordExpiryDateEndtDate', $filterPasswordExpiryDateEndtDate, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -48,7 +52,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $userAccountID = $row['user_id'];
                     $fileAs = $row['file_as'];
                     $email = $row['email'];
+                    $isActive = $row['is_active'];
+                    $isLocked = $row['is_locked'];
+                    $passwordExpiryDate = date('m/d/Y', strtotime($row['password_expiry_date']));
+                    $profilePicture = ($row['profile_picture'] !== null) ? $row['profile_picture'] : DEFAULT_AVATAR_IMAGE;
+                    $lastPasswordReset = ($row['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_password_reset'])) : 'Never Reset';
                     $lastConnectionDate = ($row['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_connection_date'])) : 'Never Connected';
+                    $lastFailedLoginAttempt = ($row['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_failed_login_attempt'])) : 'Never Connected';
+                    $userAccountIDEncrypted = $securityModel->encryptData($userAccountID);
+                    
+                    $isActiveBadge = $isActive ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
+                    $isLockedBadge = $isActive ? '<span class="badge bg-light-success">No</span>' : '<span class="badge bg-light-danger">Yes</span>';
 
                     $delete = '';
                     if($userAccountDeleteAccess['total'] > 0){
@@ -58,11 +72,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'FILE_AS' => $fileAs,
-                        'IS_ACTIVE' => $email,
-                        'IS_LOCKED' => $email,
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $userAccountID .'">',
+                        'FILE_AS' => '<div class="row">
+                                        <div class="col-auto pe-0">
+                                        <img src="'. $profilePicture .'" alt="user-image" class="wid-40 rounded-circle">
+                                        </div>
+                                        <div class="col">
+                                        <h6 class="mb-0">'. $fileAs .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $email .'</p>
+                                        </div>
+                                    </div>',
+                        'IS_ACTIVE' => $isActiveBadge,
+                        'IS_LOCKED' => $isLockedBadge,
+                        'PASSWORD_EXPIRY_DATE' => $passwordExpiryDate,
                         'LAST_CONNECTION_DATE' => $lastConnectionDate,
+                        'LAST_PASSWORD_RESET' => $lastPasswordReset,
+                        'LAST_FAILED_LOGIN_ATTEMPT' => $lastFailedLoginAttempt,
                         'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="user-account.php?id='. $userAccountIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
                                     '. $delete .'
                                 </div>'
                     ];

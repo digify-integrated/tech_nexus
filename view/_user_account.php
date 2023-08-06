@@ -44,7 +44,10 @@
                         <th>User Account</th>
                         <th class="all">Status</th>
                         <th class="all">Locked</th>
+                        <th class="all">Password Expiry Date</th>
                         <th class="all">Last Connection</th>
+                        <th class="all">Last Password Reset</th>
+                        <th class="all">Last Failed Login Attempt</th>
                         <th class="all">Actions</th>
                       </tr>
                     </thead>
@@ -66,18 +69,23 @@
               <label class="form-label" for="filter_status">Status</label>
               <select class="form-control filter-select2" name="filter_status" id="filter_status">
                 <option value="">--</option>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
               </select>
             </div>
             <div class="form-group mb-4">
               <label class="form-label" for="filter_locked">Locked</label>
               <select class="form-control filter-select2" name="filter_locked" id="filter_locked">
                 <option value="">--</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
               </select>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="offcanvas">Apply</button>
+            <div class="form-group mb-4">
+              <label class="form-label" for="filter_password_expiry_date_start_date">Password Expiry Date</label>
+              <input type="text" class="form-control filter-datepicker mb-3" name="filter_password_expiry_date_start_date" id="filter_password_expiry_date_start_date" placeholder="Start Date">
+              <input type="text" class="form-control filter-datepicker" name="filter_password_expiry_date_end_date" id="filter_password_expiry_date_end_date" placeholder="End Date">
+            </div>
+            <button type="button" class="btn btn-primary" id="filter-datatable" data-bs-dismiss="offcanvas">Apply</button>
           </div>
         </div>
