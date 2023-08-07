@@ -287,6 +287,12 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
     var filter_locked = $('#filter_locked').val();
     var filter_password_expiry_date_start_date = $('#filter_password_expiry_date_start_date').val();
     var filter_password_expiry_date_end_date = $('#filter_password_expiry_date_end_date').val();
+    var filter_last_connection_date_start_date = $('#filter_last_connection_date_start_date').val();
+    var filter_last_connection_date_end_date = $('#filter_last_connection_date_end_date').val();
+    var filter_last_password_reset_start_date = $('#filter_last_password_reset_start_date').val();
+    var filter_last_password_reset_end_date = $('#filter_last_password_reset_end_date').val();
+    var filter_last_failed_login_attempt_start_date = $('#filter_last_failed_login_attempt_start_date').val();
+    var filter_last_failed_login_attempt_end_date = $('#filter_last_failed_login_attempt_end_date').val();
     var settings;
 
     const column = [ 
@@ -320,7 +326,7 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_user_account_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_status' : filter_status, 'filter_locked' : filter_locked, 'filter_password_expiry_date_start_date' : filter_password_expiry_date_start_date, 'filter_password_expiry_date_end_date' : filter_password_expiry_date_end_date},
+            'data': {'type' : type, 'filter_status' : filter_status, 'filter_locked' : filter_locked, 'filter_password_expiry_date_start_date' : filter_password_expiry_date_start_date, 'filter_password_expiry_date_end_date' : filter_password_expiry_date_end_date, 'filter_last_connection_date_start_date' : filter_last_connection_date_start_date, 'filter_last_connection_date_end_date' : filter_last_connection_date_end_date, 'filter_last_password_reset_start_date' : filter_last_password_reset_start_date, 'filter_last_password_reset_end_date' : filter_last_password_reset_end_date, 'filter_last_failed_login_attempt_start_date' : filter_last_failed_login_attempt_start_date, 'filter_last_failed_login_attempt_end_date' : filter_last_failed_login_attempt_end_date},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -355,19 +361,19 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
 function userAccountForm(){
     $('#user-account-form').validate({
         rules: {
-            role_name: {
+            file_as: {
                 required: true
             },
-            role_description: {
+            email: {
                 required: true
             }
         },
         messages: {
-            role_name: {
-                required: 'Please enter the role name'
+            file_as: {
+                required: 'Please enter the name'
             },
-            role_description: {
-                required: 'Please enter the role description'
+            email: {
+                required: 'Please enter the email'
             }
         },
         errorPlacement: function (error, element) {
@@ -405,7 +411,7 @@ function userAccountForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/user-account-controller.php',
+                url: 'controller/user-controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + user_account_id,
                 dataType: 'json',
                 beforeSend: function() {
@@ -437,10 +443,7 @@ function userAccountForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Submit');
-                    $('#user-account-modal').modal('hide');
-                    reloadDatatable('#user-account-table');
-                    resetModalForm('user-account-form');
+                    enableFormSubmitButton('submit-data', 'Save');
                 }
             });
         

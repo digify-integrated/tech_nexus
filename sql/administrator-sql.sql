@@ -6,7 +6,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     profile_picture VARCHAR(500) NULL,
     is_locked TINYINT(1) NOT NULL DEFAULT 0,
-    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_active TINYINT(1) NOT NULL DEFAULT 0,
     last_failed_login_attempt DATETIME,
     failed_login_attempts INT NOT NULL DEFAULT 0,
     last_connection_date DATETIME,
@@ -14,7 +14,7 @@ CREATE TABLE users (
     reset_token VARCHAR(255),
     reset_token_expiry_date DATETIME,
     receive_notification TINYINT(1) NOT NULL DEFAULT 1,
-    two_factor_auth TINYINT(1) NOT NULL DEFAULT 0,
+    two_factor_auth TINYINT(1) NOT NULL DEFAULT 1,
     otp VARCHAR(255),
     otp_expiry_date DATETIME,
     failed_otp_attempts INT NOT NULL DEFAULT 0,
@@ -221,6 +221,41 @@ BEGIN
     WHERE user_id = p_user_id OR email = p_email;
 END //
 
+CREATE PROCEDURE checkUserIDExist(IN p_user_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE checkUserEmailExist(IN p_email VARCHAR(255))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE email = p_email;
+END //
+
+CREATE PROCEDURE insertUserAccount(IN p_file_as VARCHAR(300), IN p_email VARCHAR(255), IN p_password VARCHAR(255), IN p_password_expiry_date DATE, IN p_last_log_by INT, OUT p_user_account_id INT)
+BEGIN
+    INSERT INTO users (file_as, email, password, password_expiry_date, last_log_by) 
+	VALUES(p_file_as, p_email, p_password, p_password_expiry_date, p_last_log_by);
+	
+    SET p_user_account_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateUserAccount(IN p_user_id INT, IN p_file_as VARCHAR(300), IN p_email VARCHAR(255), IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET file_as = p_file_as, email = p_email, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE deleteUserAccount(IN p_user_id INT)
+BEGIN
+	DELETE FROM users
+    WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE getUserByEmail(IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM users
@@ -330,37 +365,63 @@ BEGIN
     ORDER BY file_as;
 END //
 
-DELIMITER //
-
-DROP PROCEDURE generateUserAccountTable//
-
-CREATE PROCEDURE generateUserAccountTable(
-    IN p_is_active VARCHAR(10),
-    IN p_is_locked VARCHAR(10),
-    IN p_password_expiry_date_start_date DATE,
-    IN p_password_expiry_date_end_date DATE
-)
+CREATE PROCEDURE generateUserAccountTable(IN p_is_active ENUM('active', 'inactive', 'all'),IN p_is_locked ENUM('yes', 'no', 'all'),IN p_password_expiry_date_start_date DATE,IN p_password_expiry_date_end_date DATE,IN p_filter_last_connection_date_start_date DATE,IN p_filter_last_connection_date_end_date DATE,IN p_filter_last_password_reset_start_date DATE,IN p_filter_last_password_reset_end_date DATE,IN p_filter_last_failed_login_attempt_start_date DATE,IN p_filter_last_failed_login_attempt_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
     SET query = 'SELECT * FROM users';
-    SET conditionList;
+    
+    SET conditionList = ' WHERE 1';
 
     IF p_is_active IS NOT NULL THEN
-        IF conditionList IS NOT NULL THEN
-            SET conditionList = CONCAT(conditionList, ' WHERE');
-        END IF;
-
         IF p_is_active = 'active' THEN
-            SET conditionList = CONCAT(conditionList, ' is_active = 1');
-        ELSE
-            SET conditionList = CONCAT(conditionList, ' is_active = 0');
+            SET conditionList = CONCAT(conditionList, ' AND is_active = 1');
+        ELSEIF p_is_active = 'inactive' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_active = 0');
         END IF;
     END IF;
 
+    IF p_is_locked IS NOT NULL THEN
+        IF p_is_locked = 'yes' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_locked = 1');
+        ELSEIF p_is_locked = 'no' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_locked = 0');
+        END IF;
+    END IF;
+
+    IF p_password_expiry_date_start_date IS NOT NULL AND p_password_expiry_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND password_expiry_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_password_expiry_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_password_expiry_date_end_date));
+    END IF;
+
+    IF p_filter_last_connection_date_start_date IS NOT NULL AND p_filter_last_connection_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_connection_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_connection_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_connection_date_end_date));
+    END IF;
+
+    IF p_filter_last_password_reset_start_date IS NOT NULL AND p_filter_last_password_reset_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_password_reset BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_password_reset_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_password_reset_end_date));
+    END IF;
+
+    IF p_filter_last_failed_login_attempt_start_date IS NOT NULL AND p_filter_last_failed_login_attempt_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_failed_login_attempt BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_failed_login_attempt_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_failed_login_attempt_end_date));
+    END IF;
+
     SET query = CONCAT(query, conditionList);
+
     SET query = CONCAT(query, ' ORDER BY file_as;');
+
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;

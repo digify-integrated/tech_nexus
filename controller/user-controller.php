@@ -54,6 +54,9 @@ class UserController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
+                case 'save user account':
+                    $this->saveUserAccount();
+                    break;
                 case 'authenticate':
                     $this->authenticate();
                     break;
@@ -85,6 +88,62 @@ class UserController {
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
             }
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveUserAccount
+    # Description: 
+    # Updates the existing user account if it exists; otherwise, inserts a new user account.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        $fileAs = htmlspecialchars($_POST['file_as'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['email'] . DEFAULT_EMAIL_EXTENSION, ENT_QUOTES, 'UTF-8');
+        $password = $this->securityModel->encryptData(DEFAULT_PASSWORD);
+        $passwordExpiryDate = date('Y-m-d', strtotime('-6 months'));
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->userModel->updateUserAccount($userAccountID, $fileAs, $email, $userID);
+            
+            echo json_encode(['success' => true, 'userAccountID' => $this->securityModel->encryptData($userAccountID)]);
+            exit;
+        } 
+        else {
+            $checkUserEmailExist = $this->userModel->checkUserEmailExist($email);
+            $total = $checkUserEmailExist['total'] ?? 0;
+
+            if($total > 0){
+                echo json_encode(['success' => false, 'insertRecord' => false, 'message' => 'The email address already exists.']);
+                exit;
+            }
+
+            $userAccountID = $this->userModel->insertUserAccount($fileAs, $email, $password, $passwordExpiryDate, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true, 'userAccountID' => $this->securityModel->encryptData($userAccountID)]);
+            exit;
         }
     }
     # -------------------------------------------------------------
@@ -854,6 +913,34 @@ class UserController {
         
         return (string) $otp;
     }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generatePassword
+    # Description: 
+    # Generates a random password of specified length.
+    #
+    # Parameters: 
+    # - $minLength (int): The minimum length of the generated token. Default is 4.
+    # - $maxLength (int): The maximum length of the generated token. Default is 4.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function generatePassword($minLength = 8, $maxLength = 8) {
+        $length = mt_rand($minLength, $maxLength);
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+';
+        $characterCount = strlen($characters);
+        $password = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $password .= $characters[random_int(0, $characterCount - 1)];
+        }
+    
+        return $password;
+    }
+    
     # -------------------------------------------------------------
     
     # -------------------------------------------------------------

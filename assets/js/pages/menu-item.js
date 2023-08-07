@@ -733,9 +733,6 @@ function menuItemForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
-                    $('#menu-item-modal').modal('hide');
-                    reloadDatatable('#menu-item-table');
-                    resetModalForm('menu-item-form');
                 }
             });
         

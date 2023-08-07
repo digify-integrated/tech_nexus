@@ -1086,9 +1086,6 @@ function roleForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
-                    $('#role-modal').modal('hide');
-                    reloadDatatable('#role-configuration-table');
-                    resetModalForm('role-configuration-form');
                 }
             });
         

@@ -22,7 +22,8 @@
                 var filter_date_picker = new Datepicker(element, {
                     buttonClass: 'btn',
                     todayHighlight: true,
-                    clearBtn: true
+                    clearBtn: true,
+                    autohide: true
                 });
             });
         }

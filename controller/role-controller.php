@@ -145,13 +145,13 @@ class RoleController {
         if ($total > 0) {
             $this->roleModel->updateRole($roleID, $roleName, $roleDescription, $assignable, $userID);
             
-            echo json_encode(['success' => true, 'roleID' => $this->securityModel->encryptData($roleID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'roleID' => $this->securityModel->encryptData($roleID)]);
             exit;
         } 
         else {
             $roleID = $this->roleModel->insertRole($roleName, $roleDescription, $assignable, $userID);
 
-            echo json_encode(['success' => true, 'roleID' => $this->securityModel->encryptData($roleID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'roleID' => $this->securityModel->encryptData($roleID)]);
             exit;
         }
     }

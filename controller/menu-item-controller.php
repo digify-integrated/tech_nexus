@@ -122,13 +122,13 @@ class MenuItemController {
         if ($total > 0) {
             $this->menuItemModel->updateMenuItem($menuItemID, $menuItemName, $menuGroupID, $menuItemURL, $parentID, $menuItemIcon, $menuItemOrderSequence, $userID);
             
-            echo json_encode(['success' => true, 'menuItemID' => $this->securityModel->encryptData($menuItemID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'menuItemID' => $this->securityModel->encryptData($menuItemID)]);
             exit;
         } 
         else {
             $menuItemID = $this->menuItemModel->insertMenuItem($menuItemName, $menuGroupID, $menuItemURL, $parentID, $menuItemIcon, $menuItemOrderSequence, $userID);
 
-            echo json_encode(['success' => true, 'menuItemID' => $this->securityModel->encryptData($menuItemID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'menuItemID' => $this->securityModel->encryptData($menuItemID)]);
             exit;
         }
     }

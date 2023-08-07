@@ -35,13 +35,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterStatus = htmlspecialchars($_POST['filter_status'], ENT_QUOTES, 'UTF-8');
                 $filterLocked = htmlspecialchars($_POST['filter_locked'], ENT_QUOTES, 'UTF-8');
                 $filterPasswordExpiryDateStartDate = $systemModel->checkDate('empty', $_POST['filter_password_expiry_date_start_date'], '', 'Y-m-d', '', '', '');
-                $filterPasswordExpiryDateEndtDate = $systemModel->checkDate('empty', $_POST['filter_password_expiry_date_end_date'], '', 'Y-m-d', '', '', '');
+                $filterPasswordExpiryDateEndDate = $systemModel->checkDate('empty', $_POST['filter_password_expiry_date_end_date'], '', 'Y-m-d', '', '', '');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateUserAccountTable(:filterStatus, :filterLocked, :filterPasswordExpiryDateStartDate, :filterPasswordExpiryDateEndtDate)');
+                $filterLastConnectionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_last_connection_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterLastConnectionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_last_connection_date_end_date'], '', 'Y-m-d', '', '', '');
+                $filterLastPasswordResetStartDate = $systemModel->checkDate('empty', $_POST['filter_last_password_reset_start_date'], '', 'Y-m-d', '', '', '');
+                $filterLastPasswordResetEndDate = $systemModel->checkDate('empty', $_POST['filter_last_password_reset_end_date'], '', 'Y-m-d', '', '', '');
+                $filterLastFailedloginAttemptStartDate = $systemModel->checkDate('empty', $_POST['filter_last_failed_login_attempt_start_date'], '', 'Y-m-d', '', '', '');
+                $filterLastFailedloginAttemptEndDate = $systemModel->checkDate('empty', $_POST['filter_last_failed_login_attempt_end_date'], '', 'Y-m-d', '', '', '');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateUserAccountTable(:filterStatus, :filterLocked, :filterPasswordExpiryDateStartDate, :filterPasswordExpiryDateEndDate, :filterLastConnectionDateStartDate, :filterLastConnectionDateEndDate, :filterLastPasswordResetStartDate, :filterLastPasswordResetEndDate, :filterLastFailedloginAttemptStartDate, :filterLastFailedloginAttemptEndDate)');
                 $sql->bindValue(':filterStatus', $filterStatus, PDO::PARAM_STR);
                 $sql->bindValue(':filterLocked', $filterLocked, PDO::PARAM_STR);
                 $sql->bindValue(':filterPasswordExpiryDateStartDate', $filterPasswordExpiryDateStartDate, PDO::PARAM_STR);
-                $sql->bindValue(':filterPasswordExpiryDateEndtDate', $filterPasswordExpiryDateEndtDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterPasswordExpiryDateEndDate', $filterPasswordExpiryDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastConnectionDateStartDate', $filterLastConnectionDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastConnectionDateEndDate', $filterLastConnectionDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastPasswordResetStartDate', $filterLastPasswordResetStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastPasswordResetEndDate', $filterLastPasswordResetEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastFailedloginAttemptStartDate', $filterLastFailedloginAttemptStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterLastFailedloginAttemptEndDate', $filterLastFailedloginAttemptEndDate, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

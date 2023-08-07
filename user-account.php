@@ -42,7 +42,7 @@
 
         $userAccountID = $securityModel->decryptData($_GET['id']);
 
-        $checkUserExist = $userModel->checkUserExist($userAccountID);
+        $checkUserExist = $userModel->checkUserExist($userAccountID, null);
         $total = $checkUserExist['total'] ?? 0;
 
         if($total == 0){
@@ -110,7 +110,7 @@
           if($newRecord && $userAccountCreateAccess['total'] > 0){
             require_once('view/_user_account_new.php');
           }
-          else if(!empty($userAccountID && $roleWriteAccess['total'] > 0)){
+          else if(!empty($userAccountID && $userAccountWriteAccess['total'] > 0)){
             require_once('view/_user_account_details.php');
           }
           else{

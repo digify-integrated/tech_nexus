@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 06, 2023 at 02:04 PM
+-- Generation Time: Aug 07, 2023 at 11:36 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -136,10 +136,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserEmailExist` (IN `p_email` VARCHAR(255))   BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE email = p_email;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserExist` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
 	SELECT COUNT(*) AS total
     FROM users
     WHERE user_id = p_user_id OR email = p_email;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserIDExist` (IN `p_user_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM users
+    WHERE user_id = p_user_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllMenuItemRoleAccess` (IN `p_menu_item_id` INT)   BEGIN
@@ -189,6 +201,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemActionRoleAccess` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
 	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` INT)   BEGIN
+	DELETE FROM users
+    WHERE user_id = p_user_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -404,16 +421,61 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
     ORDER BY system_action_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is_active` VARCHAR(10), IN `p_is_locked` VARCHAR(10), IN `p_password_expiry_date_start_date` DATE, IN `p_password_expiry_date_end_date` DATE)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is_active` ENUM('active','inactive','all'), IN `p_is_locked` ENUM('yes','no','all'), IN `p_password_expiry_date_start_date` DATE, IN `p_password_expiry_date_end_date` DATE, IN `p_filter_last_connection_date_start_date` DATE, IN `p_filter_last_connection_date_end_date` DATE, IN `p_filter_last_password_reset_start_date` DATE, IN `p_filter_last_password_reset_end_date` DATE, IN `p_filter_last_failed_login_attempt_start_date` DATE, IN `p_filter_last_failed_login_attempt_end_date` DATE)   BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
     SET query = 'SELECT * FROM users';
-    SET conditionList = '';
+    
+    SET conditionList = ' WHERE 1';
 
     IF p_is_active IS NOT NULL THEN
-        SET query = CONCAT(query, ' WHERE is_active = 1');
+        IF p_is_active = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_active = 1');
+        ELSEIF p_is_active = 'inactive' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_active = 0');
+        END IF;
     END IF;
+
+    IF p_is_locked IS NOT NULL THEN
+        IF p_is_locked = 'yes' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_locked = 1');
+        ELSEIF p_is_locked = 'no' THEN
+            SET conditionList = CONCAT(conditionList, ' AND is_locked = 0');
+        END IF;
+    END IF;
+
+    IF p_password_expiry_date_start_date IS NOT NULL AND p_password_expiry_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND password_expiry_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_password_expiry_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_password_expiry_date_end_date));
+    END IF;
+
+    IF p_filter_last_connection_date_start_date IS NOT NULL AND p_filter_last_connection_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_connection_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_connection_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_connection_date_end_date));
+    END IF;
+
+    IF p_filter_last_password_reset_start_date IS NOT NULL AND p_filter_last_password_reset_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_password_reset BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_password_reset_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_password_reset_end_date));
+    END IF;
+
+    IF p_filter_last_failed_login_attempt_start_date IS NOT NULL AND p_filter_last_failed_login_attempt_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND last_failed_login_attempt BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_failed_login_attempt_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_last_failed_login_attempt_end_date));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' ORDER BY file_as;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -545,6 +607,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUICustomizationSetting` (IN `
         INSERT INTO ui_customization_setting (user_id, box_container, last_log_by) 
 	    VALUES(p_user_id, p_customization_value, p_last_log_by);
     END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_password_expiry_date` DATE, IN `p_last_log_by` INT, OUT `p_user_account_id` INT)   BEGIN
+    INSERT INTO users (file_as, email, password, password_expiry_date, last_log_by) 
+	VALUES(p_file_as, p_email, p_password, p_password_expiry_date, p_last_log_by);
+	
+    SET p_user_account_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateAccountLock` (IN `p_user_id` INT, IN `p_is_locked` TINYINT(1), IN `p_account_lock_duration` INT)   BEGIN
@@ -714,6 +783,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUICustomizationSetting` (IN `
     END IF;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserAccount` (IN `p_user_id` INT, IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET file_as = p_file_as, email = p_email, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserPassword` (IN `p_user_id` INT, IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_password_expiry_date` DATE, IN `p_last_password_change` DATETIME)   BEGIN
 	UPDATE users 
     SET password = p_password, password_expiry_date = p_password_expiry_date, last_password_change = p_last_password_change, is_locked = 0, failed_login_attempts = 0, account_lock_duration = 0
@@ -856,7 +931,16 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (112, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-08-02 15:36:53'),
 (113, 'users', 1, 'Last Connection Date: 2023-08-02 08:36:30 -> 2023-08-04 09:28:30<br/>', '1', '2023-08-04 09:28:30'),
 (114, 'users', 1, 'Last Connection Date: 2023-08-04 09:28:30 -> 2023-08-04 19:18:16<br/>', '1', '2023-08-04 19:18:16'),
-(115, 'users', 1, 'Remember Token: 49ecad48f2f15e3ba7ba7579a041b590 -> c710dbf6d124ac37c70debbe48eb09f2<br/>', '1', '2023-08-04 19:18:16');
+(115, 'users', 1, 'Remember Token: 49ecad48f2f15e3ba7ba7579a041b590 -> c710dbf6d124ac37c70debbe48eb09f2<br/>', '1', '2023-08-04 19:18:16'),
+(116, 'users', 3, 'User created. <br/><br/>File As: nexus<br/>Email: nexus@encorefinancials.com', '1', '2023-08-07 15:06:32'),
+(117, 'users', 4, 'User created. <br/><br/>File As: nexus2<br/>Email: nexus@encorefinancials.com', '1', '2023-08-07 15:30:04'),
+(118, 'users', 5, 'User created. <br/><br/>File As: nexus<br/>Email: nexus@encorefinancials.com', '1', '2023-08-07 16:27:06'),
+(119, 'users', 6, 'User created. <br/><br/>File As: nexus<br/>Email: nexus@encorefinancials.com', '1', '2023-08-07 16:31:49'),
+(120, 'users', 7, 'User created. <br/><br/>File As: nexus<br/>Email: nexus@encorefinancials.com', '1', '2023-08-07 16:32:16'),
+(121, 'users', 8, 'User created. <br/><br/>File As: text<br/>Email: nexus2@encorefinancials.com', '1', '2023-08-07 17:00:40'),
+(122, 'users', 9, 'User created. <br/><br/>File As: test<br/>Email: test2@encorefinancials.com<br/>Password Expiry Date: 2024-02-07', '1', '2023-08-07 17:05:29'),
+(123, 'users', 10, 'User created. <br/><br/>File As: test3<br/>Email: test3@encorefinancials.com<br/>Password Expiry Date: 2024-02-07', '1', '2023-08-07 17:08:19'),
+(124, 'users', 11, 'User created. <br/><br/>File As: lmicayas<br/>Email: lmicayas@encorefinancials.com<br/>Password Expiry Date: 2023-02-07', '1', '2023-08-07 17:11:13');
 
 -- --------------------------------------------------------
 
@@ -1467,7 +1551,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `profile_picture` varchar(500) DEFAULT NULL,
   `is_locked` tinyint(1) NOT NULL DEFAULT 0,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `is_active` tinyint(1) NOT NULL DEFAULT 0,
   `last_failed_login_attempt` datetime DEFAULT NULL,
   `failed_login_attempts` int(11) NOT NULL DEFAULT 0,
   `last_connection_date` datetime DEFAULT NULL,
@@ -1493,7 +1577,16 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
 (1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-04 19:18:16', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, 'c710dbf6d124ac37c70debbe48eb09f2', 1),
-(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
+(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(3, 'nexus', 'nexus@encorefinancials.com', '', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(4, 'nexus2', 'nexus@encorefinancials.com', 'oJVlA%2B6FnYCc2Fw20s1T%2FOkQ9saNB1zQw%2BNqSJ8RyEY%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(5, 'nexus', 'nexus@encorefinancials.com', 'SNw3zmoptw7Crqq57MEgBR4%2Br4zXEH%2FlpO01szQp5UU%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(6, 'nexus', 'nexus@encorefinancials.com', 'UTppiAz0%2F%2BI8%2FdILRRfAwlhFEOa4VA%2FvWH%2FxiYED3Pc%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(7, 'nexus', 'nexus@encorefinancials.com', '94GNx7NEO2OkJ6nx9ipm3w6fVH0IQ1AgGEn5Y2e3Pic%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(8, 'text', 'nexus2@encorefinancials.com', 'ne%2BKbMViXuFSrViuccdRMUThgYtEqiyfPKvZo%2Fu1DZU%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(9, 'test', 'test2@encorefinancials.com', 'usynUbh75BZHvNbbJCmqykxdAAHP0kcta5MxUhx6eKs%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(10, 'test3', 'test3@encorefinancials.com', '0WlqstfkpZi99PYIGV%2BJouI%2FV89dgiQJSSzb6jN5Rwo%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(11, 'lmicayas', 'lmicayas@encorefinancials.com', 'n%2FiSOjizvf%2FnF6tNHq1WTpi3HMh2qzq98ghQoPk3q20%3D', NULL, 0, 0, NULL, 0, NULL, '2023-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -1761,7 +1854,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1803,7 +1896,7 @@ ALTER TABLE `ui_customization_setting`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables

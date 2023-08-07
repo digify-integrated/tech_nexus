@@ -653,10 +653,7 @@ function systemActionForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Submit');
-                    $('#system-action-modal').modal('hide');
-                    reloadDatatable('#system-action-table');
-                    resetModalForm('system-action-form');
+                    enableFormSubmitButton('submit-data', 'Save');
                 }
             });
         

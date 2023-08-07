@@ -7,7 +7,7 @@
                     <h5>Menu Group</h5>
                   </div>
                   <?php
-                      if (empty($menuGroupID) && $menuGroupCreateAccess > 0) {
+                      if (empty($menuGroupID) && $menuGroupCreateAccess['total'] > 0) {
                         echo ' <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                                     <button type="submit" form="menu-group-form" class="btn btn-success form-edit" id="submit-data">Save</button>
                                     <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>

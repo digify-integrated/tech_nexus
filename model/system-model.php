@@ -56,21 +56,27 @@ class SystemModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
     # Function: checkDate
-    # Description: Checks the date with different format
+    # Description: Checks the date with different formats based on the given type.
     #
     # Parameters:
-    # - $p_email (string): The email address of the user.
+    # - $type (string): The type of date format to use.
+    # - $date (date): The date to be formatted.
+    # - $time (time): The time to be appended to the date (for some types).
+    # - $format (string): The desired date format.
+    # - $modify (string): The modification to apply to the date.
+    # - $systemDate (string): The default date to return if $date is empty.
+    # - $systemTime (string): The default time to return if $date is empty (for some types).
     #
     # Returns:
-    # - An array containing the user details.
-    #
-    # -------------------------------------------------------------
-    public function checkDate($type, $date, $time, $format, $modify, $system_date, $current_time){
+    # - The formatted date or specific strings depending on the type.
+    public function checkDate($type, $date, $time, $format, $modify, $systemDate = null, $systemTime = null) {
+        $systemDate = $systemDate ?? date('Y-m-d');
+        $systemTime = $systemTime ?? date('H:i:s');
+    
         if($type == 'default'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify);
+                return $this->formatDate($format, $date, $modify);
             }
             else{
                 return $system_date;
@@ -78,7 +84,7 @@ class SystemModel {
         }
         else if($type == 'empty'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify);
+                return $this->formatDate($format, $date, $modify);
             }
             else{
                 return null;
@@ -86,7 +92,7 @@ class SystemModel {
         }
         else if($type == 'attendance empty'){
             if(!empty($date) && $date != ' '){
-                return $this->format_date($format, $date, $modify);
+                return $this->formatDate($format, $date, $modify);
             }
             else{
                 return null;
@@ -94,7 +100,7 @@ class SystemModel {
         }
         else if($type == 'summary'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify);
+                return $this->formatDate($format, $date, $modify);
             }
             else{
                 return '--';
@@ -102,7 +108,7 @@ class SystemModel {
         }
         else if($type == 'na'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify);
+                return $this->formatDate($format, $date, $modify);
             }
             else{
                 return 'N/A';
@@ -110,7 +116,7 @@ class SystemModel {
         }
         else if($type == 'complete'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify) . ' ' . $time;
+                return $this->formatDate($format, $date, $modify) . ' ' . $time;
             }
             else{
                 return 'N/A';
@@ -118,7 +124,7 @@ class SystemModel {
         }
         else if($type == 'encoded'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify) . ' ' . $time;
+                return $this->formatDate($format, $date, $modify) . ' ' . $time;
             }
             else{
                 return 'N/A';
@@ -126,7 +132,7 @@ class SystemModel {
         }
         else if($type == 'date time'){
             if(!empty($date)){
-                return $this->format_date($format, $date, $modify) . ' ' . $time;
+                return $this->formatDate($format, $date, $modify) . ' ' . $time;
             }
             else{
                 return 'N/A';
@@ -140,6 +146,31 @@ class SystemModel {
                 return $current_time;
             }
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: formatDate
+    # Description: Checks the date with different format
+    #
+    # Parameters:
+    # - $format (string): The desired date format.
+    # - $date (string): The date string to be formatted.
+    # - $modify (string|null): The modification to be applied to the date (optional).
+    #
+    # Returns:
+    # - A formatted date string or false on failure.
+    #
+    # -------------------------------------------------------------
+    public function formatDate($format, $date, $modify = null) {
+        $dateTime = new DateTime($date);
+
+        if ($modify) {
+            $dateTime->modify($modify);
+        }
+        
+        return $dateTime->format($format);
     }
     # -------------------------------------------------------------
 }

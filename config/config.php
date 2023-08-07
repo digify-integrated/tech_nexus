@@ -67,6 +67,8 @@ define('DEFAULT_IMAGES_FULL_PATH_FILE', '/dss/assets/images/');
 define('DEFAULT_IMAGES_RELATIVE_PATH_FILE', './assets/images/');
 define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/dss/assets/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './assets/employee/');
+define('DEFAULT_EMAIL_EXTENSION', '@encorefinancials.com');
+define('DEFAULT_PASSWORD', 'P@ssw0rd');
 
 define('MAX_FAILED_LOGIN_ATTEMPTS', 5);
 define('MAX_FAILED_OTP_ATTEMPTS', 5);

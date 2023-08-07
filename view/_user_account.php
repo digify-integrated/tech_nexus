@@ -83,8 +83,23 @@
             </div>
             <div class="form-group mb-4">
               <label class="form-label" for="filter_password_expiry_date_start_date">Password Expiry Date</label>
-              <input type="text" class="form-control filter-datepicker mb-3" name="filter_password_expiry_date_start_date" id="filter_password_expiry_date_start_date" placeholder="Start Date">
-              <input type="text" class="form-control filter-datepicker" name="filter_password_expiry_date_end_date" id="filter_password_expiry_date_end_date" placeholder="End Date">
+              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_password_expiry_date_start_date" id="filter_password_expiry_date_start_date" placeholder="Start Date">
+              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_password_expiry_date_end_date" id="filter_password_expiry_date_end_date" placeholder="End Date">
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label" for="filter_last_connection_date_start_date">Last Connection</label>
+              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_last_connection_date_start_date" id="filter_last_connection_date_start_date" placeholder="Start Date">
+              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_last_connection_date_end_date" id="filter_last_connection_date_end_date" placeholder="End Date">
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label" for="filter_last_password_reset_start_date">Last Password Reset</label>
+              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_last_password_reset_start_date" id="filter_last_password_reset_start_date" placeholder="Start Date">
+              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_last_password_reset_end_date" id="filter_last_password_reset_end_date" placeholder="End Date">
+            </div>
+            <div class="form-group mb-4">
+              <label class="form-label" for="filter_last_failed_login_attempt_start_date">Last Failed Login Attempt</label>
+              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_last_failed_login_attempt_start_date" id="filter_last_failed_login_attempt_start_date" placeholder="Start Date">
+              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_last_failed_login_attempt_end_date" id="filter_last_failed_login_attempt_end_date" placeholder="End Date">
             </div>
             <button type="button" class="btn btn-primary" id="filter-datatable" data-bs-dismiss="offcanvas">Apply</button>
           </div>
