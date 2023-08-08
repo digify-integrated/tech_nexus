@@ -21,8 +21,7 @@
     $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'create');
     $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
     $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
-    $userAccountDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'duplicate');
-    $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
+    $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
 
     if ($userAccountReadAccess['total'] == 0) {
         header('location: 404.php');

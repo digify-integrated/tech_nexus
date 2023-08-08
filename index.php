@@ -56,7 +56,6 @@
         </div>
     </div>
 
-    
     <?php 
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php');

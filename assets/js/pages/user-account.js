@@ -12,6 +12,82 @@
 
         if($('#user-account-id').length){
             displayDetails('get user account details');
+
+            if($('#user-account-role-access-table').length){
+                userAccountRoleTable('#user-account-role-access-table');
+            }
+
+            if($('#add-user-account-role-modal').length){
+                addUserAccountRoleForm();
+            }
+
+            $(document).on('click','#add-user-account-role',function() {
+                const user_account_id = $(this).data('user-account-id');
+    
+                sessionStorage.setItem('user_account_id', user_account_id);
+    
+                $('#add-user-account-role-modal').modal('show');
+                addUserAccountRoleTable('#add-user-account-role-table');
+            });
+
+            $(document).on('click','.delete-user-account-role',function() {
+                const user_account_id = $(this).data('user-account-id');
+                const role_id = $(this).data('role-id');
+                const transaction = 'delete role user account';
+        
+                Swal.fire({
+                    title: 'Confirm Role Deletion',
+                    text: 'Are you sure you want to delete this role?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/role-controller.php',
+                            dataType: 'json',
+                            data: {
+                                user_account_id : user_account_id, 
+                                role_id : role_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Role Success', 'The role has been deleted successfully.', 'success');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        showNotification('Delete Role Error', 'The role does not exist.', 'danger');
+                                    }
+                                    else {
+                                        showNotification('Delete Role Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                  fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                reloadDatatable('#user-account-role-access-table');
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
         }
 
         $(document).on('click','#filter-datatable',function() {
@@ -36,7 +112,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/user-account-controller.php',
+                        url: 'controller/user-controller.php',
                         dataType: 'json',
                         data: {
                             user_account_id : user_account_id, 
@@ -99,7 +175,7 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/user-account-controller.php',
+                            url: 'controller/user-controller.php',
                             dataType: 'json',
                             data: {
                                 user_account_id: user_account_id,
@@ -159,7 +235,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/user-account-controller.php',
+                        url: 'controller/user-controller.php',
                         dataType: 'json',
                         data: {
                             user_account_id : user_account_id, 
@@ -225,7 +301,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/user-account-controller.php',
+                        url: 'controller/user-controller.php',
                         dataType: 'json',
                         data: {
                             user_account_id : user_account_id, 
@@ -358,6 +434,114 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function userAccountRoleTable(datatable_name, buttons = false, show_all = false){
+    const user_account_id = $('#user-account-id').text();
+    const type = 'user account role table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_user_account_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'user_account_id' : user_account_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function addUserAccountRoleTable(datatable_name, buttons = false, show_all = false){
+    const user_account_id = $('#user-account-id').text();
+    const type = 'add user account role table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ROLE_NAME' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_user_account_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'user_account_id' : user_account_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function userAccountForm(){
     $('#user-account-form').validate({
         rules: {
@@ -452,13 +636,65 @@ function userAccountForm(){
     });
 }
 
+function addUserAccountRoleForm(){
+    $('#add-user-account-role-form').validate({
+        submitHandler: function(form) {
+            const transaction = 'add user account role';
+            const user_account_id = $('#user-account-id').text();
+
+            var role_id = [];
+
+            $('.user-account-role').each(function(){
+                if ($(this).is(':checked')){  
+                    role_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/role-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + user_account_id + '&role_id=' + role_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-role-user-account');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Add Role Success', 'The role has been added successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-add-user-account-role', 'Submit');
+                    $('#add-user-account-role-modal').modal('hide');
+                    reloadDatatable('#user-account-role-access-table');
+                }
+            });
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get user account details':
             const user_account_id = $('#user-account-id').text();
             
             $.ajax({
-                url: 'controller/user-account-controller.php',
+                url: 'controller/user-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -468,14 +704,19 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#user_account_id').val(user_account_id);
-                        $('#role_name').val(response.roleName);
-                        $('#role_description').val(response.roleDescription);
+                        $('#file_as').val(response.fileAs);
+                        $('#email').val(response.email);
 
-                        $('#role_name_label').text(response.roleName);
-                        $('#role_description_label').text(response.roleDescription);
-                        $('#assignable_label').text(response.assignableLabel);
-                        
-                        checkOptionExist('#assignable', response.assignable, '');
+                        $('#file_as_label').text(response.fileAs);
+                        $('#email_label').text(response.email);
+                        $('#last_failed_login_attempt_label').text(response.lastFailedLoginAttempt);
+                        $('#last_connection_date_label').text(response.lastConnectionDate);
+                        $('#password_expiry_date_label').text(response.passwordExpiryDate);
+                        $('#account_lock_duration_label').text(response.accountLockDuration);
+                        $('#last_password_reset_label').text(response.lastPasswordReset);
+
+                        document.getElementById('status_label').innerHTML = response.isActive;
+                        document.getElementById('locked_label').innerHTML = response.isLocked;
                     } 
                     else {
                         if(response.isInactive){

@@ -87,6 +87,9 @@ class RoleController {
                 case 'add role user account':
                     $this->addRoleUserAccount();
                     break;
+                case 'add user account role':
+                    $this->addUserAccountRole();
+                    break;
                 case 'add system action role access':
                     $this->addSystemActionRoleAccess();
                     break;
@@ -522,6 +525,47 @@ class RoleController {
         }
         
         foreach ($userAccountIDs as $userAccountID) {
+            $checkRoleUserExist = $this->roleModel->checkRoleUserExist($userAccountID, $roleID);
+            $total = $checkRoleUserExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->roleModel->insertRoleUser($userAccountID, $roleID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addUserAccountRole
+    # Description:
+    # Add the role to user account.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addUserAccountRole() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        $roleIDs = explode(',', $_POST['role_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($roleIDs as $roleID) {
             $checkRoleUserExist = $this->roleModel->checkRoleUserExist($userAccountID, $roleID);
             $total = $checkRoleUserExist['total'] ?? 0;
         

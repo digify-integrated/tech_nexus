@@ -75,7 +75,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $userAccountIDEncrypted = $securityModel->encryptData($userAccountID);
                     
                     $isActiveBadge = $isActive ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
-                    $isLockedBadge = $isActive ? '<span class="badge bg-light-success">No</span>' : '<span class="badge bg-light-danger">Yes</span>';
+                    $isLockedBadge = $isLocked ? '<span class="badge bg-light-danger">Yes</span>' : '<span class="badge bg-light-success">No</span>';
 
                     $delete = '';
                     if($userAccountDeleteAccess['total'] > 0){
@@ -107,6 +107,89 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>
                                     '. $delete .'
                                 </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: user account role table
+        # Description:
+        # Generates the roles assigned to user account.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'user account role table':
+            if(isset($_POST['user_account_id']) && !empty($_POST['user_account_id'])){
+                $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateUserAccountRoleTable(:userAccountID)');
+                $sql->bindValue(':userAccountID', $userAccountID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $deleteUserAccountRole = $userModel->checkSystemActionAccessRights($user_id, 8);
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+
+                    $delete = '';
+                    if($deleteUserAccountRole['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-user-account-role" data-user-account-id="'. $userAccountID .'" data-role-id="'. $roleID .'" title="Delete Role">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: add user account role table
+        # Description:
+        # Generates the role not in user account table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'add user account role table':
+            if(isset($_POST['user_account_id']) && !empty($_POST['user_account_id'])){
+                $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAddUserAccountRoleTable(:userAccountID)');
+                $sql->bindValue(':userAccountID', $userAccountID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $roleID = $row['role_id'];
+                    $roleName = $row['role_name'];
+    
+                    $response[] = [
+                        'ROLE_NAME' => $roleName,
+                        'ASSIGN' => '<div class="form-check form-switch mb-2"><input class="form-check-input user-account-role" type="checkbox" value="'. $roleID.'"></div>'
                     ];
                 }
     

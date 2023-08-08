@@ -57,6 +57,15 @@ class UserController {
                 case 'save user account':
                     $this->saveUserAccount();
                     break;
+                case 'delete user account':
+                    $this->deleteUserAccount();
+                    break;
+                case 'delete multiple user account':
+                    $this->deleteMultipleUserAccount();
+                    break;
+                case 'get user account details':
+                    $this->getUserByID();
+                    break;
                 case 'authenticate':
                     $this->authenticate();
                     break;
@@ -111,7 +120,7 @@ class UserController {
         $userID = $_SESSION['user_id'];
         $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
         $fileAs = htmlspecialchars($_POST['file_as'], ENT_QUOTES, 'UTF-8');
-        $email = htmlspecialchars($_POST['email'] . DEFAULT_EMAIL_EXTENSION, ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
         $password = $this->securityModel->encryptData(DEFAULT_PASSWORD);
         $passwordExpiryDate = date('Y-m-d', strtotime('-6 months'));
     
@@ -143,6 +152,150 @@ class UserController {
             $userAccountID = $this->userModel->insertUserAccount($fileAs, $email, $password, $passwordExpiryDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'userAccountID' => $this->securityModel->encryptData($userAccountID)]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteRole
+    # Description:
+    # Delete the role if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->deleteUserAccount($userAccountID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteMultipleUserAccount
+    # Description:
+    # Delete the selected user account if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteMultipleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountIDs = $_POST['user_account_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($userAccountIDs as $userAccountID){
+            $this->userModel->deleteUserAccount($userAccountID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getUserByID
+    # Description: 
+    # Handles the retrieval of user account details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getUserByID() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['user_account_id']) && !empty($_POST['user_account_id'])) {
+            $userID = $_SESSION['user_id'];
+            $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $userAccount = $this->userModel->getUserByID($userAccountID);
+            $isLocked = $userAccount['is_locked'];
+            $isActive = $userAccount['is_active'];
+            $accountLockDuration = $userAccount['account_lock_duration'];
+            $passwordExpiryDate = date('m/d/Y', strtotime($userAccount['password_expiry_date']));
+            $lastPasswordReset = ($userAccount['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_password_reset'])) : 'Never Reset';
+            $lastConnectionDate = ($userAccount['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_connection_date'])) : 'Never Connected';
+            $lastFailedLoginAttempt = ($userAccount['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_failed_login_attempt'])) : 'Never Connected';
+
+            $isActiveBadge = $isActive ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
+            $isLockedBadge = $isLocked ? '<span class="badge bg-light-danger">Yes</span>' : '<span class="badge bg-light-success">No</span>';
+
+            if($accountLockDuration > 0){
+                $durationParts = $this->formatDuration($accountLockDuration);
+
+                $accountLockDuration = 'Locked for ' . $durationParts;
+            }
+            else{
+                $accountLockDuration = '--';
+            }
+            
+
+            $response = [
+                'success' => true,
+                'fileAs' => $userAccount['file_as'],
+                'email' => $userAccount['email'],
+                'isLocked' => $isLockedBadge,
+                'isActive' => $isActiveBadge,
+                'lastFailedLoginAttempt' => $lastFailedLoginAttempt,
+                'lastConnectionDate' => $lastConnectionDate,
+                'passwordExpiryDate' => $passwordExpiryDate,
+                'lastPasswordReset' => $lastPasswordReset,
+                'accountLockDuration' => $accountLockDuration
+            ];
+
+            echo json_encode($response);
             exit;
         }
     }
@@ -237,42 +390,7 @@ class UserController {
             $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) * 5;
             $this->userModel->updateAccountLock($userID, 1, $lockDuration);
             
-            $durationParts = [];
-            
-            $years = floor($lockDuration / (60 * 60 * 24 * 30 * 12));
-            $lockDuration %= (60 * 60 * 24 * 30 * 12);
-
-            if ($years > 0) {
-                $durationParts[] = number_format($years) . " year" . (($years > 1) ? "s" : "");
-            }
-            
-            $months = floor($lockDuration / (60 * 60 * 24 * 30));
-            $lockDuration %= (60 * 60 * 24 * 30);
-
-            if ($months > 0) {
-                $durationParts[] = number_format($months) . " month" . (($months > 1) ? "s" : "");
-            }
-            
-            $days = floor($lockDuration / (60 * 60 * 24));
-            $lockDuration %= (60 * 60 * 24);
-
-            if ($days > 0) {
-                $durationParts[] = number_format($days) . " day" . (($days > 1) ? "s" : "");
-            }
-            
-            $hours = floor($lockDuration / (60 * 60));
-            $lockDuration %= (60 * 60);
-
-            if ($hours > 0) {
-                $durationParts[] = number_format($hours) . " hour" . (($hours > 1) ? "s" : "");
-            }
-            
-            $minutes = floor($lockDuration / 60);
-            $lockDuration %= 60;
-
-            if ($minutes > 0) {
-                $durationParts[] = number_format($minutes) . " minute" . (($minutes > 1) ? "s" : "");
-            }
+            $durationParts = $this->formatDuration($lockDuration);
             
             $message = "You have reached the maximum number of failed login attempts. Your account has been locked";
             
@@ -288,6 +406,62 @@ class UserController {
         }
     
         exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: formatDuration
+    # Description:
+    # Updates the failed login attempts and, if the maximum attempts are reached, locks the account.
+    #
+    # Parameters: 
+    # - $lockDuration (int): The duration in seconds that needs to be formatted. This value represents the total duration that you want to convert into a human-readable format.
+    #
+    # Returns: Returns a formatted string representing the duration in a human-readable format. 
+    #  The format includes years, months, days, hours, and minutes, as applicable. 
+    #  The function constructs this string based on the provided $lockDuration parameter.
+    #
+    # -------------------------------------------------------------
+    private function formatDuration($lockDuration) {
+        $durationParts = [];
+    
+        $years = floor($lockDuration / (60 * 60 * 24 * 30 * 12));
+        $lockDuration %= (60 * 60 * 24 * 30 * 12);
+    
+        if ($years > 0) {
+            $durationParts[] = number_format($years) . " year" . (($years > 1) ? "s" : "");
+        }
+    
+        $months = floor($lockDuration / (60 * 60 * 24 * 30));
+        $lockDuration %= (60 * 60 * 24 * 30);
+    
+        if ($months > 0) {
+            $durationParts[] = number_format($months) . " month" . (($months > 1) ? "s" : "");
+        }
+    
+        $days = floor($lockDuration / (60 * 60 * 24));
+        $lockDuration %= (60 * 60 * 24);
+    
+        if ($days > 0) {
+            $durationParts[] = number_format($days) . " day" . (($days > 1) ? "s" : "");
+        }
+    
+        $hours = floor($lockDuration / (60 * 60));
+        $lockDuration %= (60 * 60);
+    
+        if ($hours > 0) {
+            $durationParts[] = number_format($hours) . " hour" . (($hours > 1) ? "s" : "");
+        }
+    
+        $minutes = floor($lockDuration / 60);
+        $lockDuration %= 60;
+    
+        if ($minutes > 0) {
+            $durationParts[] = number_format($minutes) . " minute" . (($minutes > 1) ? "s" : "");
+        }
+    
+        return implode(", ", $durationParts);
     }
     # -------------------------------------------------------------
     

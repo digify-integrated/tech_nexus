@@ -70,32 +70,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
     END IF;
 
-    IF NEW.reset_token <> OLD.reset_token THEN
-        SET audit_log = CONCAT(audit_log, "Reset Token: ", OLD.reset_token, " -> ", NEW.reset_token, "<br/>");
-    END IF;
-
-    IF NEW.reset_token_expiry_date <> OLD.reset_token_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Reset Token Expiry Date: ", OLD.reset_token_expiry_date, " -> ", NEW.reset_token_expiry_date, "<br/>");
-    END IF;
-
     IF NEW.receive_notification <> OLD.receive_notification THEN
         SET audit_log = CONCAT(audit_log, "Receive Notification: ", OLD.receive_notification, " -> ", NEW.receive_notification, "<br/>");
     END IF;
 
     IF NEW.two_factor_auth <> OLD.two_factor_auth THEN
         SET audit_log = CONCAT(audit_log, "2-Factor Authentication: ", OLD.two_factor_auth, " -> ", NEW.two_factor_auth, "<br/>");
-    END IF;
-
-    IF NEW.otp <> OLD.otp THEN
-        SET audit_log = CONCAT(audit_log, "OTP: ", OLD.otp, " -> ", NEW.otp, "<br/>");
-    END IF;
-
-    IF NEW.otp_expiry_date <> OLD.otp_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "OTP Expiry Date: ", OLD.otp_expiry_date, " -> ", NEW.otp_expiry_date, "<br/>");
-    END IF;
-
-    IF NEW.failed_otp_attempts <> OLD.failed_otp_attempts THEN
-        SET audit_log = CONCAT(audit_log, "Failed OTP Attempts: ", OLD.failed_otp_attempts, " -> ", NEW.failed_otp_attempts, "<br/>");
     END IF;
 
     IF NEW.last_password_change <> OLD.last_password_change THEN
@@ -112,10 +92,6 @@ BEGIN
 
     IF NEW.remember_me <> OLD.remember_me THEN
         SET audit_log = CONCAT(audit_log, "Remember Me: ", OLD.remember_me, " -> ", NEW.remember_me, "<br/>");
-    END IF;
-
-    IF NEW.remember_token <> OLD.remember_token THEN
-        SET audit_log = CONCAT(audit_log, "Remember Token: ", OLD.remember_token, " -> ", NEW.remember_token, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -162,32 +138,12 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
     END IF;
 
-    IF NEW.reset_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Reset Token: ", NEW.reset_token);
-    END IF;
-
-    IF NEW.reset_token_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Reset Token Expiry Date: ", NEW.reset_token_expiry_date);
-    END IF;
-
     IF NEW.receive_notification <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Receive Notification: ", NEW.receive_notification);
     END IF;
 
     IF NEW.two_factor_auth <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>2-Factor Authentication: ", NEW.two_factor_auth);
-    END IF;
-
-    IF NEW.otp <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>OTP: ", NEW.otp);
-    END IF;
-
-    IF NEW.otp_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>OTP Expiry Date: ", NEW.otp_expiry_date);
-    END IF;
-
-    IF NEW.failed_otp_attempts <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Failed OTP Attempts: ", NEW.failed_otp_attempts);
     END IF;
 
     IF NEW.last_password_change <> '' THEN
@@ -204,10 +160,6 @@ BEGIN
 
     IF NEW.remember_me <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Remember Me: ", NEW.remember_me);
-    END IF;
-
-    IF NEW.remember_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Remember Token: ", NEW.remember_token);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -363,6 +315,20 @@ BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users
     WHERE user_id NOT IN (SELECT user_id FROM role_users WHERE role_id = p_role_id)
     ORDER BY file_as;
+END //
+
+CREATE PROCEDURE generateUserAccountRoleTable(IN p_user_account_id INT)
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
+    ORDER BY role_name;
+END //
+
+CREATE PROCEDURE generateAddUserAccountRoleTable(IN p_user_account_id INT)
+BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id NOT IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
+    ORDER BY role_name;
 END //
 
 CREATE PROCEDURE generateUserAccountTable(IN p_is_active ENUM('active', 'inactive', 'all'),IN p_is_locked ENUM('yes', 'no', 'all'),IN p_password_expiry_date_start_date DATE,IN p_password_expiry_date_end_date DATE,IN p_filter_last_connection_date_start_date DATE,IN p_filter_last_connection_date_end_date DATE,IN p_filter_last_password_reset_start_date DATE,IN p_filter_last_password_reset_end_date DATE,IN p_filter_last_failed_login_attempt_start_date DATE,IN p_filter_last_failed_login_attempt_end_date DATE)

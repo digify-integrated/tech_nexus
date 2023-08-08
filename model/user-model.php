@@ -556,6 +556,28 @@ class UserModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Delete methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteUserAccount
+    # Description: Deletes the user account.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteUserAccount($p_user_account_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteUserAccount(:p_user_account_id)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 

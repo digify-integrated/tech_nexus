@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 07, 2023 at 11:36 AM
+-- Generation Time: Aug 08, 2023 at 11:31 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -314,6 +314,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddSystemActionRoleAccessTa
     ORDER BY role_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (IN `p_user_account_id` INT)   BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id NOT IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
+    ORDER BY role_name;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
 	SELECT log, changed_by, changed_at FROM audit_log
     WHERE table_name = p_table_name AND reference_id = p_reference_id 
@@ -419,6 +425,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
 	SELECT system_action_id, system_action_name 
     FROM system_action
     ORDER BY system_action_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountRoleTable` (IN `p_user_account_id` INT)   BEGIN
+	SELECT role_id, role_name FROM role
+    WHERE role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
+    ORDER BY role_name;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is_active` ENUM('active','inactive','all'), IN `p_is_locked` ENUM('yes','no','all'), IN `p_password_expiry_date_start_date` DATE, IN `p_password_expiry_date_end_date` DATE, IN `p_filter_last_connection_date_start_date` DATE, IN `p_filter_last_connection_date_end_date` DATE, IN `p_filter_last_password_reset_start_date` DATE, IN `p_filter_last_password_reset_end_date` DATE, IN `p_filter_last_failed_login_attempt_start_date` DATE, IN `p_filter_last_failed_login_attempt_end_date` DATE)   BEGIN
@@ -940,7 +952,28 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (121, 'users', 8, 'User created. <br/><br/>File As: text<br/>Email: nexus2@encorefinancials.com', '1', '2023-08-07 17:00:40'),
 (122, 'users', 9, 'User created. <br/><br/>File As: test<br/>Email: test2@encorefinancials.com<br/>Password Expiry Date: 2024-02-07', '1', '2023-08-07 17:05:29'),
 (123, 'users', 10, 'User created. <br/><br/>File As: test3<br/>Email: test3@encorefinancials.com<br/>Password Expiry Date: 2024-02-07', '1', '2023-08-07 17:08:19'),
-(124, 'users', 11, 'User created. <br/><br/>File As: lmicayas<br/>Email: lmicayas@encorefinancials.com<br/>Password Expiry Date: 2023-02-07', '1', '2023-08-07 17:11:13');
+(124, 'users', 11, 'User created. <br/><br/>File As: lmicayas<br/>Email: lmicayas@encorefinancials.com<br/>Password Expiry Date: 2023-02-07', '1', '2023-08-07 17:11:13'),
+(125, 'users', 1, 'Last Connection Date: 2023-08-04 19:18:16 -> 2023-08-08 08:44:43<br/>', '1', '2023-08-08 08:44:43'),
+(126, 'users', 1, 'Remember Token: c710dbf6d124ac37c70debbe48eb09f2 -> 9b4194ac29018de6c72f2c7ea296eac3<br/>', '1', '2023-08-08 08:44:43'),
+(127, 'users', 10, 'File As: test3 -> test34<br/>', '1', '2023-08-08 11:13:26'),
+(128, 'users', 10, 'Email: test3@encorefinancials.com -> test34@encorefinancials.com<br/>', '1', '2023-08-08 11:13:34'),
+(129, 'users', 10, 'Account Lock Duration: 0 -> 9999999<br/>', '1', '2023-08-08 14:01:31'),
+(130, 'users', 1, 'Last Connection Date: 2023-08-08 08:44:43 -> 2023-08-08 14:46:56<br/>', '1', '2023-08-08 14:46:56'),
+(131, 'system_action', 7, 'System action created. <br/><br/>System Action Name: Assign Role To User Account', '1', '2023-08-08 15:21:56'),
+(132, 'system_action_access_rights', 7, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-08 15:22:02'),
+(133, 'system_action_access_rights', 7, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 15:22:03'),
+(134, 'system_action_access_rights', 7, 'System action access rights created. <br/><br/>Role ID: 4', '1', '2023-08-08 15:22:10'),
+(135, 'system_action_access_rights', 7, 'System action access rights created. <br/><br/>Role ID: 4', '1', '2023-08-08 15:22:10'),
+(136, 'system_action_access_rights', 7, 'Role ID: 4<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 15:22:10'),
+(137, 'system_action_access_rights', 7, 'Role ID: 4<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 15:22:10'),
+(138, 'system_action_access_rights', 7, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-08 15:22:21'),
+(139, 'system_action_access_rights', 7, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 15:22:21'),
+(140, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-08-08 15:35:19'),
+(141, 'system_action', 8, 'System action created. <br/><br/>System Action Name: Delete Role To User Account', '1', '2023-08-08 15:52:08'),
+(142, 'system_action_access_rights', 8, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-08 16:04:12'),
+(143, 'system_action_access_rights', 8, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-08 16:04:12'),
+(144, 'system_action_access_rights', 8, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 16:04:13'),
+(145, 'system_action_access_rights', 8, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 16:04:13');
 
 -- --------------------------------------------------------
 
@@ -1313,7 +1346,8 @@ CREATE TABLE `role_users` (
 --
 
 INSERT INTO `role_users` (`role_id`, `user_id`, `last_log_by`) VALUES
-(1, 1, 1);
+(1, 1, 1),
+(2, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -1337,7 +1371,9 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (3, 'Update System Action Role Access', 1),
 (4, 'Delete System Action Role Access', 1),
 (5, 'Assign User Account To Role', 1),
-(6, 'Delete User Account To Role', 1);
+(6, 'Delete User Account To Role', 1),
+(7, 'Assign Role To User Account', 1),
+(8, 'Delete Role To User Account', 1);
 
 --
 -- Triggers `system_action`
@@ -1401,7 +1437,11 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (1, 2, 1, 1),
 (3, 2, 1, 1),
 (6, 2, 1, 1),
-(2, 1, 1, 1);
+(2, 1, 1, 1),
+(7, 2, 1, 1),
+(7, 1, 1, 1),
+(8, 2, 1, 1),
+(8, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -1464,7 +1504,7 @@ CREATE TABLE `ui_customization_setting` (
 --
 
 INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
-(1, 1, 'true', 'true', 'preset-1', 'light', 'false', 'false', 1);
+(1, 1, 'false', 'true', 'preset-1', 'light', 'false', 'false', 1);
 
 --
 -- Triggers `ui_customization_setting`
@@ -1576,16 +1616,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-04 19:18:16', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, 'c710dbf6d124ac37c70debbe48eb09f2', 1),
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-08 14:46:56', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '9b4194ac29018de6c72f2c7ea296eac3', 1),
 (2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
 (3, 'nexus', 'nexus@encorefinancials.com', '', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(4, 'nexus2', 'nexus@encorefinancials.com', 'oJVlA%2B6FnYCc2Fw20s1T%2FOkQ9saNB1zQw%2BNqSJ8RyEY%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
 (5, 'nexus', 'nexus@encorefinancials.com', 'SNw3zmoptw7Crqq57MEgBR4%2Br4zXEH%2FlpO01szQp5UU%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
 (6, 'nexus', 'nexus@encorefinancials.com', 'UTppiAz0%2F%2BI8%2FdILRRfAwlhFEOa4VA%2FvWH%2FxiYED3Pc%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(7, 'nexus', 'nexus@encorefinancials.com', '94GNx7NEO2OkJ6nx9ipm3w6fVH0IQ1AgGEn5Y2e3Pic%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(8, 'text', 'nexus2@encorefinancials.com', 'ne%2BKbMViXuFSrViuccdRMUThgYtEqiyfPKvZo%2Fu1DZU%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(9, 'test', 'test2@encorefinancials.com', 'usynUbh75BZHvNbbJCmqykxdAAHP0kcta5MxUhx6eKs%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(10, 'test3', 'test3@encorefinancials.com', '0WlqstfkpZi99PYIGV%2BJouI%2FV89dgiQJSSzb6jN5Rwo%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
 (11, 'lmicayas', 'lmicayas@encorefinancials.com', 'n%2FiSOjizvf%2FnF6tNHq1WTpi3HMh2qzq98ghQoPk3q20%3D', NULL, 0, 0, NULL, 0, NULL, '2023-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
@@ -1627,32 +1662,12 @@ CREATE TRIGGER `userTriggerInsert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
     END IF;
 
-    IF NEW.reset_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Reset Token: ", NEW.reset_token);
-    END IF;
-
-    IF NEW.reset_token_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Reset Token Expiry Date: ", NEW.reset_token_expiry_date);
-    END IF;
-
     IF NEW.receive_notification <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Receive Notification: ", NEW.receive_notification);
     END IF;
 
     IF NEW.two_factor_auth <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>2-Factor Authentication: ", NEW.two_factor_auth);
-    END IF;
-
-    IF NEW.otp <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>OTP: ", NEW.otp);
-    END IF;
-
-    IF NEW.otp_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>OTP Expiry Date: ", NEW.otp_expiry_date);
-    END IF;
-
-    IF NEW.failed_otp_attempts <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Failed OTP Attempts: ", NEW.failed_otp_attempts);
     END IF;
 
     IF NEW.last_password_change <> '' THEN
@@ -1669,10 +1684,6 @@ CREATE TRIGGER `userTriggerInsert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
 
     IF NEW.remember_me <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Remember Me: ", NEW.remember_me);
-    END IF;
-
-    IF NEW.remember_token <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Remember Token: ", NEW.remember_token);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -1716,32 +1727,12 @@ CREATE TRIGGER `userTriggerUpdate` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
         SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
     END IF;
 
-    IF NEW.reset_token <> OLD.reset_token THEN
-        SET audit_log = CONCAT(audit_log, "Reset Token: ", OLD.reset_token, " -> ", NEW.reset_token, "<br/>");
-    END IF;
-
-    IF NEW.reset_token_expiry_date <> OLD.reset_token_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Reset Token Expiry Date: ", OLD.reset_token_expiry_date, " -> ", NEW.reset_token_expiry_date, "<br/>");
-    END IF;
-
     IF NEW.receive_notification <> OLD.receive_notification THEN
         SET audit_log = CONCAT(audit_log, "Receive Notification: ", OLD.receive_notification, " -> ", NEW.receive_notification, "<br/>");
     END IF;
 
     IF NEW.two_factor_auth <> OLD.two_factor_auth THEN
         SET audit_log = CONCAT(audit_log, "2-Factor Authentication: ", OLD.two_factor_auth, " -> ", NEW.two_factor_auth, "<br/>");
-    END IF;
-
-    IF NEW.otp <> OLD.otp THEN
-        SET audit_log = CONCAT(audit_log, "OTP: ", OLD.otp, " -> ", NEW.otp, "<br/>");
-    END IF;
-
-    IF NEW.otp_expiry_date <> OLD.otp_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "OTP Expiry Date: ", OLD.otp_expiry_date, " -> ", NEW.otp_expiry_date, "<br/>");
-    END IF;
-
-    IF NEW.failed_otp_attempts <> OLD.failed_otp_attempts THEN
-        SET audit_log = CONCAT(audit_log, "Failed OTP Attempts: ", OLD.failed_otp_attempts, " -> ", NEW.failed_otp_attempts, "<br/>");
     END IF;
 
     IF NEW.last_password_change <> OLD.last_password_change THEN
@@ -1758,10 +1749,6 @@ CREATE TRIGGER `userTriggerUpdate` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
 
     IF NEW.remember_me <> OLD.remember_me THEN
         SET audit_log = CONCAT(audit_log, "Remember Me: ", OLD.remember_me, " -> ", NEW.remember_me, "<br/>");
-    END IF;
-
-    IF NEW.remember_token <> OLD.remember_token THEN
-        SET audit_log = CONCAT(audit_log, "Remember Token: ", OLD.remember_token, " -> ", NEW.remember_token, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -1854,7 +1841,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1884,7 +1871,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
