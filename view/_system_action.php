@@ -7,10 +7,10 @@
                     <h5>System Action List</h5>
                   </div>
                   <?php
-                      if($systemActionCreateAccess > 0 || $systemActionDeleteAccess > 0){
+                      if($systemActionCreateAccess['total'] > 0 || $systemActionDeleteAccess['total'] > 0){
                         $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
                         
-                          if($systemActionDeleteAccess > 0){
+                          if($systemActionDeleteAccess['total'] > 0){
                             $action .= '<div class="btn-group m-r-10">
                                           <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                           <ul class="dropdown-menu dropdown-menu-end">
@@ -19,7 +19,7 @@
                                           </div>';
                           }
 
-                          if($systemActionCreateAccess > 0){
+                          if($systemActionCreateAccess['total'] > 0){
                             $action .= '<a href="system-action.php?new" class="btn btn-success">Create</a>';
                           }
 

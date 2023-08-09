@@ -63,6 +63,30 @@ class UserController {
                 case 'delete multiple user account':
                     $this->deleteMultipleUserAccount();
                     break;
+                case 'activate user account':
+                    $this->activateUserAccount();
+                    break;
+                case 'activate multiple user account':
+                    $this->activateMultipleUserAccount();
+                    break;
+                case 'deactivate user account':
+                    $this->deactivateUserAccount();
+                    break;
+                case 'deactivate multiple user account':
+                    $this->deactivateMultipleUserAccount();
+                    break;
+                case 'lock user account':
+                    $this->lockUserAccount();
+                    break;
+                case 'lock multiple user account':
+                    $this->lockMultipleUserAccount();
+                    break;
+                case 'unlock user account':
+                    $this->unlockUserAccount();
+                    break;
+                case 'unlock multiple user account':
+                    $this->unlockMultipleUserAccount();
+                    break;
                 case 'get user account details':
                     $this->getUserByID();
                     break;
@@ -159,9 +183,9 @@ class UserController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteRole
+    # Function: deleteUserAccount
     # Description:
-    # Delete the role if it exists; otherwise, return an error message.
+    # Delete the user account if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
@@ -226,6 +250,317 @@ class UserController {
 
         foreach($userAccountIDs as $userAccountID){
             $this->userModel->deleteUserAccount($userAccountID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: activateUserAccount
+    # Description:
+    # Activate the user account if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function activateUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->activateUserAccount($userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: activateMultipleUserAccount
+    # Description:
+    # Activate the selected user account if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function activateMultipleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountIDs = $_POST['user_account_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($userAccountIDs as $userAccountID){
+            $this->userModel->activateUserAccount($userAccountID, $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deactivateUserAccount
+    # Description:
+    # Deactivate the user account if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deactivateUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        if($userAccountID == $userID){
+            echo json_encode(['success' => false, 'message' =>  'You cannot deactivate the user you are currently logged in as.']);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->deactivateUserAccount($userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deactivateMultipleUserAccount
+    # Description:
+    # Deactivate the selected user account if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deactivateMultipleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountIDs = $_POST['user_account_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($userAccountIDs as $userAccountID){
+            if($userAccountID != $userID){
+                $this->userModel->deactivateUserAccount($userAccountID, $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: lockUserAccount
+    # Description:
+    # Lock the user account if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function lockUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->lockUserAccount($userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: lockMultipleUserAccount
+    # Description:
+    # Lock the selected user account if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function lockMultipleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountIDs = $_POST['user_account_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($userAccountIDs as $userAccountID){
+            $this->userModel->lockUserAccount($userAccountID, $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: unlockUserAccount
+    # Description:
+    # Unlock the user account if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function unlockUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->unlockUserAccount($userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: unlockMultipleUserAccount
+    # Description:
+    # Unlock the selected user account if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function unlockMultipleUserAccount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountIDs = $_POST['user_account_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($userAccountIDs as $userAccountID){
+            $this->userModel->unlockUserAccount($userAccountID, $userID);
         }
             
         echo json_encode(['success' => true]);

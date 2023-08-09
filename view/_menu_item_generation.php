@@ -62,21 +62,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         
                     $update = '';
                     if($menuItemWriteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-menu-item" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
+                        $update = '<button type="button" class="btn btn-icon btn-info update-menu-item form-edit" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
                     if($menuItemDeleteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item form-edit" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
 
                     $assign = '';
                     if($updateMenuItemRoleAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
+                        $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access form-edit" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
                                             <i class="ti ti-user-check"></i>
                                         </button>';
                     }
@@ -84,7 +84,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'MENU_ITEM_NAME' => '<a href="menu-item-form.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
                         'PARENT_ID' => '<a href="menu-item-form.php?id='. $parentIDEncrypted .'">'. $parentMenuItemName . '</a>',
-                        'ORDER_SEQUENCE' => $orderSequence,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $update .'
                                         '. $assign .'
@@ -140,7 +139,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $menuItemID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $menuItemID .'">',
                     'MENU_ITEM_NAME' => $menuItemName,
                     'MENU_GROUP_ID' => $menuGroupName,
                     'PARENT_ID' => $parentMenuItemName,
@@ -181,7 +180,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             foreach ($options as $row) {
                 $menuGroupID = $row['menu_group_id'];
                 $menuItemName = $row['menu_item_name'];
-                $orderSequence = $row['order_sequence'];
 
                 $menuItemIDEncrypted = $securityModel->encryptData($menuItemID);
                 $menuGroupIDEncrypted = $securityModel->encryptData($menuGroupID);
@@ -191,8 +189,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'MENU_ITEM_NAME' => '<a href="menu-item.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
-                    'MENU_GROUP_ID' => '<a href="menu-group.php?id='. $menuGroupIDEncrypted .'">'. $menuGroupName . '</a>',
-                    'ORDER_SEQUENCE' => $orderSequence
+                    'MENU_GROUP_ID' => '<a href="menu-group.php?id='. $menuGroupIDEncrypted .'">'. $menuGroupName . '</a>'
                 ];
             }
 
@@ -298,7 +295,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteMenuItemRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access form-edit" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

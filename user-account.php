@@ -22,6 +22,10 @@
     $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
     $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
     $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
+    $activateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 9);
+    $deactivateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 10);
+    $lockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 11);
+    $unlockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 12);
 
     if ($userAccountReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -35,8 +39,8 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: user-account.php');
-            exit;
+          header('location: user-account.php');
+          exit;
         }
 
         $userAccountID = $securityModel->decryptData($_GET['id']);
@@ -45,9 +49,13 @@
         $total = $checkUserExist['total'] ?? 0;
 
         if($total == 0){
-            header('location: 404.php');
-            exit;
+          header('location: 404.php');
+          exit;
         }
+
+        $userDetails = $userModel->getUserByID($userAccountID);
+        $isActive = $userDetails['is_active'];
+        $isLocked = $userDetails['is_locked'];
     }
     else{
         $userAccountID = null;

@@ -10,14 +10,10 @@
                     <?php                            
                        if (!empty($menuItemID)) {
                           $dropdown = '<div class="btn-group m-r-5">
-                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                       Action
                                   </button>
                                   <ul class="dropdown-menu dropdown-menu-end">';
-                          
-                            if ($menuItemCreateAccess['total'] > 0) {
-                                $dropdown .= '<li><a class="dropdown-item" href="menu-item.php?new">Create Menu Item</a></li>';
-                            }
                             
                             if ($menuItemDuplicateAccess['total'] > 0) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-menu-item-id="' . $menuItemID . '" id="duplicate-menu-item">Duplicate Menu Item</button></li>';
@@ -37,7 +33,11 @@
                         echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                               <button type="submit" form="menu-item-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
-                      }          
+                      }
+
+                      if (!empty($menuItemID) && $menuItemCreateAccess['total'] > 0) {
+                        echo '<a class="btn btn-success m-r-5 form-details" href="menu-item.php?new">Create</a>';
+                      }
                     ?>
                   </div>
                 </div>
@@ -152,7 +152,6 @@
                                 <tr>
                                   <th>Sub Menu Item</th>
                                   <th>Menu Group</th>
-                                  <th>Order Sequence</th>
                                 </tr>
                               </thead>
                               <tbody></tbody>

@@ -10,13 +10,25 @@
                     <?php                            
                        if (!empty($userAccountID)) {
                           $dropdown = '<div class="btn-group m-r-5">
-                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                       Action
                                   </button>
                                   <ul class="dropdown-menu dropdown-menu-end">';
-                          
-                            if ($userAccountCreateAccess['total'] > 0) {
-                                $dropdown .= '<li><a class="dropdown-item" href="user-account.php?new">Create User Account</a></li>';
+                            
+                            if ($activateUserAccount['total'] > 0 && !$isActive) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="activate-user-account-details">Activate User Account</button></li>';
+                            }
+                            
+                            if ($deactivateUserAccount['total'] > 0 && $isActive) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="deactivate-user-account-details">Deactivate User Account</button></li>';
+                            }
+                            
+                            if ($lockUserAccount['total'] > 0 && !$isLocked) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="lock-user-account-details">Lock User Account</button></li>';
+                            }
+                            
+                            if ($unlockUserAccount['total'] > 0 && $isLocked) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="unlock-user-account-details">Unlock User Account</button></li>';
                             }
                             
                             if ($userAccountDeleteAccess['total'] > 0) {
@@ -33,7 +45,11 @@
                         echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                               <button type="submit" form="user-account-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
-                      }          
+                      }
+
+                      if (!empty($userAccountID) && $userAccountCreateAccess['total'] > 0) {
+                        echo '<a class="btn btn-success m-r-5 form-details" href="user-account.php?new">Create</a>';
+                      }
                     ?>
                   </div>
                 </div>

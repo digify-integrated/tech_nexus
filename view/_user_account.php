@@ -8,19 +8,35 @@
                   </div>
                   <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                   <?php
-                    if($userAccountCreateAccess > 0 || $userAccountDeleteAccess > 0){
-                      $action = '';
+                    if($userAccountCreateAccess['total'] > 0 || $userAccountDeleteAccess['total'] > 0 || $activateUserAccount['total'] > 0 || $deactivateUserAccount['total'] > 0 || $lockUserAccount['total'] > 0 || $unlockUserAccount['total'] > 0){
+                      $action = '<div class="btn-group m-r-10">
+                      <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                      <ul class="dropdown-menu dropdown-menu-end">';
 
-                      if($userAccountDeleteAccess > 0){
-                        $action .= '<div class="btn-group m-r-10">
-                                          <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                          <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><button class="dropdown-item" type="button" id="delete-user-account">Delete User Account</button></li>
-                                          </ul>
-                                          </div>';
+                      if($activateUserAccount['total'] > 0){
+                        $action .= '<li><button class="dropdown-item" type="button" id="activate-user-account">Activate User Account</button></li>';
                       }
 
-                      if($userAccountCreateAccess > 0){
+                      if($deactivateUserAccount['total'] > 0){
+                        $action .= '<li><button class="dropdown-item" type="button" id="deactivate-user-account">Deactivate User Account</button></li>';
+                      }
+
+                      if($lockUserAccount['total'] > 0){
+                        $action .= '<li><button class="dropdown-item" type="button" id="lock-user-account">Lock User Account</button></li>';
+                      }
+
+                      if($unlockUserAccount['total'] > 0){
+                        $action .= '<li><button class="dropdown-item" type="button" id="unlock-user-account">Unlock User Account</button></li>';
+                      }
+
+                      if($userAccountDeleteAccess['total'] > 0){
+                        $action .= '<li><button class="dropdown-item" type="button" id="delete-user-account">Delete User Account</button></li>';
+                      }
+
+                      $action .= '</ul>
+                      </div>';
+
+                      if($userAccountCreateAccess['total'] > 0){
                         $action .= '<a href="user-account.php?new" class="btn btn-success">Create</a>';
                       }
                           

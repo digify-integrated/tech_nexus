@@ -372,7 +372,7 @@
             let role_id = [];
             const transaction = 'delete multiple role';
 
-            $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
+            $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
                     role_id.push(element.value);
                 }
@@ -493,8 +493,7 @@
         $(document).on('click','#edit-form',function() {
             displayDetails('get role details');
 
-            $('.form-details').addClass('d-none');
-            $('.form-edit').removeClass('d-none');
+            enableForm();
         });
 
         $(document).on('click','.update-role',function() {

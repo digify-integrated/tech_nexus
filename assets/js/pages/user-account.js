@@ -154,7 +154,7 @@
             let user_account_id = [];
             const transaction = 'delete multiple user account';
 
-            $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
+            $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
                     user_account_id.push(element.value);
                 }
@@ -272,6 +272,494 @@
             });
         });
 
+        $(document).on('click','#activate-user-account',function() {
+            let user_account_id = [];
+            const transaction = 'activate multiple user account';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    user_account_id.push(element.value);
+                }
+            });
+    
+            if(user_account_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple User Accounts Activation',
+                    text: 'Are you sure you want to activate these user accounts?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Activate',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/user-controller.php',
+                            dataType: 'json',
+                            data: {
+                                user_account_id: user_account_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Activate User Account Success', 'The selected user accounts have been activated successfully.', 'success');
+                                    reloadDatatable('#user-account-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Activate User Account Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Activation Multiple User Account Error', 'Please select the user accounts you wish to activate.', 'danger');
+            }
+        });
+
+        $(document).on('click','#activate-user-account-details',function() {
+            const user_account_id = $(this).data('user-account-id');
+            const transaction = 'activate user account';
+    
+            Swal.fire({
+                title: 'Confirm User Account Activation',
+                text: 'Are you sure you want to activate this user account?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Activate',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        dataType: 'json',
+                        data: {
+                            user_account_id : user_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Activate User Account Success', 'The user account has been activated successfully.', 'success');
+                                location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Activate User Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#deactivate-user-account',function() {
+            let user_account_id = [];
+            const transaction = 'deactivate multiple user account';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    user_account_id.push(element.value);
+                }
+            });
+    
+            if(user_account_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple User Accounts Deactivation',
+                    text: 'Are you sure you want to deactivate these user accounts?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Deactivate',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/user-controller.php',
+                            dataType: 'json',
+                            data: {
+                                user_account_id: user_account_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Deactivate User Account Success', 'The selected user accounts have been deactivated successfully.', 'success');
+                                    reloadDatatable('#user-account-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Deactivate User Account Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Deactivation Multiple User Account Error', 'Please select the user accounts you wish to deactivate.', 'danger');
+            }
+        });
+
+        $(document).on('click','#deactivate-user-account-details',function() {
+            const user_account_id = $(this).data('user-account-id');
+            const transaction = 'deactivate user account';
+    
+            Swal.fire({
+                title: 'Confirm User Account Deactivation',
+                text: 'Are you sure you want to deactivate this user account?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Deactivate',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        dataType: 'json',
+                        data: {
+                            user_account_id : user_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Deactivate User Account Success', 'The user account has been deactivated successfully.', 'success');
+                                location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Deactivate User Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#unlock-user-account',function() {
+            let user_account_id = [];
+            const transaction = 'unlock multiple user account';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    user_account_id.push(element.value);
+                }
+            });
+    
+            if(user_account_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple User Accounts Unlock',
+                    text: 'Are you sure you want to unlock these user accounts?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Unlock',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/user-controller.php',
+                            dataType: 'json',
+                            data: {
+                                user_account_id: user_account_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Unlock User Account Success', 'The selected user accounts have been unlocked successfully.', 'success');
+                                    reloadDatatable('#user-account-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Unlock User Account Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Unlock Multiple User Account Error', 'Please select the user accounts you wish to unlock.', 'danger');
+            }
+        });
+
+        $(document).on('click','#unlock-user-account-details',function() {
+            const user_account_id = $(this).data('user-account-id');
+            const transaction = 'unlock user account';
+    
+            Swal.fire({
+                title: 'Confirm User Account Unlock',
+                text: 'Are you sure you want to unlock this user account?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlock',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        dataType: 'json',
+                        data: {
+                            user_account_id : user_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Unlock User Account Success', 'The user account has been unlocked successfully.', 'success');
+                                location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Unlock User Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#lock-user-account',function() {
+            let user_account_id = [];
+            const transaction = 'lock multiple user account';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    user_account_id.push(element.value);
+                }
+            });
+    
+            if(user_account_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple User Accounts Lock',
+                    text: 'Are you sure you want to lock these user accounts?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Lock',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/user-controller.php',
+                            dataType: 'json',
+                            data: {
+                                user_account_id: user_account_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Lock User Account Success', 'The selected user accounts have been locked successfully.', 'success');
+                                    reloadDatatable('#user-account-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Lock User Account Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Lock Multiple User Account Error', 'Please select the user accounts you wish to lock.', 'danger');
+            }
+        });
+
+        $(document).on('click','#lock-user-account-details',function() {
+            const user_account_id = $(this).data('user-account-id');
+            const transaction = 'lock user account';
+    
+            Swal.fire({
+                title: 'Confirm User Account Lock',
+                text: 'Are you sure you want to lock this user account?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Lock',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        dataType: 'json',
+                        data: {
+                            user_account_id : user_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Lock User Account Success', 'The user account has been locked successfully.', 'success');
+                                location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Lock User Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#discard-create',function() {
             discardCreate('user-account.php');
         });
@@ -279,8 +767,7 @@
         $(document).on('click','#edit-form',function() {
             displayDetails('get user account details');
 
-            $('.form-details').addClass('d-none');
-            $('.form-edit').removeClass('d-none');
+            enableForm();
         });
 
         $(document).on('click','#duplicate-user-account',function() {

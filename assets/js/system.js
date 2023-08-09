@@ -261,6 +261,11 @@ function checkEmpty(value, id, type){
     }
 }
 
+function enableForm(){
+    $('.form-details').addClass('d-none');
+    $('.form-edit').removeClass('d-none');
+}
+
 function resetForm(){
     var errorMessages = document.querySelectorAll('.error');
   
@@ -280,7 +285,6 @@ function resetForm(){
 function resetModalForm(form_id) {
     var form = document.getElementById(form_id);
   
-    // Reset form inputs, including hidden inputs and select2 fields
     $(form)
       .find(':input')
       .not(':button, :submit, :reset')
@@ -288,12 +292,11 @@ function resetModalForm(form_id) {
       .trigger('change.select2')
       .removeClass('is-invalid');
   
-    // Remove error messages
     var errorMessages = form.querySelectorAll('.error');
     errorMessages.forEach(function (errorMessage) {
       errorMessage.parentNode.removeChild(errorMessage);
     });
-}  
+}
 
 function discardCreate(windows_location){
     Swal.fire({

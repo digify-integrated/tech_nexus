@@ -7,10 +7,10 @@
                     <h5>Menu Item List</h5>
                   </div>
                   <?php
-                    if($menuItemCreateAccess > 0 || $menuItemDeleteAccess > 0){
+                    if($menuItemCreateAccess['total'] > 0 || $menuItemDeleteAccess['total'] > 0){
                       $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
                         
-                        if($menuItemDeleteAccess > 0){
+                        if($menuItemDeleteAccess['total'] > 0){
                           $action .= '<div class="btn-group m-r-10">
                                           <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                           <ul class="dropdown-menu dropdown-menu-end">
@@ -19,7 +19,7 @@
                                           </div>';
                         }
 
-                        if($menuItemCreateAccess > 0){
+                        if($menuItemCreateAccess['total'] > 0){
                           $action .= '<a href="menu-item.php?new" class="btn btn-success">Create</a>';
                         }
 

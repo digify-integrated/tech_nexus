@@ -197,7 +197,7 @@
             let system_action_id = [];
             const transaction = 'delete multiple system action';
 
-            $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
+            $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
                     system_action_id.push(element.value);
                 }
@@ -322,8 +322,7 @@
         $(document).on('click','#edit-form',function() {
             displayDetails('get system action details');
 
-            $('.form-details').addClass('d-none');
-            $('.form-edit').removeClass('d-none');
+            enableForm();
         });
 
         $(document).on('click','#duplicate-system-action',function() {

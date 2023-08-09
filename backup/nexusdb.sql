@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 08, 2023 at 11:31 AM
+-- Generation Time: Aug 09, 2023 at 11:38 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -25,6 +25,12 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `activateUserAccount` (IN `p_user_id` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET is_active = 1, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuGroup` (IN `p_user_id` INT)   BEGIN
     SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
     FROM menu_group mg
@@ -151,6 +157,12 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserIDExist` (IN `p_user_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM users
+    WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deactivateUserAccount` (IN `p_user_id` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET is_active = 0, last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
 END$$
 
@@ -628,6 +640,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` 
     SET p_user_account_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `lockUserAccount` (IN `p_user_id` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET is_locked = 1, account_lock_duration = CAST(4294967295 AS SIGNED), last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `unlockUserAccount` (IN `p_user_id` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET is_locked = 0, account_lock_duration = 0, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateAccountLock` (IN `p_user_id` INT, IN `p_is_locked` TINYINT(1), IN `p_account_lock_duration` INT)   BEGIN
 	UPDATE users 
     SET is_locked = p_is_locked, account_lock_duration = p_account_lock_duration 
@@ -973,7 +997,80 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (142, 'system_action_access_rights', 8, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-08 16:04:12'),
 (143, 'system_action_access_rights', 8, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-08 16:04:12'),
 (144, 'system_action_access_rights', 8, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 16:04:13'),
-(145, 'system_action_access_rights', 8, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 16:04:13');
+(145, 'system_action_access_rights', 8, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-08 16:04:13'),
+(146, 'users', 1, 'Last Connection Date: 2023-08-08 14:46:56 -> 2023-08-09 09:31:58<br/>', '1', '2023-08-09 09:31:58'),
+(147, 'system_action', 9, 'System action created. <br/><br/>System Action Name: Activate User Account', '1', '2023-08-09 09:54:03'),
+(148, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 09:54:09'),
+(149, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 09:54:09'),
+(150, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 09:54:11'),
+(151, 'system_action_access_rights', 9, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:11'),
+(152, 'system_action_access_rights', 9, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:11'),
+(153, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 09:54:11'),
+(154, 'system_action_access_rights', 9, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:11'),
+(155, 'system_action_access_rights', 9, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:11'),
+(156, 'system_action', 10, 'System action created. <br/><br/>System Action Name: Deactivate User Account', '1', '2023-08-09 09:54:19'),
+(157, 'system_action_access_rights', 10, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 09:54:23'),
+(158, 'system_action_access_rights', 10, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 09:54:23'),
+(159, 'system_action_access_rights', 10, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 09:54:24'),
+(160, 'system_action_access_rights', 10, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:24'),
+(161, 'system_action_access_rights', 10, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:24'),
+(162, 'system_action_access_rights', 10, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 09:54:25'),
+(163, 'system_action_access_rights', 10, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:25'),
+(164, 'system_action_access_rights', 10, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 09:54:25'),
+(165, 'users', 11, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 11:41:19'),
+(166, 'users', 3, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 11:41:19'),
+(167, 'users', 11, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 11:51:32'),
+(168, 'users', 3, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 11:51:35'),
+(169, 'system_action', 11, 'System action created. <br/><br/>System Action Name: Lock User Account', '1', '2023-08-09 11:51:55'),
+(170, 'system_action_access_rights', 11, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 11:51:59'),
+(171, 'system_action_access_rights', 11, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 11:51:59'),
+(172, 'system_action_access_rights', 11, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 11:52:00'),
+(173, 'system_action_access_rights', 11, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:00'),
+(174, 'system_action_access_rights', 11, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:00'),
+(175, 'system_action_access_rights', 11, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 11:52:01'),
+(176, 'system_action_access_rights', 11, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:01'),
+(177, 'system_action_access_rights', 11, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:01'),
+(178, 'system_action', 12, 'System action created. <br/><br/>System Action Name: Unlock User Account', '1', '2023-08-09 11:52:16'),
+(179, 'system_action_access_rights', 12, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 11:52:21'),
+(180, 'system_action_access_rights', 12, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 11:52:21'),
+(181, 'system_action_access_rights', 12, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-09 11:52:23'),
+(182, 'system_action_access_rights', 12, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:23'),
+(183, 'system_action_access_rights', 12, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:23'),
+(184, 'system_action_access_rights', 12, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-09 11:52:23'),
+(185, 'system_action_access_rights', 12, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:23'),
+(186, 'system_action_access_rights', 12, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-09 11:52:23'),
+(187, 'users', 11, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 11:54:48'),
+(188, 'users', 3, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 11:54:48'),
+(189, 'users', 11, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 11:55:28'),
+(190, 'users', 3, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 11:55:28'),
+(191, 'users', 11, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 12:38:34'),
+(192, 'users', 3, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 12:38:34'),
+(193, 'users', 11, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 12:38:40'),
+(194, 'users', 3, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 12:38:40'),
+(195, 'users', 2, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 13:25:29'),
+(196, 'users', 2, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 13:28:02'),
+(197, 'users', 11, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 13:28:02'),
+(198, 'users', 11, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-09 14:08:14'),
+(199, 'users', 3, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-09 14:26:33'),
+(200, 'users', 5, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-09 14:26:33'),
+(201, 'users', 11, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-09 14:26:41'),
+(202, 'users', 3, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-09 14:26:41'),
+(203, 'users', 5, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-09 14:26:41'),
+(204, 'users', 3, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:30:33'),
+(205, 'users', 5, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:30:33'),
+(206, 'users', 11, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 14:30:42'),
+(207, 'users', 3, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 14:30:42'),
+(208, 'users', 5, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 14:30:42'),
+(209, 'users', 11, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:39:39'),
+(210, 'users', 3, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:39:39'),
+(211, 'users', 5, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:39:39'),
+(212, 'users', 2, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 14:58:35'),
+(213, 'users', 2, 'Is Active: 0 -> 1<br/>', '1', '2023-08-09 14:58:39'),
+(214, 'users', 2, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-09 14:58:44'),
+(215, 'users', 2, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-09 14:58:51'),
+(216, 'users', 2, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 16:23:35'),
+(217, 'menu_item_access_right', 4, 'Role ID: 2<br/>Read Access: 1 -> 0<br/>', '1', '2023-08-09 17:00:52'),
+(218, 'menu_item_access_right', 4, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-09 17:00:53');
 
 -- --------------------------------------------------------
 
@@ -1373,7 +1470,11 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (5, 'Assign User Account To Role', 1),
 (6, 'Delete User Account To Role', 1),
 (7, 'Assign Role To User Account', 1),
-(8, 'Delete Role To User Account', 1);
+(8, 'Delete Role To User Account', 1),
+(9, 'Activate User Account', 1),
+(10, 'Deactivate User Account', 1),
+(11, 'Lock User Account', 1),
+(12, 'Unlock User Account', 1);
 
 --
 -- Triggers `system_action`
@@ -1441,7 +1542,23 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (7, 2, 1, 1),
 (7, 1, 1, 1),
 (8, 2, 1, 1),
-(8, 1, 1, 1);
+(8, 1, 1, 1),
+(9, 2, 1, 1),
+(9, 1, 1, 1),
+(9, 2, 1, 1),
+(9, 1, 1, 1),
+(10, 2, 1, 1),
+(10, 1, 1, 1),
+(10, 2, 1, 1),
+(10, 1, 1, 1),
+(11, 2, 1, 1),
+(11, 1, 1, 1),
+(11, 2, 1, 1),
+(11, 1, 1, 1),
+(12, 2, 1, 1),
+(12, 1, 1, 1),
+(12, 2, 1, 1),
+(12, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -1616,12 +1733,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-08 14:46:56', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '9b4194ac29018de6c72f2c7ea296eac3', 1),
-(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(3, 'nexus', 'nexus@encorefinancials.com', '', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(5, 'nexus', 'nexus@encorefinancials.com', 'SNw3zmoptw7Crqq57MEgBR4%2Br4zXEH%2FlpO01szQp5UU%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(6, 'nexus', 'nexus@encorefinancials.com', 'UTppiAz0%2F%2BI8%2FdILRRfAwlhFEOa4VA%2FvWH%2FxiYED3Pc%3D', NULL, 0, 0, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(11, 'lmicayas', 'lmicayas@encorefinancials.com', 'n%2FiSOjizvf%2FnF6tNHq1WTpi3HMh2qzq98ghQoPk3q20%3D', NULL, 0, 0, NULL, 0, NULL, '2023-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-09 09:31:58', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '5eee72dd240f05aa12c5149a232776b9', 1),
+(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 0, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(3, 'nexus', 'nexus@encorefinancials.com', '', NULL, 0, 1, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(5, 'nexus', 'nexus@encorefinancials.com', 'SNw3zmoptw7Crqq57MEgBR4%2Br4zXEH%2FlpO01szQp5UU%3D', NULL, 0, 1, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
+(11, 'lmicayas', 'lmicayas@encorefinancials.com', 'n%2FiSOjizvf%2FnF6tNHq1WTpi3HMh2qzq98ghQoPk3q20%3D', NULL, 0, 1, NULL, 0, NULL, '2023-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -1841,7 +1957,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1871,7 +1987,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

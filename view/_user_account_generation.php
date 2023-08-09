@@ -67,6 +67,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $email = $row['email'];
                     $isActive = $row['is_active'];
                     $isLocked = $row['is_locked'];
+                    $dataActivate = $isActive ? 0 : 1;
+                    $dataInactive = $isActive ? 1 : 0;
+                    $dataLock = $isLocked ? 0 : 1;
+                    $dataUnlock = $isLocked ? 1 :0;
                     $passwordExpiryDate = date('m/d/Y', strtotime($row['password_expiry_date']));
                     $profilePicture = ($row['profile_picture'] !== null) ? $row['profile_picture'] : DEFAULT_AVATAR_IMAGE;
                     $lastPasswordReset = ($row['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_password_reset'])) : 'Never Reset';
@@ -85,7 +89,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $userAccountID .'">',
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $userAccountID .'">',
                         'FILE_AS' => '<div class="row">
                                         <div class="col-auto pe-0">
                                         <img src="'. $profilePicture .'" alt="user-image" class="wid-40 rounded-circle">

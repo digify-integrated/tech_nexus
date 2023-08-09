@@ -208,6 +208,34 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
+CREATE PROCEDURE activateUserAccount(IN p_user_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET is_active = 1, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE deactivateUserAccount(IN p_user_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET is_active = 0, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE lockUserAccount(IN p_user_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET is_locked = 1, account_lock_duration = CAST(4294967295 AS SIGNED), last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
+CREATE PROCEDURE unlockUserAccount(IN p_user_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET is_locked = 0, account_lock_duration = 0, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE getUserByEmail(IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM users

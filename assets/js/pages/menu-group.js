@@ -167,7 +167,7 @@
             let menu_group_id = [];
             const transaction = 'delete multiple menu group';
 
-            $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
+            $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
                     menu_group_id.push(element.value);
                 }
@@ -292,8 +292,7 @@
         $(document).on('click','#edit-form',function() {
             displayDetails('get menu group details');
 
-            $('.form-details').addClass('d-none');
-            $('.form-edit').removeClass('d-none');
+            enableForm();
         });
 
         $(document).on('click','#duplicate-menu-group',function() {
@@ -427,15 +426,13 @@ function menuItemTable(datatable_name, buttons = false, show_all = false){
     const column = [ 
         { 'data' : 'MENU_ITEM_NAME' },
         { 'data' : 'PARENT_ID' },
-        { 'data' : 'ORDER_SEQUENCE' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '35%', 'aTargets': 0 },
-        { 'width': '35%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': '40%', 'aTargets': 0 },
+        { 'width': '40%', 'aTargets': 1 },
+        { 'width': '20%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

@@ -203,7 +203,7 @@
             let menu_item_id = [];
             const transaction = 'delete multiple menu item';
 
-            $('.datatable-checkbox-children[data-delete="1"]').each((index, element) => {
+            $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
                     menu_item_id.push(element.value);
                 }
@@ -328,8 +328,7 @@
         $(document).on('click','#edit-form',function() {
             displayDetails('get menu item details');
 
-            $('.form-details').addClass('d-none');
-            $('.form-edit').removeClass('d-none');
+            enableForm();
         });
 
         $(document).on('click','#duplicate-menu-item',function() {
@@ -474,14 +473,12 @@ function subMenuItemTable(datatable_name, buttons = false, show_all = false){
 
     const column = [ 
         { 'data' : 'MENU_ITEM_NAME' },
-        { 'data' : 'MENU_GROUP_ID' },
-        { 'data' : 'ORDER_SEQUENCE' }
+        { 'data' : 'MENU_GROUP_ID' }
     ];
 
     const column_definition = [
-        { 'width': '40%', 'aTargets': 0 },
-        { 'width': '40%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 }
+        { 'width': '50%', 'aTargets': 0 },
+        { 'width': '50%', 'aTargets': 1 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

@@ -578,6 +578,102 @@ class UserModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Activate methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: activateUserAccount
+    # Description: Activates the user account.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function activateUserAccount($p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL activateUserAccount(:p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Deactivate methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deactivateUserAccount
+    # Description: Deactivate the user account.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deactivateUserAccount($p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL deactivateUserAccount(:p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Lock methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: lockUserAccount
+    # Description: Locks the user account.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function lockUserAccount($p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL lockUserAccount(:p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Unlock methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: unlockUserAccount
+    # Description: Unlock the user account.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function unlockUserAccount($p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL unlockUserAccount(:p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
