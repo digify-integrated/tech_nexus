@@ -1578,3 +1578,235 @@ BEGIN
 	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id;
 END //
+
+CREATE TABLE file_type(
+	file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	file_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX file_type_index_file_type_id ON file_type(file_type_id);
+
+CREATE TRIGGER file_type_trigger_update
+AFTER UPDATE ON file_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.file_type_name <> OLD.file_type_name THEN
+        SET audit_log = CONCAT(audit_log, "File Type Name: ", OLD.file_type_name, " -> ", NEW.file_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER file_type_trigger_insert
+AFTER INSERT ON file_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System action created. <br/>';
+
+    IF NEW.file_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Type Name: ", NEW.file_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkFileTypeExist (IN p_file_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END //
+
+CREATE PROCEDURE insertFileType(IN p_file_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_file_type_id INT)
+BEGIN
+    INSERT INTO file_type (file_type_name, last_log_by) 
+	VALUES(p_file_type_name, p_last_log_by);
+	
+    SET p_file_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateFileType(IN p_file_type_id INT, IN p_file_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE file_type
+    SET file_type_name = p_file_type_name,
+    last_log_by = p_last_log_by
+    WHERE file_type_id = p_file_type_id;
+END //
+
+CREATE PROCEDURE deleteFileType(IN p_file_type_id INT)
+BEGIN
+	DELETE FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END //
+
+CREATE PROCEDURE getFileType(IN p_file_type_id INT)
+BEGIN
+	SELECT * FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END //
+
+CREATE PROCEDURE duplicateFileType(IN p_file_type_id INT, IN p_last_log_by INT, OUT p_new_file_type_id INT)
+BEGIN
+    DECLARE p_file_type_name VARCHAR(100);
+    
+    SELECT file_type_name 
+    INTO p_file_type_name
+    FROM file_type 
+    WHERE file_type_id = p_file_type_id;
+    
+    INSERT INTO file_type (file_type_name, last_log_by) 
+    VALUES(p_file_type_name, p_last_log_by);
+    
+    SET p_new_file_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateFileTypeTable()
+BEGIN
+	SELECT file_type_id, file_type_name 
+    FROM file_type
+    ORDER BY file_type_id;
+END //
+
+CREATE PROCEDURE generateFileTypeOptions()
+BEGIN
+	SELECT file_type_id, file_type_name FROM file_type
+	ORDER BY file_type_name;
+END //
+
+/* File extension table */
+CREATE TABLE file_extension(
+	file_extension_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	file_extension_name VARCHAR(100) NOT NULL,
+	file_type_id INT UNSIGNED NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX file_extension_index_file_extension_id ON file_extension(file_extension_id);
+
+ALTER TABLE file_extension
+ADD FOREIGN KEY (file_type_id) REFERENCES file_type(file_type_id);
+
+CREATE TRIGGER file_extension_trigger_update
+AFTER UPDATE ON file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.file_extension_name <> OLD.file_extension_name THEN
+        SET audit_log = CONCAT(audit_log, "File Exension Name: ", OLD.file_extension_name, " -> ", NEW.file_extension_name, "<br/>");
+    END IF;
+
+    IF NEW.file_type_id <> OLD.file_type_id THEN
+        SET audit_log = CONCAT(audit_log, "File Type ID: ", OLD.file_type_id, " -> ", NEW.file_type_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER file_extension_trigger_insert
+AFTER INSERT ON file_extension
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'File extension created. <br/>';
+
+    IF NEW.file_extension_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Exension Name: ", NEW.file_extension_name);
+    END IF;
+
+    IF NEW.file_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Type ID: ", NEW.file_type_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkFileExtensionExist(IN p_file_extension_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+END //
+
+CREATE PROCEDURE insertFileExtension(IN p_file_extension_name VARCHAR(100), IN p_file_type_id INT, IN p_last_log_by INT, OUT p_file_extension_id INT)
+BEGIN
+    INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) 
+	VALUES(p_file_extension_name, p_file_type_id, p_last_log_by);
+	
+    SET p_file_extension_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateFileExtension(IN p_file_extension_id INT, IN p_file_extension_name VARCHAR(100), IN p_file_type_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE file_extension
+    SET file_extension_name = p_file_extension_name,
+    file_type_id = p_file_type_id,
+    last_log_by = p_last_log_by
+    WHERE file_extension_id = p_file_extension_id;
+END //
+
+CREATE PROCEDURE deleteFileExtension(IN p_file_extension_id INT)
+BEGIN
+	DELETE FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+END //
+
+CREATE PROCEDURE deleteLinkedFileExtension(IN p_file_type_id INT)
+BEGIN
+	DELETE FROM file_extension
+    WHERE file_type_id = p_file_type_id;
+END //
+
+CREATE PROCEDURE getFileExtension(IN p_file_extension_id INT)
+BEGIN
+	SELECT * FROM file_extension
+	WHERE file_extension_id = p_file_extension_id;
+END //
+
+CREATE PROCEDURE duplicateFileExtension(IN p_file_extension_id INT, IN p_last_log_by INT, OUT p_new_file_extension_id INT)
+BEGIN
+    DECLARE p_file_extension_name VARCHAR(100);
+    DECLARE p_file_type_id INT;
+    DECLARE p_order_sequence TINYINT(10);
+    
+    SELECT file_extension_name, file_type_id 
+    INTO p_file_extension_name, p_file_type_id
+    FROM file_extension 
+    WHERE file_extension_id = p_file_extension_id;
+    
+    INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) 
+    VALUES(p_file_extension_name, p_file_type_id, p_last_log_by);
+    
+    SET p_new_file_extension_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateFileExtensionOptions()
+BEGIN
+	SELECT file_extension_id, file_extension_name FROM file_extension
+	ORDER BY file_extension_name;
+END //
+
+CREATE PROCEDURE generateFileExtensionTable()
+BEGIN
+	SELECT file_extension_id, file_extension_name, file_type_id 
+    FROM file_extension
+    ORDER BY file_extension_id;
+END //
+
+CREATE PROCEDURE generateFileTypeFileExensionTable(IN p_file_type_id INT)
+BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_type_id = p_file_type_id 
+    ORDER BY file_extension_id;
+END //

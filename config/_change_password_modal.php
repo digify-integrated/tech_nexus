@@ -10,15 +10,15 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label class="form-label">Old Password</label>
+                                    <label class="form-label">Old Password <span class="text-danger">*</span></label>
                                     <input type="password" class="form-control" id="shortcut_old_password" name="shortcut_old_password">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">New Password</label>
+                                    <label class="form-label">New Password <span class="text-danger">*</span></label>
                                     <input type="password" class="form-control" id="shortcut_new_password" name="shortcut_new_password">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Confirm Password</label>
+                                    <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
                                     <input type="password" class="form-control" id="shortcut_confirm_password" name="shortcut_confirm_password">
                                 </div>
                             </div>

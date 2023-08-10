@@ -117,6 +117,9 @@ class UserController {
                 case 'change password shortcut':
                     $this->updatePasswordShortcut();
                     break;
+                case 'change user account password':
+                    $this->updateUserAccountPassword();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -1339,6 +1342,58 @@ class UserController {
 
         $this->userModel->updateUserPassword($userID, $email, $encryptedPassword, $passwordExpiryDate, $lastPasswordChange);
         $this->userModel->insertPasswordHistory($userID, $email, $encryptedPassword, $lastPasswordChange);
+    
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateUserAccountPassword
+    # Description: 
+    # Handles the update of the password.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateUserAccountPassword() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        $newPassword = htmlspecialchars($_POST['new_password'], ENT_QUOTES, 'UTF-8');
+        $encryptedPassword = $this->securityModel->encryptData($newPassword);
+    
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+        $userPassword = $this->securityModel->decryptData($user['password']);
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $userAccount = $this->userModel->getUserByID($userAccountID);
+        $email = $userAccount['email'] ?? null;
+    
+        $checkPasswordHistory = $this->checkPasswordHistory($userAccountID, $email, $newPassword);
+    
+        if ($checkPasswordHistory > 0) {
+            echo json_encode(['success' => false, 'message' => 'The new password must not match the previous password. Please choose a different password.']);
+            exit;
+        }
+    
+        $lastPasswordChange = date('Y-m-d H:i:s');
+        $passwordExpiryDate = date('Y-m-d', strtotime('+6 months'));
+
+        $this->userModel->updateUserPassword($userAccountID, $email, $encryptedPassword, $passwordExpiryDate, $lastPasswordChange);
+        $this->userModel->insertPasswordHistory($userAccountID, $email, $encryptedPassword, $lastPasswordChange);
     
         echo json_encode(['success' => true]);
         exit;

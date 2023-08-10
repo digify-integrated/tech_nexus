@@ -760,6 +760,19 @@
             });
         });
 
+        $(document).on('click','#change-user-account-password',function() {
+            const user_account_id = $(this).data('user-account-id');
+
+            sessionStorage.setItem('user_account_id', user_account_id);
+
+            $('#change-user-account-password-modal').modal('show');
+            resetModalForm('change-user-account-password-form');
+        });
+
+        if($('#change-user-account-password-modal').length){
+            changePasswordForm();
+        }
+
         $(document).on('click','#discard-create',function() {
             discardCreate('user-account.php');
         });
@@ -1172,6 +1185,98 @@ function addUserAccountRoleForm(){
             });
             return false;
         }
+    });
+}
+
+function changePasswordForm(){
+    $('#change-user-account-password-form').validate({
+        rules: {
+            new_password: {
+              required: true,
+              password_strength: true
+            },
+            confirm_password: {
+              required: true,
+              equalTo: '#new_password'
+            }
+        },
+        messages: {
+            new_password: {
+              required: 'Please enter your new password'
+            },
+            confirm_password: {
+              required: 'Please re-enter your password for confirmation',
+              equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
+            }
+        },
+      errorPlacement: function (error, element) {
+        if (element.hasClass('select2')) {
+          error.insertAfter(element.next('.select2-container'));
+        }
+        else if (element.parent('.input-group').length) {
+          error.insertAfter(element.parent());
+        }
+        else {
+          error.insertAfter(element);
+        }
+      },
+      highlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        } 
+        else {
+          $(element).addClass('is-invalid');
+        }
+      },
+      unhighlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+        }
+        else {
+          $(element).removeClass('is-invalid');
+        }
+      },
+      submitHandler: function(form) {
+        const transaction = 'change user account password';
+        const user_account_id = $('#user-account-id').text();
+  
+        $.ajax({
+            type: 'POST',
+            url: 'controller/user-controller.php',
+            data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + user_account_id,
+            dataType: 'json',
+            beforeSend: function() {
+                disableFormSubmitButton('submit-change-user-account-password-form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    showNotification('Password Change Success', 'The password has been successfully updated.', 'success');
+                    $('#change-user-account-password-modal').modal('hide');
+                    resetModalForm('change-user-account-password-form');
+                }
+                else{
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else{
+                        showNotification('Password Change Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+            complete: function() {
+                enableFormSubmitButton('submit-change-user-account-password-form', 'Update Password');
+            }
+        });
+  
+        return false;
+      }
     });
 }
 

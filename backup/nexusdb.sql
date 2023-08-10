@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 09, 2023 at 11:38 AM
+-- Generation Time: Aug 10, 2023 at 11:30 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -56,6 +56,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT,
     INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
     WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
     ORDER BY mi.order_sequence;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileExtensionExist` (IN `p_file_extension_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileTypeExist` (IN `p_file_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM file_type
+    WHERE file_type_id = p_file_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuGroupExist` (IN `p_menu_group_id` INT)   BEGIN
@@ -176,6 +188,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllSystemActionRoleAccess` (I
     WHERE system_action_id = p_system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileExtension` (IN `p_file_extension_id` INT)   BEGIN
+	DELETE FROM file_extension
+    WHERE file_extension_id = p_file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileType` (IN `p_file_type_id` INT)   BEGIN
+	DELETE FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedFileExtension` (IN `p_file_type_id` INT)   BEGIN
+	DELETE FROM file_extension
+    WHERE file_type_id = p_file_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItem` (IN `p_menu_group_id` INT)   BEGIN
     DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
 END$$
@@ -218,6 +245,36 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` INT)   BEGIN
 	DELETE FROM users
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileExtension` (IN `p_file_extension_id` INT, IN `p_last_log_by` INT, OUT `p_new_file_extension_id` INT)   BEGIN
+    DECLARE p_file_extension_name VARCHAR(100);
+    DECLARE p_file_type_id INT;
+    DECLARE p_order_sequence TINYINT(10);
+    
+    SELECT file_extension_name, file_type_id 
+    INTO p_file_extension_name, p_file_type_id
+    FROM file_extension 
+    WHERE file_extension_id = p_file_extension_id;
+    
+    INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) 
+    VALUES(p_file_extension_name, p_file_type_id, p_last_log_by);
+    
+    SET p_new_file_extension_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileType` (IN `p_file_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_file_type_id` INT)   BEGIN
+    DECLARE p_file_type_name VARCHAR(100);
+    
+    SELECT file_type_name 
+    INTO p_file_type_name
+    FROM file_type 
+    WHERE file_type_id = p_file_type_id;
+    
+    INSERT INTO file_type (file_type_name, last_log_by) 
+    VALUES(p_file_type_name, p_last_log_by);
+    
+    SET p_new_file_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -330,6 +387,35 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (I
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
     ORDER BY role_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileExtensionOptions` ()   BEGIN
+	SELECT file_extension_id, file_extension_name FROM file_extension
+	ORDER BY file_extension_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileExtensionTable` ()   BEGIN
+	SELECT file_extension_id, file_extension_name, file_type_id 
+    FROM file_extension
+    ORDER BY file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileTypeFileExensionTable` (IN `p_file_type_id` INT)   BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_type_id = p_file_type_id 
+    ORDER BY file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileTypeOptions` ()   BEGIN
+	SELECT file_type_id, file_type_name FROM file_type
+	ORDER BY file_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileTypeTable` ()   BEGIN
+	SELECT file_type_id, file_type_name 
+    FROM file_type
+    ORDER BY file_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
@@ -506,6 +592,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is
     DEALLOCATE PREPARE stmt;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileExtension` (IN `p_file_extension_id` INT)   BEGIN
+	SELECT * FROM file_extension
+	WHERE file_extension_id = p_file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileType` (IN `p_file_type_id` INT)   BEGIN
+	SELECT * FROM file_type
+    WHERE file_type_id = p_file_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
@@ -561,6 +657,20 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserByRememberToken` (IN `p_remember_token` VARCHAR(255))   BEGIN
 	SELECT * FROM users
 	WHERE remember_token = p_remember_token;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileExtension` (IN `p_file_extension_name` VARCHAR(100), IN `p_file_type_id` INT, IN `p_last_log_by` INT, OUT `p_file_extension_id` INT)   BEGIN
+    INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) 
+	VALUES(p_file_extension_name, p_file_type_id, p_last_log_by);
+	
+    SET p_file_extension_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileType` (IN `p_file_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_file_type_id` INT)   BEGIN
+    INSERT INTO file_type (file_type_name, last_log_by) 
+	VALUES(p_file_type_name, p_last_log_by);
+	
+    SET p_file_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuGroup` (IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT, OUT `p_menu_group_id` INT)   BEGIN
@@ -662,6 +772,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFailedOTPAttempts` (IN `p_use
 	UPDATE users 
     SET failed_otp_attempts = p_failed_otp_attempts
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFileExtension` (IN `p_file_extension_id` INT, IN `p_file_extension_name` VARCHAR(100), IN `p_file_type_id` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE file_extension
+    SET file_extension_name = p_file_extension_name,
+    file_type_id = p_file_type_id,
+    last_log_by = p_last_log_by
+    WHERE file_extension_id = p_file_extension_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFileType` (IN `p_file_type_id` INT, IN `p_file_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE file_type
+    SET file_type_name = p_file_type_name,
+    last_log_by = p_last_log_by
+    WHERE file_type_id = p_file_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLastConnection` (IN `p_user_id` INT, IN `p_last_connection_date` DATETIME)   BEGIN
@@ -1070,7 +1195,210 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (215, 'users', 2, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-09 14:58:51'),
 (216, 'users', 2, 'Is Active: 1 -> 0<br/>', '1', '2023-08-09 16:23:35'),
 (217, 'menu_item_access_right', 4, 'Role ID: 2<br/>Read Access: 1 -> 0<br/>', '1', '2023-08-09 17:00:52'),
-(218, 'menu_item_access_right', 4, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-09 17:00:53');
+(218, 'menu_item_access_right', 4, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-09 17:00:53'),
+(219, 'system_action', 13, 'System action created. <br/><br/>System Action Name: Change User Account Password', '1', '2023-08-10 09:42:02'),
+(220, 'system_action_access_rights', 13, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 09:42:08'),
+(221, 'system_action_access_rights', 13, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 09:42:08'),
+(222, 'system_action_access_rights', 13, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 09:42:09'),
+(223, 'system_action_access_rights', 13, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 09:42:09'),
+(224, 'system_action_access_rights', 13, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 09:42:09'),
+(225, 'system_action_access_rights', 13, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 09:42:10'),
+(226, 'system_action_access_rights', 13, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 09:42:10'),
+(227, 'system_action_access_rights', 13, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 09:42:10'),
+(228, 'users', 1, 'Last Connection Date: 2023-08-09 09:31:58 -> 2023-08-10 11:12:12<br/>', '1', '2023-08-10 11:12:12'),
+(229, 'users', 1, 'Password Expiry Date: 2023-12-30 -> 2024-02-10<br/>', '1', '2023-08-10 11:12:24'),
+(230, 'users', 2, 'Password Expiry Date: 2023-12-30 -> 2024-02-10<br/>', '1', '2023-08-10 11:12:24'),
+(231, 'users', 3, 'Password Expiry Date: 0000-00-00 -> 2024-02-10<br/>', '1', '2023-08-10 11:12:24'),
+(232, 'users', 5, 'Password Expiry Date: 0000-00-00 -> 2024-02-10<br/>', '1', '2023-08-10 11:12:24'),
+(233, 'users', 11, 'Password Expiry Date: 2023-02-07 -> 2024-02-10<br/>', '1', '2023-08-10 11:12:24'),
+(234, 'users', 1, 'Last Password Change: 2023-08-10 11:12:24 -> 2023-08-10 11:13:10<br/>', '1', '2023-08-10 11:13:10'),
+(235, 'users', 2, 'Last Password Change: 2023-08-10 11:12:24 -> 2023-08-10 11:13:10<br/>', '1', '2023-08-10 11:13:10'),
+(236, 'users', 3, 'Last Password Change: 2023-08-10 11:12:24 -> 2023-08-10 11:13:10<br/>', '1', '2023-08-10 11:13:10'),
+(237, 'users', 5, 'Last Password Change: 2023-08-10 11:12:24 -> 2023-08-10 11:13:10<br/>', '1', '2023-08-10 11:13:10'),
+(238, 'users', 11, 'Last Password Change: 2023-08-10 11:12:24 -> 2023-08-10 11:13:10<br/>', '1', '2023-08-10 11:13:10'),
+(239, 'users', 1, 'Last Password Change: 2023-08-10 11:13:10 -> 2023-08-10 11:13:31<br/>', '1', '2023-08-10 11:13:31'),
+(240, 'users', 2, 'Last Password Change: 2023-08-10 11:13:10 -> 2023-08-10 11:13:31<br/>', '1', '2023-08-10 11:13:31'),
+(241, 'users', 3, 'Last Password Change: 2023-08-10 11:13:10 -> 2023-08-10 11:13:31<br/>', '1', '2023-08-10 11:13:31'),
+(242, 'users', 5, 'Last Password Change: 2023-08-10 11:13:10 -> 2023-08-10 11:13:31<br/>', '1', '2023-08-10 11:13:31'),
+(243, 'users', 11, 'Last Password Change: 2023-08-10 11:13:10 -> 2023-08-10 11:13:31<br/>', '1', '2023-08-10 11:13:31'),
+(244, 'users', 1, 'Last Password Change: 2023-08-10 11:13:31 -> 2023-08-10 11:14:51<br/>', '1', '2023-08-10 11:14:51'),
+(245, 'users', 2, 'Last Password Change: 2023-08-10 11:13:31 -> 2023-08-10 11:14:51<br/>', '1', '2023-08-10 11:14:51'),
+(246, 'users', 3, 'Last Password Change: 2023-08-10 11:13:31 -> 2023-08-10 11:14:51<br/>', '1', '2023-08-10 11:14:51'),
+(247, 'users', 5, 'Last Password Change: 2023-08-10 11:13:31 -> 2023-08-10 11:14:51<br/>', '1', '2023-08-10 11:14:51'),
+(248, 'users', 11, 'Last Password Change: 2023-08-10 11:13:31 -> 2023-08-10 11:14:51<br/>', '1', '2023-08-10 11:14:51'),
+(249, 'system_action', 14, 'System action created. <br/><br/>System Action Name: Change User Account Profile Picture', '1', '2023-08-10 11:19:16'),
+(250, 'system_action_access_rights', 14, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 11:19:20'),
+(251, 'system_action_access_rights', 14, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 11:19:20'),
+(252, 'system_action_access_rights', 14, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 11:19:21'),
+(253, 'system_action_access_rights', 14, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 11:19:21'),
+(254, 'system_action_access_rights', 14, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 11:19:21'),
+(255, 'system_action_access_rights', 14, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 11:19:21'),
+(256, 'system_action_access_rights', 14, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 11:19:21'),
+(257, 'system_action_access_rights', 14, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-10 11:19:21'),
+(258, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 1<br/>Menu Item Icon: settings<br/>Order Sequence: 30', '1', '2023-08-10 11:26:43'),
+(259, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 11:26:52'),
+(260, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 11:26:52'),
+(261, 'menu_item_access_right', 9, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:26:53'),
+(262, 'menu_item_access_right', 9, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:26:54'),
+(263, 'menu_item_access_right', 9, 'Role ID: 2<br/>Read Access: 1 -> 0<br/>', '1', '2023-08-10 11:27:28'),
+(264, 'menu_item_access_right', 9, 'Role ID: 1<br/>Read Access: 1 -> 0<br/>', '1', '2023-08-10 11:27:29'),
+(265, 'menu_item_access_right', 9, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:27:32'),
+(266, 'menu_item_access_right', 9, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:27:33'),
+(267, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 1<br/>URL: file-type.php<br/>Parent ID: 9<br/>Order Sequence: 30', '1', '2023-08-10 11:28:02'),
+(268, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 11:28:07'),
+(269, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 11:28:07'),
+(270, 'menu_item_access_right', 10, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:08'),
+(271, 'menu_item_access_right', 10, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:10'),
+(272, 'menu_item_access_right', 10, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:11'),
+(273, 'menu_item_access_right', 10, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:11'),
+(274, 'menu_item_access_right', 10, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:12'),
+(275, 'menu_item_access_right', 10, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:12'),
+(276, 'menu_item_access_right', 10, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:12'),
+(277, 'menu_item_access_right', 10, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:13'),
+(278, 'menu_item_access_right', 10, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:14'),
+(279, 'menu_item_access_right', 10, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:14'),
+(280, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 1<br/>URL: file-extension.php<br/>Parent ID: 9<br/>Order Sequence: 31', '1', '2023-08-10 11:28:49'),
+(281, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-10 11:28:55'),
+(282, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-10 11:28:55'),
+(283, 'menu_item_access_right', 11, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:56'),
+(284, 'menu_item_access_right', 11, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:57'),
+(285, 'menu_item_access_right', 11, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:57'),
+(286, 'menu_item_access_right', 11, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:58'),
+(287, 'menu_item_access_right', 11, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:58'),
+(288, 'menu_item_access_right', 11, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-10 11:28:59'),
+(289, 'menu_item_access_right', 11, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-10 11:29:03'),
+(290, 'menu_item_access_right', 11, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-10 11:29:03'),
+(291, 'menu_item_access_right', 11, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-10 11:29:04'),
+(292, 'menu_item_access_right', 11, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-10 11:29:04'),
+(293, 'file_type', 1, 'System action created. <br/><br/>File Type Name: test', '1', '2023-08-10 14:18:28'),
+(294, 'file_type', 1, 'File Type Name: test -> test2<br/>', '1', '2023-08-10 14:18:34'),
+(295, 'file_type', 2, 'System action created. <br/><br/>File Type Name: test', '1', '2023-08-10 14:18:43'),
+(296, 'file_type', 3, 'System action created. <br/><br/>File Type Name: test', '1', '2023-08-10 14:18:46'),
+(297, 'file_type', 4, 'System action created. <br/><br/>File Type Name: test', '1', '2023-08-10 14:18:50'),
+(298, 'file_extension', 1, 'File extension created. <br/><br/>File Exension Name: test<br/>File Type ID: 2', '1', '2023-08-10 16:35:57'),
+(299, 'file_extension', 2, 'File extension created. <br/><br/>File Exension Name: asd<br/>File Type ID: 2', '1', '2023-08-10 16:36:59'),
+(300, 'file_extension', 2, 'File Exension Name: asd -> asd2<br/>', '1', '2023-08-10 16:38:23'),
+(301, 'file_extension', 3, 'File extension created. <br/><br/>File Exension Name: test<br/>File Type ID: 2', '1', '2023-08-10 16:40:29'),
+(302, 'file_extension', 4, 'File extension created. <br/><br/>File Exension Name: test<br/>File Type ID: 2', '1', '2023-08-10 16:40:33'),
+(303, 'file_type', 2, 'File Type Name: test -> test2<br/>', '1', '2023-08-10 16:40:49'),
+(304, 'file_type', 5, 'System action created. <br/><br/>File Type Name: test', '1', '2023-08-10 17:19:15'),
+(305, 'file_extension', 5, 'File extension created. <br/><br/>File Type ID: 5', '1', '2023-08-10 17:25:43'),
+(306, 'file_extension', 6, 'File extension created. <br/><br/>File Exension Name: test<br/>File Type ID: 5', '1', '2023-08-10 17:26:18'),
+(307, 'file_extension', 6, 'File Exension Name: test -> test2<br/>', '1', '2023-08-10 17:28:59'),
+(308, 'file_extension', 6, 'File Exension Name: test2 -> test23<br/>', '1', '2023-08-10 17:29:35'),
+(309, 'file_extension', 7, 'File extension created. <br/><br/>File Exension Name: test23<br/>File Type ID: 5', '1', '2023-08-10 17:29:38'),
+(310, 'file_extension', 8, 'File extension created. <br/><br/>File Exension Name: test23<br/>File Type ID: 5', '1', '2023-08-10 17:29:41');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `file_extension`
+--
+
+CREATE TABLE `file_extension` (
+  `file_extension_id` int(10) UNSIGNED NOT NULL,
+  `file_extension_name` varchar(100) NOT NULL,
+  `file_type_id` int(10) UNSIGNED NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `file_extension`
+--
+
+INSERT INTO `file_extension` (`file_extension_id`, `file_extension_name`, `file_type_id`, `last_log_by`) VALUES
+(6, 'test23', 5, 1);
+
+--
+-- Triggers `file_extension`
+--
+DELIMITER $$
+CREATE TRIGGER `file_extension_trigger_insert` AFTER INSERT ON `file_extension` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'File extension created. <br/>';
+
+    IF NEW.file_extension_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Exension Name: ", NEW.file_extension_name);
+    END IF;
+
+    IF NEW.file_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Type ID: ", NEW.file_type_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `file_extension_trigger_update` AFTER UPDATE ON `file_extension` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.file_extension_name <> OLD.file_extension_name THEN
+        SET audit_log = CONCAT(audit_log, "File Exension Name: ", OLD.file_extension_name, " -> ", NEW.file_extension_name, "<br/>");
+    END IF;
+
+    IF NEW.file_type_id <> OLD.file_type_id THEN
+        SET audit_log = CONCAT(audit_log, "File Type ID: ", OLD.file_type_id, " -> ", NEW.file_type_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_extension', NEW.file_extension_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `file_type`
+--
+
+CREATE TABLE `file_type` (
+  `file_type_id` int(10) UNSIGNED NOT NULL,
+  `file_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `file_type`
+--
+
+INSERT INTO `file_type` (`file_type_id`, `file_type_name`, `last_log_by`) VALUES
+(5, 'test', 1);
+
+--
+-- Triggers `file_type`
+--
+DELIMITER $$
+CREATE TRIGGER `file_type_trigger_insert` AFTER INSERT ON `file_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System action created. <br/>';
+
+    IF NEW.file_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File Type Name: ", NEW.file_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `file_type_trigger_update` AFTER UPDATE ON `file_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.file_type_name <> OLD.file_type_name THEN
+        SET audit_log = CONCAT(audit_log, "File Type Name: ", OLD.file_type_name, " -> ", NEW.file_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -1161,7 +1489,10 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (5, 'System Action', 1, 'system-action.php', 4, '', 15, 1),
 (6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 1),
 (7, 'Role', 1, 'role.php', 4, '', 9, 1),
-(8, 'User Account', 1, 'user-account.php', 4, '', 1, 1);
+(8, 'User Account', 1, 'user-account.php', 4, '', 1, 1),
+(9, 'Configurations', 1, '', 0, 'settings', 30, 1),
+(10, 'File Type', 1, 'file-type.php', 9, '', 30, 1),
+(11, 'File Extension', 1, 'file-extension.php', 9, '', 31, 1);
 
 --
 -- Triggers `menu_item`
@@ -1268,7 +1599,13 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (7, 2, 1, 1, 0, 0, 0, 1),
 (7, 1, 1, 1, 0, 0, 0, 1),
 (8, 2, 1, 0, 0, 0, 0, 1),
-(8, 1, 1, 0, 0, 0, 0, 1);
+(8, 1, 1, 0, 0, 0, 0, 1),
+(9, 2, 1, 0, 0, 0, 0, 1),
+(9, 1, 1, 0, 0, 0, 0, 1),
+(10, 2, 1, 1, 1, 1, 1, 1),
+(10, 1, 1, 1, 1, 1, 1, 1),
+(11, 2, 1, 1, 1, 1, 1, 1),
+(11, 1, 1, 1, 1, 1, 1, 1);
 
 --
 -- Triggers `menu_item_access_right`
@@ -1353,6 +1690,16 @@ CREATE TABLE `password_history` (
   `password` varchar(255) NOT NULL,
   `password_change_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_history`
+--
+
+INSERT INTO `password_history` (`password_history_id`, `user_id`, `email`, `password`, `password_change_date`) VALUES
+(1, 2, 'employee@encorefinancials.com', 'TwvtsBBj6DHkWLAr3yOMeL%2B%2FPdCKAEp5DQpdUOtWLoA%3D', '2023-08-10 11:12:24'),
+(2, 2, 'employee@encorefinancials.com', '864einW5rTEao3ga%2FXAVG7wHgS90xUCiUfJ6jSuF8hg%3D', '2023-08-10 11:13:10'),
+(3, 2, 'employee@encorefinancials.com', '0x6I8%2Fe6gozYOD7Ji0pmG1LqnFCV9BtsLq9j9%2FOshV0%3D', '2023-08-10 11:13:31'),
+(4, 2, 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', '2023-08-10 11:14:51');
 
 -- --------------------------------------------------------
 
@@ -1474,7 +1821,9 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (9, 'Activate User Account', 1),
 (10, 'Deactivate User Account', 1),
 (11, 'Lock User Account', 1),
-(12, 'Unlock User Account', 1);
+(12, 'Unlock User Account', 1),
+(13, 'Change User Account Password', 1),
+(14, 'Change User Account Profile Picture', 1);
 
 --
 -- Triggers `system_action`
@@ -1558,7 +1907,15 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (12, 2, 1, 1),
 (12, 1, 1, 1),
 (12, 2, 1, 1),
-(12, 1, 1, 1);
+(12, 1, 1, 1),
+(13, 2, 1, 1),
+(13, 1, 1, 1),
+(13, 2, 1, 1),
+(13, 1, 1, 1),
+(14, 2, 1, 1),
+(14, 1, 1, 1),
+(14, 2, 1, 1),
+(14, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -1733,11 +2090,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-09 09:31:58', '2023-12-30', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, NULL, 0, NULL, 0, '5eee72dd240f05aa12c5149a232776b9', 1),
-(2, 'Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 0, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 1, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(3, 'nexus', 'nexus@encorefinancials.com', '', NULL, 0, 1, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(5, 'nexus', 'nexus@encorefinancials.com', 'SNw3zmoptw7Crqq57MEgBR4%2Br4zXEH%2FlpO01szQp5UU%3D', NULL, 0, 1, NULL, 0, NULL, '0000-00-00', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1),
-(11, 'lmicayas', 'lmicayas@encorefinancials.com', 'n%2FiSOjizvf%2FnF6tNHq1WTpi3HMh2qzq98ghQoPk3q20%3D', NULL, 0, 1, NULL, 0, NULL, '2023-02-07', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, '2023-08-10 11:12:12', '2024-02-10', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
+(2, 'Employee', 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 1, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
+(3, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
+(5, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
+(11, 'lmicayas', 'lmicayas@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -1889,6 +2246,21 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
+-- Indexes for table `file_extension`
+--
+ALTER TABLE `file_extension`
+  ADD PRIMARY KEY (`file_extension_id`),
+  ADD KEY `file_extension_index_file_extension_id` (`file_extension_id`),
+  ADD KEY `file_type_id` (`file_type_id`);
+
+--
+-- Indexes for table `file_type`
+--
+ALTER TABLE `file_type`
+  ADD PRIMARY KEY (`file_type_id`),
+  ADD KEY `file_type_index_file_type_id` (`file_type_id`);
+
+--
 -- Indexes for table `menu_group`
 --
 ALTER TABLE `menu_group`
@@ -1957,7 +2329,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=311;
+
+--
+-- AUTO_INCREMENT for table `file_extension`
+--
+ALTER TABLE `file_extension`
+  MODIFY `file_extension_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `file_type`
+--
+ALTER TABLE `file_type`
+  MODIFY `file_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -1969,13 +2353,13 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `password_history`
 --
 ALTER TABLE `password_history`
-  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -1987,7 +2371,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -2004,6 +2388,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `file_extension`
+--
+ALTER TABLE `file_extension`
+  ADD CONSTRAINT `file_extension_ibfk_1` FOREIGN KEY (`file_type_id`) REFERENCES `file_type` (`file_type_id`);
 
 --
 -- Constraints for table `menu_item`

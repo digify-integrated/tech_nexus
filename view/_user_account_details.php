@@ -15,6 +15,14 @@
                                   </button>
                                   <ul class="dropdown-menu dropdown-menu-end">';
                             
+                            if ($changeUserAccountPassword['total'] > 0) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="change-user-account-password">Change Password</button></li>';
+                            }
+                            
+                            if ($changeUserAccountProfilePicture['total'] > 0) {
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="change-user-account-profile-picture">Change Profile Picture</button></li>';
+                            }
+                            
                             if ($activateUserAccount['total'] > 0 && !$isActive) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-user-account-id="' . $userAccountID . '" id="activate-user-account-details">Activate User Account</button></li>';
                             }
@@ -212,7 +220,7 @@
                             </div>
                           </div>';
 
-                          if($assignRoleToUserAccount['total'] > 0){
+                        if($assignRoleToUserAccount['total'] > 0){
                             echo '<div id="add-user-account-role-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-user-account-role-modal-title" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                                         <div class="modal-content">
@@ -244,6 +252,54 @@
                                         </div>
                                     </div>
                                     </div>';
+                        }
+
+                        if($changeUserAccountPassword['total'] > 0){
+                          echo '<div id="change-user-account-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="system-error-title" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+                                      <div class="modal-content">
+                                          <div class="modal-header">
+                                              <h5 class="modal-title" id="system-error-title">Change Password</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                              <form id="change-user-account-password-form" method="post" action="#">
+                                                  <div class="row">
+                                                      <div class="col-sm-6">
+                                                          <div class="form-group">
+                                                              <label class="form-label">New Password <span class="text-danger">*</span></label>
+                                                              <input type="password" class="form-control" id="new_password" name="new_password">
+                                                          </div>
+                                                          <div class="form-group">
+                                                              <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                                              <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-sm-6">
+                                                      <h5>New password must contain:</h5>
+                                                      <ul class="list-group list-group-flush">
+                                                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 8
+                                                          characters</li>
+                                                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1
+                                                          lower letter (a-z)</li>
+                                                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1
+                                                          uppercase letter(A-Z)</li>
+                                                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1
+                                                          number (0-9)</li>
+                                                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1
+                                                          special characters</li>
+                                                      </ul>
+                                                      </div>
+                                                  </div>
+                                              </form>
+                                          </div>
+                                          <div class="modal-footer">
+                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                              <button type="submit" class="btn btn-primary" id="submit-change-user-account-password-form" form="change-user-account-password-form">Update Password</button>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>';
                         }
                   }
                 ?>

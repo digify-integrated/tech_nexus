@@ -10,14 +10,10 @@
                     <?php                            
                        if (!empty($roleID)) {
                           $dropdown = '<div class="btn-group m-r-5">
-                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
                                       Action
                                   </button>
                                   <ul class="dropdown-menu dropdown-menu-end">';
-                          
-                            if ($roleCreateAccess['total'] > 0) {
-                                $dropdown .= '<li><a class="dropdown-item" href="role-configuration.php?new">Create Role</a></li>';
-                            }
                             
                             if ($roleDuplicateAccess['total'] > 0) {
                                 $dropdown .= '<li><button class="dropdown-item" type="button" data-role-id="' . $roleID . '" id="duplicate-role">Duplicate Role</button></li>';
@@ -37,7 +33,11 @@
                         echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                               <button type="submit" form="role-configuration-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                               <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
-                      }          
+                      }
+
+                      if (!empty($roleID) && $roleCreateAccess['total'] > 0) {
+                        echo '<a class="btn btn-success m-r-5 form-details" href="role-configuration.php?new">Create</a>';
+                      }
                     ?>
                   </div>
                 </div>

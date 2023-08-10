@@ -82,8 +82,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'MENU_ITEM_NAME' => '<a href="menu-item-form.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
-                        'PARENT_ID' => '<a href="menu-item-form.php?id='. $parentIDEncrypted .'">'. $parentMenuItemName . '</a>',
+                        'MENU_ITEM_NAME' => '<a href="menu-item.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
+                        'PARENT_ID' => '<a href="menu-item.php?id='. $parentIDEncrypted .'">'. $parentMenuItemName . '</a>',
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $update .'
                                         '. $assign .'

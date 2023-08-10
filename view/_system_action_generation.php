@@ -25,7 +25,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # Type: system action table
         # Description:
-        # Generates the role table.
+        # Generates the system action table.
         #
         # Parameters: None
         #
@@ -38,7 +38,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $systemActionDeleteAccess = $userModel->checkSystemActionAccessRights($user_id, 5, 'delete');
+            $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
 
             foreach ($options as $row) {
                 $systemActionID = $row['system_action_id'];
