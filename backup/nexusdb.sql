@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 10, 2023 at 11:30 AM
+-- Generation Time: Aug 11, 2023 at 11:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -154,6 +154,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUploadSettingExist` (IN `p_upload_setting_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserEmailExist` (IN `p_email` VARCHAR(255))   BEGIN
 	SELECT COUNT(*) AS total
     FROM users
@@ -240,6 +246,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemActionRoleAccess` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
 	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
+	DELETE FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` INT)   BEGIN
@@ -339,6 +350,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_syste
     VALUES(p_system_action_name, p_last_log_by);
     
     SET p_new_system_action_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateUploadSetting` (IN `p_upload_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_upload_setting_id` INT)   BEGIN
+    DECLARE p_upload_setting_name VARCHAR(100);
+    DECLARE p_upload_setting_description VARCHAR(200);
+    DECLARE p_max_file_size DOUBLE;
+    
+    SELECT upload_setting_name, upload_setting_description, max_file_size
+    INTO p_upload_setting_name, p_upload_setting_description, p_max_file_size
+    FROM upload_setting 
+    WHERE upload_setting_id = p_upload_setting_id;
+    
+    INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) 
+    VALUES(p_upload_setting_name, p_upload_setting_description, p_max_file_size, p_last_log_by);
+    
+    SET p_new_upload_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddMenuItemRoleAccessTable` (IN `p_menu_item_id` INT)   BEGIN
@@ -525,6 +552,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
     ORDER BY system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUploadSettingTable` ()   BEGIN
+	SELECT upload_setting_id, upload_setting_name, upload_setting_description, max_file_size
+    FROM upload_setting
+    ORDER BY upload_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountRoleTable` (IN `p_user_account_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
@@ -644,6 +677,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getUICustomizationSetting` (IN `p_u
 	WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
+	SELECT * FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserByEmail` (IN `p_email` VARCHAR(255))   BEGIN
 	SELECT * FROM users
 	WHERE email = BINARY p_email;
@@ -741,6 +779,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUICustomizationSetting` (IN `
         INSERT INTO ui_customization_setting (user_id, box_container, last_log_by) 
 	    VALUES(p_user_id, p_customization_value, p_last_log_by);
     END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUploadSetting` (IN `p_upload_setting_name` VARCHAR(100), IN `p_upload_setting_description` VARCHAR(200), IN `p_max_file_size` DOUBLE, IN `p_last_log_by` INT, OUT `p_upload_setting_id` INT)   BEGIN
+    INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) 
+	VALUES(p_upload_setting_name, p_upload_setting_description, p_max_file_size, p_last_log_by);
+	
+    SET p_upload_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_password_expiry_date` DATE, IN `p_last_log_by` INT, OUT `p_user_account_id` INT)   BEGIN
@@ -942,6 +987,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUICustomizationSetting` (IN `
         last_log_by = p_last_log_by
        	WHERE user_id = p_user_id;
     END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUploadSetting` (IN `p_upload_setting_id` INT, IN `p_upload_setting_name` VARCHAR(100), IN `p_upload_setting_description` VARCHAR(200), IN `p_max_file_size` DOUBLE, IN `p_last_log_by` INT)   BEGIN
+	UPDATE upload_setting
+    SET upload_setting_name = p_upload_setting_name,
+    upload_setting_description = p_upload_setting_description,
+    max_file_size = p_max_file_size,
+    last_log_by = p_last_log_by
+    WHERE upload_setting_id = p_upload_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserAccount` (IN `p_user_id` INT, IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_last_log_by` INT)   BEGIN
@@ -1287,7 +1341,23 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (307, 'file_extension', 6, 'File Exension Name: test -> test2<br/>', '1', '2023-08-10 17:28:59'),
 (308, 'file_extension', 6, 'File Exension Name: test2 -> test23<br/>', '1', '2023-08-10 17:29:35'),
 (309, 'file_extension', 7, 'File extension created. <br/><br/>File Exension Name: test23<br/>File Type ID: 5', '1', '2023-08-10 17:29:38'),
-(310, 'file_extension', 8, 'File extension created. <br/><br/>File Exension Name: test23<br/>File Type ID: 5', '1', '2023-08-10 17:29:41');
+(310, 'file_extension', 8, 'File extension created. <br/><br/>File Exension Name: test23<br/>File Type ID: 5', '1', '2023-08-10 17:29:41'),
+(311, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: Upload Settings<br/>Menu Group ID: 1<br/>URL: upload-settings.php<br/>Parent ID: 9<br/>Order Sequence: 29', '1', '2023-08-11 09:30:00'),
+(312, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-11 09:30:06'),
+(313, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-11 09:30:06'),
+(314, 'menu_item_access_right', 12, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:08'),
+(315, 'menu_item_access_right', 12, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:08'),
+(316, 'menu_item_access_right', 12, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:09'),
+(317, 'menu_item_access_right', 12, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:10'),
+(318, 'menu_item_access_right', 12, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:10'),
+(319, 'menu_item_access_right', 12, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:11'),
+(320, 'menu_item_access_right', 12, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:11'),
+(321, 'menu_item_access_right', 12, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:12'),
+(322, 'menu_item_access_right', 12, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:12'),
+(323, 'menu_item_access_right', 12, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:13'),
+(324, 'menu_item', 12, 'Menu Item Name: Upload Settings -> Upload Setting<br/>URL: upload-settings.php -> upload-setting.php<br/>', '1', '2023-08-11 12:00:12'),
+(325, 'upload_setting', 1, 'Uploan setting created. <br/><br/>Upload Setting Name: asd<br/>Upload Setting Description: asd<br/>Max File Size: 1', '1', '2023-08-11 15:37:28'),
+(326, 'upload_setting', 1, 'Upload Setting Name: asd -> asd2<br/>Upload Setting Description: asd -> asd2<br/>Max File Size: 1 -> 3<br/>', '1', '2023-08-11 15:43:13');
 
 -- --------------------------------------------------------
 
@@ -1492,7 +1562,8 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (8, 'User Account', 1, 'user-account.php', 4, '', 1, 1),
 (9, 'Configurations', 1, '', 0, 'settings', 30, 1),
 (10, 'File Type', 1, 'file-type.php', 9, '', 30, 1),
-(11, 'File Extension', 1, 'file-extension.php', 9, '', 31, 1);
+(11, 'File Extension', 1, 'file-extension.php', 9, '', 31, 1),
+(12, 'Upload Setting', 1, 'upload-setting.php', 9, '', 29, 1);
 
 --
 -- Triggers `menu_item`
@@ -1605,7 +1676,9 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (10, 2, 1, 1, 1, 1, 1, 1),
 (10, 1, 1, 1, 1, 1, 1, 1),
 (11, 2, 1, 1, 1, 1, 1, 1),
-(11, 1, 1, 1, 1, 1, 1, 1);
+(11, 1, 1, 1, 1, 1, 1, 1),
+(12, 2, 1, 1, 1, 1, 1, 1),
+(12, 1, 1, 1, 1, 1, 1, 1);
 
 --
 -- Triggers `menu_item_access_right`
@@ -2055,6 +2128,87 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `upload_setting`
+--
+
+CREATE TABLE `upload_setting` (
+  `upload_setting_id` int(10) UNSIGNED NOT NULL,
+  `upload_setting_name` varchar(100) NOT NULL,
+  `upload_setting_description` varchar(200) NOT NULL,
+  `max_file_size` double NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `upload_setting`
+--
+
+INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `upload_setting_description`, `max_file_size`, `last_log_by`) VALUES
+(1, 'asd2', 'asd2', 3, 1);
+
+--
+-- Triggers `upload_setting`
+--
+DELIMITER $$
+CREATE TRIGGER `upload_setting_trigger_insert` AFTER INSERT ON `upload_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Uploan setting created. <br/>';
+
+    IF NEW.upload_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Upload Setting Name: ", NEW.upload_setting_name);
+    END IF;
+
+    IF NEW.upload_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Upload Setting Description: ", NEW.upload_setting_description);
+    END IF;
+
+    IF NEW.max_file_size <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Max File Size: ", NEW.max_file_size);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('upload_setting', NEW.upload_setting_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `upload_setting_trigger_update` AFTER UPDATE ON `upload_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.upload_setting_name <> OLD.upload_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Upload Setting Name: ", OLD.upload_setting_name, " -> ", NEW.upload_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.upload_setting_description <> OLD.upload_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Upload Setting Description: ", OLD.upload_setting_description, " -> ", NEW.upload_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.max_file_size <> OLD.max_file_size THEN
+        SET audit_log = CONCAT(audit_log, "Max File Size: ", OLD.max_file_size, " -> ", NEW.max_file_size, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('upload_setting', NEW.upload_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `upload_setting_file_extension`
+--
+
+CREATE TABLE `upload_setting_file_extension` (
+  `upload_setting_id` int(10) UNSIGNED NOT NULL,
+  `file_extension_id` int(11) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -2314,6 +2468,21 @@ ALTER TABLE `ui_customization_setting`
   ADD KEY `ui_customization_setting_index_user_id` (`user_id`);
 
 --
+-- Indexes for table `upload_setting`
+--
+ALTER TABLE `upload_setting`
+  ADD PRIMARY KEY (`upload_setting_id`),
+  ADD KEY `upload_setting_index_upload_setting_id` (`upload_setting_id`);
+
+--
+-- Indexes for table `upload_setting_file_extension`
+--
+ALTER TABLE `upload_setting_file_extension`
+  ADD PRIMARY KEY (`upload_setting_id`),
+  ADD KEY `upload_setting_file_extension_index_upload_setting_id` (`upload_setting_id`),
+  ADD KEY `upload_setting_file_extension_index_file_extension_id` (`file_extension_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -2329,7 +2498,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=311;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=327;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2353,7 +2522,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `password_history`
@@ -2378,6 +2547,18 @@ ALTER TABLE `system_action`
 --
 ALTER TABLE `ui_customization_setting`
   MODIFY `ui_customization_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `upload_setting`
+--
+ALTER TABLE `upload_setting`
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `upload_setting_file_extension`
+--
+ALTER TABLE `upload_setting_file_extension`
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`

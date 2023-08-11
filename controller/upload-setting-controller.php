@@ -3,17 +3,17 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: FileTypeController
+# Function: UploadSettingController
 # Description: 
-# The FileTypeController class handles file type related operations and interactions.
+# The UploadSettingController class handles upload setting related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class FileTypeController {
-    private $fileTypeModel;
+class UploadSettingController {
+    private $uploadSettingModel;
     private $userModel;
     private $roleModel;
     private $securityModel;
@@ -22,11 +22,11 @@ class FileTypeController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided FileTypeModel, UserModel and SecurityModel instances.
-    # These instances are used for file type related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided UploadSettingModel, UserModel and SecurityModel instances.
+    # These instances are used for upload setting related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param FileTypeModel $fileTypeModel     The FileTypeModel instance for file type related operations.
+    # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
@@ -34,8 +34,8 @@ class FileTypeController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(FileTypeModel $fileTypeModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
-        $this->fileTypeModel = $fileTypeModel;
+    public function __construct(UploadSettingModel $uploadSettingModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+        $this->uploadSettingModel = $uploadSettingModel;
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
@@ -60,20 +60,20 @@ class FileTypeController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save file type':
-                    $this->saveFileType();
+                case 'save upload setting':
+                    $this->saveUploadSetting();
                     break;
-                case 'get file type details':
-                    $this->getFileTypeDetails();
+                case 'get upload setting details':
+                    $this->getUploadSettingDetails();
                     break;
-                case 'delete file type':
-                    $this->deleteFileType();
+                case 'delete upload setting':
+                    $this->deleteUploadSetting();
                     break;
-                case 'delete multiple file type':
-                    $this->deleteMultipleFileType();
+                case 'delete multiple upload setting':
+                    $this->deleteMultipleUploadSetting();
                     break;
-                case 'duplicate file type':
-                    $this->duplicateFileType();
+                case 'duplicate upload setting':
+                    $this->duplicateUploadSetting();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -85,23 +85,25 @@ class FileTypeController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveFileType
+    # Function: saveUploadSetting
     # Description: 
-    # Updates the existing file type if it exists; otherwise, inserts a new file type.
+    # Updates the existing upload setting if it exists; otherwise, inserts a new upload setting.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveFileType() {
+    public function saveUploadSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $fileTypeID = isset($_POST['file_type_id']) ? htmlspecialchars($_POST['file_type_id'], ENT_QUOTES, 'UTF-8') : null;
-        $fileTypeName = htmlspecialchars($_POST['file_type_name'], ENT_QUOTES, 'UTF-8');
+        $uploadSettingID = isset($_POST['upload_setting_id']) ? htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8') : null;
+        $uploadSettingName = htmlspecialchars($_POST['upload_setting_name'], ENT_QUOTES, 'UTF-8');
+        $uploadSettingDescription = htmlspecialchars($_POST['upload_setting_name'], ENT_QUOTES, 'UTF-8');
+        $maxFileSize = htmlspecialchars($_POST['max_file_size'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -110,19 +112,19 @@ class FileTypeController {
             exit;
         }
     
-        $checkFileTypeExist = $this->fileTypeModel->checkFileTypeExist($fileTypeID);
-        $total = $checkFileTypeExist['total'] ?? 0;
+        $checkUploadSettingExist = $this->uploadSettingModel->checkUploadSettingExist($uploadSettingID);
+        $total = $checkUploadSettingExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->fileTypeModel->updateFileType($fileTypeID, $fileTypeName, $userID);
+            $this->uploadSettingModel->updateUploadSetting($uploadSettingID, $uploadSettingName, $uploadSettingDescription, $maxFileSize, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'fileTypeID' => $this->securityModel->encryptData($fileTypeID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'uploadSettingID' => $this->securityModel->encryptData($uploadSettingID)]);
             exit;
         } 
         else {
-            $fileTypeID = $this->fileTypeModel->insertFileType($fileTypeName, $userID);
+            $uploadSettingID = $this->uploadSettingModel->insertUploadSetting($uploadSettingName, $uploadSettingDescription, $maxFileSize, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'fileTypeID' => $this->securityModel->encryptData($fileTypeID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'uploadSettingID' => $this->securityModel->encryptData($uploadSettingID)]);
             exit;
         }
     }
@@ -130,22 +132,22 @@ class FileTypeController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteFileType
+    # Function: deleteUploadSetting
     # Description: 
-    # Delete the file type if it exists; otherwise, return an error message.
+    # Delete the upload setting if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteFileType() {
+    public function deleteUploadSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $fileTypeID = htmlspecialchars($_POST['file_type_id'], ENT_QUOTES, 'UTF-8');
+        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -154,16 +156,16 @@ class FileTypeController {
             exit;
         }
     
-        $checkFileTypeExist = $this->fileTypeModel->checkFileTypeExist($fileTypeID);
-        $total = $checkFileTypeExist['total'] ?? 0;
+        $checkUploadSettingExist = $this->uploadSettingModel->checkUploadSettingExist($uploadSettingID);
+        $total = $checkUploadSettingExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->fileTypeModel->deleteLinkedFileExtension($fileTypeID);
-        $this->fileTypeModel->deleteFileType($fileTypeID);
+        $this->uploadSettingModel->deleteLinkedAllowedFileExtension($uploadSettingID);
+        $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -172,22 +174,22 @@ class FileTypeController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleFileType
+    # Function: deleteMultipleUploadSetting
     # Description: 
-    # Delete the selected file types if it exists; otherwise, skip it.
+    # Delete the selected upload settings if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleFileType() {
+    public function deleteMultipleUploadSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $fileTypeIDs = $_POST['file_type_id'];
+        $uploadSettingIDs = $_POST['upload_setting_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -196,9 +198,9 @@ class FileTypeController {
             exit;
         }
 
-        foreach($fileTypeIDs as $fileTypeID){
-            $this->fileTypeModel->deleteLinkedFileExtension($fileTypeID);
-            $this->fileTypeModel->deleteFileType($fileTypeID);
+        foreach($uploadSettingIDs as $uploadSettingID){
+            $this->uploadSettingModel->deleteLinkedAllowedFileExtension($uploadSettingID);
+            $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
         }
             
         echo json_encode(['success' => true]);
@@ -208,22 +210,22 @@ class FileTypeController {
 
     # -------------------------------------------------------------
     #
-    # Function: duplicateFileType
+    # Function: duplicateUploadSetting
     # Description: 
-    # Duplicates the file type if it exists; otherwise, return an error message.
+    # Duplicates the upload setting if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function duplicateFileType() {
+    public function duplicateUploadSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $fileTypeID = htmlspecialchars($_POST['file_type_id'], ENT_QUOTES, 'UTF-8');
+        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -232,40 +234,40 @@ class FileTypeController {
             exit;
         }
     
-        $checkFileTypeExist = $this->fileTypeModel->checkFileTypeExist($fileTypeID);
-        $total = $checkFileTypeExist['total'] ?? 0;
+        $checkUploadSettingExist = $this->uploadSettingModel->checkUploadSettingExist($uploadSettingID);
+        $total = $checkUploadSettingExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $fileTypeID = $this->fileTypeModel->duplicateFileType($fileTypeID, $userID);
+        $uploadSettingID = $this->uploadSettingModel->duplicateUploadSetting($uploadSettingID, $userID);
 
-        echo json_encode(['success' => true, 'fileTypeID' =>  $this->securityModel->encryptData($fileTypeID)]);
+        echo json_encode(['success' => true, 'uploadSettingID' =>  $this->securityModel->encryptData($uploadSettingID)]);
         exit;
     }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: getFileTypeDetails
+    # Function: getUploadSettingDetails
     # Description: 
-    # Handles the retrieval of file type details such as file type name, etc.
+    # Handles the retrieval of upload setting details such as upload setting name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getFileTypeDetails() {
+    public function getUploadSettingDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['file_type_id']) && !empty($_POST['file_type_id'])) {
+        if (isset($_POST['upload_setting_id']) && !empty($_POST['upload_setting_id'])) {
             $userID = $_SESSION['user_id'];
-            $fileTypeID = $_POST['file_type_id'];
+            $uploadSettingID = $_POST['upload_setting_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -274,11 +276,13 @@ class FileTypeController {
                 exit;
             }
     
-            $fileTypeDetails = $this->fileTypeModel->getFileType($fileTypeID);
+            $uploadSettingDetails = $this->uploadSettingModel->getUploadSetting($uploadSettingID);
 
             $response = [
                 'success' => true,
-                'fileTypeName' => $fileTypeDetails['file_type_name']
+                'uploadSettingName' => $uploadSettingDetails['upload_setting_name'],
+                'uploadSettingDescription' => $uploadSettingDetails['upload_setting_description'],
+                'maxFileSize' => $uploadSettingDetails['max_file_size']
             ];
 
             echo json_encode($response);
@@ -291,12 +295,12 @@ class FileTypeController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/file-type-model.php';
+require_once '../model/upload-setting-model.php';
 require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new FileTypeController(new FileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new UploadSettingController(new UploadSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

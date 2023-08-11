@@ -251,7 +251,7 @@ class FileExtensionController {
     #
     # Function: getFileExtensionDetails
     # Description: 
-    # Handles the retrieval of file extension details such as file extension name, order sequence, etc.
+    # Handles the retrieval of file extension details such as file extension name, etc.
     #
     # Parameters: None
     #
