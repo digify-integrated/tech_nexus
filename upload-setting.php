@@ -26,6 +26,7 @@
     $uploadSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'write');
     $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'delete');
     $uploadSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'duplicate');
+    $assignFileExtensionToUploadSetting = $userModel->checkSystemActionAccessRights($user_id, 15);
 
     if ($uploadSettingReadAccess['total'] == 0) {
         header('location: 404.php');

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 11, 2023 at 11:37 AM
+-- Generation Time: Aug 12, 2023 at 12:41 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -160,6 +160,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUploadSettingExist` (IN `p_upl
     WHERE upload_setting_id = p_upload_setting_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUploadSettingFileExtensionExist` (IN `p_upload_setting_id` INT, IN `p_file_extension_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id AND file_extension_id = p_file_extension_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserEmailExist` (IN `p_email` VARCHAR(255))   BEGIN
 	SELECT COUNT(*) AS total
     FROM users
@@ -251,6 +257,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
 	DELETE FROM upload_setting
     WHERE upload_setting_id = p_upload_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUploadSettingFileExtension` (IN `p_upload_setting_id` INT, IN `p_file_extension_id` INT)   BEGIN
+	DELETE FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id AND file_extension_id = p_file_extension_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` INT)   BEGIN
@@ -410,6 +421,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddSystemActionRoleAccessTa
     ORDER BY role_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUploadSettingFileExensionTable` (IN `p_upload_setting_id` INT)   BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_extension_id NOT IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
+    ORDER BY file_extension_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (IN `p_user_account_id` INT)   BEGIN
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
@@ -550,6 +568,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
 	SELECT system_action_id, system_action_name 
     FROM system_action
     ORDER BY system_action_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUploadSettingFileExensionTable` (IN `p_upload_setting_id` INT)   BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_extension_id IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
+    ORDER BY file_extension_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUploadSettingTable` ()   BEGIN
@@ -786,6 +811,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUploadSetting` (IN `p_upload_
 	VALUES(p_upload_setting_name, p_upload_setting_description, p_max_file_size, p_last_log_by);
 	
     SET p_upload_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUploadSettingFileExtension` (IN `p_upload_setting_id` INT, IN `p_file_extension_id` INT, IN `p_last_log_by` INT)   BEGIN
+    INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) 
+	VALUES(p_upload_setting_id, p_file_extension_id, p_last_log_by);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_password_expiry_date` DATE, IN `p_last_log_by` INT, OUT `p_user_account_id` INT)   BEGIN
@@ -1357,7 +1387,51 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (323, 'menu_item_access_right', 12, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-11 09:30:13'),
 (324, 'menu_item', 12, 'Menu Item Name: Upload Settings -> Upload Setting<br/>URL: upload-settings.php -> upload-setting.php<br/>', '1', '2023-08-11 12:00:12'),
 (325, 'upload_setting', 1, 'Uploan setting created. <br/><br/>Upload Setting Name: asd<br/>Upload Setting Description: asd<br/>Max File Size: 1', '1', '2023-08-11 15:37:28'),
-(326, 'upload_setting', 1, 'Upload Setting Name: asd -> asd2<br/>Upload Setting Description: asd -> asd2<br/>Max File Size: 1 -> 3<br/>', '1', '2023-08-11 15:43:13');
+(326, 'upload_setting', 1, 'Upload Setting Name: asd -> asd2<br/>Upload Setting Description: asd -> asd2<br/>Max File Size: 1 -> 3<br/>', '1', '2023-08-11 15:43:13'),
+(327, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-08-12 17:45:42'),
+(328, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:45:42 -> 2023-08-12 17:45:48<br/>Failed Login Attempts: 1 -> 2<br/>', '1', '2023-08-12 17:45:48'),
+(329, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:45:48 -> 2023-08-12 17:45:49<br/>Failed Login Attempts: 2 -> 3<br/>', '1', '2023-08-12 17:45:49'),
+(330, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:45:49 -> 2023-08-12 17:45:51<br/>Failed Login Attempts: 3 -> 4<br/>', '1', '2023-08-12 17:45:51'),
+(331, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:45:51 -> 2023-08-12 17:45:53<br/>Failed Login Attempts: 4 -> 5<br/>', '1', '2023-08-12 17:45:53'),
+(332, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:45:53 -> 2023-08-12 17:46:12<br/>Failed Login Attempts: 5 -> 6<br/>', '1', '2023-08-12 17:46:12'),
+(333, 'users', 1, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 10<br/>', '1', '2023-08-12 17:46:12'),
+(334, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:46:12 -> 2023-08-12 17:46:58<br/>Failed Login Attempts: 6 -> 7<br/>', '1', '2023-08-12 17:46:58'),
+(335, 'users', 1, 'Account Lock Duration: 10 -> 20<br/>', '1', '2023-08-12 17:46:58'),
+(336, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:46:58 -> 2023-08-12 17:47:00<br/>Failed Login Attempts: 7 -> 8<br/>', '1', '2023-08-12 17:47:00'),
+(337, 'users', 1, 'Account Lock Duration: 20 -> 40<br/>', '1', '2023-08-12 17:47:00'),
+(338, 'users', 1, 'Failed Login Attempts: 8 -> 9<br/>', '1', '2023-08-12 17:47:00'),
+(339, 'users', 1, 'Account Lock Duration: 40 -> 80<br/>', '1', '2023-08-12 17:47:00'),
+(340, 'users', 1, 'Failed Login Attempts: 9 -> 10<br/>', '1', '2023-08-12 17:47:00'),
+(341, 'users', 1, 'Account Lock Duration: 80 -> 160<br/>', '1', '2023-08-12 17:47:00'),
+(342, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:47:00 -> 2023-08-12 17:47:01<br/>Failed Login Attempts: 10 -> 11<br/>', '1', '2023-08-12 17:47:01'),
+(343, 'users', 1, 'Account Lock Duration: 160 -> 320<br/>', '1', '2023-08-12 17:47:01'),
+(344, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:47:01 -> 2023-08-12 17:47:02<br/>Failed Login Attempts: 11 -> 12<br/>', '1', '2023-08-12 17:47:02'),
+(345, 'users', 1, 'Account Lock Duration: 320 -> 640<br/>', '1', '2023-08-12 17:47:02'),
+(346, 'users', 1, 'Last Failed Login Attempt: 2023-08-12 17:47:02 -> 2023-08-12 17:47:03<br/>Failed Login Attempts: 12 -> 13<br/>', '1', '2023-08-12 17:47:03'),
+(347, 'users', 1, 'Account Lock Duration: 640 -> 1280<br/>', '1', '2023-08-12 17:47:03'),
+(348, 'users', 1, 'Is Locked: 1 -> 0<br/>', '1', '2023-08-12 17:47:45'),
+(349, 'users', 1, 'Failed Login Attempts: 13 -> 0<br/>', '1', '2023-08-12 17:47:51'),
+(350, 'users', 1, 'Account Lock Duration: 1280 -> 0<br/>', '1', '2023-08-12 17:47:59'),
+(351, 'users', 1, 'Last Connection Date: 2023-08-10 11:12:12 -> 2023-08-12 17:48:03<br/>', '1', '2023-08-12 17:48:03'),
+(352, 'system_action', 15, 'System action created. <br/><br/>System Action Name: Assign File Extension To Upload Setting', '1', '2023-08-12 17:55:07'),
+(353, 'system_action_access_rights', 15, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-12 17:55:13'),
+(354, 'system_action_access_rights', 15, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-12 17:55:13'),
+(355, 'system_action_access_rights', 15, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-12 17:55:14'),
+(356, 'system_action_access_rights', 15, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:14'),
+(357, 'system_action_access_rights', 15, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:14'),
+(358, 'system_action_access_rights', 15, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-12 17:55:14'),
+(359, 'system_action_access_rights', 15, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:14'),
+(360, 'system_action_access_rights', 15, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:14'),
+(361, 'system_action', 16, 'System action created. <br/><br/>System Action Name: Assign File Extension To Upload Setting', '1', '2023-08-12 17:55:26'),
+(362, 'system_action', 16, 'System Action Name: Assign File Extension To Upload Setting -> Delete File Extension To Upload Setting<br/>', '1', '2023-08-12 17:55:33'),
+(363, 'system_action_access_rights', 16, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-12 17:55:37'),
+(364, 'system_action_access_rights', 16, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-12 17:55:37'),
+(365, 'system_action_access_rights', 16, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-12 17:55:38'),
+(366, 'system_action_access_rights', 16, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:38'),
+(367, 'system_action_access_rights', 16, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:38'),
+(368, 'system_action_access_rights', 16, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-12 17:55:39'),
+(369, 'system_action_access_rights', 16, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:39'),
+(370, 'system_action_access_rights', 16, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:39');
 
 -- --------------------------------------------------------
 
@@ -1896,7 +1970,9 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (11, 'Lock User Account', 1),
 (12, 'Unlock User Account', 1),
 (13, 'Change User Account Password', 1),
-(14, 'Change User Account Profile Picture', 1);
+(14, 'Change User Account Profile Picture', 1),
+(15, 'Assign File Extension To Upload Setting', 1),
+(16, 'Delete File Extension To Upload Setting', 1);
 
 --
 -- Triggers `system_action`
@@ -1988,7 +2064,15 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (14, 2, 1, 1),
 (14, 1, 1, 1),
 (14, 2, 1, 1),
-(14, 1, 1, 1);
+(14, 1, 1, 1),
+(15, 2, 1, 1),
+(15, 1, 1, 1),
+(15, 2, 1, 1),
+(15, 1, 1, 1),
+(16, 2, 1, 1),
+(16, 1, 1, 1),
+(16, 2, 1, 1),
+(16, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -2206,6 +2290,13 @@ CREATE TABLE `upload_setting_file_extension` (
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `upload_setting_file_extension`
+--
+
+INSERT INTO `upload_setting_file_extension` (`upload_setting_id`, `file_extension_id`, `last_log_by`) VALUES
+(1, 6, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -2244,7 +2335,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, '2023-08-10 11:12:12', '2024-02-10', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
 (2, 'Employee', 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 1, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
 (3, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
 (5, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
@@ -2498,7 +2589,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=327;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=371;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2540,7 +2631,7 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -2558,7 +2649,7 @@ ALTER TABLE `upload_setting`
 -- AUTO_INCREMENT for table `upload_setting_file_extension`
 --
 ALTER TABLE `upload_setting_file_extension`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`

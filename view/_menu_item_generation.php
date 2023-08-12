@@ -62,21 +62,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         
                     $update = '';
                     if($menuItemWriteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-menu-item form-edit" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
+                        $update = '<button type="button" class="btn btn-icon btn-info update-menu-item" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
                     if($menuItemDeleteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item form-edit" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item" data-menu-item-id="'. $menuItemID .'" title="Delete Menu Item">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
 
                     $assign = '';
                     if($updateMenuItemRoleAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access form-edit" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
+                        $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
                                             <i class="ti ti-user-check"></i>
                                         </button>';
                     }
@@ -295,7 +295,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($deleteMenuItemRoleAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access form-edit" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" data-role-id="'. $roleID .'" title="Delete Role Access">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

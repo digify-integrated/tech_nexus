@@ -12,6 +12,79 @@
 
         if($('#upload-setting-id').length){
             displayDetails('get upload setting details');
+
+            if($('#file-extension-table').length){
+                fileExtensionTable('#file-extension-table');
+            }
+
+            if($('#assign-file-extension-modal').length){
+                assignFileExtensionForm();
+            }
+
+            $(document).on('click','#assign-file-extension',function() {
+                $('#assign-file-extension-modal').modal('show');
+                
+                assignFileExtensionTable('#assign-file-extension-table');
+            });
+
+            $(document).on('click','.delete-file-extension',function() {
+                const upload_setting_id = $(this).data('upload-setting-id');
+                const file_extension_id = $(this).data('file-extension-id');
+                const transaction = 'delete upload setting file extension';
+        
+                Swal.fire({
+                    title: 'Confirm File Extension Deletion',
+                    text: 'Are you sure you want to delete this file extension?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/upload-setting-controller.php',
+                            dataType: 'json',
+                            data: {
+                                upload_setting_id : upload_setting_id, 
+                                file_extension_id : file_extension_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete File Extension Success', 'The file extension has been deleted successfully.', 'success');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        showNotification('Delete File Extension Error', 'The file extension does not exist.', 'danger');
+                                    }
+                                    else {
+                                        showNotification('Delete File Extension Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                  fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                reloadDatatable('#file-extension-table');
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
         }
 
         $(document).on('click','.delete-upload-setting',function() {
@@ -317,6 +390,114 @@ function uploadSettingTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function fileExtensionTable(datatable_name, buttons = false, show_all = false){
+    const upload_setting_id = $('#upload-setting-id').text();
+    const type = 'upload setting file extension table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_EXTENSION_NAME' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': '20%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_file_extension_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'upload_setting_id' : upload_setting_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function assignFileExtensionTable(datatable_name, buttons = false, show_all = false){
+    const upload_setting_id = $('#upload-setting-id').text();
+    const type = 'assign upload setting file extension table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_EXTENSION_NAME' },
+        { 'data' : 'ASSIGN' }
+    ];
+
+    const column_definition = [
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_file_extension_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'upload_setting_id' : upload_setting_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function uploadSettingForm(){
     $('#upload-setting-form').validate({
         rules: {
@@ -412,6 +593,58 @@ function uploadSettingForm(){
                 }
             });
         
+            return false;
+        }
+    });
+}
+
+function assignFileExtensionForm(){
+    $('#assign-file-extension-form').validate({
+        submitHandler: function(form) {
+            const transaction = 'assign upload setting file extension';
+            const upload_setting_id = $('#upload-setting-id').text();
+
+            var file_extension_id = [];
+
+            $('.upload-setting-file-extension').each(function(){
+                if ($(this).is(':checked')){  
+                    file_extension_id.push(this.value);  
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: 'controller/upload-setting-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&upload_setting_id=' + upload_setting_id + '&file_extension_id=' + file_extension_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-add-upload-setting-role-access');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showNotification('Assign File Extension Success', 'The file extension has been assigned successfully.', 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ' + status + ', Error: ' + error;
+                    fullErrorMessage += ', Response: ' + xhr.responseText;
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-assign-file-extension', 'Submit');
+                    $('#assign-file-extension-modal').modal('hide');
+                    reloadDatatable('#file-extension-table');
+                }
+            });
             return false;
         }
     });

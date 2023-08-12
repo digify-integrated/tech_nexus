@@ -799,7 +799,7 @@ class UserController {
             $durationParts[] = number_format($minutes) . " minute" . (($minutes > 1) ? "s" : "");
         }
     
-        return implode(", ", $durationParts);
+        return $durationParts;
     }
     # -------------------------------------------------------------
     

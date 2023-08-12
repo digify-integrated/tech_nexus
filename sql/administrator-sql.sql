@@ -1949,12 +1949,28 @@ END //
 
 CREATE PROCEDURE insertUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) 
-	VALUES(p_upload_setting_name, p_upload_setting_description, p_max_file_size, p_last_log_by);
+    INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) 
+	VALUES(p_upload_setting_id, p_file_extension_id, p_last_log_by);
 END //
 
 CREATE PROCEDURE deleteUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT)
 BEGIN
-	DELETE FROM upload_setting
+	DELETE FROM upload_setting_file_extension
     WHERE upload_setting_id = p_upload_setting_id AND file_extension_id = p_file_extension_id;
+END //
+
+CREATE PROCEDURE generateUploadSettingFileExensionTable(IN p_upload_setting_id INT)
+BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_extension_id IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
+    ORDER BY file_extension_id;
+END //
+
+CREATE PROCEDURE generateAddUploadSettingFileExensionTable(IN p_upload_setting_id INT)
+BEGIN
+	SELECT file_extension_id, file_extension_name 
+    FROM file_extension
+    WHERE file_extension_id NOT IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
+    ORDER BY file_extension_id;
 END //
