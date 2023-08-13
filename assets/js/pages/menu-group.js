@@ -231,7 +231,7 @@
         });
 
         $(document).on('click','#delete-menu-group-details',function() {
-            const menu_group_id = $(this).data('menu-group-id');
+            const menu_group_id = $('#menu-group-id').text();
             const transaction = 'delete menu group';
     
             Swal.fire({
@@ -296,7 +296,7 @@
         });
 
         $(document).on('click','#duplicate-menu-group',function() {
-            const menu_group_id = $(this).data('menu-group-id');
+            const menu_group_id = $('#menu-group-id').text();
             const transaction = 'duplicate menu group';
     
             Swal.fire({
@@ -584,12 +584,13 @@ function menuGroupForm(){
             }
         },
         submitHandler: function(form) {
+            const menu_group_id = $('#menu-group-id').text();
             const transaction = 'save menu group';
           
             $.ajax({
                 type: 'POST',
                 url: 'controller/menu-group-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction,
+                data: $(form).serialize() + '&transaction=' + transaction + '&menu_group_id=' + menu_group_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');

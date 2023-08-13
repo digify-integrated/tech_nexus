@@ -133,11 +133,7 @@
                 addRoleUserAccountForm();
             }
 
-            $(document).on('click','#add-role-user-account',function() {
-                const role_id = $(this).data('role-id');
-    
-                sessionStorage.setItem('role_id', role_id);
-    
+            $(document).on('click','#add-role-user-account',function() {    
                 $('#add-role-user-account-modal').modal('show');
                 addRoleUserAccountTable('#add-role-user-account-table');
             });
@@ -436,7 +432,7 @@
         });
 
         $(document).on('click','#delete-role-details',function() {
-            const role_id = $(this).data('role-id');
+            const role_id = $('#role-id').text();
             const transaction = 'delete role';
     
             Swal.fire({

@@ -138,7 +138,7 @@
         });
 
         $(document).on('click','#delete-file-extension-details',function() {
-            const file_extension_id = $(this).data('file-extension-id');
+            const file_extension_id = $('#file-extension-id').text();
             const transaction = 'delete file extension';
     
             Swal.fire({
@@ -203,7 +203,7 @@
         });
 
         $(document).on('click','#duplicate-file-extension',function() {
-            const file_extension_id = $(this).data('file-extension-id');
+            const file_extension_id = $('#file-extension-id').text();
             const transaction = 'duplicate file extension';
     
             Swal.fire({

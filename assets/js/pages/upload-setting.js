@@ -17,14 +17,14 @@
                 fileExtensionTable('#file-extension-table');
             }
 
-            if($('#assign-file-extension-modal').length){
-                assignFileExtensionForm();
+            if($('#add-file-extension-modal').length){
+                addFileExtensionForm();
             }
 
-            $(document).on('click','#assign-file-extension',function() {
-                $('#assign-file-extension-modal').modal('show');
+            $(document).on('click','#add-file-extension',function() {
+                $('#add-file-extension-modal').modal('show');
                 
-                assignFileExtensionTable('#assign-file-extension-table');
+                addFileExtensionTable('#add-file-extension-table');
             });
 
             $(document).on('click','.delete-file-extension',function() {
@@ -211,7 +211,7 @@
         });
 
         $(document).on('click','#delete-upload-setting-details',function() {
-            const upload_setting_id = $(this).data('upload-setting-id');
+            const upload_setting_id = $('#upload-setting-id').text();
             const transaction = 'delete upload setting';
     
             Swal.fire({
@@ -276,7 +276,7 @@
         });
 
         $(document).on('click','#duplicate-upload-setting',function() {
-            const upload_setting_id = $(this).data('upload-setting-id');
+            const upload_setting_id = $('#upload-setting-id').text();
             const transaction = 'duplicate upload setting';
     
             Swal.fire({
@@ -409,7 +409,7 @@ function fileExtensionTable(datatable_name, buttons = false, show_all = false){
 
     settings = {
         'ajax': { 
-            'url' : 'view/_file_extension_generation.php',
+            'url' : 'view/_upload_setting_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'upload_setting_id' : upload_setting_id},
@@ -444,9 +444,9 @@ function fileExtensionTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function assignFileExtensionTable(datatable_name, buttons = false, show_all = false){
+function addFileExtensionTable(datatable_name, buttons = false, show_all = false){
     const upload_setting_id = $('#upload-setting-id').text();
-    const type = 'assign upload setting file extension table';
+    const type = 'add upload setting file extension table';
     var settings;
 
     const column = [ 
@@ -463,7 +463,7 @@ function assignFileExtensionTable(datatable_name, buttons = false, show_all = fa
 
     settings = {
         'ajax': { 
-            'url' : 'view/_file_extension_generation.php',
+            'url' : 'view/_upload_setting_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'upload_setting_id' : upload_setting_id},
@@ -598,11 +598,11 @@ function uploadSettingForm(){
     });
 }
 
-function assignFileExtensionForm(){
-    $('#assign-file-extension-form').validate({
+function addFileExtensionForm(){
+    $('#add-file-extension-form').validate({
         submitHandler: function(form) {
-            const transaction = 'assign upload setting file extension';
             const upload_setting_id = $('#upload-setting-id').text();
+            const transaction = 'add upload setting file extension';            
 
             var file_extension_id = [];
 
@@ -622,7 +622,7 @@ function assignFileExtensionForm(){
                 },
                 success: function(response) {
                     if (response.success) {
-                        showNotification('Assign File Extension Success', 'The file extension has been assigned successfully.', 'success');
+                        showNotification('Add File Extension Success', 'The file extension has been added successfully.', 'success');
                     }
                     else {
                         if (response.isInactive) {
@@ -640,8 +640,8 @@ function assignFileExtensionForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-assign-file-extension', 'Submit');
-                    $('#assign-file-extension-modal').modal('hide');
+                    enableFormSubmitButton('submit-add-file-extension', 'Submit');
+                    $('#add-file-extension-modal').modal('hide');
                     reloadDatatable('#file-extension-table');
                 }
             });

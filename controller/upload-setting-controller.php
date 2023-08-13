@@ -75,8 +75,8 @@ class UploadSettingController {
                 case 'duplicate upload setting':
                     $this->duplicateUploadSetting();
                     break;
-                case 'assign upload setting file extension':
-                    $this->assignUploadSettingFileExtension();
+                case 'add upload setting file extension':
+                    $this->addUploadSettingFileExtension();
                     break;
                 case 'delete upload setting file extension':
                     $this->deleteUploadSettingFileExtension();
@@ -87,6 +87,10 @@ class UploadSettingController {
             }
         }
     }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Save methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -134,6 +138,55 @@ class UploadSettingController {
             exit;
         }
     }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Add methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addUploadSettingFileExtension
+    # Description:
+    # Add the upload setting file extension.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addUploadSettingFileExtension() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
+        $fileExtensionIDs = explode(',', $_POST['file_extension_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($fileExtensionIDs as $fileExtensionID) {
+            $checkUploadSettingFileExtensionExist = $this->uploadSettingModel->checkUploadSettingFileExtensionExist($uploadSettingID, $fileExtensionID);
+            $total = $checkUploadSettingFileExtensionExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->uploadSettingModel->insertUploadSettingFileExtension($uploadSettingID, $fileExtensionID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Delete methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -216,6 +269,52 @@ class UploadSettingController {
 
     # -------------------------------------------------------------
     #
+    # Function: deleteUploadSettingFileExtension
+    # Description:
+    # Delete the upload setting file extension if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteUploadSettingFileExtension() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
+        $fileExtensionID = htmlspecialchars($_POST['file_extension_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUploadSettingFileExtensionExist = $this->uploadSettingModel->checkUploadSettingFileExtensionExist($uploadSettingID, $fileExtensionID);
+        $total = $checkUploadSettingFileExtensionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->uploadSettingModel->deleteUploadSettingFileExtension($uploadSettingID, $fileExtensionID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Duplicate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: duplicateUploadSetting
     # Description: 
     # Duplicates the upload setting if it exists; otherwise, return an error message.
@@ -253,6 +352,10 @@ class UploadSettingController {
         echo json_encode(['success' => true, 'uploadSettingID' =>  $this->securityModel->encryptData($uploadSettingID)]);
         exit;
     }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Get details methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -294,89 +397,6 @@ class UploadSettingController {
             echo json_encode($response);
             exit;
         }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: assignUploadSettingFileExtension
-    # Description:
-    # Add the file extension.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function assignUploadSettingFileExtension() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-        
-        $userID = $_SESSION['user_id'];
-        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
-        $fileExtensionIDs = explode(',', $_POST['file_extension_id']);
-        
-        $user = $this->userModel->getUserByID($userID);
-        
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-        
-        foreach ($fileExtensionIDs as $fileExtensionID) {
-            $checkUploadSettingFileExtensionExist = $this->uploadSettingModel->checkUploadSettingFileExtensionExist($uploadSettingID, $fileExtensionID);
-            $total = $checkUploadSettingFileExtensionExist['total'] ?? 0;
-        
-            if ($total === 0) {
-                $this->uploadSettingModel->insertUploadSettingFileExtension($uploadSettingID, $fileExtensionID, $userID);
-            }
-        }
-        
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: deleteUploadSettingFileExtension
-    # Description:
-    # Delete the file extension if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteUploadSettingFileExtension() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $uploadSettingID = htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8');
-        $fileExtensionID = htmlspecialchars($_POST['file_extension_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkUploadSettingFileExtensionExist = $this->uploadSettingModel->checkUploadSettingFileExtensionExist($uploadSettingID, $fileExtensionID);
-        $total = $checkUploadSettingFileExtensionExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->uploadSettingModel->deleteUploadSettingFileExtension($uploadSettingID, $fileExtensionID);
-            
-        echo json_encode(['success' => true]);
-        exit;
     }
     # -------------------------------------------------------------
 }

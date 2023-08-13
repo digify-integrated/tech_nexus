@@ -119,7 +119,7 @@
           if($newRecord && $userAccountCreateAccess['total'] > 0){
             require_once('view/_user_account_new.php');
           }
-          else if(!empty($userAccountID && $userAccountWriteAccess['total'] > 0)){
+          else if(!empty($userAccountID) && $userAccountWriteAccess['total'] > 0){
             require_once('view/_user_account_details.php');
           }
           else{

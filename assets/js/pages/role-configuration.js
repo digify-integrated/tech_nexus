@@ -21,11 +21,7 @@
                 addMenuItemRoleAccessForm();
             }
 
-            $(document).on('click','#add-menu-item-role-access',function() {
-                const role_id = $(this).data('role-id');
-    
-                sessionStorage.setItem('role_id', role_id);
-    
+            $(document).on('click','#add-menu-item-role-access',function() {    
                 $('#add-menu-item-role-access-modal').modal('show');
                 addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
             });
@@ -146,11 +142,7 @@
                 addRoleUserAccountForm();
             }
 
-            $(document).on('click','#add-role-user-account',function() {
-                const role_id = $(this).data('role-id');
-    
-                sessionStorage.setItem('role_id', role_id);
-    
+            $(document).on('click','#add-role-user-account',function() {    
                 $('#add-role-user-account-modal').modal('show');
                 addRoleUserAccountTable('#add-role-user-account-table');
             });
@@ -222,11 +214,7 @@
                 addSystemActionRoleAccessForm();
             }
 
-            $(document).on('click','#add-system-action-role-access',function() {
-                const role_id = $(this).data('role-id');
-    
-                sessionStorage.setItem('role_id', role_id);
-    
+            $(document).on('click','#add-system-action-role-access',function() {    
                 $('#add-system-action-role-access-modal').modal('show');
                 addSystemActionRoleAccessTable('#add-system-action-role-access-table');
             });
@@ -462,7 +450,7 @@
         });
 
         $(document).on('click','#delete-role-details',function() {
-            const role_id = $(this).data('role-id');
+            const role_id = $('#role-id').text();
             const transaction = 'delete role';
     
             Swal.fire({
@@ -527,7 +515,7 @@
         });
 
         $(document).on('click','#duplicate-role',function() {
-            const role_id = $(this).data('role-id');
+            const role_id = $('#role-id').text();
             const transaction = 'duplicate role';
     
             Swal.fire({
@@ -686,7 +674,7 @@ function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -742,7 +730,7 @@ function updateSystemActionRoleAccessTable(datatable_name, buttons = false, show
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -910,7 +898,7 @@ function addMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -964,7 +952,7 @@ function addSystemActionRoleAccessTable(datatable_name, buttons = false, show_al
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -1096,8 +1084,8 @@ function roleForm(){
 function addRoleUserAccountForm(){
     $('#add-role-user-account-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add role user account';
             const role_id = $('#role-id').text();
+            const transaction = 'add role user account';
 
             var user_account_id = [];
 
@@ -1148,8 +1136,8 @@ function addRoleUserAccountForm(){
 function addMenuItemRoleAccessForm(){
     $('#add-menu-item-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add role menu item access';
             const role_id = $('#role-id').text();
+            const transaction = 'add role menu item access';
 
             var menu_item_id = [];
 
@@ -1200,8 +1188,8 @@ function addMenuItemRoleAccessForm(){
 function addSystemActionRoleAccessForm(){
     $('#add-system-action-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add role system action access';
             const role_id = $('#role-id').text();
+            const transaction = 'add role system action access';
             
             var system_action_id = [];
 

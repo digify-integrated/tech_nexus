@@ -37,7 +37,6 @@
         include_once('config/_header.php'); 
         include_once('config/_announcement.php'); 
     ?>   
-
     
     <?php
         include_once('config/_change_password_modal.php');

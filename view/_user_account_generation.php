@@ -18,7 +18,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     $response = [];
     
     switch ($type) {
-
         # -------------------------------------------------------------
         #
         # Type: user account table

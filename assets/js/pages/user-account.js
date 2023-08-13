@@ -21,11 +21,7 @@
                 addUserAccountRoleForm();
             }
 
-            $(document).on('click','#add-user-account-role',function() {
-                const user_account_id = $(this).data('user-account-id');
-    
-                sessionStorage.setItem('user_account_id', user_account_id);
-    
+            $(document).on('click','#add-user-account-role',function() {    
                 $('#add-user-account-role-modal').modal('show');
                 addUserAccountRoleTable('#add-user-account-role-table');
             });
@@ -218,7 +214,7 @@
         });
 
         $(document).on('click','#delete-user-account-details',function() {
-            const user_account_id = $(this).data('user-account-id');
+            const user_account_id = $('#user-account-id').text();
             const transaction = 'delete user account';
     
             Swal.fire({
@@ -340,7 +336,7 @@
         });
 
         $(document).on('click','#activate-user-account-details',function() {
-            const user_account_id = $(this).data('user-account-id');
+            const user_account_id = $('#user-account-id').text();
             const transaction = 'activate user account';
     
             Swal.fire({
@@ -462,7 +458,7 @@
         });
 
         $(document).on('click','#deactivate-user-account-details',function() {
-            const user_account_id = $(this).data('user-account-id');
+            const user_account_id = $('#user-account-id').text();
             const transaction = 'deactivate user account';
     
             Swal.fire({
@@ -584,7 +580,7 @@
         });
 
         $(document).on('click','#unlock-user-account-details',function() {
-            const user_account_id = $(this).data('user-account-id');
+            const user_account_id = $('#user-account-id').text();
             const transaction = 'unlock user account';
     
             Swal.fire({
@@ -706,7 +702,7 @@
         });
 
         $(document).on('click','#lock-user-account-details',function() {
-            const user_account_id = $(this).data('user-account-id');
+            const user_account_id = $('#user-account-id').text();
             const transaction = 'lock user account';
     
             Swal.fire({
@@ -761,10 +757,6 @@
         });
 
         $(document).on('click','#change-user-account-password',function() {
-            const user_account_id = $(this).data('user-account-id');
-
-            sessionStorage.setItem('user_account_id', user_account_id);
-
             $('#change-user-account-password-modal').modal('show');
             resetModalForm('change-user-account-password-form');
         });
@@ -1139,8 +1131,8 @@ function userAccountForm(){
 function addUserAccountRoleForm(){
     $('#add-user-account-role-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add user account role';
             const user_account_id = $('#user-account-id').text();
+            const transaction = 'add user account role';
 
             var role_id = [];
 

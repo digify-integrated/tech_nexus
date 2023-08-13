@@ -111,7 +111,7 @@
           if($newRecord && $systemActionCreateAccess['total'] > 0){
             require_once('view/_system_action_new.php');
           }
-          else if(!empty($systemActionID && $systemActionWriteAccess['total'] > 0)){
+          else if(!empty($systemActionID) && $systemActionWriteAccess['total'] > 0){
             require_once('view/_system_action_details.php');
           }
           else{

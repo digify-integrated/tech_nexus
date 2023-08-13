@@ -112,7 +112,7 @@
           if($newRecord && $uploadSettingCreateAccess['total'] > 0){
             require_once('view/_upload_setting_new.php');
           }
-          else if(!empty($uploadSettingID && $uploadSettingWriteAccess['total'] > 0)){
+          else if(!empty($uploadSettingID) && $uploadSettingWriteAccess['total'] > 0){
             require_once('view/_upload_setting_details.php');
           }
           else{

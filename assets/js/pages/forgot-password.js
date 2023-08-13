@@ -52,7 +52,7 @@ $(document).ready(function () {
         },
         success: function(response) {
           if (response.success) {
-            setNotification('Password Reset Success', 'A password reset link has been sent to your registered email address. Please check your inbox and follow the instructions in the email to securely reset your password. If you don’t receive the email within a few minutes, please check your spam folder as well.', 'success');
+            setNotification('Password Reset Success', 'The password reset link has been sent to your registered email address. Please check your inbox and follow the instructions in the email to securely reset your password. If you don’t receive the email within a few minutes, please check your spam folder as well.', 'success');
             window.location.href = 'index.php';
           } 
           else {

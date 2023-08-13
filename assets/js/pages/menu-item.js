@@ -25,11 +25,7 @@
                 addMenuItemRoleAccessForm();
             }
 
-            $(document).on('click','#add-menu-item-role-access',function() {
-                const menu_item_id = $(this).data('menu-item-id');
-    
-                sessionStorage.setItem('menu_item_id', menu_item_id);
-    
+            $(document).on('click','#add-menu-item-role-access',function() {    
                 $('#add-menu-item-role-access-modal').modal('show');
                 addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
             });
@@ -267,7 +263,7 @@
         });
 
         $(document).on('click','#delete-menu-item-details',function() {
-            const menu_item_id = $(this).data('menu-item-id');
+            const menu_item_id = $('#menu-item-id').text();
             const transaction = 'delete menu item';
     
             Swal.fire({
@@ -332,7 +328,7 @@
         });
 
         $(document).on('click','#duplicate-menu-item',function() {
-            const menu_item_id = $(this).data('menu-item-id');
+            const menu_item_id = $('#menu-item-id').text();
             const transaction = 'duplicate menu item';
     
             Swal.fire({
@@ -387,7 +383,7 @@
             });
         });
 
-        $(document).on('click','#create-menu-item',function() {
+        $(document).on('click','#add-menu-item',function() {
             resetModalForm("menu-item-form");
 
             $('#menu-item-modal').modal('show');
@@ -549,7 +545,7 @@ function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
@@ -603,7 +599,7 @@ function addMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = 
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
@@ -741,8 +737,8 @@ function menuItemForm(){
 function addMenuItemRoleAccessForm(){
     $('#add-menu-item-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add menu item role access';
             const menu_item_id = $('#menu-item-id').text();
+            const transaction = 'add menu item role access';
 
             var role_id = [];
 

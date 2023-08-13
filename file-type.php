@@ -114,7 +114,7 @@
           if($newRecord && $fileTypeCreateAccess['total'] > 0){
             require_once('view/_file_type_new.php');
           }
-          else if(!empty($fileTypeID && $fileTypeWriteAccess['total'] > 0)){
+          else if(!empty($fileTypeID) && $fileTypeWriteAccess['total'] > 0){
             require_once('view/_file_type_details.php');
           }
           else{

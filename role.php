@@ -99,7 +99,7 @@
           </div>
         </div>
         <?php
-          if(!empty($roleID && $roleWriteAccess['total'] > 0)){
+          if(!empty($roleID) && $roleWriteAccess['total'] > 0){
             require_once('view/_role_details.php');
           }
           else{

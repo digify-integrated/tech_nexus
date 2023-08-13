@@ -21,11 +21,7 @@
                 addSystemActionRoleAccessForm();
             }
 
-            $(document).on('click','#add-system-action-role-access',function() {
-                const system_action_id = $(this).data('system-action-id');
-    
-                sessionStorage.setItem('system_action_id', system_action_id);
-    
+            $(document).on('click','#add-system-action-role-access',function() {    
                 $('#add-system-action-role-access-modal').modal('show');
                 addSystemActionRoleAccessTable('#add-system-action-role-access-table');
             });
@@ -261,7 +257,7 @@
         });
 
         $(document).on('click','#delete-system-action-details',function() {
-            const system_action_id = $(this).data('system-action-id');
+            const system_action_id = $('#system-action-id').text();
             const transaction = 'delete system action';
     
             Swal.fire({
@@ -326,7 +322,7 @@
         });
 
         $(document).on('click','#duplicate-system-action',function() {
-            const system_action_id = $(this).data('system-action-id');
+            const system_action_id = $('#system-action-id').text();
             const transaction = 'duplicate system action';
     
             Swal.fire({
@@ -484,7 +480,7 @@ function updateSystemActionRoleAccessTable(datatable_name, buttons = false, show
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'system_action_id' : system_action_id},
@@ -538,7 +534,7 @@ function addSystemActionRoleAccessTable(datatable_name, buttons = false, show_al
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'system_action_id' : system_action_id},
@@ -664,8 +660,8 @@ function systemActionForm(){
 function addSystemActionRoleAccessForm(){
     $('#add-system-action-role-access-form').validate({
         submitHandler: function(form) {
-            const transaction = 'add system action role access';
             const system_action_id = $('#system-action-id').text();
+            const transaction = 'add system action role access';
 
             var role_id = [];
 

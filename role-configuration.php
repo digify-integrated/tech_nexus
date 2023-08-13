@@ -113,7 +113,7 @@
           if($newRecord && $roleCreateAccess['total'] > 0){
             require_once('view/_role_configuration_new.php');
           }
-          else if(!empty($roleID && $roleWriteAccess['total'] > 0)){
+          else if(!empty($roleID) && $roleWriteAccess['total'] > 0){
             require_once('view/_role_configuration_details.php');
           }
           else{

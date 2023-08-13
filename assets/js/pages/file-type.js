@@ -21,7 +21,7 @@
                 fileExtensionForm();
             }
 
-            $(document).on('click','#create-file-extension',function() {
+            $(document).on('click','#add-file-extension',function() {
                 resetModalForm("file-extension-form");
 
                 $('#file-extension-modal').modal('show');
@@ -217,7 +217,7 @@
         });
 
         $(document).on('click','#delete-file-type-details',function() {
-            const file_type_id = $(this).data('file-type-id');
+            const file_type_id = $('#file-type-id').text();
             const transaction = 'delete file type';
     
             Swal.fire({
@@ -282,7 +282,7 @@
         });
 
         $(document).on('click','#duplicate-file-type',function() {
-            const file_type_id = $(this).data('file-type-id');
+            const file_type_id = $('#file-type-id').text();
             const transaction = 'duplicate file type';
     
             Swal.fire({
