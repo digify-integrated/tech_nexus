@@ -91,7 +91,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $userAccountID .'">',
                         'FILE_AS' => '<div class="row">
                                         <div class="col-auto pe-0">
-                                        <img src="'. $profilePicture .'" alt="user-image" class="wid-40 rounded-circle">
+                                        <img src="'. $profilePicture .'" alt="user-image" class="wid-40 hei-40 rounded-circle">
                                         </div>
                                         <div class="col">
                                         <h6 class="mb-0">'. $fileAs .'</h6>

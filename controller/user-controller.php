@@ -25,12 +25,16 @@ class UserController {
     #
     # Parameters:
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
+    # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel) {
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
@@ -119,6 +123,12 @@ class UserController {
                     break;
                 case 'change user account password':
                     $this->updateUserAccountPassword();
+                    break;
+                case 'change user account profile picture':
+                    $this->updateUserAccountProfilePicture();
+                    break;
+                case 'send reset password instructions':
+                    $this->sendResetPasswordInstructions();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -267,6 +277,23 @@ class UserController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $userAccount = $this->userModel->getUserByID($userAccountID);
+        $profilePicture = $userAccount['profile_picture'] ?? null;
+
+        if(file_exists($profilePicture)){
+            /*if (!unlink($profilePicture)) {
+                echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                exit;
+            }*/
+
+            echo json_encode(['success' => false, 'message' => 'File exist.']);
+            exit;
+        }
+        else{
+            echo json_encode(['success' => false, 'message' => $profilePicture]);
+            exit;
+        }
     
         $this->userModel->deleteUserAccount($userAccountID);
             
@@ -302,6 +329,16 @@ class UserController {
         }
 
         foreach($userAccountIDs as $userAccountID){
+            $userAccount = $this->userModel->getUserByID($userAccountID);
+            $profilePicture = $userAccount['profile_picture'] ?? null;
+    
+            if(file_exists($profilePicture)){
+                if (!unlink($profilePicture)) {
+                    echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
             $this->userModel->deleteUserAccount($userAccountID);
         }
             
@@ -672,6 +709,7 @@ class UserController {
             $isLocked = $userAccount['is_locked'];
             $isActive = $userAccount['is_active'];
             $accountLockDuration = $userAccount['account_lock_duration'];
+            $profilePicture = $userAccount['profile_picture'] ?? DEFAULT_AVATAR_IMAGE;
             $passwordExpiryDate = date('m/d/Y', strtotime($userAccount['password_expiry_date']));
             $lastPasswordReset = ($userAccount['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_password_reset'])) : 'Never Reset';
             $lastConnectionDate = ($userAccount['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_connection_date'])) : 'Never Connected';
@@ -689,7 +727,6 @@ class UserController {
                 $accountLockDuration = '--';
             }
             
-
             $response = [
                 'success' => true,
                 'fileAs' => $userAccount['file_as'],
@@ -700,7 +737,8 @@ class UserController {
                 'lastConnectionDate' => $lastConnectionDate,
                 'passwordExpiryDate' => $passwordExpiryDate,
                 'lastPasswordReset' => $lastPasswordReset,
-                'accountLockDuration' => $accountLockDuration
+                'accountLockDuration' => $accountLockDuration,
+                'profilePicture' => $profilePicture
             ];
 
             echo json_encode($response);
@@ -942,7 +980,6 @@ class UserController {
     
         $user = $this->userModel->getUserByID($userID);
         $isActive = $user['is_active'] ?? 0;
-        $userPassword = $this->securityModel->decryptData($user['password']);
     
         if (!$isActive) {
             echo json_encode(['success' => false, 'isInactive' => true]);
@@ -965,6 +1002,109 @@ class UserController {
         $this->userModel->updateUserPassword($userAccountID, $email, $encryptedPassword, $passwordExpiryDate, $lastPasswordChange);
         $this->userModel->insertPasswordHistory($userAccountID, $email, $encryptedPassword, $lastPasswordChange);
     
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateUserAccountProfilePicture
+    # Description: 
+    # Handles the update of the profile picture.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateUserAccountProfilePicture() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $profilePictureFileName = $_FILES['profile_picture']['name'];
+        $profilePictureFileSize = $_FILES['profile_picture']['size'];
+        $profilePictureFileError = $_FILES['profile_picture']['error'];
+        $profilePictureTempName = $_FILES['profile_picture']['tmp_name'];
+        $profilePictureFileExtension = explode('.', $profilePictureFileName);
+        $profilePictureActualFileExtension = strtolower(end($profilePictureFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(1);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(1);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($profilePictureActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($profilePictureTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the profile picture.']);
+            exit;
+        }
+        
+        if($profilePictureFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($profilePictureFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The uploaded file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $profilePictureActualFileExtension;
+
+        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'user/profile_picture/';
+        $fileDestination = $fileDirectory . $fileNew;
+        $filePath = $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker($directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        $userAccount = $this->userModel->getUserByID($userAccountID);
+        $profilePicture = $userAccount['profile_picture'] ?? null;
+
+        if(file_exists($profilePicture)){
+            if (!unlink($profilePicture)) {
+                echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        if(!move_uploaded_file($profilePictureTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->userModel->updateUserProfilePicture($userAccountID, $filePath, $userID);
+
         echo json_encode(['success' => true]);
         exit;
     }
@@ -1363,6 +1503,49 @@ class UserController {
         exit;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendResetPasswordInstructions
+    # Description: 
+    # Send the password reset instructions.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendResetPasswordInstructions() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        $encryptedUserID = $this->securityModel->encryptData($userAccountID);
+    
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $userAccount = $this->userModel->getUserByID($userAccountID);
+        $email = $userAccount['email'] ?? null;
+    
+        $resetToken = $this->generateResetToken();
+        $encryptedResetToken = $this->securityModel->encryptData($resetToken);
+        $resetTokenExpiryDate = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+    
+        $this->userModel->updateResetToken($userAccountID, $encryptedResetToken, $resetTokenExpiryDate);
+        $this->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
+    
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -1687,10 +1870,12 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

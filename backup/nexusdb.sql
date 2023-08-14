@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 12, 2023 at 12:41 PM
+-- Generation Time: Aug 14, 2023 at 11:28 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -68,6 +68,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileTypeExist` (IN `p_file_typ
 	SELECT COUNT(*) AS total
     FROM file_type
     WHERE file_type_id = p_file_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkInterfaceSettingExist` (IN `p_interface_setting_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuGroupExist` (IN `p_menu_group_id` INT)   BEGIN
@@ -148,6 +154,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemActionRoleExist` (IN `p_
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkSystemSettingExist` (IN `p_system_setting_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUICustomizationSettingExist` (IN `p_user_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM ui_customization_setting
@@ -210,6 +222,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileType` (IN `p_file_type_id
     WHERE file_type_id = p_file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteInterfaceSetting` (IN `p_interface_setting_id` INT)   BEGIN
+	DELETE FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedFileExtension` (IN `p_file_type_id` INT)   BEGIN
 	DELETE FROM file_extension
     WHERE file_type_id = p_file_type_id;
@@ -252,6 +269,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemActionRoleAccess` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
 	DELETE FROM system_action_access_rights
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteSystemSetting` (IN `p_system_setting_id` INT)   BEGIN
+	DELETE FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
@@ -297,6 +319,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileType` (IN `p_file_type
     VALUES(p_file_type_name, p_last_log_by);
     
     SET p_new_file_type_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_interface_setting_id` INT)   BEGIN
+    DECLARE p_interface_setting_name VARCHAR(100);
+    DECLARE p_interface_setting_description VARCHAR(200);
+    DECLARE p_value VARCHAR(1000);
+    
+    SELECT interface_setting_name, interface_setting_description, value
+    INTO p_interface_setting_name, p_interface_setting_description, p_value
+    FROM interface_setting 
+    WHERE interface_setting_id = p_interface_setting_id;
+    
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
+    VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+    
+    SET p_new_interface_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -361,6 +399,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemAction` (IN `p_syste
     VALUES(p_system_action_name, p_last_log_by);
     
     SET p_new_system_action_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateSystemSetting` (IN `p_system_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_system_setting_id` INT)   BEGIN
+    DECLARE p_system_setting_name VARCHAR(100);
+    DECLARE p_system_setting_description VARCHAR(200);
+    DECLARE p_value VARCHAR(1000);
+    
+    SELECT system_setting_name, system_setting_description, value
+    INTO p_system_setting_name, p_system_setting_description, p_value
+    FROM system_setting 
+    WHERE system_setting_id = p_system_setting_id;
+    
+    INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) 
+    VALUES(p_system_setting_name, p_system_setting_description, p_value, p_last_log_by);
+    
+    SET p_new_system_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateUploadSetting` (IN `p_upload_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_upload_setting_id` INT)   BEGIN
@@ -461,6 +515,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileTypeTable` ()   BEGIN
 	SELECT file_type_id, file_type_name 
     FROM file_type
     ORDER BY file_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateInterfaceSettingTable` ()   BEGIN
+	SELECT interface_setting_id, interface_setting_name, interface_setting_description, value
+    FROM interface_setting
+    ORDER BY interface_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
@@ -570,6 +630,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemActionTable` ()   BEG
     ORDER BY system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateSystemSettingTable` ()   BEGIN
+	SELECT system_setting_id, system_setting_name, system_setting_description, value
+    FROM system_setting
+    ORDER BY system_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUploadSettingFileExensionTable` (IN `p_upload_setting_id` INT)   BEGIN
 	SELECT file_extension_id, file_extension_name 
     FROM file_extension
@@ -660,6 +726,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileType` (IN `p_file_type_id` I
     WHERE file_type_id = p_file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getInterfaceSetting` (IN `p_interface_setting_id` INT)   BEGIN
+	SELECT * FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
@@ -697,6 +768,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getSystemAction` (IN `p_system_acti
     WHERE system_action_id = p_system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getSystemSetting` (IN `p_system_setting_id` INT)   BEGIN
+	SELECT * FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUICustomizationSetting` (IN `p_user_id` INT)   BEGIN
 	SELECT * FROM ui_customization_setting
 	WHERE user_id = p_user_id;
@@ -704,6 +780,11 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUploadSetting` (IN `p_upload_setting_id` INT)   BEGIN
 	SELECT * FROM upload_setting
+    WHERE upload_setting_id = p_upload_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getUploadSettingFileExtension` (IN `p_upload_setting_id` INT)   BEGIN
+	SELECT * FROM upload_setting_file_extension
     WHERE upload_setting_id = p_upload_setting_id;
 END$$
 
@@ -734,6 +815,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileType` (IN `p_file_type_na
 	VALUES(p_file_type_name, p_last_log_by);
 	
     SET p_file_type_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_interface_setting_id` INT)   BEGIN
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
+	VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+	
+    SET p_interface_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuGroup` (IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT, OUT `p_menu_group_id` INT)   BEGIN
@@ -782,6 +870,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSystemAction` (IN `p_system_a
 	VALUES(p_system_action_name, p_last_log_by);
 	
     SET p_system_action_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertSystemSetting` (IN `p_system_setting_name` VARCHAR(100), IN `p_system_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_system_setting_id` INT)   BEGIN
+    INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) 
+	VALUES(p_system_setting_name, p_system_setting_description, p_value, p_last_log_by);
+	
+    SET p_system_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUICustomizationSetting` (IN `p_user_id` INT, IN `p_type` VARCHAR(30), IN `p_customization_value` VARCHAR(15), IN `p_last_log_by` INT(10))   BEGIN
@@ -862,6 +957,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFileType` (IN `p_file_type_id
     SET file_type_name = p_file_type_name,
     last_log_by = p_last_log_by
     WHERE file_type_id = p_file_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+	UPDATE interface_setting
+    SET interface_setting_name = p_interface_setting_name,
+    interface_setting_description = p_interface_setting_description,
+    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE interface_setting_id = p_interface_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLastConnection` (IN `p_user_id` INT, IN `p_last_connection_date` DATETIME)   BEGIN
@@ -979,6 +1083,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateSystemAction` (IN `p_system_a
     WHERE system_action_id = p_system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateSystemSetting` (IN `p_system_setting_id` INT, IN `p_system_setting_name` VARCHAR(100), IN `p_system_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+	UPDATE system_setting
+    SET system_setting_name = p_system_setting_name,
+    system_setting_description = p_system_setting_description,
+    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE system_setting_id = p_system_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateTwoFactorAuthentication` (IN `p_user_id` INT, IN `p_two_factor_auth` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
 	UPDATE users 
     SET two_factor_auth = p_two_factor_auth, last_log_by = p_last_log_by 
@@ -1038,6 +1151,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserPassword` (IN `p_user_id`
 	UPDATE users 
     SET password = p_password, password_expiry_date = p_password_expiry_date, last_password_change = p_last_password_change, is_locked = 0, failed_login_attempts = 0, account_lock_duration = 0
     WHERE p_user_id = p_user_id OR email = BINARY p_email;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserProfilePicture` (IN `p_user_id` INT, IN `p_profile_picture` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET profile_picture = p_profile_picture, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
 END$$
 
 DELIMITER ;
@@ -1431,7 +1550,48 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (367, 'system_action_access_rights', 16, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:38'),
 (368, 'system_action_access_rights', 16, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-12 17:55:39'),
 (369, 'system_action_access_rights', 16, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:39'),
-(370, 'system_action_access_rights', 16, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:39');
+(370, 'system_action_access_rights', 16, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-12 17:55:39'),
+(371, 'file_extension', 6, 'File Exension Name: test23 -> png<br/>', '1', '2023-08-14 11:18:30'),
+(372, 'file_extension', 9, 'File extension created. <br/><br/>File Exension Name: jpg<br/>File Type ID: 5', '1', '2023-08-14 11:18:39'),
+(373, 'file_extension', 10, 'File extension created. <br/><br/>File Exension Name: jpeg<br/>File Type ID: 5', '1', '2023-08-14 11:18:45'),
+(374, 'file_type', 5, 'File Type Name: test -> Image<br/>', '1', '2023-08-14 11:18:54'),
+(375, 'upload_setting', 1, 'Upload Setting Name: asd2 -> Profile Image<br/>Upload Setting Description: asd2 -> Profile Image<br/>', '1', '2023-08-14 11:19:47'),
+(376, 'system_action', 17, 'System action created. <br/><br/>System Action Name: Send Reset Password Instructrions', '1', '2023-08-14 14:34:53'),
+(377, 'system_action_access_rights', 17, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-14 14:34:58'),
+(378, 'system_action_access_rights', 17, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-14 14:34:58'),
+(379, 'system_action_access_rights', 17, 'System action access rights created. <br/><br/>Role ID: 2', '1', '2023-08-14 14:34:59'),
+(380, 'system_action_access_rights', 17, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-14 14:34:59'),
+(381, 'system_action_access_rights', 17, 'Role ID: 2<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-14 14:34:59'),
+(382, 'system_action_access_rights', 17, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-08-14 14:34:59'),
+(383, 'system_action_access_rights', 17, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-14 14:34:59'),
+(384, 'system_action_access_rights', 17, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-08-14 14:34:59'),
+(385, 'system_action', 17, 'System Action Name: Send Reset Password Instructrions -> Send Reset Password Instructions<br/>', '1', '2023-08-14 14:38:01'),
+(386, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 1<br/>URL: interface-setting.php<br/>Parent ID: 1<br/>Order Sequence: 3', '1', '2023-08-14 17:16:50'),
+(387, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-14 17:16:55'),
+(388, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-14 17:16:55'),
+(389, 'menu_item_access_right', 13, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:56'),
+(390, 'menu_item_access_right', 13, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:56'),
+(391, 'menu_item_access_right', 13, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:57'),
+(392, 'menu_item_access_right', 13, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:57'),
+(393, 'menu_item_access_right', 13, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:58'),
+(394, 'menu_item_access_right', 13, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:58'),
+(395, 'menu_item_access_right', 13, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:59'),
+(396, 'menu_item_access_right', 13, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:16:59'),
+(397, 'menu_item_access_right', 13, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:17:00'),
+(398, 'menu_item_access_right', 13, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:17:01'),
+(399, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 1<br/>URL: system-setting.php<br/>Parent ID: 4<br/>Order Sequence: 16', '1', '2023-08-14 17:18:05'),
+(400, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-14 17:18:12'),
+(401, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-14 17:18:12'),
+(402, 'menu_item_access_right', 14, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:14'),
+(403, 'menu_item_access_right', 14, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:14'),
+(404, 'menu_item_access_right', 14, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:15'),
+(405, 'menu_item_access_right', 14, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:15'),
+(406, 'menu_item_access_right', 14, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:15'),
+(407, 'menu_item_access_right', 14, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:16'),
+(408, 'menu_item_access_right', 14, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:17'),
+(409, 'menu_item_access_right', 14, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:17'),
+(410, 'menu_item_access_right', 14, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:19'),
+(411, 'menu_item_access_right', 14, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:20');
 
 -- --------------------------------------------------------
 
@@ -1451,7 +1611,9 @@ CREATE TABLE `file_extension` (
 --
 
 INSERT INTO `file_extension` (`file_extension_id`, `file_extension_name`, `file_type_id`, `last_log_by`) VALUES
-(6, 'test23', 5, 1);
+(6, 'png', 5, 1),
+(9, 'jpg', 5, 1),
+(10, 'jpeg', 5, 1);
 
 --
 -- Triggers `file_extension`
@@ -1510,7 +1672,7 @@ CREATE TABLE `file_type` (
 --
 
 INSERT INTO `file_type` (`file_type_id`, `file_type_name`, `last_log_by`) VALUES
-(5, 'test', 1);
+(5, 'Image', 1);
 
 --
 -- Triggers `file_type`
@@ -1539,6 +1701,68 @@ CREATE TRIGGER `file_type_trigger_update` AFTER UPDATE ON `file_type` FOR EACH R
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('file_type', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `interface_setting`
+--
+
+CREATE TABLE `interface_setting` (
+  `interface_setting_id` int(10) UNSIGNED NOT NULL,
+  `interface_setting_name` varchar(100) NOT NULL,
+  `interface_setting_description` varchar(200) NOT NULL,
+  `value` varchar(1000) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `interface_setting`
+--
+DELIMITER $$
+CREATE TRIGGER `interface_setting_trigger_insert` AFTER INSERT ON `interface_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Interface setting created. <br/>';
+
+    IF NEW.interface_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Name: ", NEW.interface_setting_name);
+    END IF;
+
+    IF NEW.interface_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Description: ", NEW.interface_setting_description);
+    END IF;
+
+    IF NEW.value <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('interface_setting', NEW.interface_setting_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `interface_setting_trigger_update` AFTER UPDATE ON `interface_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.interface_setting_name <> OLD.interface_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Interface Setting Name: ", OLD.interface_setting_name, " -> ", NEW.interface_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.interface_setting_description <> OLD.interface_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Interface Setting Description: ", OLD.interface_setting_description, " -> ", NEW.interface_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.value <> OLD.value THEN
+        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('interface_setting', NEW.interface_setting_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -1637,7 +1861,9 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (9, 'Configurations', 1, '', 0, 'settings', 30, 1),
 (10, 'File Type', 1, 'file-type.php', 9, '', 30, 1),
 (11, 'File Extension', 1, 'file-extension.php', 9, '', 31, 1),
-(12, 'Upload Setting', 1, 'upload-setting.php', 9, '', 29, 1);
+(12, 'Upload Setting', 1, 'upload-setting.php', 9, '', 29, 1),
+(13, 'Interface Setting', 1, 'interface-setting.php', 1, '', 3, 1),
+(14, 'System Setting', 1, 'system-setting.php', 4, '', 16, 1);
 
 --
 -- Triggers `menu_item`
@@ -1752,7 +1978,11 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (11, 2, 1, 1, 1, 1, 1, 1),
 (11, 1, 1, 1, 1, 1, 1, 1),
 (12, 2, 1, 1, 1, 1, 1, 1),
-(12, 1, 1, 1, 1, 1, 1, 1);
+(12, 1, 1, 1, 1, 1, 1, 1),
+(13, 2, 1, 1, 1, 1, 1, 1),
+(13, 1, 1, 1, 1, 1, 1, 1),
+(14, 2, 1, 1, 1, 1, 1, 1),
+(14, 1, 1, 1, 1, 1, 1, 1);
 
 --
 -- Triggers `menu_item_access_right`
@@ -1972,7 +2202,8 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (13, 'Change User Account Password', 1),
 (14, 'Change User Account Profile Picture', 1),
 (15, 'Assign File Extension To Upload Setting', 1),
-(16, 'Delete File Extension To Upload Setting', 1);
+(16, 'Delete File Extension To Upload Setting', 1),
+(17, 'Send Reset Password Instructions', 1);
 
 --
 -- Triggers `system_action`
@@ -2072,7 +2303,11 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (16, 2, 1, 1),
 (16, 1, 1, 1),
 (16, 2, 1, 1),
-(16, 1, 1, 1);
+(16, 1, 1, 1),
+(17, 2, 1, 1),
+(17, 1, 1, 1),
+(17, 2, 1, 1),
+(17, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -2107,6 +2342,68 @@ CREATE TRIGGER `system_action_access_rights_update` AFTER UPDATE ON `system_acti
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('system_action_access_rights', NEW.system_action_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_setting`
+--
+
+CREATE TABLE `system_setting` (
+  `system_setting_id` int(10) UNSIGNED NOT NULL,
+  `system_setting_name` varchar(100) NOT NULL,
+  `system_setting_description` varchar(200) NOT NULL,
+  `value` varchar(1000) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `system_setting`
+--
+DELIMITER $$
+CREATE TRIGGER `system_setting_trigger_insert` AFTER INSERT ON `system_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System setting created. <br/>';
+
+    IF NEW.system_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Setting Name: ", NEW.system_setting_name);
+    END IF;
+
+    IF NEW.system_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Setting Description: ", NEW.system_setting_description);
+    END IF;
+
+    IF NEW.value <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('system_setting', NEW.system_setting_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `system_setting_trigger_update` AFTER UPDATE ON `system_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.system_setting_name <> OLD.system_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "System Setting Name: ", OLD.system_setting_name, " -> ", NEW.system_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.system_setting_description <> OLD.system_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "System Setting Description: ", OLD.system_setting_description, " -> ", NEW.system_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.value <> OLD.value THEN
+        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('system_setting', NEW.system_setting_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -2228,14 +2525,14 @@ CREATE TABLE `upload_setting` (
 --
 
 INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `upload_setting_description`, `max_file_size`, `last_log_by`) VALUES
-(1, 'asd2', 'asd2', 3, 1);
+(1, 'Profile Image', 'Profile Image', 3, 1);
 
 --
 -- Triggers `upload_setting`
 --
 DELIMITER $$
 CREATE TRIGGER `upload_setting_trigger_insert` AFTER INSERT ON `upload_setting` FOR EACH ROW BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Uploan setting created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Upload setting created. <br/>';
 
     IF NEW.upload_setting_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Upload Setting Name: ", NEW.upload_setting_name);
@@ -2286,7 +2583,7 @@ DELIMITER ;
 
 CREATE TABLE `upload_setting_file_extension` (
   `upload_setting_id` int(10) UNSIGNED NOT NULL,
-  `file_extension_id` int(11) NOT NULL,
+  `file_extension_id` int(10) UNSIGNED NOT NULL,
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -2295,6 +2592,8 @@ CREATE TABLE `upload_setting_file_extension` (
 --
 
 INSERT INTO `upload_setting_file_extension` (`upload_setting_id`, `file_extension_id`, `last_log_by`) VALUES
+(1, 10, 1),
+(1, 9, 1),
 (1, 6, 1);
 
 -- --------------------------------------------------------
@@ -2335,11 +2634,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', NULL, NULL, 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
-(2, 'Employee', 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 0, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 1, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
-(3, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
-(5, 'nexus', 'nexus@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
-(11, 'lmicayas', 'lmicayas@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', NULL, 0, 1, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile image/VzAF.jpg', 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
+(2, 'Employee', 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', './assets/images/user/profile image/qwNF.png', 0, 0, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 1, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
+(11, 'lmicayas', 'lmicayas@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', '../assets/images/user/profile_picture/dFYu.jpg', 0, 1, NULL, 0, NULL, '2024-02-10', 'JvZv7bOBHJvbSGd7F5he3q9E5xGVwXftFzzfpVBnMw4%3D', '2023-08-14 17:13:35', 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -2506,6 +2803,13 @@ ALTER TABLE `file_type`
   ADD KEY `file_type_index_file_type_id` (`file_type_id`);
 
 --
+-- Indexes for table `interface_setting`
+--
+ALTER TABLE `interface_setting`
+  ADD PRIMARY KEY (`interface_setting_id`),
+  ADD KEY `interface_setting_index_interface_setting_id` (`interface_setting_id`);
+
+--
 -- Indexes for table `menu_group`
 --
 ALTER TABLE `menu_group`
@@ -2551,6 +2855,13 @@ ALTER TABLE `system_action`
   ADD KEY `system_action_index_system_action_id` (`system_action_id`);
 
 --
+-- Indexes for table `system_setting`
+--
+ALTER TABLE `system_setting`
+  ADD PRIMARY KEY (`system_setting_id`),
+  ADD KEY `system_setting_index_system_setting_id` (`system_setting_id`);
+
+--
 -- Indexes for table `ui_customization_setting`
 --
 ALTER TABLE `ui_customization_setting`
@@ -2564,14 +2875,6 @@ ALTER TABLE `ui_customization_setting`
 ALTER TABLE `upload_setting`
   ADD PRIMARY KEY (`upload_setting_id`),
   ADD KEY `upload_setting_index_upload_setting_id` (`upload_setting_id`);
-
---
--- Indexes for table `upload_setting_file_extension`
---
-ALTER TABLE `upload_setting_file_extension`
-  ADD PRIMARY KEY (`upload_setting_id`),
-  ADD KEY `upload_setting_file_extension_index_upload_setting_id` (`upload_setting_id`),
-  ADD KEY `upload_setting_file_extension_index_file_extension_id` (`file_extension_id`);
 
 --
 -- Indexes for table `users`
@@ -2589,19 +2892,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=371;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=412;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
 --
 ALTER TABLE `file_extension`
-  MODIFY `file_extension_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `file_extension_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `file_type`
 --
 ALTER TABLE `file_type`
   MODIFY `file_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `interface_setting`
+--
+ALTER TABLE `interface_setting`
+  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -2613,7 +2922,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `password_history`
@@ -2631,7 +2940,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `system_setting`
+--
+ALTER TABLE `system_setting`
+  MODIFY `system_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -2643,12 +2958,6 @@ ALTER TABLE `ui_customization_setting`
 -- AUTO_INCREMENT for table `upload_setting`
 --
 ALTER TABLE `upload_setting`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `upload_setting_file_extension`
---
-ALTER TABLE `upload_setting_file_extension`
   MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --

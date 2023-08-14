@@ -172,5 +172,59 @@ class SecurityModel {
         return $response;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateFileName
+    # Description: 
+    # Generates a random file name of specified length.
+    #
+    # Parameters: 
+    # - $minLength (int): The minimum length of the generated token. Default is 4.
+    # - $maxLength (int): The maximum length of the generated token. Default is 4.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function generateFileName($minLength = 4, $maxLength = 4) {
+        $length = mt_rand($minLength, $maxLength);
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+';
+        $characterCount = strlen($characters);
+        $fileName = '';
+    
+        for ($i = 0; $i < $length; $i++) {
+            $fileName .= $characters[random_int(0, $characterCount - 1)];
+        }
+    
+        return $fileName;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: directoryChecker
+    # Description: 
+    # Checks the directory if it exists and create if not exist.
+    #
+    # Parameters: 
+    # - $directory (string): The directory.
+    #
+    # Returns: Bool
+    #
+    # -------------------------------------------------------------
+    public function directoryChecker($directory) {
+        if (!is_dir($directory)) {
+            if (!mkdir($directory, 0755, true)) {
+                $error = error_get_last();
+                return 'Error creating directory: ' . ($error ? $error['message'] : 'Unknown error');
+            }
+        }
+        else if (!is_writable($directory)) {
+            return 'Directory exists, but is not writable';
+        }
+    
+        return true;
+    }
+    # -------------------------------------------------------------
 }
 ?>

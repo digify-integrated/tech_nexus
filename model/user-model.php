@@ -474,6 +474,28 @@ class UserModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateUserProfilePicture
+    # Description: Updates the user account.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user account ID.
+    # - $p_profile_picture (string): The profile picture file path.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateUserProfilePicture($p_user_id, $p_profile_picture, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateUserProfilePicture(:p_user_id, :p_profile_picture, :p_last_log_by)');
+        $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_profile_picture', $p_profile_picture, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 

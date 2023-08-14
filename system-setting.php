@@ -3,6 +3,8 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/system-setting-model.php');
+    require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
@@ -10,27 +12,22 @@
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
+    $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
+    $systemSettingModel = new SystemSetting($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'User Account';
+    $page_title = 'System Setting';
     
-    $userAccountReadAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'read');
-    $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'create');
-    $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
-    $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
-    $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
-    $activateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 9);
-    $deactivateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 10);
-    $lockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 11);
-    $unlockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 12);
-    $changeUserAccountPassword = $userModel->checkSystemActionAccessRights($user_id, 13);
-    $changeUserAccountProfilePicture = $userModel->checkSystemActionAccessRights($user_id, 14);
-    $sendResetPasswordInstructions = $userModel->checkSystemActionAccessRights($user_id, 17);
+    $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
+    $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
+    $systemSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
+    $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
+    $systemSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'duplicate');
 
-    if ($userAccountReadAccess['total'] == 0) {
+    if ($systemSettingReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -42,26 +39,22 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-          header('location: user-account.php');
-          exit;
+            header('location: system-setting.php');
+            exit;
         }
 
-        $userAccountID = $securityModel->decryptData($_GET['id']);
+        $systemSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkUserExist = $userModel->checkUserExist($userAccountID, null);
-        $total = $checkUserExist['total'] ?? 0;
+        $checkUploadSettingExist = $systemSettingModel->checkUploadSettingExist($systemSettingID);
+        $total = $checkUploadSettingExist['total'] ?? 0;
 
         if($total == 0){
-          header('location: 404.php');
-          exit;
+            header('location: 404.php');
+            exit;
         }
-
-        $userDetails = $userModel->getUserByID($userAccountID);
-        $isActive = $userDetails['is_active'];
-        $isLocked = $userDetails['is_locked'];
     }
     else{
-        $userAccountID = null;
+        $systemSettingID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -73,8 +66,6 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
-    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
-    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -96,10 +87,10 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="user-account.php">User Account</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="system-setting.php">System Setting</a></li>
                   <?php
-                    if(!empty($userAccountID)){
-                      echo '<li class="breadcrumb-item" id="user-account-id">'. $userAccountID .'</li>';
+                    if(!empty($systemSettingID)){
+                      echo '<li class="breadcrumb-item" id="system-setting-id">'. $systemSettingID .'</li>';
                     }
 
                     if($newRecord){
@@ -110,21 +101,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">User Account</h2>
+                  <h2 class="mb-0">System Setting</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $userAccountCreateAccess['total'] > 0){
-            require_once('view/_user_account_new.php');
+          if($newRecord && $systemSettingCreateAccess['total'] > 0){
+            require_once('view/_system_setting_new.php');
           }
-          else if(!empty($userAccountID) && $userAccountWriteAccess['total'] > 0){
-            require_once('view/_user_account_details.php');
+          else if(!empty($systemSettingID) && $systemSettingWriteAccess['total'] > 0){
+            require_once('view/_system_setting_details.php');
           }
           else{
-            require_once('view/_user_account.php');
+            require_once('view/_system_setting.php');
           }
         ?>
       </div>
@@ -137,13 +128,11 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
-    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/user-account.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/system-setting.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

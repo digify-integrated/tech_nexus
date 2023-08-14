@@ -17,13 +17,21 @@
                 userAccountRoleTable('#user-account-role-access-table');
             }
 
-            if($('#add-user-account-role-modal').length){
+            if($('#add-user-account-role-form').length){
                 addUserAccountRoleForm();
+            }
+
+            if($('#change-user-account-profile-picture-form').length){
+                changeUserAccountProfilePictureForm();
             }
 
             $(document).on('click','#add-user-account-role',function() {    
                 $('#add-user-account-role-modal').modal('show');
                 addUserAccountRoleTable('#add-user-account-role-table');
+            });
+
+            $(document).on('click','#change-user-account-profile-picture',function() {    
+                $('#change-user-account-profile-picture-modal').modal('show');
             });
 
             $(document).on('click','.delete-user-account-role',function() {
@@ -775,16 +783,16 @@
             enableForm();
         });
 
-        $(document).on('click','#duplicate-user-account',function() {
-            const user_account_id = $(this).data('user-account-id');
-            const transaction = 'duplicate user account';
+        $(document).on('click','#send-reset-password-instructions',function() {
+            const user_account_id = $('#user-account-id').text();
+            const transaction = 'send reset password instructions';
     
             Swal.fire({
-                title: 'Confirm User Account Duplication',
-                text: 'Are you sure you want to duplicate this user account?',
-                icon: 'info',
+                title: 'Confirm Reset Password Instructions Send',
+                text: 'Are you sure you want to send reset password instructions to this user account?',
+                icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'Duplicate',
+                confirmButtonText: 'Send',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -801,8 +809,7 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate User Account Success', 'The user account has been duplicated successfully.', 'success');
-                                window.location = 'user-account.php?id=' + response.userAccountID;
+                                showNotification('Reset Password Instructions Send Success', 'The reset password instructions has been sent successfully.', 'success');
                             }
                             else {
                                 if (response.isInactive) {
@@ -810,11 +817,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate User Account Error', 'The user account does not exist.', 'danger');
-                                    reloadDatatable('#user-account-table');
+                                    showNotification('Reset Password Instructions Send Error', 'The user account does not exist.', 'danger');;
                                 }
                                 else {
-                                    showNotification('Duplicate User Account Error', response.message, 'danger');
+                                    showNotification('Reset Password Instructions Send Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -1180,6 +1186,96 @@ function addUserAccountRoleForm(){
     });
 }
 
+function changeUserAccountProfilePictureForm(){
+    $('#change-user-account-profile-picture-form').validate({
+        rules: {
+            profile_picture: {
+              required: true
+            }
+        },
+        messages: {
+            profile_picture: {
+              required: 'Please choose the profile picture'
+            }
+        },
+      errorPlacement: function (error, element) {
+        if (element.hasClass('select2')) {
+          error.insertAfter(element.next('.select2-container'));
+        }
+        else if (element.parent('.input-group').length) {
+          error.insertAfter(element.parent());
+        }
+        else {
+          error.insertAfter(element);
+        }
+      },
+      highlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        } 
+        else {
+          $(element).addClass('is-invalid');
+        }
+      },
+      unhighlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+        }
+        else {
+          $(element).removeClass('is-invalid');
+        }
+      },
+      submitHandler: function(form) {
+        const transaction = 'change user account profile picture';
+        const user_account_id = $('#user-account-id').text();
+
+        var formData = new FormData(form);
+        formData.append('user_account_id', user_account_id);
+        formData.append('transaction', transaction);
+  
+        $.ajax({
+            type: 'POST',
+            url: 'controller/user-controller.php',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            beforeSend: function() {
+                disableFormSubmitButton('submit-change-user-account-profile-picture');
+            },
+            success: function(response) {
+                if (response.success) {
+                    showNotification('Profile Picture Change Success', 'The profile picture has been successfully updated.', 'success');
+                    $('#change-user-account-profile-picture-modal').modal('hide');
+                    resetModalForm('change-user-account-profile-picture-form');
+                    displayDetails('get user account details');
+                }
+                else{
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else{
+                        showNotification('Profile Picture Change Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+            complete: function() {
+                enableFormSubmitButton('submit-change-user-account-profile-picture', 'Submit');
+            }
+        });
+  
+        return false;
+      }
+    });
+}
+
 function changePasswordForm(){
     $('#change-user-account-password-form').validate({
         rules: {
@@ -1298,6 +1394,7 @@ function displayDetails(transaction){
                         $('#password_expiry_date_label').text(response.passwordExpiryDate);
                         $('#account_lock_duration_label').text(response.accountLockDuration);
                         $('#last_password_reset_label').text(response.lastPasswordReset);
+                        document.getElementById('user_image').src = response.profilePicture;
 
                         document.getElementById('status_label').innerHTML = response.isActive;
                         document.getElementById('locked_label').innerHTML = response.isLocked;

@@ -331,6 +331,13 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
+CREATE PROCEDURE updateUserProfilePicture(IN p_user_id INT, IN p_profile_picture VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE users 
+    SET profile_picture = p_profile_picture, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE generateRoleUserAccountTable(IN p_role_id INT)
 BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users
@@ -1851,7 +1858,7 @@ CREATE TRIGGER upload_setting_trigger_insert
 AFTER INSERT ON upload_setting
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Uploan setting created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Upload setting created. <br/>';
 
     IF NEW.upload_setting_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Upload Setting Name: ", NEW.upload_setting_name);
@@ -1932,8 +1939,8 @@ END //
 
 /* Upload setting file extension table */
 CREATE TABLE upload_setting_file_extension(
-	upload_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	file_extension_id INT NOT NULL,
+	upload_setting_id INT UNSIGNED NOT NULL,
+	file_extension_id INT UNSIGNED NOT NULL,
     last_log_by INT NOT NULL
 );
 
@@ -1973,4 +1980,246 @@ BEGIN
     FROM file_extension
     WHERE file_extension_id NOT IN (SELECT file_extension_id FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id)
     ORDER BY file_extension_id;
+END //
+
+CREATE PROCEDURE getUploadSettingFileExtension(IN p_upload_setting_id INT)
+BEGIN
+	SELECT * FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id;
+END //
+
+/* Interface setting table */
+CREATE TABLE interface_setting(
+	interface_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	interface_setting_name VARCHAR(100) NOT NULL,
+	interface_setting_description VARCHAR(200) NOT NULL,
+	value VARCHAR(1000) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX interface_setting_index_interface_setting_id ON interface_setting(interface_setting_id);
+
+CREATE TRIGGER interface_setting_trigger_update
+AFTER UPDATE ON interface_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.interface_setting_name <> OLD.interface_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Interface Setting Name: ", OLD.interface_setting_name, " -> ", NEW.interface_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.interface_setting_description <> OLD.interface_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Interface Setting Description: ", OLD.interface_setting_description, " -> ", NEW.interface_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.value <> OLD.value THEN
+        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('interface_setting', NEW.interface_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER interface_setting_trigger_insert
+AFTER INSERT ON interface_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Interface setting created. <br/>';
+
+    IF NEW.interface_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Name: ", NEW.interface_setting_name);
+    END IF;
+
+    IF NEW.interface_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Description: ", NEW.interface_setting_description);
+    END IF;
+
+    IF NEW.value <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('interface_setting', NEW.interface_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkInterfaceSettingExist (IN p_interface_setting_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
+END //
+
+CREATE PROCEDURE insertInterfaceSetting(IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT, OUT p_interface_setting_id INT)
+BEGIN
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
+	VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+	
+    SET p_interface_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateInterfaceSetting(IN p_interface_setting_id INT, IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE interface_setting
+    SET interface_setting_name = p_interface_setting_name,
+    interface_setting_description = p_interface_setting_description,
+    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE interface_setting_id = p_interface_setting_id;
+END //
+
+CREATE PROCEDURE deleteInterfaceSetting(IN p_interface_setting_id INT)
+BEGIN
+	DELETE FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
+END //
+
+CREATE PROCEDURE getInterfaceSetting(IN p_interface_setting_id INT)
+BEGIN
+	SELECT * FROM interface_setting
+    WHERE interface_setting_id = p_interface_setting_id;
+END //
+
+CREATE PROCEDURE duplicateInterfaceSetting(IN p_interface_setting_id INT, IN p_last_log_by INT, OUT p_new_interface_setting_id INT)
+BEGIN
+    DECLARE p_interface_setting_name VARCHAR(100);
+    DECLARE p_interface_setting_description VARCHAR(200);
+    DECLARE p_value VARCHAR(1000);
+    
+    SELECT interface_setting_name, interface_setting_description, value
+    INTO p_interface_setting_name, p_interface_setting_description, p_value
+    FROM interface_setting 
+    WHERE interface_setting_id = p_interface_setting_id;
+    
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
+    VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+    
+    SET p_new_interface_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateInterfaceSettingTable()
+BEGIN
+	SELECT interface_setting_id, interface_setting_name, interface_setting_description, value
+    FROM interface_setting
+    ORDER BY interface_setting_id;
+END //
+
+/* System setting table */
+CREATE TABLE system_setting(
+	system_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	system_setting_name VARCHAR(100) NOT NULL,
+	system_setting_description VARCHAR(200) NOT NULL,
+	value VARCHAR(1000) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX system_setting_index_system_setting_id ON system_setting(system_setting_id);
+
+CREATE TRIGGER system_setting_trigger_update
+AFTER UPDATE ON system_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.system_setting_name <> OLD.system_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "System Setting Name: ", OLD.system_setting_name, " -> ", NEW.system_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.system_setting_description <> OLD.system_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "System Setting Description: ", OLD.system_setting_description, " -> ", NEW.system_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.value <> OLD.value THEN
+        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('system_setting', NEW.system_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER system_setting_trigger_insert
+AFTER INSERT ON system_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'System setting created. <br/>';
+
+    IF NEW.system_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Setting Name: ", NEW.system_setting_name);
+    END IF;
+
+    IF NEW.system_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Setting Description: ", NEW.system_setting_description);
+    END IF;
+
+    IF NEW.value <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('system_setting', NEW.system_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkSystemSettingExist (IN p_system_setting_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
+END //
+
+CREATE PROCEDURE insertSystemSetting(IN p_system_setting_name VARCHAR(100), IN p_system_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT, OUT p_system_setting_id INT)
+BEGIN
+    INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) 
+	VALUES(p_system_setting_name, p_system_setting_description, p_value, p_last_log_by);
+	
+    SET p_system_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateSystemSetting(IN p_system_setting_id INT, IN p_system_setting_name VARCHAR(100), IN p_system_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE system_setting
+    SET system_setting_name = p_system_setting_name,
+    system_setting_description = p_system_setting_description,
+    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE system_setting_id = p_system_setting_id;
+END //
+
+CREATE PROCEDURE deleteSystemSetting(IN p_system_setting_id INT)
+BEGIN
+	DELETE FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
+END //
+
+CREATE PROCEDURE getSystemSetting(IN p_system_setting_id INT)
+BEGIN
+	SELECT * FROM system_setting
+    WHERE system_setting_id = p_system_setting_id;
+END //
+
+CREATE PROCEDURE duplicateSystemSetting(IN p_system_setting_id INT, IN p_last_log_by INT, OUT p_new_system_setting_id INT)
+BEGIN
+    DECLARE p_system_setting_name VARCHAR(100);
+    DECLARE p_system_setting_description VARCHAR(200);
+    DECLARE p_value VARCHAR(1000);
+    
+    SELECT system_setting_name, system_setting_description, value
+    INTO p_system_setting_name, p_system_setting_description, p_value
+    FROM system_setting 
+    WHERE system_setting_id = p_system_setting_id;
+    
+    INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) 
+    VALUES(p_system_setting_name, p_system_setting_description, p_value, p_last_log_by);
+    
+    SET p_new_system_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateSystemSettingTable()
+BEGIN
+	SELECT system_setting_id, system_setting_name, system_setting_description, value
+    FROM system_setting
+    ORDER BY system_setting_id;
 END //

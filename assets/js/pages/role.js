@@ -586,7 +586,7 @@ function updateMenuItemRoleAccessTable(datatable_name, buttons = false, show_all
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
@@ -642,7 +642,7 @@ function updateSystemActionRoleAccessTable(datatable_name, buttons = false, show
 
     settings = {
         'ajax': { 
-            'url' : 'view/_system_action_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'role_id' : role_id},
