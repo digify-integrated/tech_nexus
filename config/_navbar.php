@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
-                            <img src="./assets/images/default/default-avatar.png" alt="user-image" class="user-avtar wid-45 rounded-circle" />
+                            <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
                             <h6 class="mb-0"><?php echo $fileAs; ?></h6>

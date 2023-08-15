@@ -10,13 +10,15 @@ if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
         $userID = $user['user_id'];
 
         if(empty($userID)){
-            header("Location: index.php");
+            header('Location: index.php');
             exit;
         }
 
         $_SESSION['user_id'] = $userID;
 
-        header("Location: dashboard.php");
+        $userModel->updateLastConnection($userID, $connectionDate);
+
+        header('Location: dashboard.php');
         exit;
     } 
     else {

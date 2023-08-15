@@ -71,7 +71,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $dataLock = $isLocked ? 0 : 1;
                     $dataUnlock = $isLocked ? 1 :0;
                     $passwordExpiryDate = date('m/d/Y', strtotime($row['password_expiry_date']));
-                    $profilePicture = ($row['profile_picture'] !== null) ? $row['profile_picture'] : DEFAULT_AVATAR_IMAGE;
+                    $profilePicture = $systemModel->checkImage($row['profile_picture'], 'profile');
                     $lastPasswordReset = ($row['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_password_reset'])) : 'Never Reset';
                     $lastConnectionDate = ($row['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_connection_date'])) : 'Never Connected';
                     $lastFailedLoginAttempt = ($row['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_failed_login_attempt'])) : 'Never Connected';

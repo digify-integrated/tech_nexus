@@ -208,6 +208,12 @@ BEGIN
     WHERE user_id = p_user_id;
 END //
 
+CREATE PROCEDURE deleteLinkedPasswordHistory(IN p_user_id INT)
+BEGIN
+    DELETE FROM password_history
+    WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE activateUserAccount(IN p_user_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE users 
@@ -1993,7 +1999,7 @@ CREATE TABLE interface_setting(
 	interface_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	interface_setting_name VARCHAR(100) NOT NULL,
 	interface_setting_description VARCHAR(200) NOT NULL,
-	value VARCHAR(1000) NOT NULL,
+	value VARCHAR(1000),
     last_log_by INT NOT NULL
 );
 
@@ -2052,20 +2058,27 @@ BEGIN
     WHERE interface_setting_id = p_interface_setting_id;
 END //
 
-CREATE PROCEDURE insertInterfaceSetting(IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT, OUT p_interface_setting_id INT)
+CREATE PROCEDURE insertInterfaceSetting(IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_last_log_by INT, OUT p_interface_setting_id INT)
 BEGIN
-    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
-	VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) 
+	VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
 	
     SET p_interface_setting_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateInterfaceSetting(IN p_interface_setting_id INT, IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateInterfaceSetting(IN p_interface_setting_id INT, IN p_interface_setting_name VARCHAR(100), IN p_interface_setting_description VARCHAR(200), IN p_last_log_by INT)
 BEGIN
 	UPDATE interface_setting
     SET interface_setting_name = p_interface_setting_name,
     interface_setting_description = p_interface_setting_description,
-    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE interface_setting_id = p_interface_setting_id;
+END //
+
+CREATE PROCEDURE updateInterfaceSettingValue(IN p_interface_setting_id INT, IN p_value VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE interface_setting
+    SET value = p_value,
     last_log_by = p_last_log_by
     WHERE interface_setting_id = p_interface_setting_id;
 END //

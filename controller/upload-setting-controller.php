@@ -112,7 +112,7 @@ class UploadSettingController {
         $userID = $_SESSION['user_id'];
         $uploadSettingID = isset($_POST['upload_setting_id']) ? htmlspecialchars($_POST['upload_setting_id'], ENT_QUOTES, 'UTF-8') : null;
         $uploadSettingName = htmlspecialchars($_POST['upload_setting_name'], ENT_QUOTES, 'UTF-8');
-        $uploadSettingDescription = htmlspecialchars($_POST['upload_setting_name'], ENT_QUOTES, 'UTF-8');
+        $uploadSettingDescription = htmlspecialchars($_POST['upload_setting_description'], ENT_QUOTES, 'UTF-8');
         $maxFileSize = htmlspecialchars($_POST['max_file_size'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);

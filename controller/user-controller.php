@@ -15,6 +15,9 @@ session_start();
 class UserController {
     private $userModel;
     private $securityModel;
+    private $fileExtensionModel;
+    private $uploadSettingModel;
+    private $systemModel;
 
     # -------------------------------------------------------------
     #
@@ -32,8 +35,9 @@ class UserController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel) {
+    public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->uploadSettingModel = $uploadSettingModel;
+        $this->systemModel = $systemModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
@@ -269,6 +273,11 @@ class UserController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        if($userAccountID == $userID){
+            echo json_encode(['success' => false, 'message' =>  'You cannot delete the user you are currently logged in as.']);
+            exit;
+        }
     
         $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
         $total = $checkUserIDExist['total'] ?? 0;
@@ -279,22 +288,16 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = $userAccount['profile_picture'] ?? null;
+        $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
 
         if(file_exists($profilePicture)){
-            /*if (!unlink($profilePicture)) {
+            if (!unlink($profilePicture)) {
                 echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                 exit;
-            }*/
+            }
+        }
 
-            echo json_encode(['success' => false, 'message' => 'File exist.']);
-            exit;
-        }
-        else{
-            echo json_encode(['success' => false, 'message' => $profilePicture]);
-            exit;
-        }
-    
+        $this->userModel->deleteLinkedPasswordHistory($userAccountID);
         $this->userModel->deleteUserAccount($userAccountID);
             
         echo json_encode(['success' => true]);
@@ -329,17 +332,20 @@ class UserController {
         }
 
         foreach($userAccountIDs as $userAccountID){
-            $userAccount = $this->userModel->getUserByID($userAccountID);
-            $profilePicture = $userAccount['profile_picture'] ?? null;
-    
-            if(file_exists($profilePicture)){
-                if (!unlink($profilePicture)) {
-                    echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
-                    exit;
+            if($userAccountID != $userID){
+                $userAccount = $this->userModel->getUserByID($userAccountID);
+                $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
+        
+                if(file_exists($profilePicture)){
+                    if (!unlink($profilePicture)) {
+                        echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                        exit;
+                    }
                 }
+    
+                $this->userModel->deleteLinkedPasswordHistory($userAccountID);
+                $this->userModel->deleteUserAccount($userAccountID);
             }
-
-            $this->userModel->deleteUserAccount($userAccountID);
         }
             
         echo json_encode(['success' => true]);
@@ -543,6 +549,11 @@ class UserController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        if($userAccountID == $userID){
+            echo json_encode(['success' => false, 'message' =>  'You cannot lock the user you are currently logged in as.']);
+            exit;
+        }
     
         $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
         $total = $checkUserIDExist['total'] ?? 0;
@@ -586,7 +597,9 @@ class UserController {
         }
 
         foreach($userAccountIDs as $userAccountID){
-            $this->userModel->lockUserAccount($userAccountID, $userID);
+            if($userAccountID != $userID){
+                $this->userModel->lockUserAccount($userAccountID, $userID);
+            }
         }
             
         echo json_encode(['success' => true]);
@@ -709,7 +722,7 @@ class UserController {
             $isLocked = $userAccount['is_locked'];
             $isActive = $userAccount['is_active'];
             $accountLockDuration = $userAccount['account_lock_duration'];
-            $profilePicture = $userAccount['profile_picture'] ?? DEFAULT_AVATAR_IMAGE;
+            $profilePicture = $this->systemModel->checkImage($userAccount['profile_picture'], 'profile');
             $passwordExpiryDate = date('m/d/Y', strtotime($userAccount['password_expiry_date']));
             $lastPasswordReset = ($userAccount['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_password_reset'])) : 'Never Reset';
             $lastConnectionDate = ($userAccount['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_connection_date'])) : 'Never Connected';
@@ -1078,8 +1091,8 @@ class UserController {
         $fileNew = $fileName . '.' . $profilePictureActualFileExtension;
 
         $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'user/profile_picture/';
-        $fileDestination = $fileDirectory . $fileNew;
-        $filePath = $fileNew;
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'user/profile_picture/' . $fileNew;
+        $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker($directory);
 
@@ -1089,7 +1102,7 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = $userAccount['profile_picture'] ?? null;
+        $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
 
         if(file_exists($profilePicture)){
             if (!unlink($profilePicture)) {
@@ -1876,6 +1889,6 @@ require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

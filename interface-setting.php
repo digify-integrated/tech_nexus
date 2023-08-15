@@ -45,8 +45,8 @@
 
         $interfaceSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkUploadSettingExist = $interfaceSettingModel->checkUploadSettingExist($interfaceSettingID);
-        $total = $checkUploadSettingExist['total'] ?? 0;
+        $checkInterfaceSettingExist = $interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
+        $total = $checkInterfaceSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -109,13 +109,13 @@
         </div>
         <?php
           if($newRecord && $interfaceSettingCreateAccess['total'] > 0){
-            require_once('view/_system_setting_new.php');
+            require_once('view/_interface_setting_new.php');
           }
           else if(!empty($interfaceSettingID) && $interfaceSettingWriteAccess['total'] > 0){
-            require_once('view/_system_setting_details.php');
+            require_once('view/_interface_setting_details.php');
           }
           else{
-            require_once('view/_system_setting.php');
+            require_once('view/_interface_setting.php');
           }
         ?>
       </div>

@@ -55,7 +55,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $uploadSettingID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $uploadSettingID .'">',
                     'UPLOAD_SETTING_NAME' => ' <div class="col">
                                         <h6 class="mb-0">'. $uploadSettingName .'</h6>
                                         <p class="text-muted f-12 mb-0">'. $uploadSettingDescription .'</p>

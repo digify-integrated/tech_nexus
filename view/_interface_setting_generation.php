@@ -5,13 +5,13 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/system-action-model.php';
+require_once '../model/interface-setting-model.php';
 require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$systemActionModel = new SystemActionModel($databaseModel);
+$interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 $roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -22,41 +22,45 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: system action table
+        # Type: interface setting table
         # Description:
-        # Generates the system action table.
+        # Generates the interface setting table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'system action table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionTable()');
+        case 'interface setting table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateInterfaceSettingTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
+            $interfaceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'delete');
 
             foreach ($options as $row) {
-                $systemActionID = $row['system_action_id'];
-                $systemActionName = $row['system_action_name'];
+                $interfaceSettingID = $row['interface_setting_id'];
+                $interfaceSettingName = $row['interface_setting_name'];
+                $interfaceSettingDescription = $row['interface_setting_description'];
 
-                $systemActionIDEncrypted = $securityModel->encryptData($systemActionID);
+                $interfaceSettingIDEncrypted = $securityModel->encryptData($interfaceSettingID);
 
                 $delete = '';
-                if($systemActionDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action" data-system-action-id="'. $systemActionID .'" title="Delete System Action">
+                if($interfaceSettingDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-interface-setting" data-interface-setting-id="'. $interfaceSettingID .'" title="Delete Interface Setting">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemActionID .'">',
-                    'SYSTEM_ACTION_NAME' => $systemActionName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $interfaceSettingID .'">',
+                    'INTERFACE_SETTING_NAME' => ' <div class="col">
+                                        <h6 class="mb-0">'. $interfaceSettingName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $interfaceSettingDescription .'</p>
+                                        </div>',
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="system-action.php?id='. $systemActionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="interface-setting.php?id='. $interfaceSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

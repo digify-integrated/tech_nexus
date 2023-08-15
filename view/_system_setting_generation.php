@@ -5,13 +5,13 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/system-action-model.php';
+require_once '../model/system-setting-model.php';
 require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$systemActionModel = new SystemActionModel($databaseModel);
+$systemSettingModel = new SystemSettingModel($databaseModel);
 $roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -22,41 +22,47 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: system action table
+        # Type: system setting table
         # Description:
-        # Generates the system action table.
+        # Generates the system setting table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'system action table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateSystemActionTable()');
+        case 'system setting table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateSystemSettingTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
+            $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
 
             foreach ($options as $row) {
-                $systemActionID = $row['system_action_id'];
-                $systemActionName = $row['system_action_name'];
+                $systemSettingID = $row['system_setting_id'];
+                $systemSettingName = $row['system_setting_name'];
+                $systemSettingDescription = $row['system_setting_description'];
+                $value = $row['value'];
 
-                $systemActionIDEncrypted = $securityModel->encryptData($systemActionID);
+                $systemSettingIDEncrypted = $securityModel->encryptData($systemSettingID);
 
                 $delete = '';
-                if($systemActionDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-action" data-system-action-id="'. $systemActionID .'" title="Delete System Action">
+                if($systemSettingDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-system-setting" data-system-setting-id="'. $systemSettingID .'" title="Delete System Setting">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemActionID .'">',
-                    'SYSTEM_ACTION_NAME' => $systemActionName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemSettingID .'">',
+                    'SYSTEM_SETTING_NAME' => ' <div class="col">
+                                        <h6 class="mb-0">'. $systemSettingName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $systemSettingDescription .'</p>
+                                        </div>',
+                    'VALUE' => $value,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="system-action.php?id='. $systemActionIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="system-setting.php?id='. $systemSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

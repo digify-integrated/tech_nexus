@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 14, 2023 at 11:28 AM
+-- Generation Time: Aug 15, 2023 at 11:24 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -234,6 +234,11 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItem` (IN `p_menu_group_id` INT)   BEGIN
     DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedPasswordHistory` (IN `p_user_id` INT)   BEGIN
+    DELETE FROM password_history
+    WHERE user_id = p_user_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
@@ -817,9 +822,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileType` (IN `p_file_type_na
     SET p_file_type_id = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_interface_setting_id` INT)   BEGIN
-    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
-	VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_interface_setting_id` INT)   BEGIN
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) 
+	VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
 	
     SET p_interface_setting_id = LAST_INSERT_ID();
 END$$
@@ -959,11 +964,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFileType` (IN `p_file_type_id
     WHERE file_type_id = p_file_type_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
 	UPDATE interface_setting
     SET interface_setting_name = p_interface_setting_name,
     interface_setting_description = p_interface_setting_description,
-    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSettingValue` (IN `p_interface_setting_id` INT, IN `p_value` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+	UPDATE interface_setting
+    SET value = p_value,
     last_log_by = p_last_log_by
     WHERE interface_setting_id = p_interface_setting_id;
 END$$
@@ -1591,7 +1602,19 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (408, 'menu_item_access_right', 14, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:17'),
 (409, 'menu_item_access_right', 14, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:17'),
 (410, 'menu_item_access_right', 14, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:19'),
-(411, 'menu_item_access_right', 14, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:20');
+(411, 'menu_item_access_right', 14, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-14 17:18:20'),
+(412, 'upload_setting', 2, 'Upload setting created. <br/><br/>Upload Setting Name: Interface Setting<br/>Upload Setting Description: Interface Setting<br/>Max File Size: 5', '1', '2023-08-15 10:12:00'),
+(413, 'system_setting', 1, 'System setting created. <br/><br/>System Setting Name: test<br/>System Setting Description: test<br/>Value: test', '1', '2023-08-15 13:21:49'),
+(414, 'system_setting', 1, 'System Setting Name: test -> test2<br/>System Setting Description: test -> test2<br/>Value: test -> test2<br/>', '1', '2023-08-15 13:29:04'),
+(415, 'system_setting', 2, 'System setting created. <br/><br/>System Setting Name: test2<br/>System Setting Description: test2<br/>Value: test2', '1', '2023-08-15 13:29:11');
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(416, 'system_setting', 3, 'System setting created. <br/><br/>System Setting Name: test2<br/>System Setting Description: test2<br/>Value: test2', '1', '2023-08-15 13:29:17'),
+(417, 'system_setting', 4, 'System setting created. <br/><br/>System Setting Name: test2<br/>System Setting Description: test2<br/>Value: test2', '1', '2023-08-15 13:29:55'),
+(418, 'interface_setting', 1, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-15 14:18:50'),
+(419, 'system_setting', 1, 'System Setting Name: test2 -> test23<br/>System Setting Description: test2 -> test23<br/>Value: test2 -> test23<br/>', '1', '2023-08-15 16:07:33'),
+(420, 'system_setting', 5, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:36'),
+(421, 'system_setting', 6, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:43'),
+(422, 'system_setting', 7, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:45');
 
 -- --------------------------------------------------------
 
@@ -1716,9 +1739,16 @@ CREATE TABLE `interface_setting` (
   `interface_setting_id` int(10) UNSIGNED NOT NULL,
   `interface_setting_name` varchar(100) NOT NULL,
   `interface_setting_description` varchar(200) NOT NULL,
-  `value` varchar(1000) NOT NULL,
+  `value` varchar(1000) DEFAULT NULL,
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `interface_setting`
+--
+
+INSERT INTO `interface_setting` (`interface_setting_id`, `interface_setting_name`, `interface_setting_description`, `value`, `last_log_by`) VALUES
+(1, 'test', 'test', NULL, 1);
 
 --
 -- Triggers `interface_setting`
@@ -2068,16 +2098,6 @@ CREATE TABLE `password_history` (
   `password_change_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `password_history`
---
-
-INSERT INTO `password_history` (`password_history_id`, `user_id`, `email`, `password`, `password_change_date`) VALUES
-(1, 2, 'employee@encorefinancials.com', 'TwvtsBBj6DHkWLAr3yOMeL%2B%2FPdCKAEp5DQpdUOtWLoA%3D', '2023-08-10 11:12:24'),
-(2, 2, 'employee@encorefinancials.com', '864einW5rTEao3ga%2FXAVG7wHgS90xUCiUfJ6jSuF8hg%3D', '2023-08-10 11:13:10'),
-(3, 2, 'employee@encorefinancials.com', '0x6I8%2Fe6gozYOD7Ji0pmG1LqnFCV9BtsLq9j9%2FOshV0%3D', '2023-08-10 11:13:31'),
-(4, 2, 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', '2023-08-10 11:14:51');
-
 -- --------------------------------------------------------
 
 --
@@ -2362,6 +2382,13 @@ CREATE TABLE `system_setting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `system_setting`
+--
+
+INSERT INTO `system_setting` (`system_setting_id`, `system_setting_name`, `system_setting_description`, `value`, `last_log_by`) VALUES
+(1, 'test23', 'test23', 'test23', 1);
+
+--
 -- Triggers `system_setting`
 --
 DELIMITER $$
@@ -2525,7 +2552,8 @@ CREATE TABLE `upload_setting` (
 --
 
 INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `upload_setting_description`, `max_file_size`, `last_log_by`) VALUES
-(1, 'Profile Image', 'Profile Image', 3, 1);
+(1, 'Profile Image', 'Profile Image', 3, 1),
+(2, 'Interface Setting', 'Interface Setting', 5, 1);
 
 --
 -- Triggers `upload_setting`
@@ -2594,7 +2622,10 @@ CREATE TABLE `upload_setting_file_extension` (
 INSERT INTO `upload_setting_file_extension` (`upload_setting_id`, `file_extension_id`, `last_log_by`) VALUES
 (1, 10, 1),
 (1, 9, 1),
-(1, 6, 1);
+(1, 6, 1),
+(2, 10, 1),
+(2, 9, 1),
+(2, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -2634,9 +2665,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile image/VzAF.jpg', 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1),
-(2, 'Employee', 'employee@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', './assets/images/user/profile image/qwNF.png', 0, 0, NULL, 0, NULL, '2024-02-10', NULL, NULL, 0, 1, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1),
-(11, 'lmicayas', 'lmicayas@encorefinancials.com', '9cpst5euimj2oHOO2izr%2Fqh197ysHcXzV%2F9WD1W9YBk%3D', '../assets/images/user/profile_picture/dFYu.jpg', 0, 1, NULL, 0, NULL, '2024-02-10', 'JvZv7bOBHJvbSGd7F5he3q9E5xGVwXftFzzfpVBnMw4%3D', '2023-08-14 17:13:35', 0, 0, NULL, NULL, 0, '2023-08-10 11:14:51', 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile_picture/G38V.png', 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1);
 
 --
 -- Triggers `users`
@@ -2892,7 +2921,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=412;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=423;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2910,7 +2939,7 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
-  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
@@ -2946,7 +2975,7 @@ ALTER TABLE `system_action`
 -- AUTO_INCREMENT for table `system_setting`
 --
 ALTER TABLE `system_setting`
-  MODIFY `system_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `system_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`
@@ -2958,7 +2987,7 @@ ALTER TABLE `ui_customization_setting`
 -- AUTO_INCREMENT for table `upload_setting`
 --
 ALTER TABLE `upload_setting`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`

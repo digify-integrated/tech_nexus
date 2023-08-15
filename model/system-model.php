@@ -173,5 +173,52 @@ class SystemModel {
         return $dateTime->format($format);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getDefaultImage
+    # Description: Checks the date with different format
+    #
+    # Parameters:
+    # - $type (string): The type of default image.
+    #
+    # Returns:
+    # - A the default image on each type.
+    #
+    # -------------------------------------------------------------
+    public function getDefaultImage($type) {
+        $defaultImages = [
+            'profile' => DEFAULT_AVATAR_IMAGE,
+            'login background' => DEFAULT_BG_IMAGE,
+            'login logo' => DEFAULT_LOGIN_LOGO_IMAGE,
+            'menu logo' => DEFAULT_MENU_LOGO_IMAGE,
+            'module icon' => DEFAULT_MODULE_ICON_IMAGE,
+            'favicon' => DEFAULT_FAVICON_IMAGE,
+            'company logo' => DEFAULT_COMPANY_LOGO_IMAGE,
+        ];
+    
+        return $defaultImages[$type] ?? DEFAULT_PLACEHOLDER_IMAGE;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkImage
+    # Description: Checks if the image exist; if not return default image.
+    #
+    # Parameters:
+    # - $type (string): The type of default image.
+    #
+    # Returns:
+    # - A the default image.
+    #
+    # -------------------------------------------------------------
+    public function checkImage($image, $type){
+        $image = $image ?? '';
+        
+        return (empty($image) || (!file_exists('.' . $image) && !file_exists($image))) ? $this->getDefaultImage($type) : $image;
+    }
+    # -------------------------------------------------------------
+
 }
 ?>

@@ -53,7 +53,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" data-delete="1" type="checkbox" value="'. $fileTypeID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $fileTypeID .'">',
                     'FILE_TYPE_NAME' => $fileTypeName,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="file-type.php?id='. $fileTypeIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

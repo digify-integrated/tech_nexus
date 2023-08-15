@@ -187,13 +187,15 @@ class SecurityModel {
     #
     # -------------------------------------------------------------
     public function generateFileName($minLength = 4, $maxLength = 4) {
-        $length = mt_rand($minLength, $maxLength);
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+';
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $characterCount = strlen($characters);
         $fileName = '';
     
+        $length = mt_rand($minLength, $maxLength);
+        
         for ($i = 0; $i < $length; $i++) {
-            $fileName .= $characters[random_int(0, $characterCount - 1)];
+            $randomIndex = random_int(0, $characterCount - 1);
+            $fileName .= $characters[$randomIndex];
         }
     
         return $fileName;

@@ -21,10 +21,6 @@
                 addUserAccountRoleForm();
             }
 
-            if($('#change-user-account-profile-picture-form').length){
-                changeUserAccountProfilePictureForm();
-            }
-
             $(document).on('click','#add-user-account-role',function() {    
                 $('#add-user-account-role-modal').modal('show');
                 addUserAccountRoleTable('#add-user-account-role-table');
@@ -91,6 +87,50 @@
                         return false;
                     }
                 });
+            });
+
+            $('#profile_picture').change(function() {
+                var selectedFile = $(this)[0].files[0];
+
+                if (selectedFile) {
+                    const transaction = 'change user account profile picture';
+                    const user_account_id = $('#user-account-id').text();
+
+                    var formData = new FormData();
+                    formData.append('user_account_id', user_account_id);
+                    formData.append('transaction', transaction);
+                    formData.append('profile_picture', selectedFile);
+            
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showNotification('Profile Picture Change Success', 'The profile picture has been successfully updated.', 'success');
+                                location.reload();
+                            }
+                            else{
+                                if(response.isInactive){
+                                    window.location = 'logout.php?logout';
+                                }
+                                else{
+                                    showNotification('Profile Picture Change Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                }
             });
         }
 
@@ -188,7 +228,7 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete User Account Success', 'The selected user accounts have been deleted successfully.', 'success');
-                                        reloadDatatable('#user-account-table');
+                                    reloadDatatable('#user-account-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -1183,96 +1223,6 @@ function addUserAccountRoleForm(){
             });
             return false;
         }
-    });
-}
-
-function changeUserAccountProfilePictureForm(){
-    $('#change-user-account-profile-picture-form').validate({
-        rules: {
-            profile_picture: {
-              required: true
-            }
-        },
-        messages: {
-            profile_picture: {
-              required: 'Please choose the profile picture'
-            }
-        },
-      errorPlacement: function (error, element) {
-        if (element.hasClass('select2')) {
-          error.insertAfter(element.next('.select2-container'));
-        }
-        else if (element.parent('.input-group').length) {
-          error.insertAfter(element.parent());
-        }
-        else {
-          error.insertAfter(element);
-        }
-      },
-      highlight: function(element) {
-        if ($(element).hasClass('select2-hidden-accessible')) {
-          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
-        } 
-        else {
-          $(element).addClass('is-invalid');
-        }
-      },
-      unhighlight: function(element) {
-        if ($(element).hasClass('select2-hidden-accessible')) {
-          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
-        }
-        else {
-          $(element).removeClass('is-invalid');
-        }
-      },
-      submitHandler: function(form) {
-        const transaction = 'change user account profile picture';
-        const user_account_id = $('#user-account-id').text();
-
-        var formData = new FormData(form);
-        formData.append('user_account_id', user_account_id);
-        formData.append('transaction', transaction);
-  
-        $.ajax({
-            type: 'POST',
-            url: 'controller/user-controller.php',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            beforeSend: function() {
-                disableFormSubmitButton('submit-change-user-account-profile-picture');
-            },
-            success: function(response) {
-                if (response.success) {
-                    showNotification('Profile Picture Change Success', 'The profile picture has been successfully updated.', 'success');
-                    $('#change-user-account-profile-picture-modal').modal('hide');
-                    resetModalForm('change-user-account-profile-picture-form');
-                    displayDetails('get user account details');
-                }
-                else{
-                    if(response.isInactive){
-                        window.location = 'logout.php?logout';
-                    }
-                    else{
-                        showNotification('Profile Picture Change Error', response.message, 'danger');
-                    }
-                }
-            },
-            error: function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            },
-            complete: function() {
-                enableFormSubmitButton('submit-change-user-account-profile-picture', 'Submit');
-            }
-        });
-  
-        return false;
-      }
     });
 }
 

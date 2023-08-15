@@ -41,7 +41,7 @@
                 </li>
                 <li class="dropdown pc-h-item header-user-profile">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" data-bs-auto-close="outside"aria-expanded="false">
-                        <img src="./assets/images/default/default-avatar.png" alt="user-image" class="user-avtar" />
+                        <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40" />
                     </a>
                     <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
                         <div class="dropdown-header d-flex align-items-center justify-content-between">
@@ -51,7 +51,7 @@
                             <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 225px)">
                                 <div class="d-flex mb-1">
                                     <div class="flex-shrink-0">
-                                        <img src="./assets/images/default/default-avatar.png" alt="user-image" class="user-avtar wid-35" />
+                                        <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40" />
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h6 class="mb-1 text-truncate"><?php echo $fileAs; ?></h6>

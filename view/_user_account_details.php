@@ -18,10 +18,6 @@
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="change-user-account-password">Change Password</button></li>';
               }
               
-              if ($changeUserAccountProfilePicture['total'] > 0) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="change-user-account-profile-picture">Change Profile Picture</button></li>';
-              }
-              
               if ($sendResetPasswordInstructions['total'] > 0) {
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="send-reset-password-instructions">Send Reset Password Instructions</button></li>';
               }
@@ -109,6 +105,22 @@
     $role_button = '<button type="button" class="btn btn-warning" id="add-user-account-role">Add Role</button>';
   }
 
+  if($changeUserAccountProfilePicture['total'] > 0){
+    $image_update = '<form class="user-upload mb-4">
+                        <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="User Image" id="user_image" class="rounded-circle img-fluid wid-70 hei-70">
+                        <label for="profile_picture" class="img-avtar-upload">
+                          <i class="ti ti-camera f-24 mb-1"></i>
+                          <span>Upload</span>
+                        </label>
+                        <input type="file" id="profile_picture" name="profile_picture" class="d-none">
+                      </form>';
+  }
+  else{
+    $image_update = ' <div class="chat-avtar d-inline-flex mx-auto mb-4">
+                        <img class="rounded-circle img-fluid wid-70 hei-70" id="user_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="User image">
+                      </div>';
+  }
+
   echo '<div class="row">
           <div class="col-lg-5">
             <div class="card">
@@ -117,9 +129,7 @@
               </div>
               <div class="card-body">
                 <div class="text-center mb-4">
-                  <div class="chat-avtar d-inline-flex mx-auto mb-4">
-                    <img class="rounded-circle img-fluid wid-70 hei-70" id="user_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="User image">
-                  </div>
+                  '. $image_update .'
                   <div class="row g-3">
                     <div class="col-4">
                       <h6 class="mb-0" id="password_expiry_date_label"></h6>
@@ -250,31 +260,6 @@
                 </div>
               </div>';
   }
-
-  if($changeUserAccountProfilePicture['total'] > 0){
-    echo '<div id="change-user-account-profile-picture-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="change-user-account-profile-picture-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="change-user-account-profile-picture-modal-title">Change Profile Picture</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="modal-body">
-                    <form id="change-user-account-profile-picture-form" method="post" action="#">
-                      <div class="form-group">
-                        <label class="form-label" for="profile_picture">Profile Picture <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="profile_picture" name="profile_picture">
-                      </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-change-user-account-profile-picture" form="change-user-account-profile-picture-form">Submit</button>
-                  </div>
-                </div>
-              </div>
-            </div>';
-}
 
   if($changeUserAccountPassword['total'] > 0){
     echo '<div id="change-user-account-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="system-error-title" aria-hidden="true">

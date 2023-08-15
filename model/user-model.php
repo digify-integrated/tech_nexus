@@ -598,6 +598,24 @@ class UserModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedPasswordHistory
+    # Description: Deletes the linked password history.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedPasswordHistory($p_user_account_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedPasswordHistory(:p_user_account_id)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Activate methods
@@ -802,11 +820,12 @@ class UserModel {
         
                 $getUserByID = $this->getUserByID($row['changed_by']);
                 $fileAs = $getUserByID['file_as'];
+                $profilePicture = $this->systemModel->checkImage($getUserByID['profile_picture'], 'profile');
         
                 $htmlLogNotes .= '<div class="comment">
                                         <div class="media align-items-start">
                                             <div class="chat-avtar flex-shrink-0">
-                                                <img class="rounded-circle img-fluid wid-40" src="./assets/images/default/default-avatar.png" alt="User image" />
+                                                <img class="rounded-circle img-fluid wid-40 hei-40" src="'. $profilePicture .'" alt="User image" />
                                             </div>
                                             <div class="media-body ms-3">
                                                 <h5 class="mb-0">'. $fileAs .'</h5>

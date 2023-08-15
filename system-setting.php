@@ -14,7 +14,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $systemSettingModel = new SystemSetting($databaseModel);
+    $systemSettingModel = new SystemSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
@@ -45,8 +45,8 @@
 
         $systemSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkUploadSettingExist = $systemSettingModel->checkUploadSettingExist($systemSettingID);
-        $total = $checkUploadSettingExist['total'] ?? 0;
+        $checkSystemSettingExist = $systemSettingModel->checkSystemSettingExist($systemSettingID);
+        $total = $checkSystemSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
