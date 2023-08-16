@@ -12,6 +12,50 @@
 
         if($('#interface-setting-id').length){
             displayDetails('get interface setting details');
+
+            $('#interface_setting_value').change(function() {
+                var selectedFile = $(this)[0].files[0];
+
+                if (selectedFile) {
+                    const transaction = 'change interface setting value';
+                    const interface_setting_id = $('#interface-setting-id').text();
+
+                    var formData = new FormData();
+                    formData.append('interface_setting_id', interface_setting_id);
+                    formData.append('transaction', transaction);
+                    formData.append('interface_setting_value', selectedFile);
+            
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/interface-setting-controller.php',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showNotification('Interface Setting Image Change Success', 'The interface seting image has been successfully updated.', 'success');
+                                location.reload();
+                            }
+                            else{
+                                if(response.isInactive){
+                                    window.location = 'logout.php?logout';
+                                }
+                                else{
+                                    showNotification('Interface Setting Image Change Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                }
+            });
         }
 
         $(document).on('click','.delete-interface-setting',function() {
@@ -436,11 +480,10 @@ function displayDetails(transaction){
                         $('#interface_setting_id').val(interface_setting_id);
                         $('#interface_setting_name').val(response.interfaceSettingName);
                         $('#interface_setting_description').val(response.interfaceSettingDescription);
-                        $('#value').val(response.Value);
+                        document.getElementById('interface_setting_image').src = response.value;
 
                         $('#interface_setting_name_label').text(response.interfaceSettingName);
                         $('#interface_setting_description_label').text(response.interfaceSettingDescription);
-                        $('#value_label').text(response.Value);
                     } 
                     else {
                         if(response.isInactive){

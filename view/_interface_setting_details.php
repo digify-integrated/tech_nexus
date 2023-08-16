@@ -41,53 +41,63 @@
         </div>
       </div>
       <div class="card-body">
-      <?php
-          if($interfaceSettingWriteAccess['total'] > 0){
-            echo '<form class="user-upload mb-4">
-                    <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="User Image" id="user_image" class="img-fluid wid-100 hei-100">
-                    <label for="profile_picture" class="img-avtar-upload">
-                      <i class="ti ti-camera f-24 mb-1"></i>
-                      <span>Upload</span>
-                    </label>
-                    <input type="file" id="profile_picture" name="profile_picture" class="d-none">
-                  </form>';
-          }
-          else{
-            echo '<div class="chat-avtar d-inline-flex mx-auto mb-4">
-                    <img class="img-fluid wid-100 hei-100" id="user_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="User image">
-                  </div>';
-          }
-        ?>
-        <form id="interface-setting-form" method="post" action="#">
-          <?php
-            if($interfaceSettingWriteAccess['total'] > 0){
-              echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Interface Setting Name <span class="text-danger d-none form-edit">*</span></label>
-                      <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
-                        <input type="text" class="form-control d-none form-edit" id="interface_setting_name" name="interface_setting_name" maxlength="100" autocomplete="off">
-                      </div>
-                      <label class="col-lg-2 col-form-label">Interface Setting Description <span class="text-danger d-none form-edit">*</span></label>
-                      <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
-                        <input type="text" class="form-control d-none form-edit" id="interface_setting_description" name="interface_setting_description" maxlength="200" autocomplete="off">
-                      </div>
-                    </div>';
-            }
-            else{
-              echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Interface Setting Name</label>
-                      <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
-                      </div>
-                      <label class="col-lg-2 col-form-label">Interface Setting Description</label>
-                      <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
-                      </div>
-                    </div>';
-            }
-          ?>
-        </form>
+        <div class="row">
+          <div class="col-md-10">
+            <form id="interface-setting-form" method="post" action="#">
+              <?php
+                if($interfaceSettingWriteAccess['total'] > 0){
+                  echo '<div class="form-group row">
+                          <label class="col-lg-3 col-form-label">Interface Setting Name <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-9">
+                            <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
+                            <input type="text" class="form-control d-none form-edit" id="interface_setting_name" name="interface_setting_name" maxlength="100" autocomplete="off">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-3 col-form-label">Interface Setting Description <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-9">
+                            <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
+                            <input type="text" class="form-control d-none form-edit" id="interface_setting_description" name="interface_setting_description" maxlength="200" autocomplete="off">
+                          </div>
+                        </div>';
+                }
+                else{
+                  echo '<div class="form-group row">
+                          <label class="col-lg-2 col-form-label">Interface Setting Name</label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-2 col-form-label">Interface Setting Description</label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
+                          </div>
+                        </div>';
+                }
+              ?>
+            </form>
+          </div>
+          <div class="col-md-2">
+            <?php
+              if($interfaceSettingWriteAccess['total'] > 0){
+                echo '<form class="user-upload mb-4 rounded-0">
+                        <img src="'. DEFAULT_AVATAR_IMAGE .'" id="interface_setting_image" class="img-fluid wid-100 hei-100" alt="Interface Setting">
+                        <label for="interface_setting_value" class="img-avtar-upload">
+                          <i class="ti ti-camera f-24 mb-1"></i>
+                          <span>Upload</span>
+                        </label>
+                        <input type="file" id="interface_setting_value" name="interface_setting_value" class="d-none">
+                      </form>';
+              }
+              else{
+                echo '<div class="chat-avtar d-inline-flex mx-auto mb-4">
+                        <img class="img-fluid wid-100 hei-100" id="interface_setting_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="Interface Setting image">
+                      </div>';
+              }
+            ?>
+          </div>
+        </div>
       </div>
     </div>
   </div>

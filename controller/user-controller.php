@@ -31,6 +31,7 @@ class UserController {
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
@@ -288,7 +289,7 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
+        $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
 
         if(file_exists($profilePicture)){
             if (!unlink($profilePicture)) {
@@ -334,7 +335,7 @@ class UserController {
         foreach($userAccountIDs as $userAccountID){
             if($userAccountID != $userID){
                 $userAccount = $this->userModel->getUserByID($userAccountID);
-                $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
+                $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
         
                 if(file_exists($profilePicture)){
                     if (!unlink($profilePicture)) {
@@ -1094,7 +1095,7 @@ class UserController {
         $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'user/profile_picture/' . $fileNew;
         $filePath = $directory . $fileNew;
 
-        $directoryChecker = $this->securityModel->directoryChecker($directory);
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
 
         if(!$directoryChecker){
             echo json_encode(['success' => false, 'message' => $directoryChecker]);
@@ -1102,7 +1103,7 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = '.' . $userAccount['profile_picture'] ?? null;
+        $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
 
         if(file_exists($profilePicture)){
             if (!unlink($profilePicture)) {

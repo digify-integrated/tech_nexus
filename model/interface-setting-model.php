@@ -29,11 +29,33 @@ class InterfaceSettingModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateInterfaceSetting($p_interface_setting_id, $p_interface_setting_name, $p_interface_setting_description, $p_value, $p_last_log_by) {
+    public function updateInterfaceSetting($p_interface_setting_id, $p_interface_setting_name, $p_interface_setting_description, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateInterfaceSetting(:p_interface_setting_id, :p_interface_setting_name, :p_interface_setting_description, :p_last_log_by)');
         $stmt->bindValue(':p_interface_setting_id', $p_interface_setting_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_interface_setting_name', $p_interface_setting_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_interface_setting_description', $p_interface_setting_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateInterfaceSettingValue
+    # Description: Updates the interface setting value.
+    #
+    # Parameters:
+    # - $p_interface_setting_id (int): The interface setting ID.
+    # - $p_value (string): The interface setting value.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateInterfaceSettingValue($p_interface_setting_id, $p_value, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateInterfaceSettingValue(:p_interface_setting_id, :p_value, :p_last_log_by)');
+        $stmt->bindValue(':p_interface_setting_id', $p_interface_setting_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_value', $p_value, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 15, 2023 at 11:24 AM
+-- Generation Time: Aug 16, 2023 at 11:25 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -329,15 +329,14 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_interface_setting_id` INT)   BEGIN
     DECLARE p_interface_setting_name VARCHAR(100);
     DECLARE p_interface_setting_description VARCHAR(200);
-    DECLARE p_value VARCHAR(1000);
     
-    SELECT interface_setting_name, interface_setting_description, value
-    INTO p_interface_setting_name, p_interface_setting_description, p_value
+    SELECT interface_setting_name, interface_setting_description
+    INTO p_interface_setting_name, p_interface_setting_description
     FROM interface_setting 
     WHERE interface_setting_id = p_interface_setting_id;
     
-    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
-    VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) 
+    VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
     
     SET p_new_interface_setting_id = LAST_INSERT_ID();
 END$$
@@ -1614,7 +1613,15 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (419, 'system_setting', 1, 'System Setting Name: test2 -> test23<br/>System Setting Description: test2 -> test23<br/>Value: test2 -> test23<br/>', '1', '2023-08-15 16:07:33'),
 (420, 'system_setting', 5, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:36'),
 (421, 'system_setting', 6, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:43'),
-(422, 'system_setting', 7, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:45');
+(422, 'system_setting', 7, 'System setting created. <br/><br/>System Setting Name: test23<br/>System Setting Description: test23<br/>Value: test23', '1', '2023-08-15 16:07:45'),
+(423, 'interface_setting', 1, 'Interface Setting Name: test -> test2<br/>Interface Setting Description: test -> test2<br/>', '1', '2023-08-16 11:34:35'),
+(424, 'interface_setting', 2, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-16 11:34:45'),
+(425, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/vpYS.png -> ./assets/images/interface_setting/hpSA.png<br/>', '1', '2023-08-16 14:49:00'),
+(426, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/hpSA.png -> ./assets/images/interface_setting/27jd.png<br/>', '1', '2023-08-16 14:49:06'),
+(427, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/27jd.png -> ./assets/images/interface_setting/s1Ao.jpg<br/>', '1', '2023-08-16 14:49:12'),
+(428, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/s1Ao.jpg -> ./assets/images/interface_setting/XBzI.png<br/>', '1', '2023-08-16 14:49:15'),
+(429, 'interface_setting', 3, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-16 16:01:24'),
+(430, 'interface_setting', 4, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-16 16:22:00');
 
 -- --------------------------------------------------------
 
@@ -1748,7 +1755,10 @@ CREATE TABLE `interface_setting` (
 --
 
 INSERT INTO `interface_setting` (`interface_setting_id`, `interface_setting_name`, `interface_setting_description`, `value`, `last_log_by`) VALUES
-(1, 'test', 'test', NULL, 1);
+(1, 'test2', 'test2', './assets/images/interface_setting/kgFV.jpg', 1),
+(2, 'test', 'test', NULL, 1),
+(3, 'test2', 'test2', './assets/images/interface_setting/YXCr.jpg', 1),
+(4, 'test2', 'test2', './assets/images/interface_setting/rSy8.jpg', 1);
 
 --
 -- Triggers `interface_setting`
@@ -1763,10 +1773,6 @@ CREATE TRIGGER `interface_setting_trigger_insert` AFTER INSERT ON `interface_set
 
     IF NEW.interface_setting_description <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Description: ", NEW.interface_setting_description);
-    END IF;
-
-    IF NEW.value <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -1784,10 +1790,6 @@ CREATE TRIGGER `interface_setting_trigger_update` AFTER UPDATE ON `interface_set
 
     IF NEW.interface_setting_description <> OLD.interface_setting_description THEN
         SET audit_log = CONCAT(audit_log, "Interface Setting Description: ", OLD.interface_setting_description, " -> ", NEW.interface_setting_description, "<br/>");
-    END IF;
-
-    IF NEW.value <> OLD.value THEN
-        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -2665,7 +2667,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile_picture/G38V.png', 0, 1, NULL, 0, '2023-08-12 17:48:03', '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile_picture/G38V.png', 0, 1, NULL, 0, NULL, '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1);
 
 --
 -- Triggers `users`
@@ -2921,7 +2923,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=423;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=431;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2939,7 +2941,7 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
-  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `menu_group`

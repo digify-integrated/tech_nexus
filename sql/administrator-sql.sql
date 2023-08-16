@@ -2018,10 +2018,6 @@ BEGIN
     IF NEW.interface_setting_description <> OLD.interface_setting_description THEN
         SET audit_log = CONCAT(audit_log, "Interface Setting Description: ", OLD.interface_setting_description, " -> ", NEW.interface_setting_description, "<br/>");
     END IF;
-
-    IF NEW.value <> OLD.value THEN
-        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
-    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -2041,10 +2037,6 @@ BEGIN
 
     IF NEW.interface_setting_description <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Interface Setting Description: ", NEW.interface_setting_description);
-    END IF;
-
-    IF NEW.value <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -2099,15 +2091,14 @@ CREATE PROCEDURE duplicateInterfaceSetting(IN p_interface_setting_id INT, IN p_l
 BEGIN
     DECLARE p_interface_setting_name VARCHAR(100);
     DECLARE p_interface_setting_description VARCHAR(200);
-    DECLARE p_value VARCHAR(1000);
     
-    SELECT interface_setting_name, interface_setting_description, value
-    INTO p_interface_setting_name, p_interface_setting_description, p_value
+    SELECT interface_setting_name, interface_setting_description
+    INTO p_interface_setting_name, p_interface_setting_description
     FROM interface_setting 
     WHERE interface_setting_id = p_interface_setting_id;
     
-    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, value, last_log_by) 
-    VALUES(p_interface_setting_name, p_interface_setting_description, p_value, p_last_log_by);
+    INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) 
+    VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
     
     SET p_new_interface_setting_id = LAST_INSERT_ID();
 END //
