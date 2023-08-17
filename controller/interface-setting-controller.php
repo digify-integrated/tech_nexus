@@ -402,7 +402,7 @@ class InterfaceSettingController {
             $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'interface_setting/';
             $filePath = $directory . $fileNew;
 
-            copy($interfaceSettingValue, $fileNew);
+            copy($interfaceSettingValue, '.' . $filePath);
         }
         else{
             $filePath = null;

@@ -297,7 +297,8 @@ class UserController {
                 exit;
             }
         }
-
+        
+        $this->userModel->deleteLinkedRoleUserUser($userAccountID);
         $this->userModel->deleteLinkedPasswordHistory($userAccountID);
         $this->userModel->deleteUserAccount($userAccountID);
             
@@ -344,6 +345,7 @@ class UserController {
                     }
                 }
     
+                $this->userModel->deleteLinkedRoleUserUser($userAccountID);
                 $this->userModel->deleteLinkedPasswordHistory($userAccountID);
                 $this->userModel->deleteUserAccount($userAccountID);
             }

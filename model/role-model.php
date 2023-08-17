@@ -298,6 +298,24 @@ class RoleModel {
     
     # -------------------------------------------------------------
     #
+    # Function: deleteLinkedRoleUserRole
+    # Description: Deletes the all the linked role on role users table.
+    #
+    # Parameters:
+    # - $p_role_id (int): The role ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedRoleUserRole($p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedRoleUserRole(:p_role_id)');
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
     # Function: deleteMenuItemRoleAccess
     # Description: Deletes the menu item role access.
     #

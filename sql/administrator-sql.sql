@@ -351,6 +351,18 @@ BEGIN
     ORDER BY file_as;
 END //
 
+CREATE PROCEDURE deleteLinkedRoleUserRole(IN p_role_id INT)
+BEGIN
+    DELETE FROM role_users
+    WHERE role_id = p_role_id;
+END //
+
+CREATE PROCEDURE deleteLinkedRoleUserUser(IN p_user_id INT)
+BEGIN
+    DELETE FROM role_users
+    WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE generateAddRoleUserAccountTable(IN p_role_id INT)
 BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 16, 2023 at 11:25 AM
+-- Generation Time: Aug 17, 2023 at 11:32 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -238,6 +238,16 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedPasswordHistory` (IN `p_user_id` INT)   BEGIN
     DELETE FROM password_history
+    WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedRoleUserRole` (IN `p_role_id` INT)   BEGIN
+    DELETE FROM role_users
+    WHERE role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedRoleUserUser` (IN `p_user_id` INT)   BEGIN
+    DELETE FROM role_users
     WHERE user_id = p_user_id;
 END$$
 
@@ -1621,7 +1631,11 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (427, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/27jd.png -> ./assets/images/interface_setting/s1Ao.jpg<br/>', '1', '2023-08-16 14:49:12'),
 (428, 'interface_setting', 1, 'Value: ./assets/images/interface_setting/s1Ao.jpg -> ./assets/images/interface_setting/XBzI.png<br/>', '1', '2023-08-16 14:49:15'),
 (429, 'interface_setting', 3, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-16 16:01:24'),
-(430, 'interface_setting', 4, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-16 16:22:00');
+(430, 'interface_setting', 4, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-16 16:22:00'),
+(431, 'interface_setting', 5, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-17 11:16:55'),
+(432, 'interface_setting', 6, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 11:17:26'),
+(433, 'interface_setting', 7, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 11:24:26'),
+(434, 'interface_setting', 8, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 17:26:45');
 
 -- --------------------------------------------------------
 
@@ -1749,16 +1763,6 @@ CREATE TABLE `interface_setting` (
   `value` varchar(1000) DEFAULT NULL,
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `interface_setting`
---
-
-INSERT INTO `interface_setting` (`interface_setting_id`, `interface_setting_name`, `interface_setting_description`, `value`, `last_log_by`) VALUES
-(1, 'test2', 'test2', './assets/images/interface_setting/kgFV.jpg', 1),
-(2, 'test', 'test', NULL, 1),
-(3, 'test2', 'test2', './assets/images/interface_setting/YXCr.jpg', 1),
-(4, 'test2', 'test2', './assets/images/interface_setting/rSy8.jpg', 1);
 
 --
 -- Triggers `interface_setting`
@@ -2923,7 +2927,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=431;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=435;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2941,7 +2945,7 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
-  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
