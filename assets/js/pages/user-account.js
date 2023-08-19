@@ -809,7 +809,7 @@
             resetModalForm('change-user-account-password-form');
         });
 
-        if($('#change-user-account-password-modal').length){
+        if($('#change-user-account-password-form').length){
             changePasswordForm();
         }
 
