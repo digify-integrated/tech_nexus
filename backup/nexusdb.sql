@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 17, 2023 at 11:32 AM
+-- Generation Time: Aug 19, 2023 at 06:18 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -202,16 +202,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deactivateUserAccount` (IN `p_user_
     WHERE user_id = p_user_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllMenuItemRoleAccess` (IN `p_menu_item_id` INT)   BEGIN
-	DELETE FROM menu_item_access_right
-    WHERE menu_item_id = p_menu_item_id;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllSystemActionRoleAccess` (IN `p_system_action_id` INT)   BEGIN
-	DELETE FROM system_action_access_rights
-    WHERE system_action_id = p_system_action_id;
-END$$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileExtension` (IN `p_file_extension_id` INT)   BEGIN
 	DELETE FROM file_extension
     WHERE file_extension_id = p_file_extension_id;
@@ -227,13 +217,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteInterfaceSetting` (IN `p_inte
     WHERE interface_setting_id = p_interface_setting_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedFileExtension` (IN `p_file_type_id` INT)   BEGIN
-	DELETE FROM file_extension
-    WHERE file_type_id = p_file_type_id;
-END$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItemAccessRight` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
+    DECLARE query TEXT;
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedMenuItem` (IN `p_menu_group_id` INT)   BEGIN
-    DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
+	SET query = 'DELETE FROM menu_item_access_right';
+	
+	IF p_menu_item_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE menu_item_id = ');
+        SET query = CONCAT(query, QUOTE(p_menu_item_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedPasswordHistory` (IN `p_user_id` INT)   BEGIN
@@ -241,14 +242,69 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedPasswordHistory` (IN `p
     WHERE user_id = p_user_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedRoleUserRole` (IN `p_role_id` INT)   BEGIN
-    DELETE FROM role_users
-    WHERE role_id = p_role_id;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedRoleUser` (IN `p_user_id` INT, IN `p_role_id` INT)   BEGIN
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM role_users';
+	
+	IF p_user_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE user_id = ');
+        SET query = CONCAT(query, QUOTE(p_user_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedRoleUserUser` (IN `p_user_id` INT)   BEGIN
-    DELETE FROM role_users
-    WHERE user_id = p_user_id;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedSystemActionAccessRight` (IN `p_system_action_id` INT, IN `p_role_id` INT)   BEGIN
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM system_action_access_rights';
+	
+	IF p_system_action_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE system_action_id = ');
+        SET query = CONCAT(query, QUOTE(p_system_action_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedUICustomization` (IN `p_user_id` INT)   BEGIN
+	DELETE FROM ui_customization_setting
+	WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedUploadSettingFileExtension` (IN `p_upload_setting_id` INT, IN `p_file_extension_id` INT)   BEGIN
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM upload_setting_file_extension';
+	
+	IF p_upload_setting_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE upload_setting_id = ');
+        SET query = CONCAT(query, QUOTE(p_upload_setting_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE file_extension_id = ');
+        SET query = CONCAT(query, QUOTE(p_file_extension_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
@@ -1635,7 +1691,69 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (431, 'interface_setting', 5, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-17 11:16:55'),
 (432, 'interface_setting', 6, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 11:17:26'),
 (433, 'interface_setting', 7, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 11:24:26'),
-(434, 'interface_setting', 8, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 17:26:45');
+(434, 'interface_setting', 8, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-17 17:26:45'),
+(435, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>URL: test<br/>Parent ID: 4<br/>Menu Item Icon: test<br/>Order Sequence: 1', '1', '2023-08-19 08:32:41'),
+(436, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>URL: test<br/>Parent ID: 4<br/>Menu Item Icon: test<br/>Order Sequence: 1', '1', '2023-08-19 08:32:46'),
+(437, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: test<br/>Menu Group ID: 1<br/>URL: test<br/>Parent ID: 4<br/>Menu Item Icon: test<br/>Order Sequence: 1', '1', '2023-08-19 08:32:49'),
+(438, 'menu_item', 16, 'Menu Item Name: test -> test2<br/>URL: test -> test2<br/>Menu Item Icon: test -> test2<br/>Order Sequence: 1 -> 13<br/>', '1', '2023-08-19 08:33:09'),
+(439, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 2', '1', '2023-08-19 08:33:17'),
+(440, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1', '1', '2023-08-19 08:33:17'),
+(441, 'menu_item_access_right', 16, 'Role ID: 2<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:18'),
+(442, 'menu_item_access_right', 16, 'Role ID: 1<br/>Read Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:19'),
+(443, 'menu_item_access_right', 16, 'Role ID: 2<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:21'),
+(444, 'menu_item_access_right', 16, 'Role ID: 1<br/>Write Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:22'),
+(445, 'menu_item_access_right', 16, 'Role ID: 2<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:23'),
+(446, 'menu_item_access_right', 16, 'Role ID: 1<br/>Create Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:23'),
+(447, 'menu_item_access_right', 16, 'Role ID: 2<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:24'),
+(448, 'menu_item_access_right', 16, 'Role ID: 1<br/>Delete Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:24'),
+(449, 'menu_item_access_right', 16, 'Role ID: 2<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:25'),
+(450, 'menu_item_access_right', 16, 'Role ID: 1<br/>Duplicate Access: 0 -> 1<br/>', '1', '2023-08-19 08:33:25'),
+(451, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-08-19 08:34:00'),
+(452, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-08-19 08:47:12'),
+(453, 'menu_group', 4, 'Menu group created. <br/><br/>Menu Group Name: test<br/>Order Sequence: 2', '1', '2023-08-19 08:47:15'),
+(454, 'menu_group', 4, 'Menu Group Name: test -> test3<br/>Order Sequence: 2 -> 23<br/>', '1', '2023-08-19 08:47:19'),
+(455, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: test menu group<br/>Menu Group ID: 4<br/>URL: 2<br/>Parent ID: 4<br/>Menu Item Icon: 2<br/>Order Sequence: 2', '1', '2023-08-19 08:48:20'),
+(456, 'menu_item', 18, 'Menu Item Name: test menu group -> test menu group2<br/>URL: 2 -> 22asd<br/>Menu Item Icon: 2 -> 212312<br/>Order Sequence: 2 -> 127<br/>', '1', '2023-08-19 08:48:28'),
+(457, 'menu_item_access_right', 18, 'Menu item access rights created. <br/>', '1', '2023-08-19 08:49:46'),
+(458, 'menu_item_access_right', 18, 'Role ID: 0<br/>', '1', '2023-08-19 08:49:46'),
+(459, 'interface_setting', 9, 'Interface setting created. <br/><br/>Interface Setting Name: test<br/>Interface Setting Description: test', '1', '2023-08-19 08:52:56'),
+(460, 'interface_setting', 9, 'Interface Setting Name: test -> test2<br/>Interface Setting Description: test -> test2<br/>', '1', '2023-08-19 08:53:04'),
+(461, 'interface_setting', 10, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-19 08:53:17'),
+(462, 'interface_setting', 11, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-19 08:53:20'),
+(463, 'interface_setting', 12, 'Interface setting created. <br/><br/>Interface Setting Name: test2<br/>Interface Setting Description: test2', '1', '2023-08-19 08:53:24'),
+(464, 'upload_setting', 3, 'Upload setting created. <br/><br/>Upload Setting Name: test<br/>Upload Setting Description: test<br/>Max File Size: 5', '1', '2023-08-19 08:54:00'),
+(465, 'upload_setting', 3, 'Upload Setting Name: test -> test2<br/>Upload Setting Description: test -> test2<br/>Max File Size: 5 -> 50<br/>', '1', '2023-08-19 08:54:15'),
+(466, 'upload_setting', 4, 'Upload setting created. <br/><br/>Upload Setting Name: test2<br/>Upload Setting Description: test2<br/>Max File Size: 50', '1', '2023-08-19 08:54:20'),
+(467, 'upload_setting', 5, 'Upload setting created. <br/><br/>Upload Setting Name: test2<br/>Upload Setting Description: test2<br/>Max File Size: 50', '1', '2023-08-19 08:55:07'),
+(468, 'upload_setting', 6, 'Upload setting created. <br/><br/>Upload Setting Name: test2<br/>Upload Setting Description: test2<br/>Max File Size: 50', '1', '2023-08-19 08:55:10'),
+(469, 'users', 12, 'User created. <br/><br/>File As: test<br/>Email: test@gmail.com<br/>Password Expiry Date: 2023-02-19', '1', '2023-08-19 23:37:08'),
+(470, 'users', 13, 'User created. <br/><br/>File As: test<br/>Email: Test@gmail.com<br/>Password Expiry Date: 2023-02-19', '1', '2023-08-19 23:39:59'),
+(471, 'users', 14, 'User created. <br/><br/>File As: test<br/>Email: test@gmail.com<br/>Password Expiry Date: 2023-02-19', '1', '2023-08-19 23:40:40'),
+(472, 'role', 5, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-08-19 23:41:20'),
+(473, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:34'),
+(474, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:34'),
+(475, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:34'),
+(476, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:40'),
+(477, 'system_action_access_rights', 15, 'System action access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:40'),
+(478, 'system_action_access_rights', 7, 'System action access rights created. <br/><br/>Role ID: 5', '1', '2023-08-19 23:41:40'),
+(479, 'role', 6, 'Role created. <br/><br/>Role Name: test<br/>Role Description: test<br/>Assignable: 1', '1', '2023-08-19 23:44:34'),
+(480, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-08-19 23:44:41'),
+(481, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-08-19 23:44:41'),
+(482, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 6', '1', '2023-08-19 23:44:41'),
+(483, 'upload_setting', 7, 'Upload setting created. <br/><br/>Upload Setting Name: test<br/>Upload Setting Description: 3asdasd<br/>Max File Size: 5', '1', '2023-08-19 23:54:17'),
+(484, 'upload_setting', 8, 'Upload setting created. <br/><br/>Upload Setting Name: test<br/>Upload Setting Description: 3asdasd<br/>Max File Size: 5', '1', '2023-08-19 23:54:27'),
+(485, 'system_action_access_rights', 9, 'System action access rights created. <br/><br/>Role ID: 4', '1', '2023-08-20 00:05:57'),
+(486, 'users', 14, 'Is Active: 0 -> 1<br/>', '1', '2023-08-20 00:14:29'),
+(487, 'users', 14, 'Is Active: 1 -> 0<br/>', '1', '2023-08-20 00:14:34'),
+(488, 'users', 14, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-20 00:14:39'),
+(489, 'users', 14, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-20 00:14:44'),
+(490, 'users', 14, 'Email: test@gmail.com -> test@gmail.com2<br/>', '1', '2023-08-20 00:14:53'),
+(491, 'users', 1, 'Password Expiry Date: 2024-02-10 -> 2024-02-20<br/>Last Password Change: 2023-08-10 11:14:51 -> 2023-08-20 00:15:08<br/>', '1', '2023-08-20 00:15:08'),
+(492, 'users', 14, 'Password Expiry Date: 2023-02-19 -> 2024-02-20<br/>', '1', '2023-08-20 00:15:08'),
+(493, 'users', 14, 'Is Active: 0 -> 1<br/>', '1', '2023-08-20 00:15:30'),
+(494, 'users', 14, 'Is Active: 1 -> 0<br/>', '1', '2023-08-20 00:15:36'),
+(495, 'users', 14, 'Is Locked: 0 -> 1<br/>Account Lock Duration: 0 -> 2147483647<br/>', '1', '2023-08-20 00:15:40'),
+(496, 'users', 14, 'Is Locked: 1 -> 0<br/>Account Lock Duration: 2147483647 -> 0<br/>', '1', '2023-08-20 00:16:35');
 
 -- --------------------------------------------------------
 
@@ -2002,7 +2120,6 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (5, 1, 1, 1, 1, 1, 1, 1),
 (6, 1, 1, 1, 1, 1, 1, 1),
 (4, 2, 1, 0, 0, 0, 0, 1),
-(1, 2, 1, 0, 0, 0, 0, 1),
 (7, 2, 1, 1, 0, 0, 0, 1),
 (7, 1, 1, 1, 0, 0, 0, 1),
 (8, 2, 1, 0, 0, 0, 0, 1),
@@ -2018,7 +2135,11 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (13, 2, 1, 1, 1, 1, 1, 1),
 (13, 1, 1, 1, 1, 1, 1, 1),
 (14, 2, 1, 1, 1, 1, 1, 1),
-(14, 1, 1, 1, 1, 1, 1, 1);
+(14, 1, 1, 1, 1, 1, 1, 1),
+(18, 0, 0, 0, 0, 0, 0, 1),
+(4, 5, 0, 0, 0, 0, 0, 1),
+(9, 5, 0, 0, 0, 0, 0, 1),
+(11, 5, 0, 0, 0, 0, 0, 1);
 
 --
 -- Triggers `menu_item_access_right`
@@ -2296,7 +2417,6 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (2, 1, 1, 1),
 (7, 2, 1, 1),
 (7, 1, 1, 1),
-(8, 2, 1, 1),
 (8, 1, 1, 1),
 (9, 2, 1, 1),
 (9, 1, 1, 1),
@@ -2559,7 +2679,11 @@ CREATE TABLE `upload_setting` (
 
 INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `upload_setting_description`, `max_file_size`, `last_log_by`) VALUES
 (1, 'Profile Image', 'Profile Image', 3, 1),
-(2, 'Interface Setting', 'Interface Setting', 5, 1);
+(2, 'Interface Setting', 'Interface Setting', 5, 1),
+(3, 'test2', 'test2', 50, 1),
+(4, 'test2', 'test2', 50, 1),
+(7, 'test', '3asdasd', 5, 1),
+(8, 'test', '3asdasd', 5, 1);
 
 --
 -- Triggers `upload_setting`
@@ -2631,7 +2755,20 @@ INSERT INTO `upload_setting_file_extension` (`upload_setting_id`, `file_extensio
 (1, 6, 1),
 (2, 10, 1),
 (2, 9, 1),
-(2, 6, 1);
+(2, 6, 1),
+(3, 10, 1),
+(3, 6, 1),
+(4, 10, 1),
+(4, 9, 1),
+(6, 10, 1),
+(6, 9, 1),
+(6, 6, 1),
+(7, 10, 1),
+(7, 9, 1),
+(7, 6, 1),
+(8, 10, 1),
+(8, 9, 1),
+(8, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -2671,7 +2808,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', './assets/images/user/profile_picture/G38V.png', 0, 1, NULL, 0, NULL, '2024-02-10', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-10 11:14:51', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'zwwHpgz%2BMBU7jJzPHKjUqCf3CT6%2BTtwTVPE9QCnsyOk%3D', './assets/images/user/profile_picture/G38V.png', 0, 1, NULL, 0, '2023-08-19 22:30:55', '2024-02-20', 'APcMMnEZ9sUa8wpUaOXsyFHJb6h7aK3ipqJ90r4GRaI%3D', '2023-08-14 15:54:48', 0, 0, 'ZLryvTiuBbP20aocMKrt5sFyV%2FU1buhYN9soR3XUZ3w%3D', '2023-07-19 08:57:46', 0, '2023-08-20 00:15:08', 0, NULL, 0, 'b60334dfed2c0359183db37ab9a59b52', 1);
 
 --
 -- Triggers `users`
@@ -2927,7 +3064,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=435;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=497;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -2945,31 +3082,31 @@ ALTER TABLE `file_type`
 -- AUTO_INCREMENT for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
-  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
-  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `password_history`
 --
 ALTER TABLE `password_history`
-  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `role_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `system_action`
@@ -2993,13 +3130,13 @@ ALTER TABLE `ui_customization_setting`
 -- AUTO_INCREMENT for table `upload_setting`
 --
 ALTER TABLE `upload_setting`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables

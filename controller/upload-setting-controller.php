@@ -223,7 +223,7 @@ class UploadSettingController {
             exit;
         }
     
-        $this->uploadSettingModel->deleteLinkedAllowedFileExtension($uploadSettingID);
+        $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension($uploadSettingID, null);
         $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
             
         echo json_encode(['success' => true]);
@@ -258,7 +258,7 @@ class UploadSettingController {
         }
 
         foreach($uploadSettingIDs as $uploadSettingID){
-            $this->uploadSettingModel->deleteLinkedAllowedFileExtension($uploadSettingID);
+            $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension($uploadSettingID, null);
             $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
         }
             
@@ -347,7 +347,13 @@ class UploadSettingController {
             exit;
         }
 
+        $uploadSettingFileExtensions = $this->uploadSettingModel->getUploadSettingFileExtension($uploadSettingID);
+
         $uploadSettingID = $this->uploadSettingModel->duplicateUploadSetting($uploadSettingID, $userID);
+
+        foreach ($uploadSettingFileExtensions as $uploadSettingFileExtension) {
+            $this->uploadSettingModel->insertUploadSettingFileExtension($uploadSettingID, $uploadSettingFileExtension['file_extension_id'], $userID);
+        }
 
         echo json_encode(['success' => true, 'uploadSettingID' =>  $this->securityModel->encryptData($uploadSettingID)]);
         exit;

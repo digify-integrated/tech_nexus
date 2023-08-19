@@ -116,24 +116,6 @@ class MenuGroupModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: deleteLinkedMenuItem
-    # Description: Deletes all the linked menu item on the menu group.
-    #
-    # Parameters:
-    # - $p_menu_group_id (int): The menu group ID.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function deleteLinkedMenuItem($p_menu_group_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedMenuItem(:p_menu_group_id)');
-        $stmt->bindValue(':p_menu_group_id', $p_menu_group_id, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Duplicate methods
     # -------------------------------------------------------------
 

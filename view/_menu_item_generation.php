@@ -73,20 +73,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
-
-                    $assign = '';
-                    if($updateMenuItemRoleAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $assign = '<button type="button" class="btn btn-icon btn-warning assign-menu-item-role-access" data-menu-item-id="'. $menuItemID .'" title="Assign Menu Item Role Access">
-                                            <i class="ti ti-user-check"></i>
-                                        </button>';
-                    }
     
                     $response[] = [
                         'MENU_ITEM_NAME' => '<a href="menu-item.php?id='. $menuItemIDEncrypted .'">'. $menuItemName . '</a>',
                         'PARENT_ID' => '<a href="menu-item.php?id='. $parentIDEncrypted .'">'. $parentMenuItemName . '</a>',
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $update .'
-                                        '. $assign .'
                                         '. $delete .'
                                     </div>'
                     ];

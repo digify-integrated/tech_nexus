@@ -351,16 +351,25 @@ BEGIN
     ORDER BY file_as;
 END //
 
-CREATE PROCEDURE deleteLinkedRoleUserRole(IN p_role_id INT)
+CREATE PROCEDURE deleteLinkedRoleUser(IN p_user_id INT, IN p_role_id INT)
 BEGIN
-    DELETE FROM role_users
-    WHERE role_id = p_role_id;
-END //
+    DECLARE query TEXT;
 
-CREATE PROCEDURE deleteLinkedRoleUserUser(IN p_user_id INT)
-BEGIN
-    DELETE FROM role_users
-    WHERE user_id = p_user_id;
+	SET query = 'DELETE FROM role_users';
+	
+	IF p_user_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE user_id = ');
+        SET query = CONCAT(query, QUOTE(p_user_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateAddRoleUserAccountTable(IN p_role_id INT)
@@ -658,6 +667,12 @@ BEGIN
 	WHERE user_id = p_user_id;
 END //
 
+CREATE PROCEDURE deleteLinkedUICustomization(IN p_user_id INT)
+BEGIN
+	DELETE FROM ui_customization_setting
+	WHERE user_id = p_user_id;
+END //
+
 /* Role table */
 CREATE TABLE role(
 	role_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -905,11 +920,6 @@ CREATE PROCEDURE deleteMenuGroup(IN p_menu_group_id INT)
 BEGIN
 	DELETE FROM menu_group
     WHERE menu_group_id = p_menu_group_id;
-END //
-
-CREATE PROCEDURE deleteLinkedMenuItem(IN p_menu_group_id INT)
-BEGIN
-    DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
 END //
 
 CREATE PROCEDURE getMenuGroup(IN p_menu_group_id INT)
@@ -1299,10 +1309,25 @@ BEGIN
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteAllMenuItemRoleAccess(IN p_menu_item_id INT)
+CREATE PROCEDURE deleteLinkedMenuItemAccessRight(IN p_menu_item_id INT, IN p_role_id INT)
 BEGIN
-	DELETE FROM menu_item_access_right
-    WHERE menu_item_id = p_menu_item_id;
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM menu_item_access_right';
+	
+	IF p_menu_item_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE menu_item_id = ');
+        SET query = CONCAT(query, QUOTE(p_menu_item_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE buildMenuGroup(IN p_user_id INT)
@@ -1598,10 +1623,25 @@ BEGIN
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteAllSystemActionRoleAccess(IN p_system_action_id INT)
+CREATE PROCEDURE deleteLinkedSystemActionAccessRight(IN p_system_action_id INT, IN p_role_id INT)
 BEGIN
-	DELETE FROM system_action_access_rights
-    WHERE system_action_id = p_system_action_id;
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM system_action_access_rights';
+	
+	IF p_system_action_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE system_action_id = ');
+        SET query = CONCAT(query, QUOTE(p_system_action_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE role_id = ');
+        SET query = CONCAT(query, QUOTE(p_role_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 /* File type table */
@@ -1955,6 +1995,12 @@ BEGIN
     ORDER BY upload_setting_id;
 END //
 
+CREATE PROCEDURE deleteLinkedAllowedFileExtension(IN p_upload_setting_id INT)
+BEGIN
+    DELETE FROM upload_setting_file_extension
+    WHERE upload_setting_id = p_upload_setting_id;
+END //
+
 /* Upload setting file extension table */
 CREATE TABLE upload_setting_file_extension(
 	upload_setting_id INT UNSIGNED NOT NULL,
@@ -2004,6 +2050,27 @@ CREATE PROCEDURE getUploadSettingFileExtension(IN p_upload_setting_id INT)
 BEGIN
 	SELECT * FROM upload_setting_file_extension
     WHERE upload_setting_id = p_upload_setting_id;
+END //
+
+CREATE PROCEDURE deleteLinkedUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT)
+BEGIN
+    DECLARE query TEXT;
+
+	SET query = 'DELETE FROM upload_setting_file_extension';
+	
+	IF p_upload_setting_id IS NOT NULL THEN
+        SET query = CONCAT(query, ' WHERE upload_setting_id = ');
+        SET query = CONCAT(query, QUOTE(p_upload_setting_id));
+	ELSE
+        SET query = CONCAT(query, ' WHERE file_extension_id = ');
+        SET query = CONCAT(query, QUOTE(p_file_extension_id));
+    END IF;
+
+    SET query = CONCAT(query, ';');    
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 /* Interface setting table */

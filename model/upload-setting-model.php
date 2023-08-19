@@ -184,6 +184,26 @@ class UploadSettingModel {
 
     # -------------------------------------------------------------
     #
+    # Function: deleteLinkedUploadSettingFileExtension
+    # Description: Deletes the upload setting linked file extension.
+    #
+    # Parameters:
+    # - $p_upload_setting_id (int): The upload setting ID.
+    # - $p_file_extension_id (int): The file extension ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedUploadSettingFileExtension($p_upload_setting_id, $p_file_extension_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedUploadSettingFileExtension(:p_upload_setting_id, :p_file_extension_id)');
+        $stmt->bindValue(':p_upload_setting_id', $p_upload_setting_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_file_extension_id', $p_file_extension_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: deleteLinkedFileExtension
     # Description: Deletes all the linked file extension on the upload setting.
     #

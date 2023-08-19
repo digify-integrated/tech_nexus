@@ -17,6 +17,7 @@ class FileExtensionController {
     private $fileTypeModel;
     private $userModel;
     private $roleModel;
+    private $uploadSettingModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -29,16 +30,19 @@ class FileExtensionController {
     # Parameters:
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param RoleModel $userModel     The RoleModel instance for role related operations.
+    # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(FileExtensionModel $fileExtensionModel, FileTypeModel $fileTypeModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(FileExtensionModel $fileExtensionModel, FileTypeModel $fileTypeModel, UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, SecurityModel $securityModel) {
         $this->fileExtensionModel = $fileExtensionModel;
         $this->fileTypeModel = $fileTypeModel;
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
+        $this->uploadSettingModel = $uploadSettingModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -171,7 +175,8 @@ class FileExtensionController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
+        
+        $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension(null, $fileExtensionID);
         $this->fileExtensionModel->deleteFileExtension($fileExtensionID);
             
         echo json_encode(['success' => true]);
@@ -206,6 +211,7 @@ class FileExtensionController {
         }
 
         foreach($fileExtensionIDs as $fileExtensionID){
+            $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension(null, $fileExtensionID);
             $this->fileExtensionModel->deleteFileExtension($fileExtensionID);
         }
             
@@ -314,13 +320,14 @@ class FileExtensionController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/upload-setting-model.php';
 require_once '../model/role-model.php';
 require_once '../model/file-type-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new FileExtensionController(new FileExtensionModel(new DatabaseModel), new FileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new FileExtensionController(new FileExtensionModel(new DatabaseModel), new FileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 
 ?>

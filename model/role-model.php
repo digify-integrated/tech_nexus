@@ -298,17 +298,19 @@ class RoleModel {
     
     # -------------------------------------------------------------
     #
-    # Function: deleteLinkedRoleUserRole
-    # Description: Deletes the all the linked role on role users table.
+    # Function: deleteLinkedRoleUser
+    # Description: Deletes the all the linked role users table.
     #
     # Parameters:
+    # - $p_user_id (int): The user ID.
     # - $p_role_id (int): The role ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteLinkedRoleUserRole($p_role_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedRoleUserRole(:p_role_id)');
+    public function deleteLinkedRoleUser($_user_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedRoleUser(:_user_id, :p_role_id)');
+        $stmt->bindValue(':_user_id', $_user_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -376,36 +378,40 @@ class RoleModel {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteAllMenuItemRoleAccess
-    # Description: Deletes the all of the menu item role access based on menu item ID.
+    # Function: deleteLinkedMenuItemAccessRight
+    # Description: Deletes the all of the linked menu item role access.
     #
     # Parameters:
     # - $p_menu_item_id (int): The menu item ID.
+    # - $p_role_id (int): The role ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteAllMenuItemRoleAccess($p_menu_item_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteAllMenuItemRoleAccess(:p_menu_item_id)');
+    public function deleteLinkedMenuItemAccessRight($p_menu_item_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedMenuItemAccessRight(:p_menu_item_id, :p_role_id)');
         $stmt->bindValue(':p_menu_item_id', $p_menu_item_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: deleteAllSystemActionRoleAccess
-    # Description: Deletes the all of the system action role access based on system action ID.
+    # Function: deleteLinkedSystemActionAccessRight
+    # Description: Deletes the all of the system action role access.
     #
     # Parameters:
     # - $p_system_action_id (int): The system action ID.
+    # - $p_role_id (int): The role ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteAllSystemActionRoleAccess($p_system_action_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteAllSystemActionRoleAccess(:p_system_action_id)');
+    public function deleteLinkedSystemActionAccessRight($p_system_action_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedSystemActionAccessRight(:p_system_action_id, :p_role_id)');
         $stmt->bindValue(':p_system_action_id', $p_system_action_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------

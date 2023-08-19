@@ -17,28 +17,14 @@
                 menuItemTable('#menu-item-table');
             }
 
-            if($('#menu-item-modal').length){
+            if($('#menu-item-form').length){
                 menuItemForm();
             }
 
-            if($('#assign-menu-item-role-access-modal').length){
-                menuItemRoleAccessForm();
-            }
-
-            $(document).on('click','#create-menu-item',function() {
+            $(document).on('click','#add-menu-item',function() {
                 resetModalForm("menu-item-form");
 
                 $('#menu-item-modal').modal('show');
-            });
-
-            $(document).on('click','.assign-menu-item-role-access',function() {
-                const menu_item_id = $(this).data('menu-item-id');
-
-                sessionStorage.setItem('menu_item_id', menu_item_id);
-
-                $('#assign-menu-item-role-access-modal').modal('show');
-                
-                roleAccessTable('#assign-menu-item-role-access-table');
             });
 
             $(document).on('click','.update-menu-item',function() {
@@ -501,7 +487,7 @@ function roleAccessTable(datatable_name, buttons = false, show_all = false){
 
     settings = {
         'ajax': { 
-            'url' : 'view/_menu_item_generation.php',
+            'url' : 'view/_role_configuration_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'menu_item_id' : menu_item_id},
@@ -717,63 +703,6 @@ function menuItemForm(){
                     $('#menu-item-modal').modal('hide');
                     reloadDatatable('#menu-item-table');
                     resetModalForm('menu-item-form');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
-function menuItemRoleAccessForm(){
-    $('#assign-menu-item-role-access-form').validate({
-        submitHandler: function(form) {
-            const transaction = 'save menu item role access';
-
-            var menu_item_id = sessionStorage.getItem('menu_item_id');
-            
-            var permission = [];
-        
-            $('.update-role-access').each(function(){
-                if($(this).is(':checked')){  
-                    permission.push(this.value + '-1' );  
-                }
-                else{
-                    permission.push(this.value + '-0' );
-                }
-            });
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/role-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&menu_item_id=' + menu_item_id + '&permission=' + permission,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-menu-access-form');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Menu Item Role Access Success', 'The menu item role access has been updated successfully.', 'success')
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        } else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-menu-access-form', 'Submit');
-                    $('#assign-menu-item-role-access-modal').modal('hide');
                 }
             });
         

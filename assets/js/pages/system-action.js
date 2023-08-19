@@ -17,7 +17,7 @@
                 updateSystemActionRoleAccessTable('#update-system-action-role-access-table');
             }
 
-            if($('#add-system-action-role-access-modal').length){
+            if($('#add-system-action-role-access-form').length){
                 addSystemActionRoleAccessForm();
             }
 

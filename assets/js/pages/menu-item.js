@@ -21,7 +21,7 @@
                 updateMenuItemRoleAccessTable('#update-menu-item-role-access-table');
             }
 
-            if($('#add-menu-item-role-access-modal').length){
+            if($('#add-menu-item-role-access-form').length){
                 addMenuItemRoleAccessForm();
             }
 

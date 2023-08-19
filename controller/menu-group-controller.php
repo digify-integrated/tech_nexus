@@ -167,8 +167,7 @@ class MenuGroupController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $this->menuGroupModel->deleteLinkedMenuItem($menuGroupID);
+
         $this->menuGroupModel->deleteMenuGroup($menuGroupID);
             
         echo json_encode(['success' => true]);
@@ -203,7 +202,6 @@ class MenuGroupController {
         }
 
         foreach($menuGroupIDs as $menuGroupID){
-            $this->menuGroupModel->deleteLinkedMenuItem($menuGroupID);
             $this->menuGroupModel->deleteMenuGroup($menuGroupID);
         }
             

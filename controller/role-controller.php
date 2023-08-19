@@ -25,7 +25,7 @@ class RoleController {
     # These instances are used for role related operations, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param RoleModel $menuItemModel     The RoleModel instance for role related operations.
+    # - @param RoleModel $roleModel     The RoleModel instance for role related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
@@ -551,7 +551,9 @@ class RoleController {
             exit;
         }
     
-        $this->roleModel->deleteLinkedRoleUserRole($roleID);
+        $this->roleModel->deleteLinkedRoleUser(null, $roleID);
+        $this->roleModel->deleteLinkedMenuItemAccessRight(null, $roleID);
+        $this->roleModel->deleteLinkedSystemActionAccessRight(null, $roleID);
         $this->roleModel->deleteRole($roleID);
             
         echo json_encode(['success' => true]);
@@ -586,7 +588,9 @@ class RoleController {
         }
 
         foreach($roleIDs as $roleID){
-            $this->roleModel->deleteLinkedRoleUserRole($roleID);
+            $this->roleModel->deleteLinkedRoleUser(null, $roleID);
+            $this->roleModel->deleteLinkedMenuItemAccessRight(null, $roleID);
+            $this->roleModel->deleteLinkedSystemActionAccessRight(null, $roleID);
             $this->roleModel->deleteRole($roleID);
         }
             

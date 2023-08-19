@@ -112,24 +112,6 @@ class FileTypeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: deleteLinkedFileExtension
-    # Description: Deletes all the linked file extension on the file type.
-    #
-    # Parameters:
-    # - $p_file_type_id (int): The file type ID.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function deleteLinkedFileExtension($p_file_type_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedFileExtension(:p_file_type_id)');
-        $stmt->bindValue(':p_file_type_id', $p_file_type_id, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 

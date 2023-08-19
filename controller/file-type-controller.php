@@ -169,8 +169,7 @@ class FileTypeController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $this->fileTypeModel->deleteLinkedFileExtension($fileTypeID);
+
         $this->fileTypeModel->deleteFileType($fileTypeID);
             
         echo json_encode(['success' => true]);
@@ -205,7 +204,6 @@ class FileTypeController {
         }
 
         foreach($fileTypeIDs as $fileTypeID){
-            $this->fileTypeModel->deleteLinkedFileExtension($fileTypeID);
             $this->fileTypeModel->deleteFileType($fileTypeID);
         }
             

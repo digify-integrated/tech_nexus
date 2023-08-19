@@ -601,24 +601,6 @@ class UserModel {
     
     # -------------------------------------------------------------
     #
-    # Function: deleteLinkedRoleUserUser
-    # Description: Deletes the all the linked user on role users table.
-    #
-    # Parameters:
-    # - $p_user_account_id (int): The user account ID.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function deleteLinkedRoleUserUser($p_user_account_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedRoleUserUser(:p_user_account_id)');
-        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
     # Function: deleteLinkedPasswordHistory
     # Description: Deletes the linked password history.
     #
@@ -630,6 +612,24 @@ class UserModel {
     # -------------------------------------------------------------
     public function deleteLinkedPasswordHistory($p_user_account_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedPasswordHistory(:p_user_account_id)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedUICustomization
+    # Description: Deletes the linked UI customization.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedUICustomization($p_user_account_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedUICustomization(:p_user_account_id)');
         $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
         $stmt->execute();
     }

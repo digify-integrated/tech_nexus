@@ -17,7 +17,7 @@
                 updateMenuItemRoleAccessTable('#update-menu-item-role-access-table');
             }
 
-            if($('#add-menu-item-role-access-modal').length){
+            if($('#add-menu-item-role-access-form').length){
                 addMenuItemRoleAccessForm();
             }
 
@@ -138,7 +138,7 @@
                 roleUserAccountTable('#role-user-account-access-table');
             }
 
-            if($('#add-role-user-account-modal').length){
+            if($('#add-role-user-account-form').length){
                 addRoleUserAccountForm();
             }
 
@@ -210,7 +210,7 @@
                 updateSystemActionRoleAccessTable('#update-system-action-role-access-table');
             }
 
-            if($('#add-system-action-role-access-modal').length){
+            if($('#add-system-action-role-access-form').length){
                 addSystemActionRoleAccessForm();
             }
 

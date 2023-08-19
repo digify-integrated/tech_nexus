@@ -177,7 +177,7 @@ class MenuItemController {
         }
     
         $this->menuItemModel->deleteMenuItem($menuItemID);
-        $this->roleModel->deleteAllMenuItemRoleAccess($menuItemID);
+        $this->roleModel->deleteLinkedMenuItemAccessRight($menuItemID, null);
             
         echo json_encode(['success' => true]);
         exit;
@@ -212,7 +212,7 @@ class MenuItemController {
 
         foreach($menuItemIDs as $menuItemID){
             $this->menuItemModel->deleteMenuItem($menuItemID);
-            $this->roleModel->deleteAllMenuItemRoleAccess($menuItemID);
+            $this->roleModel->deleteLinkedMenuItemAccessRight($menuItemID, null);
         }
             
         echo json_encode(['success' => true]);

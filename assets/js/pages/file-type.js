@@ -17,7 +17,7 @@
                 fileExtensionTable('#file-extension-table');
             }
 
-            if($('#file-extension-modal').length){
+            if($('#file-extension-form').length){
                 fileExtensionForm();
             }
 

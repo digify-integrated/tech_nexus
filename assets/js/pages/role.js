@@ -129,7 +129,7 @@
                 roleUserAccountTable('#role-user-account-access-table');
             }
 
-            if($('#add-role-user-account-modal').length){
+            if($('#add-role-user-account-form').length){
                 addRoleUserAccountForm();
             }
 
