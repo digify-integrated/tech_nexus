@@ -514,8 +514,8 @@ function roleTable(datatable_name, buttons = false, show_all = false){
     ];
 
     const column_definition = [
-        { 'width': '85%', 'aTargets': 0 },
-        { 'width': '15%','bSortable': false, 'aTargets': 1 }
+        { 'width': '90%', 'aTargets': 0 },
+        { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -535,7 +535,7 @@ function roleTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 0, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

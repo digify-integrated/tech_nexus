@@ -3,10 +3,12 @@
     require('model/database-model.php');
     require('model/user-model.php');
     require('model/system-model.php');
+    require('model/interface-setting-model.php');
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
+    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
     $page_title = 'Nexus Integrated Solutions';
     require('config/_interface_settings.php');

@@ -29,9 +29,6 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '1');
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Employee', 'employee@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '1');
-
 CREATE TRIGGER userTriggerUpdate
 AFTER UPDATE ON users
 FOR EACH ROW
@@ -684,11 +681,6 @@ CREATE TABLE role(
 
 CREATE INDEX role_index_role_id ON role(role_id);
 
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Super Admin', 'This role has the highest level of access and full control over the entire system. Super Admins can perform all actions, including managing other user accounts, configuring system settings, and accessing all data.', '0', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', '1', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', '1', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'The typical user account with standard access to use the system features and functionalities.', '1', '1');
-
 CREATE TRIGGER role_trigger_update
 AFTER UPDATE ON role
 FOR EACH ROW
@@ -821,8 +813,6 @@ CREATE TABLE role_users(
 CREATE INDEX role_users_index_role_id ON role_users(role_id);
 CREATE INDEX role_users_index_user_id ON role_users(user_id);
 
-INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '1');
-
 CREATE PROCEDURE checkRoleUserExist(IN p_user_id INT, IN p_role_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -851,8 +841,6 @@ CREATE TABLE menu_group (
 );
 
 CREATE INDEX menu_group_index_menu_group_id ON menu_group(menu_group_id);
-
-INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '1', '1');
 
 CREATE TRIGGER menu_group_trigger_update
 AFTER UPDATE ON menu_group
@@ -965,7 +953,6 @@ BEGIN
     ORDER BY menu_item_id;
 END //
 
-
 /* Menu item table */
 CREATE TABLE menu_item(
 	menu_item_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -982,13 +969,6 @@ CREATE INDEX menu_item_index_menu_item_id ON menu_item(menu_item_id);
 
 ALTER TABLE menu_item
 ADD FOREIGN KEY (menu_group_id) REFERENCES menu_group(menu_group_id);
-
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', '', 'sidebar', '50', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-group.php', '1', '', '1', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-item.php', '1', '', '2', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Administration', '1', '', '', 'shield', '1', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Action', '1', 'system-action.php', '4', '', '15', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role Configuration', '1', 'role-configuration.php', '4', '', '10', '1');
 
 CREATE TRIGGER menu_item_trigger_update
 AFTER UPDATE ON menu_item
@@ -1152,13 +1132,6 @@ CREATE TABLE menu_item_access_right(
     duplicate_access TINYINT(1) NOT NULL,
     last_log_by INT NOT NULL
 );
-
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '1', '0', '0', '0', '0', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '1', '0', '0', '0', '0', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '1');
 
 CREATE TRIGGER menu_item_access_right_update
 AFTER UPDATE ON menu_item_access_right
@@ -1402,13 +1375,6 @@ CREATE TABLE system_action(
 
 CREATE INDEX system_action_index_system_action_id ON system_action(system_action_id);
 
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu Item Role Access', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update System Action Role Access', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete System Action Role Access', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign User Account To Role', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete User Account To Role', '1');
-
 CREATE TRIGGER system_action_trigger_update
 AFTER UPDATE ON system_action
 FOR EACH ROW
@@ -1503,13 +1469,6 @@ CREATE TABLE system_action_access_rights(
 	role_access TINYINT(1) NOT NULL,
     last_log_by INT NOT NULL
 );
-
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('1', '1', '1');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('2', '1', '1');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('3', '1', '1');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('4', '1', '1');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('5', '1', '1');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access) VALUES ('6', '1', '1');
 
 CREATE TRIGGER system_action_access_rights_update
 AFTER UPDATE ON system_action_access_rights
@@ -2306,3 +2265,253 @@ BEGIN
     FROM system_setting
     ORDER BY system_setting_id;
 END //
+
+/* Insert */
+
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '1', '0');
+
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Super Admin', 'This role has the highest level of access and full control over the entire system. Super Admins can perform all actions, including managing other user accounts, configuring system settings, and accessing all data.', '0', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', '1', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', '1', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'The typical user account with standard access to use the system features and functionalities.', '1', '0');
+
+INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '0');
+
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '0');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Human Resources', '50', '0');
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', '', 'sidebar', '50', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-group.php', '1', '', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-item.php', '1', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Administration', '1', '', '', 'shield', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Action', '1', 'system-action.php', '4', '', '15', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role Configuration', '1', 'role-configuration.php', '4', '', '10', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role', '1', 'role.php', '4', '', '9', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Account', '1', 'user-account.php', '4', '', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '1', '', '0', 'settings', '30', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Type', '1', 'file-type.php', '9', '', '30', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Extension', '1', 'file-extension.php', '9', '', '31', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Upload Setting', '1', 'upload-setting.php', '9', '', '29', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Interface Setting', '1', 'interface-setting.php', '1', '', '3', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Setting', '1', 'system-setting.php', '4', '', '16', '0');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('7', '1', '1', '1', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('8', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('9', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('10', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('11', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('12', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('13', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('14', '1', '1', '1', '1', '1', '1', '0');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu Item Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update System Action Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete System Action Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign User Account To Role', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete User Account To Role', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign Role To User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Role To User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Activate User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Deactivate User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Lock User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlock User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change User Account Password', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change User Account Profile Picture', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign File Extension To Upload Setting', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete File Extension To Upload Setting', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Send Reset Password Instructions', '0');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('1', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('2', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('3', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('4', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('5', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('6', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('7', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('8', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('9', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('10', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('11', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('12', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('13', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('14', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('15', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('16', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('17', '1', '1', '0');
+
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Audio', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Compressed', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Disk and Media', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Data and Database', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Email', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Executable', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Font', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Image', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Internet Related', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Presentation', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Spreadsheet', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('System Related', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Video', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Word Processor', '0');
+
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('aif', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cda', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mid', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('midi', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mp3', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpa', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ogg', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wav', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wma', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wpl', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('7z', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('arj', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('deb', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pkg', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rar', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rpm', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tar.gz', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('z', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('zip', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bin', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dmg', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('iso', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('toast', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vcd', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('csv', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dat', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('db', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dbf', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('log', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mdb', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sav', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sql', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tar', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xml', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('email', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('eml', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('emlx', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('msg', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('oft', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ost', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pst', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vcf', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('apk', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bat', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bin', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cgi', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pl', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('com', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('exe', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('gadget', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jar', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wsf', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('fnt', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('fon', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('otf', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ttf', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ai', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bmp', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('gif', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ico', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jpg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jpeg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('png', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ps', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('psd', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('svg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tif', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tiff', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('webp', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('asp', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('aspx', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cer', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cfm', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cgi', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pl', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('css', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('htm', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('html', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('js', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jsp', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('part', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('php', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('py', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rss', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xhtml', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('key', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('odp', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pps', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ppt', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pptx', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ods', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xls', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xlsm', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xlsx', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bak', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cab', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cfg', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cpl', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cur', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dll', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dmp', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('drv', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('icns', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ini', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('lnk', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('msi', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sys', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tmp', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('3g2', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('3gp', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('avi', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('flv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('h264', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('m4v', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mkv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mov', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mp4', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpg', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpeg', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rm', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('swf', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vob', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('webm', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wmv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('doc', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('docx', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pdf', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rtf', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tex', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('txt', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wpd', '14', '0');
+
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Login Background', 'Interface setting for background image on login page.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Login Logo', 'Interface setting for logo on login page.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Navbar Logo', 'Interface setting for logo on navbar.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('System Icon', 'Interface setting for system icon.', '0');
+
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed Login Attempt', 'This sets the maximum failed login attempt before the user is locked-out.', 5, '0');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', 5, '0');
+
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Profile Image', 'Sets the upload setting when uploading user account profile image.', 5, '0');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Interface Setting', 'Sets the upload setting when uploading interface setting image.', 5, '0');
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 61, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 62, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 63, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 66, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 69, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 61, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 62, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 63, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 66, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 69, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 60, '0');

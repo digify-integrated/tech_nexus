@@ -15,10 +15,11 @@ session_start();
 class UserController {
     private $userModel;
     private $roleModel;
-    private $securityModel;
-    private $fileExtensionModel;
     private $uploadSettingModel;
+    private $fileExtensionModel;
+    private $systemSettingModel;
     private $systemModel;
+    private $securityModel;
 
     # -------------------------------------------------------------
     #
@@ -32,18 +33,20 @@ class UserController {
     # - @param RoleModel $roleModel     The RoleModel instance for role related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
+    # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
-        $this->systemModel = $systemModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->systemSettingModel = $systemSettingModel;
+        $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -1219,9 +1222,12 @@ class UserController {
         $lastFailedLogin = date('Y-m-d H:i:s');
     
         $this->userModel->updateLoginAttempt($userID, $failedAttempts, $lastFailedLogin);
-    
-        if ($failedAttempts > MAX_FAILED_LOGIN_ATTEMPTS) {
-            $lockDuration = pow(2, ($failedAttempts - MAX_FAILED_LOGIN_ATTEMPTS)) * 5;
+
+        $systemSettingDetails = $this->systemSettingModel->getSystemSetting(1);
+        $maxFailedLoginAttempts = $systemSettingDetails['value'] ?? MAX_FAILED_LOGIN_ATTEMPTS;
+
+        if ($failedAttempts > $maxFailedLoginAttempts) {
+            $lockDuration = pow(2, ($failedAttempts - $maxFailedLoginAttempts)) * 5;
             $this->userModel->updateAccountLock($userID, 1, $lockDuration);
             
             $durationParts = $this->formatDuration($lockDuration);
@@ -1606,7 +1612,10 @@ class UserController {
         }
     
         if ($otp !== $userOTP) {
-            if ($failedOTPAttempts >= MAX_FAILED_OTP_ATTEMPTS) {
+            $systemSettingDetails = $this->systemSettingModel->getSystemSetting(1);
+            $maxFailedOTPAttempts = $systemSettingDetails['value'] ?? MAX_FAILED_OTP_ATTEMPTS;
+
+            if ($failedOTPAttempts >= $maxFailedOTPAttempts) {
                 $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 month'));
                 $this->userModel->updateOTPAsExpired($userID, $otpExpiryDate);
     
@@ -1893,11 +1902,12 @@ require_once '../model/role-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/upload-setting-model.php';
+require_once '../model/system-setting-model.php';
 require_once '../model/file-extension-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

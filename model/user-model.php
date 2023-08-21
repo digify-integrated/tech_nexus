@@ -837,8 +837,8 @@ class UserModel {
                 $timeElapsed = $this->systemModel->timeElapsedString($row['changed_at']);
         
                 $getUserByID = $this->getUserByID($row['changed_by']);
-                $fileAs = $getUserByID['file_as'];
-                $profilePicture = $this->systemModel->checkImage($getUserByID['profile_picture'], 'profile');
+                $fileAs = $getUserByID['file_as'] ?? 'Nexus Bot';
+                $profilePicture = $this->systemModel->checkImage($getUserByID['profile_picture'] ?? null, 'profile');
         
                 $htmlLogNotes .= '<div class="comment">
                                         <div class="media align-items-start">

@@ -9,6 +9,7 @@
     require('model/file-extension-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
+    require('model/interface-setting-model.php');
   
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
@@ -17,6 +18,7 @@
     $menuItemModel = new MenuItemModel($databaseModel);
     $fileTypeModel = new FileTypeModel($databaseModel);
     $fileExtensionModel = new FileExtensionModel($databaseModel);
+    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);

@@ -146,25 +146,24 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Log Notes</h5>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header">
+                  <div class="row align-items-center">
+                    <div class="col-sm-6">
+                      <h5>Log Notes</h5>
+                    </div>
+                  </div>
+                </div>
+                <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+                  <div class="card-body p-b-0">
+                    '. $userModel->generateLogNotes('role', $roleID) .'
                   </div>
                 </div>
               </div>
-              <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-                <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('role', $roleID) .'
-                </div>
-              </div>
             </div>
-          </div>
-        </div>';
+          </div>';
 
   if($assignUserAccountToRole['total'] > 0){
     echo '<div id="add-role-user-account-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-role-user-account-modal-title" aria-hidden="true">

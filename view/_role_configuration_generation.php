@@ -60,7 +60,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $roleID .'">',
-                    'ROLE_NAME' => $roleName . '<p class="text-muted mb-0>'. $roleDescription .'</p>',
+                    'ROLE_NAME' => ' <div class="col">
+                                        <h6 class="mb-0">'. $roleName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $roleDescription .'</p>
+                                    </div>',
                     'ASSIGNABLE' => $assignableBadge,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="role-configuration.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

@@ -48,20 +48,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $roleIDEncrypted = $securityModel->encryptData($roleID);
 
-                $delete = '';
-                if($roleDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-role" data-role-id="'. $roleID .'" title="Delete Role">
-                                        <i class="ti ti-trash"></i>
-                                    </button>';
-                }
-
                 $response[] = [
-                    'ROLE_NAME' => $roleName . '<p class="text-muted mb-0>'. $roleDescription .'</p>',
+                    'ROLE_NAME' => ' <div class="col">
+                                        <h6 class="mb-0">'. $roleName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $roleDescription .'</p>
+                                    </div>',
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="role.php?id='. $roleIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
-                                    '. $delete .'
                                 </div>'
                 ];
             }

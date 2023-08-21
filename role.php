@@ -7,12 +7,14 @@
     require('model/menu-item-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
+    require('model/interface-setting-model.php');
   
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $roleModel = new RoleModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
+    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);

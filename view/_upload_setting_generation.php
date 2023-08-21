@@ -60,7 +60,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <h6 class="mb-0">'. $uploadSettingName .'</h6>
                                         <p class="text-muted f-12 mb-0">'. $uploadSettingDescription .'</p>
                                         </div>',
-                    'MAX_FILE_SIZE' => $maxFileSize,
+                    'MAX_FILE_SIZE' => $maxFileSize . ' Mb',
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="upload-setting.php?id='. $uploadSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
