@@ -1,0 +1,466 @@
+(function($) {
+    'use strict';
+
+    $(function() {
+        if($('#country-table').length){
+            countryTable('#country-table');
+        }
+
+        if($('#country-form').length){
+            countryForm();
+        }
+
+        if($('#country-id').length){
+            displayDetails('get country details');
+        }
+
+        $(document).on('click','.delete-country',function() {
+            const country_id = $(this).data('country-id');
+            const transaction = 'delete country';
+    
+            Swal.fire({
+                title: 'Confirm Country Deletion',
+                text: 'Are you sure you want to delete this country?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/country-controller.php',
+                        dataType: 'json',
+                        data: {
+                            country_id : country_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Country Success', 'The country has been deleted successfully.', 'success');
+                                reloadDatatable('#country-table');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Delete Country Error', 'The country does not exist.', 'danger');
+                                    reloadDatatable('#country-table');
+                                }
+                                else {
+                                    showNotification('Delete Country Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#delete-country',function() {
+            let country_id = [];
+            const transaction = 'delete multiple country';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    country_id.push(element.value);
+                }
+            });
+    
+            if(country_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Countrys Deletion',
+                    text: 'Are you sure you want to delete these countries?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/country-controller.php',
+                            dataType: 'json',
+                            data: {
+                                country_id: country_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Country Success', 'The selected countries have been deleted successfully.', 'success');
+                                        reloadDatatable('#country-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Delete Country Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Deletion Multiple Country Error', 'Please select the countries you wish to delete.', 'danger');
+            }
+        });
+
+        $(document).on('click','#delete-country-details',function() {
+            const country_id = $('#country-id').text();
+            const transaction = 'delete country';
+    
+            Swal.fire({
+                title: 'Confirm Country Deletion',
+                text: 'Are you sure you want to delete this country?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/country-controller.php',
+                        dataType: 'json',
+                        data: {
+                            country_id : country_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Deleted Country Success', 'The country has been deleted successfully.', 'success');
+                                window.location = 'country.php';
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Country Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#discard-create',function() {
+            discardCreate('country.php');
+        });
+
+        $(document).on('click','#edit-form',function() {
+            displayDetails('get country details');
+
+            enableForm();
+        });
+
+        $(document).on('click','#duplicate-country',function() {
+            const country_id = $('#country-id').text();
+            const transaction = 'duplicate country';
+    
+            Swal.fire({
+                title: 'Confirm Country Duplication',
+                text: 'Are you sure you want to duplicate this country?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Duplicate',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/country-controller.php',
+                        dataType: 'json',
+                        data: {
+                            country_id : country_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Duplicate Country Success', 'The country has been duplicated successfully.', 'success');
+                                window.location = 'country.php?id=' + response.countryID;
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    showNotification('Duplicate Country Error', 'The country does not exist.', 'danger');
+                                    reloadDatatable('#country-table');
+                                }
+                                else {
+                                    showNotification('Duplicate Country Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+    });
+})(jQuery);
+
+function countryTable(datatable_name, buttons = false, show_all = false){
+    const type = 'country table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'COUNTRY_NAME' },
+        { 'data' : 'COUNTRY_CODE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': '69%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_country_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function countryForm(){
+    $('#country-form').validate({
+        rules: {
+            country_name: {
+                required: true
+            },
+            country_code: {
+                required: true
+            },
+            value: {
+                required: true
+            }
+        },
+        messages: {
+            country_name: {
+                required: 'Please enter the country name'
+            },
+            country_code: {
+                required: 'Please enter the country description'
+            },
+            value: {
+                required: 'Please enter the value'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const country_id = $('#country-id').text();
+            const transaction = 'save country';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/country-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&country_id=' + country_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Country Success' : 'Update Country Success';
+                        const notificationDescription = response.insertRecord ? 'The country has been inserted successfully.' : 'The country has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'country.php?id=' + response.countryID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function displayDetails(transaction){
+    switch (transaction) {
+        case 'get country details':
+            const country_id = $('#country-id').text();
+            
+            $.ajax({
+                url: 'controller/country-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    country_id : country_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('country-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#country_id').val(country_id);
+                        $('#country_name').val(response.countryName);
+                        $('#country_code').val(response.countryCode);
+                        $('#phone_code').val(response.phoneCode);
+
+                        $('#country_name_label').text(response.countryName);
+                        $('#country_code_label').text(response.countryCode);
+                        $('#phone_code_label').text(response.phoneCode);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Country Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+    }
+}
