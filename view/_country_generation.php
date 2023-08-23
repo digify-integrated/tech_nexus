@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
+            $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
 
             foreach ($options as $row) {
                 $countryID = $row['country_id'];
@@ -48,7 +48,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $delete = '';
                 if($countryDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-country" data-country-id="'. $countryID .'" title="Delete System Setting">
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-country" data-country-id="'. $countryID .'" title="Delete Country">
                                         <i class="ti ti-trash"></i>
                                     </button>';
                 }

@@ -23,8 +23,8 @@ class StateModel {
     # Parameters:
     # - $p_state_id (int): The state ID.
     # - $p_state_name (string): The state name.
+    # - $p_country_id (string): The country ID.
     # - $p_state_code (string): The state code.
-    # - $p_country_id (string): The phone code.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
@@ -34,7 +34,7 @@ class StateModel {
         $stmt = $this->db->getConnection()->prepare('CALL updateState(:p_state_id, :p_state_name, :p_country_id, :p_state_code, :p_last_log_by)');
         $stmt->bindValue(':p_state_id', $p_state_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_state_name', $p_state_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_country_id', $p_country_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_country_id', $p_country_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_state_code', $p_state_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -52,7 +52,7 @@ class StateModel {
     #
     # Parameters:
     # - $p_state_name (string): The state name.
-    # - $p_country_id (string): The phone code.
+    # - $p_country_id (string): The country ID.
     # - $p_state_code (string): The state code.
     # - $p_last_log_by (int): The last logged user.
     #
@@ -62,7 +62,7 @@ class StateModel {
     public function insertState($p_state_name, $p_country_id, $p_state_code, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertState(:p_state_name, :p_country_id, :p_state_code, :p_last_log_by, @p_state_id)');
         $stmt->bindValue(':p_state_name', $p_state_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_country_id', $p_country_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_country_id', $p_country_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_state_code', $p_state_code, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -195,8 +195,9 @@ class StateModel {
         foreach ($options as $row) {
             $stateID = $row['state_id'];
             $stateName = $row['state_name'];
+            $countryName = $row['country_name'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($stateID, ENT_QUOTES) . '">' . htmlspecialchars($stateName, ENT_QUOTES) . '</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($stateID, ENT_QUOTES) . '">' . htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES)  .'</option>';
         }
 
         return $htmlOptions;

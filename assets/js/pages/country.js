@@ -326,7 +326,7 @@ function countryForm(){
             country_code: {
                 required: true
             },
-            value: {
+            phone_code: {
                 required: true
             }
         },
@@ -335,10 +335,10 @@ function countryForm(){
                 required: 'Please enter the country name'
             },
             country_code: {
-                required: 'Please enter the country description'
+                required: 'Please enter the country code'
             },
-            value: {
-                required: 'Please enter the value'
+            phone_code: {
+                required: 'Please enter the phone code'
             }
         },
         errorPlacement: function (error, element) {

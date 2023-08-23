@@ -83,7 +83,7 @@
             if(state_id.length > 0){
                 Swal.fire({
                     title: 'Confirm Multiple States Deletion',
-                    text: 'Are you sure you want to delete these countries?',
+                    text: 'Are you sure you want to delete these states?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,7 +103,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete State Success', 'The selected countries have been deleted successfully.', 'success');
+                                    showNotification('Delete State Success', 'The selected states have been deleted successfully.', 'success');
                                         reloadDatatable('#state-table');
                                 }
                                 else {
@@ -133,7 +133,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple State Error', 'Please select the countries you wish to delete.', 'danger');
+                showNotification('Deletion Multiple State Error', 'Please select the states you wish to delete.', 'danger');
             }
         });
 
@@ -331,7 +331,7 @@ function stateForm(){
             state_code: {
                 required: true
             },
-            value: {
+            country_id: {
                 required: true
             }
         },
@@ -340,10 +340,10 @@ function stateForm(){
                 required: 'Please enter the state name'
             },
             state_code: {
-                required: 'Please enter the state description'
+                required: 'Please enter the state code'
             },
-            value: {
-                required: 'Please enter the value'
+            country_id: {
+                required: 'Please choose the country'
             }
         },
         errorPlacement: function (error, element) {
