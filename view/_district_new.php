@@ -31,22 +31,6 @@
                 </select>
             </div>
           </div>
-          <div class="form-group row">
-          <label class="col-lg-2 col-form-label">State <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <select class="form-control select2" name="state_id" id="state_id">
-                    <option value="">--</option>
-                    <?php echo $stateModel->generateStateOptions(); ?>
-                </select>
-            </div>
-            <label class="col-lg-2 col-form-label">Country <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <select class="form-control select2" name="country_id" id="country_id">
-                    <option value="">--</option>
-                    <?php echo $countryModel->generateCountryOptions(); ?>
-                </select>
-            </div>
-          </div>
         </form>
       </div>
     </div>

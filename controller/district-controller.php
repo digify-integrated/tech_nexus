@@ -116,8 +116,10 @@ class DistrictController {
         $districtID = isset($_POST['district_id']) ? htmlspecialchars($_POST['district_id'], ENT_QUOTES, 'UTF-8') : null;
         $districtName = htmlspecialchars($_POST['district_name'], ENT_QUOTES, 'UTF-8');
         $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
-        $stateID = htmlspecialchars($_POST['state_id'], ENT_QUOTES, 'UTF-8');
-        $countryID = htmlspecialchars($_POST['country_id'], ENT_QUOTES, 'UTF-8');
+
+        $cityDetails = $this->cityModel->getCity($cityID);
+        $stateID = $cityDetails['state_id'];
+        $countryID = $cityDetails['country_id'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -309,20 +311,16 @@ class DistrictController {
             $cityName = $cityDetails['city_name'];
 
             $stateDetails = $this->stateModel->getState($stateID);
-            $stateName = $stateDetails['state_name'];
+            $stateName = $stateDetails['state_name'] ?? null;
 
             $countryDetails = $this->countryModel->getCountry($countryID);
-            $countryName = $countryDetails['country_name'];
+            $countryName = $countryDetails['country_name'] ?? null;
 
             $response = [
                 'success' => true,
                 'districtName' => $districtDetails['district_name'],
                 'cityID' => $cityID,
-                'cityName' => $cityName,
-                'stateID' => $stateID,
-                'stateName' => $stateName,
-                'countryID' => $countryID,
-                'countryName' => $countryName
+                'cityName' => $cityName . ', ' . $stateName . ', ' . $countryName
             ];
 
             echo json_encode($response);

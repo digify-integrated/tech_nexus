@@ -60,28 +60,6 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-2 col-form-label">State <span class="text-danger d-none form-edit">*</span></label>
-                        <div class="col-lg-4">
-                            <label class="col-form-label form-details fw-normal" id="state_id_label"></label>
-                            <div class="d-none form-edit">
-                                <select class="form-control select2" name="state_id" id="state_id">
-                                <option value="">--</option>
-                                '. $stateModel->generateStateOptions() .'
-                                </select>
-                            </div>
-                        </div>
-                        <label class="col-lg-2 col-form-label">Country <span class="text-danger d-none form-edit">*</span></label>
-                        <div class="col-lg-4">
-                            <label class="col-form-label form-details fw-normal" id="country_id_label"></label>
-                            <div class="d-none form-edit">
-                                <select class="form-control select2" name="country_id" id="country_id">
-                                <option value="">--</option>
-                                '. $countryModel->generateCountryOptions() .'
-                                </select>
-                            </div>
-                        </div>
                     </div>';
             }
             else{
@@ -93,16 +71,6 @@
                         <label class="col-lg-2 col-form-label">City</label>
                         <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="city_id_label"></label>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-lg-2 col-form-label">State</label>
-                        <div class="col-lg-4">
-                            <label class="col-form-label form-details fw-normal" id="state_id_label"></label>
-                        </div>
-                        <label class="col-lg-2 col-form-label">Country</label>
-                        <div class="col-lg-4">
-                            <label class="col-form-label form-details fw-normal" id="country_id_label"></label>
                         </div>
                     </div>';
             }

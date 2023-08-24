@@ -267,8 +267,6 @@
 function districtTable(datatable_name, buttons = false, show_all = false){
     const type = 'district table';
     var filter_city = $('#filter_city').val();
-    var filter_state = $('#filter_state').val();
-    var filter_country = $('#filter_country').val();
     var settings;
 
     const column = [ 
@@ -296,7 +294,7 @@ function districtTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_district_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_city' : filter_city, 'filter_state' : filter_state, 'filter_country' : filter_country},
+            'data': {'type' : type, 'filter_city' : filter_city},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -336,12 +334,6 @@ function districtForm(){
             },
             city_id: {
                 required: true
-            },
-            state_id: {
-                required: true
-            },
-            country_id: {
-                required: true
             }
         },
         messages: {
@@ -350,12 +342,6 @@ function districtForm(){
             },
             city_id: {
                 required: 'Please choose the city'
-            },
-            state_id: {
-                required: 'Please choose the state'
-            },
-            country_id: {
-                required: 'Please choose the country'
             }
         },
         errorPlacement: function (error, element) {

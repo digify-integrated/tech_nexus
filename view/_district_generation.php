@@ -38,15 +38,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'district table':
-            if(isset($_POST['filter_city']) && isset($_POST['filter_state']) && isset($_POST['filter_country'])){
+            if(isset($_POST['filter_city'])){
                 $filterCity = htmlspecialchars($_POST['filter_city'], ENT_QUOTES, 'UTF-8');
-                $filterState = htmlspecialchars($_POST['filter_state'], ENT_QUOTES, 'UTF-8');
-                $filterCountry = htmlspecialchars($_POST['filter_country'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateDistrictTable(:filterCity, :filterState, :filterCountry)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDistrictTable(:filterCity)');
                 $sql->bindValue(':filterCity', $filterCity, PDO::PARAM_INT);
-                $sql->bindValue(':filterState', $filterState, PDO::PARAM_INT);
-                $sql->bindValue(':filterCountry', $filterCountry, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

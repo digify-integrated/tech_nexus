@@ -59,7 +59,7 @@ class CityModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertCity($p_city_name, $p_country_id, $p_state_id, $p_last_log_by) {
+    public function insertCity($p_city_name, $p_state_id, $p_country_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertCity(:p_city_name, :p_state_id, :p_country_id, :p_last_log_by, @p_city_id)');
         $stmt->bindValue(':p_city_name', $p_city_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_state_id', $p_state_id, PDO::PARAM_INT);
@@ -114,6 +114,24 @@ class CityModel {
     # -------------------------------------------------------------
     public function deleteCity($p_city_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteCity(:p_city_id)');
+        $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedCity
+    # Description: Deletes the disctrict linked to city.
+    #
+    # Parameters:
+    # - $p_city_id (int): The city ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedCity($p_city_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedCity(:p_city_id)');
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -194,9 +212,11 @@ class CityModel {
         $htmlOptions = '';
         foreach ($options as $row) {
             $countryID = $row['city_id'];
-            $countryName = $row['city_name'];
+            $cityName = $row['city_name'];
+            $stateName = $row['state_name'];
+            $countryName = $row['country_name'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($countryID, ENT_QUOTES) . '">' . htmlspecialchars($countryName, ENT_QUOTES) . '</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($countryID, ENT_QUOTES) . '">' . htmlspecialchars($cityName, ENT_QUOTES) . ', '. htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

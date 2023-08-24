@@ -62,7 +62,7 @@ class DistrictModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertDistrict($p_district_name, $p_country_id, $p_city_id, $p_state_id, $p_last_log_by) {
+    public function insertDistrict($p_district_name, $p_city_id, $p_state_id, $p_country_id, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertDistrict(:p_district_name, :p_city_id, :p_state_id, :p_country_id, :p_last_log_by, @p_district_id)');
         $stmt->bindValue(':p_district_name', $p_district_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);

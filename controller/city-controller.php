@@ -180,6 +180,7 @@ class CityController {
             exit;
         }
     
+        $this->cityModel->deleteLinkedCity($cityID);
         $this->cityModel->deleteCity($cityID);
             
         echo json_encode(['success' => true]);
@@ -214,6 +215,7 @@ class CityController {
         }
 
         foreach($cityIDs as $cityID){
+            $this->cityModel->deleteLinkedCity($cityID);
             $this->cityModel->deleteCity($cityID);
         }
             

@@ -267,7 +267,6 @@
 function cityTable(datatable_name, buttons = false, show_all = false){
     const type = 'city table';
     var filter_state = $('#filter_state').val();
-    var filter_country = $('#filter_country').val();
     var settings;
 
     const column = [ 
@@ -293,7 +292,7 @@ function cityTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_city_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_state' : filter_state, 'filter_country' : filter_country},
+            'data': {'type' : type, 'filter_state' : filter_state},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

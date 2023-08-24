@@ -70,13 +70,6 @@
         <?php echo $stateModel->generateStateOptions(); ?>
       </select>
     </div>
-    <div class="form-group mb-4">
-      <label class="form-label" for="filter_country">Country</label>
-      <select class="form-control filter-select2" name="filter_country" id="filter_country">
-        <option value="">--</option>
-        <?php echo $countryModel->generateCountryOptions(); ?>
-      </select>
-    </div>
 
     <button type="button" class="btn btn-primary" id="filter-datatable" data-bs-dismiss="offcanvas">Apply</button>
   </div>

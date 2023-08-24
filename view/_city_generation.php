@@ -36,13 +36,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'city table':
-            if(isset($_POST['filter_state']) && isset($_POST['filter_country'])){
+            if(isset($_POST['filter_state'])){
                 $filterState = htmlspecialchars($_POST['filter_state'], ENT_QUOTES, 'UTF-8');
-                $filterCountry = htmlspecialchars($_POST['filter_country'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateCityTable(:filterState, :filterCountry)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateCityTable(:filterState)');
                 $sql->bindValue(':filterState', $filterState, PDO::PARAM_INT);
-                $sql->bindValue(':filterCountry', $filterCountry, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -56,7 +54,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $countryID = $row['country_id'];
 
                     $stateName = $stateModel->getState($stateID)['state_name'];
-                    $countryName = $countryModel->getCountry($countryID)['country_name'];
+                    $countryName = $countryModel->getCountry($countryID)['country_name'] ?? null;
 
                     $cityIDEncrypted = $securityModel->encryptData($cityID);
 

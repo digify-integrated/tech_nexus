@@ -120,6 +120,24 @@ class StateModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedState
+    # Description: Deletes the city and district linked to state.
+    #
+    # Parameters:
+    # - $p_state_id (int): The state ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedState($p_state_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedState(:p_state_id)');
+        $stmt->bindValue(':p_state_id', $p_state_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
