@@ -19,7 +19,7 @@
       <div class="card-body">
         <form id="state-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">State Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="state_name" name="state_name" maxlength="100" autocomplete="off">
             </div>

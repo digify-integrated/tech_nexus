@@ -47,14 +47,14 @@
               <?php
                 if($interfaceSettingWriteAccess['total'] > 0){
                   echo '<div class="form-group row">
-                          <label class="col-lg-3 col-form-label">Interface Setting Name <span class="text-danger d-none form-edit">*</span></label>
+                          <label class="col-lg-3 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
                           <div class="col-lg-9">
                             <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
                             <input type="text" class="form-control d-none form-edit" id="interface_setting_name" name="interface_setting_name" maxlength="100" autocomplete="off">
                           </div>
                         </div>
                         <div class="form-group row">
-                          <label class="col-lg-3 col-form-label">Interface Setting Description <span class="text-danger d-none form-edit">*</span></label>
+                          <label class="col-lg-3 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
                           <div class="col-lg-9">
                             <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
                             <input type="text" class="form-control d-none form-edit" id="interface_setting_description" name="interface_setting_description" maxlength="200" autocomplete="off">
@@ -63,13 +63,13 @@
                 }
                 else{
                   echo '<div class="form-group row">
-                          <label class="col-lg-2 col-form-label">Interface Setting Name</label>
+                          <label class="col-lg-2 col-form-label">Name</label>
                           <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="interface_setting_name_label"></label>
                           </div>
                         </div>
                         <div class="form-group row">
-                          <label class="col-lg-2 col-form-label">Interface Setting Description</label>
+                          <label class="col-lg-2 col-form-label">Description</label>
                           <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="interface_setting_description_label"></label>
                           </div>
@@ -82,7 +82,7 @@
             <?php
               if($interfaceSettingWriteAccess['total'] > 0){
                 echo '<form class="user-upload mb-4 rounded-0">
-                        <img src="'. DEFAULT_AVATAR_IMAGE .'" id="interface_setting_image" class="img-fluid wid-100 hei-100" alt="Interface Setting">
+                        <img src="'. DEFAULT_AVATAR_IMAGE .'" id="interface_setting_image" class="img-fluid wid-100 hei-100" alt="Interface Setting Image">
                         <label for="interface_setting_value" class="img-avtar-upload">
                           <i class="ti ti-camera f-24 mb-1"></i>
                           <span>Upload</span>
@@ -92,7 +92,7 @@
               }
               else{
                 echo '<div class="chat-avtar d-inline-flex mx-auto mb-4">
-                        <img class="img-fluid wid-100 hei-100" id="interface_setting_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="Interface Setting image">
+                        <img class="img-fluid wid-100 hei-100" id="interface_setting_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="Interface Setting Image">
                       </div>';
               }
             ?>
@@ -101,24 +101,22 @@
       </div>
     </div>
   </div>
-</div>
 <?php
-echo '<div class="row">
-        <div class="col-lg-12">
-          <div class="card">
-            <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col-sm-6">
-                  <h5>Log Notes</h5>
-                </div>
+echo '<div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-sm-6">
+                <h5>Log Notes</h5>
               </div>
             </div>
-            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-              <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('interface_setting', $interfaceSettingID) .'
-              </div>
+          </div>
+          <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+            <div class="card-body p-b-0">
+              '. $userModel->generateLogNotes('interface_setting', $interfaceSettingID) .'
             </div>
           </div>
         </div>
       </div>';
 ?>
+</div>

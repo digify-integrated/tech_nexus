@@ -309,7 +309,7 @@ class CurrencyController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/system-setting-model.php';
+require_once '../model/currency-model.php';
 require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';

@@ -98,8 +98,6 @@
       </div>
     </div>
   </div>
-</div>
-
 <?php
   if($assignRoleToUserAccount['total'] > 0){
     $role_button = '<button type="button" class="btn btn-warning" id="add-user-account-role">Add Role</button>';
@@ -121,107 +119,103 @@
                       </div>';
   }
 
-  echo '<div class="row">
-          <div class="col-lg-5">
-            <div class="card">
-              <div class="card-header">
-                <h5>User Details</h5>
-              </div>
-              <div class="card-body">
-                <div class="text-center mb-4">
-                  '. $image_update .'
-                  <div class="row g-3">
-                    <div class="col-4">
-                      <h6 class="mb-0" id="password_expiry_date_label"></h6>
-                      <small class="text-muted">Password Expiry Date</small>
-                    </div>
-                    <div class="col-4 border border-top-0 border-bottom-0">
-                      <h6 class="mb-0" id="last_connection_date_label"></h6>
-                      <small class="text-muted">Last Connection Date</small>
-                    </div>
-                    <div class="col-4">
-                      <h6 class="mb-0" id="last_password_reset_label"></h6>
-                      <small class="text-muted">Last Password Reset</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                  <div>
-                    <p class="text-muted mb-0">Status</p>
-                  </div>
-                  <div class="p-0">
-                    <label class="col-form-label fw-normal" id="status_label"></label>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                  <div>
-                    <p class="text-muted mb-0">Locked</p>
-                  </div>
-                  <div class="p-0">
-                    <label class="col-form-label fw-normal" id="locked_label"></label>
-                  </div>
-                </div>                                    
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                  <div>
-                    <p class="text-muted mb-0">Account Lock Duration</p>
-                  </div>
-                  <div class="p-0">
-                    <label class="col-form-label fw-normal" id="account_lock_duration_label"></label>
-                  </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                  <div>
-                    <p class="text-muted mb-0">Last Failed Login Attempt</p>
-                  </div>
-                  <div class="p-0">
-                    <label class="col-form-label fw-normal" id="last_failed_login_attempt_label"></label>
-                  </div>
-                </div>
-              </div>
+  echo '<div class="col-lg-5">
+          <div class="card">
+            <div class="card-header">
+              <h5>User Details</h5>
             </div>
-          </div>
-          <div class="col-lg-7">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Role</h5>
+            <div class="card-body">
+              <div class="text-center mb-4">
+                '. $image_update .'
+                <div class="row g-3">
+                  <div class="col-4">
+                    <h6 class="mb-0" id="password_expiry_date_label"></h6>
+                    <small class="text-muted">Password Expiry Date</small>
                   </div>
-                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $role_button .'
+                  <div class="col-4 border border-top-0 border-bottom-0">
+                    <h6 class="mb-0" id="last_connection_date_label"></h6>
+                    <small class="text-muted">Last Connection Date</small>
+                  </div>
+                  <div class="col-4">
+                    <h6 class="mb-0" id="last_password_reset_label"></h6>
+                    <small class="text-muted">Last Password Reset</small>
                   </div>
                 </div>
               </div>
-              <div class="card-body">
-                <div class="dt-responsive table-responsive">
-                    <table id="user-account-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                      <thead>
-                        <tr>
-                          <th>Role</th>
-                          <th class="all">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody></tbody>
-                    </table>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div>
+                  <p class="text-muted mb-0">Status</p>
+                </div>
+                <div class="p-0">
+                  <label class="col-form-label fw-normal" id="status_label"></label>
+                </div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div>
+                  <p class="text-muted mb-0">Locked</p>
+                </div>
+                <div class="p-0">
+                  <label class="col-form-label fw-normal" id="locked_label"></label>
+                </div>
+              </div>                                    
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div>
+                  <p class="text-muted mb-0">Account Lock Duration</p>
+                </div>
+                <div class="p-0">
+                  <label class="col-form-label fw-normal" id="account_lock_duration_label"></label>
+                </div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div>
+                  <p class="text-muted mb-0">Last Failed Login Attempt</p>
+                </div>
+                <div class="p-0">
+                  <label class="col-form-label fw-normal" id="last_failed_login_attempt_label"></label>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-7">
           <div class="card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
-                  <h5>Log Notes</h5>
+                  <h5>Role</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                '. $role_button .'
                 </div>
               </div>
             </div>
-            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-              <div class="card-body p-b-0">
-              '. $userModel->generateLogNotes('users', $userAccountID) .'
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="user-account-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Role</th>
+                      <th class="all">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-sm-6">
+                <h5>Log Notes</h5>
               </div>
+            </div>
+          </div>
+          <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+            <div class="card-body p-b-0">
+              '. $userModel->generateLogNotes('users', $userAccountID) .'
             </div>
           </div>
         </div>
@@ -304,3 +298,4 @@
         </div>';
   }
 ?>
+</div>

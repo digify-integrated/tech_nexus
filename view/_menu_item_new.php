@@ -19,7 +19,7 @@
             <div class="card-body">
                 <form id="menu-item-form" method="post" action="#">
                     <div class="form-group row">
-                        <label class="col-lg-2 col-form-label">Menu Item Name <span class="text-danger">*</span></label>
+                        <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
                         <div class="col-lg-4">
                             <input type="text" class="form-control" id="menu_item_name" name="menu_item_name" maxlength="100" autocomplete="off">
                         </div>
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-lg-2 col-form-label">Menu Item Icon</label>
+                        <label class="col-lg-2 col-form-label">Icon</label>
                         <div class="col-lg-4">
                             <input type="text" class="form-control" id="menu_item_icon" name="menu_item_icon" maxlength="150" autocomplete="off">
                         </div>

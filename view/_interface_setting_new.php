@@ -19,11 +19,11 @@
       <div class="card-body">
         <form id="interface-setting-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Interface Setting Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="interface_setting_name" name="interface_setting_name" maxlength="100" autocomplete="off">
             </div>
-            <label class="col-lg-2 col-form-label">Interface Setting Description <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="text" class="form-control" id="interface_setting_description" name="interface_setting_description" maxlength="200" autocomplete="off">
             </div>

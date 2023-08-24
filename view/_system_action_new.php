@@ -19,7 +19,7 @@
       <div class="card-body">
         <form id="system-action-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">System Action Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
             <div class="col-lg-10">
               <input type="text" class="form-control" id="system_action_name" name="system_action_name" maxlength="100" autocomplete="off">
             </div>

@@ -1,4 +1,4 @@
- <div class="row">
+<div class="row">
   <div class="col-lg-12">
     <div class="card">
       <div class="card-header">
@@ -45,7 +45,7 @@
           <?php
             if($roleWriteAccess['total'] > 0){
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Role Name <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="role_name_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="role_name" name="role_name" maxlength="100" autocomplete="off">
@@ -62,7 +62,7 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Role Description <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="role_description" name="role_description" maxlength="200" autocomplete="off">
@@ -71,7 +71,7 @@
             }
             else{
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Role Name</label>
+                      <label class="col-lg-2 col-form-label">Name</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="role_name_label"></label>
                       </div>
@@ -81,7 +81,7 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Role Description</label>
+                      <label class="col-lg-2 col-form-label">Description</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="role_description_label"></label>
                       </div>
@@ -92,7 +92,6 @@
       </div>
     </div>
   </div>
-</div>
 <?php
   if($assignUserAccountToRole['total'] > 0){
     $user_account_button = '<button type="button" class="btn btn-warning" id="add-role-user-account">Add User Account</button>';
@@ -106,115 +105,107 @@
     $system_action_button = '<button type="button" class="btn btn-warning" id="add-system-action-role-access">Add System Action</button>';
   }
 
-  echo '<div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>User Account</h5>
-                  </div>
-                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                    '. $user_account_button .'
-                  </div>
+  echo '<div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>User Account</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  '. $user_account_button .'
                 </div>
               </div>
-              <div class="card-body">
-                <div class="dt-responsive table-responsive">
-                  <table id="role-user-account-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                    <thead>
-                      <tr>
-                        <th>User Account</th>
-                        <th class="all">Login</th>
-                        <th class="all">Last Connection</th>
-                        <th class="all">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="role-user-account-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>User Account</th>
+                      <th class="all">Login</th>
+                      <th class="all">Last Connection</th>
+                      <th class="all">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Menu Item Access</h5>
-                  </div>
-                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                    '. $menu_item_button .'
-                  </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Menu Item Access</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  '. $menu_item_button .'
                 </div>
               </div>
-              <div class="card-body">
-                <div class="dt-responsive table-responsive">
-                  <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                    <thead>
-                      <tr>
-                        <th>Menu Item</th>
-                        <th class="all">Read Access</th>
-                        <th class="all">Write Access</th>
-                        <th class="all">Create Access</th>
-                        <th class="all">Delete Access</th>
-                        <th class="all">Duplicate Access</th>
-                        <th class="all">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Menu Item</th>
+                      <th class="all">Read Access</th>
+                      <th class="all">Write Access</th>
+                      <th class="all">Create Access</th>
+                      <th class="all">Delete Access</th>
+                      <th class="all">Duplicate Access</th>
+                      <th class="all">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>System Action Access</h5>
-                  </div>
-                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                    '. $system_action_button .'
-                  </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>System Action Access</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  '. $system_action_button .'
                 </div>
               </div>
-              <div class="card-body">
-                <div class="dt-responsive table-responsive">
-                  <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                    <thead>
-                      <tr>
-                        <th>System Action</th>
-                        <th class="all">Access</th>
-                        <th class="all">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>System Action</th>
+                      <th class="all">Access</th>
+                      <th class="all">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Log Notes</h5>
-                  </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
                 </div>
               </div>
-              <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-                <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('role', $roleID) .'
-                </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('role', $roleID) .'
               </div>
             </div>
           </div>
@@ -323,3 +314,4 @@
         </div>';
    }
 ?>
+</div>

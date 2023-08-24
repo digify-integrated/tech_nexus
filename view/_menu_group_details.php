@@ -45,7 +45,7 @@
           <?php
             if($menuGroupWriteAccess['total'] > 0){
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Menu Group Name <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="menu_group_name_label"></label>
                         <input type="text" class="form-control d-none form-edit" id="menu_group_name" name="menu_group_name" maxlength="100" autocomplete="off">
@@ -59,7 +59,7 @@
             }
             else{
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Menu Group Name</label>
+                      <label class="col-lg-2 col-form-label">Name</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="menu_group_name_label"></label>
                       </div>
@@ -74,56 +74,51 @@
       </div>
     </div>
   </div>
-</div>
 <?php
   if($menuItemCreateAccess['total'] > 0){
     $menu_item_create = '<button type="button" class="btn btn-warning" id="add-menu-item">Add Menu Item</button>';
   }
 
-  echo '<div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Menu Item</h5>
-                  </div>
-                  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    '. $menu_item_create .'
-                  </div>
+  echo '<div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Menu Item</h5>
+                </div>
+                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                  '. $menu_item_create .'
                 </div>
               </div>
-              <div class="card-body">
-                <div class="dt-responsive table-responsive">
-                  <table id="menu-item-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                    <thead>
-                      <tr>
-                        <th>Menu Item</th>
-                        <th>Parent Menu Item</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="menu-item-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Menu Item</th>
+                      <th>Parent Menu Item</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Log Notes</h5>
-                  </div>
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
                 </div>
               </div>
-              <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-                <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('menu_group', $menuGroupID) .'
-                </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('menu_group', $menuGroupID) .'
               </div>
             </div>
           </div>
@@ -140,7 +135,7 @@
                 <div class="modal-body" id="modal-body">
                   <form id="menu-item-form" method="post" action="#">
                     <div class="form-group">
-                      <label class="form-label" for="menu_item_name">Menu Item Name <span class="text-danger">*</span></label>
+                      <label class="form-label" for="menu_item_name">Name <span class="text-danger">*</span></label>
                       <input type="hidden" id="menu_item_id" name="menu_item_id">
                       <input type="text" class="form-control" id="menu_item_name" name="menu_item_name" maxlength="100" autocomplete="off">
                     </div>
@@ -153,7 +148,7 @@
                       <input type="text" class="form-control" id="menu_item_url" name="menu_item_url" maxlength="50" autocomplete="off">
                     </div>
                     <div class="form-group">
-                      <label class="form-label" for="menu_item_icon">Menu Item Icon</label>
+                      <label class="form-label" for="menu_item_icon">Icon</label>
                       <input type="text" class="form-control" id="menu_item_icon" name="menu_item_icon" maxlength="150" autocomplete="off">
                     </div>
                     <div class="form-group">
@@ -174,3 +169,4 @@
           </div>';
   }
 ?>
+</div>

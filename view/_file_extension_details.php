@@ -43,7 +43,7 @@
         <?php
           if($fileExtensionWriteAccess['total'] > 0){
             echo '<div class="form-group row">
-                    <label class="col-lg-2 col-form-label">File Extension Name <span class="text-danger d-none form-edit">*</span></label>
+                    <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
                     <div class="col-lg-4">
                       <label class="col-form-label form-details fw-normal" id="file_extension_name_label"></label>
                       <input type="text" class="form-control d-none form-edit" id="file_extension_name" name="file_extension_name" maxlength="100" autocomplete="off">
@@ -62,7 +62,7 @@
           }
           else{
             echo '<div class="form-group row">
-                    <label class="col-lg-2 col-form-label">File Extension Name</label>
+                    <label class="col-lg-2 col-form-label">Name</label>
                     <div class="col-lg-4">
                       <label class="col-form-label form-details fw-normal" id="file_extension_label"></label>
                     </div>
@@ -77,24 +77,22 @@
       </div>
     </div>
   </div>
-</div>
 <?php
-  echo '<div class="row">
-          <div class="col-lg-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center">
-                  <div class="col-sm-6">
-                    <h5>Log Notes</h5>
-                  </div>
+  echo '<div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
                 </div>
               </div>
-              <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-                <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('file_extension', $fileExtensionID) .'
-                </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('file_extension', $fileExtensionID) .'
               </div>
             </div>
           </div>
         </div>';
 ?>
+</div>

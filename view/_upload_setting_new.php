@@ -19,7 +19,7 @@
       <div class="card-body">
         <form id="upload-setting-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Upload Setting Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="upload_setting_name" name="upload_setting_name" maxlength="100" autocomplete="off">
             </div>
@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Upload Setting Description <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="text" class="form-control" id="upload_setting_description" name="upload_setting_description" maxlength="200" autocomplete="off">
             </div>

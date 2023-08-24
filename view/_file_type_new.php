@@ -19,7 +19,7 @@
       <div class="card-body">
         <form id="file-type-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">File Type Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
             <div class="col-lg-10">
               <input type="text" class="form-control" id="file_type_name" name="file_type_name" maxlength="100" autocomplete="off">
             </div>
