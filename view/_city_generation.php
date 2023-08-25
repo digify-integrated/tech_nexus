@@ -51,10 +51,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $cityID = $row['city_id'];
                     $cityName = $row['city_name'];
                     $stateID = $row['state_id'];
-                    $countryID = $row['country_id'];
 
-                    $stateName = $stateModel->getState($stateID)['state_name'];
-                    $countryName = $countryModel->getCountry($countryID)['country_name'] ?? null;
+                    $stateDetails = $stateModel->getState($stateID);
+                    $stateName = $stateDetails['state_name'];
+                    $countryID = $stateDetails['country_id'];
+                    
+                    $countryName = $countryModel->getCountry($countryID)['country_name'];
 
                     $cityIDEncrypted = $securityModel->encryptData($cityID);
 

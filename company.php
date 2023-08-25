@@ -3,10 +3,9 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/company-model.php');
+    require('model/currency-model.php');
     require('model/city-model.php');
-    require('model/district-model.php');
-    require('model/state-model.php');
-    require('model/country-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -18,24 +17,23 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
+    $companyModel = new CompanyModel($databaseModel);
+    $currencyModel = new CurrencyModel($databaseModel);
     $cityModel = new CityModel($databaseModel);
-    $districtModel = new DistrictModel($databaseModel);
-    $stateModel = new StateModel($databaseModel);
-    $countryModel = new CountryModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'District';
+    $page_title = 'Company';
     
-    $districtReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
-    $districtCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
-    $districtWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'write');
-    $districtDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
-    $districtDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'duplicate');
+    $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'read');
+    $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'create');
+    $companyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'write');
+    $companyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'delete');
+    $companyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'duplicate');
 
-    if ($districtReadAccess['total'] == 0) {
+    if ($companyReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -47,14 +45,14 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: district.php');
+            header('location: company.php');
             exit;
         }
 
-        $districtID = $securityModel->decryptData($_GET['id']);
+        $companyID = $securityModel->decryptData($_GET['id']);
 
-        $checkDistrictExist = $districtModel->checkDistrictExist($districtID);
-        $total = $checkDistrictExist['total'] ?? 0;
+        $checkCompanyExist = $companyModel->checkCompanyExist($companyID);
+        $total = $checkCompanyExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -62,7 +60,7 @@
         }
     }
     else{
-        $districtID = null;
+        $companyID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -95,11 +93,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="district.php">District</a></li>
+                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="company.php">Company</a></li>
                   <?php
-                    if(!empty($districtID)){
-                      echo '<li class="breadcrumb-item" id="district-id">'. $districtID .'</li>';
+                    if(!empty($companyID)){
+                      echo '<li class="breadcrumb-item" id="company-id">'. $companyID .'</li>';
                     }
 
                     if($newRecord){
@@ -110,21 +108,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">District</h2>
+                  <h2 class="mb-0">Company</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $districtCreateAccess['total'] > 0){
-            require_once('view/_district_new.php');
+          if($newRecord && $companyCreateAccess['total'] > 0){
+            require_once('view/_company_new.php');
           }
-          else if(!empty($districtID) && $districtWriteAccess['total'] > 0){
-            require_once('view/_district_details.php');
+          else if(!empty($companyID) && $companyWriteAccess['total'] > 0){
+            require_once('view/_company_details.php');
           }
           else{
-            require_once('view/_district.php');
+            require_once('view/_company.php');
           }
         ?>
       </div>
@@ -142,7 +140,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/district.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/company.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

@@ -6,9 +6,9 @@
     require('model/interface-setting-model.php');
 
     $databaseModel = new DatabaseModel();
+    $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $systemModel = new SystemModel();
     $page_title = 'Forgot Password';
     
     require('config/_interface_settings.php');

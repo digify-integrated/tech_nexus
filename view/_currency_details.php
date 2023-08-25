@@ -66,17 +66,17 @@
             }
             else{
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Name</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="currency_name_label"></label>
                       </div>
-                      <label class="col-lg-2 col-form-label">Symbol <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Symbol</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="symbol_label"></label>
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Shorthand <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Shorthand</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="shorthand_label"></label>
                       </div>

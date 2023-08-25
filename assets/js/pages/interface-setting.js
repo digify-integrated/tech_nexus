@@ -34,7 +34,7 @@
                         dataType: 'json',
                         success: function(response) {
                             if (response.success) {
-                                showNotification('Interface Setting Image Change Success', 'The interface seting image has been successfully updated.', 'success');
+                                showNotification('Interface Setting Image Change Success', 'The interface setting image has been successfully updated.', 'success');
                                 location.reload();
                             }
                             else{

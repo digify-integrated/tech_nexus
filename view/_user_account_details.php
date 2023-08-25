@@ -81,15 +81,15 @@
                 }
                 else{
                   echo '<div class="form-group row">
-                                                <label class="col-lg-2 col-form-label">Name</label>
-                                                <div class="col-lg-4">
-                                                    <label class="col-form-label form-details fw-normal" id="file_as_label"></label>
-                                                </div>
-                                                <label class="col-lg-2 col-form-label">Email</label>
-                                                <div class="col-lg-4">
-                                                    <label class="col-form-label form-details fw-normal" id="email_label"></label>
-                                                </div>
-                                            </div>';
+                          <label class="col-lg-2 col-form-label">Name</label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="file_as_label"></label>
+                          </div>
+                          <label class="col-lg-2 col-form-label">Email</label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="email_label"></label>
+                          </div>
+                        </div>';
                 }
               ?>
             </form>

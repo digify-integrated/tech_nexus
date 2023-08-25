@@ -171,5 +171,37 @@ class CurrencyModel {
         return $systemActionID;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateCurrencyOptions
+    # Description: Generates the currency options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateCurrencyOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCurrencyOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $currencyID = $row['currency_id'];
+            $currencyName = $row['currency_name'];
+            $shorthand = $row['shorthand'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($currencyID, ENT_QUOTES) . '">' . htmlspecialchars($currencyName, ENT_QUOTES) . ' ('. htmlspecialchars($shorthand, ENT_QUOTES) . ')' .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

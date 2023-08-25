@@ -23,11 +23,11 @@
 
     $page_title = 'Currency';
     
-    $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'read');
-    $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'create');
-    $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'write');
-    $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'delete');
-    $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'duplicate');
+    $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
+    $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
+    $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'write');
+    $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
+    $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'duplicate');
 
     if ($currencyReadAccess['total'] == 0) {
         header('location: 404.php');

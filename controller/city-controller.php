@@ -113,9 +113,6 @@ class CityController {
         $cityID = isset($_POST['city_id']) ? htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8') : null;
         $cityName = htmlspecialchars($_POST['city_name'], ENT_QUOTES, 'UTF-8');
         $stateID = htmlspecialchars($_POST['state_id'], ENT_QUOTES, 'UTF-8');
-
-        $stateDetails = $this->stateModel->getState($stateID);
-        $countryID = $stateDetails['country_id'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -128,13 +125,13 @@ class CityController {
         $total = $checkCityExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->cityModel->updateCity($cityID, $cityName, $stateID, $countryID, $userID);
+            $this->cityModel->updateCity($cityID, $cityName, $stateID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'cityID' => $this->securityModel->encryptData($cityID)]);
             exit;
         } 
         else {
-            $cityID = $this->cityModel->insertCity($cityName, $stateID, $countryID, $userID);
+            $cityID = $this->cityModel->insertCity($cityName, $stateID, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'cityID' => $this->securityModel->encryptData($cityID)]);
             exit;
@@ -180,7 +177,6 @@ class CityController {
             exit;
         }
     
-        $this->cityModel->deleteLinkedCity($cityID);
         $this->cityModel->deleteCity($cityID);
             
         echo json_encode(['success' => true]);
@@ -215,7 +211,6 @@ class CityController {
         }
 
         foreach($cityIDs as $cityID){
-            $this->cityModel->deleteLinkedCity($cityID);
             $this->cityModel->deleteCity($cityID);
         }
             
@@ -301,10 +296,10 @@ class CityController {
             }
     
             $cityDetails = $this->cityModel->getCity($cityID);
-            $countryID = $cityDetails['country_id'];
             $stateID = $cityDetails['state_id'];
 
             $stateDetails = $this->stateModel->getState($stateID);
+            $countryID = $stateDetails['country_id'];
             $stateName = $stateDetails['state_name'];
 
             $countryDetails = $this->countryModel->getCountry($countryID);

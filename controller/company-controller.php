@@ -3,21 +3,25 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: InterfaceSettingController
+# Function: CompanyController
 # Description: 
-# The InterfaceSettingController class handles interface setting related operations and interactions.
+# The CompanyController class handles company related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class InterfaceSettingController {
-    private $interfaceSettingModel;
+class CompanyController {
+    private $companyModel;
     private $userModel;
     private $roleModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $cityModel;
+    private $stateModel;
+    private $countryModel;
+    private $currencyModel;
     private $securityModel;
     private $systemModel;
 
@@ -25,27 +29,35 @@ class InterfaceSettingController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided InterfaceSettingModel, UserModel and SecurityModel instances.
-    # These instances are used for interface setting related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided CompanyModel, UserModel and SecurityModel instances.
+    # These instances are used for company related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param InterfaceSettingModel $interfaceSettingModel     The InterfaceSettingModel instance for interface setting related operations.
+    # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
+    # - @param CityModel $cityModel     The CityModel instance for city related operations.
+    # - @param StateModel $stateModel     The StateModel instance for state related operations.
+    # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
+    # - @param CurrencyModel $currencyModel     The CurrencyModel instance for currency related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(InterfaceSettingModel $interfaceSettingModel, UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->interfaceSettingModel = $interfaceSettingModel;
+    public function __construct(CompanyModel $companyModel, UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
+        $this->companyModel = $companyModel;
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->cityModel = $cityModel;
+        $this->stateModel = $stateModel;
+        $this->countryModel = $countryModel;
+        $this->currencyModel = $currencyModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -69,23 +81,23 @@ class InterfaceSettingController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save interface setting':
-                    $this->saveInterfaceSetting();
+                case 'save company':
+                    $this->saveCompany();
                     break;
-                case 'get interface setting details':
-                    $this->getInterfaceSettingDetails();
+                case 'get company details':
+                    $this->getCompanyDetails();
                     break;
-                case 'delete interface setting':
-                    $this->deleteInterfaceSetting();
+                case 'delete company':
+                    $this->deleteCompany();
                     break;
-                case 'delete multiple interface setting':
-                    $this->deleteMultipleInterfaceSetting();
+                case 'delete multiple company':
+                    $this->deleteMultipleCompany();
                     break;
-                case 'duplicate interface setting':
-                    $this->duplicateInterfaceSetting();
+                case 'duplicate company':
+                    $this->duplicateCompany();
                     break;
-                case 'change interface setting value':
-                    $this->updateInterfaceSettingValue();
+                case 'change company logo':
+                    $this->updateCompanyLogo();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -101,24 +113,32 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveInterfaceSetting
+    # Function: saveCompany
     # Description: 
-    # Updates the existing interface setting if it exists; otherwise, inserts a new interface setting.
+    # Updates the existing company if it exists; otherwise, inserts a new company.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveInterfaceSetting() {
+    public function saveCompany() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $interfaceSettingID = isset($_POST['interface_setting_id']) ? htmlspecialchars($_POST['interface_setting_id'], ENT_QUOTES, 'UTF-8') : null;
-        $interfaceSettingName = htmlspecialchars($_POST['interface_setting_name'], ENT_QUOTES, 'UTF-8');
-        $interfaceSettingDescription = htmlspecialchars($_POST['interface_setting_description'], ENT_QUOTES, 'UTF-8');
+        $companyID = isset($_POST['company_id']) ? htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8') : null;
+        $companyName = htmlspecialchars($_POST['company_name'], ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
+        $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
+        $taxID = htmlspecialchars($_POST['tax_id'], ENT_QUOTES, 'UTF-8');
+        $currencyID = htmlspecialchars($_POST['currency_id'], ENT_QUOTES, 'UTF-8');
+        $phone = htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8');
+        $mobile = htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8');
+        $telephone = htmlspecialchars($_POST['telephone'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
+        $website = htmlspecialchars($_POST['website'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -127,19 +147,19 @@ class InterfaceSettingController {
             exit;
         }
     
-        $checkInterfaceSettingExist = $this->interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
-        $total = $checkInterfaceSettingExist['total'] ?? 0;
+        $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID);
+        $total = $checkCompanyExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->interfaceSettingModel->updateInterfaceSetting($interfaceSettingID, $interfaceSettingName, $interfaceSettingDescription, $userID);
+            $this->companyModel->updateCompany($companyID, $companyName, $address, $cityID, $taxID, $currencyID, $phone, $mobile, $telephone, $email, $website, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'interfaceSettingID' => $this->securityModel->encryptData($interfaceSettingID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'companyID' => $this->securityModel->encryptData($companyID)]);
             exit;
         } 
         else {
-            $interfaceSettingID = $this->interfaceSettingModel->insertInterfaceSetting($interfaceSettingName, $interfaceSettingDescription, $userID);
+            $companyID = $this->companyModel->insertCompany($companyName, $address, $cityID, $taxID, $currencyID, $phone, $mobile, $telephone, $email, $website, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'interfaceSettingID' => $this->securityModel->encryptData($interfaceSettingID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'companyID' => $this->securityModel->encryptData($companyID)]);
             exit;
         }
     }
@@ -151,7 +171,7 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: updateInterfaceSettingValue
+    # Function: updateCompanyLogo
     # Description: 
     # Handles the update of the profile picture.
     #
@@ -160,13 +180,13 @@ class InterfaceSettingController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function updateInterfaceSettingValue() {
+    public function updateCompanyLogo() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $interfaceSettingID = htmlspecialchars($_POST['interface_setting_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         
         $user = $this->userModel->getUserByID($userID);
         $isActive = $user['is_active'] ?? 0;
@@ -176,17 +196,17 @@ class InterfaceSettingController {
             exit;
         }
 
-        $interfaceSettingValueFileName = $_FILES['interface_setting_value']['name'];
-        $interfaceSettingValueFileSize = $_FILES['interface_setting_value']['size'];
-        $interfaceSettingValueFileError = $_FILES['interface_setting_value']['error'];
-        $interfaceSettingValueTempName = $_FILES['interface_setting_value']['tmp_name'];
-        $interfaceSettingValueFileExtension = explode('.', $interfaceSettingValueFileName);
-        $interfaceSettingValueActualFileExtension = strtolower(end($interfaceSettingValueFileExtension));
+        $companyLogoFileName = $_FILES['company_logo']['name'];
+        $companyLogoFileSize = $_FILES['company_logo']['size'];
+        $companyLogoFileError = $_FILES['company_logo']['error'];
+        $companyLogoTempName = $_FILES['company_logo']['tmp_name'];
+        $companyLogoFileExtension = explode('.', $companyLogoFileName);
+        $companyLogoActualFileExtension = strtolower(end($companyLogoFileExtension));
 
-        $uploadSetting = $this->uploadSettingModel->getUploadSetting(2);
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(3);
         $maxFileSize = $uploadSetting['max_file_size'];
 
-        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(2);
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(3);
         $allowedFileExtensions = [];
 
         foreach ($uploadSettingFileExtension as $row) {
@@ -195,32 +215,32 @@ class InterfaceSettingController {
             $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
         }
 
-        if (!in_array($interfaceSettingValueActualFileExtension, $allowedFileExtensions)) {
+        if (!in_array($companyLogoActualFileExtension, $allowedFileExtensions)) {
             $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
             echo json_encode($response);
             exit;
         }
         
-        if(empty($interfaceSettingValueTempName)){
-            echo json_encode(['success' => false, 'message' => 'Please choose the interface setting image.']);
+        if(empty($companyLogoTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the company logo.']);
             exit;
         }
         
-        if($interfaceSettingValueFileError){
+        if($companyLogoFileError){
             echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
             exit;
         }
         
-        if($interfaceSettingValueFileSize > ($maxFileSize * 1048576)){
+        if($companyLogoFileSize > ($maxFileSize * 1048576)){
             echo json_encode(['success' => false, 'message' => 'The uploaded file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
             exit;
         }
 
         $fileName = $this->securityModel->generateFileName();
-        $fileNew = $fileName . '.' . $interfaceSettingValueActualFileExtension;
+        $fileNew = $fileName . '.' . $companyLogoActualFileExtension;
 
-        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'interface_setting/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'interface_setting/' . $fileNew;
+        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'company/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'company/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -230,22 +250,22 @@ class InterfaceSettingController {
             exit;
         }
 
-        $interfaceSetting = $this->interfaceSettingModel->getInterfaceSetting($interfaceSettingID);
-        $interfaceSettingValue = $interfaceSetting['value'] !== null ? '.' . $interfaceSetting['value'] : null;
+        $company = $this->companyModel->getCompany($companyID);
+        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
 
-        if(file_exists($interfaceSettingValue)){
-            if (!unlink($interfaceSettingValue)) {
+        if(file_exists($companyLogo)){
+            if (!unlink($companyLogo)) {
                 echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                 exit;
             }
         }
 
-        if(!move_uploaded_file($interfaceSettingValueTempName, $fileDestination)){
+        if(!move_uploaded_file($companyLogoTempName, $fileDestination)){
             echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
             exit;
         }
 
-        $this->interfaceSettingModel->updateInterfaceSettingValue($interfaceSettingID, $filePath, $userID);
+        $this->companyModel->updateCompanyLogo($companyID, $filePath, $userID);
 
         echo json_encode(['success' => true]);
         exit;
@@ -258,22 +278,22 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteInterfaceSetting
+    # Function: deleteCompany
     # Description: 
-    # Delete the interface setting if it exists; otherwise, return an error message.
+    # Delete the company if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteInterfaceSetting() {
+    public function deleteCompany() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $interfaceSettingID = htmlspecialchars($_POST['interface_setting_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -282,25 +302,25 @@ class InterfaceSettingController {
             exit;
         }
     
-        $checkInterfaceSettingExist = $this->interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
-        $total = $checkInterfaceSettingExist['total'] ?? 0;
+        $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID);
+        $total = $checkCompanyExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $interfaceSetting = $this->interfaceSettingModel->getInterfaceSetting($interfaceSettingID);
-        $interfaceSettingValue = $interfaceSetting['value'] !== null ? '.' . $interfaceSetting['value'] : null;
+        $company = $this->companyModel->getCompany($companyID);
+        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
 
-        if(file_exists($interfaceSettingValue)){
-            if (!unlink($interfaceSettingValue)) {
+        if(file_exists($companyLogo)){
+            if (!unlink($companyLogo)) {
                 echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                 exit;
             }
         }
     
-        $this->interfaceSettingModel->deleteInterfaceSetting($interfaceSettingID);
+        $this->companyModel->deleteCompany($companyID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -309,22 +329,22 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleInterfaceSetting
+    # Function: deleteMultipleCompany
     # Description: 
-    # Delete the selected interface settings if it exists; otherwise, skip it.
+    # Delete the selected companys if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleInterfaceSetting() {
+    public function deleteMultipleCompany() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $interfaceSettingIDs = $_POST['interface_setting_id'];
+        $companyIDs = $_POST['company_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -333,18 +353,18 @@ class InterfaceSettingController {
             exit;
         }
 
-        foreach($interfaceSettingIDs as $interfaceSettingID){
-            $interfaceSetting = $this->interfaceSettingModel->getInterfaceSetting($interfaceSettingID);
-            $interfaceSettingValue = $interfaceSetting['value'] !== null ? '.' . $interfaceSetting['value'] : null;
+        foreach($companyIDs as $companyID){
+            $company = $this->companyModel->getCompany($companyID);
+            $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
 
-            if(file_exists($interfaceSettingValue)){
-                if (!unlink($interfaceSettingValue)) {
+            if(file_exists($companyLogo)){
+                if (!unlink($companyLogo)) {
                     echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                     exit;
                 }
             }
             
-            $this->interfaceSettingModel->deleteInterfaceSetting($interfaceSettingID);
+            $this->companyModel->deleteCompany($companyID);
         }
             
         echo json_encode(['success' => true]);
@@ -358,22 +378,22 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: duplicateInterfaceSetting
+    # Function: duplicateCompany
     # Description: 
-    # Duplicates the interface setting if it exists; otherwise, return an error message.
+    # Duplicates the company if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function duplicateInterfaceSetting() {
+    public function duplicateCompany() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $interfaceSettingID = htmlspecialchars($_POST['interface_setting_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -382,39 +402,39 @@ class InterfaceSettingController {
             exit;
         }
     
-        $checkInterfaceSettingExist = $this->interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
-        $total = $checkInterfaceSettingExist['total'] ?? 0;
+        $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID);
+        $total = $checkCompanyExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $interfaceSetting = $this->interfaceSettingModel->getInterfaceSetting($interfaceSettingID);
-        $interfaceSettingValue = $interfaceSetting['value'] !== null ? '.' . $interfaceSetting['value'] : null;
+        $company = $this->companyModel->getCompany($companyID);
+        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
 
-        if(file_exists($interfaceSettingValue)){
-            $extension = pathinfo($interfaceSettingValue, PATHINFO_EXTENSION);
+        if(file_exists($companyLogo)){
+            $extension = pathinfo($companyLogo, PATHINFO_EXTENSION);
 
             $fileName = $this->securityModel->generateFileName();
             $fileNew = $fileName . '.' . $extension;
 
-            $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'interface_setting/';
+            $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'company/';
             $filePath = $directory . $fileNew;
 
-            copy($interfaceSettingValue, '.' . $filePath);
+            copy($companyLogo, '.' . $filePath);
         }
         else{
             $filePath = null;
         }
 
-        $interfaceSettingID = $this->interfaceSettingModel->duplicateInterfaceSetting($interfaceSettingID, $userID);
+        $companyID = $this->companyModel->duplicateCompany($companyID, $userID);
 
-        if(file_exists($interfaceSettingValue)){
-            $this->interfaceSettingModel->updateInterfaceSettingValue($interfaceSettingID, $filePath, $userID);
+        if(file_exists($companyLogo)){
+            $this->companyModel->updateCompanyLogo($companyID, $filePath, $userID);
         }        
 
-        echo json_encode(['success' => true, 'interfaceSettingID' =>  $this->securityModel->encryptData($interfaceSettingID)]);
+        echo json_encode(['success' => true, 'companyID' =>  $this->securityModel->encryptData($companyID)]);
         exit;
     }
     # -------------------------------------------------------------
@@ -425,23 +445,23 @@ class InterfaceSettingController {
 
     # -------------------------------------------------------------
     #
-    # Function: getInterfaceSettingDetails
+    # Function: getCompanyDetails
     # Description: 
-    # Handles the retrieval of interface setting details such as interface setting name, etc.
+    # Handles the retrieval of company details such as company name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getInterfaceSettingDetails() {
+    public function getCompanyDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['interface_setting_id']) && !empty($_POST['interface_setting_id'])) {
+        if (isset($_POST['company_id']) && !empty($_POST['company_id'])) {
             $userID = $_SESSION['user_id'];
-            $interfaceSettingID = $_POST['interface_setting_id'];
+            $companyID = $_POST['company_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -450,13 +470,39 @@ class InterfaceSettingController {
                 exit;
             }
     
-            $interfaceSettingDetails = $this->interfaceSettingModel->getInterfaceSetting($interfaceSettingID);
+            $companyDetails = $this->companyModel->getCompany($companyID);
+            $cityID = $companyDetails['city_id'];
+            $currencyID = $companyDetails['currency_id'];
+
+            $cityDetails = $this->cityModel->getCity($cityID);
+            $cityName = $cityDetails['city_name'];
+            $stateID = $cityDetails['state_id'];
+
+            $stateDetails = $this->stateModel->getState($stateID);
+            $stateName = $stateDetails['state_name'];
+            $countryID = $stateDetails['country_id'];
+
+            $countryName = $this->countryModel->getCountry($countryID)['country_name'];
+            $cityName = $cityDetails['city_name'] . ', ' . $stateName . ', ' . $countryName;
+
+            $currencyDetails = $this->currencyModel->getCurrency($currencyID);
+            $currencyName = $currencyDetails['currency_name'] ?? null;
 
             $response = [
                 'success' => true,
-                'interfaceSettingName' => $interfaceSettingDetails['interface_setting_name'],
-                'interfaceSettingDescription' => $interfaceSettingDetails['interface_setting_description'],
-                'value' => $this->systemModel->checkImage($interfaceSettingDetails['value'], 'default')
+                'companyName' => $companyDetails['company_name'],
+                'address' => $companyDetails['address'],
+                'cityID' => $cityID,
+                'cityName' => $cityName,
+                'taxID' => $companyDetails['tax_id'],
+                'currencyID' => $currencyID,
+                'currencyName' => $currencyName,
+                'phone' => $companyDetails['phone'],
+                'mobile' => $companyDetails['mobile'],
+                'telephone' => $companyDetails['telephone'],
+                'email' => $companyDetails['email'],
+                'website' => $companyDetails['website'],
+                'companyLogo' => $this->systemModel->checkImage($companyDetails['company_logo'], 'company logo')
             ];
 
             echo json_encode($response);
@@ -469,7 +515,11 @@ class InterfaceSettingController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/interface-setting-model.php';
+require_once '../model/company-model.php';
+require_once '../model/city-model.php';
+require_once '../model/state-model.php';
+require_once '../model/country-model.php';
+require_once '../model/currency-model.php';
 require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
@@ -477,6 +527,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new InterfaceSettingController(new InterfaceSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new CompanyController(new CompanyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

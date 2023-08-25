@@ -57,7 +57,7 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label"><span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Country <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="country_id_label"></label>
                         <div class="d-none form-edit">

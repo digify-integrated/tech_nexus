@@ -69,17 +69,17 @@
             }
             else{
               echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Name</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="upload_setting_name_label"></label>
                       </div>
-                      <label class="col-lg-2 col-form-label">Max File Size <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Max File Size</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="max_file_size_label"></label>
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
+                      <label class="col-lg-2 col-form-label">Description</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="upload_setting_description_label"></label>
                       </div>

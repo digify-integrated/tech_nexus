@@ -2,25 +2,69 @@
     'use strict';
 
     $(function() {
-        if($('#district-table').length){
-            districtTable('#district-table');
+        if($('#company-table').length){
+            companyTable('#company-table');
         }
 
-        if($('#district-form').length){
-            districtForm();
+        if($('#company-form').length){
+            companyForm();
         }
 
-        if($('#district-id').length){
-            displayDetails('get district details');
+        if($('#company-id').length){
+            displayDetails('get company details');
+
+            $('#company_logo').change(function() {
+                var selectedFile = $(this)[0].files[0];
+
+                if (selectedFile) {
+                    const transaction = 'change company logo';
+                    const company_id = $('#company-id').text();
+
+                    var formData = new FormData();
+                    formData.append('company_id', company_id);
+                    formData.append('transaction', transaction);
+                    formData.append('company_logo', selectedFile);
+            
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/company-controller.php',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showNotification('Company Logo Change Success', 'The company logo has been successfully updated.', 'success');
+                                location.reload();
+                            }
+                            else{
+                                if(response.isInactive){
+                                    window.location = 'logout.php?logout';
+                                }
+                                else{
+                                    showNotification('Company Logo Change Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                }
+            });
         }
 
-        $(document).on('click','.delete-district',function() {
-            const district_id = $(this).data('district-id');
-            const transaction = 'delete district';
+        $(document).on('click','.delete-company',function() {
+            const company_id = $(this).data('company-id');
+            const transaction = 'delete company';
     
             Swal.fire({
-                title: 'Confirm District Deletion',
-                text: 'Are you sure you want to delete this district?',
+                title: 'Confirm Company Deletion',
+                text: 'Are you sure you want to delete this company?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +76,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/district-controller.php',
+                        url: 'controller/company-controller.php',
                         dataType: 'json',
                         data: {
-                            district_id : district_id, 
+                            company_id : company_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete District Success', 'The district has been deleted successfully.', 'success');
-                                reloadDatatable('#district-table');
+                                showNotification('Delete Company Success', 'The company has been deleted successfully.', 'success');
+                                reloadDatatable('#company-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +93,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete District Error', 'The district does not exist.', 'danger');
-                                    reloadDatatable('#district-table');
+                                    showNotification('Delete Company Error', 'The company does not exist.', 'danger');
+                                    reloadDatatable('#company-table');
                                 }
                                 else {
-                                    showNotification('Delete District Error', response.message, 'danger');
+                                    showNotification('Delete Company Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +114,20 @@
             });
         });
 
-        $(document).on('click','#delete-district',function() {
-            let district_id = [];
-            const transaction = 'delete multiple district';
+        $(document).on('click','#delete-company',function() {
+            let company_id = [];
+            const transaction = 'delete multiple company';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    district_id.push(element.value);
+                    company_id.push(element.value);
                 }
             });
     
-            if(district_id.length > 0){
+            if(company_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Cities Deletion',
-                    text: 'Are you sure you want to delete these cities?',
+                    title: 'Confirm Multiple Companies Deletion',
+                    text: 'Are you sure you want to delete these companies?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +139,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/district-controller.php',
+                            url: 'controller/company-controller.php',
                             dataType: 'json',
                             data: {
-                                district_id: district_id,
+                                company_id: company_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete District Success', 'The selected cities have been deleted successfully.', 'success');
-                                        reloadDatatable('#district-table');
+                                    showNotification('Delete Company Success', 'The selected companies have been deleted successfully.', 'success');
+                                        reloadDatatable('#company-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +156,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete District Error', response.message, 'danger');
+                                        showNotification('Delete Company Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +177,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple District Error', 'Please select the cities you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Company Error', 'Please select the companies you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-district-details',function() {
-            const district_id = $('#district-id').text();
-            const transaction = 'delete district';
+        $(document).on('click','#delete-company-details',function() {
+            const company_id = $('#company-id').text();
+            const transaction = 'delete company';
     
             Swal.fire({
-                title: 'Confirm District Deletion',
-                text: 'Are you sure you want to delete this district?',
+                title: 'Confirm Company Deletion',
+                text: 'Are you sure you want to delete this company?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +199,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/district-controller.php',
+                        url: 'controller/company-controller.php',
                         dataType: 'json',
                         data: {
-                            district_id : district_id, 
+                            company_id : company_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted District Success', 'The district has been deleted successfully.', 'success');
-                                window.location = 'district.php';
+                                setNotification('Deleted Company Success', 'The company has been deleted successfully.', 'success');
+                                window.location = 'company.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +219,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete District Error', response.message, 'danger');
+                                    showNotification('Delete Company Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,22 +237,22 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('district.php');
+            discardCreate('company.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get district details');
+            displayDetails('get company details');
 
             enableForm();
         });
 
-        $(document).on('click','#duplicate-district',function() {
-            const district_id = $('#district-id').text();
-            const transaction = 'duplicate district';
+        $(document).on('click','#duplicate-company',function() {
+            const company_id = $('#company-id').text();
+            const transaction = 'duplicate company';
     
             Swal.fire({
-                title: 'Confirm District Duplication',
-                text: 'Are you sure you want to duplicate this district?',
+                title: 'Confirm Company Duplication',
+                text: 'Are you sure you want to duplicate this company?',
                 icon: 'info',
                 showCancelButton: !0,
                 confirmButtonText: 'Duplicate',
@@ -220,16 +264,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/district-controller.php',
+                        url: 'controller/company-controller.php',
                         dataType: 'json',
                         data: {
-                            district_id : district_id, 
+                            company_id : company_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate District Success', 'The district has been duplicated successfully.', 'success');
-                                window.location = 'district.php?id=' + response.districtID;
+                                setNotification('Duplicate Company Success', 'The company has been duplicated successfully.', 'success');
+                                window.location = 'company.php?id=' + response.companyID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -237,11 +281,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate District Error', 'The district does not exist.', 'danger');
-                                    reloadDatatable('#district-table');
+                                    showNotification('Duplicate Company Error', 'The company does not exist.', 'danger');
+                                    reloadDatatable('#company-table');
                                 }
                                 else {
-                                    showNotification('Duplicate District Error', response.message, 'danger');
+                                    showNotification('Duplicate Company Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -257,44 +301,33 @@
                 }
             });
         });
-
-        $(document).on('click','#filter-datatable',function() {
-            districtTable('#district-table');
-        });
     });
 })(jQuery);
 
-function districtTable(datatable_name, buttons = false, show_all = false){
-    const type = 'district table';
-    var filter_city = $('#filter_city').val();
+function companyTable(datatable_name, buttons = false, show_all = false){
+    const type = 'company table';
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'DISTRICT_NAME' },
-        { 'data' : 'CITY_ID' },
-        { 'data' : 'STATE_ID' },
-        { 'data' : 'COUNTRY_ID' },
+        { 'data' : 'COMPANY_NAME' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '21%', 'aTargets': 1 },
-        { 'width': '21%', 'aTargets': 2 },
-        { 'width': '21%', 'aTargets': 3 },
-        { 'width': '21%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': '84%', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 2 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_district_generation.php',
+            'url' : 'view/_company_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_city' : filter_city},
+            'data': {'type' : type},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -326,10 +359,13 @@ function districtTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function districtForm(){
-    $('#district-form').validate({
+function companyForm(){
+    $('#company-form').validate({
         rules: {
-            district_name: {
+            company_name: {
+                required: true
+            },
+            address: {
                 required: true
             },
             city_id: {
@@ -337,8 +373,11 @@ function districtForm(){
             }
         },
         messages: {
-            district_name: {
-                required: 'Please enter the district name'
+            company_name: {
+                required: 'Please enter the company name'
+            },
+            address: {
+                required: 'Please enter the address'
             },
             city_id: {
                 required: 'Please choose the city'
@@ -374,24 +413,24 @@ function districtForm(){
             }
         },
         submitHandler: function(form) {
-            const district_id = $('#district-id').text();
-            const transaction = 'save district';
+            const company_id = $('#company-id').text();
+            const transaction = 'save company';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/district-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&district_id=' + district_id,
+                url: 'controller/company-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&company_id=' + company_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert District Success' : 'Update District Success';
-                        const notificationDescription = response.insertRecord ? 'The district has been inserted successfully.' : 'The district has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Company Success' : 'Update Company Success';
+                        const notificationDescription = response.insertRecord ? 'The company has been inserted successfully.' : 'The company has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'district.php?id=' + response.districtID;
+                        window.location = 'company.php?id=' + response.companyID;
                     }
                     else {
                         if (response.isInactive) {
@@ -422,40 +461,54 @@ function districtForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get district details':
-            const district_id = $('#district-id').text();
+        case 'get company details':
+            const company_id = $('#company-id').text();
             
             $.ajax({
-                url: 'controller/district-controller.php',
+                url: 'controller/company-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    district_id : district_id, 
+                    company_id : company_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('district-form');
+                    resetModalForm('company-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#district_id').val(district_id);
-                        $('#district_name').val(response.districtName);
+                        $('#company_id').val(company_id);
+                        $('#company_name').val(response.companyName);
+                        $('#address').val(response.address);
+                        $('#tax_id').val(response.taxID);
+                        $('#phone').val(response.phone);
+                        $('#mobile').val(response.mobile);
+                        $('#telephone').val(response.telephone);
+                        $('#email').val(response.email);
+                        $('#website').val(response.website);
 
                         checkOptionExist('#city_id', response.cityID, '');
-                        checkOptionExist('#state_id', response.stateID, '');
-                        checkOptionExist('#country_id', response.countryID, '');
+                        checkOptionExist('#currency_id', response.currencyID, '');
 
-                        $('#district_name_label').text(response.districtName);
+                        document.getElementById('company_logo_image').src = response.companyLogo;
+
                         $('#city_id_label').text(response.cityName);
-                        $('#state_id_label').text(response.stateName);
-                        $('#country_id_label').text(response.countryName);
+                        $('#tax_id_label').text(response.taxID);
+                        $('#currency_id_label').text(response.currencyName);
+                        $('#company_name_label').text(response.companyName);
+                        $('#address_label').text(response.address);
+                        $('#phone_label').text(response.phone);
+                        $('#mobile_label').text(response.mobile);
+                        $('#telephone_label').text(response.telephone);
+                        $('#email_label').text(response.email);
+                        $('#website_label').text(response.website);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get District Details Error', response.message, 'danger');
+                            showNotification('Get Company Details Error', response.message, 'danger');
                         }
                     }
                 },

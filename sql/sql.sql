@@ -1,968 +1,2241 @@
-/* Audit log table */
-CREATE TABLE audit_log (
-  audit_log_id int(50) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-  table_name varchar(255) NOT NULL,
-  reference_id int(10) NOT NULL,
-  log TEXT NOT NULL,
-  changed_by varchar(255) NOT NULL,
-  changed_at datetime NOT NULL
-);
-
-CREATE INDEX audit_log_index_audit_log_id ON audit_log(audit_log_id);
-CREATE INDEX audit_log_index_table_name ON audit_log(table_name);
-CREATE INDEX audit_log_index_reference_id ON audit_log(reference_id);
-
-/* Users table */
-CREATE TABLE users (
-    user_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    email_address VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(500) NOT NULL,
-    file_as VARCHAR(300) NOT NULL,
-    user_status CHAR(10) NOT NULL,
-    password_expiry_date DATE NOT NULL,
-    failed_login TINYINT(1) NOT NULL DEFAULT 0,
-    last_failed_login DATETIME DEFAULT NULL,
-    last_connection_date DATETIME DEFAULT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX users_index_user_id ON users(user_id);
-CREATE INDEX users_index_email_address ON users(email_address);
-CREATE INDEX users_index_user_status ON users(user_status);
-CREATE INDEX users_index_password_expiry_date ON users(password_expiry_date);
-CREATE INDEX users_index_last_connection_date ON users(last_connection_date);
-
-INSERT INTO users (email_address, password, file_as, user_status, password_expiry_date, failed_login, last_log_by) VALUES ('admin@encorefinancials.com', 'W5hvx4P278F8q50uZe2YFif%2ByRDeSeNaainzl5K9%2BQM%3D', 'Administrator', 'Active', '2022-12-30', 0, 1);
-INSERT INTO users (email_address, password, file_as, user_status, password_expiry_date, failed_login, last_log_by) VALUES ('ldagulto@encorefinancials.com', 'W5hvx4P278F8q50uZe2YFif%2ByRDeSeNaainzl5K9%2BQM%3D', 'Administrator', 'Active', '2022-12-30', 0, 1);
-INSERT INTO users (email_address, password, file_as, user_status, password_expiry_date, failed_login, last_log_by) VALUES ('lmicayas@encorefinancials.com', 'W5hvx4P278F8q50uZe2YFif%2ByRDeSeNaainzl5K9%2BQM%3D', 'Administrator', 'Active', '2022-12-30', 0, 1);
-
-CREATE TRIGGER users_trigger_update
-AFTER UPDATE ON users
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.user_status <> OLD.user_status THEN
-        SET audit_log = CONCAT(audit_log, "User Status: ", OLD.user_status, " -> ", NEW.user_status, "<br/>");
-    END IF;
-
-    IF NEW.password_expiry_date <> OLD.password_expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Password Expiry Date: ", OLD.password_expiry_date, " -> ", NEW.password_expiry_date, "<br/>");
-    END IF;
-
-    IF NEW.failed_login <> OLD.failed_login THEN
-        SET audit_log = CONCAT(audit_log, "Failed Login: ", OLD.failed_login, " -> ", NEW.failed_login, "<br/>");
-    END IF;
-
-    IF NEW.last_failed_login <> OLD.last_failed_login THEN
-        SET audit_log = CONCAT(audit_log, "Last Failed Login: ", OLD.last_failed_login, " -> ", NEW.last_failed_login, "<br/>");
-    END IF;
-
-    IF NEW.last_connection_date <> OLD.last_connection_date THEN
-        SET audit_log = CONCAT(audit_log, "Last Connection Date: ", OLD.last_connection_date, " -> ", NEW.last_connection_date, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER users_trigger_insert
-AFTER INSERT ON users
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'User created. <br/>';
-
-    IF NEW.email_address <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Email Address: ", NEW.email_address);
-    END IF;
-
-    IF NEW.file_as <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
-    END IF;
-
-    IF NEW.user_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>User Status: ", NEW.user_status);
-    END IF;
-
-    IF NEW.password_expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Password Expiry Date: ", NEW.password_expiry_date);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_user_exist(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM users
-    WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE get_user_details(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-	SELECT user_id, email_address, password, file_as, user_status, password_expiry_date, failed_login, last_failed_login, last_connection_date, last_log_by
-	FROM users 
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user_login_attempt(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_login_attempt TINYINT(1), IN p_last_failed_attempt_date DATETIME)
-BEGIN
-    IF p_login_attempt > 0 THEN
-        UPDATE users
-        SET failed_login = p_login_attempt,
-            last_failed_login = p_last_failed_attempt_date
-        WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSE
-        UPDATE users
-        SET failed_login = p_login_attempt
-        WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    END IF;
-END//
-
-CREATE PROCEDURE update_user_last_connection(IN p_user_id INT(10), IN p_email_address VARCHAR(100), p_last_connection_date DATETIME)
-BEGIN
-	UPDATE users 
-	SET last_connection_date = p_last_connection_date
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user_password(IN p_user_id INT(10), IN p_email_address VARCHAR(100), p_password VARCHAR(500), p_password_expiry_date DATE)
-BEGIN
-	UPDATE users 
-	SET PASSWORD = p_password, PASSWORD_EXPIRY_DATE = p_password_expiry_date
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE update_user(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_password VARCHAR(500), IN p_file_as VARCHAR (300), IN p_password_expiry_date DATE)
-BEGIN
-	IF p_password IS NOT NULL AND p_password <> '' THEN
-        UPDATE users
-        SET file_as = p_file_as, password = p_password, password_expiry_date = p_password_expiry_date
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSE
-        UPDATE users
-        SET file_as = p_file_as
-      	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    END IF;
-END //
-
-CREATE PROCEDURE insert_user(IN p_email_address VARCHAR(100), IN p_password VARCHAR(500), IN p_file_as VARCHAR (300), IN p_password_expiry_date DATE)
-BEGIN
-	INSERT INTO users (email_address, password, file_as, user_status, password_expiry_date, failed_login) 
-	VALUES(p_email_address, p_password, p_file_as, "Inactive", p_password_expiry_date, 0);
-END //
-
-CREATE PROCEDURE delete_user(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-	DELETE FROM users 
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-/* Password history table */
-CREATE TABLE password_history (
-    password_history_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    user_id INT(10) UNSIGNED NOT NULL,
-    email_address VARCHAR(100) NOT NULL,
-    password VARCHAR(500) NOT NULL,
-    password_change_date DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE password_history
-ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
-
-ALTER TABLE password_history
-ADD FOREIGN KEY (email_address) REFERENCES users(email_address);
-
-CREATE INDEX password_history_index_password_history_id ON password_history(password_history_id);
-CREATE INDEX password_history_index_user_id ON password_history(user_id);
-CREATE INDEX password_history_index_email_address ON password_history(email_address);
-
-CREATE PROCEDURE insert_password_history(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_password VARCHAR(500))
-BEGIN
-	INSERT INTO password_history (user_id, email_address, password) 
-	VALUES(p_user_id, p_email_address, p_password);
-END //
-
-CREATE PROCEDURE get_user_password_history_details(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT password 
-	FROM password_history 
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-/* UI customization setting table */
-CREATE TABLE ui_customization_setting (
-    ui_customization_setting_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    user_id INT(10) UNSIGNED NOT NULL,
-    email_address VARCHAR(100) NOT NULL,
-    theme_contrast VARCHAR(15),
-    caption_show VARCHAR(15),
-    preset_theme VARCHAR(15),
-    dark_layout VARCHAR(15),
-    rtl_layout VARCHAR(15),
-    box_container VARCHAR(15),
-    last_log_by INT(10) NOT NULL
-);
-
-ALTER TABLE ui_customization_setting
-ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
-
-ALTER TABLE ui_customization_setting
-ADD FOREIGN KEY (email_address) REFERENCES users(email_address);
-
-CREATE INDEX ui_customization_setting_index_ui_customization_setting_id ON ui_customization_setting(ui_customization_setting_id);
-CREATE INDEX ui_customization_setting_index_user_id ON ui_customization_setting(user_id);
-CREATE INDEX ui_customization_setting_index_email_address ON ui_customization_setting(email_address);
-
-CREATE TRIGGER ui_customization_setting_trigger_update
-AFTER UPDATE ON ui_customization_setting
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.theme_contrast <> OLD.theme_contrast THEN
-        SET audit_log = CONCAT(audit_log, "Theme Contrast: ", OLD.theme_contrast, " -> ", NEW.theme_contrast, "<br/>");
-    END IF;
-
-    IF NEW.caption_show <> OLD.caption_show THEN
-        SET audit_log = CONCAT(audit_log, "Caption Show: ", OLD.caption_show, " -> ", NEW.caption_show, "<br/>");
-    END IF;
-
-    IF NEW.preset_theme <> OLD.preset_theme THEN
-        SET audit_log = CONCAT(audit_log, "Preset Theme: ", OLD.preset_theme, " -> ", NEW.preset_theme, "<br/>");
-    END IF;
-
-    IF NEW.dark_layout <> OLD.dark_layout THEN
-        SET audit_log = CONCAT(audit_log, "Dark Layout: ", OLD.dark_layout, " -> ", NEW.dark_layout, "<br/>");
-    END IF;
-
-    IF NEW.rtl_layout <> OLD.rtl_layout THEN
-        SET audit_log = CONCAT(audit_log, "RTL Layout: ", OLD.rtl_layout, " -> ", NEW.rtl_layout, "<br/>");
-    END IF;
-
-    IF NEW.box_container <> OLD.box_container THEN
-        SET audit_log = CONCAT(audit_log, "Box Container: ", OLD.box_container, " -> ", NEW.box_container , "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('ui_customization_setting', NEW.ui_customization_setting_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER ui_customization_setting_trigger_insert
-AFTER INSERT ON ui_customization_setting
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'UI Customization created. <br/>';
-
-    IF NEW.theme_contrast <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Theme Contrast: ", NEW.theme_contrast);
-    END IF;
-
-    IF NEW.caption_show <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Caption Show: ", NEW.caption_show);
-    END IF;
-
-    IF NEW.preset_theme <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Preset Theme: ", NEW.preset_theme);
-    END IF;
-
-    IF NEW.dark_layout <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Dark Layout: ", NEW.dark_layout);
-    END IF;
-
-    IF NEW.rtl_layout <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>RTL Layout: ", NEW.rtl_layout);
-    END IF;
-
-    IF NEW.box_container <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Box Container: ", NEW.box_container);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('ui_customization_setting', NEW.ui_customization_setting_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_ui_customization_setting_exist(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM ui_customization_setting
-    WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-CREATE PROCEDURE insert_ui_customization_setting(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_type VARCHAR(30), IN p_customization_value VARCHAR(15), IN p_last_log_by INT(10))
-BEGIN
-	IF p_type = 'theme_contrast' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, theme_contrast, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'caption_show' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, caption_show, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'preset_theme' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, preset_theme, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'dark_layout' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, dark_layout, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'rtl_layout' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, rtl_layout, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    ELSE
-        INSERT INTO ui_customization_setting (user_id, email_address, box_container, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
-    END IF;
-END //
-
-CREATE PROCEDURE update_ui_customization_setting(IN p_user_id INT(10), IN p_email_address VARCHAR(100), IN p_type VARCHAR(30), IN p_customization_value VARCHAR(15), IN p_last_log_by INT(10))
-BEGIN
-	IF p_type = 'theme_contrast' THEN
-        UPDATE ui_customization_setting
-        SET theme_contrast = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSEIF p_type = 'caption_show' THEN
-        UPDATE ui_customization_setting
-        SET caption_show = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSEIF p_type = 'preset_theme' THEN
-        UPDATE ui_customization_setting
-        SET preset_theme = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSEIF p_type = 'dark_layout' THEN
-        UPDATE ui_customization_setting
-        SET dark_layout = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSEIF p_type = 'rtl_layout' THEN
-        UPDATE ui_customization_setting
-        SET rtl_layout = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    ELSE
-        UPDATE ui_customization_setting
-        SET box_container = p_customization_value,
-        last_log_by = p_last_log_by
-       	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-    END IF;
-END //
-
-CREATE PROCEDURE get_ui_customization_setting_details(IN p_user_id INT(10), IN p_email_address VARCHAR(100))
-BEGIN
-    SELECT ui_customization_setting_id, user_id, email_address, theme_contrast, caption_show, preset_theme, dark_layout, rtl_layout, box_container, last_log_by
-	FROM ui_customization_setting 
-	WHERE user_id = p_user_id OR email_address = BINARY p_email_address;
-END //
-
-/* Role table */
-CREATE TABLE role(
-	role_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	role_name VARCHAR(100) NOT NULL,
-	role_description VARCHAR(200) NOT NULL,
-	assignable TINYINT(1) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX role_index_role_id ON role(role_id);
-
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Administrator', '1', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'Employee', '1', '1');
-
-CREATE TRIGGER role_trigger_update
-AFTER UPDATE ON role
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.role_name <> OLD.role_name THEN
-        SET audit_log = CONCAT(audit_log, "Role Name: ", OLD.role_name, " -> ", NEW.role_name, "<br/>");
-    END IF;
-
-    IF NEW.role_description <> OLD.role_description THEN
-        SET audit_log = CONCAT(audit_log, "Role Description: ", OLD.role_description, " -> ", NEW.role_description, "<br/>");
-    END IF;
-
-    IF NEW.assignable <> OLD.assignable THEN
-        SET audit_log = CONCAT(audit_log, "Assignable: ", OLD.assignable, " -> ", NEW.assignable, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER role_trigger_insert
-AFTER INSERT ON role
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Role created. <br/>';
-
-    IF NEW.role_name <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role Name: ", NEW.role_name);
-    END IF;
-
-    IF NEW.role_description <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role Description: ", NEW.role_description);
-    END IF;
-
-    IF NEW.assignable <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Assignable: ", NEW.assignable);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('role', NEW.role_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE get_role_details(IN p_role_id INT(10))
-BEGIN
-    SELECT role_name, role_description, assignable, last_log_by
-	FROM role 
-	WHERE role_id = p_role_id;
-END //
-
-/* Role users table */
-CREATE TABLE role_users(
-	role_id INT(10) NOT NULL,
-	user_id INT(10) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX role_users_index_role_id ON role_users(role_id);
-CREATE INDEX role_users_index_user_id ON role_users(user_id);
-
-INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '1');
-
-/* Menu groups table */
-CREATE TABLE menu_groups (
-    menu_group_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    menu_group_name VARCHAR(100) NOT NULL,
-    order_sequence TINYINT(10) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX menu_groups_index_menu_group_id ON menu_groups(menu_group_id);
-
-INSERT INTO menu_groups (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '1', '1');
-
-CREATE TRIGGER menu_groups_trigger_update
-AFTER UPDATE ON menu_groups
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.menu_group_name <> OLD.menu_group_name THEN
-        SET audit_log = CONCAT(audit_log, "Menu Group Name: ", OLD.menu_group_name, " -> ", NEW.menu_group_name, "<br/>");
-    END IF;
-
-    IF NEW.order_sequence <> OLD.order_sequence THEN
-        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('menu_groups', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_groups_trigger_insert
-AFTER INSERT ON menu_groups
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Menu group created. <br/>';
-
-    IF NEW.menu_group_name <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Menu Group Name: ", NEW.menu_group_name);
-    END IF;
-
-    IF NEW.order_sequence <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('menu_groups', NEW.menu_group_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_menu_groups_exist(IN p_menu_group_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM menu_groups
-    WHERE menu_group_id = p_menu_group_id;
-END //
-
-CREATE PROCEDURE insert_menu_groups(IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10), OUT p_menu_group_id INT(10))
-BEGIN
-    INSERT INTO menu_groups (menu_group_name, order_sequence, last_log_by) 
-	VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
-	
-    SET p_menu_group_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE duplicate_menu_groups(IN p_menu_group_id INT(10), IN p_last_log_by INT(10), OUT p_new_menu_group_id INT(10))
-BEGIN
-    DECLARE p_menu_group_name VARCHAR(255);
-    DECLARE p_order_sequence INT(10);
-    
-    SELECT menu_group_name, order_sequence 
-    INTO p_menu_group_name, p_order_sequence 
-    FROM menu_groups 
-    WHERE menu_group_id = p_menu_group_id;
-    
-    INSERT INTO menu_groups (menu_group_name, order_sequence, last_log_by) 
-    VALUES(p_menu_group_name, p_order_sequence, p_last_log_by);
-    
-    SET p_new_menu_group_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE update_menu_groups(IN p_menu_group_id INT(10), IN p_menu_group_name VARCHAR(100), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10))
-BEGIN
-	UPDATE menu_groups
-        SET menu_group_name = p_menu_group_name,
-        order_sequence = p_order_sequence,
-        last_log_by = p_last_log_by
-       	WHERE menu_group_id = p_menu_group_id;
-END //
-
-CREATE PROCEDURE delete_menu_groups(IN p_menu_group_id INT(10))
-BEGIN
-    DELETE FROM menu_groups WHERE menu_group_id = p_menu_group_id;
-END //
-
-CREATE PROCEDURE get_menu_groups_details(IN p_menu_group_id INT(10))
-BEGIN
-    SELECT menu_group_name, order_sequence, last_log_by
-	FROM menu_groups 
-	WHERE menu_group_id = p_menu_group_id;
-END //
-
-CREATE PROCEDURE build_menu_group(IN p_user_id INT(10))
-BEGIN
-    SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
-    FROM menu_groups mg
-    JOIN menu_item mi ON mi.menu_group_id = mg.menu_group_id
-    WHERE EXISTS (
-        SELECT 1
-        FROM menu_access_right mar
-        WHERE mar.menu_item_id = mi.menu_item_id
-        AND mar.read_access = 1
-        AND mar.role_id IN (
-            SELECT role_id
-            FROM role_users
-            WHERE user_id = p_user_id
-        )
-    )
-    ORDER BY mg.order_sequence;
-END //
-
-CREATE PROCEDURE build_menu_item(IN p_user_id INT(10), IN p_menu_group_id INT(10))
-BEGIN
-    SELECT mi.menu_item_id, mi.menu_item_name, mi.menu_group_id, mi.menu_item_url, mi.parent_id, mi.menu_item_icon
-    FROM menu_item AS mi
-    INNER JOIN menu_access_right AS mar ON mi.menu_item_id = mar.menu_item_id
-    INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
-    WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
-    ORDER BY mi.order_sequence;
-END //
-
-/* Menu table */
-CREATE TABLE menu_item(
-	menu_item_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	menu_item_name VARCHAR(100) NOT NULL,
-	menu_group_id INT(10) UNSIGNED NOT NULL,
-	menu_item_url VARCHAR(50),
-	parent_id INT(10) UNSIGNED,
-	menu_item_icon VARCHAR(150),
-    order_sequence TINYINT(10) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX menu_item_index_menu_item_id ON menu_item(menu_item_id);
-
-ALTER TABLE menu_item
-ADD FOREIGN KEY (menu_group_id) REFERENCES menu_groups(menu_group_id);
-
-CREATE TRIGGER menu_item_trigger_update
-AFTER UPDATE ON menu_item
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.menu_item_name <> OLD.menu_item_name THEN
-        SET audit_log = CONCAT(audit_log, "Menu Item Name: ", OLD.menu_item_name, " -> ", NEW.menu_item_name, "<br/>");
-    END IF;
-
-    IF NEW.menu_group_id <> OLD.menu_group_id THEN
-        SET audit_log = CONCAT(audit_log, "Menu Group ID: ", OLD.menu_group_id, " -> ", NEW.menu_group_id, "<br/>");
-    END IF;
-
-    IF NEW.menu_item_url <> OLD.parent_id THEN
-        SET audit_log = CONCAT(audit_log, "URL: ", OLD.menu_item_url, " -> ", NEW.menu_item_url, "<br/>");
-    END IF;
-
-    IF NEW.parent_id <> OLD.parent_id THEN
-        SET audit_log = CONCAT(audit_log, "Parent ID: ", OLD.parent_id, " -> ", NEW.parent_id, "<br/>");
-    END IF;
-
-    IF NEW.menu_item_icon <> OLD.menu_item_icon THEN
-        SET audit_log = CONCAT(audit_log, "Menu Item Icon: ", OLD.menu_item_icon, " -> ", NEW.menu_item_icon, "<br/>");
-    END IF;
-
-    IF NEW.order_sequence <> OLD.order_sequence THEN
-        SET audit_log = CONCAT(audit_log, "Order Sequence: ", OLD.order_sequence, " -> ", NEW.order_sequence, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_item_trigger_insert
-AFTER INSERT ON menu_item
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Menu item created. <br/>';
-
-    IF NEW.menu_item_name <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Name: ", NEW.menu_item_name);
-    END IF;
-
-    IF NEW.menu_group_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Menu Group ID: ", NEW.menu_group_id);
-    END IF;
-
-    IF NEW.menu_item_url <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>URL: ", NEW.menu_item_url);
-    END IF;
-
-    IF NEW.parent_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Parent ID: ", NEW.parent_id);
-    END IF;
-
-    IF NEW.menu_item_icon <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Menu Item Icon: ", NEW.menu_item_icon);
-    END IF;
-
-    IF NEW.order_sequence <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Order Sequence: ", NEW.order_sequence);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('menu_item', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_menu_item_exist(IN p_menu_item_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM menu_item
-    WHERE menu_item_id = p_menu_item_id;
-END //
-
-CREATE PROCEDURE insert_menu_item(IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT(10), IN p_menu_item_url VARCHAR(50), IN p_parent_id INT(10), IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10), OUT p_menu_item_id INT(10))
-BEGIN
-    INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
-	VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
-	
-    SET p_menu_item_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE duplicate_menu_item(IN p_menu_item_id INT(10), IN p_last_log_by INT(10), OUT p_new_menu_item_id INT(10))
-BEGIN
-    DECLARE p_menu_item_name VARCHAR(255);
-    DECLARE p_menu_group_id INT(10);
-    DECLARE p_menu_item_url VARCHAR(50);
-    DECLARE p_parent_id INT(10);
-    DECLARE p_menu_item_icon VARCHAR(150);
-    DECLARE p_order_sequence TINYINT(10);
-    
-    SELECT menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence 
-    INTO p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence 
-    FROM menu_item 
-    WHERE menu_item_id = p_menu_item_id;
-    
-    INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) 
-    VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
-    
-    SET p_new_menu_item_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE update_menu_item(IN p_menu_item_id INT(10), IN p_menu_item_name VARCHAR(100), IN p_menu_group_id INT(10), IN p_menu_item_url VARCHAR(50), IN p_parent_id INT(10), IN p_menu_item_icon VARCHAR(150), IN p_order_sequence TINYINT(10), IN p_last_log_by INT(10))
-BEGIN
-	UPDATE menu_item
-        SET menu_item_name = p_menu_item_name,
-        menu_group_id = p_menu_group_id,
-        menu_item_url = p_menu_item_url,
-        parent_id = p_parent_id,
-        menu_item_icon = p_menu_item_icon,
-        order_sequence = p_order_sequence,
-        last_log_by = p_last_log_by
-       	WHERE menu_item_id = p_menu_item_id;
-END //
-
-CREATE PROCEDURE delete_menu_item(IN p_menu_item_id INT(10))
-BEGIN
-    DELETE FROM menu_item WHERE menu_item_id = p_menu_item_id;
-END //
-
-CREATE PROCEDURE get_menu_item_details(IN p_menu_item_id INT(10))
-BEGIN
-    SELECT menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by
-	FROM menu_item 
-	WHERE menu_item_id = p_menu_item_id;
-END //
-
-/* Menu access right table */
-CREATE TABLE menu_access_right(
-	menu_item_id INT(10) NOT NULL,
-	role_id INT(10) UNSIGNED NOT NULL,
-	read_access TINYINT(1) NOT NULL,
-    write_access TINYINT(1) NOT NULL,
-    create_access TINYINT(1) NOT NULL,
-    delete_access TINYINT(1) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, last_log_by) VALUES ('1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1');
-
-CREATE TRIGGER menu_access_right_update
-AFTER UPDATE ON menu_access_right
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    SET audit_log = CONCAT(audit_log, "Role ID: ", OLD.role_id, "<br/>");
-
-    IF NEW.read_access <> OLD.read_access THEN
-        SET audit_log = CONCAT(audit_log, "Read Access: ", OLD.read_access, " -> ", NEW.read_access, "<br/>");
-    END IF;
-
-    IF NEW.write_access <> OLD.write_access THEN
-        SET audit_log = CONCAT(audit_log, "Write Access: ", OLD.write_access, " -> ", NEW.write_access, "<br/>");
-    END IF;
-
-    IF NEW.create_access <> OLD.create_access THEN
-        SET audit_log = CONCAT(audit_log, "Create Access: ", OLD.create_access, " -> ", NEW.create_access, "<br/>");
-    END IF;
-
-    IF NEW.delete_access <> OLD.delete_access THEN
-        SET audit_log = CONCAT(audit_log, "Delete Access: ", OLD.delete_access, " -> ", NEW.delete_access, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER menu_item_trigger_insert
-AFTER INSERT ON menu_item
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Menu item access rights created. <br/>';
-
-    IF NEW.role_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Role ID: ", NEW.role_id);
-    END IF;
-
-    IF NEW.read_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Read Access: ", NEW.read_access);
-    END IF;
-
-    IF NEW.write_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Write Access: ", NEW.write_access);
-    END IF;
-
-    IF NEW.create_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Create Access: ", NEW.create_access);
-    END IF;
-
-    IF NEW.delete_access <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Delete Access: ", delete_access.menu_item_icon);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('menu_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_role_menu_access_right_exist(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM menu_access_right
-    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-END //
-
-CREATE PROCEDURE insert_role_menu_access_right(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    INSERT INTO menu_access_right (menu_item_id, role_id) 
-	VALUES(p_menu_item_id, p_role_id);
-END //
-
-CREATE PROCEDURE update_role_menu_access_right(IN p_menu_item_id INT(10), IN p_role_id INT(10), IN p_access_type VARCHAR(10), IN p_access TINYINT(1))
-BEGIN
-	IF p_access_type = 'read' THEN
-        UPDATE menu_access_right
-        SET read_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSEIF p_access_type = 'write' THEN
-        UPDATE menu_access_right
-        SET write_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSEIF p_access_type = 'create' THEN
-        UPDATE menu_access_right
-        SET create_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    ELSE
-        UPDATE menu_access_right
-        SET delete_access = p_access
-        WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-    END IF;
-END //
-
-CREATE PROCEDURE check_menu_access_rights(IN p_user_id INT(10), IN p_menu_item_id INT(10), IN p_access_type VARCHAR(10))
-BEGIN
-	IF p_access_type = 'read' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where read_access = '1' AND menu_item_id = menu_item_id);
-    ELSEIF p_access_type = 'write' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where write_access = '1' AND menu_item_id = menu_item_id);
-    ELSEIF p_access_type = 'create' THEN
-        SELECT COUNT(role_id) AS TOTAL
-        FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where create_access = '1' AND menu_item_id = menu_item_id);
-    ELSE
-        SELECT COUNT(role_id) AS TOTAL
-        FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_access_right where delete_access = '1' AND menu_item_id = menu_item_id);
-    END IF;
-END //
-
-CREATE PROCEDURE get_role_menu_access_rights(IN p_menu_item_id INT(10), IN p_role_id INT(10))
-BEGIN
-    SELECT read_access, write_access, create_access, delete_access
-    FROM menu_access_right 
-    WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
-END //
-
-/* System action */
-
-CREATE TABLE system_action(
-	system_action_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	system_action_name VARCHAR(100) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX system_action_index_system_action_id ON system_action(system_action_id);
-
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign Menu Item Role Access', '1');
-
-CREATE TABLE system_action_access_rights(
-	system_action_id INT(10) UNSIGNED NOT NULL,
-	role_id INT(10) UNSIGNED NOT NULL
-);
-
-INSERT INTO system_action_access_rights (system_action_id, role_id) VALUES ('1', '1');
-
-CREATE PROCEDURE check_system_action_access_rights(IN p_user_id INT(10), IN p_system_action_id INT(10))
-BEGIN
-	SELECT COUNT(role_id) AS TOTAL
-    FROM role_users
-    WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM system_action_access_rights where system_action_id = p_system_action_id);
-END //
-
-/* File types table */
-CREATE TABLE file_types (
-    file_type_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    file_type_name VARCHAR(100) NOT NULL,
-    last_log_by INT(10) NOT NULL
-);
-
-CREATE INDEX file_types_index_file_type_id ON file_types(file_type_id);
-
-CREATE TRIGGER file_types_trigger_update
-AFTER UPDATE ON file_types
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.file_type_name <> OLD.file_type_name THEN
-        SET audit_log = CONCAT(audit_log, "File Type Name: ", OLD.file_type_name, " -> ", NEW.file_type_name, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('file_types', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER file_types_trigger_insert
-AFTER INSERT ON file_types
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'File type created. <br/>';
-
-    IF NEW.file_type_name <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>File Type Name: ", NEW.file_type_name);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('file_types', NEW.file_type_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE check_file_types_exist(IN p_file_type_id INT(10))
-BEGIN
-    SELECT COUNT(*) AS total
-    FROM file_types
-    WHERE file_type_id = p_file_type_id;
-END //
-
-CREATE PROCEDURE insert_file_types(IN p_file_type_name VARCHAR(100), IN p_last_log_by INT(10), OUT p_file_type_id INT(10))
-BEGIN
-    INSERT INTO file_types (file_type_name, last_log_by) 
-	VALUES(p_file_type_name, p_last_log_by);
-	
-    SET p_file_type_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE duplicate_file_types(IN p_file_type_id INT(10), IN p_last_log_by INT(10), OUT p_new_file_type_id INT(10))
-BEGIN
-    DECLARE p_file_type_name VARCHAR(255);
-    
-    SELECT file_type_name 
-    INTO p_file_type_name 
-    FROM file_types 
-    WHERE file_type_id = p_file_type_id;
-    
-    INSERT INTO file_types (file_type_name, last_log_by) 
-    VALUES(p_file_type_name, p_last_log_by);
-    
-    SET p_new_file_type_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE update_file_types(IN p_file_type_id INT(10), IN p_file_type_name VARCHAR(100), IN p_last_log_by INT(10))
-BEGIN
-	UPDATE file_types
-        SET file_type_name = p_file_type_name,
-        last_log_by = p_last_log_by
-       	WHERE file_type_id = p_file_type_id;
-END //
-
-CREATE PROCEDURE delete_file_types(IN p_file_type_id INT(10))
-BEGIN
-    DELETE FROM file_types WHERE file_type_id = p_file_type_id;
-END //
-
-CREATE PROCEDURE get_file_types_details(IN p_file_type_id INT(10))
-BEGIN
-    SELECT file_type_name, last_log_by
-	FROM file_types 
-	WHERE file_type_id = p_file_type_id;
-END //
+/* Insert */
+
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '0');
+
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Super Admin', 'This role has the highest level of access and full control over the entire system. Super Admins can perform all actions, including managing other user accounts, configuring system settings, and accessing all data.', '0', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', '1', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', '1', '0');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'The typical user account with standard access to use the system features and functionalities.', '1', '0');
+
+INSERT INTO role_users (role_id, user_id, last_log_by) VALUES ('1', '1', '0');
+
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '0');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Human Resources', '50', '0');
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Interface', '1', '', '', 'sidebar', '50', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Group', '1', 'menu-group.php', '1', '', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '1', 'menu-item.php', '1', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Administration', '1', '', '', 'shield', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Action', '1', 'system-action.php', '4', '', '15', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role Configuration', '1', 'role-configuration.php', '4', '', '10', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Role', '1', 'role.php', '4', '', '9', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Account', '1', 'user-account.php', '4', '', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '1', '', '0', 'settings', '30', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Type', '1', 'file-type.php', '9', '', '30', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Extension', '1', 'file-extension.php', '9', '', '31', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Upload Setting', '1', 'upload-setting.php', '9', '', '29', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Interface Setting', '1', 'interface-setting.php', '1', '', '3', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Setting', '1', 'system-setting.php', '4', '', '16', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Country', '1', 'country.php', '9', '', '20', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('State', '1', 'state.php', '9', '', '21', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('City', '1', 'city.php', '9', '', '22', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Currency', '1', 'currency.php', '9', '', '24', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Company', '1', 'company.php', '4', '', '20', '0');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('1', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('2', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('3', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('4', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('5', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('6', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('7', '1', '1', '1', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('8', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('9', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('10', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('11', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('12', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('13', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('14', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('15', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('16', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('17', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('18', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('19', '1', '1', '1', '1', '1', '1', '0');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu Item Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update System Action Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete System Action Role Access', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign User Account To Role', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete User Account To Role', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign Role To User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Role To User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Activate User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Deactivate User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Lock User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlock User Account', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change User Account Password', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change User Account Profile Picture', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign File Extension To Upload Setting', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete File Extension To Upload Setting', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Send Reset Password Instructions', '0');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('1', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('2', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('3', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('4', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('5', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('6', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('7', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('8', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('9', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('10', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('11', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('12', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('13', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('14', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('15', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('16', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('17', '1', '1', '0');
+
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Audio', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Compressed', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Disk and Media', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Data and Database', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Email', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Executable', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Font', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Image', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Internet Related', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Presentation', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Spreadsheet', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('System Related', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Video', '0');
+INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Word Processor', '0');
+
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('aif', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cda', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mid', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('midi', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mp3', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpa', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ogg', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wav', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wma', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wpl', '1', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('7z', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('arj', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('deb', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pkg', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rar', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rpm', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tar.gz', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('z', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('zip', '2', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bin', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dmg', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('iso', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('toast', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vcd', '3', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('csv', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dat', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('db', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dbf', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('log', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mdb', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sav', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sql', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tar', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xml', '4', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('email', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('eml', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('emlx', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('msg', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('oft', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ost', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pst', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vcf', '5', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('apk', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bat', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bin', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cgi', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pl', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('com', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('exe', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('gadget', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jar', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wsf', '6', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('fnt', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('fon', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('otf', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ttf', '7', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ai', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bmp', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('gif', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ico', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jpg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jpeg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('png', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ps', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('psd', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('svg', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tif', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tiff', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('webp', '8', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('asp', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('aspx', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cer', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cfm', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cgi', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pl', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('css', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('htm', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('html', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('js', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('jsp', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('part', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('php', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('py', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rss', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xhtml', '9', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('key', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('odp', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pps', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ppt', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pptx', '10', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ods', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xls', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xlsm', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('xlsx', '11', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('bak', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cab', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cfg', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cpl', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('cur', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dll', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('dmp', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('drv', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('icns', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('ini', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('lnk', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('msi', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('sys', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tmp', '12', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('3g2', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('3gp', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('avi', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('flv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('h264', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('m4v', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mkv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mov', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mp4', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpg', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('mpeg', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rm', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('swf', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('vob', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('webm', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wmv', '13', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('doc', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('docx', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('pdf', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('rtf', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('tex', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('txt', '14', '0');
+INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) VALUES ('wpd', '14', '0');
+
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Login Background', 'Interface setting for background image on login page.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Login Logo', 'Interface setting for logo on login page.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('Navbar Logo', 'Interface setting for logo on navbar.', '0');
+INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) VALUES ('System Icon', 'Interface setting for system icon.', '0');
+
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed Login Attempt', 'This sets the maximum failed login attempt before the user is locked-out.', 5, '0');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', 5, '0');
+
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Profile Image', 'Sets the upload setting when uploading user account profile image.', 5, '0');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Interface Setting', 'Sets the upload setting when uploading interface setting image.', 5, '0');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Company Logo', 'Sets the upload setting when uploading company logo.', 5, '0');
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 61, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 62, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 63, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 66, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('1', 69, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 61, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 62, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 63, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 66, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 69, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('2', 60, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('3', 61, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('3', 62, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('3', 63, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('3', 66, '0');
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) VALUES ('3', 69, '0');
+
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Afghanistan', 'AFG', '93', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Aland Islands', 'ALA', '340', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Albania', 'ALB', '355', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Algeria', 'DZA', '213', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('American Samoa', 'ASM', '-683', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Andorra', 'AND', '376', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Angola', 'AGO', '244', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Anguilla', 'AIA', '-263', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Antarctica', 'ATA', '672', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Antigua And Barbuda', 'ATG', '-267', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Argentina', 'ARG', '54', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Armenia', 'ARM', '374', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Aruba', 'ABW', '297', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Australia', 'AUS', '61', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Austria', 'AUT', '43', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Azerbaijan', 'AZE', '994', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bahrain', 'BHR', '973', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bangladesh', 'BGD', '880', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Barbados', 'BRB', '-245', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Belarus', 'BLR', '375', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Belgium', 'BEL', '32', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Belize', 'BLZ', '501', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Benin', 'BEN', '229', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bermuda', 'BMU', '-440', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bhutan', 'BTN', '975', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bolivia', 'BOL', '591', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bonaire, Sint Eustatius and Saba', 'BES', '599', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bosnia and Herzegovina', 'BIH', '387', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Botswana', 'BWA', '267', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bouvet Island', 'BVT', '55', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Brazil', 'BRA', '55', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('British Indian Ocean Territory', 'IOT', '246', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Brunei', 'BRN', '673', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Bulgaria', 'BGR', '359', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Burkina Faso', 'BFA', '226', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Burundi', 'BDI', '257', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cambodia', 'KHM', '855', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cameroon', 'CMR', '237', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Canada', 'CAN', '1', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cape Verde', 'CPV', '238', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cayman Islands', 'CYM', '-344', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Central African Republic', 'CAF', '236', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Chad', 'TCD', '235', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Chile', 'CHL', '56', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('China', 'CHN', '86', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Christmas Island', 'CXR', '61', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cocos (Keeling) Islands', 'CCK', '61', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Colombia', 'COL', '57', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Comoros', 'COM', '269', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Congo', 'COG', '242', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cook Islands', 'COK', '682', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Costa Rica', 'CRI', '506', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cote D Ivoire (Ivory Coast)', 'CIV', '225', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Croatia', 'HRV', '385', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cuba', 'CUB', '53', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('CuraÃ§ao', 'CUW', '599', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Cyprus', 'CYP', '357', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Czech Republic', 'CZE', '420', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Democratic Republic of the Congo', 'COD', '243', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Denmark', 'DNK', '45', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Djibouti', 'DJI', '253', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Dominica', 'DMA', '-766', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Dominican Republic', 'DOM', '+1-809 and 1-829', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('East Timor', 'TLS', '670', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Ecuador', 'ECU', '593', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Egypt', 'EGY', '20', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('El Salvador', 'SLV', '503', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Equatorial Guinea', 'GNQ', '240', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Eritrea', 'ERI', '291', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Estonia', 'EST', '372', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Ethiopia', 'ETH', '251', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Falkland Islands', 'FLK', '500', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Faroe Islands', 'FRO', '298', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Fiji Islands', 'FJI', '679', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Finland', 'FIN', '358', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('France', 'FRA', '33', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('French Guiana', 'GUF', '594', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('French Polynesia', 'PYF', '689', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('French Southern Territories', 'ATF', '262', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Gabon', 'GAB', '241', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Gambia The', 'GMB', '220', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Georgia', 'GEO', '995', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Germany', 'DEU', '49', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Ghana', 'GHA', '233', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Gibraltar', 'GIB', '350', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Greece', 'GRC', '30', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Greenland', 'GRL', '299', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Grenada', 'GRD', '-472', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guadeloupe', 'GLP', '590', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guam', 'GUM', '-670', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guatemala', 'GTM', '502', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guernsey and Alderney', 'GGY', '-1437', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guinea', 'GIN', '224', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guinea-Bissau', 'GNB', '245', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Guyana', 'GUY', '592', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Haiti', 'HTI', '509', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Heard Island and McDonald Islands', 'HMD', '672', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Honduras', 'HND', '504', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Hong Kong S.A.R.', 'HKG', '852', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Hungary', 'HUN', '36', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Iceland', 'ISL', '354', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('India', 'IND', '91', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Indonesia', 'IDN', '62', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Iran', 'IRN', '98', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Iraq', 'IRQ', '964', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Ireland', 'IRL', '353', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Israel', 'ISR', '972', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Italy', 'ITA', '39', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Jamaica', 'JAM', '-875', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Japan', 'JPN', '81', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Jersey', 'JEY', '-1490', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Jordan', 'JOR', '962', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kazakhstan', 'KAZ', '7', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kenya', 'KEN', '254', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kiribati', 'KIR', '686', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kosovo', 'XKX', '383', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kuwait', 'KWT', '965', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Kyrgyzstan', 'KGZ', '996', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Laos', 'LAO', '856', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Latvia', 'LVA', '371', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Lebanon', 'LBN', '961', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Lesotho', 'LSO', '266', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Liberia', 'LBR', '231', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Libya', 'LBY', '218', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Liechtenstein', 'LIE', '423', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Lithuania', 'LTU', '370', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Luxembourg', 'LUX', '352', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Macau S.A.R.', 'MAC', '853', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Madagascar', 'MDG', '261', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Malawi', 'MWI', '265', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Malaysia', 'MYS', '60', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Maldives', 'MDV', '960', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mali', 'MLI', '223', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Malta', 'MLT', '356', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Man (Isle of)', 'IMN', '-1580', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Marshall Islands', 'MHL', '692', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Martinique', 'MTQ', '596', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mauritania', 'MRT', '222', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mauritius', 'MUS', '230', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mayotte', 'MYT', '262', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mexico', 'MEX', '52', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Micronesia', 'FSM', '691', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Moldova', 'MDA', '373', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Monaco', 'MCO', '377', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mongolia', 'MNG', '976', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Montenegro', 'MNE', '382', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Montserrat', 'MSR', '-663', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Morocco', 'MAR', '212', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Mozambique', 'MOZ', '258', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Myanmar', 'MMR', '95', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Namibia', 'NAM', '264', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Nauru', 'NRU', '674', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Nepal', 'NPL', '977', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Netherlands', 'NLD', '31', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('New Caledonia', 'NCL', '687', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('New Zealand', 'NZL', '64', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Nicaragua', 'NIC', '505', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Niger', 'NER', '227', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Nigeria', 'NGA', '234', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Niue', 'NIU', '683', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Norfolk Island', 'NFK', '672', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('North Korea', 'PRK', '850', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('North Macedonia', 'MKD', '389', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Northern Mariana Islands', 'MNP', '-669', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Norway', 'NOR', '47', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Oman', 'OMN', '968', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Pakistan', 'PAK', '92', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Palau', 'PLW', '680', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Palestinian Territory Occupied', 'PSE', '970', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Panama', 'PAN', '507', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Papua new Guinea', 'PNG', '675', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Paraguay', 'PRY', '595', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Peru', 'PER', '51', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Philippines', 'PHL', '63', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Pitcairn Island', 'PCN', '870', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Poland', 'POL', '48', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Portugal', 'PRT', '351', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Puerto Rico', 'PRI', '+1-787 and 1-939', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Qatar', 'QAT', '974', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Reunion', 'REU', '262', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Romania', 'ROU', '40', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Russia', 'RUS', '7', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Rwanda', 'RWA', '250', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint Helena', 'SHN', '290', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint Kitts And Nevis', 'KNA', '-868', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint Lucia', 'LCA', '-757', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint Pierre and Miquelon', 'SPM', '508', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint Vincent And The Grenadines', 'VCT', '-783', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint-Barthelemy', 'BLM', '590', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saint-Martin (French part)', 'MAF', '590', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Samoa', 'WSM', '685', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('San Marino', 'SMR', '378', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sao Tome and Principe', 'STP', '239', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Saudi Arabia', 'SAU', '966', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Senegal', 'SEN', '221', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Serbia', 'SRB', '381', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Seychelles', 'SYC', '248', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sierra Leone', 'SLE', '232', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Singapore', 'SGP', '65', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sint Maarten (Dutch part)', 'SXM', '1721', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Slovakia', 'SVK', '421', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Slovenia', 'SVN', '386', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Solomon Islands', 'SLB', '677', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Somalia', 'SOM', '252', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('South Africa', 'ZAF', '27', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('South Georgia', 'SGS', '500', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('South Korea', 'KOR', '82', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('South Sudan', 'SSD', '211', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Spain', 'ESP', '34', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sri Lanka', 'LKA', '94', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sudan', 'SDN', '249', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Suriname', 'SUR', '597', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Svalbard And Jan Mayen Islands', 'SJM', '47', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Swaziland', 'SWZ', '268', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Sweden', 'SWE', '46', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Switzerland', 'CHE', '41', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Syria', 'SYR', '963', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Taiwan', 'TWN', '886', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tajikistan', 'TJK', '992', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tanzania', 'TZA', '255', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Thailand', 'THA', '66', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('The Bahamas', 'BHS', '-241', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Togo', 'TGO', '228', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tokelau', 'TKL', '690', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tonga', 'TON', '676', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Trinidad And Tobago', 'TTO', '-867', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tunisia', 'TUN', '216', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Turkey', 'TUR', '90', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Turkmenistan', 'TKM', '993', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Turks And Caicos Islands', 'TCA', '-648', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Tuvalu', 'TUV', '688', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Uganda', 'UGA', '256', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Ukraine', 'UKR', '380', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('United Arab Emirates', 'ARE', '971', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('United Kingdom', 'GBR', '44', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('United States', 'USA', '1', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('United States Minor Outlying Islands', 'UMI', '1', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Uruguay', 'URY', '598', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Uzbekistan', 'UZB', '998', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Vanuatu', 'VUT', '678', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Vatican City State (Holy See)', 'VAT', '379', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Venezuela', 'VEN', '58', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Vietnam', 'VNM', '84', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Virgin Islands (British)', 'VGB', '-283', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Virgin Islands (US)', 'VIR', '-339', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Wallis And Futuna Islands', 'WLF', '681', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Western Sahara', 'ESH', '212', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Yemen', 'YEM', '967', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Zambia', 'ZMB', '260', '0');
+INSERT INTO country (country_name, country_code, phone_code, last_log_by) VALUES ('Zimbabwe', 'ZWE', '263', '0');
+
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Metro Manila', '174', '00', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Ilocos Norte', '174', 'ILN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Ilocos Sur', '174', 'ILS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('La Union', '174', 'LUN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Pangasinan', '174', 'PAN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Batanes', '174', 'BTN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Cagayan', '174', 'CAG', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Isabela', '174', 'ISA', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Nueva Vizcaya', '174', 'NSA', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Quirino', '174', 'QUI', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Bataan', '174', 'BAN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Bulacan', '174', 'BUL', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Nueva Ecija', '174', 'NE', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Pampanga', '174', 'PAM', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Tarlac', '174', 'TAR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Zambales', '174', 'ZMB', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Aurora', '174', 'AUR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Batangas', '174', 'BTG', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Cavite', '174', 'CAV', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Laguna', '174', 'LAG', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Quezon', '174', 'QUE', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Rizal', '174', 'RIZ', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Marinduque', '174', 'MAD', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Occidental Mindoro', '174', 'NUE', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Oriental Mindoro', '174', 'NUV', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Palawan', '174', 'PLW', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Romblon', '174', 'ROM', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Albay', '174', 'ALB', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Camarines Norte', '174', 'CAN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Camarines Sur', '174', 'CAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Catanduanes', '174', 'CAT', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Masbate', '174', 'MAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Sorsogon', '174', 'SOR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Aklan', '174', 'AKL', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Antique', '174', 'ANT', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Capiz', '174', 'CAP', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Iloilo', '174', 'ILI', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Negros Occidental', '174', 'MSR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Guimaras', '174', 'GUI', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Bohol', '174', 'BOH', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Cebu', '174', 'CEB', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Negros Oriental', '174', 'MOU', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Siquijor', '174', 'SIG', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Eastern Samar', '174', 'EAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Leyte', '174', 'LEY', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Northern Samar', '174', 'NEC', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Samar', '174', 'WSA', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Southern Leyte', '174', 'SLE', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Biliran', '174', 'BIL', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Zamboanga del Norte', '174', 'ZAN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Zamboanga del Sur', '174', 'ZAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Zamboanga Sibugay', '174', 'ZSI', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Bukidnon', '174', 'BUK', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Camiguin', '174', 'CAM', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Lanao del Norte', '174', 'LAN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Misamis Occidental', '174', 'MDC', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Misamis Oriental', '174', 'MDR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Davao del Norte', '174', 'DAV', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Davao del Sur', '174', 'DAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Davao Oriental', '174', 'DAO', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Davao de Oro', '174', 'COM', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Davao Occidental', '174', 'DVO', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Cotabato', '174', 'COM', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('South Cotabato', '174', 'SCO', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Sultan Kudarat', '174', 'SUK', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Sarangani', '174', 'SAR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Abra', '174', 'ABR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Benguet', '174', 'BEN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Ifugao', '174', 'IFU', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Kalinga', '174', 'KAL', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Mountain Province', '174', 'MSC', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Apayao', '174', 'APA', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Basilan', '174', 'BAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Lanao del Sur', '174', 'LAS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Maguindanao', '174', 'MAG', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Sulu', '174', 'SLU', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Tawi-Tawi', '174', 'TAW', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Agusan del Norte', '174', 'AGN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Agusan del Sur', '174', 'AGS', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Surigao del Norte', '174', 'SUN', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Surigao del Sur', '174', 'SUR', '0');
+INSERT INTO state (state_name, country_id, state_code, last_log_by) VALUES ('Dinagat Islands', '174', 'DIN', '0');
+
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Adams', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacarra', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Badoc', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bangui', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Batac', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carasi', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Currimao', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dingras', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumalneg', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banna', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Laoag', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marcos', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nueva Era', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagudpud', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paoay', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pasuquin', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Piddig', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pinili', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Nicolas', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sarrat', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Solsona', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Vintar', '2', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alilem', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banayoyo', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bantay', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabugao', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Candon', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caoayan', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cervantes', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Galimuyod', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gregorio del Pilar', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lidlidda', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsingal', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nagbukel', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Narvacan', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quirino', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salcedo', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Emilio', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Esteban', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Ildefonso', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Vicente', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Catalina', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Lucia', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santiago', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Domingo', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sigay', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sinait', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sugpon', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Suyo', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagudin', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Vigan', '3', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Agoo', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aringay', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacnotan', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bagulin', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balaoan', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bangar', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bauang', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caba', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luna', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naguilian', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pugo', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosario', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Fernando', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Gabriel', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Tomas', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santol', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sudipen', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubao', '4', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Agno', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aguilar', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Alaminos', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alcala', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anda', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Asingan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balungao', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bani', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basista', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bautista', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bayambang', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binalonan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binmaley', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bolinao', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bugallon', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calasiao', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Dagupan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dasol', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Infanta', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Labrador', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lingayen', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabini', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malasiqui', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manaoag', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mangaldan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mangatarem', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mapandan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Natividad', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pozorrubio', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosales', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Carlos', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fabian', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jacinto', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Manuel', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Nicolas', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Quintin', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Barbara', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Tomas', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sison', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sual', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tayug', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Umingan', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Urbiztondo', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Urdaneta', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villasis', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laoac', '5', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basco', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Itbayat', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ivana', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mahatao', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sabtang', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Uyugan', '6', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Abulug', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alcala', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Allacapan', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Amulung', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aparri', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baggao', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ballesteros', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buguey', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calayan', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Camalaniugan', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Claveria', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Enrile', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gattaran', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gonzaga', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Iguig', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lal-Lo', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lasam', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pamplona', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Peñablanca', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Piat', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sanchez-Mira', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Ana', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Praxedes', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Teresita', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Niño', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Solana', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuao', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuguegarao City', '7', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alicia', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Angadanan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aurora', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Benito Soliven', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabagan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabatuan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cauayan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cordon', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dinapigue', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Divilacan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Echague', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gamu', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Ilagan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jones', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luna', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maconacon', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Delfin Albano', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mallig', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naguilian', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palanan', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quirino', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ramon', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Reina Mercedes', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Roxas', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Agustin', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Guillermo', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Manuel', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Mariano', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Mateo', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Pablo', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Santiago', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Tomas', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tumauini', '8', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ambaguio', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aritao', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bagabag', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bambang', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bayombong', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Diadi', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dupax del Norte', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dupax del Sur', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kasibu', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kayapa', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Fe', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Solano', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villaverde', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alfonso Castaneda', '9', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aglipay', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabarroguis', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Diffun', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maddela', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Saguday', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nagtipunan', '10', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Abucay', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bagac', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Balanga', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dinalupihan', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hermosa', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Limay', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mariveles', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Morong', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Orani', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Orion', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Samal', '11', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Angat', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balagtas', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baliuag', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bocaue', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bulacan', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bustos', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calumpit', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guiguinto', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hagonoy', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Malolos', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marilao', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Meycauayan', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Norzagaray', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Obando', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pandi', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paombong', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Plaridel', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pulilan', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Ildefonso', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Jose Del Monte', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Rafael', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Doña Remedios Trinidad', '12', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aliaga', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bongabon', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cabanatuan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabiao', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carranglan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cuyapo', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gabaldon', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Gapan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Mamerto Natividad', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Tinio', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guimba', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jaen', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laur', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Licab', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Llanera', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lupao', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Science City of Muñoz', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nampicuan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Palayan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pantabangan', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Peñaranda', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Antonio', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose City', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Leonardo', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Rosa', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Domingo', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talavera', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talugtug', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Zaragoza', '13', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Angeles', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Apalit', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Arayat', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacolor', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Candaba', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Floridablanca', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guagua', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lubao', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabalacat City', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Macabebe', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magalang', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Masantol', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mexico', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Minalin', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Porac', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Fernando', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Luis', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Simon', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Ana', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Rita', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Tomas', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sasmuan', '14', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anao', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bamban', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Camiling', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Capas', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Concepcion', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gerona', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Paz', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mayantoc', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Moncada', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paniqui', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pura', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ramos', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Clemente', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Manuel', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Ignacia', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tarlac', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Victoria', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '15', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Botolan', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabangan', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Candelaria', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Castillejos', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Iba', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Masinloc', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Olongapo', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palauig', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Antonio', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Felipe', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Marcelino', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Narciso', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Subic', '16', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baler', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Casiguran', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dilasag', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dinalungan', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dingalan', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dipaculao', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maria Aurora', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Luis', '17', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Agoncillo', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alitagtag', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balayan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balete', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Batangas City', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bauan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calaca', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calatagan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cuenca', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ibaan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laurel', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lemery', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lian', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Lipa', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lobo', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabini', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malvar', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mataasnakahoy', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nasugbu', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Padre Garcia', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosario', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Luis', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Nicolas', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Pascual', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Teresita', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Sto. Tomas', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taal', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talisay', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tanauan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taysan', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tingloy', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuy', '18', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alfonso', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Amadeo', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bacoor', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmona', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cavite', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Dasmariñas', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Emilio Aguinaldo', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of General Trias', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Imus', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Indang', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kawit', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magallanes', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maragondon', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mendez', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naic', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Noveleta', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosario', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Silang', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tagaytay', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tanza', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ternate', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Trece Martires', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gen. Mariano Alvarez', '19', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alaminos', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bay', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Biñan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cabuyao', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Calamba', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calauan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cavinti', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Famy', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalayaan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Liliw', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Los Baños', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luisiana', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lumban', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabitac', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magdalena', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Majayjay', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nagcarlan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paete', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagsanjan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pakil', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pangil', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pila', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Pablo', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Pedro', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Santa Rosa', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siniloan', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Victoria', '20', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Agdangan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alabat', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Atimonan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buenavista', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burdeos', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calauag', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Candelaria', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catanauan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dolores', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Luna', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Nakar', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guinayangan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gumaca', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Infanta', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jomalig', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lopez', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lucban', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Lucena', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Macalelon', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mauban', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mulanay', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Padre Burgos', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagbilao', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panukulan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Patnanungan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Perez', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pitogo', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Plaridel', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Polillo', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Real', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sampaloc', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Andres', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Antonio', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Francisco', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Narciso', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sariaya', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagkawayan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tayabas', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tiaong', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Unisan', '21', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Angono', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Antipolo', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baras', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binangonan', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cainta', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cardona', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jala-Jala', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rodriguez', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Morong', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pililla', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Mateo', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tanay', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taytay', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Teresa', '22', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Boac', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buenavista', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gasan', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mogpog', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Torrijos', '23', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Abra De Ilog', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calintaan', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Looc', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lubang', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsaysay', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mamburao', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paluan', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sablayan', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '24', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baco', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bansud', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bongabong', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bulalacao', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Calapan', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gloria', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mansalay', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naujan', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pinamalayan', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pola', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Puerto Galera', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Roxas', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Teodoro', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Socorro', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Victoria', '25', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aborlan', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Agutaya', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Araceli', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balabac', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bataraza', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Brooke S Point', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Busuanga', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cagayancillo', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Coron', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cuyo', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumaran', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('El Nido', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Linapacan', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsaysay', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Narra', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Puerto Princesa', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Roxas', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Vicente', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taytay', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalayaan', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Culion', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sofronio Española', '26', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alcantara', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banton', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cajidiocan', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calatrava', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Concepcion', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Corcuera', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Looc', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magdiwang', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Odiongan', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Romblon', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Agustin', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Andres', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fernando', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Fe', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ferrol', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '27', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacacay', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Camalig', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Daraga', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guinobatan', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jovellar', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Legazpi', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libon', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Ligao', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malilipot', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malinao', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manito', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Oas', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pio Duran', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Polangui', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rapu-Rapu', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Domingo', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tabaco', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tiwi', '28', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basud', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Capalonga', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Daet', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Lorenzo Ruiz', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jose Panganiban', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Labo', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mercedes', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paracale', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Vicente', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Elena', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talisay', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Vinzons', '29', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baao', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balatan', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bato', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bombon', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buhi', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bula', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabusao', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calabanga', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Camaligan', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Canaman', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caramoan', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Del Gallego', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gainza', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Garchitorena', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Goa', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Iriga', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lagonoy', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libmanan', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lupi', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magarao', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Milaor', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Minalabac', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nabua', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Naga', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ocampo', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pamplona', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pasacao', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pili', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Presentacion', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ragay', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sagñay', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fernando', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sipocot', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siruma', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tigaon', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tinambac', '30', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bagamanoc', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baras', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bato', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caramoran', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gigmoto', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pandan', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panganiban', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Andres', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Viga', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Virac', '31', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aroroy', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baleno', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balud', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Batuan', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cataingan', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cawayan', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Claveria', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dimasalang', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Esperanza', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mandaon', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Masbate', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Milagros', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mobo', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Monreal', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palanas', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pio V. Corpuz', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Placer', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fernando', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jacinto', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Pascual', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Uson', '32', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barcelona', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bulan', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bulusan', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Casiguran', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Castilla', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Donsol', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gubat', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Irosin', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Juban', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magallanes', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matnog', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Prieto Diaz', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Magdalena', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Sorsogon', '33', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Altavas', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balete', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banga', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Batan', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buruanga', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ibajay', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalibo', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lezo', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libacao', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Madalag', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Makato', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malay', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malinao', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nabas', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('New Washington', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Numancia', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tangalan', '34', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anini-Y', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barbaza', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Belison', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bugasong', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caluya', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Culasi', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tobias Fornier', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hamtic', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laua-An', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libertad', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pandan', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Patnongon', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Remigio', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sebaste', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibalom', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tibiao', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Valderrama', '35', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cuartero', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dao', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumalag', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumarao', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ivisan', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jamindan', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ma-Ayon', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mambusao', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panay', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panitan', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pontevedra', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('President Roxas', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Roxas', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sapi-An', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sigma', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tapaz', '36', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ajuy', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alimodian', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anilao', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Badiangan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balasan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banate', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barotac Nuevo', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barotac Viejo', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Batad', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bingawan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabatuan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calinog', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carles', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Concepcion', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dingle', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dueñas', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumangas', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Estancia', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guimbal', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Igbaras', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Iloilo', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Janiuay', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lambunao', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Leganes', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lemery', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Leon', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maasin', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Miagao', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mina', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('New Lucena', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Oton', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Passi', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pavia', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pototan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Dionisio', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Enrique', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Joaquin', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Rafael', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Barbara', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sara', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tigbauan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubungan', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Zarraga', '37', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bacolod', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bago', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binalbagan', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cadiz', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calatrava', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Candoni', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cauayan', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Enrique B. Magalona', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Escalante', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Himamaylan', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinigaran', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinoba-an', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ilog', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Isabela', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Kabankalan', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of La Carlota', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Castellana', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manapla', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Moises Padilla', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Murcia', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pontevedra', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pulupandan', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Sagay', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of San Carlos', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Enrique', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Silay', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Sipalay', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Talisay', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Toboso', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Valladolid', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Victorias', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salvador Benedicto', '38', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buenavista', '39', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jordan', '39', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nueva Valencia', '39', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Lorenzo', '39', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibunag', '39', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alburquerque', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alicia', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anda', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Antequera', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baclayon', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balilihan', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Batuan', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bilar', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buenavista', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calape', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Candijay', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catigbian', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Clarin', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Corella', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cortes', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dagohoy', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Danao', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dauis', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dimiao', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Duero', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Garcia Hernandez', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guindulman', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Inabanga', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jagna', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Getafe', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lila', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loay', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loboc', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loon', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabini', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maribojoc', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panglao', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pres. Carlos P. Garcia', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sagbayan', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sevilla', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sierra Bullones', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sikatuna', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tagbilaran', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talibon', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Trinidad', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubigon', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ubay', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Valencia', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bien Unido', '40', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alcantara', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alcoy', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alegria', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aloguinsan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Argao', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Asturias', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Badian', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balamban', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bantayan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barili', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bogo', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Boljoon', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Borbon', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Carcar', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catmon', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cebu', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Compostela', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Consolacion', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cordova', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Daanbantayan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dalaguete', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Danao City', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumanjug', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ginatilan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Lapu-Lapu', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Liloan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Madridejos', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malabuyoc', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Mandaue', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Medellin', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Minglanilla', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Moalboal', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Naga', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Oslob', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pinamungajan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Poro', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ronda', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Samboan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fernando', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Francisco', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Remigio', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Fe', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santander', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibonga', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sogod', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabogon', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabuelan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Talisay', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Toledo', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuburan', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tudela', '41', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Amlan', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ayungon', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacong', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bais', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basay', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bayawan', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bindoy', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Canlaon', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dauin', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Dumaguete', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Guihulngan', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jimalalud', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Libertad', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabinay', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manjuyod', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pamplona', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Catalina', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siaton', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibulan', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tanjay', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tayasan', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Valencia', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Vallehermoso', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Zamboanguita', '42', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Enrique Villanueva', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Larena', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lazi', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maria', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siquijor', '43', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Arteche', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balangiga', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balangkayan', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Borongan', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Can-Avid', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dolores', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Macarthur', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Giporlos', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guiuan', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hernani', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jipapad', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lawaan', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Llorente', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maslog', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maydolong', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mercedes', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Oras', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quinapondan', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salcedo', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Julian', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Policarpo', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sulat', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taft', '44', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Abuyog', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alangalang', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Albuera', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Babatngon', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barugo', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bato', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Baybay', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burauen', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calubian', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Capoocan', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carigara', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dagami', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dulag', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hilongos', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hindang', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Inopacan', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Isabel', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jaro', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Javier', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Julita', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kananga', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Paz', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Leyte', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Macarthur', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mahaplag', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matag-Ob', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matalom', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mayorga', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Merida', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ormoc City', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palo', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palompon', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pastrana', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Fe', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabango', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabontabon', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tacloban', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tanauan', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tolosa', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tunga', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villaba', '45', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Allen', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Biri', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bobon', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Capul', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catarman', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catubig', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gamay', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laoang', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lapinig', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Las Navas', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lavezares', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mapanas', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mondragon', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palapag', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pambujan', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosario', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Antonio', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Roque', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Vicente', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Silvino Lobos', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Victoria', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lope De Vega', '46', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Almagro', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basey', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Calbayog', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calbiga', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Catbalogan', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Daram', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gandara', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinabangan', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jiabong', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marabut', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matuguinao', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Motiong', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pinabacdao', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose De Buan', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Sebastian', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Margarita', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Rita', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Niño', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talalora', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tarangnan', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villareal', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paranas', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Zumarraga', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagapul-An', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jorge', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagsanghan', '47', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Anahawan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bontoc', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinunangan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinundayan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libagon', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Liloan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Maasin', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Macrohon', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malitbog', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Padre Burgos', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pintuyan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Saint Bernard', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Francisco', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Ricardo', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Silago', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sogod', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tomas Oppus', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Limasawa', '48', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Almeria', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Biliran', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabucgayan', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caibiran', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Culaba', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kawayan', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maripipi', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naval', '49', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Dapitan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Dipolog', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Katipunan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Libertad', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Labason', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Liloy', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manukan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mutia', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Piñan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Polanco', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pres. Manuel A. Roxas', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salug', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sergio Osmeña Sr.', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siayan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibuco', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibutad', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sindangan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siocon', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sirawai', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tampilisan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jose Dalman', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gutalac', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baliguian', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Godod', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacungan', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalawit', '50', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aurora', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bayog', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dimataling', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dinas', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumalinao', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dumingag', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kumalarang', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Labangan', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lapuyan', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mahayag', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Margosatubig', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Midsalip', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Molave', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Pagadian', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ramon Magsaysay', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Pablo', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabina', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tambulig', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tukuran', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Zamboanga', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lakewood', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Josefina', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pitogo', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sominot', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Vincenzo A. Sagun', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guipos', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tigbao', '51', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alicia', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buug', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Diplahan', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Imelda', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ipil', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kabasalan', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabuhay', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malangas', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naga', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Olutanga', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Payao', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Roseller Lim', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siay', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talusan', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Titay', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tungawan', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Isabela', '52', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baungon', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Damulog', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dangcagan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Don Carlos', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Impasug-ong', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kadingilan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalilangan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kibawe', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kitaotao', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lantapan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libona', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Malaybalay', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malitbog', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manolo Fortich', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maramag', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pangantucan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Fernando', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sumilao', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talakag', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Valencia', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cabanglasan', '53', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Catarman', '54', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guinsiliban', '54', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mahinog', '54', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mambajao', '54', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sagay', '54', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacolod', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baloi', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baroy', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Iligan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kapatagan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sultan Naga Dimaporo', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kauswagan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kolambugan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lala', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Linamon', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsaysay', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maigo', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matungao', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Munai', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nunungan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pantao Ragat', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Poona Piagapo', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salvador', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sapad', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagoloan', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tangcal', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubod', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pantar', '55', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aloran', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baliangao', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bonifacio', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calamba', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Clarin', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Concepcion', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jimenez', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lopez Jaena', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Oroquieta', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Ozamiz', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panaon', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Plaridel', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sapang Dalaga', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sinacaban', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tangub', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tudela', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Don Victoriano Chiongbian', '56', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alubijid', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balingasag', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balingoan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binuangan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cagayan De Oro', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Claveria', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of El Salvador', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Gingoog', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gitagum', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Initao', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jasaan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kinoguitan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lagonglong', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laguindingan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libertad', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lugait', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsaysay', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manticao', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Medina', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Naawan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Opol', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Salay', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sugbongcogon', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagoloan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talisayan', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villanueva', '57', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Asuncion', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kapalong', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('New Corella', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Panabo', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Island Garden City of Samal', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Tomas', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tagum', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talaingod', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Braulio E. Dujali', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '58', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bansalan', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Davao', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Digos', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hagonoy', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kiblawan', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magsaysay', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malalag', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matanao', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Padada', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Cruz', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sulop', '59', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Baganga', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banaybanay', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Boston', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caraga', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cateel', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Governor Generoso', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lupon', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manay', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Mati', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tarragona', '60', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Compostela', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Laak', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mabini', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maco', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maragusan', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mawab', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Monkayo', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Montevista', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nabunturan', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('New Bataan', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pantukan', '61', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Don Marcelino', '62', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jose Abad Santos', '62', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malita', '62', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Maria', '62', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sarangani', '62', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alamada', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kabacan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Kidapawan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libungan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magpet', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Makilala', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matalam', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Midsayap', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('M Lang', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pigkawayan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pikit', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('President Roxas', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tulunan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Antipas', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banisilan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aleosan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Arakan', '63', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banga', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of General Santos', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Koronadal', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Norala', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Polomolok', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Surallah', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tampakan', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tantangan', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('T Boli', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tupi', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santo Niño', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lake Sebu', '64', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bagumbayan', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Columbio', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Esperanza', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Isulan', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalamansig', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lebak', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lutayan', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lambayong', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Palimbang', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('President Quirino', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tacurong', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sen. Ninoy Aquino', '65', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alabel', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Glan', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kiamba', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maasim', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maitum', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malapatan', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malungon', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cotabato City', '66', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manila', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mandaluyong City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marikina City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pasig City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Quezon City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Caloocan City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malabon City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Navotas City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Valenzuela City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Las Piñas City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Makati City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Muntinlupa City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Parañaque City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pasay City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pateros', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taguig City', '1', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bangued', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Boliney', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bucay', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bucloc', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Daguioman', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Danglas', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dolores', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Paz', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lacub', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lagangilang', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lagayan', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Langiden', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Licuan-Baay', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luba', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malibcong', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Manabo', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Peñarrubia', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pidigan', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sallapadan', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Juan', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Quintin', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tayum', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tineg', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubo', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Villaviciosa', '67', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Atok', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Baguio', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bakun', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bokod', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buguias', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Itogon', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kabayan', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kapangan', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kibungan', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Trinidad', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mankayan', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sablan', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuba', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tublay', '68', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Banaue', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hungduan', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kiangan', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lagawe', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lamut', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mayoyao', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alfonso Lista', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Aguinaldo', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hingyon', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tinoc', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Asipulo', '69', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balbalan', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lubuagan', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pasil', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pinukpuk', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rizal', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tabuk', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tanudan', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tinglayan', '70', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barlig', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bauko', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Besao', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bontoc', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Natonin', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paracelis', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sabangan', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sadanga', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sagada', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tadian', '71', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calanasan', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Conner', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Flora', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kabugao', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luna', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pudtol', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Marcela', '72', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Lamitan', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lantawan', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maluso', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sumisip', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tipo-Tipo', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tuburan', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Akbar', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Al-Barka', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hadji Mohammad Ajul', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ungkaya Pukan', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hadji Muhtamad', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tabuan-Lasa', '73', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacolod-Kalawi', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balabagan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Balindong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bayang', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Binidayan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bubong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Butig', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ganassi', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kapai', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lumba-Bayabao', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lumbatan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Madalum', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Madamba', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malabang', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marantao', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Marawi', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Masiu', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mulondo', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagayawan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Piagapo', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Poona Bayabao', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pualas', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ditsaan-Ramain', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Saguiaran', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tamparan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Taraka', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubaran', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tugaya', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Wao', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marogong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Calanogas', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buadiposo-Buntong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maguing', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Picong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lumbayanague', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Amai Manabilang', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagoloan Ii', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kapatagan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sultan Dumalondong', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lumbaca-Unayan', '74', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Ampatuan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buldon', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buluan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Paglas', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Piang', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Odin Sinsuat', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Shariff Aguak', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Matanog', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagalungan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Parang', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sultan Kudarat', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sultan Sa Barongis', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kabuntalan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Upi', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talayan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('South Upi', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barira', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gen. S.K. Pendatun', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mamasapano', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talitay', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pagagawan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Paglat', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sultan Mastura', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Guindulungan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Saudi-Ampatuan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Unsay', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Abdullah Sangki', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rajah Buayan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Blah T. Sinsuat', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Anggal Midtimbang', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mangudadatu', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pandag', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Northern Kabuntalan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Hoffer Ampatuan', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Datu Salibo', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Shariff Saydona Mustapha', '75', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Indanan', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jolo', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kalingalan Caluang', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Luuk', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Maimbung', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hadji Panglima Tahil', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Old Panamao', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pangutaran', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Parang', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pata', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Patikul', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Siasi', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talipao', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tapul', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tongkil', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panglima Estino', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lugus', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pandami', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Omar', '76', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Panglima Sugala', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bongao (Capital)', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mapun', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Simunul', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sitangkai', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('South Ubian', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tandubas', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Turtle Islands', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Languyan', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sapa-Sapa', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibutu', '77', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Buenavista', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Butuan', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Cabadbaran', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Jabonga', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Kitcharao', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Las Nieves', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Magallanes', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Nasipit', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santiago', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubay', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Remedios T. Romualdez', '78', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bayugan', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bunawan', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Esperanza', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('La Paz', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loreto', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Prosperidad', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Rosario', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Francisco', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Luis', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Josefa', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Talacogon', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Trento', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Veruela', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sibagat', '79', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Alegria', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bacuag', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Burgos', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Claver', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dapa', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Del Carmen', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('General Luna', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Gigaquit', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Mainit', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Malimono', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Pilar', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Placer', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Benito', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Francisco', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Isidro', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Santa Monica', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Sison', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Socorro', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Surigao', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagana-An', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubod', '80', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Barobo', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Bayabas', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Bislig', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cagwait', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cantilan', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carmen', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Carrascal', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cortes', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Hinatuan', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lanuza', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lianga', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Lingig', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Madrid', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Marihatag', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Agustin', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Miguel', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tagbina', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tago', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('City of Tandag', '81', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Basilisa', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Cagdianao', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Dinagat', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Libjo', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loreto', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '82', '0');
+INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubajon', '82', '0');
+
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Philippine Peso', '₱', 'PHP', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('United States Dollar', '$', 'USD', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Japanese Yen', '¥', 'JPY', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('South Korean Won', '₩', 'KRW', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Euro', '€', 'EUR', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Pound Sterling', '£', 'GBP', '0');
