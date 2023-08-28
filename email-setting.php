@@ -3,7 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    require('model/country-model.php');
+    require('model/email-setting-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -15,21 +15,21 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $countryModel = new CountryModel($databaseModel);
+    $emailSettingModel = new SystemSettingModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Country';
+    $page_title = 'Email Setting';
     
-    $countryReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
-    $countryCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
-    $countryWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'write');
-    $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
-    $countryDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'duplicate');
+    $emailSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'read');
+    $emailSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'create');
+    $emailSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'write');
+    $emailSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'delete');
+    $emailSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'duplicate');
 
-    if ($countryReadAccess['total'] == 0) {
+    if ($emailSettingReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -41,14 +41,14 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: country.php');
+            header('location: email-setting.php');
             exit;
         }
 
-        $countryID = $securityModel->decryptData($_GET['id']);
+        $emailSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkCountryExist = $countryModel->checkCountryExist($countryID);
-        $total = $checkCountryExist['total'] ?? 0;
+        $checkSystemSettingExist = $emailSettingModel->checkSystemSettingExist($emailSettingID);
+        $total = $checkSystemSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -56,7 +56,7 @@
         }
     }
     else{
-        $countryID = null;
+        $emailSettingID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -68,6 +68,7 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -88,11 +89,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="country.php">Country</a></li>
+                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="email-setting.php">Email Setting</a></li>
                   <?php
-                    if(!$newRecord && !empty($countryID)){
-                      echo '<li class="breadcrumb-item" id="country-id">'. $countryID .'</li>';
+                    if(!$newRecord && !empty($emailSettingID)){
+                      echo '<li class="breadcrumb-item" id="email-setting-id">'. $emailSettingID .'</li>';
                     }
 
                     if($newRecord){
@@ -103,21 +104,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Country</h2>
+                  <h2 class="mb-0">Email Setting</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $countryCreateAccess['total'] > 0){
-            require_once('view/_country_new.php');
+          if($newRecord && $emailSettingCreateAccess['total'] > 0){
+            require_once('view/_email_setting_new.php');
           }
-          else if(!empty($countryID) && $countryWriteAccess['total'] > 0){
-            require_once('view/_country_details.php');
+          else if(!empty($emailSettingID) && $emailSettingWriteAccess['total'] > 0){
+            require_once('view/_email_setting_details.php');
           }
           else{
-            require_once('view/_country.php');
+            require_once('view/_email_setting.php');
           }
         ?>
       </div>
@@ -134,7 +135,8 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/pages/country.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/email-setting.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

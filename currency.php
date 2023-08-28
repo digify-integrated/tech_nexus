@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="currency.php">Currency</a></li>
                   <?php
-                    if(!empty($currencyID)){
+                    if(!$newRecord && !empty($currencyID)){
                       echo '<li class="breadcrumb-item" id="currency-id">'. $currencyID .'</li>';
                     }
 

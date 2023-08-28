@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item">User Interface</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="menu-item.php">Menu Item</a></li>
                   <?php
-                    if(!empty($menuItemID)){
+                    if(!$newRecord && !empty($menuItemID)){
                       echo '<li class="breadcrumb-item" id="menu-item-id">'. $menuItemID .'</li>';
                     }
 

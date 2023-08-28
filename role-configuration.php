@@ -93,7 +93,7 @@
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="role-configuration.php">Role Configuration</a></li>
                   <?php
-                    if(!empty($roleID)){
+                    if(!$newRecord && !empty($roleID)){
                       echo '<li class="breadcrumb-item" id="role-id">'. $roleID .'</li>';
                     }
 

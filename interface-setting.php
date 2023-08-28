@@ -89,7 +89,7 @@
                   <li class="breadcrumb-item">User Interface</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="interface-setting.php">Interface Setting</a></li>
                   <?php
-                    if(!empty($interfaceSettingID)){
+                    if(!$newRecord && !empty($interfaceSettingID)){
                       echo '<li class="breadcrumb-item" id="interface-setting-id">'. $interfaceSettingID .'</li>';
                     }
 

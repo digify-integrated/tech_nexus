@@ -94,7 +94,7 @@
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="file-type.php">File Type</a></li>
                   <?php
-                    if(!empty($fileTypeID)){
+                    if(!$newRecord && !empty($fileTypeID)){
                       echo '<li class="breadcrumb-item" id="file-type-id">'. $fileTypeID .'</li>';
                     }
 

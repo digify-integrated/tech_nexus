@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="system-setting.php">System Setting</a></li>
                   <?php
-                    if(!empty($systemSettingID)){
+                    if(!$newRecord && !empty($systemSettingID)){
                       echo '<li class="breadcrumb-item" id="system-setting-id">'. $systemSettingID .'</li>';
                     }
 

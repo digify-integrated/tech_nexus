@@ -94,7 +94,7 @@
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="state.php">State</a></li>
                   <?php
-                    if(!empty($stateID)){
+                    if(!$newRecord && !empty($stateID)){
                       echo '<li class="breadcrumb-item" id="state-id">'. $stateID .'</li>';
                     }
 

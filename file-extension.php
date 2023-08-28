@@ -94,7 +94,7 @@
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="file-extension.php">File Extension</a></li>
                   <?php
-                    if(!empty($fileExtensionID)){
+                    if(!$newRecord && !empty($fileExtensionID)){
                       echo '<li class="breadcrumb-item" id="file-extension-id">'. $fileExtensionID .'</li>';
                     }
 

@@ -100,7 +100,7 @@
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="user-account.php">User Account</a></li>
                   <?php
-                    if(!empty($userAccountID)){
+                    if(!$newRecord && !empty($userAccountID)){
                       echo '<li class="breadcrumb-item" id="user-account-id">'. $userAccountID .'</li>';
                     }
 

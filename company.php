@@ -96,7 +96,7 @@
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="company.php">Company</a></li>
                   <?php
-                    if(!empty($companyID)){
+                    if(!$newRecord && !empty($companyID)){
                       echo '<li class="breadcrumb-item" id="company-id">'. $companyID .'</li>';
                     }
 

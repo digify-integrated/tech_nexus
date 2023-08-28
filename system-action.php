@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="system-action.php">System Action</a></li>
                   <?php
-                    if(!empty($systemActionID)){
+                    if(!$newRecord && !empty($systemActionID)){
                       echo '<li class="breadcrumb-item" id="system-action-id">'. $systemActionID .'</li>';
                     }
 

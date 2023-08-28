@@ -92,7 +92,7 @@
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="upload-setting.php">Upload Setting</a></li>
                   <?php
-                    if(!empty($uploadSettingID)){
+                    if(!$newRecord && !empty($uploadSettingID)){
                       echo '<li class="breadcrumb-item" id="upload-setting-id">'. $uploadSettingID .'</li>';
                     }
 
