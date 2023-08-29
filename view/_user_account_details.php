@@ -256,11 +256,11 @@
   }
 
   if($changeUserAccountPassword['total'] > 0){
-    echo '<div id="change-user-account-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="system-error-title" aria-hidden="true">
+    echo '<div id="change-user-account-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="change-user-account-password-title" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="system-error-title">Change Password</h5>
+                  <h5 class="modal-title" id="change-user-account-password-title">Change Password</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

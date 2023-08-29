@@ -18,6 +18,7 @@ class UserController {
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $systemSettingModel;
+    private $emailSettingModel;
     private $systemModel;
     private $securityModel;
 
@@ -34,18 +35,20 @@ class UserController {
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
+    # - @param EmailSettingModel $emailSettingModel     The EmailSettingModel instance for email setting related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
+        $this->emailSettingModel = $emailSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -1616,7 +1619,7 @@ class UserController {
             $maxFailedOTPAttempts = $systemSettingDetails['value'] ?? MAX_FAILED_OTP_ATTEMPTS;
 
             if ($failedOTPAttempts >= $maxFailedOTPAttempts) {
-                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 month'));
+                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 year'));
                 $this->userModel->updateOTPAsExpired($userID, $otpExpiryDate);
     
                 echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid otp')]);
@@ -1811,16 +1814,11 @@ class UserController {
         $mailer->Subject = 'Login OTP - Secure Access to Your Account';
         $mailer->Body = $message;
     
-        try {
-            if ($mailer->send()) {
-                return true;
-            }
-            else {
-                return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
-            }
+        if ($mailer->send()) {
+            return true;
         }
-        catch (Exception $e) {
-            return 'Failed to send OTP. Error: ' . $e->getMessage();
+        else {
+            return 'Failed to send OTP. Error: ' . $mailer->ErrorInfo;
         }
     }
     # -------------------------------------------------------------
@@ -1851,16 +1849,11 @@ class UserController {
         $mailer->Subject = 'Password Reset Request - Action Required';
         $mailer->Body = $message;
     
-        try {
-            if ($mailer->send()) {
-                return true;
-            } 
-            else {
-                return 'Failed to send password reset email. Error: ' . $mailer->ErrorInfo;
-            }
+        if ($mailer->send()) {
+            return true;
         } 
-        catch (Exception $e) {
-            return 'Failed to send password reset email. Error: ' . $e->getMessage();
+        else {
+            return 'Failed to send password reset email. Error: ' . $mailer->ErrorInfo;
         }
     }
     # -------------------------------------------------------------
@@ -1881,15 +1874,23 @@ class UserController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    private function configureSMTP($mailer) {
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
         $mailer->isSMTP();
         $mailer->isHTML(true);
-        $mailer->Host = MAIL_HOST;
-        $mailer->SMTPAuth = MAIL_SMTP_AUTH;
-        $mailer->Username = MAIL_USERNAME;
-        $mailer->Password = MAIL_PASSWORD;
-        $mailer->SMTPSecure = MAIL_SMTP_SECURE;
-        $mailer->Port = MAIL_PORT;
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
     }
     # -------------------------------------------------------------
 }
@@ -1903,11 +1904,12 @@ require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/system-setting-model.php';
+require_once '../model/email-setting-model.php';
 require_once '../model/file-extension-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

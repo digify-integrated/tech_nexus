@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 25, 2023 at 10:45 AM
+-- Generation Time: Aug 29, 2023 at 11:42 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -80,6 +80,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCurrencyExist` (IN `p_currency
 	SELECT COUNT(*) AS total
     FROM currency
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkEmailSettingExist` (IN `p_email_setting_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM email_setting
+    WHERE email_setting_id = p_email_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileExtensionExist` (IN `p_file_extension_id` INT)   BEGIN
@@ -260,6 +266,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCurrency` (IN `p_currency_id` INT)   BEGIN
 	DELETE FROM currency
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
+	DELETE FROM email_setting
+    WHERE email_setting_id = p_email_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileExtension` (IN `p_file_extension_id` INT)   BEGIN
@@ -456,6 +467,30 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCurrency` (IN `p_currency_
     VALUES(p_currency_name, p_symbol, p_shorthand, p_last_log_by);
     
     SET p_new_currency_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateEmailSetting` (IN `p_email_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_email_setting_id` INT)   BEGIN
+    DECLARE p_email_setting_name VARCHAR(100);
+    DECLARE p_email_setting_description VARCHAR(200);
+    DECLARE p_mail_host VARCHAR(100);
+    DECLARE p_port INT;
+    DECLARE p_smtp_auth INT(1);
+    DECLARE p_smtp_auto_tls INT(1);
+    DECLARE p_mail_username VARCHAR(200);
+    DECLARE p_mail_password VARCHAR(250);
+    DECLARE p_mail_encryption VARCHAR(20);
+    DECLARE p_mail_from_name VARCHAR(200);
+    DECLARE p_mail_from_email VARCHAR(200);
+    
+    SELECT email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_password, mail_encryption, mail_from_name, mail_from_email
+    INTO p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_password, p_mail_encryption, p_mail_from_name, p_mail_from_email
+    FROM email_setting 
+    WHERE email_setting_id = p_email_setting_id;
+    
+    INSERT INTO email_setting (email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_password, mail_encryption, mail_from_name, mail_from_email, last_log_by) 
+    VALUES(p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_password, p_mail_encryption, p_mail_from_name, p_mail_from_email, p_last_log_by);
+    
+    SET p_new_email_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileExtension` (IN `p_file_extension_id` INT, IN `p_last_log_by` INT, OUT `p_new_file_extension_id` INT)   BEGIN
@@ -736,6 +771,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCurrencyTable` ()   BEGIN
     SELECT currency_id, currency_name, symbol, shorthand
     FROM currency
     ORDER BY currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateEmailSettingTable` ()   BEGIN
+	SELECT email_setting_id, email_setting_name, email_setting_description
+    FROM email_setting
+    ORDER BY email_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileExtensionOptions` ()   BEGIN
@@ -1021,6 +1062,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getCurrency` (IN `p_currency_id` IN
     WHERE currency_id = p_currency_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
+	SELECT * FROM email_setting
+    WHERE email_setting_id = p_email_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileExtension` (IN `p_file_extension_id` INT)   BEGIN
 	SELECT * FROM file_extension
 	WHERE file_extension_id = p_file_extension_id;
@@ -1141,6 +1187,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCurrency` (IN `p_currency_nam
     SET p_currency_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmailSetting` (IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_email_setting_id` INT)   BEGIN
+    INSERT INTO email_setting (email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_encryption, mail_from_name, mail_from_email, last_log_by) 
+	VALUES(p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_encryption, p_mail_from_name, p_mail_from_email, p_last_log_by);
+	
+    SET p_email_setting_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileExtension` (IN `p_file_extension_name` VARCHAR(100), IN `p_file_type_id` INT, IN `p_last_log_by` INT, OUT `p_file_extension_id` INT)   BEGIN
     INSERT INTO file_extension (file_extension_name, file_type_id, last_log_by) 
 	VALUES(p_file_extension_name, p_file_type_id, p_last_log_by);
@@ -1226,8 +1279,8 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUICustomizationSetting` (IN `p_user_id` INT, IN `p_type` VARCHAR(30), IN `p_customization_value` VARCHAR(15), IN `p_last_log_by` INT(10))   BEGIN
 	IF p_type = 'theme contrast' THEN
-        INSERT INTO ui_customization_setting (user_id, email_address, theme_contrast, last_log_by) 
-	    VALUES(p_user_id, p_email_address, p_customization_value, p_last_log_by);
+        INSERT INTO ui_customization_setting (user_id, theme_contrast, last_log_by) 
+	    VALUES(p_user_id, p_customization_value, p_last_log_by);
     ELSEIF p_type = 'caption show' THEN
         INSERT INTO ui_customization_setting (user_id, caption_show, last_log_by) 
 	    VALUES(p_user_id, p_customization_value, p_last_log_by);
@@ -1333,6 +1386,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCurrency` (IN `p_currency_id`
     WHERE currency_id = p_currency_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateEmailSetting` (IN `p_email_setting_id` INT, IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
+	UPDATE email_setting
+    SET email_setting_name = p_email_setting_name,
+    email_setting_description = p_email_setting_description,
+    mail_host = p_mail_host,
+    port = p_port,
+    smtp_auth = p_smtp_auth,
+    smtp_auto_tls = p_smtp_auto_tls,
+    mail_username = p_mail_username,
+    mail_encryption = p_mail_encryption,
+    mail_from_name = p_mail_from_name,
+    mail_from_email = p_mail_from_email,
+    last_log_by = p_last_log_by
+    WHERE email_setting_id = p_email_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFailedOTPAttempts` (IN `p_user_id` INT, IN `p_failed_otp_attempts` INT)   BEGIN
 	UPDATE users 
     SET failed_otp_attempts = p_failed_otp_attempts
@@ -1379,6 +1448,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLoginAttempt` (IN `p_user_id`
 	UPDATE users 
     SET failed_login_attempts = p_failed_login_attempts, last_failed_login_attempt = p_last_failed_login_attempt
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMailPassword` (IN `p_email_setting_id` INT, IN `p_mail_password` VARCHAR(250), IN `p_last_log_by` INT)   BEGIN
+	UPDATE email_setting
+    SET mail_password = p_mail_password,
+    last_log_by = p_last_log_by
+    WHERE email_setting_id = p_email_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMenuGroup` (IN `p_menu_group_id` INT, IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT)   BEGIN
@@ -3800,7 +3876,15 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2202, 'currency', 3, 'Currency created. <br/><br/>Currency Name: Japanese Yen<br/>Symbol: ¥<br/>Shorthand: JPY', '0', '2023-08-25 16:44:16'),
 (2203, 'currency', 4, 'Currency created. <br/><br/>Currency Name: South Korean Won<br/>Symbol: ₩<br/>Shorthand: KRW', '0', '2023-08-25 16:44:16'),
 (2204, 'currency', 5, 'Currency created. <br/><br/>Currency Name: Euro<br/>Symbol: €<br/>Shorthand: EUR', '0', '2023-08-25 16:44:16'),
-(2205, 'currency', 6, 'Currency created. <br/><br/>Currency Name: Pound Sterling<br/>Symbol: £<br/>Shorthand: GBP', '0', '2023-08-25 16:44:16');
+(2205, 'currency', 6, 'Currency created. <br/><br/>Currency Name: Pound Sterling<br/>Symbol: £<br/>Shorthand: GBP', '0', '2023-08-25 16:44:16'),
+(2206, 'email_setting', 1, 'Email setting created. <br/><br/>Email Setting Name: Security Email Setting<br/>Email Setting Description: \r\nEmail setting for security emails.<br/>Mail Host: smtp.hostinger.com<br/>Port: 465<br/>SMTP Auth: 1<br/>Mail Username: encore-noreply@encorefinancials.com<br/>Mail Encryption: SSL<br/>Mail From Name: encore-noreply@encorefinancials.com<br/>Mail From Email: encore-noreply@encorefinancials.com', '0', '2023-08-29 16:32:21'),
+(2207, 'users', 1, '2-Factor Authentication: 0 -> 1<br/>', '1', '2023-08-29 16:32:38'),
+(2208, 'users', 1, 'Failed Login Attempts: 0 -> 1<br/>', '1', '2023-08-29 16:39:43'),
+(2209, 'users', 1, 'Failed Login Attempts: 1 -> 0<br/>', '1', '2023-08-29 16:39:47'),
+(2210, 'users', 1, 'Last Connection Date: 2023-08-29 16:32:33 -> 2023-08-29 17:24:58<br/>', '1', '2023-08-29 17:24:58'),
+(2211, 'ui_customization_setting', 1, 'UI Customization created. <br/><br/>Theme Contrast: true<br/>Caption Show: true<br/>Preset Theme: preset-1<br/>Dark Layout: false<br/>RTL Layout: false<br/>Box Container: false', '1', '2023-08-29 17:25:42'),
+(2212, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-08-29 17:25:43'),
+(2213, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-08-29 17:25:43');
 
 -- --------------------------------------------------------
 
@@ -6087,6 +6171,139 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `email_setting`
+--
+
+CREATE TABLE `email_setting` (
+  `email_setting_id` int(10) UNSIGNED NOT NULL,
+  `email_setting_name` varchar(100) NOT NULL,
+  `email_setting_description` varchar(200) NOT NULL,
+  `mail_host` varchar(100) NOT NULL,
+  `port` int(11) NOT NULL,
+  `smtp_auth` int(1) NOT NULL,
+  `smtp_auto_tls` int(1) NOT NULL,
+  `mail_username` varchar(200) NOT NULL,
+  `mail_password` varchar(250) NOT NULL,
+  `mail_encryption` varchar(20) DEFAULT NULL,
+  `mail_from_name` varchar(200) DEFAULT NULL,
+  `mail_from_email` varchar(200) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `email_setting`
+--
+
+INSERT INTO `email_setting` (`email_setting_id`, `email_setting_name`, `email_setting_description`, `mail_host`, `port`, `smtp_auth`, `smtp_auto_tls`, `mail_username`, `mail_password`, `mail_encryption`, `mail_from_name`, `mail_from_email`, `last_log_by`) VALUES
+(1, 'Security Email Setting', '\r\nEmail setting for security emails.', 'smtp.hostinger.com', 465, 1, 0, 'encore-noreply@encorefinancials.com', 'UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D', 'ssl', 'encore-noreply@encorefinancials.com', 'encore-noreply@encorefinancials.com', 0);
+
+--
+-- Triggers `email_setting`
+--
+DELIMITER $$
+CREATE TRIGGER `email_setting_trigger_insert` AFTER INSERT ON `email_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Email setting created. <br/>';
+
+    IF NEW.email_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Setting Name: ", NEW.email_setting_name);
+    END IF;
+
+    IF NEW.email_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Setting Description: ", NEW.email_setting_description);
+    END IF;
+
+    IF NEW.mail_host <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mail Host: ", NEW.mail_host);
+    END IF;
+
+    IF NEW.port <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Port: ", NEW.port);
+    END IF;
+
+    IF NEW.smtp_auth <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>SMTP Auth: ", NEW.smtp_auth);
+    END IF;
+
+    IF NEW.smtp_auto_tls <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>SMTP Auto TLS: ", NEW.smtp_auto_tls);
+    END IF;
+
+    IF NEW.mail_username <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mail Username: ", NEW.mail_username);
+    END IF;
+
+    IF NEW.mail_encryption <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mail Encryption: ", NEW.mail_encryption);
+    END IF;
+
+    IF NEW.mail_from_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mail From Name: ", NEW.mail_from_name);
+    END IF;
+
+    IF NEW.mail_from_email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mail From Email: ", NEW.mail_from_email);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('email_setting', NEW.email_setting_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `email_setting_trigger_update` AFTER UPDATE ON `email_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.email_setting_name <> OLD.email_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Email Setting Name: ", OLD.email_setting_name, " -> ", NEW.email_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.email_setting_description <> OLD.email_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Email Setting Description: ", OLD.email_setting_description, " -> ", NEW.email_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.mail_host <> OLD.mail_host THEN
+        SET audit_log = CONCAT(audit_log, "Mail Host: ", OLD.mail_host, " -> ", NEW.mail_host, "<br/>");
+    END IF;
+
+    IF NEW.port <> OLD.port THEN
+        SET audit_log = CONCAT(audit_log, "Port: ", OLD.port, " -> ", NEW.port, "<br/>");
+    END IF;
+
+    IF NEW.smtp_auth <> OLD.smtp_auth THEN
+        SET audit_log = CONCAT(audit_log, "SMTP Auth: ", OLD.smtp_auth, " -> ", NEW.smtp_auth, "<br/>");
+    END IF;
+
+    IF NEW.smtp_auto_tls <> OLD.smtp_auto_tls THEN
+        SET audit_log = CONCAT(audit_log, "SMTP Auto TLS: ", OLD.smtp_auto_tls, " -> ", NEW.smtp_auto_tls, "<br/>");
+    END IF;
+
+    IF NEW.mail_username <> OLD.mail_username THEN
+        SET audit_log = CONCAT(audit_log, "Mail Username: ", OLD.mail_username, " -> ", NEW.mail_username, "<br/>");
+    END IF;
+
+    IF NEW.mail_encryption <> OLD.mail_encryption THEN
+        SET audit_log = CONCAT(audit_log, "Mail Encryption: ", OLD.mail_encryption, " -> ", NEW.mail_encryption, "<br/>");
+    END IF;
+
+    IF NEW.mail_from_name <> OLD.mail_from_name THEN
+        SET audit_log = CONCAT(audit_log, "Mail From Name: ", OLD.mail_from_name, " -> ", NEW.mail_from_name, "<br/>");
+    END IF;
+
+    IF NEW.mail_from_email <> OLD.mail_from_email THEN
+        SET audit_log = CONCAT(audit_log, "Mail From Email: ", OLD.mail_from_email, " -> ", NEW.mail_from_email, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('email_setting', NEW.email_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `file_extension`
 --
 
@@ -7174,6 +7391,13 @@ CREATE TABLE `ui_customization_setting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `ui_customization_setting`
+--
+
+INSERT INTO `ui_customization_setting` (`ui_customization_setting_id`, `user_id`, `theme_contrast`, `caption_show`, `preset_theme`, `dark_layout`, `rtl_layout`, `box_container`, `last_log_by`) VALUES
+(1, 1, 'true', 'true', 'preset-1', 'false', 'false', 'false', 1);
+
+--
 -- Triggers `ui_customization_setting`
 --
 DELIMITER $$
@@ -7388,7 +7612,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-29 17:24:58', '2023-12-30', NULL, NULL, 0, 1, 'tGSGWx4MZcc95Gma0eLAyT8T8ibk0QjgxXXOp5Sm3Ws%3D', '2023-08-29 17:29:45', 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -7579,6 +7803,13 @@ ALTER TABLE `district`
   ADD KEY `district_index_country_id` (`country_id`);
 
 --
+-- Indexes for table `email_setting`
+--
+ALTER TABLE `email_setting`
+  ADD PRIMARY KEY (`email_setting_id`),
+  ADD KEY `email_setting_index_email_setting_id` (`email_setting_id`);
+
+--
 -- Indexes for table `file_extension`
 --
 ALTER TABLE `file_extension`
@@ -7691,7 +7922,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2206;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2214;
 
 --
 -- AUTO_INCREMENT for table `city`
@@ -7722,6 +7953,12 @@ ALTER TABLE `currency`
 --
 ALTER TABLE `district`
   MODIFY `district_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `email_setting`
+--
+ALTER TABLE `email_setting`
+  MODIFY `email_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -7787,7 +8024,7 @@ ALTER TABLE `system_setting`
 -- AUTO_INCREMENT for table `ui_customization_setting`
 --
 ALTER TABLE `ui_customization_setting`
-  MODIFY `ui_customization_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `ui_customization_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `upload_setting`

@@ -15,7 +15,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $emailSettingModel = new SystemSettingModel($databaseModel);
+    $emailSettingModel = new EmailSettingModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -47,8 +47,8 @@
 
         $emailSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkSystemSettingExist = $emailSettingModel->checkSystemSettingExist($emailSettingID);
-        $total = $checkSystemSettingExist['total'] ?? 0;
+        $checkEmailSettingExist = $emailSettingModel->checkEmailSettingExist($emailSettingID);
+        $total = $checkEmailSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');

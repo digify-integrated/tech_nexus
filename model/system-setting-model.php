@@ -144,26 +144,6 @@ class SystemSettingModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: getSystemSettingFileExtension
-    # Description: Retrieves the details of a system setting file extension.
-    #
-    # Parameters:
-    # - $p_system_setting_id (int): The system setting ID.
-    #
-    # Returns:
-    # - An array containing the system setting file extension details.
-    #
-    # -------------------------------------------------------------
-    public function getSystemSettingFileExtension($p_system_setting_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getSystemSettingFileExtension(:p_system_setting_id)');
-        $stmt->bindValue(':p_system_setting_id', $p_system_setting_id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Duplicate methods
     # -------------------------------------------------------------
 
