@@ -43,9 +43,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
 
-                $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'write');
-                $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'write');
-                $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'delete');      
+                $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'write');
+                $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
+                $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');      
 
                 foreach ($options as $row) {
                     $fileExtensionID = $row['file_extension_id'];
@@ -98,7 +98,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'delete');
+            $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
 
             foreach ($options as $row) {
                 $fileExtensionID = $row['file_extension_id'];

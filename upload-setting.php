@@ -23,11 +23,11 @@
 
     $page_title = 'Upload Setting';
     
-    $uploadSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'read');
-    $uploadSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'create');
-    $uploadSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'write');
-    $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'delete');
-    $uploadSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'duplicate');
+    $uploadSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
+    $uploadSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
+    $uploadSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'write');
+    $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
+    $uploadSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'duplicate');
     $addFileExtensionToUploadSetting = $userModel->checkSystemActionAccessRights($user_id, 15);
 
     if ($uploadSettingReadAccess['total'] == 0) {
@@ -89,6 +89,7 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                  <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="upload-setting.php">Upload Setting</a></li>
                   <?php

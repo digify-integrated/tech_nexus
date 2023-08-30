@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
+            $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'delete');
 
             foreach ($options as $row) {
                 $fileTypeID = $row['file_type_id'];

@@ -35,7 +35,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
+            $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
 
             foreach ($options as $row) {
                 $menuGroupID = $row['menu_group_id'];

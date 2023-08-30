@@ -43,10 +43,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
 
-                $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
-                $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
-                $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
-                $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
+                $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
+                $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
+                $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'write');
+                $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'delete');
                 $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);                
 
                 foreach ($options as $row) {
@@ -106,7 +106,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
+            $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'delete');
 
             foreach ($options as $row) {
                 $menuItemID = $row['menu_item_id'];

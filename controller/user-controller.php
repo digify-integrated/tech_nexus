@@ -127,7 +127,7 @@ class UserController {
                     $this->getUICustomization();
                     break;
                 case 'update notification setting':
-                    $this->updateNotificationSetting();
+                    $this->updateUserNotificationSetting();
                     break;
                 case 'update two factor authentication':
                     $this->updateTwoFactorAuthentication();
@@ -864,7 +864,7 @@ class UserController {
 
     # -------------------------------------------------------------
     #
-    # Function: updateNotificationSetting
+    # Function: updateUserNotificationSetting
     # Description: 
     # Handles the update of the notification setting based on the provided user ID and checked state.
     #
@@ -873,7 +873,7 @@ class UserController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function updateNotificationSetting() {
+    public function updateUserNotificationSetting() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -889,7 +889,7 @@ class UserController {
             exit;
         }
     
-        $this->userModel->updateNotificationSetting($userID, $isChecked, $userID);
+        $this->userModel->updateUserNotificationSetting($userID, $isChecked, $userID);
     
         echo json_encode(['success' => true]);
         exit;

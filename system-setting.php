@@ -23,11 +23,11 @@
 
     $page_title = 'System Setting';
     
-    $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
-    $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
-    $systemSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
-    $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
-    $systemSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'duplicate');
+    $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
+    $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
+    $systemSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'write');
+    $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
+    $systemSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'duplicate');
 
     if ($systemSettingReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -88,7 +88,8 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">Technical</li>
+                  <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="system-setting.php">System Setting</a></li>
                   <?php
                     if(!$newRecord && !empty($systemSettingID)){

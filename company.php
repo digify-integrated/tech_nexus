@@ -27,11 +27,11 @@
 
     $page_title = 'Company';
     
-    $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'read');
-    $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'create');
-    $companyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'write');
-    $companyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'delete');
-    $companyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'duplicate');
+    $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
+    $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
+    $companyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
+    $companyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
+    $companyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
 
     if ($companyReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -94,6 +94,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">Users & Companies</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="company.php">Company</a></li>
                   <?php
                     if(!$newRecord && !empty($companyID)){

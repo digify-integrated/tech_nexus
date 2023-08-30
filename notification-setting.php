@@ -3,31 +3,33 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    require('model/interface-setting-model.php');
+    require('model/notification-setting-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
+    require('model/interface-setting-model.php');
   
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
+    $notificationSettingModel = new SystemSettingModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Interface Setting';
+    $page_title = 'Notification Setting';
     
-    $interfaceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
-    $interfaceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
-    $interfaceSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'write');
-    $interfaceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
-    $interfaceSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'duplicate');
+    $notificationSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'read');
+    $notificationSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'create');
+    $notificationSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'write');
+    $notificationSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'delete');
+    $notificationSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'duplicate');
 
-    if ($interfaceSettingReadAccess['total'] == 0) {
+    if ($notificationSettingReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -39,14 +41,14 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: interface-setting.php');
+            header('location: notification-setting.php');
             exit;
         }
 
-        $interfaceSettingID = $securityModel->decryptData($_GET['id']);
+        $notificationSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkInterfaceSettingExist = $interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
-        $total = $checkInterfaceSettingExist['total'] ?? 0;
+        $checkSystemSettingExist = $notificationSettingModel->checkSystemSettingExist($notificationSettingID);
+        $total = $checkSystemSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -54,7 +56,7 @@
         }
     }
     else{
-        $interfaceSettingID = null;
+        $notificationSettingID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -87,11 +89,11 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
-                  <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="interface-setting.php">Interface Setting</a></li>
+                  <li class="breadcrumb-item">Configurations</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="notification-setting.php">Notification Setting</a></li>
                   <?php
-                    if(!$newRecord && !empty($interfaceSettingID)){
-                      echo '<li class="breadcrumb-item" id="interface-setting-id">'. $interfaceSettingID .'</li>';
+                    if(!$newRecord && !empty($notificationSettingID)){
+                      echo '<li class="breadcrumb-item" id="notification-setting-id">'. $notificationSettingID .'</li>';
                     }
 
                     if($newRecord){
@@ -102,21 +104,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Interface Setting</h2>
+                  <h2 class="mb-0">Notification Setting</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $interfaceSettingCreateAccess['total'] > 0){
-            require_once('view/_interface_setting_new.php');
+          if($newRecord && $notificationSettingCreateAccess['total'] > 0){
+            require_once('view/_system_setting_new.php');
           }
-          else if(!empty($interfaceSettingID) && $interfaceSettingWriteAccess['total'] > 0){
-            require_once('view/_interface_setting_details.php');
+          else if(!empty($notificationSettingID) && $notificationSettingWriteAccess['total'] > 0){
+            require_once('view/_system_setting_details.php');
           }
           else{
-            require_once('view/_interface_setting.php');
+            require_once('view/_system_setting.php');
           }
         ?>
       </div>
@@ -133,7 +135,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/pages/interface-setting.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/notification-setting.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

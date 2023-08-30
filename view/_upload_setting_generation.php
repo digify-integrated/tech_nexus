@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
+            $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
 
             foreach ($options as $row) {
                 $uploadSettingID = $row['upload_setting_id'];

@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
+            $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'delete');
 
             foreach ($options as $row) {
                 $countryID = $row['country_id'];

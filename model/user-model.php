@@ -407,7 +407,7 @@ class UserModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateNotificationSetting
+    # Function: updateUserNotificationSetting
     # Description: Updates the notification setting for a user.
     #
     # Parameters:
@@ -418,8 +418,8 @@ class UserModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateNotificationSetting($p_user_id, $p_receive_notification, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateNotificationSetting(:p_user_id, :p_receive_notification, :p_last_log_by)');
+    public function updateUserNotificationSetting($p_user_id, $p_receive_notification, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateUserNotificationSetting(:p_user_id, :p_receive_notification, :p_last_log_by)');
         $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_receive_notification', $p_receive_notification, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);

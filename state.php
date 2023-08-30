@@ -25,11 +25,11 @@
 
     $page_title = 'State';
     
-    $stateReadAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'read');
-    $stateCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'create');
-    $stateWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'write');
-    $stateDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'delete');
-    $stateDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'duplicate');
+    $stateReadAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'read');
+    $stateCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'create');
+    $stateWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'write');
+    $stateDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'delete');
+    $stateDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'duplicate');
 
     if ($stateReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -91,7 +91,7 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
+                  <li class="breadcrumb-item">Localization</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="state.php">State</a></li>
                   <?php
                     if(!$newRecord && !empty($stateID)){

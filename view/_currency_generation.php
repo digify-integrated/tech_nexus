@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
+            $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'delete');
 
             foreach ($options as $row) {
                 $currencyID = $row['currency_id'];

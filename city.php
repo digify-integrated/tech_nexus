@@ -27,11 +27,11 @@
 
     $page_title = 'City';
     
-    $cityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
-    $cityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
-    $cityWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'write');
-    $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
-    $cityDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'duplicate');
+    $cityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'read');
+    $cityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'create');
+    $cityWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'write');
+    $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'delete');
+    $cityDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'duplicate');
 
     if ($cityReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -93,7 +93,8 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
+                  <li class="breadcrumb-item">Technical</li>
+                  <li class="breadcrumb-item">Localization</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="city.php">City</a></li>
                   <?php
                     if(!$newRecord && !empty($cityID)){

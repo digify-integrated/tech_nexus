@@ -320,7 +320,7 @@ BEGIN
     WHERE p_user_id = p_user_id OR email = BINARY p_email;
 END //
 
-CREATE PROCEDURE updateNotificationSetting(IN p_user_id INT, IN p_receive_notification TINYINT(1), IN p_last_log_by INT)
+CREATE PROCEDURE updateUserNotificationSetting(IN p_user_id INT, IN p_receive_notification TINYINT(1), IN p_last_log_by INT)
 BEGIN
 	UPDATE users 
     SET receive_notification = p_receive_notification, last_log_by = p_last_log_by 
@@ -3215,4 +3215,133 @@ BEGIN
 	SELECT email_setting_id, email_setting_name, email_setting_description
     FROM email_setting
     ORDER BY email_setting_id;
+END //
+
+/* Notification setting table */
+CREATE TABLE notification_setting(
+	notification_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	notification_setting_name VARCHAR(100) NOT NULL,
+	notification_setting_description VARCHAR(200) NOT NULL,
+	title VARCHAR(200) NOT NULL,
+	message VARCHAR(1000) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX notification_setting_index_notification_setting_id ON notification_setting(notification_setting_id);
+
+CREATE TRIGGER notification_setting_trigger_update
+AFTER UPDATE ON notification_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.notification_setting_name <> OLD.notification_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Notification Setting Name: ", OLD.notification_setting_name, " -> ", NEW.notification_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.notification_setting_description <> OLD.notification_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Notification Setting Description: ", OLD.notification_setting_description, " -> ", NEW.notification_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.title <> OLD.title THEN
+        SET audit_log = CONCAT(audit_log, "Title:", OLD.title, " -> ", NEW.title, "<br/>");
+    END IF;
+
+    IF NEW.message <> OLD.message THEN
+        SET audit_log = CONCAT(audit_log, "Message: ", OLD.message, " -> ", NEW.message, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('notification_setting', NEW.notification_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER notification_setting_trigger_insert
+AFTER INSERT ON notification_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Notification setting created. <br/>';
+
+    IF NEW.notification_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notification Setting Name: ", NEW.notification_setting_name);
+    END IF;
+
+    IF NEW.notification_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notification Setting Description: ", NEW.notification_setting_description);
+    END IF;
+
+    IF NEW.title <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Title: ", NEW.title);
+    END IF;
+
+    IF NEW.message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Message: ", NEW.message);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('notification_setting', NEW.notification_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkNotificationSettingExist (IN p_notification_setting_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
+END //
+
+CREATE PROCEDURE insertNotificationSetting(IN p_notification_setting_name VARCHAR(100), IN p_notification_setting_description VARCHAR(200), IN p_title VARCHAR(200), IN p_message VARCHAR(1000), IN p_last_log_by INT, OUT p_notification_setting_id INT)
+BEGIN
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, title, message, last_log_by) 
+	VALUES(p_notification_setting_name, p_notification_setting_description, p_title, p_message, p_last_log_by);
+	
+    SET p_notification_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateNotificationSetting(IN p_notification_setting_id INT, IN p_notification_setting_name VARCHAR(100), IN p_notification_setting_description VARCHAR(200), IN p_title VARCHAR(200), IN p_message VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE notification_setting
+    SET notification_setting_name = p_notification_setting_name,
+    notification_setting_description = p_notification_setting_description,
+    title = p_title,
+    message = p_message,
+    last_log_by = p_last_log_by
+    WHERE notification_setting_id = p_notification_setting_id;
+END //
+
+CREATE PROCEDURE deleteNotificationSetting(IN p_notification_setting_id INT)
+BEGIN
+	DELETE FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
+END //
+
+CREATE PROCEDURE getNotificationSetting(IN p_notification_setting_id INT)
+BEGIN
+	SELECT * FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
+END //
+
+CREATE PROCEDURE duplicateNotificationSetting(IN p_notification_setting_id INT, IN p_last_log_by INT, OUT p_new_notification_setting_id INT)
+BEGIN
+    DECLARE p_notification_setting_name VARCHAR(100);
+    DECLARE p_notification_setting_description VARCHAR(200);
+    DECLARE p_title VARCHAR(200);
+    DECLARE p_message VARCHAR(1000);
+    
+    SELECT notification_setting_name, notification_setting_description, title, message
+    INTO p_notification_setting_name, p_notification_setting_description, p_title, p_message
+    FROM notification_setting 
+    WHERE notification_setting_id = p_notification_setting_id;
+    
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, title, message, last_log_by) 
+    VALUES(p_notification_setting_name, p_notification_setting_description, p_title, p_message, p_last_log_by);
+    
+    SET p_new_notification_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateNotificationSettingTable()
+BEGIN
+	SELECT notification_setting_id, notification_setting_name, notification_setting_description
+    FROM notification_setting
+    ORDER BY notification_setting_id;
 END //

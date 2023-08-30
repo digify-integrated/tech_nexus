@@ -25,11 +25,11 @@
 
     $page_title = 'File Extension';
     
-    $fileExtensionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'read');
-    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'create');
-    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'write');
-    $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'delete');
-    $fileExtensionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'duplicate');
+    $fileExtensionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
+    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
+    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
+    $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
+    $fileExtensionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'duplicate');
 
     if ($fileExtensionReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -91,6 +91,7 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                  <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="file-extension.php">File Extension</a></li>
                   <?php

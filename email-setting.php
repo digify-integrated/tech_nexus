@@ -23,11 +23,11 @@
 
     $page_title = 'Email Setting';
     
-    $emailSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'read');
-    $emailSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'create');
-    $emailSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'write');
-    $emailSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'delete');
-    $emailSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'duplicate');
+    $emailSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'read');
+    $emailSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'create');
+    $emailSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'write');
+    $emailSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'delete');
+    $emailSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'duplicate');
 
     if ($emailSettingReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -89,7 +89,8 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">Technical</li>
+                  <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="email-setting.php">Email Setting</a></li>
                   <?php
                     if(!$newRecord && !empty($emailSettingID)){

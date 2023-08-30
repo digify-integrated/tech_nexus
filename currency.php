@@ -23,11 +23,11 @@
 
     $page_title = 'Currency';
     
-    $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
-    $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
-    $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'write');
-    $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
-    $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'duplicate');
+    $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'read');
+    $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'create');
+    $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'write');
+    $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'delete');
+    $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'duplicate');
 
     if ($currencyReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -88,7 +88,8 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
+                  <li class="breadcrumb-item">Technical</li>
+                  <li class="breadcrumb-item">Localization</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="currency.php">Currency</a></li>
                   <?php
                     if(!$newRecord && !empty($currencyID)){

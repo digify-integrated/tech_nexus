@@ -21,11 +21,11 @@
 
     $page_title = 'System Action';
     
-    $systemActionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'read');
-    $systemActionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'create');
-    $systemActionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'write');
-    $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
-    $systemActionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'duplicate');
+    $systemActionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'read');
+    $systemActionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'create');
+    $systemActionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'write');
+    $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
+    $systemActionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'duplicate');
     $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
 
     if ($systemActionReadAccess['total'] == 0) {
@@ -88,7 +88,7 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">User Interface</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="system-action.php">System Action</a></li>
                   <?php
                     if(!$newRecord && !empty($systemActionID)){

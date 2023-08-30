@@ -23,13 +23,13 @@
 
     $page_title = 'File Type';
     
-    $fileTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'read');
-    $fileTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'create');
-    $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'write');
-    $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
-    $fileTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'duplicate');
-    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'create');
-    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 11, 'write');
+    $fileTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'read');
+    $fileTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'create');
+    $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'write');
+    $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'delete');
+    $fileTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'duplicate');
+    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
+    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
 
     if ($fileTypeReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -91,6 +91,7 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                  <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="file-type.php">File Type</a></li>
                   <?php

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 29, 2023 at 11:42 AM
+-- Generation Time: Aug 30, 2023 at 11:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -140,6 +140,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemExist` (IN `p_menu_ite
 	SELECT COUNT(*) AS total
     FROM menu_item
     WHERE menu_item_id = p_menu_item_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkNotificationSettingExist` (IN `p_notification_setting_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleExist` (IN `p_role_id` INT)   BEGIN
@@ -352,6 +358,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItemRoleAccess` (IN `p_menu_item_id` INT, IN `p_role_id` INT)   BEGIN
 	DELETE FROM menu_item_access_right
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteNotificationSetting` (IN `p_notification_setting_id` INT)   BEGIN
+	DELETE FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRole` (IN `p_role_id` INT)   BEGIN
@@ -570,6 +581,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuItem` (IN `p_menu_item
     VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
     
     SET p_new_menu_item_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateNotificationSetting` (IN `p_notification_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_notification_setting_id` INT)   BEGIN
+    DECLARE p_notification_setting_name VARCHAR(100);
+    DECLARE p_notification_setting_description VARCHAR(200);
+    DECLARE p_title VARCHAR(200);
+    DECLARE p_message VARCHAR(1000);
+    
+    SELECT notification_setting_name, notification_setting_description, title, message
+    INTO p_notification_setting_name, p_notification_setting_description, p_title, p_message
+    FROM notification_setting 
+    WHERE notification_setting_id = p_notification_setting_id;
+    
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, title, message, last_log_by) 
+    VALUES(p_notification_setting_name, p_notification_setting_description, p_title, p_message, p_last_log_by);
+    
+    SET p_new_notification_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateRole` (IN `p_role_id` INT, IN `p_last_log_by` INT, OUT `p_new_role_id` INT)   BEGIN
@@ -860,6 +888,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemTable` ()   BEGIN
     ORDER BY menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateNotificationSettingTable` ()   BEGIN
+	SELECT notification_setting_id, notification_setting_name, notification_setting_description
+    FROM notification_setting
+    ORDER BY notification_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleConfigurationTable` ()   BEGIN
 	SELECT role_id, role_name, role_description, assignable
     FROM role 
@@ -1092,6 +1126,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuItem` (IN `p_menu_item_id` I
 	WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getNotificationSetting` (IN `p_notification_setting_id` INT)   BEGIN
+	SELECT * FROM notification_setting
+    WHERE notification_setting_id = p_notification_setting_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
 	SELECT * FROM password_history
 	WHERE p_user_id = p_user_id OR email = BINARY p_email;
@@ -1227,6 +1266,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuItem` (IN `p_menu_item_na
 	VALUES(p_menu_item_name, p_menu_group_id, p_menu_item_url, p_parent_id, p_menu_item_icon, p_order_sequence, p_last_log_by);
 	
     SET p_menu_item_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertNotificationSetting` (IN `p_notification_setting_name` VARCHAR(100), IN `p_notification_setting_description` VARCHAR(200), IN `p_title` VARCHAR(200), IN `p_message` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_notification_setting_id` INT)   BEGIN
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, title, message, last_log_by) 
+	VALUES(p_notification_setting_name, p_notification_setting_description, p_title, p_message, p_last_log_by);
+	
+    SET p_notification_setting_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_last_password_change` DATETIME)   BEGIN
@@ -1477,10 +1523,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMenuItem` (IN `p_menu_item_id
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_user_id` INT, IN `p_receive_notification` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
-	UPDATE users 
-    SET receive_notification = p_receive_notification, last_log_by = p_last_log_by 
-    WHERE user_id = p_user_id;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_notification_setting_id` INT, IN `p_notification_setting_name` VARCHAR(100), IN `p_notification_setting_description` VARCHAR(200), IN `p_title` VARCHAR(200), IN `p_message` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
+	UPDATE notification_setting
+    SET notification_setting_name = p_notification_setting_name,
+    notification_setting_description = p_notification_setting_description,
+    title = p_title,
+    message = p_message,
+    last_log_by = p_last_log_by
+    WHERE notification_setting_id = p_notification_setting_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTP` (IN `p_user_id` INT, IN `p_otp` VARCHAR(255), IN `p_otp_expiry_date` DATETIME, IN `p_remember_me` TINYINT(1))   BEGIN
@@ -1630,6 +1680,12 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserAccount` (IN `p_user_id` INT, IN `p_file_as` VARCHAR(300), IN `p_email` VARCHAR(255), IN `p_last_log_by` INT)   BEGIN
 	UPDATE users 
     SET file_as = p_file_as, email = p_email, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserNotificationSetting` (IN `p_user_id` INT, IN `p_receive_notification` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
+	UPDATE users 
+    SET receive_notification = p_receive_notification, last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
 END$$
 
@@ -3884,7 +3940,509 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2210, 'users', 1, 'Last Connection Date: 2023-08-29 16:32:33 -> 2023-08-29 17:24:58<br/>', '1', '2023-08-29 17:24:58'),
 (2211, 'ui_customization_setting', 1, 'UI Customization created. <br/><br/>Theme Contrast: true<br/>Caption Show: true<br/>Preset Theme: preset-1<br/>Dark Layout: false<br/>RTL Layout: false<br/>Box Container: false', '1', '2023-08-29 17:25:42'),
 (2212, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-08-29 17:25:43'),
-(2213, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-08-29 17:25:43');
+(2213, 'ui_customization_setting', 1, 'Theme Contrast: false -> true<br/>', '1', '2023-08-29 17:25:43'),
+(2214, 'users', 1, 'Last Connection Date: 2023-08-29 17:24:58 -> 2023-08-30 08:40:51<br/>', '1', '2023-08-30 08:40:51'),
+(2215, 'users', 1, '2-Factor Authentication: 1 -> 0<br/>', '1', '2023-08-30 08:40:55'),
+(2216, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:08:47'),
+(2217, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:08:47'),
+(2218, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2219, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 18<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2220, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 18<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2221, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:08:47'),
+(2222, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2223, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2224, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Parent ID: 4<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2225, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2226, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2227, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:08:47'),
+(2228, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2229, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2230, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:08:47'),
+(2231, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 1<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2232, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 1<br/>URL: menu-group.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2233, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 1<br/>URL: menu-item.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2234, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:08:47'),
+(2235, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2236, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2237, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 1<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2238, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 1<br/>URL: email-setting.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2239, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 1<br/>URL: file-type.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2240, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 1<br/>URL: file-extension.php<br/>Parent ID: 4<br/>Order Sequence: 3', '0', '2023-08-30 13:08:47'),
+(2241, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 1<br/>URL: interface-setting.php<br/>Parent ID: 4<br/>Order Sequence: 4', '0', '2023-08-30 13:08:47'),
+(2242, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 1<br/>URL: notification-setting.php<br/>Parent ID: 4<br/>Order Sequence: 5', '0', '2023-08-30 13:08:47'),
+(2243, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 1<br/>URL: system-setting.php<br/>Parent ID: 4<br/>Order Sequence: 6', '0', '2023-08-30 13:08:47'),
+(2244, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 1<br/>URL: upload-setting.php<br/>Parent ID: 4<br/>Order Sequence: 7', '0', '2023-08-30 13:08:47'),
+(2245, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 1<br/>URL: zoom-api.php<br/>Parent ID: 4<br/>Order Sequence: 8', '0', '2023-08-30 13:08:47'),
+(2246, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:08:47'),
+(2247, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2248, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2249, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:08:47'),
+(2250, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2251, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2252, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2253, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2254, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2255, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 1<br/>Parent ID: 4<br/>Order Sequence: 3', '0', '2023-08-30 13:08:47'),
+(2256, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 1<br/>URL: city.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:08:47'),
+(2257, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 1<br/>URL: country.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:08:47'),
+(2258, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 1<br/>URL: currency.php<br/>Parent ID: 4<br/>Order Sequence: 3', '0', '2023-08-30 13:08:47'),
+(2259, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 1<br/>URL: state.php<br/>Parent ID: 4<br/>Order Sequence: 4', '0', '2023-08-30 13:08:47'),
+(2260, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:08:47'),
+(2261, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2262, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2263, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2264, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:08:47'),
+(2265, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:13:42'),
+(2266, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:13:42'),
+(2267, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2268, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2269, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2270, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:13:42'),
+(2271, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2272, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2273, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Parent ID: 4<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2274, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2275, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2276, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:13:42'),
+(2277, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2278, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2279, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:13:42'),
+(2280, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2281, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2282, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2283, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:13:42'),
+(2284, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2285, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2286, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2287, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2288, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2289, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:13:42'),
+(2290, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:13:42'),
+(2291, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:13:42'),
+(2292, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:13:42'),
+(2293, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:13:42'),
+(2294, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:13:42'),
+(2295, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:13:42'),
+(2296, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2297, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2298, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:13:42'),
+(2299, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2300, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2301, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2302, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2303, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2304, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Parent ID: 4<br/>Order Sequence: 3', '0', '2023-08-30 13:13:42'),
+(2305, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:13:42'),
+(2306, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:13:42'),
+(2307, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:13:42'),
+(2308, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:13:42'),
+(2309, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:13:42'),
+(2310, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:42'),
+(2311, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:43'),
+(2312, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:43'),
+(2313, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:13:43'),
+(2314, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:14:18'),
+(2315, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:14:18'),
+(2316, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2317, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2318, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2319, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:14:18'),
+(2320, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2321, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2322, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Parent ID: 4<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2323, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2324, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2325, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:14:18'),
+(2326, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2327, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2328, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:14:18'),
+(2329, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2330, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2331, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2332, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:14:18'),
+(2333, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2334, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2335, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2336, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2337, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2338, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:14:18'),
+(2339, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:14:18'),
+(2340, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:14:18'),
+(2341, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:14:18'),
+(2342, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:14:18'),
+(2343, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:14:18'),
+(2344, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:14:18'),
+(2345, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2346, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2347, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:14:18'),
+(2348, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2349, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2350, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2351, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2352, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:18'),
+(2353, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Order Sequence: 3', '0', '2023-08-30 13:14:18'),
+(2354, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:14:18'),
+(2355, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:14:18'),
+(2356, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:14:19'),
+(2357, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:14:19'),
+(2358, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:14:19'),
+(2359, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:19'),
+(2360, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:19'),
+(2361, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:19'),
+(2362, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:14:19'),
+(2363, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:15:17'),
+(2364, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:15:17'),
+(2365, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2366, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2367, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2368, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:15:17'),
+(2369, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2370, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2371, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Parent ID: 4<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2372, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2373, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2374, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:15:17'),
+(2375, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17');
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(2376, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2377, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:15:17'),
+(2378, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2379, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2380, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2381, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:15:17'),
+(2382, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2383, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2384, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2385, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2386, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2387, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:15:17'),
+(2388, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:15:17'),
+(2389, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:15:17'),
+(2390, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:15:17'),
+(2391, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:15:17'),
+(2392, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:15:17'),
+(2393, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:15:17'),
+(2394, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2395, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2396, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:15:17'),
+(2397, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2398, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2399, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2400, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2401, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2402, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: map-pin<br/>Order Sequence: 3', '0', '2023-08-30 13:15:17'),
+(2403, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:15:17'),
+(2404, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:15:17'),
+(2405, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:15:17'),
+(2406, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:15:17'),
+(2407, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:15:17'),
+(2408, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2409, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2410, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2411, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:15:17'),
+(2412, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:16:08'),
+(2413, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:16:08'),
+(2414, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2415, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2416, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2417, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:16:08'),
+(2418, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2419, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2420, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Parent ID: 4<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2421, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2422, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2423, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:16:08'),
+(2424, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2425, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2426, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:16:08'),
+(2427, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2428, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2429, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2430, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:16:08'),
+(2431, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2432, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2433, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2434, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:16:08'),
+(2435, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:16:08'),
+(2436, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:16:08'),
+(2437, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:16:08'),
+(2438, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:16:08'),
+(2439, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:16:08'),
+(2440, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:16:08'),
+(2441, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:16:08'),
+(2442, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:16:08'),
+(2443, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2444, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2445, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:16:08'),
+(2446, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2447, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2448, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2449, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2450, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:08'),
+(2451, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:16:08'),
+(2452, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:16:09'),
+(2453, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:16:09'),
+(2454, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:16:09'),
+(2455, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:16:09'),
+(2456, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:16:09'),
+(2457, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:09'),
+(2458, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:09'),
+(2459, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:09'),
+(2460, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:16:09'),
+(2461, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:20:41'),
+(2462, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:20:41'),
+(2463, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2464, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2465, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2466, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:20:41'),
+(2467, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2468, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2469, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Menu Item Icon: user-check<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2470, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2471, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2472, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:20:41'),
+(2473, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2474, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2475, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:20:41'),
+(2476, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: sidebar<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2477, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2478, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2479, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:20:41'),
+(2480, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2481, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:41'),
+(2482, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2483, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:20:41'),
+(2484, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:20:41'),
+(2485, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:20:41'),
+(2486, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:20:41'),
+(2487, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:20:41'),
+(2488, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:20:42'),
+(2489, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:20:42'),
+(2490, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:20:42'),
+(2491, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:20:42'),
+(2492, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2493, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2494, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:20:42'),
+(2495, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2496, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2497, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2498, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2499, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2500, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:20:42'),
+(2501, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:20:42'),
+(2502, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:20:42'),
+(2503, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:20:42'),
+(2504, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:20:42'),
+(2505, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:20:42'),
+(2506, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2507, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2508, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2509, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:20:42'),
+(2510, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:25:26'),
+(2511, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:25:26'),
+(2512, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:25:26'),
+(2513, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:25:26'),
+(2514, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:25:26'),
+(2515, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:25:26'),
+(2516, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:26'),
+(2517, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:26'),
+(2518, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Menu Item Icon: shield<br/>Order Sequence: 2', '0', '2023-08-30 13:25:26'),
+(2519, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:25:26'),
+(2520, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:25:26'),
+(2521, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:25:26'),
+(2522, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:26'),
+(2523, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2524, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:25:27'),
+(2525, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: layout<br/>Order Sequence: 1', '0', '2023-08-30 13:25:27'),
+(2526, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:25:27'),
+(2527, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:25:27'),
+(2528, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:25:27'),
+(2529, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2530, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2531, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:25:27'),
+(2532, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:25:27'),
+(2533, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:25:27'),
+(2534, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:25:27'),
+(2535, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:25:27'),
+(2536, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:25:27'),
+(2537, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:25:27'),
+(2538, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:25:27'),
+(2539, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:25:27'),
+(2540, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:25:27'),
+(2541, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2542, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2543, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:25:27'),
+(2544, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2545, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2546, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2547, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2548, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2549, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:25:27'),
+(2550, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:25:27'),
+(2551, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:25:27'),
+(2552, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:25:27'),
+(2553, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:25:27'),
+(2554, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:25:27'),
+(2555, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2556, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2557, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2558, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:25:27'),
+(2559, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:51:39'),
+(2560, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:51:39'),
+(2561, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2562, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2563, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2564, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:51:39'),
+(2565, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2566, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2567, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Menu Item Icon: shield<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2568, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2569, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2570, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:51:39'),
+(2571, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2572, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2573, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:51:39'),
+(2574, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: layout<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2575, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2576, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2577, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: System Action<br/>Menu Group ID: 3<br/>URL: system-action.php<br/>Parent ID: 7<br/>Order Sequence: 3', '0', '2023-08-30 13:51:39'),
+(2578, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:51:39'),
+(2579, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2580, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2581, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2582, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2583, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 10<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2584, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 10<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2585, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 10<br/>Order Sequence: 3', '0', '2023-08-30 13:51:39'),
+(2586, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 10<br/>Order Sequence: 4', '0', '2023-08-30 13:51:39'),
+(2587, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 10<br/>Order Sequence: 5', '0', '2023-08-30 13:51:39'),
+(2588, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 10<br/>Order Sequence: 6', '0', '2023-08-30 13:51:39'),
+(2589, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 10<br/>Order Sequence: 7', '0', '2023-08-30 13:51:39'),
+(2590, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 10<br/>Order Sequence: 8', '0', '2023-08-30 13:51:39'),
+(2591, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:51:39'),
+(2592, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2593, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2594, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:51:39'),
+(2595, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2596, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2597, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2598, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2599, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2600, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:51:39'),
+(2601, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:51:39'),
+(2602, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:51:39'),
+(2603, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:51:39'),
+(2604, 'menu_item', 24, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:51:39'),
+(2605, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:51:39'),
+(2606, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2607, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2608, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2609, 'menu_item_access_right', 24, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:51:39'),
+(2610, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:52:29'),
+(2611, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:52:29'),
+(2612, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2613, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2614, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2615, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:52:29'),
+(2616, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2617, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2618, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Menu Item Icon: shield<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2619, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2620, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2621, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:52:29'),
+(2622, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2623, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2624, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:52:29'),
+(2625, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: layout<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2626, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2627, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2628, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: System Action<br/>Menu Group ID: 3<br/>URL: system-action.php<br/>Parent ID: 7<br/>Order Sequence: 3', '0', '2023-08-30 13:52:29'),
+(2629, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:52:29');
+INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `changed_by`, `changed_at`) VALUES
+(2630, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2631, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2632, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2633, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2634, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 11<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2635, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 11<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2636, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 11<br/>Order Sequence: 3', '0', '2023-08-30 13:52:29'),
+(2637, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 11<br/>Order Sequence: 4', '0', '2023-08-30 13:52:29'),
+(2638, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 11<br/>Order Sequence: 5', '0', '2023-08-30 13:52:29'),
+(2639, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 11<br/>Order Sequence: 6', '0', '2023-08-30 13:52:29'),
+(2640, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 11<br/>Order Sequence: 7', '0', '2023-08-30 13:52:29'),
+(2641, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 11<br/>Order Sequence: 8', '0', '2023-08-30 13:52:29'),
+(2642, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:52:29'),
+(2643, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2644, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2645, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:52:29'),
+(2646, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2647, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2648, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2649, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2650, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2651, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:52:29'),
+(2652, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 19<br/>Order Sequence: 1', '0', '2023-08-30 13:52:29'),
+(2653, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 19<br/>Order Sequence: 2', '0', '2023-08-30 13:52:29'),
+(2654, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 19<br/>Order Sequence: 3', '0', '2023-08-30 13:52:29'),
+(2655, 'menu_item', 24, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 19<br/>Order Sequence: 4', '0', '2023-08-30 13:52:29'),
+(2656, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:52:29'),
+(2657, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2658, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2659, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2660, 'menu_item_access_right', 24, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:52:29'),
+(2661, 'menu_group', 1, 'Menu group created. <br/><br/>Menu Group Name: Human Resources<br/>Order Sequence: 40', '0', '2023-08-30 13:53:15'),
+(2662, 'menu_group', 2, 'Menu group created. <br/><br/>Menu Group Name: Administration<br/>Order Sequence: 90', '0', '2023-08-30 13:53:15'),
+(2663, 'menu_item', 1, 'Menu item created. <br/><br/>Menu Item Name: Users & Companies<br/>Menu Group ID: 2<br/>Menu Item Icon: users<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2664, 'menu_item', 2, 'Menu item created. <br/><br/>Menu Item Name: Company<br/>Menu Group ID: 2<br/>URL: company.php<br/>Parent ID: 1<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2665, 'menu_item', 3, 'Menu item created. <br/><br/>Menu Item Name: User Account<br/>Menu Group ID: 2<br/>URL: user-account.php<br/>Parent ID: 1<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2666, 'menu_item_access_right', 1, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:53:15'),
+(2667, 'menu_item_access_right', 2, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2668, 'menu_item_access_right', 3, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2669, 'menu_item', 4, 'Menu item created. <br/><br/>Menu Item Name: Roles<br/>Menu Group ID: 2<br/>Menu Item Icon: shield<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2670, 'menu_item', 5, 'Menu item created. <br/><br/>Menu Item Name: Role<br/>Menu Group ID: 2<br/>URL: role.php<br/>Parent ID: 4<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2671, 'menu_item', 6, 'Menu item created. <br/><br/>Menu Item Name: Role Configuration<br/>Menu Group ID: 2<br/>URL: role-configuration.php<br/>Parent ID: 4<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2672, 'menu_item_access_right', 4, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:53:15'),
+(2673, 'menu_item_access_right', 5, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2674, 'menu_item_access_right', 6, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2675, 'menu_group', 3, 'Menu group created. <br/><br/>Menu Group Name: Technical<br/>Order Sequence: 100', '0', '2023-08-30 13:53:15'),
+(2676, 'menu_item', 7, 'Menu item created. <br/><br/>Menu Item Name: User Interface<br/>Menu Group ID: 3<br/>Menu Item Icon: layout<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2677, 'menu_item', 8, 'Menu item created. <br/><br/>Menu Item Name: Menu Group<br/>Menu Group ID: 3<br/>URL: menu-group.php<br/>Parent ID: 7<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2678, 'menu_item', 9, 'Menu item created. <br/><br/>Menu Item Name: Menu Item<br/>Menu Group ID: 3<br/>URL: menu-item.php<br/>Parent ID: 7<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2679, 'menu_item', 10, 'Menu item created. <br/><br/>Menu Item Name: System Action<br/>Menu Group ID: 3<br/>URL: system-action.php<br/>Parent ID: 7<br/>Order Sequence: 3', '0', '2023-08-30 13:53:15'),
+(2680, 'menu_item_access_right', 7, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:53:15'),
+(2681, 'menu_item_access_right', 8, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2682, 'menu_item_access_right', 9, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2683, 'menu_item_access_right', 10, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2684, 'menu_item', 11, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2685, 'menu_item', 12, 'Menu item created. <br/><br/>Menu Item Name: Email Setting<br/>Menu Group ID: 3<br/>URL: email-setting.php<br/>Parent ID: 11<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2686, 'menu_item', 13, 'Menu item created. <br/><br/>Menu Item Name: File Type<br/>Menu Group ID: 3<br/>URL: file-type.php<br/>Parent ID: 11<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2687, 'menu_item', 14, 'Menu item created. <br/><br/>Menu Item Name: File Extension<br/>Menu Group ID: 3<br/>URL: file-extension.php<br/>Parent ID: 11<br/>Order Sequence: 3', '0', '2023-08-30 13:53:15'),
+(2688, 'menu_item', 15, 'Menu item created. <br/><br/>Menu Item Name: Interface Setting<br/>Menu Group ID: 3<br/>URL: interface-setting.php<br/>Parent ID: 11<br/>Order Sequence: 4', '0', '2023-08-30 13:53:15'),
+(2689, 'menu_item', 16, 'Menu item created. <br/><br/>Menu Item Name: Notification Setting<br/>Menu Group ID: 3<br/>URL: notification-setting.php<br/>Parent ID: 11<br/>Order Sequence: 5', '0', '2023-08-30 13:53:15'),
+(2690, 'menu_item', 17, 'Menu item created. <br/><br/>Menu Item Name: System Setting<br/>Menu Group ID: 3<br/>URL: system-setting.php<br/>Parent ID: 11<br/>Order Sequence: 6', '0', '2023-08-30 13:53:15'),
+(2691, 'menu_item', 18, 'Menu item created. <br/><br/>Menu Item Name: Upload Setting<br/>Menu Group ID: 3<br/>URL: upload-setting.php<br/>Parent ID: 11<br/>Order Sequence: 7', '0', '2023-08-30 13:53:15'),
+(2692, 'menu_item', 19, 'Menu item created. <br/><br/>Menu Item Name: Zoom API<br/>Menu Group ID: 3<br/>URL: zoom-api.php<br/>Parent ID: 11<br/>Order Sequence: 8', '0', '2023-08-30 13:53:15'),
+(2693, 'menu_item_access_right', 11, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:53:15'),
+(2694, 'menu_item_access_right', 12, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2695, 'menu_item_access_right', 13, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2696, 'menu_item_access_right', 14, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '1', '2023-08-30 13:53:15'),
+(2697, 'menu_item_access_right', 15, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2698, 'menu_item_access_right', 16, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2699, 'menu_item_access_right', 17, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2700, 'menu_item_access_right', 18, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2701, 'menu_item_access_right', 19, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2702, 'menu_item', 20, 'Menu item created. <br/><br/>Menu Item Name: Localization<br/>Menu Group ID: 3<br/>Menu Item Icon: globe<br/>Order Sequence: 3', '0', '2023-08-30 13:53:15'),
+(2703, 'menu_item', 21, 'Menu item created. <br/><br/>Menu Item Name: City<br/>Menu Group ID: 3<br/>URL: city.php<br/>Parent ID: 20<br/>Order Sequence: 1', '0', '2023-08-30 13:53:15'),
+(2704, 'menu_item', 22, 'Menu item created. <br/><br/>Menu Item Name: Country<br/>Menu Group ID: 3<br/>URL: country.php<br/>Parent ID: 20<br/>Order Sequence: 2', '0', '2023-08-30 13:53:15'),
+(2705, 'menu_item', 23, 'Menu item created. <br/><br/>Menu Item Name: Currency<br/>Menu Group ID: 3<br/>URL: currency.php<br/>Parent ID: 20<br/>Order Sequence: 3', '0', '2023-08-30 13:53:15'),
+(2706, 'menu_item', 24, 'Menu item created. <br/><br/>Menu Item Name: State<br/>Menu Group ID: 3<br/>URL: state.php<br/>Parent ID: 20<br/>Order Sequence: 4', '0', '2023-08-30 13:53:15'),
+(2707, 'menu_item_access_right', 20, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-08-30 13:53:15'),
+(2708, 'menu_item_access_right', 21, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2709, 'menu_item_access_right', 22, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2710, 'menu_item_access_right', 23, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2711, 'menu_item_access_right', 24, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-08-30 13:53:15'),
+(2712, 'users', 1, 'Receive Notification: 0 -> 1<br/>', '1', '2023-08-30 14:52:51'),
+(2713, 'users', 1, 'Receive Notification: 1 -> 0<br/>', '1', '2023-08-30 14:52:57');
 
 -- --------------------------------------------------------
 
@@ -6637,8 +7195,9 @@ CREATE TABLE `menu_group` (
 --
 
 INSERT INTO `menu_group` (`menu_group_id`, `menu_group_name`, `order_sequence`, `last_log_by`) VALUES
-(1, 'Technical', 100, 0),
-(2, 'Human Resources', 50, 0);
+(1, 'Human Resources', 40, 0),
+(2, 'Administration', 90, 0),
+(3, 'Technical', 100, 0);
 
 --
 -- Triggers `menu_group`
@@ -6702,25 +7261,30 @@ CREATE TABLE `menu_item` (
 --
 
 INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `menu_item_url`, `parent_id`, `menu_item_icon`, `order_sequence`, `last_log_by`) VALUES
-(1, 'User Interface', 1, '', 0, 'sidebar', 50, 0),
-(2, 'Menu Group', 1, 'menu-group.php', 1, '', 1, 0),
-(3, 'Menu Item', 1, 'menu-item.php', 1, '', 2, 0),
-(4, 'Administration', 1, '', 0, 'shield', 1, 0),
-(5, 'System Action', 1, 'system-action.php', 4, '', 15, 0),
-(6, 'Role Configuration', 1, 'role-configuration.php', 4, '', 10, 0),
-(7, 'Role', 1, 'role.php', 4, '', 9, 0),
-(8, 'User Account', 1, 'user-account.php', 4, '', 1, 0),
-(9, 'Configurations', 1, '', 0, 'settings', 30, 0),
-(10, 'File Type', 1, 'file-type.php', 9, '', 30, 0),
-(11, 'File Extension', 1, 'file-extension.php', 9, '', 31, 0),
-(12, 'Upload Setting', 1, 'upload-setting.php', 9, '', 29, 0),
-(13, 'Interface Setting', 1, 'interface-setting.php', 1, '', 3, 0),
-(14, 'System Setting', 1, 'system-setting.php', 4, '', 16, 0),
-(15, 'Country', 1, 'country.php', 9, '', 20, 0),
-(16, 'State', 1, 'state.php', 9, '', 21, 0),
-(17, 'City', 1, 'city.php', 9, '', 22, 0),
-(18, 'Currency', 1, 'currency.php', 9, '', 24, 0),
-(19, 'Company', 1, 'company.php', 4, '', 20, 0);
+(1, 'Users & Companies', 2, '', 0, 'users', 1, 0),
+(2, 'Company', 2, 'company.php', 1, '', 1, 0),
+(3, 'User Account', 2, 'user-account.php', 1, '', 2, 0),
+(4, 'Roles', 2, '', 0, 'shield', 2, 0),
+(5, 'Role', 2, 'role.php', 4, '', 1, 0),
+(6, 'Role Configuration', 2, 'role-configuration.php', 4, '', 2, 0),
+(7, 'User Interface', 3, '', 0, 'layout', 1, 0),
+(8, 'Menu Group', 3, 'menu-group.php', 7, '', 1, 0),
+(9, 'Menu Item', 3, 'menu-item.php', 7, '', 2, 0),
+(10, 'System Action', 3, 'system-action.php', 7, '', 3, 0),
+(11, 'Configurations', 3, '', 0, 'settings', 2, 0),
+(12, 'Email Setting', 3, 'email-setting.php', 11, '', 1, 0),
+(13, 'File Type', 3, 'file-type.php', 11, '', 2, 0),
+(14, 'File Extension', 3, 'file-extension.php', 11, '', 3, 0),
+(15, 'Interface Setting', 3, 'interface-setting.php', 11, '', 4, 0),
+(16, 'Notification Setting', 3, 'notification-setting.php', 11, '', 5, 0),
+(17, 'System Setting', 3, 'system-setting.php', 11, '', 6, 0),
+(18, 'Upload Setting', 3, 'upload-setting.php', 11, '', 7, 0),
+(19, 'Zoom API', 3, 'zoom-api.php', 11, '', 8, 0),
+(20, 'Localization', 3, '', 0, 'globe', 3, 0),
+(21, 'City', 3, 'city.php', 20, '', 1, 0),
+(22, 'Country', 3, 'country.php', 20, '', 2, 0),
+(23, 'Currency', 3, 'currency.php', 20, '', 3, 0),
+(24, 'State', 3, 'state.php', 20, '', 4, 0);
 
 --
 -- Triggers `menu_item`
@@ -6822,19 +7386,24 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (4, 1, 1, 0, 0, 0, 0, 0),
 (5, 1, 1, 1, 1, 1, 1, 0),
 (6, 1, 1, 1, 1, 1, 1, 0),
-(7, 1, 1, 1, 0, 0, 0, 0),
-(8, 1, 1, 0, 0, 0, 0, 0),
-(9, 1, 1, 0, 0, 0, 0, 0),
+(7, 1, 1, 0, 0, 0, 0, 0),
+(8, 1, 1, 1, 1, 1, 1, 0),
+(9, 1, 1, 1, 1, 1, 1, 0),
 (10, 1, 1, 1, 1, 1, 1, 0),
-(11, 1, 1, 1, 1, 1, 1, 0),
+(11, 1, 1, 0, 0, 0, 0, 0),
 (12, 1, 1, 1, 1, 1, 1, 0),
 (13, 1, 1, 1, 1, 1, 1, 0),
-(14, 1, 1, 1, 1, 1, 1, 0),
+(14, 1, 1, 1, 1, 1, 1, 1),
 (15, 1, 1, 1, 1, 1, 1, 0),
 (16, 1, 1, 1, 1, 1, 1, 0),
 (17, 1, 1, 1, 1, 1, 1, 0),
 (18, 1, 1, 1, 1, 1, 1, 0),
-(19, 1, 1, 1, 1, 1, 1, 0);
+(19, 1, 1, 1, 1, 1, 1, 0),
+(20, 1, 1, 0, 0, 0, 0, 0),
+(21, 1, 1, 1, 1, 1, 1, 0),
+(22, 1, 1, 1, 1, 1, 1, 0),
+(23, 1, 1, 1, 1, 1, 1, 0),
+(24, 1, 1, 1, 1, 1, 1, 0);
 
 --
 -- Triggers `menu_item_access_right`
@@ -6901,6 +7470,77 @@ CREATE TRIGGER `menu_item_access_right_update` AFTER UPDATE ON `menu_item_access
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification_setting`
+--
+
+CREATE TABLE `notification_setting` (
+  `notification_setting_id` int(10) UNSIGNED NOT NULL,
+  `notification_setting_name` varchar(100) NOT NULL,
+  `notification_setting_description` varchar(200) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `message` varchar(1000) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `notification_setting`
+--
+DELIMITER $$
+CREATE TRIGGER `notification_setting_trigger_insert` AFTER INSERT ON `notification_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Notification setting created. <br/>';
+
+    IF NEW.notification_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notification Setting Name: ", NEW.notification_setting_name);
+    END IF;
+
+    IF NEW.notification_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notification Setting Description: ", NEW.notification_setting_description);
+    END IF;
+
+    IF NEW.title <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Title: ", NEW.title);
+    END IF;
+
+    IF NEW.message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Message: ", NEW.message);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('notification_setting', NEW.notification_setting_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `notification_setting_trigger_update` AFTER UPDATE ON `notification_setting` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.notification_setting_name <> OLD.notification_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Notification Setting Name: ", OLD.notification_setting_name, " -> ", NEW.notification_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.notification_setting_description <> OLD.notification_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Notification Setting Description: ", OLD.notification_setting_description, " -> ", NEW.notification_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.title <> OLD.title THEN
+        SET audit_log = CONCAT(audit_log, "Title:", OLD.title, " -> ", NEW.title, "<br/>");
+    END IF;
+
+    IF NEW.message <> OLD.message THEN
+        SET audit_log = CONCAT(audit_log, "Message: ", OLD.message, " -> ", NEW.message, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('notification_setting', NEW.notification_setting_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -7612,7 +8252,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-29 17:24:58', '2023-12-30', NULL, NULL, 0, 1, 'tGSGWx4MZcc95Gma0eLAyT8T8ibk0QjgxXXOp5Sm3Ws%3D', '2023-08-29 17:29:45', 0, NULL, 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-30 08:40:51', '2023-12-30', NULL, NULL, 0, 0, 'VfKaNXeA57Q5IwrcaaFYeo9PeIJENk9Cf0ctDi3Lgzc%3D', '2023-08-30 08:45:29', 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -7847,6 +8487,13 @@ ALTER TABLE `menu_item`
   ADD KEY `menu_group_id` (`menu_group_id`);
 
 --
+-- Indexes for table `notification_setting`
+--
+ALTER TABLE `notification_setting`
+  ADD PRIMARY KEY (`notification_setting_id`),
+  ADD KEY `notification_setting_index_notification_setting_id` (`notification_setting_id`);
+
+--
 -- Indexes for table `password_history`
 --
 ALTER TABLE `password_history`
@@ -7922,7 +8569,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2214;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2714;
 
 --
 -- AUTO_INCREMENT for table `city`
@@ -7982,13 +8629,19 @@ ALTER TABLE `interface_setting`
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
-  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `menu_group_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `notification_setting`
+--
+ALTER TABLE `notification_setting`
+  MODIFY `notification_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `password_history`

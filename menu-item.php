@@ -21,11 +21,11 @@
 
     $page_title = 'Menu Item';
     
-    $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'read');
-    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
-    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
-    $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
-    $menuItemDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'duplicate');
+    $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'read');
+    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'create');
+    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'write');
+    $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'delete');
+    $menuItemDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'duplicate');
     $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
 
     if ($menuItemReadAccess['total'] == 0) {

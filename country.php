@@ -23,11 +23,11 @@
 
     $page_title = 'Country';
     
-    $countryReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
-    $countryCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
-    $countryWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'write');
-    $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
-    $countryDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'duplicate');
+    $countryReadAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'read');
+    $countryCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'create');
+    $countryWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'write');
+    $countryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'delete');
+    $countryDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 22, 'duplicate');
 
     if ($countryReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -88,7 +88,8 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Configurations</li>
+                  <li class="breadcrumb-item">Technical</li>
+                  <li class="breadcrumb-item">Localization</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="country.php">Country</a></li>
                   <?php
                     if(!$newRecord && !empty($countryID)){

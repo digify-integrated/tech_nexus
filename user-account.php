@@ -19,10 +19,10 @@
 
     $page_title = 'User Account';
     
-    $userAccountReadAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'read');
-    $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'create');
-    $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
-    $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
+    $userAccountReadAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'read');
+    $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
+    $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
+    $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
     $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
     $activateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 9);
     $deactivateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 10);
@@ -98,6 +98,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">Users & Companies</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="user-account.php">User Account</a></li>
                   <?php
                     if(!$newRecord && !empty($userAccountID)){

@@ -39,7 +39,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'delete');
+            $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'delete');
 
             foreach ($options as $row) {
                 $roleID = $row['role_id'];

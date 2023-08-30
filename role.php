@@ -21,8 +21,8 @@
 
     $page_title = 'Role';
     
-    $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 7, 'read');
-    $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 7, 'write');
+    $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'read');
+    $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 5, 'write');
     $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
 
     if ($roleReadAccess['total'] == 0) {
@@ -84,6 +84,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
+                  <li class="breadcrumb-item">Roles</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="role.php">Role</a></li>
                   <?php
                     if(!$newRecord && !empty($roleID)){

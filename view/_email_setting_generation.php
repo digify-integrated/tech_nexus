@@ -37,7 +37,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $emailSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 20, 'delete');
+            $emailSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'delete');
 
             foreach ($options as $row) {
                 $emailSettingID = $row['email_setting_id'];

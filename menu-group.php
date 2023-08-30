@@ -21,13 +21,13 @@
 
     $page_title = 'Menu Group';
     
-    $menuGroupReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
-    $menuGroupCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
-    $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
-    $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
-    $menuGroupDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
-    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
-    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
+    $menuGroupReadAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'read');
+    $menuGroupCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'create');
+    $menuGroupWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'write');
+    $menuGroupDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'delete');
+    $menuGroupDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 8, 'duplicate');
+    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'create');
+    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'write');
     $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
 
     if ($menuGroupReadAccess['total'] == 0) {

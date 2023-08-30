@@ -45,7 +45,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
 
-                $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
+                $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'delete');
 
                 foreach ($options as $row) {
                     $cityID = $row['city_id'];
