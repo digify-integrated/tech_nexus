@@ -15,7 +15,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $notificationSettingModel = new SystemSettingModel($databaseModel);
+    $notificationSettingModel = new NotificationSettingModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -47,13 +47,18 @@
 
         $notificationSettingID = $securityModel->decryptData($_GET['id']);
 
-        $checkSystemSettingExist = $notificationSettingModel->checkSystemSettingExist($notificationSettingID);
-        $total = $checkSystemSettingExist['total'] ?? 0;
+        $checkNotificationSettingExist = $notificationSettingModel->checkNotificationSettingExist($notificationSettingID);
+        $total = $checkNotificationSettingExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
             exit;
         }
+
+        $getNotificationSetting = $notificationSettingModel->getNotificationSetting($notificationSettingID);
+        $systemNotification = $getNotificationSetting['system_notification'];
+        $emailNotification = $getNotificationSetting['email_notification'];
+        $smsNotification = $getNotificationSetting['sms_notification'];
     }
     else{
         $notificationSettingID = null;
@@ -112,13 +117,13 @@
         </div>
         <?php
           if($newRecord && $notificationSettingCreateAccess['total'] > 0){
-            require_once('view/_system_setting_new.php');
+            require_once('view/_notification_setting_new.php');
           }
           else if(!empty($notificationSettingID) && $notificationSettingWriteAccess['total'] > 0){
-            require_once('view/_system_setting_details.php');
+            require_once('view/_notification_setting_details.php');
           }
           else{
-            require_once('view/_system_setting.php');
+            require_once('view/_notification_setting.php');
           }
         ?>
       </div>

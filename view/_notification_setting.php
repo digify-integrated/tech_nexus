@@ -41,6 +41,7 @@
                   </div>
                 </th>
                 <th>Notification Setting</th>
+                <th>Notification Channel</th>
                 <th>Actions</th>
               </tr>
             </thead>

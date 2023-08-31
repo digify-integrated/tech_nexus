@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>System Setting</h5>
+            <h5>Notification Setting</h5>
           </div>
           <?php
             if ($notificationSettingCreateAccess['total'] > 0) {
@@ -26,16 +26,6 @@
             <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="text" class="form-control" id="notification_setting_description" name="notification_setting_description" maxlength="200" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Title <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <input type="text" class="form-control" id="title" name="title" maxlength="200" autocomplete="off">
-            </div>
-            <label class="col-lg-2 col-form-label">Message <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <input type="text" class="form-control" id="message" name="message" maxlength="1000" autocomplete="off">
             </div>
           </div>
         </form>

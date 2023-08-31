@@ -24,7 +24,7 @@ class SystemSettingModel {
     # - $p_system_setting_id (int): The system setting ID.
     # - $p_system_setting_name (string): The system setting name.
     # - $p_system_setting_description (string): The system setting description.
-    # - $p_value (string): The max file size.
+    # - $p_value (string): The value of the system setting.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
