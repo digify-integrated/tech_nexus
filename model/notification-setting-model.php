@@ -40,6 +40,30 @@ class NotificationSettingModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateNotificationChannelStatus
+    # Description: Updates the notification channel status.
+    #
+    # Parameters:
+    # - $p_notification_setting_id (int): The notification setting ID.
+    # - $p_channel (string): The notification channel.
+    # - $p_status (int): The status of the notification channel.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateNotificationChannelStatus($p_notification_setting_id, $p_channel, $p_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateNotificationChannelStatus(:p_notification_setting_id, :p_channel, :p_status, :p_last_log_by)');
+        $stmt->bindValue(':p_notification_setting_id', $p_notification_setting_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_channel', $p_channel, PDO::PARAM_STR);
+        $stmt->bindValue(':p_status', $p_status, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 

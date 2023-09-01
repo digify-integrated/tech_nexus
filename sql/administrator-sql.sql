@@ -3225,6 +3225,11 @@ CREATE TABLE notification_setting(
 	system_notification INT(1) NOT NULL DEFAULT 1,
 	email_notification INT(1) NOT NULL DEFAULT 0,
 	sms_notification INT(1) NOT NULL DEFAULT 0,
+	system_notification_title VARCHAR(200),
+	system_notification_message VARCHAR(200),
+	email_notification_subject VARCHAR(200),
+	email_notification_body LONGTEXT,
+	sms_notification_message VARCHAR(500),
     last_log_by INT NOT NULL
 );
 
@@ -3254,6 +3259,26 @@ BEGIN
 
     IF NEW.sms_notification <> OLD.sms_notification THEN
         SET audit_log = CONCAT(audit_log, "SMS Notification: ", OLD.sms_notification, " -> ", NEW.sms_notification, "<br/>");
+    END IF;
+
+    IF NEW.system_notification_title <> OLD.system_notification_title THEN
+        SET audit_log = CONCAT(audit_log, "System Notification Title: ", OLD.system_notification_title, " -> ", NEW.system_notification_title, "<br/>");
+    END IF;
+
+    IF NEW.system_notification_message <> OLD.system_notification_message THEN
+        SET audit_log = CONCAT(audit_log, "System Notification Message: ", OLD.system_notification_message, " -> ", NEW.system_notification_message, "<br/>");
+    END IF;
+
+    IF NEW.email_notification_subject <> OLD.email_notification_subject THEN
+        SET audit_log = CONCAT(audit_log, "Email Notification Subject: ", OLD.email_notification_subject, " -> ", NEW.email_notification_subject, "<br/>");
+    END IF;
+
+    IF NEW.email_notification_body <> OLD.email_notification_body THEN
+        SET audit_log = CONCAT(audit_log, "Email Notification Body: ", OLD.email_notification_body, " -> ", NEW.email_notification_body, "<br/>");
+    END IF;
+
+    IF NEW.sms_notification_message <> OLD.sms_notification_message THEN
+        SET audit_log = CONCAT(audit_log, "SMS Notification Message: ", OLD.sms_notification_message, " -> ", NEW.sms_notification_message, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -3286,6 +3311,26 @@ BEGIN
 
     IF NEW.sms_notification <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>SMS Notification: ", NEW.sms_notification);
+    END IF;
+
+    IF NEW.system_notification_title <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Notification Title: ", NEW.system_notification_title);
+    END IF;
+
+    IF NEW.system_notification_message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Notification Message: ", NEW.system_notification_message);
+    END IF;
+
+    IF NEW.email_notification_subject <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Notification Subject: ", NEW.email_notification_subject);
+    END IF;
+
+    IF NEW.email_notification_body <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Notification Body: ", NEW.email_notification_body);
+    END IF;
+
+    IF NEW.sms_notification_message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>SMS Notification Message: ", NEW.sms_notification_message);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -3335,14 +3380,19 @@ BEGIN
     DECLARE p_system_notification INT(1);
     DECLARE p_email_notification INT(1);
     DECLARE p_sms_notification INT(1);
+    DECLARE p_system_notification_title VARCHAR(200);
+	DECLARE p_system_notification_message VARCHAR(200);
+	DECLARE p_email_notification_subject VARCHAR(200);
+	DECLARE p_email_notification_body LONGTEXT;
+	DECLARE p_sms_notification_message VARCHAR(500);
     
-    SELECT notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification
-    INTO p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification
+    SELECT notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, system_notification_title, system_notification_message, email_notification_subject, email_notification_body, sms_notification_message
+    INTO p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_system_notification_title, p_system_notification_message, p_email_notification_subject, p_email_notification_body, p_sms_notification_message
     FROM notification_setting 
     WHERE notification_setting_id = p_notification_setting_id;
     
-    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, last_log_by) 
-    VALUES(p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_last_log_by);
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, system_notification_title, system_notification_message, email_notification_subject, email_notification_body, sms_notification_message, last_log_by) 
+    VALUES(p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_system_notification_title, p_system_notification_message, p_email_notification_subject, p_email_notification_body, p_sms_notification_message, p_last_log_by);
     
     SET p_new_notification_setting_id = LAST_INSERT_ID();
 END //
@@ -3360,4 +3410,24 @@ BEGIN
     FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id
     ORDER BY notification_setting_id;
+END //
+
+CREATE PROCEDURE updateNotificationChannelStatus(IN p_notification_setting_id INT, IN p_channel VARCHAR(10), IN p_status TINYINT(1), IN p_last_log_by INT)
+BEGIN
+    IF p_channel = 'system' THEN
+        UPDATE notification_setting
+        SET system_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSEIF p_channel = 'email' THEN
+        UPDATE notification_setting
+        SET email_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSE
+        UPDATE notification_setting
+        SET sms_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    END IF;
 END //

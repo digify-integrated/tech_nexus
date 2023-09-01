@@ -17,6 +17,53 @@
                 $('#update-notification-channel-modal').modal('show');
                 updateNotificationChannel('#update-notification-channel-table');
             });
+
+            $(document).on('click','.update-notification-channel-status',function() {
+                const notification_setting_id = $('#notification-setting-id').text();
+                const channel = $(this).data('channel');
+                const transaction = 'update notification channel status';
+                var status;
+
+                if ($(this).is(':checked')){  
+                    status = '1';
+                }
+                else{
+                    status = '0';
+                }
+                
+                $.ajax({
+                    type: 'POST',
+                    url: 'controller/notification-setting-controller.php',
+                    dataType: 'json',
+                    data: {
+                        notification_setting_id : notification_setting_id, 
+                        channel : channel, 
+                        status : status,
+                        transaction : transaction
+                    },
+                    success: function (response) {
+                        if (!response.success) {
+                            if (response.isInactive) {
+                                setNotification('User Inactive', response.message, 'danger');
+                                window.location = 'logout.php?logout';
+                            }
+                            else if (response.notExist) {
+                                showNotification('Update Notification Channel Status Error', 'The notification setting does not exist.', 'danger');
+                            }
+                            else {
+                                showNotification('Update Notification Channel Status Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                        if (xhr.responseText) {
+                          fullErrorMessage += `, Response: ${xhr.responseText}`;
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+            });
         }
 
         $(document).on('click','.delete-notification-setting',function() {

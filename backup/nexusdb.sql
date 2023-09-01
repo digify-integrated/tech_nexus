@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 31, 2023 at 11:32 AM
+-- Generation Time: Sep 01, 2023 at 11:38 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -589,14 +589,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateNotificationSetting` (IN `
     DECLARE p_system_notification INT(1);
     DECLARE p_email_notification INT(1);
     DECLARE p_sms_notification INT(1);
+    DECLARE p_system_notification_title VARCHAR(200);
+	DECLARE p_system_notification_message VARCHAR(200);
+	DECLARE p_email_notification_subject VARCHAR(200);
+	DECLARE p_email_notification_body LONGTEXT;
+	DECLARE p_sms_notification_message VARCHAR(500);
     
-    SELECT notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification
-    INTO p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification
+    SELECT notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, system_notification_title, system_notification_message, email_notification_subject, email_notification_body, sms_notification_message
+    INTO p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_system_notification_title, p_system_notification_message, p_email_notification_subject, p_email_notification_body, p_sms_notification_message
     FROM notification_setting 
     WHERE notification_setting_id = p_notification_setting_id;
     
-    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, last_log_by) 
-    VALUES(p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_last_log_by);
+    INSERT INTO notification_setting (notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification, system_notification_title, system_notification_message, email_notification_subject, email_notification_body, sms_notification_message, last_log_by) 
+    VALUES(p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_system_notification_title, p_system_notification_message, p_email_notification_subject, p_email_notification_body, p_sms_notification_message, p_last_log_by);
     
     SET p_new_notification_setting_id = LAST_INSERT_ID();
 END$$
@@ -1529,6 +1534,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMenuItem` (IN `p_menu_item_id
     order_sequence = p_order_sequence,
     last_log_by = p_last_log_by
     WHERE menu_item_id = p_menu_item_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationChannelStatus` (IN `p_notification_setting_id` INT, IN `p_channel` VARCHAR(10), IN `p_status` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
+    IF p_channel = 'system' THEN
+        UPDATE notification_setting
+        SET system_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSEIF p_channel = 'email' THEN
+        UPDATE notification_setting
+        SET email_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSE
+        UPDATE notification_setting
+        SET sms_notification = p_status,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    END IF;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_notification_setting_id` INT, IN `p_notification_setting_name` VARCHAR(100), IN `p_notification_setting_description` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
@@ -4456,7 +4480,18 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2718, 'notification_setting', 4, 'Notification setting created. <br/><br/>Notification Setting Name: test<br/>Notification Setting Description: test<br/>System Notification: 1', '1', '2023-08-31 14:12:23'),
 (2719, 'notification_setting', 1, 'Email Notification: 0 -> 1<br/>', '1', '2023-08-31 14:18:41'),
 (2720, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-08-31 14:18:44'),
-(2721, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-08-31 14:33:49');
+(2721, 'ui_customization_setting', 1, 'Theme Contrast: true -> false<br/>', '1', '2023-08-31 14:33:49'),
+(2722, 'users', 1, 'Last Connection Date: 2023-08-31 08:56:38 -> 2023-09-01 13:17:43<br/>', '1', '2023-09-01 13:17:43'),
+(2723, 'notification_setting', 1, 'Email Notification: 1 -> 0<br/>', '1', '2023-09-01 14:53:36'),
+(2724, 'notification_setting', 1, 'Email Notification: 0 -> 1<br/>', '1', '2023-09-01 14:53:40'),
+(2725, 'notification_setting', 1, 'System Notification: 1 -> 0<br/>', '1', '2023-09-01 14:54:05'),
+(2726, 'notification_setting', 1, 'SMS Notification: 1 -> 0<br/>', '1', '2023-09-01 14:54:06'),
+(2727, 'notification_setting', 1, 'Email Notification: 1 -> 0<br/>', '1', '2023-09-01 14:54:06'),
+(2728, 'notification_setting', 1, 'Email Notification: 0 -> 1<br/>', '1', '2023-09-01 14:54:10'),
+(2729, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-09-01 14:54:10'),
+(2730, 'notification_setting', 1, 'Notification setting created. <br/><br/>Notification Setting Name: test<br/>Notification Setting Description: test<br/>System Notification: 1', '1', '2023-09-01 16:01:53'),
+(2731, 'notification_setting', 1, 'Email Notification: 0 -> 1<br/>', '1', '2023-09-01 16:51:26'),
+(2732, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-09-01 16:51:26');
 
 -- --------------------------------------------------------
 
@@ -7502,6 +7537,11 @@ CREATE TABLE `notification_setting` (
   `system_notification` int(1) NOT NULL DEFAULT 1,
   `email_notification` int(1) NOT NULL DEFAULT 0,
   `sms_notification` int(1) NOT NULL DEFAULT 0,
+  `system_notification_title` varchar(200) DEFAULT NULL,
+  `system_notification_message` varchar(200) DEFAULT NULL,
+  `email_notification_subject` varchar(200) DEFAULT NULL,
+  `email_notification_body` longtext DEFAULT NULL,
+  `sms_notification_message` varchar(500) DEFAULT NULL,
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -7509,8 +7549,8 @@ CREATE TABLE `notification_setting` (
 -- Dumping data for table `notification_setting`
 --
 
-INSERT INTO `notification_setting` (`notification_setting_id`, `notification_setting_name`, `notification_setting_description`, `system_notification`, `email_notification`, `sms_notification`, `last_log_by`) VALUES
-(1, 'test', 'test', 1, 1, 1, 1);
+INSERT INTO `notification_setting` (`notification_setting_id`, `notification_setting_name`, `notification_setting_description`, `system_notification`, `email_notification`, `sms_notification`, `system_notification_title`, `system_notification_message`, `email_notification_subject`, `email_notification_body`, `sms_notification_message`, `last_log_by`) VALUES
+(1, 'test', 'test', 1, 1, 1, NULL, NULL, NULL, NULL, NULL, 1);
 
 --
 -- Triggers `notification_setting`
@@ -7537,6 +7577,26 @@ CREATE TRIGGER `notification_setting_trigger_insert` AFTER INSERT ON `notificati
 
     IF NEW.sms_notification <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>SMS Notification: ", NEW.sms_notification);
+    END IF;
+
+    IF NEW.system_notification_title <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Notification Title: ", NEW.system_notification_title);
+    END IF;
+
+    IF NEW.system_notification_message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>System Notification Message: ", NEW.system_notification_message);
+    END IF;
+
+    IF NEW.email_notification_subject <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Notification Subject: ", NEW.email_notification_subject);
+    END IF;
+
+    IF NEW.email_notification_body <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email Notification Body: ", NEW.email_notification_body);
+    END IF;
+
+    IF NEW.sms_notification_message <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>SMS Notification Message: ", NEW.sms_notification_message);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -7566,6 +7626,26 @@ CREATE TRIGGER `notification_setting_trigger_update` AFTER UPDATE ON `notificati
 
     IF NEW.sms_notification <> OLD.sms_notification THEN
         SET audit_log = CONCAT(audit_log, "SMS Notification: ", OLD.sms_notification, " -> ", NEW.sms_notification, "<br/>");
+    END IF;
+
+    IF NEW.system_notification_title <> OLD.system_notification_title THEN
+        SET audit_log = CONCAT(audit_log, "System Notification Title: ", OLD.system_notification_title, " -> ", NEW.system_notification_title, "<br/>");
+    END IF;
+
+    IF NEW.system_notification_message <> OLD.system_notification_message THEN
+        SET audit_log = CONCAT(audit_log, "System Notification Message: ", OLD.system_notification_message, " -> ", NEW.system_notification_message, "<br/>");
+    END IF;
+
+    IF NEW.email_notification_subject <> OLD.email_notification_subject THEN
+        SET audit_log = CONCAT(audit_log, "Email Notification Subject: ", OLD.email_notification_subject, " -> ", NEW.email_notification_subject, "<br/>");
+    END IF;
+
+    IF NEW.email_notification_body <> OLD.email_notification_body THEN
+        SET audit_log = CONCAT(audit_log, "Email Notification Body: ", OLD.email_notification_body, " -> ", NEW.email_notification_body, "<br/>");
+    END IF;
+
+    IF NEW.sms_notification_message <> OLD.sms_notification_message THEN
+        SET audit_log = CONCAT(audit_log, "SMS Notification Message: ", OLD.sms_notification_message, " -> ", NEW.sms_notification_message, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -8282,7 +8362,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-08-31 08:56:38', '2023-12-30', NULL, NULL, 0, 0, 'VfKaNXeA57Q5IwrcaaFYeo9PeIJENk9Cf0ctDi3Lgzc%3D', '2023-08-30 08:45:29', 0, NULL, 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-01 13:17:43', '2023-12-30', NULL, NULL, 0, 0, 'VfKaNXeA57Q5IwrcaaFYeo9PeIJENk9Cf0ctDi3Lgzc%3D', '2023-08-30 08:45:29', 0, NULL, 0, NULL, 0, NULL, 1);
 
 --
 -- Triggers `users`
@@ -8599,7 +8679,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2722;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2733;
 
 --
 -- AUTO_INCREMENT for table `city`
@@ -8671,7 +8751,7 @@ ALTER TABLE `menu_item`
 -- AUTO_INCREMENT for table `notification_setting`
 --
 ALTER TABLE `notification_setting`
-  MODIFY `notification_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `notification_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `password_history`

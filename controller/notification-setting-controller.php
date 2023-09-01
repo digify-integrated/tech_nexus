@@ -66,6 +66,9 @@ class NotificationSettingController {
                 case 'get notification setting details':
                     $this->getNotificationSettingDetails();
                     break;
+                case 'update notification channel status':
+                    $this->updateNotificationChannelStatus();
+                    break;
                 case 'delete notification setting':
                     $this->deleteNotificationSetting();
                     break;
@@ -130,6 +133,53 @@ class NotificationSettingController {
             echo json_encode(['success' => true, 'insertRecord' => true, 'notificationSettingID' => $this->securityModel->encryptData($notificationSettingID)]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Update methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateNotificationChannelStatus
+    # Description: 
+    # Updates the notification channel status.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateNotificationChannelStatus() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $notificationSettingID = htmlspecialchars($_POST['notification_setting_id'], ENT_QUOTES, 'UTF-8');
+        $channel = htmlspecialchars($_POST['channel'], ENT_QUOTES, 'UTF-8');
+        $status = htmlspecialchars($_POST['status'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkNotificationSettingExist = $this->notificationSettingModel->checkNotificationSettingExist($notificationSettingID);
+        $total = $checkNotificationSettingExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->notificationSettingModel->updateNotificationChannelStatus($notificationSettingID, $channel, $status, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
