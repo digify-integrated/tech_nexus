@@ -3431,3 +3431,26 @@ BEGIN
         WHERE notification_setting_id = p_notification_setting_id;
     END IF;
 END //
+
+CREATE PROCEDURE updateNotificationSettingTemplate(IN p_notification_setting_id INT, IN p_system_notification_title VARCHAR(200), IN p_system_notification_message VARCHAR(200), IN p_email_notification_subject VARCHAR(200), IN p_email_notification_body LONGTEXT, IN p_sms_notification_message VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+
+    IF p_system_notification_title IS NOT NULL AND p_system_notification_message IS NOT NULL THEN
+        UPDATE notification_setting
+        SET system_notification_title = p_system_notification_title,
+        system_notification_message = p_system_notification_message,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSEIF p_email_notification_subject IS NOT NULL AND p_email_notification_body IS NOT NULL THEN
+        UPDATE notification_setting
+        SET email_notification_subject = p_email_notification_subject,
+        email_notification_body = p_email_notification_body,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSE
+       UPDATE notification_setting
+        SET sms_notification_message = p_sms_notification_message,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    END IF;
+END //

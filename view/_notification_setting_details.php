@@ -141,35 +141,61 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label" for="system_notification_message">Message <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="system_notification_message" name="system_notification_message" maxlength="200" autocomplete="off">
+                        <textarea class="form-control tiny-mce" id="system_notification_message" name="system_notification_message" maxlength="200" rows="5"></textarea>
                       </div>
                     </form>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-update-system-notification-template-form" form="update-system-notification-template-form">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submit-update-system-notification-template" form="update-system-notification-template-form">Submit</button>
                   </div>
                 </div>
               </div>
             </div>
-            <div id="update-sms-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-system-notification-template-modal" aria-hidden="true">
+            <div id="update-email-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-email-notification-template-modal" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="update-sms-notification-template-modal-title">System Notification</h5>
+                    <h5 class="modal-title" id="update-email-notification-template-modal-title">Email Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="modal-body">
+                    <form id="update-email-notification-template-form" method="post" action="#">
+                      <div class="form-group">
+                        <label class="form-label" for="email_notification_subject">Subject <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="email_notification_subject" name="email_notification_subject" maxlength="200" autocomplete="off">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="email_notification_body">Body <span class="text-danger">*</span></label>
+                        <textarea id="email_notification_body" name="email_notification_body" class="tox-target"></textarea>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="submit-update-email-notification-template" form="update-email-notification-template-form">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="update-sms-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-sms-notification-template-modal" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="update-sms-notification-template-modal-title">SMS Notification</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body" id="modal-body">
                     <form id="update-sms-notification-template-form" method="post" action="#">
                       <div class="form-group">
                         <label class="form-label" for="sms_notification_message">Message <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="sms_notification_message" name="sms_notification_message" maxlength="500" autocomplete="off">
+                        <textarea class="form-control" id="sms_notification_message" name="sms_notification_message" maxlength="500" rows="5"></textarea>
                       </div>
                     </form>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-update-system-notification-template-form" form="update-system-notification-template-form">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submit-update-sms-notification-template" form="update-sms-notification-template-form">Submit</button>
                   </div>
                 </div>
               </div>

@@ -44,6 +44,10 @@
             });
         }
 
+        if ($('.tiny-mce').length) {
+            initTinyMCE();
+        }
+
         if($('#discard-update').length){
             $(document).on('click','#discard-update',() => {
                 Swal.fire({
@@ -66,6 +70,14 @@
             });
         }
 
+        $('.modal').on('shown.bs.modal', function () {
+            initTinyMCE();
+        });
+        
+        $('.modal').on('hidden.bs.modal', function () {
+            tinymce.remove('.tiny-mce');
+        });
+        
         if($('#change-password-modal').length){
             $('#change-password-shortcut-form').validate({
                 rules: {
@@ -233,6 +245,21 @@
         });
     });
 })(jQuery);
+
+function initTinyMCE(){
+    tinymce.init({
+        height: '400',
+        selector: '#system_notification_message',
+        content_style: 'body { font-family: "Inter", sans-serif; }',
+        menubar: false,
+        toolbar: [
+            'styleselect fontselect fontsizeselect',
+            'undo redo | cut copy paste | bold italic | link image | alignleft aligncenter alignright alignjustify',
+            'bullist numlist | outdent indent | blockquote subscript superscript | advlist | autolink | lists charmap | print preview |  code'
+        ],
+        plugins: 'advlist autolink link image lists charmap print preview code'
+    });
+}
 
 function checkOptionExist(element, option, return_value){
     if ($(element).find('option[value="' + option + '"]').length) {

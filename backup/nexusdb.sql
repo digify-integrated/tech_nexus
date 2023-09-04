@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 01, 2023 at 11:38 AM
+-- Generation Time: Sep 04, 2023 at 11:32 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -1561,6 +1561,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSetting` (IN `p_n
     notification_setting_description = p_notification_setting_description,
     last_log_by = p_last_log_by
     WHERE notification_setting_id = p_notification_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationSettingTemplate` (IN `p_notification_setting_id` INT, IN `p_system_notification_title` VARCHAR(200), IN `p_system_notification_message` VARCHAR(200), IN `p_email_notification_subject` VARCHAR(200), IN `p_email_notification_body` LONGTEXT, IN `p_sms_notification_message` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
+
+    IF p_system_notification_title IS NOT NULL AND p_system_notification_message IS NOT NULL THEN
+        UPDATE notification_setting
+        SET system_notification_title = p_system_notification_title,
+        system_notification_message = p_system_notification_message,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSEIF p_email_notification_subject IS NOT NULL AND p_email_notification_body IS NOT NULL THEN
+        UPDATE notification_setting
+        SET email_notification_subject = p_email_notification_subject,
+        email_notification_body = p_email_notification_body,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    ELSE
+       UPDATE notification_setting
+        SET sms_notification_message = p_sms_notification_message,
+        last_log_by = p_last_log_by
+        WHERE notification_setting_id = p_notification_setting_id;
+    END IF;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTP` (IN `p_user_id` INT, IN `p_otp` VARCHAR(255), IN `p_otp_expiry_date` DATETIME, IN `p_remember_me` TINYINT(1))   BEGIN
@@ -4491,7 +4513,8 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2729, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-09-01 14:54:10'),
 (2730, 'notification_setting', 1, 'Notification setting created. <br/><br/>Notification Setting Name: test<br/>Notification Setting Description: test<br/>System Notification: 1', '1', '2023-09-01 16:01:53'),
 (2731, 'notification_setting', 1, 'Email Notification: 0 -> 1<br/>', '1', '2023-09-01 16:51:26'),
-(2732, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-09-01 16:51:26');
+(2732, 'notification_setting', 1, 'SMS Notification: 0 -> 1<br/>', '1', '2023-09-01 16:51:26'),
+(2733, 'users', 1, 'Last Connection Date: 2023-09-01 13:17:43 -> 2023-09-04 10:36:27<br/>', '1', '2023-09-04 10:36:27');
 
 -- --------------------------------------------------------
 
@@ -7550,7 +7573,7 @@ CREATE TABLE `notification_setting` (
 --
 
 INSERT INTO `notification_setting` (`notification_setting_id`, `notification_setting_name`, `notification_setting_description`, `system_notification`, `email_notification`, `sms_notification`, `system_notification_title`, `system_notification_message`, `email_notification_subject`, `email_notification_body`, `sms_notification_message`, `last_log_by`) VALUES
-(1, 'test', 'test', 1, 1, 1, NULL, NULL, NULL, NULL, NULL, 1);
+(1, 'test', 'test', 1, 1, 1, 'test', 'test', 'test', 'test', 'test', 1);
 
 --
 -- Triggers `notification_setting`
@@ -8362,7 +8385,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-01 13:17:43', '2023-12-30', NULL, NULL, 0, 0, 'VfKaNXeA57Q5IwrcaaFYeo9PeIJENk9Cf0ctDi3Lgzc%3D', '2023-08-30 08:45:29', 0, NULL, 0, NULL, 0, NULL, 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-04 10:36:27', '2023-12-30', NULL, NULL, 0, 0, 'VfKaNXeA57Q5IwrcaaFYeo9PeIJENk9Cf0ctDi3Lgzc%3D', '2023-08-30 08:45:29', 0, NULL, 0, NULL, 0, '4278ab182c2b42de0f05986beb638857', 1);
 
 --
 -- Triggers `users`
@@ -8679,7 +8702,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2733;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2734;
 
 --
 -- AUTO_INCREMENT for table `city`

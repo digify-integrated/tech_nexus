@@ -64,6 +64,36 @@ class NotificationSettingModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateNotificationSettingTemplate
+    # Description: Updates the notification channel template.
+    #
+    # Parameters:
+    # - $p_notification_setting_id (int): The notification setting ID.
+    # - $p_system_notification_title (string): The system notification title.
+    # - $p_system_notification_message (string): The system notification message.
+    # - $p_email_notification_subject (string): The email notification subject.
+    # - $p_email_notification_body (string): The email notification body.
+    # - $p_sms_notification_message (string): The sms notification message.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateNotificationSettingTemplate($p_notification_setting_id, $p_system_notification_title, $p_system_notification_message, $p_email_notification_subject, $p_email_notification_body, $p_sms_notification_message, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateNotificationSettingTemplate(:p_notification_setting_id, :p_system_notification_title, :p_system_notification_message, :p_email_notification_subject, :p_email_notification_body, :p_sms_notification_message, :p_last_log_by)');
+        $stmt->bindValue(':p_notification_setting_id', $p_notification_setting_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_system_notification_title', $p_system_notification_title, PDO::PARAM_STR);
+        $stmt->bindValue(':p_system_notification_message', $p_system_notification_message, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email_notification_subject', $p_email_notification_subject, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email_notification_body', $p_email_notification_body, PDO::PARAM_STR);
+        $stmt->bindValue(':p_sms_notification_message', $p_sms_notification_message, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 

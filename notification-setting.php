@@ -136,6 +136,7 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="./assets/js/plugins/tinymce/tinymce.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
