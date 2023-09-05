@@ -3454,3 +3454,132 @@ BEGIN
         WHERE notification_setting_id = p_notification_setting_id;
     END IF;
 END //
+
+/* Zoom API table */
+CREATE TABLE zoom_api(
+	zoom_api_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	zoom_api_name VARCHAR(100) NOT NULL,
+	zoom_api_description VARCHAR(200) NOT NULL,
+	api_key VARCHAR(1000) NOT NULL,
+	api_secret VARCHAR(1000) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX zoom_api_index_zoom_api_id ON zoom_api(zoom_api_id);
+
+CREATE TRIGGER zoom_api_trigger_update
+AFTER UPDATE ON zoom_api
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.zoom_api_name <> OLD.zoom_api_name THEN
+        SET audit_log = CONCAT(audit_log, "Zoom API Name: ", OLD.zoom_api_name, " -> ", NEW.zoom_api_name, "<br/>");
+    END IF;
+
+    IF NEW.zoom_api_description <> OLD.zoom_api_description THEN
+        SET audit_log = CONCAT(audit_log, "Zoom API Description: ", OLD.zoom_api_description, " -> ", NEW.zoom_api_description, "<br/>");
+    END IF;
+
+    IF NEW.api_key <> OLD.api_key THEN
+        SET audit_log = CONCAT(audit_log, "API Key: ", OLD.api_key, " -> ", NEW.api_key, "<br/>");
+    END IF;
+
+    IF NEW.api_secret <> OLD.api_secret THEN
+        SET audit_log = CONCAT(audit_log, "API Secret: ", OLD.api_secret, " -> ", NEW.api_secret, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('zoom_api', NEW.zoom_api_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER zoom_api_trigger_insert
+AFTER INSERT ON zoom_api
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Zoom API created. <br/>';
+
+    IF NEW.zoom_api_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Zoom API Name: ", NEW.zoom_api_name);
+    END IF;
+
+    IF NEW.zoom_api_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Zoom API Description: ", NEW.zoom_api_description);
+    END IF;
+
+    IF NEW.api_key <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>API Key: ", NEW.api_key);
+    END IF;
+
+    IF NEW.api_secret <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>API Secret: ", NEW.api_secret);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('zoom_api', NEW.zoom_api_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkZoomAPIExist (IN p_zoom_api_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM zoom_api
+    WHERE zoom_api_id = zoom_api_id;
+END //
+
+CREATE PROCEDURE insertZoomAPI(IN p_zoom_api_name VARCHAR(100), IN p_zoom_api_description VARCHAR(200), IN p_api_key VARCHAR(1000), IN p_api_secret VARCHAR(1000), IN p_last_log_by INT, OUT p_zoom_api_id INT)
+BEGIN
+    INSERT INTO zoom_api (zoom_api_name, zoom_api_description, api_key, api_secret, last_log_by) 
+	VALUES(p_zoom_api_name, p_zoom_api_description, p_api_key, p_api_secret, p_last_log_by);
+	
+    SET p_zoom_api_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateZoomAPI(IN p_zoom_api_id INT, IN p_zoom_api_name VARCHAR(100), IN p_zoom_api_description VARCHAR(200), IN p_api_key VARCHAR(1000), IN p_api_secret VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE zoom_api
+    SET zoom_api_name = p_zoom_api_name,
+    zoom_api_description = p_zoom_api_description,
+    api_key = p_api_key,
+    api_secret = p_api_secret,
+    last_log_by = p_last_log_by
+    WHERE zoom_api_id = p_zoom_api_id;
+END //
+
+CREATE PROCEDURE deleteZoomAPI(IN p_zoom_api_id INT)
+BEGIN
+	DELETE FROM zoom_api
+    WHERE zoom_api_id = p_zoom_api_id;
+END //
+
+CREATE PROCEDURE getZoomAPI(IN p_zoom_api_id INT)
+BEGIN
+	SELECT * FROM zoom_api
+    WHERE zoom_api_id = p_zoom_api_id;
+END //
+
+CREATE PROCEDURE duplicateZoomAPI(IN p_zoom_api_id INT, IN p_last_log_by INT, OUT p_new_zoom_api_id INT)
+BEGIN
+    DECLARE p_zoom_api_name VARCHAR(100);
+    DECLARE p_zoom_api_description VARCHAR(200);
+    DECLARE p_api_key VARCHAR(1000);
+    DECLARE p_api_secret VARCHAR(1000);
+    
+    SELECT zoom_api_name, zoom_api_description, api_key, api_secret
+    INTO p_zoom_api_name, p_zoom_api_description, p_api_key, p_api_secret
+    FROM zoom_api 
+    WHERE zoom_api_id = p_zoom_api_id;
+    
+    INSERT INTO zoom_api (zoom_api_name, zoom_api_description, api_key, api_secret, last_log_by) 
+    VALUES(p_zoom_api_name, p_zoom_api_description, p_api_key, p_api_secret, p_last_log_by);
+    
+    SET p_new_zoom_api_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateZoomAPITable()
+BEGIN
+	SELECT zoom_api_id, zoom_api_name, zoom_api_description
+    FROM zoom_api
+    ORDER BY zoom_api_id;
+END //

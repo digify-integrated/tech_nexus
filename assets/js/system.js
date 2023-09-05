@@ -69,14 +69,6 @@
                 });
             });
         }
-
-        $('.modal').on('shown.bs.modal', function () {
-            initTinyMCE();
-        });
-        
-        $('.modal').on('hidden.bs.modal', function () {
-            tinymce.remove('.tiny-mce');
-        });
         
         if($('#change-password-modal').length){
             $('#change-password-shortcut-form').validate({
@@ -247,9 +239,11 @@
 })(jQuery);
 
 function initTinyMCE(){
+    document.addEventListener('focusin', function (e) { if (e.target.closest('.tox-tinymce-aux, .moxman-window, .tam-assetmanager-root') !== null) { e.stopImmediatePropagation(); } });
+    
     tinymce.init({
-        height: '400',
-        selector: '#system_notification_message',
+        height: '300',
+        selector: '.tiny-mce',
         content_style: 'body { font-family: "Inter", sans-serif; }',
         menubar: false,
         toolbar: [

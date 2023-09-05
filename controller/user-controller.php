@@ -19,6 +19,7 @@ class UserController {
     private $fileExtensionModel;
     private $systemSettingModel;
     private $emailSettingModel;
+    private $notificationSettingModel;
     private $systemModel;
     private $securityModel;
 
@@ -36,19 +37,21 @@ class UserController {
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param EmailSettingModel $emailSettingModel     The EmailSettingModel instance for email setting related operations.
+    # - @param NotificationSettingModel $notificationSettingModel     The NotificationSettingModel instance for notification setting related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -1803,15 +1806,25 @@ class UserController {
     #
     # -------------------------------------------------------------
     public function sendOTP($email, $otp) {
-        $message = file_get_contents('../email-template/otp-email.html');
-        $message = str_replace('[OTP CODE]', $otp, $message);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'];
+        $mailFromEmail = $emailSetting['mail_from_email'];
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(1);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'];
+        $emailBody = $notificationSettingDetails['email_notification_body'];
+        $emailBody = str_replace('{OTP_CODE}', $otp, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
     
         $mailer = new PHPMailer\PHPMailer\PHPMailer();
         $this->configureSMTP($mailer);
         
-        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
-        $mailer->Subject = 'Login OTP - Secure Access to Your Account';
+        $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     
         if ($mailer->send()) {
@@ -1838,15 +1851,28 @@ class UserController {
     #
     # -------------------------------------------------------------
     public function sendPasswordReset($email, $userID, $resetToken) {
-        $message = file_get_contents('../email-template/password-reset-email.html');
-        $message = str_replace('[RESET LINK]', 'http://localhost/tech_nexus/password-reset.php?id=' . $userID .'&token=' . $resetToken, $message);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'];
+        $mailFromEmail = $emailSetting['mail_from_email'];
+
+        $systemSettingDetails = $this->systemSettingModel->getSystemSetting(3);
+        $defaultForgotPasswordLink = $systemSettingDetails['value'];
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(2);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'];
+        $emailBody = $notificationSettingDetails['email_notification_body'];
+        $emailBody = str_replace('{RESET_LINK}', $defaultForgotPasswordLink . $userID .'&token=' . $resetToken, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
     
         $mailer = new PHPMailer\PHPMailer\PHPMailer();
         $this->configureSMTP($mailer);
         
-        $mailer->setFrom('encore-noreply@encorefinancials.com', 'Encore Integrated Systems');
+        $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
-        $mailer->Subject = 'Password Reset Request - Action Required';
+        $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     
         if ($mailer->send()) {
@@ -1905,11 +1931,12 @@ require_once '../model/system-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/email-setting-model.php';
+require_once '../model/notification-setting-model.php';
 require_once '../model/file-extension-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

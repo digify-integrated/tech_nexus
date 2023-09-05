@@ -263,7 +263,7 @@ class NotificationSettingController {
         $userID = $_SESSION['user_id'];
         $notificationSettingID = htmlspecialchars($_POST['notification_setting_id'], ENT_QUOTES, 'UTF-8');
         $emailNotificationSubject = htmlspecialchars($_POST['email_notification_subject'], ENT_QUOTES, 'UTF-8');
-        $emailNotificationBody = htmlspecialchars($_POST['email_notification_body'], ENT_QUOTES, 'UTF-8');
+        $emailNotificationBody = $_POST['email_notification_body'];
     
         $user = $this->userModel->getUserByID($userID);
     

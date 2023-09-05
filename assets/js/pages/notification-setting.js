@@ -80,16 +80,19 @@
             $(document).on('click','#update-system-notification-template',function() {   
                 $('#update-system-notification-template-modal').modal('show');
                 resetModalForm("update-system-notification-template-form");
+                displayDetails('get system notification template details');
             });
 
             $(document).on('click','#update-email-notification-template',function() {   
                 $('#update-email-notification-template-modal').modal('show');
                 resetModalForm("update-email-notification-template-form");
+                displayDetails('get email notification template details');
             });
 
             $(document).on('click','#update-sms-notification-template',function() {   
                 $('#update-sms-notification-template-modal').modal('show');
                 resetModalForm("update-sms-notification-template-form");
+                displayDetails('get sms notification template details');
             });
         }
 
@@ -910,8 +913,8 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#email_notification_subject').val(response.emailSettingSubject);
-                        $('#email_notification_message').val(response.emailSettingBody);
+                        $('#email_notification_subject').val(response.emailNotificationSubject);
+                        tinymce.get('email_notification_body').setContent(response.emailNotificationBody)
                     } 
                     else {
                         if(response.isInactive){
@@ -947,7 +950,7 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#sms_notification_message').val(response.smsSettingBody);
+                        $('#sms_notification_message').val(response.smsNotificationMessage);
                     } 
                     else {
                         if(response.isInactive){

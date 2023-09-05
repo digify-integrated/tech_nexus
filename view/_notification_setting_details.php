@@ -141,7 +141,7 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label" for="system_notification_message">Message <span class="text-danger">*</span></label>
-                        <textarea class="form-control tiny-mce" id="system_notification_message" name="system_notification_message" maxlength="200" rows="5"></textarea>
+                        <textarea class="form-control" id="system_notification_message" name="system_notification_message" maxlength="200" rows="5"></textarea>
                       </div>
                     </form>
                   </div>
@@ -167,7 +167,7 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label" for="email_notification_body">Body <span class="text-danger">*</span></label>
-                        <textarea id="email_notification_body" name="email_notification_body" class="tox-target"></textarea>
+                        <textarea id="email_notification_body" name="email_notification_body" class="tox-target tiny-mce"></textarea>
                       </div>
                     </form>
                   </div>
