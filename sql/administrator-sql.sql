@@ -3583,3 +3583,308 @@ BEGIN
     FROM zoom_api
     ORDER BY zoom_api_id;
 END //
+
+/* Branch table */
+CREATE TABLE branch(
+	branch_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	branch_name VARCHAR(100) NOT NULL,
+	address VARCHAR(1000) NOT NULL,
+	city_id INT NOT NULL,
+    phone VARCHAR(20),
+	mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+	website VARCHAR(500),
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX branch_index_branch_id ON branch(branch_id);
+
+CREATE TRIGGER branch_trigger_update
+AFTER UPDATE ON branch
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.branch_name <> OLD.branch_name THEN
+        SET audit_log = CONCAT(audit_log, "Branch Name: ", OLD.branch_name, " -> ", NEW.branch_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_id <> OLD.city_id THEN
+        SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+
+    IF NEW.website <> OLD.website THEN
+        SET audit_log = CONCAT(audit_log, "Website: ", OLD.website, " -> ", NEW.website, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('branch', NEW.branch_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER branch_trigger_insert
+AFTER INSERT ON branch
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Branch created. <br/>';
+
+    IF NEW.branch_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Branch Name: ", NEW.branch_name);
+    END IF;
+
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    IF NEW.city_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>City ID: ", NEW.city_id);
+    END IF;
+
+    IF NEW.phone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Phone: ", NEW.phone);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    IF NEW.website <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Website: ", NEW.website);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('branch', NEW.branch_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkBranchExist (IN p_branch_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM branch
+    WHERE branch_id = p_branch_id;
+END //
+
+CREATE PROCEDURE insertBranch(IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT, OUT p_branch_id INT)
+BEGIN
+    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
+	VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+	
+    SET p_branch_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBranch(IN p_branch_id INT, IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE branch
+    SET branch_name = p_branch_name,
+    branch_name = p_branch_name,
+    address = p_address,
+    city_id = p_city_id,
+    phone = p_phone,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    website = p_website,
+    last_log_by = p_last_log_by
+    WHERE branch_id = p_branch_id;
+END //
+
+CREATE PROCEDURE deleteBranch(IN p_branch_id INT)
+BEGIN
+	DELETE FROM branch
+    WHERE branch_id = p_branch_id;
+END //
+
+CREATE PROCEDURE getBranch(IN p_branch_id INT)
+BEGIN
+	SELECT * FROM branch
+    WHERE branch_id = p_branch_id;
+END //
+
+CREATE PROCEDURE duplicateBranch(IN p_branch_id INT, IN p_last_log_by INT, OUT p_new_branch_id INT)
+BEGIN
+    DECLARE p_branch_name VARCHAR(100);
+    DECLARE p_address VARCHAR(1000);
+    DECLARE p_city_id INT;
+    DECLARE p_phone VARCHAR(20);
+    DECLARE p_mobile VARCHAR(20);
+    DECLARE p_telephone VARCHAR(20);
+    DECLARE p_email VARCHAR(100);
+    DECLARE p_website VARCHAR(500);
+    
+    SELECT branch_name, address, city_id, phone, mobile, telephone, email, website
+    INTO p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website
+    FROM branch 
+    WHERE branch_id = p_branch_id;
+    
+    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
+    VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+    
+    SET p_new_branch_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBranchTable()
+BEGIN
+    SELECT branch_id, branch_name, address, city_id
+    FROM branch
+    ORDER BY branch_id;
+END;
+
+CREATE PROCEDURE generateBranchOptions()
+BEGIN
+	SELECT branch_id, branch_name FROM branch
+	ORDER BY branch_name;
+END //
+
+/* Department table */
+CREATE TABLE department(
+	department_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	department_name VARCHAR(100) NOT NULL,
+	parent_department INT,
+	manager INT,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX department_index_department_id ON department(department_id);
+
+CREATE TRIGGER department_trigger_update
+AFTER UPDATE ON department
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.department_name <> OLD.department_name THEN
+        SET audit_log = CONCAT(audit_log, "Department Name: ", OLD.department_name, " -> ", NEW.department_name, "<br/>");
+    END IF;
+
+    IF NEW.parent_department <> OLD.parent_department THEN
+        SET audit_log = CONCAT(audit_log, "Parent Department: ", OLD.parent_department, " -> ", NEW.parent_department, "<br/>");
+    END IF;
+
+    IF NEW.manager <> OLD.manager THEN
+        SET audit_log = CONCAT(audit_log, "Manager: ", OLD.manager, " -> ", NEW.manager, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER department_trigger_insert
+AFTER INSERT ON department
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Department created. <br/>';
+
+    IF NEW.department_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department Name: ", NEW.department_name);
+    END IF;
+
+    IF NEW.parent_department <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parent Department: ", NEW.parent_department);
+    END IF;
+
+    IF NEW.manager <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Manager: ", NEW.manager);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkDepartmentExist (IN p_department_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM department
+    WHERE department_id = p_department_id;
+END //
+
+CREATE PROCEDURE insertDepartment(IN p_department_name VARCHAR(100), IN p_parent_department INT, IN p_manager INT, IN p_last_log_by INT, OUT p_department_id INT)
+BEGIN
+    INSERT INTO department (department_name, parent_department, manager, last_log_by) 
+	VALUES(p_department_name, p_parent_department, p_manager, p_last_log_by);
+	
+    SET p_department_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateDepartment(IN p_department_id INT, IN p_department_name VARCHAR(100), IN p_parent_department INT, IN p_manager INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE department
+    SET department_name = p_department_name,
+    department_name = p_department_name,
+    parent_department = p_parent_department,
+    manager = p_manager,
+    last_log_by = p_last_log_by
+    WHERE department_id = p_department_id;
+END //
+
+CREATE PROCEDURE deleteDepartment(IN p_department_id INT)
+BEGIN
+	DELETE FROM department
+    WHERE department_id = p_department_id;
+END //
+
+CREATE PROCEDURE getDepartment(IN p_department_id INT)
+BEGIN
+	SELECT * FROM department
+    WHERE department_id = p_department_id;
+END //
+
+CREATE PROCEDURE duplicateDepartment(IN p_department_id INT, IN p_last_log_by INT, OUT p_new_department_id INT)
+BEGIN
+    DECLARE p_department_name VARCHAR(100);
+    DECLARE p_parent_department INT;
+    DECLARE p_manager INT;
+    
+    SELECT department_name, parent_department, Manager
+    INTO p_department_name, p_parent_department, p_manager
+    FROM department 
+    WHERE department_id = p_department_id;
+    
+    INSERT INTO department (department_name, parent_department, Manager, last_log_by) 
+    VALUES(p_department_name, p_parent_department, p_manager, p_last_log_by);
+    
+    SET p_new_department_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateDepartmentTable()
+BEGIN
+    SELECT department_id, department_name, manager, parent_department
+    FROM department
+    ORDER BY department_id;
+END;
+
+CREATE PROCEDURE generateDepartmentOptions()
+BEGIN
+	SELECT department_id, department_name FROM department
+	ORDER BY department_name;
+END //

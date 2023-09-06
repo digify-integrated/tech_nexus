@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 05, 2023 at 11:39 AM
+-- Generation Time: Sep 06, 2023 at 11:34 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -58,6 +58,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT,
     ORDER BY mi.order_sequence;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBranchExist` (IN `p_branch_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM branch
+    WHERE branch_id = p_branch_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCityExist` (IN `p_city_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM city
@@ -80,6 +86,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCurrencyExist` (IN `p_currency
 	SELECT COUNT(*) AS total
     FROM currency
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkDepartmentExist` (IN `p_department_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM department
+    WHERE department_id = p_department_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkEmailSettingExist` (IN `p_email_setting_id` INT)   BEGIN
@@ -260,6 +272,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllSystemActionRoleAccess` (I
     WHERE system_action_id = p_system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBranch` (IN `p_branch_id` INT)   BEGIN
+	DELETE FROM branch
+    WHERE branch_id = p_branch_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCity` (IN `p_city_id` INT)   BEGIN
 	DELETE FROM city
     WHERE city_id = p_city_id;
@@ -278,6 +295,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCurrency` (IN `p_currency_id` INT)   BEGIN
 	DELETE FROM currency
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteDepartment` (IN `p_department_id` INT)   BEGIN
+	DELETE FROM department
+    WHERE department_id = p_department_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
@@ -421,6 +443,27 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteZoomAPI` (IN `p_zoom_api_id` 
     WHERE zoom_api_id = p_zoom_api_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBranch` (IN `p_branch_id` INT, IN `p_last_log_by` INT, OUT `p_new_branch_id` INT)   BEGIN
+    DECLARE p_branch_name VARCHAR(100);
+    DECLARE p_address VARCHAR(1000);
+    DECLARE p_city_id INT;
+    DECLARE p_phone VARCHAR(20);
+    DECLARE p_mobile VARCHAR(20);
+    DECLARE p_telephone VARCHAR(20);
+    DECLARE p_email VARCHAR(100);
+    DECLARE p_website VARCHAR(500);
+    
+    SELECT branch_name, address, city_id, phone, mobile, telephone, email, website
+    INTO p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website
+    FROM branch 
+    WHERE branch_id = p_branch_id;
+    
+    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
+    VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+    
+    SET p_new_branch_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCity` (IN `p_city_id` INT, IN `p_last_log_by` INT, OUT `p_new_city_id` INT)   BEGIN
     DECLARE p_city_name VARCHAR(100);
     DECLARE p_state_id INT;
@@ -489,6 +532,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCurrency` (IN `p_currency_
     VALUES(p_currency_name, p_symbol, p_shorthand, p_last_log_by);
     
     SET p_new_currency_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateDepartment` (IN `p_department_id` INT, IN `p_last_log_by` INT, OUT `p_new_department_id` INT)   BEGIN
+    DECLARE p_department_name VARCHAR(100);
+    DECLARE p_parent_department INT;
+    DECLARE p_manager INT;
+    
+    SELECT department_name, parent_department, Manager
+    INTO p_department_name, p_parent_department, p_manager
+    FROM department 
+    WHERE department_id = p_department_id;
+    
+    INSERT INTO department (department_name, parent_department, Manager, last_log_by) 
+    VALUES(p_department_name, p_parent_department, p_manager, p_last_log_by);
+    
+    SET p_new_department_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateEmailSetting` (IN `p_email_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_email_setting_id` INT)   BEGIN
@@ -767,6 +826,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (I
     ORDER BY role_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBranchOptions` ()   BEGIN
+	SELECT branch_id, branch_name FROM branch
+	ORDER BY branch_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBranchTable` ()   BEGIN
+    SELECT branch_id, branch_name, address, city_id
+    FROM branch
+    ORDER BY branch_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCityOptions` ()   BEGIN
 	SELECT 
         ct.city_id AS city_id, 
@@ -833,6 +903,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCurrencyTable` ()   BEGIN
     SELECT currency_id, currency_name, symbol, shorthand
     FROM currency
     ORDER BY currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateDepartmentOptions` ()   BEGIN
+	SELECT department_id, department_name FROM department
+	ORDER BY department_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateDepartmentTable` ()   BEGIN
+    SELECT department_id, department_name, manager, parent_department
+    FROM department
+    ORDER BY department_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateEmailSettingTable` ()   BEGIN
@@ -1123,6 +1204,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateZoomAPITable` ()   BEGIN
     ORDER BY zoom_api_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getBranch` (IN `p_branch_id` INT)   BEGIN
+	SELECT * FROM branch
+    WHERE branch_id = p_branch_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCity` (IN `p_city_id` INT)   BEGIN
 	SELECT * FROM city
     WHERE city_id = p_city_id;
@@ -1141,6 +1227,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCurrency` (IN `p_currency_id` INT)   BEGIN
 	SELECT * FROM currency
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getDepartment` (IN `p_department_id` INT)   BEGIN
+	SELECT * FROM department
+    WHERE department_id = p_department_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
@@ -1250,6 +1341,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getZoomAPI` (IN `p_zoom_api_id` INT
     WHERE zoom_api_id = p_zoom_api_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBranch` (IN `p_branch_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT, OUT `p_branch_id` INT)   BEGIN
+    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
+	VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+	
+    SET p_branch_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCity` (IN `p_city_name` VARCHAR(100), IN `p_state_id` INT, IN `p_last_log_by` INT, OUT `p_city_id` INT)   BEGIN
     INSERT INTO city (city_name, state_id, last_log_by) 
 	VALUES(p_city_name, p_state_id, p_last_log_by);
@@ -1276,6 +1374,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCurrency` (IN `p_currency_nam
 	VALUES(p_currency_name, p_symbol, p_shorthand, p_last_log_by);
 	
     SET p_currency_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertDepartment` (IN `p_department_name` VARCHAR(100), IN `p_parent_department` INT, IN `p_manager` INT, IN `p_last_log_by` INT, OUT `p_department_id` INT)   BEGIN
+    INSERT INTO department (department_name, parent_department, manager, last_log_by) 
+	VALUES(p_department_name, p_parent_department, p_manager, p_last_log_by);
+	
+    SET p_department_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmailSetting` (IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_email_setting_id` INT)   BEGIN
@@ -1441,6 +1546,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateAccountLock` (IN `p_user_id` 
     WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBranch` (IN `p_branch_id` INT, IN `p_branch_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
+	UPDATE branch
+    SET branch_name = p_branch_name,
+    branch_name = p_branch_name,
+    address = p_address,
+    city_id = p_city_id,
+    phone = p_phone,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    website = p_website,
+    last_log_by = p_last_log_by
+    WHERE branch_id = p_branch_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCity` (IN `p_city_id` INT, IN `p_city_name` VARCHAR(100), IN `p_state_id` INT, IN `p_last_log_by` INT)   BEGIN
 	UPDATE city
     SET city_name = p_city_name,
@@ -1489,6 +1609,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCurrency` (IN `p_currency_id`
     shorthand = p_shorthand,
     last_log_by = p_last_log_by
     WHERE currency_id = p_currency_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateDepartment` (IN `p_department_id` INT, IN `p_department_name` VARCHAR(100), IN `p_parent_department` INT, IN `p_manager` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE department
+    SET department_name = p_department_name,
+    department_name = p_department_name,
+    parent_department = p_parent_department,
+    manager = p_manager,
+    last_log_by = p_last_log_by
+    WHERE department_id = p_department_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateEmailSetting` (IN `p_email_setting_id` INT, IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
@@ -4069,7 +4199,128 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2231, 'zoom_api', 1, 'Zoom API created. <br/><br/>Zoom API Name: test<br/>Zoom API Description: tes<br/>API Key: test<br/>API Secret: test', '1', '2023-09-05 14:13:52'),
 (2232, 'zoom_api', 1, 'Zoom API Name: test -> test2<br/>Zoom API Description: tes -> test2<br/>API Key: test -> test2<br/>API Secret: test -> test2<br/>', '1', '2023-09-05 14:13:57'),
 (2233, 'zoom_api', 2, 'Zoom API created. <br/><br/>Zoom API Name: test2<br/>Zoom API Description: test2<br/>API Key: test2<br/>API Secret: test2', '1', '2023-09-05 14:14:01'),
-(2234, 'zoom_api', 3, 'Zoom API created. <br/><br/>Zoom API Name: test2<br/>Zoom API Description: test2<br/>API Key: test2<br/>API Secret: test2', '1', '2023-09-05 14:14:05');
+(2234, 'zoom_api', 3, 'Zoom API created. <br/><br/>Zoom API Name: test2<br/>Zoom API Description: test2<br/>API Key: test2<br/>API Secret: test2', '1', '2023-09-05 14:14:05'),
+(2235, 'company', 1, 'Company created. <br/><br/>Company Name: test<br/>Address: test<br/>City ID: 523<br/>Currency ID: 1', '1', '2023-09-06 10:30:59'),
+(2236, 'menu_item', 25, 'Menu item created. <br/><br/>Menu Item Name: Configurations<br/>Menu Group ID: 3<br/>Menu Item Icon: settings<br/>Order Sequence: 20', '0', '2023-09-06 11:06:23'),
+(2237, 'menu_item', 26, 'Menu item created. <br/><br/>Menu Item Name: Branch<br/>Menu Group ID: 3<br/>URL: branch.php<br/>Parent ID: 25<br/>Order Sequence: 1', '0', '2023-09-06 11:06:23'),
+(2238, 'menu_item_access_right', 25, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1', '0', '2023-09-06 11:06:23'),
+(2239, 'menu_item_access_right', 26, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-06 11:06:23'),
+(2240, 'menu_item', 26, 'Menu Group ID: 3 -> 1<br/>', '0', '2023-09-06 11:06:55'),
+(2241, 'menu_item', 25, 'Menu Group ID: 3 -> 1<br/>', '0', '2023-09-06 11:06:59'),
+(2242, 'branch', 1, 'Branch created. <br/><br/>Branch Name: test<br/>Address: test<br/>City ID: 523', '1', '2023-09-06 11:31:39'),
+(2243, 'branch', 1, 'Phone:  -> tes<br/>Mobile:  -> tes<br/>Telephone:  -> tes<br/>Email:  -> tes<br/>Website:  -> test<br/>', '1', '2023-09-06 11:31:57'),
+(2244, 'branch', 2, 'Branch created. <br/><br/>Branch Name: test<br/>Address: test<br/>City ID: 523<br/>Phone: tes<br/>Mobile: tes<br/>Telephone: tes<br/>Email: tes<br/>Website: test', '1', '2023-09-06 11:32:07'),
+(2245, 'branch', 3, 'Branch created. <br/><br/>Branch Name: test<br/>Address: test<br/>City ID: 523<br/>Phone: tes<br/>Mobile: tes<br/>Telephone: tes<br/>Email: tes<br/>Website: test', '1', '2023-09-06 11:32:11'),
+(2246, 'menu_item', 27, 'Menu item created. <br/><br/>Menu Item Name: Department<br/>Menu Group ID: 1<br/>URL: department.php<br/>Parent ID: 25<br/>Order Sequence: 2', '0', '2023-09-06 11:36:26'),
+(2247, 'menu_item_access_right', 27, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-06 11:36:31'),
+(2248, 'department', 1, 'Department created. <br/><br/>Department Name: test', '1', '2023-09-06 17:34:25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branch`
+--
+
+CREATE TABLE `branch` (
+  `branch_id` int(10) UNSIGNED NOT NULL,
+  `branch_name` varchar(100) NOT NULL,
+  `address` varchar(1000) NOT NULL,
+  `city_id` int(11) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `mobile` varchar(20) DEFAULT NULL,
+  `telephone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `website` varchar(500) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `branch`
+--
+DELIMITER $$
+CREATE TRIGGER `branch_trigger_insert` AFTER INSERT ON `branch` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Branch created. <br/>';
+
+    IF NEW.branch_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Branch Name: ", NEW.branch_name);
+    END IF;
+
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    IF NEW.city_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>City ID: ", NEW.city_id);
+    END IF;
+
+    IF NEW.phone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Phone: ", NEW.phone);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    IF NEW.website <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Website: ", NEW.website);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('branch', NEW.branch_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `branch_trigger_update` AFTER UPDATE ON `branch` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.branch_name <> OLD.branch_name THEN
+        SET audit_log = CONCAT(audit_log, "Branch Name: ", OLD.branch_name, " -> ", NEW.branch_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_id <> OLD.city_id THEN
+        SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+
+    IF NEW.website <> OLD.website THEN
+        SET audit_log = CONCAT(audit_log, "Website: ", OLD.website, " -> ", NEW.website, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('branch', NEW.branch_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -5787,6 +6038,13 @@ CREATE TABLE `company` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `company`
+--
+
+INSERT INTO `company` (`company_id`, `company_name`, `company_logo`, `address`, `city_id`, `tax_id`, `currency_id`, `phone`, `mobile`, `telephone`, `email`, `website`, `last_log_by`) VALUES
+(1, 'test', NULL, 'test', 523, '', 3, '', '', '', '', '', 1);
+
+--
 -- Triggers `company`
 --
 DELIMITER $$
@@ -6277,6 +6535,75 @@ CREATE TRIGGER `currency_trigger_update` AFTER UPDATE ON `currency` FOR EACH ROW
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('currency', NEW.currency_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `department`
+--
+
+CREATE TABLE `department` (
+  `department_id` int(10) UNSIGNED NOT NULL,
+  `department_name` varchar(100) NOT NULL,
+  `parent_department` int(11) DEFAULT NULL,
+  `manager` int(11) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `department`
+--
+
+INSERT INTO `department` (`department_id`, `department_name`, `parent_department`, `manager`, `last_log_by`) VALUES
+(1, 'test', 0, 0, 1);
+
+--
+-- Triggers `department`
+--
+DELIMITER $$
+CREATE TRIGGER `department_trigger_insert` AFTER INSERT ON `department` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Department created. <br/>';
+
+    IF NEW.department_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department Name: ", NEW.department_name);
+    END IF;
+
+    IF NEW.parent_department <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parent Department: ", NEW.parent_department);
+    END IF;
+
+    IF NEW.manager <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Manager: ", NEW.manager);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `department_trigger_update` AFTER UPDATE ON `department` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.department_name <> OLD.department_name THEN
+        SET audit_log = CONCAT(audit_log, "Department Name: ", OLD.department_name, " -> ", NEW.department_name, "<br/>");
+    END IF;
+
+    IF NEW.parent_department <> OLD.parent_department THEN
+        SET audit_log = CONCAT(audit_log, "Parent Department: ", OLD.parent_department, " -> ", NEW.parent_department, "<br/>");
+    END IF;
+
+    IF NEW.manager <> OLD.manager THEN
+        SET audit_log = CONCAT(audit_log, "Manager: ", OLD.manager, " -> ", NEW.manager, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('department', NEW.department_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -6911,7 +7238,10 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (21, 'City', 3, 'city.php', 20, '', 1, 0),
 (22, 'Country', 3, 'country.php', 20, '', 2, 0),
 (23, 'Currency', 3, 'currency.php', 20, '', 3, 0),
-(24, 'State', 3, 'state.php', 20, '', 4, 0);
+(24, 'State', 3, 'state.php', 20, '', 4, 0),
+(25, 'Configurations', 1, '', 0, 'settings', 20, 0),
+(26, 'Branch', 1, 'branch.php', 25, '', 1, 0),
+(27, 'Department', 1, 'department.php', 25, '', 2, 0);
 
 --
 -- Triggers `menu_item`
@@ -7030,7 +7360,10 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (21, 1, 1, 1, 1, 1, 1, 0),
 (22, 1, 1, 1, 1, 1, 1, 0),
 (23, 1, 1, 1, 1, 1, 1, 0),
-(24, 1, 1, 1, 1, 1, 1, 0);
+(24, 1, 1, 1, 1, 1, 1, 0),
+(25, 1, 1, 0, 0, 0, 0, 0),
+(26, 1, 1, 1, 1, 1, 1, 0),
+(27, 1, 1, 1, 1, 1, 1, 0);
 
 --
 -- Triggers `menu_item_access_right`
@@ -7942,7 +8275,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-05 14:13:09', '2023-12-30', 'bhaKiibvtMhn08GSyOQzXHlB9Oot8hvFn%2FARBpJGWz8%3D', '2023-09-05 13:20:03', 0, 0, 'yINkaL392efEz2Iv%2Bo5f42VgbuQQ2gECuNDtSYMxndE%3D', '2023-09-05 14:17:55', 0, NULL, 0, NULL, 1, '00fc66689a8a1fb84d4e74c81f85f839', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', 'bhaKiibvtMhn08GSyOQzXHlB9Oot8hvFn%2FARBpJGWz8%3D', '2023-09-05 13:20:03', 0, 0, 'yINkaL392efEz2Iv%2Bo5f42VgbuQQ2gECuNDtSYMxndE%3D', '2023-09-05 14:17:55', 0, NULL, 0, NULL, 1, '00fc66689a8a1fb84d4e74c81f85f839', 1);
 
 --
 -- Triggers `users`
@@ -8165,6 +8498,13 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
+-- Indexes for table `branch`
+--
+ALTER TABLE `branch`
+  ADD PRIMARY KEY (`branch_id`),
+  ADD KEY `branch_index_branch_id` (`branch_id`);
+
+--
 -- Indexes for table `city`
 --
 ALTER TABLE `city`
@@ -8192,6 +8532,13 @@ ALTER TABLE `country`
 ALTER TABLE `currency`
   ADD PRIMARY KEY (`currency_id`),
   ADD KEY `currency_index_currency_id` (`currency_id`);
+
+--
+-- Indexes for table `department`
+--
+ALTER TABLE `department`
+  ADD PRIMARY KEY (`department_id`),
+  ADD KEY `department_index_department_id` (`department_id`);
 
 --
 -- Indexes for table `district`
@@ -8337,7 +8684,13 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2235;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2249;
+
+--
+-- AUTO_INCREMENT for table `branch`
+--
+ALTER TABLE `branch`
+  MODIFY `branch_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `city`
@@ -8349,7 +8702,7 @@ ALTER TABLE `city`
 -- AUTO_INCREMENT for table `company`
 --
 ALTER TABLE `company`
-  MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `country`
@@ -8362,6 +8715,12 @@ ALTER TABLE `country`
 --
 ALTER TABLE `currency`
   MODIFY `currency_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `department`
+--
+ALTER TABLE `department`
+  MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `district`
@@ -8403,7 +8762,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `notification_setting`
