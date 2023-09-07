@@ -87,9 +87,6 @@ class BranchController {
                 case 'duplicate branch':
                     $this->duplicateBranch();
                     break;
-                case 'change branch logo':
-                    $this->updateBranchLogo();
-                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;

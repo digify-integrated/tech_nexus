@@ -2,25 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#department-table').length){
-            departmentTable('#department-table');
+        if($('#job-position-table').length){
+            jobPositionTable('#job-position-table');
         }
 
-        if($('#department-form').length){
-            departmentForm();
+        if($('#job-position-form').length){
+            jobPositionForm();
         }
 
-        if($('#department-id').length){
-            displayDetails('get department details');
+        if($('#job-position-id').length){
+            displayDetails('get job position details');
         }
 
-        $(document).on('click','.delete-department',function() {
-            const department_id = $(this).data('department-id');
-            const transaction = 'delete department';
+        $(document).on('click','.delete-job-position',function() {
+            const job_position_id = $(this).data('job-position-id');
+            const transaction = 'delete job position';
     
             Swal.fire({
-                title: 'Confirm Department Deletion',
-                text: 'Are you sure you want to delete this department?',
+                title: 'Confirm Job Position Deletion',
+                text: 'Are you sure you want to delete this job position?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/department-controller.php',
+                        url: 'controller/job-position-controller.php',
                         dataType: 'json',
                         data: {
-                            department_id : department_id, 
+                            job_position_id : job_position_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Department Success', 'The department has been deleted successfully.', 'success');
-                                reloadDatatable('#department-table');
+                                showNotification('Delete Job Position Success', 'The job position has been deleted successfully.', 'success');
+                                reloadDatatable('#job-position-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Department Error', 'The department does not exist.', 'danger');
-                                    reloadDatatable('#department-table');
+                                    showNotification('Delete Job Position Error', 'The job position does not exist.', 'danger');
+                                    reloadDatatable('#job-position-table');
                                 }
                                 else {
-                                    showNotification('Delete Department Error', response.message, 'danger');
+                                    showNotification('Delete Job Position Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-department',function() {
-            let department_id = [];
-            const transaction = 'delete multiple department';
+        $(document).on('click','#delete-job-position',function() {
+            let job_position_id = [];
+            const transaction = 'delete multiple job position';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    department_id.push(element.value);
+                    job_position_id.push(element.value);
                 }
             });
     
-            if(department_id.length > 0){
+            if(job_position_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Departmentes Deletion',
-                    text: 'Are you sure you want to delete these departmentes?',
+                    title: 'Confirm Multiple Job Positions Deletion',
+                    text: 'Are you sure you want to delete these job positions?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/department-controller.php',
+                            url: 'controller/job-position-controller.php',
                             dataType: 'json',
                             data: {
-                                department_id: department_id,
+                                job_position_id: job_position_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Department Success', 'The selected departmentes have been deleted successfully.', 'success');
-                                        reloadDatatable('#department-table');
+                                    showNotification('Delete Job Position Success', 'The selected job positions have been deleted successfully.', 'success');
+                                        reloadDatatable('#job-position-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Department Error', response.message, 'danger');
+                                        showNotification('Delete Job Position Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Department Error', 'Please select the departmentes you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Job Position Error', 'Please select the job positions you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-department-details',function() {
-            const department_id = $('#department-id').text();
-            const transaction = 'delete department';
+        $(document).on('click','#delete-job-position-details',function() {
+            const job_position_id = $('#job-position-id').text();
+            const transaction = 'delete job position';
     
             Swal.fire({
-                title: 'Confirm Department Deletion',
-                text: 'Are you sure you want to delete this department?',
+                title: 'Confirm Job Position Deletion',
+                text: 'Are you sure you want to delete this job position?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/department-controller.php',
+                        url: 'controller/job-position-controller.php',
                         dataType: 'json',
                         data: {
-                            department_id : department_id, 
+                            job_position_id : job_position_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Department Success', 'The department has been deleted successfully.', 'success');
-                                window.location = 'department.php';
+                                setNotification('Deleted Job Position Success', 'The job position has been deleted successfully.', 'success');
+                                window.location = 'job-position.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Department Error', response.message, 'danger');
+                                    showNotification('Delete Job Position Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,22 +193,22 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('department.php');
+            discardCreate('job-position.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get department details');
+            displayDetails('get job position details');
 
             enableForm();
         });
 
-        $(document).on('click','#duplicate-department',function() {
-            const department_id = $('#department-id').text();
-            const transaction = 'duplicate department';
+        $(document).on('click','#duplicate-job-position',function() {
+            const job_position_id = $('#job-position-id').text();
+            const transaction = 'duplicate job position';
     
             Swal.fire({
-                title: 'Confirm Department Duplication',
-                text: 'Are you sure you want to duplicate this department?',
+                title: 'Confirm Job Position Duplication',
+                text: 'Are you sure you want to duplicate this job position?',
                 icon: 'info',
                 showCancelButton: !0,
                 confirmButtonText: 'Duplicate',
@@ -220,16 +220,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/department-controller.php',
+                        url: 'controller/job-position-controller.php',
                         dataType: 'json',
                         data: {
-                            department_id : department_id, 
+                            job_position_id : job_position_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate Department Success', 'The department has been duplicated successfully.', 'success');
-                                window.location = 'department.php?id=' + response.departmentID;
+                                setNotification('Duplicate Job Position Success', 'The job position has been duplicated successfully.', 'success');
+                                window.location = 'job-position.php?id=' + response.jobPositionID;
                             }
                             else {
                                 if (response.isInactive) {
@@ -237,11 +237,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate Department Error', 'The department does not exist.', 'danger');
-                                    reloadDatatable('#department-table');
+                                    showNotification('Duplicate Job Position Error', 'The job position does not exist.', 'danger');
+                                    reloadDatatable('#job-position-table');
                                 }
                                 else {
-                                    showNotification('Duplicate Department Error', response.message, 'danger');
+                                    showNotification('Duplicate Job Position Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -257,39 +257,43 @@
                 }
             });
         });
+
+        $(document).on('click','#filter-datatable',function() {
+            jobPositionTable('#job-position-table');
+        });
     });
 })(jQuery);
 
-function departmentTable(datatable_name, buttons = false, show_all = false){
-    const type = 'department table';
+function jobPositionTable(datatable_name, buttons = false, show_all = false){
+    const type = 'job position table';
+    var filter_recruitment_status = $('#filter_recruitment_status').val();
+    var filter_department = $('#filter_department').val();
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
+        { 'data' : 'JOB_POSITION_NAME' },
         { 'data' : 'DEPARTMENT_NAME' },
-        { 'data' : 'PARENT_DEPARTMENT' },
-        { 'data' : 'MANAGER' },
-        { 'data' : 'EMPLOYEES' },
+        { 'data' : 'RECRUITMENT_STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '44%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
         { 'width': '20%', 'aTargets': 3 },
-        { 'width': '14%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_department_generation.php',
+            'url' : 'view/_job_position_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type},
+            'data': {'type' : type, 'filter_recruitment_status' : filter_recruitment_status, 'filter_department' : filter_department},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -321,16 +325,16 @@ function departmentTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function departmentForm(){
-    $('#department-form').validate({
+function jobPositionForm(){
+    $('#job-position-form').validate({
         rules: {
-            department_name: {
+            job_position_name: {
                 required: true
             }
         },
         messages: {
-            department_name: {
-                required: 'Please enter the department name'
+            job_position_name: {
+                required: 'Please enter the job position name'
             }
         },
         errorPlacement: function (error, element) {
@@ -363,24 +367,24 @@ function departmentForm(){
             }
         },
         submitHandler: function(form) {
-            const department_id = $('#department-id').text();
-            const transaction = 'save department';
+            const job_position_id = $('#job-position-id').text();
+            const transaction = 'save job position';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/department-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&department_id=' + department_id,
+                url: 'controller/job-position-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&job_position_id=' + job_position_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Department Success' : 'Update Department Success';
-                        const notificationDescription = response.insertRecord ? 'The department has been inserted successfully.' : 'The department has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Job Position Success' : 'Update Job Position Success';
+                        const notificationDescription = response.insertRecord ? 'The job position has been inserted successfully.' : 'The job position has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'department.php?id=' + response.departmentID;
+                        window.location = 'job-position.php?id=' + response.jobPositionID;
                     }
                     else {
                         if (response.isInactive) {
@@ -411,38 +415,38 @@ function departmentForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get department details':
-            const department_id = $('#department-id').text();
+        case 'get job position details':
+            const job_position_id = $('#job-position-id').text();
             
             $.ajax({
-                url: 'controller/department-controller.php',
+                url: 'controller/job-position-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    department_id : department_id, 
+                    job_position_id : job_position_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('department-form');
+                    resetModalForm('job-position-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#department_id').val(department_id);
-                        $('#department_name').val(response.departmentName);
+                        $('#job_position_id').val(job_position_id);
+                        $('#job_position_name').val(response.jobPositionName);
+                        $('#expected_new_employees').val(response.expectedNewEmployees);
 
-                        checkOptionExist('#parent_department', response.parentDepartment, '');
-                        checkOptionExist('#manager', null, '');
+                        checkOptionExist('#department_id', response.departmentID, '');
 
-                        $('#department_name_label').text(response.departmentName);
-                        $('#parent_department_label').text(response.parentDepartmentName);
-                        $('#manager_label').text(null);
+                        $('#job_position_name_label').text(response.jobPositionName);
+                        $('#department_id_label').text(response.departmentName);
+                        $('#expected_new_employees_label').text(response.expectedNewEmployees);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Department Details Error', response.message, 'danger');
+                            showNotification('Get Job Position Details Error', response.message, 'danger');
                         }
                     }
                 },

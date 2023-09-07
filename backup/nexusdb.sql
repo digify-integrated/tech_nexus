@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 06, 2023 at 11:34 AM
+-- Generation Time: Sep 07, 2023 at 12:01 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -116,6 +116,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkInterfaceSettingExist` (IN `p_
 	SELECT COUNT(*) AS total
     FROM interface_setting
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkJobPositionExist` (IN `p_job_position_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_position
+    WHERE job_position_id = p_job_position_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuGroupExist` (IN `p_menu_group_id` INT)   BEGIN
@@ -320,6 +326,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteInterfaceSetting` (IN `p_interface_setting_id` INT)   BEGIN
 	DELETE FROM interface_setting
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteJobPosition` (IN `p_job_position_id` INT)   BEGIN
+	DELETE FROM job_position
+    WHERE job_position_id = p_job_position_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedCountry` (IN `p_country_id` INT)   BEGIN
@@ -617,6 +628,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateInterfaceSetting` (IN `p_i
     VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
     
     SET p_new_interface_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateJobPosition` (IN `p_job_position_id` INT, IN `p_last_log_by` INT, OUT `p_new_job_position_id` INT)   BEGIN
+    DECLARE p_job_position_name VARCHAR(100);
+    DECLARE p_recruitment_status TINYINT(1);
+    DECLARE p_department_id INT;
+    DECLARE p_expected_new_employees INT;
+    
+    SELECT job_position_name, recruitment_status, department_id, expected_new_employees
+    INTO p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees
+    FROM job_position 
+    WHERE job_position_id = p_job_position_id;
+    
+    INSERT INTO job_position (job_position_name, recruitment_status, department_id, expected_new_employees, last_log_by) 
+    VALUES(p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees, p_last_log_by);
+    
+    SET p_new_job_position_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuGroup` (IN `p_menu_group_id` INT, IN `p_last_log_by` INT, OUT `p_new_menu_group_id` INT)   BEGIN
@@ -957,6 +985,41 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateInterfaceSettingTable` ()  
     ORDER BY interface_setting_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobPositionOptions` ()   BEGIN
+	SELECT job_position_id, job_position_name FROM job_position
+	ORDER BY job_position_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobPositionTable` (IN `p_filter_recruitment_status` ENUM('active','inactive','all'), IN `p_department_id` INT)   BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT job_position_id, job_position_name, recruitment_status, department_id FROM job_position';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_filter_recruitment_status <> "" OR p_filter_recruitment_status = "all" THEN
+        IF p_filter_recruitment_status = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' AND recruitment_status = 1');
+        ELSEIF p_filter_recruitment_status = 'inactive' THEN
+            SET conditionList = CONCAT(conditionList, ' AND recruitment_status = 0');
+        END IF;
+    END IF;
+
+    IF p_department_id <> "" THEN
+        SET conditionList = CONCAT(conditionList, ' AND department_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_department_id));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' ORDER BY job_position_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateLogNotes` (IN `p_table_name` VARCHAR(255), IN `p_reference_id` INT)   BEGIN
 	SELECT log, changed_by, changed_at FROM audit_log
     WHERE table_name = p_table_name AND reference_id = p_reference_id 
@@ -1254,6 +1317,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getInterfaceSetting` (IN `p_interfa
     WHERE interface_setting_id = p_interface_setting_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getJobPosition` (IN `p_job_position_id` INT)   BEGIN
+	SELECT * FROM job_position
+    WHERE job_position_id = p_job_position_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
@@ -1409,6 +1477,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_inte
 	VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
 	
     SET p_interface_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertJobPosition` (IN `p_job_position_name` VARCHAR(100), IN `p_department_id` INT, IN `p_expected_new_employees` INT, IN `p_last_log_by` INT, OUT `p_job_position_id` INT)   BEGIN
+    INSERT INTO job_position (job_position_name, department_id, expected_new_employees, last_log_by) 
+	VALUES(p_job_position_name, p_department_id, p_expected_new_employees, p_last_log_by);
+	
+    SET p_job_position_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuGroup` (IN `p_menu_group_name` VARCHAR(100), IN `p_order_sequence` TINYINT(10), IN `p_last_log_by` INT, OUT `p_menu_group_id` INT)   BEGIN
@@ -1671,6 +1746,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSettingValue` (IN `p
     SET value = p_value,
     last_log_by = p_last_log_by
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobPosition` (IN `p_job_position_id` INT, IN `p_job_position_name` VARCHAR(100), IN `p_department_id` INT, IN `p_expected_new_employees` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE job_position
+    SET job_position_name = p_job_position_name,
+    department_id = p_department_id,
+    expected_new_employees = p_expected_new_employees,
+    last_log_by = p_last_log_by
+    WHERE job_position_id = p_job_position_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateLastConnection` (IN `p_user_id` INT, IN `p_last_connection_date` DATETIME)   BEGIN
@@ -4213,7 +4297,58 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2245, 'branch', 3, 'Branch created. <br/><br/>Branch Name: test<br/>Address: test<br/>City ID: 523<br/>Phone: tes<br/>Mobile: tes<br/>Telephone: tes<br/>Email: tes<br/>Website: test', '1', '2023-09-06 11:32:11'),
 (2246, 'menu_item', 27, 'Menu item created. <br/><br/>Menu Item Name: Department<br/>Menu Group ID: 1<br/>URL: department.php<br/>Parent ID: 25<br/>Order Sequence: 2', '0', '2023-09-06 11:36:26'),
 (2247, 'menu_item_access_right', 27, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-06 11:36:31'),
-(2248, 'department', 1, 'Department created. <br/><br/>Department Name: test', '1', '2023-09-06 17:34:25');
+(2248, 'department', 1, 'Department created. <br/><br/>Department Name: test', '1', '2023-09-06 17:34:25'),
+(2249, 'department', 2, 'Department created. <br/><br/>Department Name: test', '1', '2023-09-07 09:56:13'),
+(2250, 'department', 3, 'Department created. <br/><br/>Department Name: test', '1', '2023-09-07 09:56:16'),
+(2251, 'department', 3, 'Department Name: test -> test2<br/>', '1', '2023-09-07 09:57:40'),
+(2252, 'department', 3, 'Parent Department: 0 -> 2<br/>', '1', '2023-09-07 09:58:37'),
+(2253, 'menu_item', 28, 'Menu item created. <br/><br/>Menu Item Name: Job Position<br/>Menu Group ID: 1<br/>URL: job-position.php<br/>Parent ID: 25<br/>Order Sequence: 3', '0', '2023-09-07 10:26:18'),
+(2254, 'menu_item_access_right', 28, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-07 10:26:18'),
+(2255, 'system_action', 18, 'System action created. <br/><br/>System Action Name: Add Job Position Responsibility', '0', '2023-09-07 11:13:44'),
+(2256, 'system_action', 19, 'System action created. <br/><br/>System Action Name: Update Job Position Responsibility', '0', '2023-09-07 11:13:44'),
+(2257, 'system_action', 20, 'System action created. <br/><br/>System Action Name: Delete Job Position Responsibility', '0', '2023-09-07 11:13:44'),
+(2258, 'system_action', 21, 'System action created. <br/><br/>System Action Name: Add Job Position Requirement', '0', '2023-09-07 11:13:44'),
+(2259, 'system_action', 22, 'System action created. <br/><br/>System Action Name: Update Job Position Requirement', '0', '2023-09-07 11:13:44'),
+(2260, 'system_action', 23, 'System action created. <br/><br/>System Action Name: Delete Job Position Requirement', '0', '2023-09-07 11:13:44'),
+(2261, 'system_action', 24, 'System action created. <br/><br/>System Action Name: Add Job Position Qualification', '0', '2023-09-07 11:13:44'),
+(2262, 'system_action', 25, 'System action created. <br/><br/>System Action Name: Update Job Position Qualification', '0', '2023-09-07 11:13:44'),
+(2263, 'system_action', 26, 'System action created. <br/><br/>System Action Name: Delete Job Position Qualification', '0', '2023-09-07 11:13:44'),
+(2264, 'system_action', 27, 'System action created. <br/><br/>System Action Name: Add Job Position Attachment', '0', '2023-09-07 11:13:44'),
+(2265, 'system_action', 28, 'System action created. <br/><br/>System Action Name: Update Job Position Attachment', '0', '2023-09-07 11:13:44'),
+(2266, 'system_action', 29, 'System action created. <br/><br/>System Action Name: Delete Job Position Attachment', '0', '2023-09-07 11:13:45'),
+(2267, 'system_action_access_rights', 18, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2268, 'system_action_access_rights', 19, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2269, 'system_action_access_rights', 20, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2270, 'system_action_access_rights', 21, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2271, 'system_action_access_rights', 22, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2272, 'system_action_access_rights', 23, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2273, 'system_action_access_rights', 24, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2274, 'system_action_access_rights', 25, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2275, 'system_action_access_rights', 26, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2276, 'system_action_access_rights', 27, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2277, 'system_action_access_rights', 28, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2278, 'system_action_access_rights', 29, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-07 11:13:45'),
+(2279, 'upload_setting', 4, 'Upload setting created. <br/><br/>Upload Setting Name: Job Position Attachment<br/>Upload Setting Description: Sets the upload setting when uploading job position attachment<br/>Max File Size: 5', '1', '2023-09-07 11:21:30'),
+(2280, 'upload_setting', 4, 'Upload Setting Description: Sets the upload setting when uploading job position attachment -> Sets the upload setting when uploading job position attachment.<br/>', '1', '2023-09-07 11:22:05'),
+(2281, 'system_action', 30, 'System action created. <br/><br/>System Action Name: Start Job Position Recruitment', '1', '2023-09-07 11:23:04'),
+(2282, 'system_action_access_rights', 30, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-09-07 11:23:08'),
+(2283, 'system_action_access_rights', 30, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-09-07 11:23:09'),
+(2284, 'system_action_access_rights', 30, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-09-07 11:23:09'),
+(2285, 'system_action_access_rights', 30, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-09-07 11:23:09'),
+(2286, 'system_action', 31, 'System action created. <br/><br/>System Action Name: Stop Job Position Recruitment', '1', '2023-09-07 11:23:30'),
+(2287, 'system_action_access_rights', 31, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-09-07 11:23:36'),
+(2288, 'system_action_access_rights', 31, 'System action access rights created. <br/><br/>Role ID: 1', '1', '2023-09-07 11:23:37'),
+(2289, 'system_action_access_rights', 31, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-09-07 11:23:37'),
+(2290, 'system_action_access_rights', 31, 'Role ID: 1<br/>Role Access: 0 -> 1<br/>', '1', '2023-09-07 11:23:37'),
+(2291, 'department', 4, 'Department created. <br/><br/>Department Name: Data Center', '1', '2023-09-07 14:42:03'),
+(2292, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: test', '1', '2023-09-07 14:45:02'),
+(2293, 'job_position', 1, 'Department ID: 0 -> 4<br/>', '1', '2023-09-07 14:45:55'),
+(2294, 'job_position', 1, 'Expected New Employees: 0 -> 2<br/>', '1', '2023-09-07 14:45:59'),
+(2295, 'job_position', 1, 'Job Position Name: test -> test2<br/>Expected New Employees: 2 -> 22<br/>', '1', '2023-09-07 14:46:03'),
+(2296, 'job_position', 1, 'Department ID: 4 -> 0<br/>', '1', '2023-09-07 14:46:07'),
+(2297, 'job_position', 2, 'Job position created. <br/><br/>Job Position Name: test2<br/>Expected New Employees: 22', '1', '2023-09-07 14:55:12'),
+(2298, 'job_position', 3, 'Job position created. <br/><br/>Job Position Name: test2<br/>Expected New Employees: 22', '1', '2023-09-07 14:55:15'),
+(2299, 'job_position', 4, 'Job position created. <br/><br/>Job Position Name: test<br/>Department ID: 4<br/>Expected New Employees: 1', '1', '2023-09-07 14:55:32');
 
 -- --------------------------------------------------------
 
@@ -6559,7 +6694,7 @@ CREATE TABLE `department` (
 --
 
 INSERT INTO `department` (`department_id`, `department_name`, `parent_department`, `manager`, `last_log_by`) VALUES
-(1, 'test', 0, 0, 1);
+(4, 'Data Center', 0, 0, 1);
 
 --
 -- Triggers `department`
@@ -7134,6 +7269,97 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `job_position`
+--
+
+CREATE TABLE `job_position` (
+  `job_position_id` int(10) UNSIGNED NOT NULL,
+  `job_position_name` varchar(100) NOT NULL,
+  `recruitment_status` tinyint(1) DEFAULT NULL,
+  `department_id` int(11) DEFAULT NULL,
+  `expected_new_employees` int(11) NOT NULL DEFAULT 0,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `job_position`
+--
+
+INSERT INTO `job_position` (`job_position_id`, `job_position_name`, `recruitment_status`, `department_id`, `expected_new_employees`, `last_log_by`) VALUES
+(4, 'test', 0, 4, 1, 1);
+
+--
+-- Triggers `job_position`
+--
+DELIMITER $$
+CREATE TRIGGER `job_position_trigger_insert` AFTER INSERT ON `job_position` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job position created. <br/>';
+
+    IF NEW.job_position_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Position Name: ", NEW.job_position_name);
+    END IF;
+
+    IF NEW.recruitment_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Recruitment Status: ", NEW.recruitment_status);
+    END IF;
+
+    IF NEW.department_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department ID: ", NEW.department_id);
+    END IF;
+
+    IF NEW.expected_new_employees <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Expected New Employees: ", NEW.expected_new_employees);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_position', NEW.job_position_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `job_position_trigger_update` AFTER UPDATE ON `job_position` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.job_position_name <> OLD.job_position_name THEN
+        SET audit_log = CONCAT(audit_log, "Job Position Name: ", OLD.job_position_name, " -> ", NEW.job_position_name, "<br/>");
+    END IF;
+
+    IF NEW.recruitment_status <> OLD.recruitment_status THEN
+        SET audit_log = CONCAT(audit_log, "Recruitment Status: ", OLD.recruitment_status, " -> ", NEW.recruitment_status, "<br/>");
+    END IF;
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.expected_new_employees <> OLD.expected_new_employees THEN
+        SET audit_log = CONCAT(audit_log, "Expected New Employees: ", OLD.expected_new_employees, " -> ", NEW.expected_new_employees, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_position', NEW.job_position_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_position_responsibility`
+--
+
+CREATE TABLE `job_position_responsibility` (
+  `job_position_responsibility_id` int(10) UNSIGNED NOT NULL,
+  `job_position_id` int(10) UNSIGNED NOT NULL,
+  `responsibility` varchar(500) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `menu_group`
 --
 
@@ -7241,7 +7467,8 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (24, 'State', 3, 'state.php', 20, '', 4, 0),
 (25, 'Configurations', 1, '', 0, 'settings', 20, 0),
 (26, 'Branch', 1, 'branch.php', 25, '', 1, 0),
-(27, 'Department', 1, 'department.php', 25, '', 2, 0);
+(27, 'Department', 1, 'department.php', 25, '', 2, 0),
+(28, 'Job Position', 1, 'job-position.php', 25, '', 3, 0);
 
 --
 -- Triggers `menu_item`
@@ -7363,7 +7590,8 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (24, 1, 1, 1, 1, 1, 1, 0),
 (25, 1, 1, 0, 0, 0, 0, 0),
 (26, 1, 1, 1, 1, 1, 1, 0),
-(27, 1, 1, 1, 1, 1, 1, 0);
+(27, 1, 1, 1, 1, 1, 1, 0),
+(28, 1, 1, 1, 1, 1, 1, 0);
 
 --
 -- Triggers `menu_item_access_right`
@@ -7856,7 +8084,21 @@ INSERT INTO `system_action` (`system_action_id`, `system_action_name`, `last_log
 (14, 'Change User Account Profile Picture', 0),
 (15, 'Assign File Extension To Upload Setting', 0),
 (16, 'Delete File Extension To Upload Setting', 0),
-(17, 'Send Reset Password Instructions', 0);
+(17, 'Send Reset Password Instructions', 0),
+(18, 'Add Job Position Responsibility', 0),
+(19, 'Update Job Position Responsibility', 0),
+(20, 'Delete Job Position Responsibility', 0),
+(21, 'Add Job Position Requirement', 0),
+(22, 'Update Job Position Requirement', 0),
+(23, 'Delete Job Position Requirement', 0),
+(24, 'Add Job Position Qualification', 0),
+(25, 'Update Job Position Qualification', 0),
+(26, 'Delete Job Position Qualification', 0),
+(27, 'Add Job Position Attachment', 0),
+(28, 'Update Job Position Attachment', 0),
+(29, 'Delete Job Position Attachment', 0),
+(30, 'Start Job Position Recruitment', 1),
+(31, 'Stop Job Position Recruitment', 1);
 
 --
 -- Triggers `system_action`
@@ -7924,7 +8166,23 @@ INSERT INTO `system_action_access_rights` (`system_action_id`, `role_id`, `role_
 (14, 1, 1, 0),
 (15, 1, 1, 0),
 (16, 1, 1, 0),
-(17, 1, 1, 0);
+(17, 1, 1, 0),
+(18, 1, 1, 0),
+(19, 1, 1, 0),
+(20, 1, 1, 0),
+(21, 1, 1, 0),
+(22, 1, 1, 0),
+(23, 1, 1, 0),
+(24, 1, 1, 0),
+(25, 1, 1, 0),
+(26, 1, 1, 0),
+(27, 1, 1, 0),
+(28, 1, 1, 0),
+(29, 1, 1, 0),
+(30, 1, 1, 1),
+(30, 1, 1, 1),
+(31, 1, 1, 1),
+(31, 1, 1, 1);
 
 --
 -- Triggers `system_action_access_rights`
@@ -8153,7 +8411,8 @@ CREATE TABLE `upload_setting` (
 INSERT INTO `upload_setting` (`upload_setting_id`, `upload_setting_name`, `upload_setting_description`, `max_file_size`, `last_log_by`) VALUES
 (1, 'Profile Image', 'Sets the upload setting when uploading user account profile image.', 5, 0),
 (2, 'Interface Setting', 'Sets the upload setting when uploading interface setting image.', 5, 0),
-(3, 'Company Logo', 'Sets the upload setting when uploading company logo.', 5, 0);
+(3, 'Company Logo', 'Sets the upload setting when uploading company logo.', 5, 0),
+(4, 'Job Position Attachment', 'Sets the upload setting when uploading job position attachment.', 5, 1);
 
 --
 -- Triggers `upload_setting`
@@ -8235,7 +8494,8 @@ INSERT INTO `upload_setting_file_extension` (`upload_setting_id`, `file_extensio
 (3, 62, 0),
 (3, 63, 0),
 (3, 66, 0),
-(3, 69, 0);
+(3, 69, 0),
+(4, 127, 1);
 
 -- --------------------------------------------------------
 
@@ -8580,6 +8840,21 @@ ALTER TABLE `interface_setting`
   ADD KEY `interface_setting_index_interface_setting_id` (`interface_setting_id`);
 
 --
+-- Indexes for table `job_position`
+--
+ALTER TABLE `job_position`
+  ADD PRIMARY KEY (`job_position_id`),
+  ADD KEY `job_position_index_job_position_id` (`job_position_id`);
+
+--
+-- Indexes for table `job_position_responsibility`
+--
+ALTER TABLE `job_position_responsibility`
+  ADD PRIMARY KEY (`job_position_responsibility_id`),
+  ADD KEY `job_position_responsibility_index_job_position_id` (`job_position_id`),
+  ADD KEY `job_position_responsibility_index_job_position_responsibility_id` (`job_position_responsibility_id`);
+
+--
 -- Indexes for table `menu_group`
 --
 ALTER TABLE `menu_group`
@@ -8684,7 +8959,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2249;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2300;
 
 --
 -- AUTO_INCREMENT for table `branch`
@@ -8720,7 +8995,7 @@ ALTER TABLE `currency`
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-  MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `district`
@@ -8753,6 +9028,18 @@ ALTER TABLE `interface_setting`
   MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `job_position`
+--
+ALTER TABLE `job_position`
+  MODIFY `job_position_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `job_position_responsibility`
+--
+ALTER TABLE `job_position_responsibility`
+  MODIFY `job_position_responsibility_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `menu_group`
 --
 ALTER TABLE `menu_group`
@@ -8762,7 +9049,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `notification_setting`
@@ -8792,7 +9079,7 @@ ALTER TABLE `state`
 -- AUTO_INCREMENT for table `system_action`
 --
 ALTER TABLE `system_action`
-  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `system_action_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `system_setting`
@@ -8810,7 +9097,7 @@ ALTER TABLE `ui_customization_setting`
 -- AUTO_INCREMENT for table `upload_setting`
 --
 ALTER TABLE `upload_setting`
-  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `upload_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -8833,6 +9120,12 @@ ALTER TABLE `zoom_api`
 --
 ALTER TABLE `file_extension`
   ADD CONSTRAINT `file_extension_ibfk_1` FOREIGN KEY (`file_type_id`) REFERENCES `file_type` (`file_type_id`);
+
+--
+-- Constraints for table `job_position_responsibility`
+--
+ALTER TABLE `job_position_responsibility`
+  ADD CONSTRAINT `job_position_responsibility_ibfk_1` FOREIGN KEY (`job_position_id`) REFERENCES `job_position` (`job_position_id`);
 
 --
 -- Constraints for table `menu_item`

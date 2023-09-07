@@ -32,6 +32,7 @@ class DepartmentModel {
     # -------------------------------------------------------------
     public function updateDepartment($p_department_id, $p_department_name, $p_parent_department, $p_manager, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL updateDepartment(:p_department_id, :p_department_name, :p_parent_department, :p_manager, :p_last_log_by)');
+        $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_department_name', $p_department_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_parent_department', $p_parent_department, PDO::PARAM_INT);
         $stmt->bindValue(':p_manager', $p_manager, PDO::PARAM_INT);

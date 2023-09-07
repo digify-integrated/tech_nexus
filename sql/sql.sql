@@ -80,10 +80,12 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '1', '', '', 'settings', '20', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Branch', '1', 'branch.php', '25', '', '1', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Department', '1', 'department.php', '25', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Job Position', '1', 'job-position.php', '25', '', '3', '0');
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('25', '1', '1', '0', '0', '0', '0', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('26', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('27', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('28', '1', '1', '1', '1', '1', '1', '0');
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu Item Role Access', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '0');
@@ -102,6 +104,18 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change User
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Assign File Extension To Upload Setting', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete File Extension To Upload Setting', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Send Reset Password Instructions', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Responsibility', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Responsibility', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Responsibility', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Requirement', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Requirement', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Requirement', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Qualification', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Qualification', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Qualification', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Attachment', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Attachment', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Attachment', '0');
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('1', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('2', '1', '1', '0');
@@ -120,6 +134,18 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('15', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('16', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('17', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('18', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('19', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('20', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('21', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('22', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('23', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('24', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('25', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('26', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('27', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('28', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('29', '1', '1', '0');
 
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Audio', '0');
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Compressed', '0');

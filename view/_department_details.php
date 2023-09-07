@@ -58,6 +58,7 @@
                                 <div class="d-none form-edit">
                                     <select class="form-control select2" name="parent_department" id="parent_department">
                                         <option value="">--</option>
+                                        '. $departmentModel->generateDepartmentOptions() .'
                                     </select>
                                 </div>
                             </div>

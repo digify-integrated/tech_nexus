@@ -6,18 +6,12 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/department-model.php';
-require_once '../model/city-model.php';
-require_once '../model/state-model.php';
-require_once '../model/country-model.php';
 require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $departmentModel = new DepartmentModel($databaseModel);
-$cityModel = new CityModel($databaseModel);
-$stateModel = new StateModel($databaseModel);
-$countryModel = new CountryModel($databaseModel);
 $roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -52,7 +46,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $manager = $row['manager'];
 
                 $departmentDetails = $departmentModel->getDepartment($parentDepartment);
-                $parentDepartmentName = $departmentDetails['department_name'];
+                $parentDepartmentName = $departmentDetails['department_name'] ?? null;
 
                 $departmentIDEncrypted = $securityModel->encryptData($departmentID);
 
@@ -68,6 +62,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'DEPARTMENT_NAME' => $departmentName,
                     'PARENT_DEPARTMENT' => $parentDepartmentName,
                     'MANAGER' => null,
+                    'EMPLOYEES' => 0,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="department.php?id='. $departmentIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

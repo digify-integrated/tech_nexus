@@ -41,9 +41,9 @@
                   </div>
                 </th>
                 <th>Department</th>
+                <th>Parent Department</th>
                 <th>Manager</th>
                 <th>Employees</th>
-                <th>Parent Department</th>
                 <th>Actions</th>
               </tr>
             </thead>

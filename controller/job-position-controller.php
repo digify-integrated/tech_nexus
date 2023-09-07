@@ -3,45 +3,45 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: DepartmentController
+# Function: JobPositionController
 # Description: 
-# The DepartmentController class handles department related operations and interactions.
+# The JobPositionController class handles job position related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class DepartmentController {
-    private $departmentModel;
+class JobPositionController {
+    private $jobPositionModel;
     private $userModel;
     private $roleModel;
+    private $departmentModel;
     private $securityModel;
-    private $systemModel;
 
     # -------------------------------------------------------------
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided DepartmentModel, UserModel and SecurityModel instances.
-    # These instances are used for department related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided JobPositionModel, UserModel and SecurityModel instances.
+    # These instances are used for job position related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
+    # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param roleModel $roleModel     The RoleModel instance for role related operations.
+    # - @param departmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
-    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(DepartmentModel $departmentModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->departmentModel = $departmentModel;
+    public function __construct(JobPositionModel $jobPositionModel, UserModel $userModel, RoleModel $roleModel, DepartmentModel $departmentModel, SecurityModel $securityModel) {
+        $this->jobPositionModel = $jobPositionModel;
         $this->userModel = $userModel;
         $this->roleModel = $roleModel;
+        $this->departmentModel = $departmentModel;
         $this->securityModel = $securityModel;
-        $this->systemModel = $systemModel;
     }
     # -------------------------------------------------------------
 
@@ -63,20 +63,20 @@ class DepartmentController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save department':
-                    $this->saveDepartment();
+                case 'save job position':
+                    $this->saveJobPosition();
                     break;
-                case 'get department details':
-                    $this->getDepartmentDetails();
+                case 'get job position details':
+                    $this->getJobPositionDetails();
                     break;
-                case 'delete department':
-                    $this->deleteDepartment();
+                case 'delete job position':
+                    $this->deleteJobPosition();
                     break;
-                case 'delete multiple department':
-                    $this->deleteMultipleDepartment();
+                case 'delete multiple job position':
+                    $this->deleteMultipleJobPosition();
                     break;
-                case 'duplicate department':
-                    $this->duplicateDepartment();
+                case 'duplicate job position':
+                    $this->duplicateJobPosition();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -92,25 +92,25 @@ class DepartmentController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveDepartment
+    # Function: saveJobPosition
     # Description: 
-    # Updates the existing department if it exists; otherwise, inserts a new department.
+    # Updates the existing job position if it exists; otherwise, inserts a new job position.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveDepartment() {
+    public function saveJobPosition() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $departmentID = isset($_POST['department_id']) ? htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8') : null;
-        $departmentName = htmlspecialchars($_POST['department_name'], ENT_QUOTES, 'UTF-8');
-        $parentDepartment = htmlspecialchars($_POST['parent_department'], ENT_QUOTES, 'UTF-8');
-        $manager = htmlspecialchars($_POST['manager'], ENT_QUOTES, 'UTF-8');
+        $jobPositionID = isset($_POST['job_position_id']) ? htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8') : null;
+        $jobPositionName = htmlspecialchars($_POST['job_position_name'], ENT_QUOTES, 'UTF-8');
+        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+        $expectedNewEmployees = htmlspecialchars($_POST['expected_new_employees'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -119,46 +119,46 @@ class DepartmentController {
             exit;
         }
     
-        $checkDepartmentExist = $this->departmentModel->checkDepartmentExist($departmentID);
-        $total = $checkDepartmentExist['total'] ?? 0;
+        $checkJobPositionExist = $this->jobPositionModel->checkJobPositionExist($jobPositionID);
+        $total = $checkJobPositionExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->departmentModel->updateDepartment($departmentID, $departmentName, $parentDepartment, $manager, $userID);
+            $this->jobPositionModel->updateJobPosition($jobPositionID, $jobPositionName, $departmentID, $expectedNewEmployees, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'departmentID' => $this->securityModel->encryptData($departmentID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'jobPositionID' => $this->securityModel->encryptData($jobPositionID)]);
             exit;
         } 
         else {
-            $departmentID = $this->departmentModel->insertDepartment($departmentName, $parentDepartment, $manager, $userID);
+            $jobPositionID = $this->jobPositionModel->insertJobPosition($jobPositionName, $departmentID, $expectedNewEmployees, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'departmentID' => $this->securityModel->encryptData($departmentID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'jobPositionID' => $this->securityModel->encryptData($jobPositionID)]);
             exit;
         }
     }
     # -------------------------------------------------------------
-    
+
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: deleteDepartment
+    # Function: deleteJobPosition
     # Description: 
-    # Delete the department if it exists; otherwise, return an error message.
+    # Delete the job position if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteDepartment() {
+    public function deleteJobPosition() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -167,15 +167,15 @@ class DepartmentController {
             exit;
         }
     
-        $checkDepartmentExist = $this->departmentModel->checkDepartmentExist($departmentID);
-        $total = $checkDepartmentExist['total'] ?? 0;
+        $checkJobPositionExist = $this->jobPositionModel->checkJobPositionExist($jobPositionID);
+        $total = $checkJobPositionExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
     
-        $this->departmentModel->deleteDepartment($departmentID);
+        $this->jobPositionModel->deleteJobPosition($jobPositionID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -184,22 +184,22 @@ class DepartmentController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleDepartment
+    # Function: deleteMultipleJobPosition
     # Description: 
-    # Delete the selected departments if it exists; otherwise, skip it.
+    # Delete the selected job positions if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleDepartment() {
+    public function deleteMultipleJobPosition() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $departmentIDs = $_POST['department_id'];
+        $jobPositionIDs = $_POST['job_position_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -208,8 +208,8 @@ class DepartmentController {
             exit;
         }
 
-        foreach($departmentIDs as $departmentID){
-            $this->departmentModel->deleteDepartment($departmentID);
+        foreach($jobPositionIDs as $jobPositionID){
+            $this->jobPositionModel->deleteJobPosition($jobPositionID);
         }
             
         echo json_encode(['success' => true]);
@@ -223,22 +223,22 @@ class DepartmentController {
 
     # -------------------------------------------------------------
     #
-    # Function: duplicateDepartment
+    # Function: duplicateJobPosition
     # Description: 
-    # Duplicates the department if it exists; otherwise, return an error message.
+    # Duplicates the job position if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function duplicateDepartment() {
+    public function duplicateJobPosition() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -247,17 +247,17 @@ class DepartmentController {
             exit;
         }
     
-        $checkDepartmentExist = $this->departmentModel->checkDepartmentExist($departmentID);
-        $total = $checkDepartmentExist['total'] ?? 0;
+        $checkJobPositionExist = $this->jobPositionModel->checkJobPositionExist($jobPositionID);
+        $total = $checkJobPositionExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $departmentID = $this->departmentModel->duplicateDepartment($departmentID, $userID);
+        $jobPositionID = $this->jobPositionModel->duplicateJobPosition($jobPositionID, $userID);
 
-        echo json_encode(['success' => true, 'departmentID' =>  $this->securityModel->encryptData($departmentID)]);
+        echo json_encode(['success' => true, 'jobPositionID' =>  $this->securityModel->encryptData($jobPositionID)]);
         exit;
     }
     # -------------------------------------------------------------
@@ -268,23 +268,23 @@ class DepartmentController {
 
     # -------------------------------------------------------------
     #
-    # Function: getDepartmentDetails
+    # Function: getJobPositionDetails
     # Description: 
-    # Handles the retrieval of department details such as department name, etc.
+    # Handles the retrieval of job position details such as job position name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getDepartmentDetails() {
+    public function getJobPositionDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['department_id']) && !empty($_POST['department_id'])) {
+        if (isset($_POST['job_position_id']) && !empty($_POST['job_position_id'])) {
             $userID = $_SESSION['user_id'];
-            $departmentID = $_POST['department_id'];
+            $jobPositionID = $_POST['job_position_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -293,18 +293,19 @@ class DepartmentController {
                 exit;
             }
     
-            $departmentDetails = $this->departmentModel->getDepartment($departmentID);
-            $parentDepartment = $departmentDetails['parent_department'];
+            $jobPositionDetails = $this->jobPositionModel->getJobPosition($jobPositionID);
+            $departmentID = $jobPositionDetails['department_id'];
 
-            $parentDepartmentDetails = $this->departmentModel->getDepartment($parentDepartment);
-            $parentDepartmentName = $parentDepartmentDetails['department_name'] ?? null;
+            $departmentDetails = $this->departmentModel->getDepartment($departmentID);
+            $departmentName = $departmentDetails['department_name'] ?? null;
 
             $response = [
                 'success' => true,
-                'departmentName' => $departmentDetails['department_name'],
-                'parentDepartment' => $parentDepartment,
-                'parentDepartmentName' => $parentDepartmentName,
-                'manager' => null
+                'jobPositionName' => $jobPositionDetails['job_position_name'],
+                'recruitmentStatus' => $jobPositionDetails['recruitment_status'],
+                'departmentID' => $departmentID,
+                'departmentName' => $departmentName,
+                'expectedNewEmployees' => $jobPositionDetails['expected_new_employees']
             ];
 
             echo json_encode($response);
@@ -317,12 +318,13 @@ class DepartmentController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
+require_once '../model/job-position-model.php';
 require_once '../model/department-model.php';
 require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new DepartmentController(new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new JobPositionController(new JobPositionModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

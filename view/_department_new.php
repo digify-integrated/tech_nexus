@@ -27,6 +27,7 @@
                 <div class="col-lg-4">
                     <select class="form-control select2" name="parent_department" id="parent_department">
                         <option value="">--</option>
+                        <?php echo $departmentModel->generateDepartmentOptions(); ?>
                     </select>
                 </div>
             </div>
