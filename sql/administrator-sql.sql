@@ -3893,6 +3893,7 @@ END //
 CREATE TABLE job_position(
 	job_position_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	job_position_name VARCHAR(100) NOT NULL,
+	job_position_description VARCHAR(2000) NOT NULL,
 	recruitment_status TINYINT(1),
 	department_id INT,
 	expected_new_employees INT NOT NULL DEFAULT 0,
@@ -3909,6 +3910,10 @@ BEGIN
 
     IF NEW.job_position_name <> OLD.job_position_name THEN
         SET audit_log = CONCAT(audit_log, "Job Position Name: ", OLD.job_position_name, " -> ", NEW.job_position_name, "<br/>");
+    END IF;
+
+    IF NEW.job_position_description <> OLD.job_position_description THEN
+        SET audit_log = CONCAT(audit_log, "Job Position Description: ", OLD.job_position_description, " -> ", NEW.job_position_description, "<br/>");
     END IF;
 
     IF NEW.recruitment_status <> OLD.recruitment_status THEN
@@ -3939,6 +3944,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Job Position Name: ", NEW.job_position_name);
     END IF;
 
+    IF NEW.job_position_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Position Description: ", NEW.job_position_description);
+    END IF;
+
     IF NEW.recruitment_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Recruitment Status: ", NEW.recruitment_status);
     END IF;
@@ -3962,19 +3971,28 @@ BEGIN
     WHERE job_position_id = p_job_position_id;
 END //
 
-CREATE PROCEDURE insertJobPosition(IN p_job_position_name VARCHAR(100), IN p_department_id INT, IN p_expected_new_employees INT, IN p_last_log_by INT, OUT p_job_position_id INT)
+CREATE PROCEDURE insertJobPosition(IN p_job_position_name VARCHAR(100), IN p_job_position_description VARCHAR(2000), IN p_department_id INT, IN p_last_log_by INT, OUT p_job_position_id INT)
 BEGIN
-    INSERT INTO job_position (job_position_name, department_id, expected_new_employees, last_log_by) 
-	VALUES(p_job_position_name, p_department_id, p_expected_new_employees, p_last_log_by);
+    INSERT INTO job_position (job_position_name, job_position_description, department_id, last_log_by) 
+	VALUES(p_job_position_name, p_job_position_description, p_department_id, p_last_log_by);
 	
     SET p_job_position_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateJobPosition(IN p_job_position_id INT, IN p_job_position_name VARCHAR(100), IN p_department_id INT, IN p_expected_new_employees INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateJobPosition(IN p_job_position_id INT, IN p_job_position_name VARCHAR(100), IN p_job_position_description VARCHAR(2000), IN p_department_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE job_position
     SET job_position_name = p_job_position_name,
+    job_position_description = p_job_position_description,
     department_id = p_department_id,
+    last_log_by = p_last_log_by
+    WHERE job_position_id = p_job_position_id;
+END //
+
+CREATE PROCEDURE updateJobPositionRecruitmentStatus(IN p_job_position_id INT, IN p_recruitment_status TINYINT(1), IN p_expected_new_employees INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE job_position
+    SET recruitment_status = p_recruitment_status,
     expected_new_employees = p_expected_new_employees,
     last_log_by = p_last_log_by
     WHERE job_position_id = p_job_position_id;
@@ -3995,17 +4013,18 @@ END //
 CREATE PROCEDURE duplicateJobPosition(IN p_job_position_id INT, IN p_last_log_by INT, OUT p_new_job_position_id INT)
 BEGIN
     DECLARE p_job_position_name VARCHAR(100);
+    DECLARE p_job_position_description VARCHAR(2000);
     DECLARE p_recruitment_status TINYINT(1);
     DECLARE p_department_id INT;
     DECLARE p_expected_new_employees INT;
     
-    SELECT job_position_name, recruitment_status, department_id, expected_new_employees
-    INTO p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees
+    SELECT job_position_name, job_position_description, recruitment_status, department_id, expected_new_employees
+    INTO p_job_position_name, p_job_position_description, p_recruitment_status, p_department_id, p_expected_new_employees
     FROM job_position 
     WHERE job_position_id = p_job_position_id;
     
-    INSERT INTO job_position (job_position_name, recruitment_status, department_id, expected_new_employees, last_log_by) 
-    VALUES(p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees, p_last_log_by);
+    INSERT INTO job_position (job_position_name, job_position_description, recruitment_status, department_id, expected_new_employees, last_log_by) 
+    VALUES(p_job_position_name, p_job_position_description, p_recruitment_status, p_department_id, p_expected_new_employees, p_last_log_by);
     
     SET p_new_job_position_id = LAST_INSERT_ID();
 END //
@@ -4015,7 +4034,7 @@ BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
-    SET query = 'SELECT job_position_id, job_position_name, recruitment_status, department_id FROM job_position';
+    SET query = 'SELECT job_position_id, job_position_name, job_position_description, recruitment_status, department_id FROM job_position';
     
     SET conditionList = ' WHERE 1';
 
@@ -4124,4 +4143,162 @@ CREATE PROCEDURE getJobPositionResponsibility(IN p_job_position_responsibility_i
 BEGIN
 	SELECT * FROM job_position_responsibility
     WHERE job_position_responsibility_id = p_job_position_responsibility_id;
+END //
+
+/* Job position requirement table */
+CREATE TABLE job_position_requirement(
+	job_position_requirement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	job_position_id INT UNSIGNED NOT NULL,
+	requirement VARCHAR(500) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX job_position_requirement_index_job_position_id ON job_position_requirement(job_position_id);
+CREATE INDEX job_position_requirement_index_job_position_requirement_id ON job_position_requirement(job_position_requirement_id);
+
+ALTER TABLE job_position_requirement
+ADD FOREIGN KEY (job_position_id) REFERENCES job_position(job_position_id);
+
+CREATE TRIGGER job_position_requirement_trigger_update
+AFTER UPDATE ON job_position_requirement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.requirement <> OLD.requirement THEN
+        SET audit_log = CONCAT(audit_log, "Requirement: ", OLD.requirement, " -> ", NEW.requirement, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_position_requirement', NEW.job_position_requirement_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER job_position_requirement_trigger_insert
+AFTER INSERT ON job_position_requirement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job position requirement created. <br/>';
+
+    IF NEW.requirement <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Requirement: ", NEW.requirement);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_position_requirement', NEW.job_position_requirement_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkJobPositionRequirementExist (IN p_job_position_requirement_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_position_requirement
+    WHERE job_position_requirement_id = p_job_position_requirement_id;
+END //
+
+CREATE PROCEDURE insertJobPositionRequirement(IN p_job_position_id INT, IN p_requirement VARCHAR(500), IN p_last_log_by INT, OUT p_job_position_requirement_id INT)
+BEGIN
+    INSERT INTO job_position_requirement (job_position_id, requirement, last_log_by) 
+	VALUES(p_job_position_id, p_requirement, p_last_log_by);
+	
+    SET p_job_position_requirement_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateJobPositionRequirement(IN p_job_position_requirement_id INT, IN p_requirement VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE job_position_requirement
+    SET requirement = p_requirement,
+    last_log_by = p_last_log_by
+    WHERE job_position_requirement_id = p_job_position_requirement_id;
+END //
+
+CREATE PROCEDURE deleteJobPositionRequirement(IN p_job_position_requirement_id INT)
+BEGIN
+	DELETE FROM job_position_requirement
+    WHERE job_position_requirement_id = p_job_position_requirement_id;
+END //
+
+CREATE PROCEDURE getJobPositionRequirement(IN p_job_position_requirement_id INT)
+BEGIN
+	SELECT * FROM job_position_requirement
+    WHERE job_position_requirement_id = p_job_position_requirement_id;
+END //
+
+/* Job position qualification table */
+CREATE TABLE job_position_qualification(
+	job_position_qualification_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	job_position_id INT UNSIGNED NOT NULL,
+	qualification VARCHAR(500) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX job_position_qualification_index_job_position_id ON job_position_qualification(job_position_id);
+CREATE INDEX job_position_qualification_index_job_position_qualification_id ON job_position_qualification(job_position_qualification_id);
+
+ALTER TABLE job_position_qualification
+ADD FOREIGN KEY (job_position_id) REFERENCES job_position(job_position_id);
+
+CREATE TRIGGER job_position_qualification_trigger_update
+AFTER UPDATE ON job_position_qualification
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.qualification <> OLD.qualification THEN
+        SET audit_log = CONCAT(audit_log, "Qualification: ", OLD.qualification, " -> ", NEW.qualification, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_position_qualification', NEW.job_position_qualification_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER job_position_qualification_trigger_insert
+AFTER INSERT ON job_position_qualification
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job position qualification created. <br/>';
+
+    IF NEW.qualification <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Qualification: ", NEW.qualification);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_position_qualification', NEW.job_position_qualification_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkJobPositionQualificationExist (IN p_job_position_qualification_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_position_qualification
+    WHERE job_position_qualification_id = p_job_position_qualification_id;
+END //
+
+CREATE PROCEDURE insertJobPositionQualification(IN p_job_position_id INT, IN p_qualification VARCHAR(500), IN p_last_log_by INT, OUT p_job_position_qualification_id INT)
+BEGIN
+    INSERT INTO job_position_qualification (job_position_id, qualification, last_log_by) 
+	VALUES(p_job_position_id, p_qualification, p_last_log_by);
+	
+    SET p_job_position_qualification_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateJobPositionQualification(IN p_job_position_qualification_id INT, IN p_qualification VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE job_position_qualification
+    SET qualification = p_qualification,
+    last_log_by = p_last_log_by
+    WHERE job_position_qualification_id = p_job_position_qualification_id;
+END //
+
+CREATE PROCEDURE deleteJobPositionQualification(IN p_job_position_qualification_id INT)
+BEGIN
+	DELETE FROM job_position_qualification
+    WHERE job_position_qualification_id = p_job_position_qualification_id;
+END //
+
+CREATE PROCEDURE getJobPositionQualification(IN p_job_position_qualification_id INT)
+BEGIN
+	SELECT * FROM job_position_qualification
+    WHERE job_position_qualification_id = p_job_position_qualification_id;
 END //

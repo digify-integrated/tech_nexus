@@ -30,6 +30,8 @@
     $jobPositionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'write');
     $jobPositionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'delete');
     $jobPositionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'duplicate');
+    $startJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 30);
+    $stopJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 31);
 
     if ($jobPositionReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -56,6 +58,9 @@
             header('location: 404.php');
             exit;
         }
+
+        $jobPositionDetails = $jobPositionModel->getJobPosition($jobPositionID);
+        $recruitmentStatus = $jobPositionDetails['recruitment_status'];
     }
     else{
         $jobPositionID = null;

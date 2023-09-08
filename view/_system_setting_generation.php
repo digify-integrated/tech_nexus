@@ -56,10 +56,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $systemSettingID .'">',
-                    'SYSTEM_SETTING_NAME' => ' <div class="col">
-                                        <h6 class="mb-0">'. $systemSettingName .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $systemSettingDescription .'</p>
-                                        </div>',
+                    'SYSTEM_SETTING_NAME' => '<div class="col">
+                                                <h6 class="mb-0">'. $systemSettingName .'</h6>
+                                                <p class="text-muted f-12 mb-0">'. $systemSettingDescription .'</p>
+                                            </div>',
                     'VALUE' => $value,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="system-setting.php?id='. $systemSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

@@ -78,6 +78,12 @@ class JobPositionController {
                 case 'duplicate job position':
                     $this->duplicateJobPosition();
                     break;
+                case 'start job position recruitment':
+                    $this->startJobPositionRecruitment();
+                    break;
+                case 'stop job position recruitment':
+                    $this->stopJobPositionRecruitment();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -109,8 +115,8 @@ class JobPositionController {
         $userID = $_SESSION['user_id'];
         $jobPositionID = isset($_POST['job_position_id']) ? htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8') : null;
         $jobPositionName = htmlspecialchars($_POST['job_position_name'], ENT_QUOTES, 'UTF-8');
+        $jobPositionDescription = htmlspecialchars($_POST['job_position_description'], ENT_QUOTES, 'UTF-8');
         $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
-        $expectedNewEmployees = htmlspecialchars($_POST['expected_new_employees'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -123,17 +129,108 @@ class JobPositionController {
         $total = $checkJobPositionExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->jobPositionModel->updateJobPosition($jobPositionID, $jobPositionName, $departmentID, $expectedNewEmployees, $userID);
+            $this->jobPositionModel->updateJobPosition($jobPositionID, $jobPositionName, $jobPositionDescription, $departmentID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'jobPositionID' => $this->securityModel->encryptData($jobPositionID)]);
             exit;
         } 
         else {
-            $jobPositionID = $this->jobPositionModel->insertJobPosition($jobPositionName, $departmentID, $expectedNewEmployees, $userID);
+            $jobPositionID = $this->jobPositionModel->insertJobPosition($jobPositionName, $jobPositionDescription, $departmentID, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'jobPositionID' => $this->securityModel->encryptData($jobPositionID)]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Start methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: startJobPositionRecruitment
+    # Description: 
+    # Updates the job position recruitment status to start.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function startJobPositionRecruitment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+        $expectedNewEmployees = htmlspecialchars($_POST['expected_new_employees'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionExist = $this->jobPositionModel->checkJobPositionExist($jobPositionID);
+        $total = $checkJobPositionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->jobPositionModel->updateJobPositionRecruitmentStatus($jobPositionID, 1, $expectedNewEmployees, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Stop methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: stopJobPositionRecruitment
+    # Description: 
+    # Updates the job position recruitment status to stop.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function stopJobPositionRecruitment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionExist = $this->jobPositionModel->checkJobPositionExist($jobPositionID);
+        $total = $checkJobPositionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->jobPositionModel->updateJobPositionRecruitmentStatus($jobPositionID, 0, 0, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -302,10 +399,10 @@ class JobPositionController {
             $response = [
                 'success' => true,
                 'jobPositionName' => $jobPositionDetails['job_position_name'],
+                'jobPositionDescription' => $jobPositionDetails['job_position_description'],
                 'recruitmentStatus' => $jobPositionDetails['recruitment_status'],
                 'departmentID' => $departmentID,
-                'departmentName' => $departmentName,
-                'expectedNewEmployees' => $jobPositionDetails['expected_new_employees']
+                'departmentName' => $departmentName
             ];
 
             echo json_encode($response);

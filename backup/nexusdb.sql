@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 07, 2023 at 12:01 PM
+-- Generation Time: Sep 08, 2023 at 11:22 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -632,17 +632,18 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateJobPosition` (IN `p_job_position_id` INT, IN `p_last_log_by` INT, OUT `p_new_job_position_id` INT)   BEGIN
     DECLARE p_job_position_name VARCHAR(100);
+    DECLARE p_job_position_description VARCHAR(2000);
     DECLARE p_recruitment_status TINYINT(1);
     DECLARE p_department_id INT;
     DECLARE p_expected_new_employees INT;
     
-    SELECT job_position_name, recruitment_status, department_id, expected_new_employees
-    INTO p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees
+    SELECT job_position_name, job_position_description, recruitment_status, department_id, expected_new_employees
+    INTO p_job_position_name, p_job_position_description, p_recruitment_status, p_department_id, p_expected_new_employees
     FROM job_position 
     WHERE job_position_id = p_job_position_id;
     
-    INSERT INTO job_position (job_position_name, recruitment_status, department_id, expected_new_employees, last_log_by) 
-    VALUES(p_job_position_name, p_recruitment_status, p_department_id, p_expected_new_employees, p_last_log_by);
+    INSERT INTO job_position (job_position_name, job_position_description, recruitment_status, department_id, expected_new_employees, last_log_by) 
+    VALUES(p_job_position_name, p_job_position_description, p_recruitment_status, p_department_id, p_expected_new_employees, p_last_log_by);
     
     SET p_new_job_position_id = LAST_INSERT_ID();
 END$$
@@ -994,7 +995,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobPositionTable` (IN `p_fi
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
-    SET query = 'SELECT job_position_id, job_position_name, recruitment_status, department_id FROM job_position';
+    SET query = 'SELECT job_position_id, job_position_name, job_position_description, recruitment_status, department_id FROM job_position';
     
     SET conditionList = ' WHERE 1';
 
@@ -1479,9 +1480,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_inte
     SET p_interface_setting_id = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertJobPosition` (IN `p_job_position_name` VARCHAR(100), IN `p_department_id` INT, IN `p_expected_new_employees` INT, IN `p_last_log_by` INT, OUT `p_job_position_id` INT)   BEGIN
-    INSERT INTO job_position (job_position_name, department_id, expected_new_employees, last_log_by) 
-	VALUES(p_job_position_name, p_department_id, p_expected_new_employees, p_last_log_by);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertJobPosition` (IN `p_job_position_name` VARCHAR(100), IN `p_job_position_description` VARCHAR(2000), IN `p_department_id` INT, IN `p_last_log_by` INT, OUT `p_job_position_id` INT)   BEGIN
+    INSERT INTO job_position (job_position_name, job_position_description, department_id, last_log_by) 
+	VALUES(p_job_position_name, p_job_position_description, p_department_id, p_last_log_by);
 	
     SET p_job_position_id = LAST_INSERT_ID();
 END$$
@@ -1748,10 +1749,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSettingValue` (IN `p
     WHERE interface_setting_id = p_interface_setting_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobPosition` (IN `p_job_position_id` INT, IN `p_job_position_name` VARCHAR(100), IN `p_department_id` INT, IN `p_expected_new_employees` INT, IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobPosition` (IN `p_job_position_id` INT, IN `p_job_position_name` VARCHAR(100), IN `p_job_position_description` VARCHAR(2000), IN `p_department_id` INT, IN `p_last_log_by` INT)   BEGIN
 	UPDATE job_position
     SET job_position_name = p_job_position_name,
+    job_position_description = p_job_position_description,
     department_id = p_department_id,
+    last_log_by = p_last_log_by
+    WHERE job_position_id = p_job_position_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobPositionRecruitmentStatus` (IN `p_job_position_id` INT, IN `p_recruitment_status` TINYINT(1), IN `p_expected_new_employees` INT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE job_position
+    SET recruitment_status = p_recruitment_status,
     expected_new_employees = p_expected_new_employees,
     last_log_by = p_last_log_by
     WHERE job_position_id = p_job_position_id;
@@ -4348,7 +4357,18 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2296, 'job_position', 1, 'Department ID: 4 -> 0<br/>', '1', '2023-09-07 14:46:07'),
 (2297, 'job_position', 2, 'Job position created. <br/><br/>Job Position Name: test2<br/>Expected New Employees: 22', '1', '2023-09-07 14:55:12'),
 (2298, 'job_position', 3, 'Job position created. <br/><br/>Job Position Name: test2<br/>Expected New Employees: 22', '1', '2023-09-07 14:55:15'),
-(2299, 'job_position', 4, 'Job position created. <br/><br/>Job Position Name: test<br/>Department ID: 4<br/>Expected New Employees: 1', '1', '2023-09-07 14:55:32');
+(2299, 'job_position', 4, 'Job position created. <br/><br/>Job Position Name: test<br/>Department ID: 4<br/>Expected New Employees: 1', '1', '2023-09-07 14:55:32'),
+(2300, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: test<br/>Job Position Description: test<br/>Department ID: 4', '1', '2023-09-08 14:31:36'),
+(2301, 'job_position', 1, 'Job Position Description: test -> <br/>', '1', '2023-09-08 14:31:39'),
+(2302, 'job_position', 1, 'Job Position Description:  -> test<br/>', '1', '2023-09-08 14:36:22'),
+(2303, 'job_position', 2, 'Job position created. <br/><br/>Job Position Name: test<br/>Job Position Description: test<br/>Department ID: 4', '1', '2023-09-08 14:36:34'),
+(2304, 'job_position', 2, 'Job Position Name: test -> test2<br/>', '1', '2023-09-08 14:36:44'),
+(2305, 'job_position', 3, 'Job position created. <br/><br/>Job Position Name: test2<br/>Job Position Description: test<br/>Department ID: 4', '1', '2023-09-08 14:55:52'),
+(2306, 'job_position', 4, 'Job position created. <br/><br/>Job Position Name: test<br/>Job Position Description: test<br/>Department ID: 4', '1', '2023-09-08 16:01:59'),
+(2307, 'job_position', 4, 'Expected New Employees: 0 -> 1<br/>', '1', '2023-09-08 17:19:31'),
+(2308, 'job_position', 4, 'Recruitment Status: 1 -> 0<br/>Expected New Employees: 1 -> 0<br/>', '1', '2023-09-08 17:20:14'),
+(2309, 'job_position', 4, 'Recruitment Status: 0 -> 1<br/>Expected New Employees: 0 -> 5<br/>', '1', '2023-09-08 17:21:09'),
+(2310, 'job_position', 4, 'Recruitment Status: 1 -> 0<br/>Expected New Employees: 5 -> 0<br/>', '1', '2023-09-08 17:21:12');
 
 -- --------------------------------------------------------
 
@@ -7275,6 +7295,7 @@ DELIMITER ;
 CREATE TABLE `job_position` (
   `job_position_id` int(10) UNSIGNED NOT NULL,
   `job_position_name` varchar(100) NOT NULL,
+  `job_position_description` varchar(2000) NOT NULL,
   `recruitment_status` tinyint(1) DEFAULT NULL,
   `department_id` int(11) DEFAULT NULL,
   `expected_new_employees` int(11) NOT NULL DEFAULT 0,
@@ -7285,8 +7306,8 @@ CREATE TABLE `job_position` (
 -- Dumping data for table `job_position`
 --
 
-INSERT INTO `job_position` (`job_position_id`, `job_position_name`, `recruitment_status`, `department_id`, `expected_new_employees`, `last_log_by`) VALUES
-(4, 'test', 0, 4, 1, 1);
+INSERT INTO `job_position` (`job_position_id`, `job_position_name`, `job_position_description`, `recruitment_status`, `department_id`, `expected_new_employees`, `last_log_by`) VALUES
+(4, 'test', 'test', 0, 4, 0, 1);
 
 --
 -- Triggers `job_position`
@@ -7297,6 +7318,10 @@ CREATE TRIGGER `job_position_trigger_insert` AFTER INSERT ON `job_position` FOR 
 
     IF NEW.job_position_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Job Position Name: ", NEW.job_position_name);
+    END IF;
+
+    IF NEW.job_position_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Position Description: ", NEW.job_position_description);
     END IF;
 
     IF NEW.recruitment_status <> '' THEN
@@ -7322,6 +7347,10 @@ CREATE TRIGGER `job_position_trigger_update` AFTER UPDATE ON `job_position` FOR 
 
     IF NEW.job_position_name <> OLD.job_position_name THEN
         SET audit_log = CONCAT(audit_log, "Job Position Name: ", OLD.job_position_name, " -> ", NEW.job_position_name, "<br/>");
+    END IF;
+
+    IF NEW.job_position_description <> OLD.job_position_description THEN
+        SET audit_log = CONCAT(audit_log, "Job Position Description: ", OLD.job_position_description, " -> ", NEW.job_position_description, "<br/>");
     END IF;
 
     IF NEW.recruitment_status <> OLD.recruitment_status THEN
@@ -8535,7 +8564,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', 'bhaKiibvtMhn08GSyOQzXHlB9Oot8hvFn%2FARBpJGWz8%3D', '2023-09-05 13:20:03', 0, 0, 'yINkaL392efEz2Iv%2Bo5f42VgbuQQ2gECuNDtSYMxndE%3D', '2023-09-05 14:17:55', 0, NULL, 0, NULL, 1, '00fc66689a8a1fb84d4e74c81f85f839', 1);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-08 15:52:04', '2023-12-30', 'bhaKiibvtMhn08GSyOQzXHlB9Oot8hvFn%2FARBpJGWz8%3D', '2023-09-05 13:20:03', 0, 0, 'yINkaL392efEz2Iv%2Bo5f42VgbuQQ2gECuNDtSYMxndE%3D', '2023-09-05 14:17:55', 0, NULL, 0, NULL, 1, '5e7501dc646828f957db71a30e5a4fbf', 1);
 
 --
 -- Triggers `users`
@@ -8959,7 +8988,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2300;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2311;
 
 --
 -- AUTO_INCREMENT for table `branch`

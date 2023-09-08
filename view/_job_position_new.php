@@ -32,9 +32,9 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Expected New Employees</label>
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="number" class="form-control" id="expected_new_employees" name="expected_new_employees" min="0">
+              <input type="text" class="form-control" id="job_position_description" name="job_position_description" maxlength="2000" autocomplete="off">
             </div>
           </div>
         </form>

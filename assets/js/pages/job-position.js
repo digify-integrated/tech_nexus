@@ -12,6 +12,69 @@
 
         if($('#job-position-id').length){
             displayDetails('get job position details');
+
+            if($('#start-job-position-recruitment-form').length){
+                startJobPositionRecruitmentForm();
+            }
+
+            $(document).on('click','#start-job-position-recruitment',function() {    
+                $('#start-job-position-recruitment-modal').modal('show');
+            });
+
+            $(document).on('click','#stop-job-position-recruitment',function() {
+                const job_position_id = $('#job-position-id').text();
+                const transaction = 'stop job position recruitment';
+        
+                Swal.fire({
+                    title: 'Confirm Job Position Recruitment Stop',
+                    text: 'Are you sure you want to stop this job position recruitment?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Stop',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/job-position-controller.php',
+                            dataType: 'json',
+                            data: {
+                                job_position_id : job_position_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Stop Job Position Recruitment Success', 'The job position recruitment has been stopped successfully.', 'success');
+                                    location.reload();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Stop Job Position Recruitment Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
         }
 
         $(document).on('click','.delete-job-position',function() {
@@ -330,11 +393,17 @@ function jobPositionForm(){
         rules: {
             job_position_name: {
                 required: true
+            },
+            job_position_description: {
+                required: true
             }
         },
         messages: {
             job_position_name: {
                 required: 'Please enter the job position name'
+            },
+            job_position_description: {
+                required: 'Please enter the job position description'
             }
         },
         errorPlacement: function (error, element) {
@@ -413,6 +482,94 @@ function jobPositionForm(){
     });
 }
 
+function startJobPositionRecruitmentForm(){
+    $('#start-job-position-recruitment-form').validate({
+        rules: {
+            expected_new_employees: {
+                required: true
+            }
+        },
+        messages: {
+            expected_new_employees: {
+                required: 'Please enter the expected new employees'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const job_position_id = $('#job-position-id').text();
+            const transaction = 'start job position recruitment';
+          
+            $.ajax({
+                type: 'POST',
+                url: 'controller/job-position-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&job_position_id=' + job_position_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-start-job-position-recruitment-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Start Job Position Recruitment Success', 'The job position recruitment has been started successfully.', 'success');
+                        location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.notExist) {
+                            window.location = '404.php';
+                        }
+                        else {
+                            showNotification('Start Job Position Recruitment Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-start-job-position-recruitment-form', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get job position details':
@@ -433,11 +590,13 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#job_position_id').val(job_position_id);
                         $('#job_position_name').val(response.jobPositionName);
+                        $('#job_position_description').val(response.jobPositionDescription);
                         $('#expected_new_employees').val(response.expectedNewEmployees);
 
                         checkOptionExist('#department_id', response.departmentID, '');
 
                         $('#job_position_name_label').text(response.jobPositionName);
+                        $('#job_position_description_label').text(response.jobPositionDescription);
                         $('#department_id_label').text(response.departmentName);
                         $('#expected_new_employees_label').text(response.expectedNewEmployees);
                     } 

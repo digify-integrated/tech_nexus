@@ -50,6 +50,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $jobPositionID = $row['job_position_id'];
                     $jobPositionName = $row['job_position_name'];
+                    $jobPositionDescription = $row['job_position_description'];
                     $recruitmentStatus = $row['recruitment_status'];
                     $departmentID = $row['department_id'];
 
@@ -69,7 +70,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $jobPositionID .'">',
-                        'JOB_POSITION_NAME' => $jobPositionName,
+                        'JOB_POSITION_NAME' => '<div class="col">
+                                                    <h6 class="mb-0">'. $jobPositionName .'</h6>
+                                                    <p class="text-muted f-12 mb-0">'. $jobPositionDescription .'</p>
+                                                </div>',
                         'DEPARTMENT_NAME' => $departmentName,
                         'RECRUITMENT_STATUS' => $recruitmentStatusBadge,
                         'ACTION' => '<div class="d-flex gap-2">

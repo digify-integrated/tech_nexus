@@ -23,18 +23,42 @@ class JobPositionModel {
     # Parameters:
     # - $p_job_position_id (int): The job position ID.
     # - $p_job_position_name (string): The job position name.
+    # - $p_job_position_description (string): The job position description.
     # - $p_department_id (int): The department linked to the job position.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateJobPosition($p_job_position_id, $p_job_position_name, $p_job_position_description, $p_department_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateJobPosition(:p_job_position_id, :p_job_position_name, :p_job_position_description, :p_department_id, :p_last_log_by)');
+        $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_job_position_name', $p_job_position_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_position_description', $p_job_position_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateJobPositionRecruitmentStatus
+    # Description: Updates the job position recruitment status.
+    #
+    # Parameters:
+    # - $p_job_position_id (int): The job position ID.
+    # - $p_recruitment_status (int): The recruitment status.
     # - $p_expected_new_employees (int): The expected new employees.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateJobPosition($p_job_position_id, $p_job_position_name, $p_department_id, $p_expected_new_employees, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateJobPosition(:p_job_position_id, :p_job_position_name, :p_department_id, :p_expected_new_employees, :p_last_log_by)');
+    public function updateJobPositionRecruitmentStatus($p_job_position_id, $p_recruitment_status, $p_expected_new_employees, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateJobPositionRecruitmentStatus(:p_job_position_id, :p_recruitment_status, :p_expected_new_employees, :p_last_log_by)');
         $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_job_position_name', $p_job_position_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_recruitment_status', $p_recruitment_status, PDO::PARAM_INT);
         $stmt->bindValue(':p_expected_new_employees', $p_expected_new_employees, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -52,18 +76,18 @@ class JobPositionModel {
     #
     # Parameters:
     # - $p_job_position_name (string): The job position name.
+    # - $p_job_position_description (string): The job position description.
     # - $p_department_id (int): The department linked to the job position.
-    # - $p_expected_new_employees (int): The expected new employees.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertJobPosition($p_job_position_name, $p_department_id, $p_expected_new_employees, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertJobPosition(:p_job_position_name, :p_department_id, :p_expected_new_employees, :p_last_log_by, @p_job_position_id)');
+    public function insertJobPosition($p_job_position_name, $p_job_position_description, $p_department_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertJobPosition(:p_job_position_name, :p_job_position_description, :p_department_id, :p_last_log_by, @p_job_position_id)');
         $stmt->bindValue(':p_job_position_name', $p_job_position_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_job_position_description', $p_job_position_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_expected_new_employees', $p_expected_new_employees, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

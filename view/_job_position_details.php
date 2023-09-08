@@ -14,6 +14,14 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">';
                     
+                if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="start-job-position-recruitment">Start Recruitment</button></li>';
+                }
+                    
+                if ($stopJobPositionRecruitment['total'] > 0 && $recruitmentStatus) {
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="stop-job-position-recruitment">Stop Recruitment</button></li>';
+                }
+
                 if ($jobPositionDuplicateAccess['total'] > 0) {
                     $dropdown .= '<li><button class="dropdown-item" type="button" id="duplicate-job-position">Duplicate Job Position</button></li>';
                 }
@@ -62,10 +70,10 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Expected New Employees</label>
+                      <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="expected_new_employees_label"></label>
-                        <input type="number" class="form-control d-none form-edit" id="expected_new_employees" name="expected_new_employees" min="0">
+                        <label class="col-form-label form-details fw-normal" id="job_position_description_label"></label>
+                        <input type="text" class="form-control d-none form-edit" id="job_position_description" name="job_position_description" maxlength="2000" autocomplete="off">
                       </div>
                     </div>';
             }
@@ -81,9 +89,9 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Expected New Employees</label>
+                      <label class="col-lg-2 col-form-label">Description</label>
                       <div class="col-lg-4">
-                        <label class="col-form-label form-details fw-normal" id="expected_new_employees_label"></label>
+                        <label class="col-form-label form-details fw-normal" id="job_position_description_label"></label>
                       </div>
                     </div>';
             }
@@ -93,21 +101,46 @@
     </div>
   </div>
 <?php
-echo '<div class="col-lg-12">
-        <div class="card">
-          <div class="card-header">
-            <div class="row align-items-center">
-              <div class="col-sm-6">
-                <h5>Log Notes</h5>
+  echo '<div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-sm-6">
+                  <h5>Log Notes</h5>
+                </div>
+              </div>
+            </div>
+            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+              <div class="card-body p-b-0">
+                '. $userModel->generateLogNotes('job_position', $jobPositionID) .'
               </div>
             </div>
           </div>
-          <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-            <div class="card-body p-b-0">
-              '. $userModel->generateLogNotes('job_position', $jobPositionID) .'
+        </div>';
+
+  if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
+    echo '<div id="start-job-position-recruitment-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-start-job-position-recruitment-modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modal-start-job-position-recruitment-modal-title">Start Job Position Recruitment</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                  <form id="start-job-position-recruitment-form" method="post" action="#">
+                    <div class="form-group">
+                      <label class="form-label" for="menu_item_name">Expected New Employees <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" id="expected_new_employees" name="expected_new_employees" min="1">
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="submit-start-job-position-recruitment-form" form="start-job-position-recruitment-form">Submit</button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>';
+          </div>';
+      }
 ?>
 </div>
