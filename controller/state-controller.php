@@ -175,7 +175,6 @@ class StateController {
             exit;
         }
     
-        $this->stateModel->deleteLinkedState($stateID);
         $this->stateModel->deleteState($stateID);
             
         echo json_encode(['success' => true]);
@@ -210,7 +209,6 @@ class StateController {
         }
 
         foreach($stateIDs as $stateID){
-            $this->stateModel->deleteLinkedState($stateID);
             $this->stateModel->deleteState($stateID);
         }
             

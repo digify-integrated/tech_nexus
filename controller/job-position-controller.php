@@ -66,11 +66,38 @@ class JobPositionController {
                 case 'save job position':
                     $this->saveJobPosition();
                     break;
+                case 'save job position responsibility':
+                    $this->saveJobPositionResponsibility();
+                    break;
+                case 'save job position requirement':
+                    $this->saveJobPositionRequirement();
+                    break;
+                case 'save job position qualification':
+                    $this->saveJobPositionQualification();
+                    break;
                 case 'get job position details':
                     $this->getJobPositionDetails();
                     break;
+                case 'get job position responsibility details':
+                    $this->getJobPositionResponsibilityDetails();
+                    break;
+                case 'get job position requirement details':
+                    $this->getJobPositionRequirementDetails();
+                    break;
+                case 'get job position qualification details':
+                    $this->getJobPositionQualificationDetails();
+                    break;
                 case 'delete job position':
                     $this->deleteJobPosition();
+                    break;
+                case 'delete job position responsibility':
+                    $this->deleteJobPositionResponsibility();
+                    break;
+                case 'delete job position requirement':
+                    $this->deleteJobPositionRequirement();
+                    break;
+                case 'delete job position qualification':
+                    $this->deleteJobPositionQualification();
                     break;
                 case 'delete multiple job position':
                     $this->deleteMultipleJobPosition();
@@ -138,6 +165,144 @@ class JobPositionController {
             $jobPositionID = $this->jobPositionModel->insertJobPosition($jobPositionName, $jobPositionDescription, $departmentID, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'jobPositionID' => $this->securityModel->encryptData($jobPositionID)]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveJobPositionResponsibility
+    # Description: 
+    # Updates the existing job position responsibility if it exists; otherwise, inserts a new job position responsibility.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveJobPositionResponsibility() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionResponsibilityID = isset($_POST['job_position_responsibility_id']) ? htmlspecialchars($_POST['job_position_responsibility_id'], ENT_QUOTES, 'UTF-8') : null;
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+        $responsibility = htmlspecialchars($_POST['responsibility'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionResponsibilityExist = $this->jobPositionModel->checkJobPositionResponsibilityExist($jobPositionResponsibilityID);
+        $total = $checkJobPositionResponsibilityExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->jobPositionModel->updateJobPositionResponsibility($jobPositionResponsibilityID, $responsibility, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $jobPositionID = $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $responsibility, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: saveJobPositionRequirement
+    # Description: 
+    # Updates the existing job position requirement if it exists; otherwise, inserts a new job position requirement.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveJobPositionRequirement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionRequirementID = isset($_POST['job_position_requirement_id']) ? htmlspecialchars($_POST['job_position_requirement_id'], ENT_QUOTES, 'UTF-8') : null;
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+        $requirement = htmlspecialchars($_POST['requirement'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionRequirementExist = $this->jobPositionModel->checkJobPositionRequirementExist($jobPositionRequirementID);
+        $total = $checkJobPositionRequirementExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->jobPositionModel->updateJobPositionRequirement($jobPositionRequirementID, $requirement, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $jobPositionID = $this->jobPositionModel->insertJobPositionRequirement($jobPositionID, $requirement, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: saveJobPositionQualification
+    # Description: 
+    # Updates the existing job position qualification if it exists; otherwise, inserts a new job position qualification.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveJobPositionQualification() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionQualificationID = isset($_POST['job_position_qualification_id']) ? htmlspecialchars($_POST['job_position_qualification_id'], ENT_QUOTES, 'UTF-8') : null;
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+        $qualification = htmlspecialchars($_POST['qualification'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionQualificationExist = $this->jobPositionModel->checkJobPositionQualificationExist($jobPositionQualificationID);
+        $total = $checkJobPositionQualificationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->jobPositionModel->updateJobPositionQualification($jobPositionQualificationID, $qualification, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $jobPositionID = $this->jobPositionModel->insertJobPositionQualification($jobPositionID, $qualification, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
     }
@@ -315,6 +480,129 @@ class JobPositionController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteJobPositionResponsibility
+    # Description: 
+    # Delete the job position responsibility if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteJobPositionResponsibility() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionResponsibilityID = htmlspecialchars($_POST['job_position_responsibility_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionResponsibilityExist = $this->jobPositionModel->checkJobPositionResponsibilityExist($jobPositionResponsibilityID);
+        $total = $checkJobPositionResponsibilityExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->jobPositionModel->deleteJobPositionResponsibility($jobPositionResponsibilityID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteJobPositionRequirement
+    # Description: 
+    # Delete the job position requirement if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteJobPositionRequirement() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionRequirementID = htmlspecialchars($_POST['job_position_requirement_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionRequirementExist = $this->jobPositionModel->checkJobPositionRequirementExist($jobPositionRequirementID);
+        $total = $checkJobPositionRequirementExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->jobPositionModel->deleteJobPositionRequirement($jobPositionRequirementID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteJobPositionQualification
+    # Description: 
+    # Delete the job position qualification if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteJobPositionQualification() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $jobPositionQualificationID = htmlspecialchars($_POST['job_position_qualification_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionQualificationExist = $this->jobPositionModel->checkJobPositionQualificationExist($jobPositionQualificationID);
+        $total = $checkJobPositionQualificationExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->jobPositionModel->deleteJobPositionQualification($jobPositionQualificationID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Duplicate methods
     # -------------------------------------------------------------
 
@@ -352,7 +640,29 @@ class JobPositionController {
             exit;
         }
 
+        $getLinkedJobPositionResponsibilities = $this->jobPositionModel->getLinkedJobPositionResponsibility($jobPositionID);
+        $getLinkedJobPositionRequirements = $this->jobPositionModel->getLinkedJobPositionRequirement($jobPositionID);
+        $getLinkedJobPositionQualifications = $this->jobPositionModel->getLinkedJobPositionQualification($jobPositionID);
+
         $jobPositionID = $this->jobPositionModel->duplicateJobPosition($jobPositionID, $userID);
+
+        foreach ($getLinkedJobPositionResponsibilities as $getLinkedJobPositionResponsibility) {
+            if(!empty($getLinkedJobPositionResponsibility['responsibility'])){
+                $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $getLinkedJobPositionResponsibility['responsibility'], $userID);
+            }
+        }
+
+        foreach ($getLinkedJobPositionRequirements as $getLinkedJobPositionRequirement) {
+            if(!empty($getLinkedJobPositionRequirement['requirement'])){
+                $this->jobPositionModel->insertJobPositionRequirement($jobPositionID, $getLinkedJobPositionRequirement['requirement'], $userID);
+            }
+        }
+
+        foreach ($getLinkedJobPositionQualifications as $getLinkedJobPositionQualification) {
+            if(!empty($getLinkedJobPositionQualification['qualification'])){
+                $this->jobPositionModel->insertJobPositionQualification($jobPositionID, $getLinkedJobPositionQualification['qualification'], $userID);
+            }
+        }
 
         echo json_encode(['success' => true, 'jobPositionID' =>  $this->securityModel->encryptData($jobPositionID)]);
         exit;
@@ -403,6 +713,126 @@ class JobPositionController {
                 'recruitmentStatus' => $jobPositionDetails['recruitment_status'],
                 'departmentID' => $departmentID,
                 'departmentName' => $departmentName
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getJobPositionResponsibilityDetails
+    # Description: 
+    # Handles the retrieval of job position responsibility details such as responsibility, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getJobPositionResponsibilityDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['job_position_responsibility_id']) && !empty($_POST['job_position_responsibility_id'])) {
+            $userID = $_SESSION['user_id'];
+            $jobPositionResponsibilityID = $_POST['job_position_responsibility_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $jobPositionResponsibilityDetails = $this->jobPositionModel->getJobPositionResponsibility($jobPositionResponsibilityID);
+
+            $response = [
+                'success' => true,
+                'responsibility' => $jobPositionResponsibilityDetails['responsibility']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getJobPositionRequirementDetails
+    # Description: 
+    # Handles the retrieval of job position requirement details such as requirement, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getJobPositionRequirementDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['job_position_requirement_id']) && !empty($_POST['job_position_requirement_id'])) {
+            $userID = $_SESSION['user_id'];
+            $jobPositionRequirementID = $_POST['job_position_requirement_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $jobPositionRequirementDetails = $this->jobPositionModel->getJobPositionRequirement($jobPositionRequirementID);
+
+            $response = [
+                'success' => true,
+                'requirement' => $jobPositionRequirementDetails['requirement']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getJobPositionQualificationDetails
+    # Description: 
+    # Handles the retrieval of job position qualification details such as qualification, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getJobPositionQualificationDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['job_position_qualification_id']) && !empty($_POST['job_position_qualification_id'])) {
+            $userID = $_SESSION['user_id'];
+            $jobPositionQualificationID = $_POST['job_position_qualification_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $jobPositionQualificationDetails = $this->jobPositionModel->getJobPositionQualification($jobPositionQualificationID);
+
+            $response = [
+                'success' => true,
+                'qualification' => $jobPositionQualificationDetails['qualification']
             ];
 
             echo json_encode($response);

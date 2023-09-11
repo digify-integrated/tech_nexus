@@ -113,9 +113,8 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Qualification', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Qualification', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Qualification', '0');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Job Position Attachment', '0');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job Position Attachment', '0');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Attachment', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Start Job Position Recruitment', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Stop Job Position Recruitment', '0');
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('1', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('2', '1', '1', '0');
@@ -145,7 +144,6 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('26', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('27', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('28', '1', '1', '0');
-INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('29', '1', '1', '0');
 
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Audio', '0');
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Compressed', '0');

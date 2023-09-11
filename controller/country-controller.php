@@ -172,7 +172,6 @@ class CountryController {
             exit;
         }
     
-        $this->countryModel->deleteLinkedCountry($countryID);
         $this->countryModel->deleteCountry($countryID);
             
         echo json_encode(['success' => true]);
@@ -207,7 +206,6 @@ class CountryController {
         }
 
         foreach($countryIDs as $countryID){
-            $this->countryModel->deleteLinkedCountry($countryID);
             $this->countryModel->deleteCountry($countryID);
         }
             

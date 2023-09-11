@@ -310,9 +310,6 @@ class UserController {
             }
         }
         
-        $this->roleModel->deleteLinkedRoleUser($userAccountID, null);
-        $this->userModel->deleteLinkedUICustomization($userAccountID);
-        $this->userModel->deleteLinkedPasswordHistory($userAccountID);
         $this->userModel->deleteUserAccount($userAccountID);
             
         echo json_encode(['success' => true]);
@@ -358,9 +355,6 @@ class UserController {
                     }
                 }
     
-                $this->roleModel->deleteLinkedRoleUser($userAccountID, null);
-                $this->userModel->deleteLinkedUICustomization($userAccountID);
-                $this->userModel->deleteLinkedPasswordHistory($userAccountID);
                 $this->userModel->deleteUserAccount($userAccountID);
             }
         }

@@ -201,14 +201,19 @@ END //
 
 CREATE PROCEDURE deleteUserAccount(IN p_user_id INT)
 BEGIN
-	DELETE FROM users
-    WHERE user_id = p_user_id;
-END //
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
-CREATE PROCEDURE deleteLinkedPasswordHistory(IN p_user_id INT)
-BEGIN
-    DELETE FROM password_history
-    WHERE user_id = p_user_id;
+    START TRANSACTION;
+
+	DELETE FROM password_history WHERE user_id = p_user_id;
+	DELETE FROM ui_customization_setting WHERE user_id = p_user_id;
+	DELETE FROM role_users WHERE user_id = p_user_id;
+    DELETE FROM users WHERE user_id = p_user_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE activateUserAccount(IN p_user_id INT, IN p_last_log_by INT)
@@ -346,27 +351,6 @@ BEGIN
 	SELECT user_id, file_as, email, last_connection_date FROM users
     WHERE user_id IN (SELECT user_id FROM role_users WHERE role_id = p_role_id)
     ORDER BY file_as;
-END //
-
-CREATE PROCEDURE deleteLinkedRoleUser(IN p_user_id INT, IN p_role_id INT)
-BEGIN
-    DECLARE query TEXT;
-
-	SET query = 'DELETE FROM role_users';
-	
-	IF p_user_id IS NOT NULL THEN
-        SET query = CONCAT(query, ' WHERE user_id = ');
-        SET query = CONCAT(query, QUOTE(p_user_id));
-	ELSE
-        SET query = CONCAT(query, ' WHERE role_id = ');
-        SET query = CONCAT(query, QUOTE(p_role_id));
-    END IF;
-
-    SET query = CONCAT(query, ';');    
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateAddRoleUserAccountTable(IN p_role_id INT)
@@ -664,12 +648,6 @@ BEGIN
 	WHERE user_id = p_user_id;
 END //
 
-CREATE PROCEDURE deleteLinkedUICustomization(IN p_user_id INT)
-BEGIN
-	DELETE FROM ui_customization_setting
-	WHERE user_id = p_user_id;
-END //
-
 /* Role table */
 CREATE TABLE role(
 	role_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -755,8 +733,19 @@ END //
 
 CREATE PROCEDURE deleteRole(IN p_role_id INT)
 BEGIN
-	DELETE FROM role
-    WHERE role_id = p_role_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM role_users WHERE role_id = p_role_id;
+    DELETE FROM menu_item_access_right WHERE role_id = p_role_id;
+    DELETE FROM system_action_access_rights WHERE role_id = p_role_id;
+    DELETE FROM role WHERE role_id = p_role_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getRole(IN p_role_id INT)
@@ -906,8 +895,18 @@ END //
 
 CREATE PROCEDURE deleteMenuGroup(IN p_menu_group_id INT)
 BEGIN
-	DELETE FROM menu_group
-    WHERE menu_group_id = p_menu_group_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM menu_item_access_right WHERE menu_item_id IN (SELECT menu_item_id FROM menu_item WHERE menu_group_id = p_menu_group_id);
+    DELETE FROM menu_item WHERE menu_group_id = p_menu_group_id;
+    DELETE FROM menu_group WHERE menu_group_id = p_menu_group_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getMenuGroup(IN p_menu_group_id INT)
@@ -1070,8 +1069,17 @@ END //
 
 CREATE PROCEDURE deleteMenuItem(IN p_menu_item_id INT)
 BEGIN
-	DELETE FROM menu_item
-    WHERE menu_item_id = p_menu_item_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM menu_item_access_right WHERE menu_item_id = p_menu_item_id;
+    DELETE FROM menu_item WHERE menu_item_id = p_menu_item_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getMenuItem(IN p_menu_item_id INT)
@@ -1282,27 +1290,6 @@ BEGIN
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteLinkedMenuItemAccessRight(IN p_menu_item_id INT, IN p_role_id INT)
-BEGIN
-    DECLARE query TEXT;
-
-	SET query = 'DELETE FROM menu_item_access_right';
-	
-	IF p_menu_item_id IS NOT NULL THEN
-        SET query = CONCAT(query, ' WHERE menu_item_id = ');
-        SET query = CONCAT(query, QUOTE(p_menu_item_id));
-	ELSE
-        SET query = CONCAT(query, ' WHERE role_id = ');
-        SET query = CONCAT(query, QUOTE(p_role_id));
-    END IF;
-
-    SET query = CONCAT(query, ';');    
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END //
-
 CREATE PROCEDURE buildMenuGroup(IN p_user_id INT)
 BEGIN
     SELECT DISTINCT(mg.menu_group_id) as menu_group_id, mg.menu_group_name
@@ -1375,8 +1362,6 @@ CREATE TABLE system_action(
 
 CREATE INDEX system_action_index_system_action_id ON system_action(system_action_id);
 
-
-
 CREATE PROCEDURE checkSystemActionExist (IN p_system_action_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -1402,8 +1387,17 @@ END //
 
 CREATE PROCEDURE deleteSystemAction(IN p_system_action_id INT)
 BEGIN
-	DELETE FROM system_action
-    WHERE system_action_id = p_system_action_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM system_action_access_rights WHERE system_action_id = p_system_action_id;
+    DELETE FROM system_action WHERE system_action_id = p_system_action_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getSystemAction(IN p_system_action_id INT)
@@ -1554,27 +1548,6 @@ BEGIN
     WHERE system_action_id = p_system_action_id AND role_id = p_role_id;
 END //
 
-CREATE PROCEDURE deleteLinkedSystemActionAccessRight(IN p_system_action_id INT, IN p_role_id INT)
-BEGIN
-    DECLARE query TEXT;
-
-	SET query = 'DELETE FROM system_action_access_rights';
-	
-	IF p_system_action_id IS NOT NULL THEN
-        SET query = CONCAT(query, ' WHERE system_action_id = ');
-        SET query = CONCAT(query, QUOTE(p_system_action_id));
-	ELSE
-        SET query = CONCAT(query, ' WHERE role_id = ');
-        SET query = CONCAT(query, QUOTE(p_role_id));
-    END IF;
-
-    SET query = CONCAT(query, ';');    
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END //
-
 /* File type table */
 CREATE TABLE file_type(
 	file_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -1639,8 +1612,17 @@ END //
 
 CREATE PROCEDURE deleteFileType(IN p_file_type_id INT)
 BEGIN
-	DELETE FROM file_type
-    WHERE file_type_id = p_file_type_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM file_extension WHERE file_type_id = p_file_type_id;
+    DELETE FROM file_type WHERE file_type_id = p_file_type_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getFileType(IN p_file_type_id INT)
@@ -1754,14 +1736,17 @@ END //
 
 CREATE PROCEDURE deleteFileExtension(IN p_file_extension_id INT)
 BEGIN
-	DELETE FROM file_extension
-    WHERE file_extension_id = p_file_extension_id;
-END //
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
 
-CREATE PROCEDURE deleteLinkedFileExtension(IN p_file_type_id INT)
-BEGIN
-	DELETE FROM file_extension
-    WHERE file_type_id = p_file_type_id;
+    START TRANSACTION;
+
+	DELETE FROM upload_setting_file_extension WHERE file_extension_id = p_file_extension_id;
+    DELETE FROM file_extension WHERE file_extension_id = p_file_extension_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getFileExtension(IN p_file_extension_id INT)
@@ -1892,8 +1877,17 @@ END //
 
 CREATE PROCEDURE deleteUploadSetting(IN p_upload_setting_id INT)
 BEGIN
-	DELETE FROM upload_setting
-    WHERE upload_setting_id = p_upload_setting_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	DELETE FROM upload_setting_file_extension WHERE upload_setting_id = p_upload_setting_id;
+    DELETE FROM upload_setting WHERE upload_setting_id = p_upload_setting_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getUploadSetting(IN p_upload_setting_id INT)
@@ -1924,12 +1918,6 @@ BEGIN
 	SELECT upload_setting_id, upload_setting_name, upload_setting_description, max_file_size
     FROM upload_setting
     ORDER BY upload_setting_id;
-END //
-
-CREATE PROCEDURE deleteLinkedAllowedFileExtension(IN p_upload_setting_id INT)
-BEGIN
-    DELETE FROM upload_setting_file_extension
-    WHERE upload_setting_id = p_upload_setting_id;
 END //
 
 /* Upload setting file extension table */
@@ -1981,27 +1969,6 @@ CREATE PROCEDURE getUploadSettingFileExtension(IN p_upload_setting_id INT)
 BEGIN
 	SELECT * FROM upload_setting_file_extension
     WHERE upload_setting_id = p_upload_setting_id;
-END //
-
-CREATE PROCEDURE deleteLinkedUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT)
-BEGIN
-    DECLARE query TEXT;
-
-	SET query = 'DELETE FROM upload_setting_file_extension';
-	
-	IF p_upload_setting_id IS NOT NULL THEN
-        SET query = CONCAT(query, ' WHERE upload_setting_id = ');
-        SET query = CONCAT(query, QUOTE(p_upload_setting_id));
-	ELSE
-        SET query = CONCAT(query, ' WHERE file_extension_id = ');
-        SET query = CONCAT(query, QUOTE(p_file_extension_id));
-    END IF;
-
-    SET query = CONCAT(query, ';');    
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
 END //
 
 /* Interface setting table */
@@ -2322,8 +2289,18 @@ END //
 
 CREATE PROCEDURE deleteCountry(IN p_country_id INT)
 BEGIN
-	DELETE FROM country
-    WHERE country_id = p_country_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM city WHERE state_id IN (SELECT state_id FROM state WHERE country_id = p_country_id);
+    DELETE FROM state WHERE country_id = p_country_id;
+	DELETE FROM country WHERE country_id = p_country_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getCountry(IN p_country_id INT)
@@ -2361,20 +2338,7 @@ BEGIN
 	SELECT country_id, country_name FROM country
 	ORDER BY country_name;
 END //
-
-CREATE PROCEDURE deleteLinkedCountry(IN p_country_id INT)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    DELETE FROM city WHERE country_id = p_country_id;
-    DELETE FROM state WHERE country_id = p_country_id;
-
-    COMMIT;
+   
 END;
 
 /* State table */
@@ -2462,8 +2426,17 @@ END //
 
 CREATE PROCEDURE deleteState(IN p_state_id INT)
 BEGIN
-	DELETE FROM state
-    WHERE state_id = p_state_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM city WHERE state_id = p_state_id;
+    DELETE FROM state WHERE state_id = p_state_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getState(IN p_state_id INT)
@@ -2525,20 +2498,6 @@ BEGIN
     INNER JOIN country c ON s.country_id = c.country_id
 	ORDER BY s.state_name;
 END //
-
-CREATE PROCEDURE deleteLinkedState(IN p_state_id INT)
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    DELETE FROM city WHERE state_id = p_state_id;
-
-    COMMIT;
-END;
 
 /* City table */
 CREATE TABLE city(
@@ -4000,8 +3959,19 @@ END //
 
 CREATE PROCEDURE deleteJobPosition(IN p_job_position_id INT)
 BEGIN
-	DELETE FROM job_position
-    WHERE job_position_id = p_job_position_id;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	DELETE FROM job_position_responsibility WHERE job_position_id = p_job_position_id;
+	DELETE FROM job_position_requirement WHERE job_position_id = p_job_position_id;
+	DELETE FROM job_position_qualification WHERE job_position_id = p_job_position_id;
+    DELETE FROM job_position WHERE job_position_id = p_job_position_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getJobPosition(IN p_job_position_id INT)
@@ -4070,7 +4040,7 @@ END //
 CREATE TABLE job_position_responsibility(
 	job_position_responsibility_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	job_position_id INT UNSIGNED NOT NULL,
-	responsibility VARCHAR(500) NOT NULL,
+	responsibility VARCHAR(1000) NOT NULL,
     last_log_by INT NOT NULL
 );
 
@@ -4117,15 +4087,13 @@ BEGIN
     WHERE job_position_responsibility_id = p_job_position_responsibility_id;
 END //
 
-CREATE PROCEDURE insertJobPositionResponsibility(IN p_job_position_id INT, IN p_responsibility VARCHAR(500), IN p_last_log_by INT, OUT p_job_position_responsibility_id INT)
+CREATE PROCEDURE insertJobPositionResponsibility(IN p_job_position_id INT, IN p_responsibility VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     INSERT INTO job_position_responsibility (job_position_id, responsibility, last_log_by) 
 	VALUES(p_job_position_id, p_responsibility, p_last_log_by);
-	
-    SET p_job_position_responsibility_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateJobPositionResponsibility(IN p_job_position_responsibility_id INT, IN p_responsibility VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateJobPositionResponsibility(IN p_job_position_responsibility_id INT, IN p_responsibility VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
 	UPDATE job_position_responsibility
     SET responsibility = p_responsibility,
@@ -4145,11 +4113,25 @@ BEGIN
     WHERE job_position_responsibility_id = p_job_position_responsibility_id;
 END //
 
+CREATE PROCEDURE getLinkedJobPositionResponsibility(IN p_job_position_id INT)
+BEGIN
+	SELECT * FROM job_position_responsibility
+    WHERE job_position_id = p_job_position_id;
+END //
+
+CREATE PROCEDURE generateJobPositionResponsibilityTable(IN p_job_position_id INT)
+BEGIN
+	SELECT job_position_responsibility_id, responsibility 
+    FROM job_position_responsibility
+    WHERE job_position_id = p_job_position_id 
+    ORDER BY job_position_responsibility_id;
+END //
+
 /* Job position requirement table */
 CREATE TABLE job_position_requirement(
 	job_position_requirement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	job_position_id INT UNSIGNED NOT NULL,
-	requirement VARCHAR(500) NOT NULL,
+	requirement VARCHAR(1000) NOT NULL,
     last_log_by INT NOT NULL
 );
 
@@ -4196,15 +4178,13 @@ BEGIN
     WHERE job_position_requirement_id = p_job_position_requirement_id;
 END //
 
-CREATE PROCEDURE insertJobPositionRequirement(IN p_job_position_id INT, IN p_requirement VARCHAR(500), IN p_last_log_by INT, OUT p_job_position_requirement_id INT)
+CREATE PROCEDURE insertJobPositionRequirement(IN p_job_position_id INT, IN p_requirement VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     INSERT INTO job_position_requirement (job_position_id, requirement, last_log_by) 
 	VALUES(p_job_position_id, p_requirement, p_last_log_by);
-	
-    SET p_job_position_requirement_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateJobPositionRequirement(IN p_job_position_requirement_id INT, IN p_requirement VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateJobPositionRequirement(IN p_job_position_requirement_id INT, IN p_requirement VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
 	UPDATE job_position_requirement
     SET requirement = p_requirement,
@@ -4224,11 +4204,25 @@ BEGIN
     WHERE job_position_requirement_id = p_job_position_requirement_id;
 END //
 
+CREATE PROCEDURE getLinkedJobPositionRequirement(IN p_job_position_id INT)
+BEGIN
+	SELECT * FROM job_position_requirement
+    WHERE job_position_id = p_job_position_id;
+END //
+
+CREATE PROCEDURE generateJobPositionRequirementTable(IN p_job_position_id INT)
+BEGIN
+	SELECT job_position_requirement_id, requirement 
+    FROM job_position_requirement
+    WHERE job_position_id = p_job_position_id 
+    ORDER BY job_position_requirement_id;
+END //
+
 /* Job position qualification table */
 CREATE TABLE job_position_qualification(
 	job_position_qualification_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	job_position_id INT UNSIGNED NOT NULL,
-	qualification VARCHAR(500) NOT NULL,
+	qualification VARCHAR(1000) NOT NULL,
     last_log_by INT NOT NULL
 );
 
@@ -4275,15 +4269,13 @@ BEGIN
     WHERE job_position_qualification_id = p_job_position_qualification_id;
 END //
 
-CREATE PROCEDURE insertJobPositionQualification(IN p_job_position_id INT, IN p_qualification VARCHAR(500), IN p_last_log_by INT, OUT p_job_position_qualification_id INT)
+CREATE PROCEDURE insertJobPositionQualification(IN p_job_position_id INT, IN p_qualification VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     INSERT INTO job_position_qualification (job_position_id, qualification, last_log_by) 
 	VALUES(p_job_position_id, p_qualification, p_last_log_by);
-	
-    SET p_job_position_qualification_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateJobPositionQualification(IN p_job_position_qualification_id INT, IN p_qualification VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateJobPositionQualification(IN p_job_position_qualification_id INT, IN p_qualification VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
 	UPDATE job_position_qualification
     SET qualification = p_qualification,
@@ -4301,4 +4293,18 @@ CREATE PROCEDURE getJobPositionQualification(IN p_job_position_qualification_id 
 BEGIN
 	SELECT * FROM job_position_qualification
     WHERE job_position_qualification_id = p_job_position_qualification_id;
+END //
+
+CREATE PROCEDURE getLinkedJobPositionQualification(IN p_job_position_id INT)
+BEGIN
+	SELECT * FROM job_position_qualification
+    WHERE job_position_id = p_job_position_id;
+END //
+
+CREATE PROCEDURE generateJobPositionQualificationTable(IN p_job_position_id INT)
+BEGIN
+	SELECT job_position_qualification_id, qualification 
+    FROM job_position_qualification
+    WHERE job_position_id = p_job_position_id 
+    ORDER BY job_position_qualification_id;
 END //

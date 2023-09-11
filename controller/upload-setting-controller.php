@@ -223,7 +223,6 @@ class UploadSettingController {
             exit;
         }
     
-        $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension($uploadSettingID, null);
         $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
             
         echo json_encode(['success' => true]);
@@ -258,7 +257,6 @@ class UploadSettingController {
         }
 
         foreach($uploadSettingIDs as $uploadSettingID){
-            $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension($uploadSettingID, null);
             $this->uploadSettingModel->deleteUploadSetting($uploadSettingID);
         }
             

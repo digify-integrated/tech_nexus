@@ -89,6 +89,174 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: job position responsibility table
+        # Description:
+        # Generates the job position responsibility table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'job position responsibility table':
+            if(isset($_POST['job_position_id']) && !empty($_POST['job_position_id'])){
+                $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateJobPositionResponsibilityTable(:jobPositionID)');
+                $sql->bindValue(':jobPositionID', $jobPositionID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $updateJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 19);
+                $deleteJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 20);
+
+                foreach ($options as $row) {
+                    $jobPositionResponsibilityID = $row['job_position_responsibility_id'];
+                    $responsibility = $row['responsibility'];
+
+                    $update = '';
+                    if($updateJobPositionResponsibility['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-responsibility" data-job-position-responsibility-id="'. $jobPositionResponsibilityID .'" title="Edit Responsibility">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($deleteJobPositionResponsibility['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-job-position-responsibility" data-job-position-responsibility-id="'. $jobPositionResponsibilityID .'" title="Delete Responsibility">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'RESPONSIBILITY' => $responsibility,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $update .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: job position requirement table
+        # Description:
+        # Generates the job position requirement table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'job position requirement table':
+            if(isset($_POST['job_position_id']) && !empty($_POST['job_position_id'])){
+                $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateJobPositionRequirementTable(:jobPositionID)');
+                $sql->bindValue(':jobPositionID', $jobPositionID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $updateJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 22);
+                $deleteJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 23);
+
+                foreach ($options as $row) {
+                    $jobPositionRequirementID = $row['job_position_requirement_id'];
+                    $requirement = $row['requirement'];
+
+                    $update = '';
+                    if($updateJobPositionRequirement['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-requirement" data-job-position-requirement-id="'. $jobPositionRequirementID .'" title="Edit Requirement">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($deleteJobPositionRequirement['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-job-position-requirement" data-job-position-requirement-id="'. $jobPositionRequirementID .'" title="Delete Requirement">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'REQUIREMENT' => $requirement,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $update .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: job position qualification table
+        # Description:
+        # Generates the job position qualification table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'job position qualification table':
+            if(isset($_POST['job_position_id']) && !empty($_POST['job_position_id'])){
+                $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateJobPositionQualificationTable(:jobPositionID)');
+                $sql->bindValue(':jobPositionID', $jobPositionID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $updateJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 25);
+                $deleteJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 26);
+
+                foreach ($options as $row) {
+                    $jobPositionQualificationID = $row['job_position_qualification_id'];
+                    $qualification = $row['qualification'];
+
+                    $update = '';
+                    if($updateJobPositionQualification['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-qualification" data-job-position-qualification-id="'. $jobPositionQualificationID .'" title="Edit Qualification">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($deleteJobPositionQualification['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-job-position-qualification" data-job-position-qualification-id="'. $jobPositionQualificationID .'" title="Delete Qualification">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'QUALIFICATION' => $qualification,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $update .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 

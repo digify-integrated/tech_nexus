@@ -101,6 +101,102 @@
     </div>
   </div>
 <?php
+  if(!empty($jobPositionID)){
+    if($addJobPositionResponsibility['total'] > 0){
+      $job_position_responsibility_add = '<button type="button" class="btn btn-warning" id="add-job-position-responsibility">Add Responsibility</button>';
+    }
+
+    if($addJobPositionRequirement['total'] > 0){
+      $job_position_requirement_add = '<button type="button" class="btn btn-warning" id="add-job-position-requirement">Add Requirement</button>';
+    }
+
+    if($addJobPositionQualification['total'] > 0){
+      $job_position_qualification_add = '<button type="button" class="btn btn-warning" id="add-job-position-qualification">Add Qualification</button>';
+    }
+
+    echo '<div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>Responsibility</h5>
+                  </div>
+                  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    '. $job_position_responsibility_add .'
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="dt-responsive table-responsive">
+                  <table id="job-position-responsibility-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                    <thead>
+                      <tr>
+                        <th>Responsibility</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>Requirement</h5>
+                  </div>
+                  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    '. $job_position_requirement_add .'
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="dt-responsive table-responsive">
+                  <table id="job-position-requirement-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                    <thead>
+                      <tr>
+                        <th>Requirement</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>Qualification</h5>
+                  </div>
+                  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    '. $job_position_qualification_add .'
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="dt-responsive table-responsive">
+                  <table id="job-position-qualification-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                    <thead>
+                      <tr>
+                        <th>Qualification</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>';
+  }
+
   echo '<div class="col-lg-12">
           <div class="card">
             <div class="card-header">
@@ -118,12 +214,90 @@
           </div>
         </div>';
 
-  if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
-    echo '<div id="start-job-position-recruitment-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-start-job-position-recruitment-modal" aria-hidden="true">
+  if($addJobPositionResponsibility['total'] > 0 && $updateJobPositionResponsibility['total'] > 0){
+    echo '<div id="job-position-responsibility-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-responsibility-modal" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="modal-start-job-position-recruitment-modal-title">Start Job Position Recruitment</h5>
+                  <h5 class="modal-title" id="job-position-responsibility-modal-title">Responsibility</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                  <form id="job-position-responsibility-form" method="post" action="#">
+                    <div class="form-group">
+                      <label class="form-label" for="responsibility">Responsibility <span class="text-danger">*</span></label>
+                      <input type="hidden" id="job_position_responsibility_id" name="job_position_responsibility_id">
+                      <textarea class="form-control" id="responsibility" name="responsibility" maxlength="1000" rows="5"></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-responsibility-form" form="job-position-responsibility-form">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>';
+  }
+
+  if($addJobPositionRequirement['total'] > 0 && $updateJobPositionRequirement['total'] > 0){
+    echo '<div id="job-position-requirement-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-requirement-modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="job-position-requirement-modal-title">Requirement</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                  <form id="job-position-requirement-form" method="post" action="#">
+                    <div class="form-group">
+                      <label class="form-label" for="requirement">Requirement <span class="text-danger">*</span></label>
+                      <input type="hidden" id="job_position_requirement_id" name="job_position_requirement_id">
+                      <textarea class="form-control" id="requirement" name="requirement" maxlength="1000" rows="5"></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-requirement-form" form="job-position-requirement-form">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>';
+  }
+
+  if($addJobPositionQualification['total'] > 0 && $updateJobPositionQualification['total'] > 0){
+    echo '<div id="job-position-qualification-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-qualification-modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="job-position-qualification-modal-title">Qualification</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                  <form id="job-position-qualification-form" method="post" action="#">
+                    <div class="form-group">
+                      <label class="form-label" for="qualification">Qualification <span class="text-danger">*</span></label>
+                      <input type="hidden" id="job_position_qualification_id" name="job_position_qualification_id">
+                      <textarea class="form-control" id="qualification" name="qualification" maxlength="1000" rows="5"></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-qualification-form" form="job-position-qualification-form">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>';
+  }
+
+  if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
+    echo '<div id="start-job-position-recruitment-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="start-job-position-recruitment-modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="start-job-position-recruitment-modal-title">Start Job Position Recruitment</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modal-body">

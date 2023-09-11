@@ -551,9 +551,6 @@ class RoleController {
             exit;
         }
     
-        $this->roleModel->deleteLinkedRoleUser(null, $roleID);
-        $this->roleModel->deleteLinkedMenuItemAccessRight(null, $roleID);
-        $this->roleModel->deleteLinkedSystemActionAccessRight(null, $roleID);
         $this->roleModel->deleteRole($roleID);
             
         echo json_encode(['success' => true]);
@@ -588,9 +585,6 @@ class RoleController {
         }
 
         foreach($roleIDs as $roleID){
-            $this->roleModel->deleteLinkedRoleUser(null, $roleID);
-            $this->roleModel->deleteLinkedMenuItemAccessRight(null, $roleID);
-            $this->roleModel->deleteLinkedSystemActionAccessRight(null, $roleID);
             $this->roleModel->deleteRole($roleID);
         }
             

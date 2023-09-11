@@ -120,24 +120,6 @@ class CountryModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: deleteLinkedCountry
-    # Description: Deletes the state, city, district linked to country.
-    #
-    # Parameters:
-    # - $p_country_id (int): The country ID.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function deleteLinkedCountry($p_country_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedCountry(:p_country_id)');
-        $stmt->bindValue(':p_country_id', $p_country_id, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 

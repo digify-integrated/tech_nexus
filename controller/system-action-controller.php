@@ -171,7 +171,6 @@ class SystemActionController {
         }
     
         $this->systemActionModel->deleteSystemAction($systemActionID);
-        $this->roleModel->deleteLinkedSystemActionAccessRight($systemActionID, null);
             
         echo json_encode(['success' => true]);
         exit;
@@ -206,7 +205,6 @@ class SystemActionController {
 
         foreach($systemActionIDs as $systemActionID){
             $this->systemActionModel->deleteSystemAction($systemActionID);
-            $this->roleModel->deleteLinkedSystemActionAccessRight($systemActionID, null);
         }
             
         echo json_encode(['success' => true]);

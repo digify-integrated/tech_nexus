@@ -176,7 +176,6 @@ class FileExtensionController {
             exit;
         }
         
-        $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension(null, $fileExtensionID);
         $this->fileExtensionModel->deleteFileExtension($fileExtensionID);
             
         echo json_encode(['success' => true]);
@@ -211,7 +210,6 @@ class FileExtensionController {
         }
 
         foreach($fileExtensionIDs as $fileExtensionID){
-            $this->uploadSettingModel->deleteLinkedUploadSettingFileExtension(null, $fileExtensionID);
             $this->fileExtensionModel->deleteFileExtension($fileExtensionID);
         }
             
