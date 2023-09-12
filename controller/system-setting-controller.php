@@ -15,7 +15,6 @@ session_start();
 class SystemSettingController {
     private $systemSettingModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -28,16 +27,14 @@ class SystemSettingController {
     # Parameters:
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SystemSettingModel $systemSettingModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(SystemSettingModel $systemSettingModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->systemSettingModel = $systemSettingModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -310,11 +307,10 @@ class SystemSettingController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/system-setting-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new SystemSettingController(new SystemSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new SystemSettingController(new SystemSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

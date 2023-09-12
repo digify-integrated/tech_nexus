@@ -15,7 +15,6 @@ session_start();
 class ZoomAPIController {
     private $zoomAPIModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -28,16 +27,14 @@ class ZoomAPIController {
     # Parameters:
     # - @param ZoomAPIModel $zoomAPIModel     The ZoomAPIModel instance for zoom API related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(ZoomAPIModel $zoomAPIModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(ZoomAPIModel $zoomAPIModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->zoomAPIModel = $zoomAPIModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -312,11 +309,10 @@ class ZoomAPIController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/zoom-api-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new ZoomAPIController(new ZoomAPIModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new ZoomAPIController(new ZoomAPIModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

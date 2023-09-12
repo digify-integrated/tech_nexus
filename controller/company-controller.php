@@ -15,7 +15,6 @@ session_start();
 class CompanyController {
     private $companyModel;
     private $userModel;
-    private $roleModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $cityModel;
@@ -35,7 +34,6 @@ class CompanyController {
     # Parameters:
     # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param CityModel $cityModel     The CityModel instance for city related operations.
@@ -48,10 +46,9 @@ class CompanyController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(CompanyModel $companyModel, UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(CompanyModel $companyModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->companyModel = $companyModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->cityModel = $cityModel;
@@ -520,13 +517,12 @@ require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
 require_once '../model/currency-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new CompanyController(new CompanyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new CompanyController(new CompanyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

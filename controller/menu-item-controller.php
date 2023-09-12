@@ -16,7 +16,6 @@ class MenuItemController {
     private $menuItemModel;
     private $menuGroupModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -34,11 +33,10 @@ class MenuItemController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(MenuItemModel $menuItemModel, MenuGroupModel $menuGroupModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(MenuItemModel $menuItemModel, MenuGroupModel $menuGroupModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->menuItemModel = $menuItemModel;
         $this->menuGroupModel = $menuGroupModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -346,13 +344,12 @@ class MenuItemController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/menu-item-model.php';
-require_once '../model/role-model.php';
 require_once '../model/menu-group-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new MenuItemController(new MenuItemModel(new DatabaseModel), new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new MenuItemController(new MenuItemModel(new DatabaseModel), new MenuGroupModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 
 ?>

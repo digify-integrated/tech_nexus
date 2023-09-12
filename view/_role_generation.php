@@ -7,14 +7,12 @@ require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/menu-group-model.php';
 require_once '../model/menu-item-model.php';
-require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $menuGroupModel = new MenuGroupModel($databaseModel);
 $menuItemModel = new MenuItemModel($databaseModel);
-$roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){

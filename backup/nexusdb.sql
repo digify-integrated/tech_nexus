@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 11, 2023 at 11:36 AM
+-- Generation Time: Sep 12, 2023 at 11:19 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -58,6 +58,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT,
     ORDER BY mi.order_sequence;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBankExist` (IN `p_bank_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM bank
+    WHERE bank_id = p_bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBloodTypeExist` (IN `p_blood_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM blood_type
+    WHERE blood_type_id = p_blood_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBranchExist` (IN `p_branch_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM branch
@@ -68,6 +80,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCityExist` (IN `p_city_id` INT
 	SELECT COUNT(*) AS total
     FROM city
     WHERE city_id = p_city_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCivilStatusExist` (IN `p_civil_status_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM civil_status
+    WHERE civil_status_id = p_civil_status_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkCompanyExist` (IN `p_company_id` INT)   BEGIN
@@ -94,10 +112,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkDepartmentExist` (IN `p_depart
     WHERE department_id = p_department_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkDepartureReasonExist` (IN `p_departure_reason_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkEmailSettingExist` (IN `p_email_setting_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM email_setting
     WHERE email_setting_id = p_email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkEmployeeTypeExist` (IN `p_employee_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM employee_type
+    WHERE employee_type_id = p_employee_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileExtensionExist` (IN `p_file_extension_id` INT)   BEGIN
@@ -112,10 +142,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileTypeExist` (IN `p_file_typ
     WHERE file_type_id = p_file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkGenderExist` (IN `p_gender_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM gender
+    WHERE gender_id = p_gender_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkHolidayTypeExist` (IN `p_holiday_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM holiday_type
+    WHERE holiday_type_id = p_holiday_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkIDTypeExist` (IN `p_id_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM id_type
+    WHERE id_type_id = p_id_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkInterfaceSettingExist` (IN `p_interface_setting_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM interface_setting
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkJobLevelExist` (IN `p_job_level_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_level
+    WHERE job_level_id = p_job_level_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkJobPositionExist` (IN `p_job_position_id` INT)   BEGIN
@@ -178,10 +232,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkMenuItemExist` (IN `p_menu_ite
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkNationalityExist` (IN `p_nationality_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM nationality
+    WHERE nationality_id = p_nationality_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkNotificationSettingExist` (IN `p_notification_setting_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRelationExist` (IN `p_relation_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM relation
+    WHERE relation_id = p_relation_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkReligionExist` (IN `p_religion_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM religion
+    WHERE religion_id = p_religion_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkRoleExist` (IN `p_role_id` INT)   BEGIN
@@ -274,6 +346,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserIDExist` (IN `p_user_id` I
     WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkWorkScheduleTypeExist` (IN `p_work_schedule_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_schedule_type
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkZoomAPIExist` (IN `p_zoom_api_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM zoom_api
@@ -296,6 +374,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteAllSystemActionRoleAccess` (I
     WHERE system_action_id = p_system_action_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBank` (IN `p_bank_id` INT)   BEGIN
+    DELETE FROM bank WHERE bank_id = p_bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBloodType` (IN `p_blood_type_id` INT)   BEGIN
+    DELETE FROM blood_type WHERE blood_type_id = p_blood_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBranch` (IN `p_branch_id` INT)   BEGIN
 	DELETE FROM branch
     WHERE branch_id = p_branch_id;
@@ -304,6 +390,10 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCity` (IN `p_city_id` INT)   BEGIN
 	DELETE FROM city
     WHERE city_id = p_city_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCivilStatus` (IN `p_civil_status_id` INT)   BEGIN
+    DELETE FROM civil_status WHERE civil_status_id = p_civil_status_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteCompany` (IN `p_company_id` INT)   BEGIN
@@ -336,9 +426,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteDepartment` (IN `p_department
     WHERE department_id = p_department_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteDepartureReason` (IN `p_departure_reason_id` INT)   BEGIN
+    DELETE FROM departure_reason WHERE departure_reason_id = p_departure_reason_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
 	DELETE FROM email_setting
     WHERE email_setting_id = p_email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteEmployeeType` (IN `p_employee_type_id` INT)   BEGIN
+    DELETE FROM employee_type WHERE employee_type_id = p_employee_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileExtension` (IN `p_file_extension_id` INT)   BEGIN
@@ -369,9 +467,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteFileType` (IN `p_file_type_id
     COMMIT;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteGender` (IN `p_gender_id` INT)   BEGIN
+    DELETE FROM gender WHERE gender_id = p_gender_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteHolidayType` (IN `p_holiday_type_id` INT)   BEGIN
+    DELETE FROM holiday_type WHERE holiday_type_id = p_holiday_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteIDType` (IN `p_id_type_id` INT)   BEGIN
+    DELETE FROM id_type WHERE id_type_id = p_id_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteInterfaceSetting` (IN `p_interface_setting_id` INT)   BEGIN
 	DELETE FROM interface_setting
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteJobLevel` (IN `p_job_level_id` INT)   BEGIN
+    DELETE FROM job_level WHERE job_level_id = p_job_level_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteJobPosition` (IN `p_job_position_id` INT)   BEGIN
@@ -439,9 +553,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuItemRoleAccess` (IN `p_me
     WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteNationality` (IN `p_nationality_id` INT)   BEGIN
+    DELETE FROM nationality WHERE nationality_id = p_nationality_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteNotificationSetting` (IN `p_notification_setting_id` INT)   BEGIN
 	DELETE FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRelation` (IN `p_relation_id` INT)   BEGIN
+    DELETE FROM relation WHERE relation_id = p_relation_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteReligion` (IN `p_religion_id` INT)   BEGIN
+    DELETE FROM religion WHERE religion_id = p_religion_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteRole` (IN `p_role_id` INT)   BEGIN
@@ -538,9 +664,42 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` 
     COMMIT;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkScheduleType` (IN `p_work_schedule_type_id` INT)   BEGIN
+    DELETE FROM work_schedule_type WHERE work_schedule_type_id = p_work_schedule_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteZoomAPI` (IN `p_zoom_api_id` INT)   BEGIN
 	DELETE FROM zoom_api
     WHERE zoom_api_id = p_zoom_api_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBank` (IN `p_bank_id` INT, IN `p_last_log_by` INT, OUT `p_new_bank_id` INT)   BEGIN
+    DECLARE p_bank_name VARCHAR(100);
+    DECLARE p_bank_identifier_code VARCHAR(100);
+    
+    SELECT bank_name, bank_identifier_code
+    INTO p_bank_name, p_bank_identifier_code
+    FROM bank 
+    WHERE bank_id = p_bank_id;
+    
+    INSERT INTO bank (bank_name, bank_identifier_code, last_log_by) 
+    VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
+    
+    SET p_new_bank_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBloodType` (IN `p_blood_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_blood_type_id` INT)   BEGIN
+    DECLARE p_blood_type_name VARCHAR(100);
+    
+    SELECT blood_type_name
+    INTO p_blood_type_name
+    FROM blood_type 
+    WHERE blood_type_id = p_blood_type_id;
+    
+    INSERT INTO blood_type (blood_type_name, last_log_by) 
+    VALUES(p_blood_type_name, p_last_log_by);
+    
+    SET p_new_blood_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBranch` (IN `p_branch_id` INT, IN `p_last_log_by` INT, OUT `p_new_branch_id` INT)   BEGIN
@@ -577,6 +736,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCity` (IN `p_city_id` INT,
     VALUES(p_city_name, p_state_id, p_last_log_by);
     
     SET p_new_city_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCivilStatus` (IN `p_civil_status_id` INT, IN `p_last_log_by` INT, OUT `p_new_civil_status_id` INT)   BEGIN
+    DECLARE p_civil_status_name VARCHAR(100);
+    
+    SELECT civil_status_name
+    INTO p_civil_status_name
+    FROM civil_status 
+    WHERE civil_status_id = p_civil_status_id;
+    
+    INSERT INTO civil_status (civil_status_name, last_log_by) 
+    VALUES(p_civil_status_name, p_last_log_by);
+    
+    SET p_new_civil_status_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateCompany` (IN `p_company_id` INT, IN `p_last_log_by` INT, OUT `p_new_company_id` INT)   BEGIN
@@ -650,6 +823,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateDepartment` (IN `p_departm
     SET p_new_department_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateDepartureReason` (IN `p_departure_reason_id` INT, IN `p_last_log_by` INT, OUT `p_new_departure_reason_id` INT)   BEGIN
+    DECLARE p_departure_reason_name VARCHAR(100);
+    
+    SELECT departure_reason_name
+    INTO p_departure_reason_name
+    FROM departure_reason 
+    WHERE departure_reason_id = p_departure_reason_id;
+    
+    INSERT INTO departure_reason (departure_reason_name, last_log_by) 
+    VALUES(p_departure_reason_name, p_last_log_by);
+    
+    SET p_new_departure_reason_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateEmailSetting` (IN `p_email_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_email_setting_id` INT)   BEGIN
     DECLARE p_email_setting_name VARCHAR(100);
     DECLARE p_email_setting_description VARCHAR(200);
@@ -672,6 +859,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateEmailSetting` (IN `p_email
     VALUES(p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_password, p_mail_encryption, p_mail_from_name, p_mail_from_email, p_last_log_by);
     
     SET p_new_email_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateEmployeeType` (IN `p_employee_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_employee_type_id` INT)   BEGIN
+    DECLARE p_employee_type_name VARCHAR(100);
+    
+    SELECT employee_type_name
+    INTO p_employee_type_name
+    FROM employee_type 
+    WHERE employee_type_id = p_employee_type_id;
+    
+    INSERT INTO employee_type (employee_type_name, last_log_by) 
+    VALUES(p_employee_type_name, p_last_log_by);
+    
+    SET p_new_employee_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileExtension` (IN `p_file_extension_id` INT, IN `p_last_log_by` INT, OUT `p_new_file_extension_id` INT)   BEGIN
@@ -704,6 +905,48 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateFileType` (IN `p_file_type
     SET p_new_file_type_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateGender` (IN `p_gender_id` INT, IN `p_last_log_by` INT, OUT `p_new_gender_id` INT)   BEGIN
+    DECLARE p_gender_name VARCHAR(100);
+    
+    SELECT gender_name
+    INTO p_gender_name
+    FROM gender 
+    WHERE gender_id = p_gender_id;
+    
+    INSERT INTO gender (gender_name, last_log_by) 
+    VALUES(p_gender_name, p_last_log_by);
+    
+    SET p_new_gender_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateHolidayType` (IN `p_holiday_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_holiday_type_id` INT)   BEGIN
+    DECLARE p_holiday_type_name VARCHAR(100);
+    
+    SELECT holiday_type_name
+    INTO p_holiday_type_name
+    FROM holiday_type 
+    WHERE holiday_type_id = p_holiday_type_id;
+    
+    INSERT INTO holiday_type (holiday_type_name, last_log_by) 
+    VALUES(p_holiday_type_name, p_last_log_by);
+    
+    SET p_new_holiday_type_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateIDType` (IN `p_id_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_id_type_id` INT)   BEGIN
+    DECLARE p_id_type_name VARCHAR(100);
+    
+    SELECT id_type_name
+    INTO p_id_type_name
+    FROM id_type 
+    WHERE id_type_id = p_id_type_id;
+    
+    INSERT INTO id_type (id_type_name, last_log_by) 
+    VALUES(p_id_type_name, p_last_log_by);
+    
+    SET p_new_id_type_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_interface_setting_id` INT)   BEGIN
     DECLARE p_interface_setting_name VARCHAR(100);
     DECLARE p_interface_setting_description VARCHAR(200);
@@ -717,6 +960,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateInterfaceSetting` (IN `p_i
     VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
     
     SET p_new_interface_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateJobLevel` (IN `p_job_level_id` INT, IN `p_last_log_by` INT, OUT `p_new_job_level_id` INT)   BEGIN
+    DECLARE p_current_level VARCHAR(10);
+    DECLARE p_rank VARCHAR(100);
+    DECLARE p_functional_level VARCHAR(100);
+    
+    SELECT current_level, rank, functional_level
+    INTO p_current_level, p_rank, p_functional_level
+    FROM job_level 
+    WHERE job_level_id = p_job_level_id;
+    
+    INSERT INTO job_level (current_level, rank, functional_level, last_log_by) 
+    VALUES(p_current_level, p_rank, p_functional_level, p_last_log_by);
+    
+    SET p_new_job_level_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateJobPosition` (IN `p_job_position_id` INT, IN `p_last_log_by` INT, OUT `p_new_job_position_id` INT)   BEGIN
@@ -771,6 +1030,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateMenuItem` (IN `p_menu_item
     SET p_new_menu_item_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateNationality` (IN `p_nationality_id` INT, IN `p_last_log_by` INT, OUT `p_new_nationality_id` INT)   BEGIN
+    DECLARE p_nationality_name VARCHAR(100);
+    
+    SELECT nationality_name
+    INTO p_nationality_name
+    FROM nationality 
+    WHERE nationality_id = p_nationality_id;
+    
+    INSERT INTO nationality (nationality_name, last_log_by) 
+    VALUES(p_nationality_name, p_last_log_by);
+    
+    SET p_new_nationality_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateNotificationSetting` (IN `p_notification_setting_id` INT, IN `p_last_log_by` INT, OUT `p_new_notification_setting_id` INT)   BEGIN
     DECLARE p_notification_setting_name VARCHAR(100);
     DECLARE p_notification_setting_description VARCHAR(200);
@@ -792,6 +1065,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateNotificationSetting` (IN `
     VALUES(p_notification_setting_name, p_notification_setting_description, p_system_notification, p_email_notification, p_sms_notification, p_system_notification_title, p_system_notification_message, p_email_notification_subject, p_email_notification_body, p_sms_notification_message, p_last_log_by);
     
     SET p_new_notification_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateRelation` (IN `p_relation_id` INT, IN `p_last_log_by` INT, OUT `p_new_relation_id` INT)   BEGIN
+    DECLARE p_relation_name VARCHAR(100);
+    
+    SELECT relation_name
+    INTO p_relation_name
+    FROM relation 
+    WHERE relation_id = p_relation_id;
+    
+    INSERT INTO relation (relation_name, last_log_by) 
+    VALUES(p_relation_name, p_last_log_by);
+    
+    SET p_new_relation_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateReligion` (IN `p_religion_id` INT, IN `p_last_log_by` INT, OUT `p_new_religion_id` INT)   BEGIN
+    DECLARE p_religion_name VARCHAR(100);
+    
+    SELECT religion_name
+    INTO p_religion_name
+    FROM religion 
+    WHERE religion_id = p_religion_id;
+    
+    INSERT INTO religion (religion_name, last_log_by) 
+    VALUES(p_religion_name, p_last_log_by);
+    
+    SET p_new_religion_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateRole` (IN `p_role_id` INT, IN `p_last_log_by` INT, OUT `p_new_role_id` INT)   BEGIN
@@ -872,6 +1173,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateUploadSetting` (IN `p_uplo
     SET p_new_upload_setting_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateWorkScheduleType` (IN `p_work_schedule_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_work_schedule_type_id` INT)   BEGIN
+    DECLARE p_work_schedule_type_name VARCHAR(100);
+    
+    SELECT work_schedule_type_name
+    INTO p_work_schedule_type_name
+    FROM work_schedule_type 
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+    
+    INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) 
+    VALUES(p_work_schedule_type_name, p_last_log_by);
+    
+    SET p_new_work_schedule_type_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateZoomAPI` (IN `p_zoom_api_id` INT, IN `p_last_log_by` INT, OUT `p_new_zoom_api_id` INT)   BEGIN
     DECLARE p_zoom_api_name VARCHAR(100);
     DECLARE p_zoom_api_description VARCHAR(200);
@@ -944,6 +1259,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (I
     ORDER BY role_name;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBankOptions` ()   BEGIN
+	SELECT bank_id, bank_name FROM bank
+	ORDER BY bank_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBankTable` ()   BEGIN
+    SELECT bank_id, bank_name
+    FROM bank
+    ORDER BY bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBloodTypeOptions` ()   BEGIN
+	SELECT blood_type_id, blood_type_name FROM blood_type
+	ORDER BY blood_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBloodTypeTable` ()   BEGIN
+    SELECT blood_type_id, blood_type_name
+    FROM blood_type
+    ORDER BY blood_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBranchOptions` ()   BEGIN
 	SELECT branch_id, branch_name FROM branch
 	ORDER BY branch_name;
@@ -994,6 +1331,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCityTable` (IN `p_state_id`
     DEALLOCATE PREPARE stmt;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCivilStatusOptions` ()   BEGIN
+	SELECT civil_status_id, civil_status_name FROM civil_status
+	ORDER BY civil_status_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCivilStatusTable` ()   BEGIN
+    SELECT civil_status_id, civil_status_name
+    FROM civil_status
+    ORDER BY civil_status_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateCompanyTable` ()   BEGIN
     SELECT company_id, company_name, company_logo, address, city_id
     FROM company
@@ -1034,10 +1382,32 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateDepartmentTable` ()   BEGIN
     ORDER BY department_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateDepartureReasonOptions` ()   BEGIN
+	SELECT departure_reason_id, departure_reason_name FROM departure_reason
+	ORDER BY departure_reason_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateDepartureReasonTable` ()   BEGIN
+    SELECT departure_reason_id, departure_reason_name
+    FROM departure_reason
+    ORDER BY departure_reason_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateEmailSettingTable` ()   BEGIN
 	SELECT email_setting_id, email_setting_name, email_setting_description
     FROM email_setting
     ORDER BY email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateEmployeeTypeOptions` ()   BEGIN
+	SELECT employee_type_id, employee_type_name FROM employee_type
+	ORDER BY employee_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateEmployeeTypeTable` ()   BEGIN
+    SELECT employee_type_id, employee_type_name
+    FROM employee_type
+    ORDER BY employee_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileExtensionOptions` ()   BEGIN
@@ -1069,10 +1439,54 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateFileTypeTable` ()   BEGIN
     ORDER BY file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateGenderOptions` ()   BEGIN
+	SELECT gender_id, gender_name FROM gender
+	ORDER BY gender_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateGenderTable` ()   BEGIN
+    SELECT gender_id, gender_name
+    FROM gender
+    ORDER BY gender_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateHolidayTypeOptions` ()   BEGIN
+	SELECT holiday_type_id, holiday_type_name FROM holiday_type
+	ORDER BY holiday_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateHolidayTypeTable` ()   BEGIN
+    SELECT holiday_type_id, holiday_type_name
+    FROM holiday_type
+    ORDER BY holiday_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateIDTypeOptions` ()   BEGIN
+	SELECT id_type_id, id_type_name FROM id_type
+	ORDER BY id_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateIDTypeTable` ()   BEGIN
+    SELECT id_type_id, id_type_name
+    FROM id_type
+    ORDER BY id_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateInterfaceSettingTable` ()   BEGIN
 	SELECT interface_setting_id, interface_setting_name, interface_setting_description, value
     FROM interface_setting
     ORDER BY interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobLevelOptions` ()   BEGIN
+	SELECT job_level_id, current_level, rank FROM job_level
+	ORDER BY current_level;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobLevelTable` ()   BEGIN
+    SELECT job_level_id, current_level, rank, functional_level
+    FROM job_level
+    ORDER BY job_level_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateJobPositionOptions` ()   BEGIN
@@ -1177,10 +1591,43 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateMenuItemTable` ()   BEGIN
     ORDER BY menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateNationalityOptions` ()   BEGIN
+	SELECT nationality_id, nationality_name FROM nationality
+	ORDER BY nationality_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateNationalityTable` ()   BEGIN
+    SELECT nationality_id, nationality_name
+    FROM nationality
+    ORDER BY nationality_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateNotificationSettingTable` ()   BEGIN
 	SELECT notification_setting_id, notification_setting_name, notification_setting_description, system_notification, email_notification, sms_notification
     FROM notification_setting
     ORDER BY notification_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRelationOptions` ()   BEGIN
+	SELECT relation_id, relation_name FROM relation
+	ORDER BY relation_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRelationTable` ()   BEGIN
+    SELECT relation_id, relation_name
+    FROM relation
+    ORDER BY relation_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateReligionOptions` ()   BEGIN
+	SELECT religion_id, religion_name FROM religion
+	ORDER BY religion_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateReligionTable` ()   BEGIN
+    SELECT religion_id, religion_name
+    FROM religion
+    ORDER BY religion_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateRoleConfigurationTable` ()   BEGIN
@@ -1372,10 +1819,31 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is
     DEALLOCATE PREPARE stmt;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWorkScheduleTypeOptions` ()   BEGIN
+	SELECT work_schedule_type_id, work_schedule_type_name FROM work_schedule_type
+	ORDER BY work_schedule_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWorkScheduleTypeTable` ()   BEGIN
+    SELECT work_schedule_type_id, work_schedule_type_name
+    FROM work_schedule_type
+    ORDER BY work_schedule_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateZoomAPITable` ()   BEGIN
 	SELECT zoom_api_id, zoom_api_name, zoom_api_description
     FROM zoom_api
     ORDER BY zoom_api_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getBank` (IN `p_bank_id` INT)   BEGIN
+	SELECT * FROM bank
+    WHERE bank_id = p_bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getBloodType` (IN `p_blood_type_id` INT)   BEGIN
+	SELECT * FROM blood_type
+    WHERE blood_type_id = p_blood_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getBranch` (IN `p_branch_id` INT)   BEGIN
@@ -1386,6 +1854,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCity` (IN `p_city_id` INT)   BEGIN
 	SELECT * FROM city
     WHERE city_id = p_city_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getCivilStatus` (IN `p_civil_status_id` INT)   BEGIN
+	SELECT * FROM civil_status
+    WHERE civil_status_id = p_civil_status_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getCompany` (IN `p_company_id` INT)   BEGIN
@@ -1408,9 +1881,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getDepartment` (IN `p_department_id
     WHERE department_id = p_department_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getDepartureReason` (IN `p_departure_reason_id` INT)   BEGIN
+	SELECT * FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
 	SELECT * FROM email_setting
     WHERE email_setting_id = p_email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmployeeType` (IN `p_employee_type_id` INT)   BEGIN
+	SELECT * FROM employee_type
+    WHERE employee_type_id = p_employee_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileExtension` (IN `p_file_extension_id` INT)   BEGIN
@@ -1423,9 +1906,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getFileType` (IN `p_file_type_id` I
     WHERE file_type_id = p_file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getGender` (IN `p_gender_id` INT)   BEGIN
+	SELECT * FROM gender
+    WHERE gender_id = p_gender_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getHolidayType` (IN `p_holiday_type_id` INT)   BEGIN
+	SELECT * FROM holiday_type
+    WHERE holiday_type_id = p_holiday_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getIDType` (IN `p_id_type_id` INT)   BEGIN
+	SELECT * FROM id_type
+    WHERE id_type_id = p_id_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getInterfaceSetting` (IN `p_interface_setting_id` INT)   BEGIN
 	SELECT * FROM interface_setting
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getJobLevel` (IN `p_job_level_id` INT)   BEGIN
+	SELECT * FROM job_level
+    WHERE job_level_id = p_job_level_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getJobPosition` (IN `p_job_position_id` INT)   BEGIN
@@ -1473,6 +1976,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuItem` (IN `p_menu_item_id` I
 	WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getNationality` (IN `p_nationality_id` INT)   BEGIN
+	SELECT * FROM nationality
+    WHERE nationality_id = p_nationality_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getNotificationSetting` (IN `p_notification_setting_id` INT)   BEGIN
 	SELECT * FROM notification_setting
     WHERE notification_setting_id = p_notification_setting_id;
@@ -1481,6 +1989,16 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255))   BEGIN
 	SELECT * FROM password_history
 	WHERE p_user_id = p_user_id OR email = BINARY p_email;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getRelation` (IN `p_relation_id` INT)   BEGIN
+	SELECT * FROM relation
+    WHERE relation_id = p_relation_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getReligion` (IN `p_religion_id` INT)   BEGIN
+	SELECT * FROM religion
+    WHERE religion_id = p_religion_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getRole` (IN `p_role_id` INT)   BEGIN
@@ -1545,9 +2063,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserByRememberToken` (IN `p_reme
 	WHERE remember_token = p_remember_token;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getWorkScheduleType` (IN `p_work_schedule_type_id` INT)   BEGIN
+	SELECT * FROM work_schedule_type
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getZoomAPI` (IN `p_zoom_api_id` INT)   BEGIN
 	SELECT * FROM zoom_api
     WHERE zoom_api_id = p_zoom_api_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBank` (IN `p_bank_name` VARCHAR(100), IN `p_bank_identifier_code` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_bank_id` INT)   BEGIN
+    INSERT INTO bank (bank_name, bank_identifier_code, last_log_by) 
+	VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
+	
+    SET p_bank_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBloodType` (IN `p_blood_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_blood_type_id` INT)   BEGIN
+    INSERT INTO blood_type (blood_type_name, last_log_by) 
+	VALUES(p_blood_type_name, p_last_log_by);
+	
+    SET p_blood_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBranch` (IN `p_branch_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT, OUT `p_branch_id` INT)   BEGIN
@@ -1562,6 +2099,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCity` (IN `p_city_name` VARCH
 	VALUES(p_city_name, p_state_id, p_last_log_by);
 	
     SET p_city_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCivilStatus` (IN `p_civil_status_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_civil_status_id` INT)   BEGIN
+    INSERT INTO civil_status (civil_status_name, last_log_by) 
+	VALUES(p_civil_status_name, p_last_log_by);
+	
+    SET p_civil_status_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCompany` (IN `p_company_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_tax_id` VARCHAR(500), IN `p_currency_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT, OUT `p_company_id` INT)   BEGIN
@@ -1592,11 +2136,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertDepartment` (IN `p_department
     SET p_department_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertDepartureReason` (IN `p_departure_reason_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_departure_reason_id` INT)   BEGIN
+    INSERT INTO departure_reason (departure_reason_name, last_log_by) 
+	VALUES(p_departure_reason_name, p_last_log_by);
+	
+    SET p_departure_reason_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmailSetting` (IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_email_setting_id` INT)   BEGIN
     INSERT INTO email_setting (email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_encryption, mail_from_name, mail_from_email, last_log_by) 
 	VALUES(p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_encryption, p_mail_from_name, p_mail_from_email, p_last_log_by);
 	
     SET p_email_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployeeType` (IN `p_employee_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_employee_type_id` INT)   BEGIN
+    INSERT INTO employee_type (employee_type_name, last_log_by) 
+	VALUES(p_employee_type_name, p_last_log_by);
+	
+    SET p_employee_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileExtension` (IN `p_file_extension_name` VARCHAR(100), IN `p_file_type_id` INT, IN `p_last_log_by` INT, OUT `p_file_extension_id` INT)   BEGIN
@@ -1613,11 +2171,39 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertFileType` (IN `p_file_type_na
     SET p_file_type_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertGender` (IN `p_gender_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_gender_id` INT)   BEGIN
+    INSERT INTO gender (gender_name, last_log_by) 
+	VALUES(p_gender_name, p_last_log_by);
+	
+    SET p_gender_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertHolidayType` (IN `p_holiday_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_holiday_type_id` INT)   BEGIN
+    INSERT INTO holiday_type (holiday_type_name, last_log_by) 
+	VALUES(p_holiday_type_name, p_last_log_by);
+	
+    SET p_holiday_type_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertIDType` (IN `p_id_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_id_type_id` INT)   BEGIN
+    INSERT INTO id_type (id_type_name, last_log_by) 
+	VALUES(p_id_type_name, p_last_log_by);
+	
+    SET p_id_type_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertInterfaceSetting` (IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_interface_setting_id` INT)   BEGIN
     INSERT INTO interface_setting (interface_setting_name, interface_setting_description, last_log_by) 
 	VALUES(p_interface_setting_name, p_interface_setting_description, p_last_log_by);
 	
     SET p_interface_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertJobLevel` (IN `p_current_level` VARCHAR(10), IN `p_rank` VARCHAR(100), IN `p_functional_level` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_job_level_id` INT)   BEGIN
+    INSERT INTO job_level (current_level, rank, functional_level, last_log_by) 
+	VALUES(p_current_level, p_rank, p_functional_level, p_last_log_by);
+	
+    SET p_job_level_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertJobPosition` (IN `p_job_position_name` VARCHAR(100), IN `p_job_position_description` VARCHAR(2000), IN `p_department_id` INT, IN `p_last_log_by` INT, OUT `p_job_position_id` INT)   BEGIN
@@ -1656,6 +2242,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMenuItem` (IN `p_menu_item_na
     SET p_menu_item_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertNationality` (IN `p_nationality_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_nationality_id` INT)   BEGIN
+    INSERT INTO nationality (nationality_name, last_log_by) 
+	VALUES(p_nationality_name, p_last_log_by);
+	
+    SET p_nationality_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertNotificationSetting` (IN `p_notification_setting_name` VARCHAR(100), IN `p_notification_setting_description` VARCHAR(200), IN `p_last_log_by` INT, OUT `p_notification_setting_id` INT)   BEGIN
     INSERT INTO notification_setting (notification_setting_name, notification_setting_description, last_log_by) 
 	VALUES(p_notification_setting_name, p_notification_setting_description, p_last_log_by);
@@ -1666,6 +2259,20 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPasswordHistory` (IN `p_user_id` INT, IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_last_password_change` DATETIME)   BEGIN
     INSERT INTO password_history (user_id, email, password, password_change_date) 
     VALUES (p_user_id, p_email, p_password, p_last_password_change);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRelation` (IN `p_relation_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_relation_id` INT)   BEGIN
+    INSERT INTO relation (relation_name, last_log_by) 
+	VALUES(p_relation_name, p_last_log_by);
+	
+    SET p_relation_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertReligion` (IN `p_religion_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_religion_id` INT)   BEGIN
+    INSERT INTO religion (religion_name, last_log_by) 
+	VALUES(p_religion_name, p_last_log_by);
+	
+    SET p_religion_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertRole` (IN `p_role_name` VARCHAR(100), IN `p_role_description` VARCHAR(200), IN `p_assignable` TINYINT(1), IN `p_last_log_by` INT, OUT `p_role_id` INT)   BEGIN
@@ -1752,6 +2359,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` 
     SET p_user_account_id = LAST_INSERT_ID();
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertWorkScheduleType` (IN `p_work_schedule_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_work_schedule_type_id` INT)   BEGIN
+    INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) 
+	VALUES(p_work_schedule_type_name, p_last_log_by);
+	
+    SET p_work_schedule_type_id = LAST_INSERT_ID();
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertZoomAPI` (IN `p_zoom_api_name` VARCHAR(100), IN `p_zoom_api_description` VARCHAR(200), IN `p_api_key` VARCHAR(1000), IN `p_api_secret` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_zoom_api_id` INT)   BEGIN
     INSERT INTO zoom_api (zoom_api_name, zoom_api_description, api_key, api_secret, last_log_by) 
 	VALUES(p_zoom_api_name, p_zoom_api_description, p_api_key, p_api_secret, p_last_log_by);
@@ -1777,6 +2391,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateAccountLock` (IN `p_user_id` 
     WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBank` (IN `p_bank_id` INT, IN `p_bank_name` VARCHAR(100), IN `p_bank_identifier_code` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE bank
+    SET bank_name = p_bank_name,
+    bank_identifier_code = p_bank_identifier_code,
+    last_log_by = p_last_log_by
+    WHERE bank_id = p_bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBloodType` (IN `p_blood_type_id` INT, IN `p_blood_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE blood_type
+    SET blood_type_name = p_blood_type_name,
+    last_log_by = p_last_log_by
+    WHERE blood_type_id = p_blood_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBranch` (IN `p_branch_id` INT, IN `p_branch_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
 	UPDATE branch
     SET branch_name = p_branch_name,
@@ -1798,6 +2427,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCity` (IN `p_city_id` INT, IN
     state_id = p_state_id,
     last_log_by = p_last_log_by
     WHERE city_id = p_city_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCivilStatus` (IN `p_civil_status_id` INT, IN `p_civil_status_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE civil_status
+    SET civil_status_name = p_civil_status_name,
+    last_log_by = p_last_log_by
+    WHERE civil_status_id = p_civil_status_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateCompany` (IN `p_company_id` INT, IN `p_company_name` VARCHAR(100), IN `p_address` VARCHAR(1000), IN `p_city_id` INT, IN `p_tax_id` VARCHAR(500), IN `p_currency_id` INT, IN `p_phone` VARCHAR(20), IN `p_mobile` VARCHAR(20), IN `p_telephone` VARCHAR(20), IN `p_email` VARCHAR(100), IN `p_website` VARCHAR(500), IN `p_last_log_by` INT)   BEGIN
@@ -1852,6 +2488,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateDepartment` (IN `p_department
     WHERE department_id = p_department_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateDepartureReason` (IN `p_departure_reason_id` INT, IN `p_departure_reason_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE departure_reason
+    SET departure_reason_name = p_departure_reason_name,
+    last_log_by = p_last_log_by
+    WHERE departure_reason_id = p_departure_reason_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateEmailSetting` (IN `p_email_setting_id` INT, IN `p_email_setting_name` VARCHAR(100), IN `p_email_setting_description` VARCHAR(200), IN `p_mail_host` VARCHAR(100), IN `p_port` INT, IN `p_smtp_auth` INT(1), IN `p_smtp_auto_tls` INT(1), IN `p_mail_username` VARCHAR(200), IN `p_mail_encryption` VARCHAR(20), IN `p_mail_from_name` VARCHAR(200), IN `p_mail_from_email` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
 	UPDATE email_setting
     SET email_setting_name = p_email_setting_name,
@@ -1866,6 +2509,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateEmailSetting` (IN `p_email_se
     mail_from_email = p_mail_from_email,
     last_log_by = p_last_log_by
     WHERE email_setting_id = p_email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateEmployeeType` (IN `p_employee_type_id` INT, IN `p_employee_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE employee_type
+    SET employee_type_name = p_employee_type_name,
+    last_log_by = p_last_log_by
+    WHERE employee_type_id = p_employee_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFailedOTPAttempts` (IN `p_user_id` INT, IN `p_failed_otp_attempts` INT)   BEGIN
@@ -1889,6 +2539,27 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateFileType` (IN `p_file_type_id
     WHERE file_type_id = p_file_type_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateGender` (IN `p_gender_id` INT, IN `p_gender_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE gender
+    SET gender_name = p_gender_name,
+    last_log_by = p_last_log_by
+    WHERE gender_id = p_gender_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateHolidayType` (IN `p_holiday_type_id` INT, IN `p_holiday_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE holiday_type
+    SET holiday_type_name = p_holiday_type_name,
+    last_log_by = p_last_log_by
+    WHERE holiday_type_id = p_holiday_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateIDType` (IN `p_id_type_id` INT, IN `p_id_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE id_type
+    SET id_type_name = p_id_type_name,
+    last_log_by = p_last_log_by
+    WHERE id_type_id = p_id_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSetting` (IN `p_interface_setting_id` INT, IN `p_interface_setting_name` VARCHAR(100), IN `p_interface_setting_description` VARCHAR(200), IN `p_last_log_by` INT)   BEGIN
 	UPDATE interface_setting
     SET interface_setting_name = p_interface_setting_name,
@@ -1902,6 +2573,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateInterfaceSettingValue` (IN `p
     SET value = p_value,
     last_log_by = p_last_log_by
     WHERE interface_setting_id = p_interface_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobLevel` (IN `p_job_level_id` INT, IN `p_current_level` VARCHAR(10), IN `p_rank` VARCHAR(100), IN `p_functional_level` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE job_level
+    SET current_level = p_current_level,
+    rank = p_rank,
+    functional_level = p_functional_level,
+    last_log_by = p_last_log_by
+    WHERE job_level_id = p_job_level_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateJobPosition` (IN `p_job_position_id` INT, IN `p_job_position_name` VARCHAR(100), IN `p_job_position_description` VARCHAR(2000), IN `p_department_id` INT, IN `p_last_log_by` INT)   BEGIN
@@ -1981,6 +2661,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateMenuItem` (IN `p_menu_item_id
     WHERE menu_item_id = p_menu_item_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNationality` (IN `p_nationality_id` INT, IN `p_nationality_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE nationality
+    SET nationality_name = p_nationality_name,
+    last_log_by = p_last_log_by
+    WHERE nationality_id = p_nationality_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateNotificationChannelStatus` (IN `p_notification_setting_id` INT, IN `p_channel` VARCHAR(10), IN `p_status` TINYINT(1), IN `p_last_log_by` INT)   BEGIN
     IF p_channel = 'system' THEN
         UPDATE notification_setting
@@ -2040,6 +2727,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateOTPAsExpired` (IN `p_user_id`
 	UPDATE users 
     SET otp_expiry_date = p_otp_expiry_date
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRelation` (IN `p_relation_id` INT, IN `p_relation_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE relation
+    SET relation_name = p_relation_name,
+    last_log_by = p_last_log_by
+    WHERE relation_id = p_relation_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateReligion` (IN `p_religion_id` INT, IN `p_religion_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE religion
+    SET religion_name = p_religion_name,
+    last_log_by = p_last_log_by
+    WHERE religion_id = p_religion_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateRememberToken` (IN `p_user_id` INT, IN `p_remember_token` VARCHAR(255))   BEGIN
@@ -2196,6 +2897,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserProfilePicture` (IN `p_us
 	UPDATE users 
     SET profile_picture = p_profile_picture, last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWorkScheduleType` (IN `p_work_schedule_type_id` INT, IN `p_work_schedule_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE work_schedule_type
+    SET work_schedule_type_name = p_work_schedule_type_name,
+    last_log_by = p_last_log_by
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateZoomAPI` (IN `p_zoom_api_id` INT, IN `p_zoom_api_name` VARCHAR(100), IN `p_zoom_api_description` VARCHAR(200), IN `p_api_key` VARCHAR(1000), IN `p_api_secret` VARCHAR(1000), IN `p_last_log_by` INT)   BEGIN
@@ -4506,7 +5214,186 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2269, 'job_position', 9, 'Job position created. <br/><br/>Job Position Name: test<br/>Job Position Description: test', '1', '2023-09-11 17:32:30'),
 (2270, 'job_position_responsibility', 4, 'Job position responsibility created. <br/><br/>Responsibility: test', '1', '2023-09-11 17:32:30'),
 (2271, 'job_position_requirement', 4, 'Job position requirement created. <br/><br/>Requirement: test', '1', '2023-09-11 17:32:30'),
-(2272, 'job_position_qualification', 5, 'Job position qualification created. <br/><br/>Qualification: test', '1', '2023-09-11 17:32:30');
+(2272, 'job_position_qualification', 5, 'Job position qualification created. <br/><br/>Qualification: test', '1', '2023-09-11 17:32:30'),
+(2273, 'menu_item', 29, 'Menu item created. <br/><br/>Menu Item Name: Job Level<br/>Menu Group ID: 1<br/>URL: job-level.php<br/>Parent ID: 25<br/>Order Sequence: 3', '0', '2023-09-12 09:46:17'),
+(2274, 'menu_item_access_right', 29, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 09:46:17'),
+(2275, 'job_level', 1, 'Job level created. <br/><br/>Current Level: I<br/>Rank: Trainee<br/>Functional Level: Unskilled', '1', '2023-09-12 10:33:49'),
+(2276, 'job_level', 1, 'Current Level: I -> II<br/>Rank: Trainee -> Trainees<br/>Functional Level: Unskilled -> Unskilleds<br/>', '1', '2023-09-12 10:37:39'),
+(2277, 'job_level', 2, 'Job level created. <br/><br/>Current Level: II<br/>Rank: Trainees<br/>Functional Level: Unskilleds', '1', '2023-09-12 10:38:27'),
+(2278, 'job_level', 3, 'Job level created. <br/><br/>Current Level: II<br/>Rank: Trainees<br/>Functional Level: Unskilleds', '1', '2023-09-12 10:38:29'),
+(2279, 'menu_item', 30, 'Menu item created. <br/><br/>Menu Item Name: Employee Type<br/>Menu Group ID: 1<br/>URL: employee-type.php<br/>Parent ID: 25<br/>Order Sequence: 3', '0', '2023-09-12 10:39:52'),
+(2280, 'menu_item_access_right', 30, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 10:39:52'),
+(2281, 'employee_type', 1, 'Employee type created. <br/><br/>Employee Type Name: test', '1', '2023-09-12 11:19:11'),
+(2282, 'employee_type', 1, 'Employee Type Name: test -> test2<br/>', '1', '2023-09-12 11:19:15'),
+(2283, 'employee_type', 2, 'Employee type created. <br/><br/>Employee Type Name: test2', '1', '2023-09-12 11:19:19'),
+(2284, 'employee_type', 3, 'Employee type created. <br/><br/>Employee Type Name: test2', '1', '2023-09-12 11:19:21'),
+(2285, 'menu_item', 31, 'Menu item created. <br/><br/>Menu Item Name: Departure Reason<br/>Menu Group ID: 1<br/>URL: departure-reason.php<br/>Parent ID: 25<br/>Order Sequence: 4', '0', '2023-09-12 11:26:42'),
+(2286, 'menu_item_access_right', 31, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 11:26:42'),
+(2287, 'departure_reason', 1, 'Departure reason created. <br/><br/>Departure Reason Name: test', '1', '2023-09-12 11:38:18'),
+(2288, 'departure_reason', 1, 'Departure Reason Name: test -> test2<br/>', '1', '2023-09-12 11:38:21'),
+(2289, 'departure_reason', 2, 'Departure reason created. <br/><br/>Departure Reason Name: test2', '1', '2023-09-12 11:38:25'),
+(2290, 'departure_reason', 3, 'Departure reason created. <br/><br/>Departure Reason Name: test2', '1', '2023-09-12 11:38:28'),
+(2291, 'menu_item', 32, 'Menu item created. <br/><br/>Menu Item Name: ID Type<br/>Menu Group ID: 1<br/>URL: id-type.php<br/>Parent ID: 25<br/>Order Sequence: 9', '0', '2023-09-12 11:39:54'),
+(2292, 'menu_item_access_right', 32, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 11:39:54'),
+(2293, 'id_type', 1, 'ID type created. <br/><br/>ID Type Name: test', '1', '2023-09-12 11:57:39'),
+(2294, 'id_type', 1, 'ID Type Name: test -> test2<br/>', '1', '2023-09-12 11:58:06'),
+(2295, 'id_type', 2, 'ID type created. <br/><br/>ID Type Name: test2', '1', '2023-09-12 11:58:08'),
+(2296, 'id_type', 3, 'ID type created. <br/><br/>ID Type Name: test2', '1', '2023-09-12 11:58:11'),
+(2297, 'menu_item', 33, 'Menu item created. <br/><br/>Menu Item Name: Gender<br/>Menu Group ID: 1<br/>URL: gender.php<br/>Parent ID: 25<br/>Order Sequence: 7', '0', '2023-09-12 12:28:33'),
+(2298, 'menu_item_access_right', 33, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 12:28:33'),
+(2299, 'gender', 1, 'Gender created. <br/><br/>Departure Reason Name: test', '1', '2023-09-12 13:26:34'),
+(2300, 'gender', 1, 'Departure Reason Name: test -> test2<br/>', '1', '2023-09-12 13:27:26'),
+(2301, 'gender', 2, 'Gender created. <br/><br/>Departure Reason Name: test2', '1', '2023-09-12 13:27:29'),
+(2302, 'gender', 3, 'Gender created. <br/><br/>Departure Reason Name: test2', '1', '2023-09-12 13:27:32'),
+(2303, 'menu_item', 34, 'Menu item created. <br/><br/>Menu Item Name: Religion<br/>Menu Group ID: 1<br/>URL: gender.php<br/>Parent ID: 25<br/>Order Sequence: 18', '0', '2023-09-12 13:29:00'),
+(2304, 'menu_item_access_right', 34, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 13:29:00'),
+(2305, 'menu_item', 34, 'URL: gender.php -> religion.php<br/>', '0', '2023-09-12 13:35:52'),
+(2306, 'religion', 1, 'Religion created. <br/><br/>Religion Name: test', '1', '2023-09-12 13:35:58'),
+(2307, 'religion', 1, 'Religion Name: test -> test2<br/>', '1', '2023-09-12 13:36:03'),
+(2308, 'religion', 2, 'Religion created. <br/><br/>Religion Name: test2', '1', '2023-09-12 13:36:06'),
+(2309, 'religion', 3, 'Religion created. <br/><br/>Religion Name: test2', '1', '2023-09-12 13:36:08'),
+(2310, 'menu_item', 35, 'Menu item created. <br/><br/>Menu Item Name: Nationality<br/>Menu Group ID: 1<br/>URL: nationality.php<br/>Parent ID: 25<br/>Order Sequence: 14', '0', '2023-09-12 13:43:28'),
+(2311, 'menu_item_access_right', 35, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 13:43:28'),
+(2312, 'nationality', 1, 'Nationality created. <br/><br/>Nationality Name: test', '1', '2023-09-12 13:50:37'),
+(2313, 'nationality', 1, 'Nationality Name: test -> test2<br/>', '1', '2023-09-12 13:50:50'),
+(2314, 'nationality', 2, 'Nationality created. <br/><br/>Nationality Name: test2', '1', '2023-09-12 13:50:52'),
+(2315, 'nationality', 3, 'Nationality created. <br/><br/>Nationality Name: test2', '1', '2023-09-12 13:50:55'),
+(2316, 'menu_item', 36, 'Menu item created. <br/><br/>Menu Item Name: Relation<br/>Menu Group ID: 1<br/>URL: relation.php<br/>Parent ID: 25<br/>Order Sequence: 18', '0', '2023-09-12 13:53:34'),
+(2317, 'menu_item_access_right', 36, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 13:53:34'),
+(2318, 'relation', 1, 'Relation created. <br/><br/>Relation Name: test', '1', '2023-09-12 13:58:20'),
+(2319, 'relation', 1, 'Relation Name: test -> test2<br/>', '1', '2023-09-12 13:58:25'),
+(2320, 'relation', 2, 'Relation created. <br/><br/>Relation Name: test2', '1', '2023-09-12 13:58:30'),
+(2321, 'relation', 3, 'Relation created. <br/><br/>Relation Name: test2', '1', '2023-09-12 13:58:33'),
+(2322, 'menu_item', 37, 'Menu item created. <br/><br/>Menu Item Name: Civil Status<br/>Menu Group ID: 1<br/>URL: civil-status.php<br/>Parent ID: 25<br/>Order Sequence: 3', '0', '2023-09-12 14:01:11'),
+(2323, 'menu_item_access_right', 37, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 14:01:11'),
+(2324, 'civil_status', 1, 'Civil status created. <br/><br/>Civil Status Name: test', '1', '2023-09-12 14:44:05'),
+(2325, 'civil_status', 1, 'Civil Status Name: test -> test2<br/>', '1', '2023-09-12 14:44:08'),
+(2326, 'civil_status', 2, 'Civil status created. <br/><br/>Civil Status Name: test2', '1', '2023-09-12 14:44:14'),
+(2327, 'civil_status', 3, 'Civil status created. <br/><br/>Civil Status Name: test2', '1', '2023-09-12 14:44:16'),
+(2328, 'menu_item', 38, 'Menu item created. <br/><br/>Menu Item Name: Blood Type<br/>Menu Group ID: 1<br/>URL: blood-type.php<br/>Parent ID: 25<br/>Order Sequence: 2', '0', '2023-09-12 14:45:48'),
+(2329, 'menu_item_access_right', 38, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 14:45:52'),
+(2330, 'blood_type', 1, 'Blood type created. <br/><br/>Blood Type Name: test', '1', '2023-09-12 15:02:54'),
+(2331, 'blood_type', 1, 'Blood Type Name: test -> test2<br/>', '1', '2023-09-12 15:02:58'),
+(2332, 'blood_type', 2, 'Blood type created. <br/><br/>Blood Type Name: test2', '1', '2023-09-12 15:03:01'),
+(2333, 'blood_type', 3, 'Blood type created. <br/><br/>Blood Type Name: test2', '1', '2023-09-12 15:03:03'),
+(2334, 'menu_item', 39, 'Menu item created. <br/><br/>Menu Item Name: Bank<br/>Menu Group ID: 3<br/>URL: bank.php<br/>Parent ID: 11<br/>Order Sequence: 2', '0', '2023-09-12 15:20:35'),
+(2335, 'menu_item_access_right', 39, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 15:20:35'),
+(2336, 'bank', 1, 'Bank created. <br/><br/>Bank Name: test', '1', '2023-09-12 15:43:22'),
+(2337, 'bank', 1, 'Bank Name: test -> testtest<br/>Bank Identifier Code:  -> test<br/>', '1', '2023-09-12 15:43:26'),
+(2338, 'bank', 2, 'Bank created. <br/><br/>Bank Name: test<br/>Bank Identifier Code: test', '1', '2023-09-12 15:43:31'),
+(2339, 'bank', 3, 'Bank created. <br/><br/>Bank Name: test<br/>Bank Identifier Code: test', '1', '2023-09-12 15:43:33'),
+(2340, 'bank', 4, 'Bank created. <br/><br/>Bank Name: test<br/>Bank Identifier Code: test', '1', '2023-09-12 15:43:36'),
+(2341, 'menu_item', 40, 'Menu item created. <br/><br/>Menu Item Name: Holiday Type<br/>Menu Group ID: 1<br/>URL: blood-type.php<br/>Parent ID: 25<br/>Order Sequence: 2', '0', '2023-09-12 15:46:15'),
+(2342, 'menu_item_access_right', 40, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 15:46:15'),
+(2343, 'menu_item', 40, 'Order Sequence: 2 -> 8<br/>', '0', '2023-09-12 15:46:49'),
+(2344, 'menu_item', 40, 'URL: blood-type.php -> holiday-type.php<br/>', '0', '2023-09-12 15:46:55'),
+(2345, 'holiday_type', 1, 'Holiday type created. <br/><br/>Holiday Type Name: national', '1', '2023-09-12 16:06:18'),
+(2346, 'holiday_type', 1, 'Holiday Type Name: national -> local<br/>', '1', '2023-09-12 16:06:21'),
+(2347, 'holiday_type', 2, 'Holiday type created. <br/><br/>Holiday Type Name: local', '1', '2023-09-12 16:06:29'),
+(2348, 'holiday_type', 3, 'Holiday type created. <br/><br/>Holiday Type Name: local', '1', '2023-09-12 16:06:34'),
+(2349, 'menu_item', 41, 'Menu item created. <br/><br/>Menu Item Name: Work Schedule Type<br/>Menu Group ID: 1<br/>URL: work-schedule-type.php<br/>Parent ID: 25<br/>Order Sequence: 23', '0', '2023-09-12 16:18:09'),
+(2350, 'menu_item_access_right', 41, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-12 16:18:09'),
+(2351, 'work_schedule_type', 1, 'Work schedule type created. <br/><br/>Work Schedule Type Name: test', '1', '2023-09-12 17:18:54'),
+(2352, 'work_schedule_type', 1, 'Work Schedule Type Name: test -> test2<br/>', '1', '2023-09-12 17:18:57'),
+(2353, 'work_schedule_type', 2, 'Work schedule type created. <br/><br/>Work Schedule Type Name: test2', '1', '2023-09-12 17:19:00'),
+(2354, 'work_schedule_type', 3, 'Work schedule type created. <br/><br/>Work Schedule Type Name: test2', '1', '2023-09-12 17:19:02');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bank`
+--
+
+CREATE TABLE `bank` (
+  `bank_id` int(10) UNSIGNED NOT NULL,
+  `bank_name` varchar(100) NOT NULL,
+  `bank_identifier_code` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `bank`
+--
+DELIMITER $$
+CREATE TRIGGER `bank_trigger_insert` AFTER INSERT ON `bank` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank created. <br/>';
+
+    IF NEW.bank_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Name: ", NEW.bank_name);
+    END IF;
+
+    IF NEW.bank_identifier_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Identifier Code: ", NEW.bank_identifier_code);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `bank_trigger_update` AFTER UPDATE ON `bank` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_name <> OLD.bank_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Name: ", OLD.bank_name, " -> ", NEW.bank_name, "<br/>");
+    END IF;
+
+    IF NEW.bank_identifier_code <> OLD.bank_identifier_code THEN
+        SET audit_log = CONCAT(audit_log, "Bank Identifier Code: ", OLD.bank_identifier_code, " -> ", NEW.bank_identifier_code, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `blood_type`
+--
+
+CREATE TABLE `blood_type` (
+  `blood_type_id` int(10) UNSIGNED NOT NULL,
+  `blood_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `blood_type`
+--
+DELIMITER $$
+CREATE TRIGGER `blood_type_trigger_insert` AFTER INSERT ON `blood_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Blood type created. <br/>';
+
+    IF NEW.blood_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Blood Type Name: ", NEW.blood_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `blood_type_trigger_update` AFTER UPDATE ON `blood_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.blood_type_name <> OLD.blood_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Blood Type Name: ", OLD.blood_type_name, " -> ", NEW.blood_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -6311,6 +7198,50 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `civil_status`
+--
+
+CREATE TABLE `civil_status` (
+  `civil_status_id` int(10) UNSIGNED NOT NULL,
+  `civil_status_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `civil_status`
+--
+DELIMITER $$
+CREATE TRIGGER `civil_status_trigger_insert` AFTER INSERT ON `civil_status` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Civil status created. <br/>';
+
+    IF NEW.civil_status_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Civil Status Name: ", NEW.civil_status_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `civil_status_trigger_update` AFTER UPDATE ON `civil_status` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.civil_status_name <> OLD.civil_status_name THEN
+        SET audit_log = CONCAT(audit_log, "Civil Status Name: ", OLD.civil_status_name, " -> ", NEW.civil_status_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `company`
 --
 
@@ -6891,6 +7822,50 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `departure_reason`
+--
+
+CREATE TABLE `departure_reason` (
+  `departure_reason_id` int(10) UNSIGNED NOT NULL,
+  `departure_reason_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `departure_reason`
+--
+DELIMITER $$
+CREATE TRIGGER `departure_reason_trigger_insert` AFTER INSERT ON `departure_reason` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Departure reason created. <br/>';
+
+    IF NEW.departure_reason_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Departure Reason Name: ", NEW.departure_reason_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `departure_reason_trigger_update` AFTER UPDATE ON `departure_reason` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.departure_reason_name <> OLD.departure_reason_name THEN
+        SET audit_log = CONCAT(audit_log, "Departure Reason Name: ", OLD.departure_reason_name, " -> ", NEW.departure_reason_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `district`
 --
 
@@ -7087,6 +8062,50 @@ CREATE TRIGGER `email_setting_trigger_update` AFTER UPDATE ON `email_setting` FO
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('email_setting', NEW.email_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee_type`
+--
+
+CREATE TABLE `employee_type` (
+  `employee_type_id` int(10) UNSIGNED NOT NULL,
+  `employee_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `employee_type`
+--
+DELIMITER $$
+CREATE TRIGGER `employee_type_trigger_insert` AFTER INSERT ON `employee_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employee type created. <br/>';
+
+    IF NEW.employee_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Type Name: ", NEW.employee_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employee_type', NEW.employee_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `employee_type_trigger_update` AFTER UPDATE ON `employee_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.employee_type_name <> OLD.employee_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employee Type Name: ", OLD.employee_type_name, " -> ", NEW.employee_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('employee_type', NEW.employee_type_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -7349,6 +8368,138 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `gender`
+--
+
+CREATE TABLE `gender` (
+  `gender_id` int(10) UNSIGNED NOT NULL,
+  `gender_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `gender`
+--
+DELIMITER $$
+CREATE TRIGGER `gender_trigger_insert` AFTER INSERT ON `gender` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Gender created. <br/>';
+
+    IF NEW.gender_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Gender Name: ", NEW.gender_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `gender_trigger_update` AFTER UPDATE ON `gender` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.gender_name <> OLD.gender_name THEN
+        SET audit_log = CONCAT(audit_log, "Gender Name: ", OLD.gender_name, " -> ", NEW.gender_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `holiday_type`
+--
+
+CREATE TABLE `holiday_type` (
+  `holiday_type_id` int(10) UNSIGNED NOT NULL,
+  `holiday_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `holiday_type`
+--
+DELIMITER $$
+CREATE TRIGGER `holiday_type_trigger_insert` AFTER INSERT ON `holiday_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Holiday type created. <br/>';
+
+    IF NEW.holiday_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Holiday Type Name: ", NEW.holiday_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('holiday_type', NEW.holiday_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `holiday_type_trigger_update` AFTER UPDATE ON `holiday_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.holiday_type_name <> OLD.holiday_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Holiday Type Name: ", OLD.holiday_type_name, " -> ", NEW.holiday_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('holiday_type', NEW.holiday_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `id_type`
+--
+
+CREATE TABLE `id_type` (
+  `id_type_id` int(10) UNSIGNED NOT NULL,
+  `id_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `id_type`
+--
+DELIMITER $$
+CREATE TRIGGER `id_type_trigger_insert` AFTER INSERT ON `id_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'ID type created. <br/>';
+
+    IF NEW.id_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>ID Type Name: ", NEW.id_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('id_type', NEW.id_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `id_type_trigger_update` AFTER UPDATE ON `id_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.id_type_name <> OLD.id_type_name THEN
+        SET audit_log = CONCAT(audit_log, "ID Type Name: ", OLD.id_type_name, " -> ", NEW.id_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('id_type', NEW.id_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `interface_setting`
 --
 
@@ -7405,6 +8556,68 @@ CREATE TRIGGER `interface_setting_trigger_update` AFTER UPDATE ON `interface_set
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('interface_setting', NEW.interface_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `job_level`
+--
+
+CREATE TABLE `job_level` (
+  `job_level_id` int(10) UNSIGNED NOT NULL,
+  `current_level` varchar(10) NOT NULL,
+  `rank` varchar(100) NOT NULL,
+  `functional_level` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `job_level`
+--
+DELIMITER $$
+CREATE TRIGGER `job_level_trigger_insert` AFTER INSERT ON `job_level` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job level created. <br/>';
+
+    IF NEW.current_level <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Current Level: ", NEW.current_level);
+    END IF;
+
+    IF NEW.rank <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rank: ", NEW.rank);
+    END IF;
+
+    IF NEW.functional_level <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Functional Level: ", NEW.functional_level);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_level', NEW.job_level_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `job_level_trigger_update` AFTER UPDATE ON `job_level` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.current_level <> OLD.current_level THEN
+        SET audit_log = CONCAT(audit_log, "Current Level: ", OLD.current_level, " -> ", NEW.current_level, "<br/>");
+    END IF;
+
+    IF NEW.rank <> OLD.rank THEN
+        SET audit_log = CONCAT(audit_log, "Rank: ", OLD.rank, " -> ", NEW.rank, "<br/>");
+    END IF;
+
+    IF NEW.functional_level <> OLD.functional_level THEN
+        SET audit_log = CONCAT(audit_log, "Functional Level: ", OLD.functional_level, " -> ", NEW.functional_level, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_level', NEW.job_level_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -7736,7 +8949,20 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (25, 'Configurations', 1, '', 0, 'settings', 20, 0),
 (26, 'Branch', 1, 'branch.php', 25, '', 1, 0),
 (27, 'Department', 1, 'department.php', 25, '', 2, 0),
-(28, 'Job Position', 1, 'job-position.php', 25, '', 3, 0);
+(28, 'Job Position', 1, 'job-position.php', 25, '', 3, 0),
+(29, 'Job Level', 1, 'job-level.php', 25, '', 3, 0),
+(30, 'Employee Type', 1, 'employee-type.php', 25, '', 3, 0),
+(31, 'Departure Reason', 1, 'departure-reason.php', 25, '', 4, 0),
+(32, 'ID Type', 1, 'id-type.php', 25, '', 9, 0),
+(33, 'Gender', 1, 'gender.php', 25, '', 7, 0),
+(34, 'Religion', 1, 'religion.php', 25, '', 18, 0),
+(35, 'Nationality', 1, 'nationality.php', 25, '', 14, 0),
+(36, 'Relation', 1, 'relation.php', 25, '', 18, 0),
+(37, 'Civil Status', 1, 'civil-status.php', 25, '', 3, 0),
+(38, 'Blood Type', 1, 'blood-type.php', 25, '', 2, 0),
+(39, 'Bank', 3, 'bank.php', 11, '', 2, 0),
+(40, 'Holiday Type', 1, 'holiday-type.php', 25, '', 8, 0),
+(41, 'Work Schedule Type', 1, 'work-schedule-type.php', 25, '', 23, 0);
 
 --
 -- Triggers `menu_item`
@@ -7859,7 +9085,20 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (25, 1, 1, 0, 0, 0, 0, 0),
 (26, 1, 1, 1, 1, 1, 1, 0),
 (27, 1, 1, 1, 1, 1, 1, 0),
-(28, 1, 1, 1, 1, 1, 1, 0);
+(28, 1, 1, 1, 1, 1, 1, 0),
+(29, 1, 1, 1, 1, 1, 1, 0),
+(30, 1, 1, 1, 1, 1, 1, 0),
+(31, 1, 1, 1, 1, 1, 1, 0),
+(32, 1, 1, 1, 1, 1, 1, 0),
+(33, 1, 1, 1, 1, 1, 1, 0),
+(34, 1, 1, 1, 1, 1, 1, 0),
+(35, 1, 1, 1, 1, 1, 1, 0),
+(36, 1, 1, 1, 1, 1, 1, 0),
+(37, 1, 1, 1, 1, 1, 1, 0),
+(38, 1, 1, 1, 1, 1, 1, 0),
+(39, 1, 1, 1, 1, 1, 1, 0),
+(40, 1, 1, 1, 1, 1, 1, 0),
+(41, 1, 1, 1, 1, 1, 1, 0);
 
 --
 -- Triggers `menu_item_access_right`
@@ -7926,6 +9165,50 @@ CREATE TRIGGER `menu_item_access_right_update` AFTER UPDATE ON `menu_item_access
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('menu_item_access_right', NEW.menu_item_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nationality`
+--
+
+CREATE TABLE `nationality` (
+  `nationality_id` int(10) UNSIGNED NOT NULL,
+  `nationality_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `nationality`
+--
+DELIMITER $$
+CREATE TRIGGER `nationality_trigger_insert` AFTER INSERT ON `nationality` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Nationality created. <br/>';
+
+    IF NEW.nationality_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Nationality Name: ", NEW.nationality_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('nationality', NEW.nationality_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `nationality_trigger_update` AFTER UPDATE ON `nationality` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.nationality_name <> OLD.nationality_name THEN
+        SET audit_log = CONCAT(audit_log, "Nationality Name: ", OLD.nationality_name, " -> ", NEW.nationality_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('nationality', NEW.nationality_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -8077,6 +9360,94 @@ CREATE TABLE `password_history` (
   `password` varchar(255) NOT NULL,
   `password_change_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `relation`
+--
+
+CREATE TABLE `relation` (
+  `relation_id` int(10) UNSIGNED NOT NULL,
+  `relation_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `relation`
+--
+DELIMITER $$
+CREATE TRIGGER `relation_trigger_insert` AFTER INSERT ON `relation` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Relation created. <br/>';
+
+    IF NEW.relation_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Relation Name: ", NEW.relation_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('relation', NEW.relation_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `relation_trigger_update` AFTER UPDATE ON `relation` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.relation_name <> OLD.relation_name THEN
+        SET audit_log = CONCAT(audit_log, "Relation Name: ", OLD.relation_name, " -> ", NEW.relation_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('relation', NEW.relation_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `religion`
+--
+
+CREATE TABLE `religion` (
+  `religion_id` int(10) UNSIGNED NOT NULL,
+  `religion_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `religion`
+--
+DELIMITER $$
+CREATE TRIGGER `religion_trigger_insert` AFTER INSERT ON `religion` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Religion created. <br/>';
+
+    IF NEW.religion_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Religion Name: ", NEW.religion_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `religion_trigger_update` AFTER UPDATE ON `religion` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.religion_name <> OLD.religion_name THEN
+        SET audit_log = CONCAT(audit_log, "Religion Name: ", OLD.religion_name, " -> ", NEW.religion_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -8786,7 +10157,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-12 09:02:45', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '87e00cefb533e022629eeb9e8a79f2cf', 0);
 
 --
 -- Triggers `users`
@@ -8927,6 +10298,50 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `work_schedule_type`
+--
+
+CREATE TABLE `work_schedule_type` (
+  `work_schedule_type_id` int(10) UNSIGNED NOT NULL,
+  `work_schedule_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `work_schedule_type`
+--
+DELIMITER $$
+CREATE TRIGGER `work_schedule_type_trigger_insert` AFTER INSERT ON `work_schedule_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work schedule type created. <br/>';
+
+    IF NEW.work_schedule_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Schedule Type Name: ", NEW.work_schedule_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_schedule_type', NEW.work_schedule_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `work_schedule_type_trigger_update` AFTER UPDATE ON `work_schedule_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.work_schedule_type_name <> OLD.work_schedule_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Work Schedule Type Name: ", OLD.work_schedule_type_name, " -> ", NEW.work_schedule_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_schedule_type', NEW.work_schedule_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `zoom_api`
 --
 
@@ -9009,6 +10424,20 @@ ALTER TABLE `audit_log`
   ADD KEY `audit_log_index_reference_id` (`reference_id`);
 
 --
+-- Indexes for table `bank`
+--
+ALTER TABLE `bank`
+  ADD PRIMARY KEY (`bank_id`),
+  ADD KEY `bank_index_bank_id` (`bank_id`);
+
+--
+-- Indexes for table `blood_type`
+--
+ALTER TABLE `blood_type`
+  ADD PRIMARY KEY (`blood_type_id`),
+  ADD KEY `blood_type_index_blood_type_id` (`blood_type_id`);
+
+--
 -- Indexes for table `branch`
 --
 ALTER TABLE `branch`
@@ -9022,6 +10451,13 @@ ALTER TABLE `city`
   ADD PRIMARY KEY (`city_id`),
   ADD KEY `city_index_city_id` (`city_id`),
   ADD KEY `city_index_state_id` (`state_id`);
+
+--
+-- Indexes for table `civil_status`
+--
+ALTER TABLE `civil_status`
+  ADD PRIMARY KEY (`civil_status_id`),
+  ADD KEY `civil_status_index_civil_status_id` (`civil_status_id`);
 
 --
 -- Indexes for table `company`
@@ -9052,6 +10488,13 @@ ALTER TABLE `department`
   ADD KEY `department_index_department_id` (`department_id`);
 
 --
+-- Indexes for table `departure_reason`
+--
+ALTER TABLE `departure_reason`
+  ADD PRIMARY KEY (`departure_reason_id`),
+  ADD KEY `departure_reason_index_departure_reason_id` (`departure_reason_id`);
+
+--
 -- Indexes for table `district`
 --
 ALTER TABLE `district`
@@ -9069,6 +10512,13 @@ ALTER TABLE `email_setting`
   ADD KEY `email_setting_index_email_setting_id` (`email_setting_id`);
 
 --
+-- Indexes for table `employee_type`
+--
+ALTER TABLE `employee_type`
+  ADD PRIMARY KEY (`employee_type_id`),
+  ADD KEY `employee_type_index_employee_type_id` (`employee_type_id`);
+
+--
 -- Indexes for table `file_extension`
 --
 ALTER TABLE `file_extension`
@@ -9084,11 +10534,39 @@ ALTER TABLE `file_type`
   ADD KEY `file_type_index_file_type_id` (`file_type_id`);
 
 --
+-- Indexes for table `gender`
+--
+ALTER TABLE `gender`
+  ADD PRIMARY KEY (`gender_id`),
+  ADD KEY `gender_index_gender_id` (`gender_id`);
+
+--
+-- Indexes for table `holiday_type`
+--
+ALTER TABLE `holiday_type`
+  ADD PRIMARY KEY (`holiday_type_id`),
+  ADD KEY `holiday_type_index_holiday_type_id` (`holiday_type_id`);
+
+--
+-- Indexes for table `id_type`
+--
+ALTER TABLE `id_type`
+  ADD PRIMARY KEY (`id_type_id`),
+  ADD KEY `id_type_index_id_type_id` (`id_type_id`);
+
+--
 -- Indexes for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
   ADD PRIMARY KEY (`interface_setting_id`),
   ADD KEY `interface_setting_index_interface_setting_id` (`interface_setting_id`);
+
+--
+-- Indexes for table `job_level`
+--
+ALTER TABLE `job_level`
+  ADD PRIMARY KEY (`job_level_id`),
+  ADD KEY `job_level_index_job_level_id` (`job_level_id`);
 
 --
 -- Indexes for table `job_position`
@@ -9137,6 +10615,13 @@ ALTER TABLE `menu_item`
   ADD KEY `menu_group_id` (`menu_group_id`);
 
 --
+-- Indexes for table `nationality`
+--
+ALTER TABLE `nationality`
+  ADD PRIMARY KEY (`nationality_id`),
+  ADD KEY `nationality_index_nationality_id` (`nationality_id`);
+
+--
 -- Indexes for table `notification_setting`
 --
 ALTER TABLE `notification_setting`
@@ -9151,6 +10636,20 @@ ALTER TABLE `password_history`
   ADD KEY `password_history_index_password_history_id` (`password_history_id`),
   ADD KEY `password_history_index_user_id` (`user_id`),
   ADD KEY `password_history_index_email` (`email`);
+
+--
+-- Indexes for table `relation`
+--
+ALTER TABLE `relation`
+  ADD PRIMARY KEY (`relation_id`),
+  ADD KEY `relation_index_relation_id` (`relation_id`);
+
+--
+-- Indexes for table `religion`
+--
+ALTER TABLE `religion`
+  ADD PRIMARY KEY (`religion_id`),
+  ADD KEY `religion_index_religion_id` (`religion_id`);
 
 --
 -- Indexes for table `role`
@@ -9212,6 +10711,13 @@ ALTER TABLE `users`
   ADD KEY `users_index_email` (`email`);
 
 --
+-- Indexes for table `work_schedule_type`
+--
+ALTER TABLE `work_schedule_type`
+  ADD PRIMARY KEY (`work_schedule_type_id`),
+  ADD KEY `work_schedule_type_index_work_schedule_type_id` (`work_schedule_type_id`);
+
+--
 -- Indexes for table `zoom_api`
 --
 ALTER TABLE `zoom_api`
@@ -9226,7 +10732,19 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2273;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2355;
+
+--
+-- AUTO_INCREMENT for table `bank`
+--
+ALTER TABLE `bank`
+  MODIFY `bank_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `blood_type`
+--
+ALTER TABLE `blood_type`
+  MODIFY `blood_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `branch`
@@ -9239,6 +10757,12 @@ ALTER TABLE `branch`
 --
 ALTER TABLE `city`
   MODIFY `city_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1635;
+
+--
+-- AUTO_INCREMENT for table `civil_status`
+--
+ALTER TABLE `civil_status`
+  MODIFY `civil_status_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -9265,6 +10789,12 @@ ALTER TABLE `department`
   MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `departure_reason`
+--
+ALTER TABLE `departure_reason`
+  MODIFY `departure_reason_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `district`
 --
 ALTER TABLE `district`
@@ -9275,6 +10805,12 @@ ALTER TABLE `district`
 --
 ALTER TABLE `email_setting`
   MODIFY `email_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `employee_type`
+--
+ALTER TABLE `employee_type`
+  MODIFY `employee_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `file_extension`
@@ -9289,10 +10825,34 @@ ALTER TABLE `file_type`
   MODIFY `file_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
+-- AUTO_INCREMENT for table `gender`
+--
+ALTER TABLE `gender`
+  MODIFY `gender_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `holiday_type`
+--
+ALTER TABLE `holiday_type`
+  MODIFY `holiday_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `id_type`
+--
+ALTER TABLE `id_type`
+  MODIFY `id_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `interface_setting`
 --
 ALTER TABLE `interface_setting`
   MODIFY `interface_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `job_level`
+--
+ALTER TABLE `job_level`
+  MODIFY `job_level_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `job_position`
@@ -9328,7 +10888,13 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+
+--
+-- AUTO_INCREMENT for table `nationality`
+--
+ALTER TABLE `nationality`
+  MODIFY `nationality_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `notification_setting`
@@ -9341,6 +10907,18 @@ ALTER TABLE `notification_setting`
 --
 ALTER TABLE `password_history`
   MODIFY `password_history_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `relation`
+--
+ALTER TABLE `relation`
+  MODIFY `relation_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `religion`
+--
+ALTER TABLE `religion`
+  MODIFY `religion_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -9383,6 +10961,12 @@ ALTER TABLE `upload_setting`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `work_schedule_type`
+--
+ALTER TABLE `work_schedule_type`
+  MODIFY `work_schedule_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `zoom_api`

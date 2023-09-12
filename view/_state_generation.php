@@ -7,14 +7,12 @@ require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
-require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $stateModel = new StateModel($databaseModel);
 $countryModel = new CountryModel($databaseModel);
-$roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){

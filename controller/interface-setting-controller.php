@@ -15,7 +15,6 @@ session_start();
 class InterfaceSettingController {
     private $interfaceSettingModel;
     private $userModel;
-    private $roleModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $securityModel;
@@ -31,7 +30,6 @@ class InterfaceSettingController {
     # Parameters:
     # - @param InterfaceSettingModel $interfaceSettingModel     The InterfaceSettingModel instance for interface setting related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
@@ -40,10 +38,9 @@ class InterfaceSettingController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(InterfaceSettingModel $interfaceSettingModel, UserModel $userModel, RoleModel $roleModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(InterfaceSettingModel $interfaceSettingModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->interfaceSettingModel = $interfaceSettingModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->securityModel = $securityModel;
@@ -470,13 +467,12 @@ class InterfaceSettingController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/interface-setting-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new InterfaceSettingController(new InterfaceSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new InterfaceSettingController(new InterfaceSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

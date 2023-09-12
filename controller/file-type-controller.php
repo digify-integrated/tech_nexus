@@ -15,7 +15,6 @@ session_start();
 class FileTypeController {
     private $fileTypeModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -28,16 +27,14 @@ class FileTypeController {
     # Parameters:
     # - @param FileTypeModel $fileTypeModel     The FileTypeModel instance for file type related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(FileTypeModel $fileTypeModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(FileTypeModel $fileTypeModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->fileTypeModel = $fileTypeModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -306,11 +303,10 @@ class FileTypeController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/file-type-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new FileTypeController(new FileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new FileTypeController(new FileTypeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

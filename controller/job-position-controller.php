@@ -15,7 +15,6 @@ session_start();
 class JobPositionController {
     private $jobPositionModel;
     private $userModel;
-    private $roleModel;
     private $departmentModel;
     private $securityModel;
 
@@ -29,17 +28,15 @@ class JobPositionController {
     # Parameters:
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param departmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(JobPositionModel $jobPositionModel, UserModel $userModel, RoleModel $roleModel, DepartmentModel $departmentModel, SecurityModel $securityModel) {
+    public function __construct(JobPositionModel $jobPositionModel, UserModel $userModel, DepartmentModel $departmentModel, SecurityModel $securityModel) {
         $this->jobPositionModel = $jobPositionModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->departmentModel = $departmentModel;
         $this->securityModel = $securityModel;
     }
@@ -847,11 +844,10 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/job-position-model.php';
 require_once '../model/department-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new JobPositionController(new JobPositionModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new SecurityModel());
+$controller = new JobPositionController(new JobPositionModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>

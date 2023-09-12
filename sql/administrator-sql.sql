@@ -434,7 +434,7 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-END;
+END //
 
 /* Password history table */
 CREATE TABLE password_history (
@@ -2338,8 +2338,6 @@ BEGIN
 	SELECT country_id, country_name FROM country
 	ORDER BY country_name;
 END //
-   
-END;
 
 /* State table */
 CREATE TABLE state(
@@ -2486,7 +2484,7 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-END;
+END //
 
 CREATE PROCEDURE generateStateOptions()
 BEGIN
@@ -2757,7 +2755,7 @@ BEGIN
     SELECT currency_id, currency_name, symbol, shorthand
     FROM currency
     ORDER BY currency_id;
-END;
+END //
 
 CREATE PROCEDURE generateCurrencyOptions()
 BEGIN
@@ -2969,7 +2967,7 @@ BEGIN
     SELECT company_id, company_name, company_logo, address, city_id
     FROM company
     ORDER BY company_id;
-END;
+END //
 
 /* Email setting table */
 CREATE TABLE email_setting(
@@ -3715,7 +3713,7 @@ BEGIN
     SELECT branch_id, branch_name, address, city_id
     FROM branch
     ORDER BY branch_id;
-END;
+END //
 
 CREATE PROCEDURE generateBranchOptions()
 BEGIN
@@ -3840,7 +3838,7 @@ BEGIN
     SELECT department_id, department_name, manager, parent_department
     FROM department
     ORDER BY department_id;
-END;
+END //
 
 CREATE PROCEDURE generateDepartmentOptions()
 BEGIN
@@ -4028,7 +4026,7 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
-END;
+END //
 
 CREATE PROCEDURE generateJobPositionOptions()
 BEGIN
@@ -4307,4 +4305,1350 @@ BEGIN
     FROM job_position_qualification
     WHERE job_position_id = p_job_position_id 
     ORDER BY job_position_qualification_id;
+END //
+
+/* Job level table */
+CREATE TABLE job_level(
+	job_level_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	current_level VARCHAR(10) NOT NULL,
+	rank VARCHAR(100) NOT NULL,
+	functional_level VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX job_level_index_job_level_id ON job_level(job_level_id);
+
+CREATE TRIGGER job_level_trigger_update
+AFTER UPDATE ON job_level
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.current_level <> OLD.current_level THEN
+        SET audit_log = CONCAT(audit_log, "Current Level: ", OLD.current_level, " -> ", NEW.current_level, "<br/>");
+    END IF;
+
+    IF NEW.rank <> OLD.rank THEN
+        SET audit_log = CONCAT(audit_log, "Rank: ", OLD.rank, " -> ", NEW.rank, "<br/>");
+    END IF;
+
+    IF NEW.functional_level <> OLD.functional_level THEN
+        SET audit_log = CONCAT(audit_log, "Functional Level: ", OLD.functional_level, " -> ", NEW.functional_level, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('job_level', NEW.job_level_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER job_level_trigger_insert
+AFTER INSERT ON job_level
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Job level created. <br/>';
+
+    IF NEW.current_level <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Current Level: ", NEW.current_level);
+    END IF;
+
+    IF NEW.rank <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rank: ", NEW.rank);
+    END IF;
+
+    IF NEW.functional_level <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Functional Level: ", NEW.functional_level);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('job_level', NEW.job_level_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkJobLevelExist (IN p_job_level_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM job_level
+    WHERE job_level_id = p_job_level_id;
+END //
+
+CREATE PROCEDURE insertJobLevel(IN p_current_level VARCHAR(10), IN p_rank VARCHAR(100), IN p_functional_level VARCHAR(100), IN p_last_log_by INT, OUT p_job_level_id INT)
+BEGIN
+    INSERT INTO job_level (current_level, rank, functional_level, last_log_by) 
+	VALUES(p_current_level, p_rank, p_functional_level, p_last_log_by);
+	
+    SET p_job_level_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateJobLevel(IN p_job_level_id INT, IN p_current_level VARCHAR(10), IN p_rank VARCHAR(100), IN p_functional_level VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE job_level
+    SET current_level = p_current_level,
+    rank = p_rank,
+    functional_level = p_functional_level,
+    last_log_by = p_last_log_by
+    WHERE job_level_id = p_job_level_id;
+END //
+
+CREATE PROCEDURE deleteJobLevel(IN p_job_level_id INT)
+BEGIN
+    DELETE FROM job_level WHERE job_level_id = p_job_level_id;
+END //
+
+CREATE PROCEDURE getJobLevel(IN p_job_level_id INT)
+BEGIN
+	SELECT * FROM job_level
+    WHERE job_level_id = p_job_level_id;
+END //
+
+CREATE PROCEDURE duplicateJobLevel(IN p_job_level_id INT, IN p_last_log_by INT, OUT p_new_job_level_id INT)
+BEGIN
+    DECLARE p_current_level VARCHAR(10);
+    DECLARE p_rank VARCHAR(100);
+    DECLARE p_functional_level VARCHAR(100);
+    
+    SELECT current_level, rank, functional_level
+    INTO p_current_level, p_rank, p_functional_level
+    FROM job_level 
+    WHERE job_level_id = p_job_level_id;
+    
+    INSERT INTO job_level (current_level, rank, functional_level, last_log_by) 
+    VALUES(p_current_level, p_rank, p_functional_level, p_last_log_by);
+    
+    SET p_new_job_level_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateJobLevelTable()
+BEGIN
+    SELECT job_level_id, current_level, rank, functional_level
+    FROM job_level
+    ORDER BY job_level_id;
+END //
+
+CREATE PROCEDURE generateJobLevelOptions()
+BEGIN
+	SELECT job_level_id, current_level, rank FROM job_level
+	ORDER BY current_level;
+END //
+
+/* Employee type table */
+CREATE TABLE employee_type(
+	employee_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	employee_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX employee_type_index_employee_type_id ON employee_type(employee_type_id);
+
+CREATE TRIGGER employee_type_trigger_update
+AFTER UPDATE ON employee_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.employee_type_name <> OLD.employee_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Employee Type Name: ", OLD.employee_type_name, " -> ", NEW.employee_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('employee_type', NEW.employee_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER employee_type_trigger_insert
+AFTER INSERT ON employee_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Employee type created. <br/>';
+
+    IF NEW.employee_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Type Name: ", NEW.employee_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('employee_type', NEW.employee_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkEmployeeTypeExist (IN p_employee_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employee_type
+    WHERE employee_type_id = p_employee_type_id;
+END //
+
+CREATE PROCEDURE insertEmployeeType(IN p_employee_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_employee_type_id INT)
+BEGIN
+    INSERT INTO employee_type (employee_type_name, last_log_by) 
+	VALUES(p_employee_type_name, p_last_log_by);
+	
+    SET p_employee_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateEmployeeType(IN p_employee_type_id INT, IN p_employee_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE employee_type
+    SET employee_type_name = p_employee_type_name,
+    last_log_by = p_last_log_by
+    WHERE employee_type_id = p_employee_type_id;
+END //
+
+CREATE PROCEDURE deleteEmployeeType(IN p_employee_type_id INT)
+BEGIN
+    DELETE FROM employee_type WHERE employee_type_id = p_employee_type_id;
+END //
+
+CREATE PROCEDURE getEmployeeType(IN p_employee_type_id INT)
+BEGIN
+	SELECT * FROM employee_type
+    WHERE employee_type_id = p_employee_type_id;
+END //
+
+CREATE PROCEDURE duplicateEmployeeType(IN p_employee_type_id INT, IN p_last_log_by INT, OUT p_new_employee_type_id INT)
+BEGIN
+    DECLARE p_employee_type_name VARCHAR(100);
+    
+    SELECT employee_type_name
+    INTO p_employee_type_name
+    FROM employee_type 
+    WHERE employee_type_id = p_employee_type_id;
+    
+    INSERT INTO employee_type (employee_type_name, last_log_by) 
+    VALUES(p_employee_type_name, p_last_log_by);
+    
+    SET p_new_employee_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateEmployeeTypeTable()
+BEGIN
+    SELECT employee_type_id, employee_type_name
+    FROM employee_type
+    ORDER BY employee_type_id;
+END //
+
+CREATE PROCEDURE generateEmployeeTypeOptions()
+BEGIN
+	SELECT employee_type_id, employee_type_name FROM employee_type
+	ORDER BY employee_type_name;
+END //
+
+/* Departure reason table */
+CREATE TABLE departure_reason(
+	departure_reason_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	departure_reason_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX departure_reason_index_departure_reason_id ON departure_reason(departure_reason_id);
+
+CREATE TRIGGER departure_reason_trigger_update
+AFTER UPDATE ON departure_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.departure_reason_name <> OLD.departure_reason_name THEN
+        SET audit_log = CONCAT(audit_log, "Departure Reason Name: ", OLD.departure_reason_name, " -> ", NEW.departure_reason_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER departure_reason_trigger_insert
+AFTER INSERT ON departure_reason
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Departure reason created. <br/>';
+
+    IF NEW.departure_reason_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Departure Reason Name: ", NEW.departure_reason_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('departure_reason', NEW.departure_reason_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkDepartureReasonExist (IN p_departure_reason_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+END //
+
+CREATE PROCEDURE insertDepartureReason(IN p_departure_reason_name VARCHAR(100), IN p_last_log_by INT, OUT p_departure_reason_id INT)
+BEGIN
+    INSERT INTO departure_reason (departure_reason_name, last_log_by) 
+	VALUES(p_departure_reason_name, p_last_log_by);
+	
+    SET p_departure_reason_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateDepartureReason(IN p_departure_reason_id INT, IN p_departure_reason_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE departure_reason
+    SET departure_reason_name = p_departure_reason_name,
+    last_log_by = p_last_log_by
+    WHERE departure_reason_id = p_departure_reason_id;
+END //
+
+CREATE PROCEDURE deleteDepartureReason(IN p_departure_reason_id INT)
+BEGIN
+    DELETE FROM departure_reason WHERE departure_reason_id = p_departure_reason_id;
+END //
+
+CREATE PROCEDURE getDepartureReason(IN p_departure_reason_id INT)
+BEGIN
+	SELECT * FROM departure_reason
+    WHERE departure_reason_id = p_departure_reason_id;
+END //
+
+CREATE PROCEDURE duplicateDepartureReason(IN p_departure_reason_id INT, IN p_last_log_by INT, OUT p_new_departure_reason_id INT)
+BEGIN
+    DECLARE p_departure_reason_name VARCHAR(100);
+    
+    SELECT departure_reason_name
+    INTO p_departure_reason_name
+    FROM departure_reason 
+    WHERE departure_reason_id = p_departure_reason_id;
+    
+    INSERT INTO departure_reason (departure_reason_name, last_log_by) 
+    VALUES(p_departure_reason_name, p_last_log_by);
+    
+    SET p_new_departure_reason_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateDepartureReasonTable()
+BEGIN
+    SELECT departure_reason_id, departure_reason_name
+    FROM departure_reason
+    ORDER BY departure_reason_id;
+END //
+
+CREATE PROCEDURE generateDepartureReasonOptions()
+BEGIN
+	SELECT departure_reason_id, departure_reason_name FROM departure_reason
+	ORDER BY departure_reason_name;
+END //
+
+/* ID Type table */
+CREATE TABLE id_type(
+	id_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	id_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX id_type_index_id_type_id ON id_type(id_type_id);
+
+CREATE TRIGGER id_type_trigger_update
+AFTER UPDATE ON id_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.id_type_name <> OLD.id_type_name THEN
+        SET audit_log = CONCAT(audit_log, "ID Type Name: ", OLD.id_type_name, " -> ", NEW.id_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('id_type', NEW.id_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER id_type_trigger_insert
+AFTER INSERT ON id_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'ID type created. <br/>';
+
+    IF NEW.id_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>ID Type Name: ", NEW.id_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('id_type', NEW.id_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkIDTypeExist (IN p_id_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM id_type
+    WHERE id_type_id = p_id_type_id;
+END //
+
+CREATE PROCEDURE insertIDType(IN p_id_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_id_type_id INT)
+BEGIN
+    INSERT INTO id_type (id_type_name, last_log_by) 
+	VALUES(p_id_type_name, p_last_log_by);
+	
+    SET p_id_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateIDType(IN p_id_type_id INT, IN p_id_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE id_type
+    SET id_type_name = p_id_type_name,
+    last_log_by = p_last_log_by
+    WHERE id_type_id = p_id_type_id;
+END //
+
+CREATE PROCEDURE deleteIDType(IN p_id_type_id INT)
+BEGIN
+    DELETE FROM id_type WHERE id_type_id = p_id_type_id;
+END //
+
+CREATE PROCEDURE getIDType(IN p_id_type_id INT)
+BEGIN
+	SELECT * FROM id_type
+    WHERE id_type_id = p_id_type_id;
+END //
+
+CREATE PROCEDURE duplicateIDType(IN p_id_type_id INT, IN p_last_log_by INT, OUT p_new_id_type_id INT)
+BEGIN
+    DECLARE p_id_type_name VARCHAR(100);
+    
+    SELECT id_type_name
+    INTO p_id_type_name
+    FROM id_type 
+    WHERE id_type_id = p_id_type_id;
+    
+    INSERT INTO id_type (id_type_name, last_log_by) 
+    VALUES(p_id_type_name, p_last_log_by);
+    
+    SET p_new_id_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateIDTypeTable()
+BEGIN
+    SELECT id_type_id, id_type_name
+    FROM id_type
+    ORDER BY id_type_id;
+END //
+
+CREATE PROCEDURE generateIDTypeOptions()
+BEGIN
+	SELECT id_type_id, id_type_name FROM id_type
+	ORDER BY id_type_name;
+END //
+
+/* Gender table */
+CREATE TABLE gender(
+	gender_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	gender_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX gender_index_gender_id ON gender(gender_id);
+
+CREATE TRIGGER gender_trigger_update
+AFTER UPDATE ON gender
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.gender_name <> OLD.gender_name THEN
+        SET audit_log = CONCAT(audit_log, "Gender Name: ", OLD.gender_name, " -> ", NEW.gender_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER gender_trigger_insert
+AFTER INSERT ON gender
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Gender created. <br/>';
+
+    IF NEW.gender_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Gender Name: ", NEW.gender_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('gender', NEW.gender_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkGenderExist (IN p_gender_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM gender
+    WHERE gender_id = p_gender_id;
+END //
+
+CREATE PROCEDURE insertGender(IN p_gender_name VARCHAR(100), IN p_last_log_by INT, OUT p_gender_id INT)
+BEGIN
+    INSERT INTO gender (gender_name, last_log_by) 
+	VALUES(p_gender_name, p_last_log_by);
+	
+    SET p_gender_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateGender(IN p_gender_id INT, IN p_gender_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE gender
+    SET gender_name = p_gender_name,
+    last_log_by = p_last_log_by
+    WHERE gender_id = p_gender_id;
+END //
+
+CREATE PROCEDURE deleteGender(IN p_gender_id INT)
+BEGIN
+    DELETE FROM gender WHERE gender_id = p_gender_id;
+END //
+
+CREATE PROCEDURE getGender(IN p_gender_id INT)
+BEGIN
+	SELECT * FROM gender
+    WHERE gender_id = p_gender_id;
+END //
+
+CREATE PROCEDURE duplicateGender(IN p_gender_id INT, IN p_last_log_by INT, OUT p_new_gender_id INT)
+BEGIN
+    DECLARE p_gender_name VARCHAR(100);
+    
+    SELECT gender_name
+    INTO p_gender_name
+    FROM gender 
+    WHERE gender_id = p_gender_id;
+    
+    INSERT INTO gender (gender_name, last_log_by) 
+    VALUES(p_gender_name, p_last_log_by);
+    
+    SET p_new_gender_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateGenderTable()
+BEGIN
+    SELECT gender_id, gender_name
+    FROM gender
+    ORDER BY gender_id;
+END //
+
+CREATE PROCEDURE generateGenderOptions()
+BEGIN
+	SELECT gender_id, gender_name FROM gender
+	ORDER BY gender_name;
+END //
+
+/* Religion table */
+CREATE TABLE religion(
+	religion_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	religion_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX religion_index_religion_id ON religion(religion_id);
+
+CREATE TRIGGER religion_trigger_update
+AFTER UPDATE ON religion
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.religion_name <> OLD.religion_name THEN
+        SET audit_log = CONCAT(audit_log, "Religion Name: ", OLD.religion_name, " -> ", NEW.religion_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER religion_trigger_insert
+AFTER INSERT ON religion
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Religion created. <br/>';
+
+    IF NEW.religion_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Religion Name: ", NEW.religion_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('religion', NEW.religion_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkReligionExist (IN p_religion_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM religion
+    WHERE religion_id = p_religion_id;
+END //
+
+CREATE PROCEDURE insertReligion(IN p_religion_name VARCHAR(100), IN p_last_log_by INT, OUT p_religion_id INT)
+BEGIN
+    INSERT INTO religion (religion_name, last_log_by) 
+	VALUES(p_religion_name, p_last_log_by);
+	
+    SET p_religion_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateReligion(IN p_religion_id INT, IN p_religion_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE religion
+    SET religion_name = p_religion_name,
+    last_log_by = p_last_log_by
+    WHERE religion_id = p_religion_id;
+END //
+
+CREATE PROCEDURE deleteReligion(IN p_religion_id INT)
+BEGIN
+    DELETE FROM religion WHERE religion_id = p_religion_id;
+END //
+
+CREATE PROCEDURE getReligion(IN p_religion_id INT)
+BEGIN
+	SELECT * FROM religion
+    WHERE religion_id = p_religion_id;
+END //
+
+CREATE PROCEDURE duplicateReligion(IN p_religion_id INT, IN p_last_log_by INT, OUT p_new_religion_id INT)
+BEGIN
+    DECLARE p_religion_name VARCHAR(100);
+    
+    SELECT religion_name
+    INTO p_religion_name
+    FROM religion 
+    WHERE religion_id = p_religion_id;
+    
+    INSERT INTO religion (religion_name, last_log_by) 
+    VALUES(p_religion_name, p_last_log_by);
+    
+    SET p_new_religion_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateReligionTable()
+BEGIN
+    SELECT religion_id, religion_name
+    FROM religion
+    ORDER BY religion_id;
+END //
+
+CREATE PROCEDURE generateReligionOptions()
+BEGIN
+	SELECT religion_id, religion_name FROM religion
+	ORDER BY religion_name;
+END //
+
+/* Nationality table */
+CREATE TABLE nationality(
+	nationality_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	nationality_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX nationality_index_nationality_id ON nationality(nationality_id);
+
+CREATE TRIGGER nationality_trigger_update
+AFTER UPDATE ON nationality
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.nationality_name <> OLD.nationality_name THEN
+        SET audit_log = CONCAT(audit_log, "Nationality Name: ", OLD.nationality_name, " -> ", NEW.nationality_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('nationality', NEW.nationality_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER nationality_trigger_insert
+AFTER INSERT ON nationality
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Nationality created. <br/>';
+
+    IF NEW.nationality_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Nationality Name: ", NEW.nationality_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('nationality', NEW.nationality_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkNationalityExist (IN p_nationality_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM nationality
+    WHERE nationality_id = p_nationality_id;
+END //
+
+CREATE PROCEDURE insertNationality(IN p_nationality_name VARCHAR(100), IN p_last_log_by INT, OUT p_nationality_id INT)
+BEGIN
+    INSERT INTO nationality (nationality_name, last_log_by) 
+	VALUES(p_nationality_name, p_last_log_by);
+	
+    SET p_nationality_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateNationality(IN p_nationality_id INT, IN p_nationality_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE nationality
+    SET nationality_name = p_nationality_name,
+    last_log_by = p_last_log_by
+    WHERE nationality_id = p_nationality_id;
+END //
+
+CREATE PROCEDURE deleteNationality(IN p_nationality_id INT)
+BEGIN
+    DELETE FROM nationality WHERE nationality_id = p_nationality_id;
+END //
+
+CREATE PROCEDURE getNationality(IN p_nationality_id INT)
+BEGIN
+	SELECT * FROM nationality
+    WHERE nationality_id = p_nationality_id;
+END //
+
+CREATE PROCEDURE duplicateNationality(IN p_nationality_id INT, IN p_last_log_by INT, OUT p_new_nationality_id INT)
+BEGIN
+    DECLARE p_nationality_name VARCHAR(100);
+    
+    SELECT nationality_name
+    INTO p_nationality_name
+    FROM nationality 
+    WHERE nationality_id = p_nationality_id;
+    
+    INSERT INTO nationality (nationality_name, last_log_by) 
+    VALUES(p_nationality_name, p_last_log_by);
+    
+    SET p_new_nationality_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateNationalityTable()
+BEGIN
+    SELECT nationality_id, nationality_name
+    FROM nationality
+    ORDER BY nationality_id;
+END //
+
+CREATE PROCEDURE generateNationalityOptions()
+BEGIN
+	SELECT nationality_id, nationality_name FROM nationality
+	ORDER BY nationality_name;
+END //
+
+/* Relation table */
+CREATE TABLE relation(
+	relation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	relation_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX relation_index_relation_id ON relation(relation_id);
+
+CREATE TRIGGER relation_trigger_update
+AFTER UPDATE ON relation
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.relation_name <> OLD.relation_name THEN
+        SET audit_log = CONCAT(audit_log, "Relation Name: ", OLD.relation_name, " -> ", NEW.relation_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('relation', NEW.relation_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER relation_trigger_insert
+AFTER INSERT ON relation
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Relation created. <br/>';
+
+    IF NEW.relation_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Relation Name: ", NEW.relation_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('relation', NEW.relation_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkRelationExist (IN p_relation_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM relation
+    WHERE relation_id = p_relation_id;
+END //
+
+CREATE PROCEDURE insertRelation(IN p_relation_name VARCHAR(100), IN p_last_log_by INT, OUT p_relation_id INT)
+BEGIN
+    INSERT INTO relation (relation_name, last_log_by) 
+	VALUES(p_relation_name, p_last_log_by);
+	
+    SET p_relation_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateRelation(IN p_relation_id INT, IN p_relation_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE relation
+    SET relation_name = p_relation_name,
+    last_log_by = p_last_log_by
+    WHERE relation_id = p_relation_id;
+END //
+
+CREATE PROCEDURE deleteRelation(IN p_relation_id INT)
+BEGIN
+    DELETE FROM relation WHERE relation_id = p_relation_id;
+END //
+
+CREATE PROCEDURE getRelation(IN p_relation_id INT)
+BEGIN
+	SELECT * FROM relation
+    WHERE relation_id = p_relation_id;
+END //
+
+CREATE PROCEDURE duplicateRelation(IN p_relation_id INT, IN p_last_log_by INT, OUT p_new_relation_id INT)
+BEGIN
+    DECLARE p_relation_name VARCHAR(100);
+    
+    SELECT relation_name
+    INTO p_relation_name
+    FROM relation 
+    WHERE relation_id = p_relation_id;
+    
+    INSERT INTO relation (relation_name, last_log_by) 
+    VALUES(p_relation_name, p_last_log_by);
+    
+    SET p_new_relation_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateRelationTable()
+BEGIN
+    SELECT relation_id, relation_name
+    FROM relation
+    ORDER BY relation_id;
+END //
+
+CREATE PROCEDURE generateRelationOptions()
+BEGIN
+	SELECT relation_id, relation_name FROM relation
+	ORDER BY relation_name;
+END //
+
+/* Civil status table */
+CREATE TABLE civil_status(
+	civil_status_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	civil_status_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX civil_status_index_civil_status_id ON civil_status(civil_status_id);
+
+CREATE TRIGGER civil_status_trigger_update
+AFTER UPDATE ON civil_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.civil_status_name <> OLD.civil_status_name THEN
+        SET audit_log = CONCAT(audit_log, "Civil Status Name: ", OLD.civil_status_name, " -> ", NEW.civil_status_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER civil_status_trigger_insert
+AFTER INSERT ON civil_status
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Civil status created. <br/>';
+
+    IF NEW.civil_status_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Civil Status Name: ", NEW.civil_status_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('civil_status', NEW.civil_status_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkCivilStatusExist (IN p_civil_status_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM civil_status
+    WHERE civil_status_id = p_civil_status_id;
+END //
+
+CREATE PROCEDURE insertCivilStatus(IN p_civil_status_name VARCHAR(100), IN p_last_log_by INT, OUT p_civil_status_id INT)
+BEGIN
+    INSERT INTO civil_status (civil_status_name, last_log_by) 
+	VALUES(p_civil_status_name, p_last_log_by);
+	
+    SET p_civil_status_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateCivilStatus(IN p_civil_status_id INT, IN p_civil_status_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE civil_status
+    SET civil_status_name = p_civil_status_name,
+    last_log_by = p_last_log_by
+    WHERE civil_status_id = p_civil_status_id;
+END //
+
+CREATE PROCEDURE deleteCivilStatus(IN p_civil_status_id INT)
+BEGIN
+    DELETE FROM civil_status WHERE civil_status_id = p_civil_status_id;
+END //
+
+CREATE PROCEDURE getCivilStatus(IN p_civil_status_id INT)
+BEGIN
+	SELECT * FROM civil_status
+    WHERE civil_status_id = p_civil_status_id;
+END //
+
+CREATE PROCEDURE duplicateCivilStatus(IN p_civil_status_id INT, IN p_last_log_by INT, OUT p_new_civil_status_id INT)
+BEGIN
+    DECLARE p_civil_status_name VARCHAR(100);
+    
+    SELECT civil_status_name
+    INTO p_civil_status_name
+    FROM civil_status 
+    WHERE civil_status_id = p_civil_status_id;
+    
+    INSERT INTO civil_status (civil_status_name, last_log_by) 
+    VALUES(p_civil_status_name, p_last_log_by);
+    
+    SET p_new_civil_status_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateCivilStatusTable()
+BEGIN
+    SELECT civil_status_id, civil_status_name
+    FROM civil_status
+    ORDER BY civil_status_id;
+END //
+
+CREATE PROCEDURE generateCivilStatusOptions()
+BEGIN
+	SELECT civil_status_id, civil_status_name FROM civil_status
+	ORDER BY civil_status_name;
+END //
+
+/* Blood type table */
+CREATE TABLE blood_type(
+	blood_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	blood_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX blood_type_index_blood_type_id ON blood_type(blood_type_id);
+
+CREATE TRIGGER blood_type_trigger_update
+AFTER UPDATE ON blood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.blood_type_name <> OLD.blood_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Blood Type Name: ", OLD.blood_type_name, " -> ", NEW.blood_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER blood_type_trigger_insert
+AFTER INSERT ON blood_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Blood type created. <br/>';
+
+    IF NEW.blood_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Blood Type Name: ", NEW.blood_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('blood_type', NEW.blood_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkBloodTypeExist (IN p_blood_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM blood_type
+    WHERE blood_type_id = p_blood_type_id;
+END //
+
+CREATE PROCEDURE insertBloodType(IN p_blood_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_blood_type_id INT)
+BEGIN
+    INSERT INTO blood_type (blood_type_name, last_log_by) 
+	VALUES(p_blood_type_name, p_last_log_by);
+	
+    SET p_blood_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBloodType(IN p_blood_type_id INT, IN p_blood_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE blood_type
+    SET blood_type_name = p_blood_type_name,
+    last_log_by = p_last_log_by
+    WHERE blood_type_id = p_blood_type_id;
+END //
+
+CREATE PROCEDURE deleteBloodType(IN p_blood_type_id INT)
+BEGIN
+    DELETE FROM blood_type WHERE blood_type_id = p_blood_type_id;
+END //
+
+CREATE PROCEDURE getBloodType(IN p_blood_type_id INT)
+BEGIN
+	SELECT * FROM blood_type
+    WHERE blood_type_id = p_blood_type_id;
+END //
+
+CREATE PROCEDURE duplicateBloodType(IN p_blood_type_id INT, IN p_last_log_by INT, OUT p_new_blood_type_id INT)
+BEGIN
+    DECLARE p_blood_type_name VARCHAR(100);
+    
+    SELECT blood_type_name
+    INTO p_blood_type_name
+    FROM blood_type 
+    WHERE blood_type_id = p_blood_type_id;
+    
+    INSERT INTO blood_type (blood_type_name, last_log_by) 
+    VALUES(p_blood_type_name, p_last_log_by);
+    
+    SET p_new_blood_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBloodTypeTable()
+BEGIN
+    SELECT blood_type_id, blood_type_name
+    FROM blood_type
+    ORDER BY blood_type_id;
+END //
+
+CREATE PROCEDURE generateBloodTypeOptions()
+BEGIN
+	SELECT blood_type_id, blood_type_name FROM blood_type
+	ORDER BY blood_type_name;
+END //
+
+/* Bank table */
+CREATE TABLE bank(
+	bank_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	bank_name VARCHAR(100) NOT NULL,
+	bank_identifier_code VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX bank_index_bank_id ON bank(bank_id);
+
+CREATE TRIGGER bank_trigger_update
+AFTER UPDATE ON bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_name <> OLD.bank_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Name: ", OLD.bank_name, " -> ", NEW.bank_name, "<br/>");
+    END IF;
+
+    IF NEW.bank_identifier_code <> OLD.bank_identifier_code THEN
+        SET audit_log = CONCAT(audit_log, "Bank Identifier Code: ", OLD.bank_identifier_code, " -> ", NEW.bank_identifier_code, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER bank_trigger_insert
+AFTER INSERT ON bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank created. <br/>';
+
+    IF NEW.bank_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Name: ", NEW.bank_name);
+    END IF;
+
+    IF NEW.bank_identifier_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Identifier Code: ", NEW.bank_identifier_code);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkBankExist (IN p_bank_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM bank
+    WHERE bank_id = p_bank_id;
+END //
+
+CREATE PROCEDURE insertBank(IN p_bank_name VARCHAR(100), IN p_bank_identifier_code VARCHAR(100), IN p_last_log_by INT, OUT p_bank_id INT)
+BEGIN
+    INSERT INTO bank (bank_name, bank_identifier_code, last_log_by) 
+	VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
+	
+    SET p_bank_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBank(IN p_bank_id INT, IN p_bank_name VARCHAR(100), IN p_bank_identifier_code VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE bank
+    SET bank_name = p_bank_name,
+    bank_identifier_code = p_bank_identifier_code,
+    last_log_by = p_last_log_by
+    WHERE bank_id = p_bank_id;
+END //
+
+CREATE PROCEDURE deleteBank(IN p_bank_id INT)
+BEGIN
+    DELETE FROM bank WHERE bank_id = p_bank_id;
+END //
+
+CREATE PROCEDURE getBank(IN p_bank_id INT)
+BEGIN
+	SELECT * FROM bank
+    WHERE bank_id = p_bank_id;
+END //
+
+CREATE PROCEDURE duplicateBank(IN p_bank_id INT, IN p_last_log_by INT, OUT p_new_bank_id INT)
+BEGIN
+    DECLARE p_bank_name VARCHAR(100);
+    DECLARE p_bank_identifier_code VARCHAR(100);
+    
+    SELECT bank_name, bank_identifier_code
+    INTO p_bank_name, p_bank_identifier_code
+    FROM bank 
+    WHERE bank_id = p_bank_id;
+    
+    INSERT INTO bank (bank_name, bank_identifier_code, last_log_by) 
+    VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
+    
+    SET p_new_bank_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBankTable()
+BEGIN
+    SELECT bank_id, bank_name
+    FROM bank
+    ORDER BY bank_id;
+END //
+
+CREATE PROCEDURE generateBankOptions()
+BEGIN
+	SELECT bank_id, bank_name FROM bank
+	ORDER BY bank_name;
+END //
+
+/* Holiday type table */
+CREATE TABLE holiday_type(
+	holiday_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	holiday_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX holiday_type_index_holiday_type_id ON holiday_type(holiday_type_id);
+
+CREATE TRIGGER holiday_type_trigger_update
+AFTER UPDATE ON holiday_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.holiday_type_name <> OLD.holiday_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Holiday Type Name: ", OLD.holiday_type_name, " -> ", NEW.holiday_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('holiday_type', NEW.holiday_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER holiday_type_trigger_insert
+AFTER INSERT ON holiday_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Holiday type created. <br/>';
+
+    IF NEW.holiday_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Holiday Type Name: ", NEW.holiday_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('holiday_type', NEW.holiday_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkHolidayTypeExist (IN p_holiday_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM holiday_type
+    WHERE holiday_type_id = p_holiday_type_id;
+END //
+
+CREATE PROCEDURE insertHolidayType(IN p_holiday_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_holiday_type_id INT)
+BEGIN
+    INSERT INTO holiday_type (holiday_type_name, last_log_by) 
+	VALUES(p_holiday_type_name, p_last_log_by);
+	
+    SET p_holiday_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateHolidayType(IN p_holiday_type_id INT, IN p_holiday_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE holiday_type
+    SET holiday_type_name = p_holiday_type_name,
+    last_log_by = p_last_log_by
+    WHERE holiday_type_id = p_holiday_type_id;
+END //
+
+CREATE PROCEDURE deleteHolidayType(IN p_holiday_type_id INT)
+BEGIN
+    DELETE FROM holiday_type WHERE holiday_type_id = p_holiday_type_id;
+END //
+
+CREATE PROCEDURE getHolidayType(IN p_holiday_type_id INT)
+BEGIN
+	SELECT * FROM holiday_type
+    WHERE holiday_type_id = p_holiday_type_id;
+END //
+
+CREATE PROCEDURE duplicateHolidayType(IN p_holiday_type_id INT, IN p_last_log_by INT, OUT p_new_holiday_type_id INT)
+BEGIN
+    DECLARE p_holiday_type_name VARCHAR(100);
+    
+    SELECT holiday_type_name
+    INTO p_holiday_type_name
+    FROM holiday_type 
+    WHERE holiday_type_id = p_holiday_type_id;
+    
+    INSERT INTO holiday_type (holiday_type_name, last_log_by) 
+    VALUES(p_holiday_type_name, p_last_log_by);
+    
+    SET p_new_holiday_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateHolidayTypeTable()
+BEGIN
+    SELECT holiday_type_id, holiday_type_name
+    FROM holiday_type
+    ORDER BY holiday_type_id;
+END //
+
+CREATE PROCEDURE generateHolidayTypeOptions()
+BEGIN
+	SELECT holiday_type_id, holiday_type_name FROM holiday_type
+	ORDER BY holiday_type_name;
+END //
+
+/* Work schedule type table */
+CREATE TABLE work_schedule_type(
+	work_schedule_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_schedule_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX work_schedule_type_index_work_schedule_type_id ON work_schedule_type(work_schedule_type_id);
+
+CREATE TRIGGER work_schedule_type_trigger_update
+AFTER UPDATE ON work_schedule_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.work_schedule_type_name <> OLD.work_schedule_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Work Schedule Type Name: ", OLD.work_schedule_type_name, " -> ", NEW.work_schedule_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_schedule_type', NEW.work_schedule_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER work_schedule_type_trigger_insert
+AFTER INSERT ON work_schedule_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work schedule type created. <br/>';
+
+    IF NEW.work_schedule_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Schedule Type Name: ", NEW.work_schedule_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_schedule_type', NEW.work_schedule_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkWorkScheduleTypeExist (IN p_work_schedule_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_schedule_type
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+END //
+
+CREATE PROCEDURE insertWorkScheduleType(IN p_work_schedule_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_work_schedule_type_id INT)
+BEGIN
+    INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) 
+	VALUES(p_work_schedule_type_name, p_last_log_by);
+	
+    SET p_work_schedule_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateWorkScheduleType(IN p_work_schedule_type_id INT, IN p_work_schedule_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE work_schedule_type
+    SET work_schedule_type_name = p_work_schedule_type_name,
+    last_log_by = p_last_log_by
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+END //
+
+CREATE PROCEDURE deleteWorkScheduleType(IN p_work_schedule_type_id INT)
+BEGIN
+    DELETE FROM work_schedule_type WHERE work_schedule_type_id = p_work_schedule_type_id;
+END //
+
+CREATE PROCEDURE getWorkScheduleType(IN p_work_schedule_type_id INT)
+BEGIN
+	SELECT * FROM work_schedule_type
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+END //
+
+CREATE PROCEDURE duplicateWorkScheduleType(IN p_work_schedule_type_id INT, IN p_last_log_by INT, OUT p_new_work_schedule_type_id INT)
+BEGIN
+    DECLARE p_work_schedule_type_name VARCHAR(100);
+    
+    SELECT work_schedule_type_name
+    INTO p_work_schedule_type_name
+    FROM work_schedule_type 
+    WHERE work_schedule_type_id = p_work_schedule_type_id;
+    
+    INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) 
+    VALUES(p_work_schedule_type_name, p_last_log_by);
+    
+    SET p_new_work_schedule_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateWorkScheduleTypeTable()
+BEGIN
+    SELECT work_schedule_type_id, work_schedule_type_name
+    FROM work_schedule_type
+    ORDER BY work_schedule_type_id;
+END //
+
+CREATE PROCEDURE generateWorkScheduleTypeOptions()
+BEGIN
+	SELECT work_schedule_type_id, work_schedule_type_name FROM work_schedule_type
+	ORDER BY work_schedule_type_name;
 END //

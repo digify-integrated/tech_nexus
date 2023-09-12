@@ -15,7 +15,6 @@ session_start();
 class BranchController {
     private $branchModel;
     private $userModel;
-    private $roleModel;
     private $cityModel;
     private $stateModel;
     private $countryModel;
@@ -32,7 +31,6 @@ class BranchController {
     # Parameters:
     # - @param BranchModel $branchModel     The BranchModel instance for branch related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param CityModel $cityModel     The CityModel instance for city related operations.
     # - @param StateModel $stateModel     The StateModel instance for state related operations.
     # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
@@ -42,10 +40,9 @@ class BranchController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(BranchModel $branchModel, UserModel $userModel, RoleModel $roleModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(BranchModel $branchModel, UserModel $userModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->branchModel = $branchModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->cityModel = $cityModel;
         $this->stateModel = $stateModel;
         $this->countryModel = $countryModel;
@@ -348,11 +345,10 @@ require_once '../model/branch-model.php';
 require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new BranchController(new BranchModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new BranchController(new BranchModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

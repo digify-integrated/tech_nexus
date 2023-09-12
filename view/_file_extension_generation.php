@@ -7,14 +7,12 @@ require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/file-type-model.php';
 require_once '../model/file-extension-model.php';
-require_once '../model/role-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $fileTypeModel = new FileTypeModel($databaseModel);
 $fileExtensionModel = new FileExtensionModel($databaseModel);
-$roleModel = new RoleModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){

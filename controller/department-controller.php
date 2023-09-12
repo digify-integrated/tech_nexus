@@ -15,7 +15,6 @@ session_start();
 class DepartmentController {
     private $departmentModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
     private $systemModel;
 
@@ -29,17 +28,15 @@ class DepartmentController {
     # Parameters:
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(DepartmentModel $departmentModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(DepartmentModel $departmentModel, UserModel $userModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->departmentModel = $departmentModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -318,11 +315,10 @@ class DepartmentController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/department-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new DepartmentController(new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new DepartmentController(new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

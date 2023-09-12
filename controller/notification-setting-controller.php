@@ -15,7 +15,6 @@ session_start();
 class NotificationSettingController {
     private $notificationSettingModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -28,16 +27,14 @@ class NotificationSettingController {
     # Parameters:
     # - @param NotificationSettingModel $notificationSettingModel     The NotificationSettingModel instance for notification setting related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param roleModel $roleModel     The RoleModel instance for role related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(NotificationSettingModel $notificationSettingModel, UserModel $userModel, RoleModel $roleModel, SecurityModel $securityModel) {
+    public function __construct(NotificationSettingModel $notificationSettingModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->notificationSettingModel = $notificationSettingModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -626,11 +623,10 @@ class NotificationSettingController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/notification-setting-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new NotificationSettingController(new NotificationSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new SecurityModel());
+$controller = new NotificationSettingController(new NotificationSettingModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

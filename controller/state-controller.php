@@ -16,7 +16,6 @@ class StateController {
     private $stateModel;
     private $countryModel;
     private $userModel;
-    private $roleModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -29,17 +28,15 @@ class StateController {
     # Parameters:
     # - @param StateModel $stateModel     The StateModel instance for state related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param RoleModel $roleModel     The RoleModel instance for role related operations.
     # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(StateModel $stateModel, UserModel $userModel, RoleModel $roleModel, CountryModel $countryModel, SecurityModel $securityModel) {
+    public function __construct(StateModel $stateModel, UserModel $userModel, CountryModel $countryModel, SecurityModel $securityModel) {
         $this->stateModel = $stateModel;
         $this->userModel = $userModel;
-        $this->roleModel = $roleModel;
         $this->countryModel = $countryModel;
         $this->securityModel = $securityModel;
     }
@@ -319,11 +316,10 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
-require_once '../model/role-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new StateController(new StateModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new RoleModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel());
+$controller = new StateController(new StateModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CountryModel(new DatabaseModel), new SecurityModel());
 $controller->handleRequest();
 ?>
