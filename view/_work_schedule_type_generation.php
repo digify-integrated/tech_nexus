@@ -35,7 +35,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $workScheduleTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
+            $workScheduleTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'delete');
 
             foreach ($options as $row) {
                 $workScheduleTypeID = $row['work_schedule_type_id'];

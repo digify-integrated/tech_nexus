@@ -5652,3 +5652,168 @@ BEGIN
 	SELECT work_schedule_type_id, work_schedule_type_name FROM work_schedule_type
 	ORDER BY work_schedule_type_name;
 END //
+
+/* Work schedule table */
+CREATE TABLE work_schedule(
+	work_schedule_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_schedule_name VARCHAR(100) NOT NULL,
+	work_schedule_description VARCHAR(500) NOT NULL,
+	work_schedule_type_id INT UNSIGNED NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX work_schedule_index_work_schedule_id ON work_schedule(work_schedule_id);
+CREATE INDEX work_schedule_index_work_schedule_type_id ON work_schedule(work_schedule_type_id);
+
+CREATE TRIGGER work_schedule_trigger_update
+AFTER UPDATE ON work_schedule
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.work_schedule_name <> OLD.work_schedule_name THEN
+        SET audit_log = CONCAT(audit_log, "Work Schedule Name: ", OLD.work_schedule_name, " -> ", NEW.work_schedule_name, "<br/>");
+    END IF;
+
+    IF NEW.work_schedule_description <> OLD.work_schedule_description THEN
+        SET audit_log = CONCAT(audit_log, "Work Schedule Description: ", OLD.work_schedule_description, " -> ", NEW.work_schedule_description, "<br/>");
+    END IF;
+
+    IF NEW.work_schedule_type_id <> OLD.work_schedule_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Work Schedule Type ID: ", OLD.work_schedule_type_id, " -> ", NEW.work_schedule_type_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_schedule', NEW.work_schedule_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER work_schedule_trigger_insert
+AFTER INSERT ON work_schedule
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work schedule created. <br/>';
+
+    IF NEW.work_schedule_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Schedule Name: ", NEW.work_schedule_name);
+    END IF;
+
+    IF NEW.work_schedule_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Schedule Description: ", NEW.work_schedule_description);
+    END IF;
+
+    IF NEW.work_schedule_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Schedule Type ID: ", NEW.work_schedule_type_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_schedule', NEW.work_schedule_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkWorkScheduleExist (IN p_work_schedule_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_schedule
+    WHERE work_schedule_id = p_work_schedule_id;
+END //
+
+CREATE PROCEDURE insertWorkSchedule(IN p_work_schedule_name VARCHAR(100), IN p_work_schedule_description VARCHAR(500), IN p_work_schedule_type_id INT, IN p_last_log_by INT, OUT p_work_schedule_id INT)
+BEGIN
+    INSERT INTO work_schedule (work_schedule_name, work_schedule_description, work_schedule_type_id, last_log_by) 
+	VALUES(p_work_schedule_name, p_work_schedule_description, p_work_schedule_type_id, p_last_log_by);
+	
+    SET p_work_schedule_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateWorkSchedule(IN p_work_schedule_id INT, IN p_work_schedule_name VARCHAR(100), IN p_work_schedule_description VARCHAR(500), IN p_work_schedule_type_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE work_schedule
+    SET work_schedule_name = p_work_schedule_name,
+    work_schedule_description = p_work_schedule_description,
+    work_schedule_type_id = p_work_schedule_type_id,
+    last_log_by = p_last_log_by
+    WHERE work_schedule_id = p_work_schedule_id;
+END //
+
+CREATE PROCEDURE deleteWorkSchedule(IN p_work_schedule_id INT)
+BEGIN
+    DELETE FROM work_schedule WHERE work_schedule_id = p_work_schedule_id;
+END //
+
+CREATE PROCEDURE getWorkSchedule(IN p_work_schedule_id INT)
+BEGIN
+	SELECT * FROM work_schedule
+    WHERE work_schedule_id = p_work_schedule_id;
+END //
+
+CREATE PROCEDURE duplicateWorkSchedule(IN p_work_schedule_id INT, IN p_last_log_by INT, OUT p_new_work_schedule_id INT)
+BEGIN
+    DECLARE p_work_schedule_name VARCHAR(100);
+    DECLARE p_work_schedule_description VARCHAR(500);
+    DECLARE p_work_schedule_type_id INT;
+    
+    SELECT work_schedule_name, work_schedule_description, work_schedule_type_id
+    INTO p_work_schedule_name, p_work_schedule_description, p_work_schedule_type_id
+    FROM work_schedule 
+    WHERE work_schedule_id = p_work_schedule_id;
+    
+    INSERT INTO work_schedule (work_schedule_name, work_schedule_description, work_schedule_type_id, last_log_by) 
+    VALUES(p_work_schedule_name, p_work_schedule_description, p_work_schedule_type_id, p_last_log_by);
+    
+    SET p_new_work_schedule_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateWorkScheduleTable(IN p_work_schedule_type_id INT)
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT work_schedule_id, work_schedule_name, work_schedule_description, work_schedule_type_id FROM work_schedule';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_work_schedule_type_id <> "" THEN
+        SET conditionList = CONCAT(conditionList, ' AND work_schedule_type_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_work_schedule_type_id));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' ORDER BY work_schedule_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateWorkScheduleOptions()
+BEGIN
+	SELECT work_schedule_id, work_schedule_name FROM work_schedule
+	ORDER BY work_schedule_name;
+END //
+
+/* Work schedule table */
+CREATE TABLE working_hours (
+    schedule_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_name VARCHAR(255) NOT NULL,
+    work_schedule_type ENUM('Fixed', 'Shifting', 'Flexible') NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    working_days VARCHAR(15), -- Use a comma-separated list for flexible schedules
+    start_time TIME,         -- Start time (for Fixed schedules)
+    end_time TIME,           -- End time (for Fixed schedules)
+    shift_description VARCHAR(255), -- Description for shifting schedules
+    day_off VARCHAR(15),     -- Day off (for Flexible schedules)
+    notes TEXT             - Any additional notes or comments
+); 
+CREATE TABLE work_schedule(
+	work_schedule_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	work_schedule_name VARCHAR(100) NOT NULL,
+	work_schedule_description VARCHAR(500) NOT NULL,
+	work_schedule_type_id INT UNSIGNED NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX work_schedule_index_work_schedule_id ON work_schedule(work_schedule_id);
+CREATE INDEX work_schedule_index_work_schedule_type_id ON work_schedule(work_schedule_type_id);

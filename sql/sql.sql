@@ -112,10 +112,16 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank', '3', 'bank.php', '11', '', '2', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Holiday Type', '1', 'holiday-type.php', '25', '', '8', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule Type', '1', 'work-schedule-type.php', '25', '', '23', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule', '1', 'work-schedule.php', '25', '', '23', '0');
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('39', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('40', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('41', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('42', '1', '1', '1', '1', '1', '1', '0');
+
+INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Fixed', '0');
+INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Flexible', '0');
+INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Shifting', '0');
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Menu Item Role Access', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Menu Item Role Access', '0');
@@ -145,6 +151,9 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Job 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Job Position Qualification', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Start Job Position Recruitment', '0');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Stop Job Position Recruitment', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Working Hours', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Working Hours', '0');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Working Hours', '0');
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('1', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('2', '1', '1', '0');
@@ -174,6 +183,9 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('26', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('27', '1', '1', '0');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('28', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('29', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('30', '1', '1', '0');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('31', '1', '1', '0');
 
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Audio', '0');
 INSERT INTO file_type (file_type_name, last_log_by) VALUES ('Compressed', '0');
