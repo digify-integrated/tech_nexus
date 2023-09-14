@@ -93,39 +93,64 @@
     </div>
   </div>
 <?php
-    if(!empty($workScheduleID)){
-        if($addWorkingHours['total'] > 0){
-            $working_hours_add = '<button type="button" class="btn btn-warning" id="add-working-hours">Add Working Hours</button>';
-        }
+  if(!empty($workScheduleID)){
+    if($addWorkingHours['total'] > 0){
+      if($workScheduleTypeID == 1){
+        $working_hours_add = '<button type="button" class="btn btn-warning" id="add-fixed-working-hours">Add Working Hours</button>';
+        $working_hours_table = '<table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                  <thead>
+                                    <tr>
+                                      <th>Day of Week</th>
+                                      <th>Day Period</th>
+                                      <th>Work From</th>
+                                      <th>Work To</th>
+                                      <th>Notes</th>
+                                      <th>Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody></tbody>
+                                </table>';
+      }
+      else{
+        $working_hours_add = '<button type="button" class="btn btn-warning" id="add-flexible-working-hours">Add Working Hours</button>';
+        $working_hours_table = '<table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                                  <thead>
+                                    <tr>
+                                      <th>Work From Date</th>
+                                      <th>Work To Date</th>
+                                      <th>Day Period</th>
+                                      <th>Work From</th>
+                                      <th>Work To</th>
+                                      <th>Notes</th>
+                                      <th>Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody></tbody>
+                                </table>';
+      }
+    }
 
-        echo '<div class="col-lg-12">
-                <div class="card">
-                <div class="card-header">
-                    <div class="row align-items-center">
-                    <div class="col-sm-6">
-                        <h5>Working Hours</h5>
-                    </div>
-                    <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                        '. $working_hours_add .'
-                    </div>
-                    </div>
+    echo '<div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>Working Hours</h5>
+                  </div>
+                  <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                    '. $working_hours_add .'
+                  </div>
                 </div>
-                <div class="card-body">
-                    <div class="dt-responsive table-responsive">
-                    <table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                        <thead>
-                        <tr>
-                            <th>Responsibility</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    </div>
+              </div>
+              <div class="card-body">
+                <div class="dt-responsive table-responsive">
+                  '. $working_hours_table .'
                 </div>
-                </div>
-            </div>';
+              </div>
+            </div>
+          </div>';
   }
+  
   echo '<div class="col-lg-12">
           <div class="card">
             <div class="card-header">
@@ -142,5 +167,106 @@
             </div>
           </div>
         </div>';
+
+  if($addWorkingHours['total'] > 0){
+    if($workScheduleTypeID == 1){
+      echo '<div id="fixed-working-hours-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="fixed-working-hours-modal" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-r" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="fixed-working-hours-modal-title">Work Hours</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body" id="modal-body">
+                    <form id="fixed-working-hours-form" method="post" action="#">
+                      <div class="form-group row">
+                        <div class="col-lg-6">
+                          <label class="form-label">Day of Week <span class="text-danger">*</span></label>
+                          <input type="hidden" id="work_hours_id" name="work_hours_id">
+                          <select class="form-control modal-select2" name="day_of_week" id="day_of_week">
+                            <option value="">--</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                          </select>
+                        </div>
+                        <div class="col-lg-6">
+                          <label class="form-label">Day Period <span class="text-danger">*</span></label>
+                          <select class="form-control modal-select2" name="day_period" id="day_period">
+                            <option value="">--</option>
+                            <option value="Morning">Morning</option>
+                            <option value="Afternoon">Afternoon</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-lg-6">
+                          <label class="form-label">Work From <span class="text-danger">*</span></label>
+                          <input class="form-control" type="time" id="work_from" name="work_from">
+                        </div>
+                        <div class="col-lg-6">
+                          <label class="form-label">Work To <span class="text-danger">*</span></label>
+                          <input class="form-control" type="time" id="work_to" name="work_to">
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-lg-12">
+                          <label class="form-label">Notes</label>
+                          <textarea class="form-control" id="notes" name="notes" maxlength="1000" rows="5"></textarea>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="submit-fixed-working-hours-form" form="fixed-working-hours-form">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </div>';
+    }
+    else{
+      echo '<div id="flexible-working-hours-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="flexible-working-hours-modal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-r" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="flexible-working-hours-modal-title">Work Hours</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                  <form id="flexible-working-hours-form" method="post" action="#">
+                    <div class="fo
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Work From <span class="text-danger">*</span></label>
+                        <input class="form-control" type="time" id="work_from" name="work_from">
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Work To <span class="text-danger">*</span></label>
+                        <input class="form-control" type="time" id="work_to" name="work_to">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-12">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" maxlength="1000" rows="5"></textarea>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" id="submit-fixed-working-hours-form" form="fixed-working-hours-form">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>';
+    }
+  }
+      
 ?>
 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 13, 2023 at 11:23 AM
+-- Generation Time: Sep 14, 2023 at 11:40 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -10181,7 +10181,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-14 14:37:42', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 
 --
 -- Triggers `users`
@@ -10314,6 +10314,104 @@ CREATE TRIGGER `userTriggerUpdate` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('users', NEW.user_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `work_hours`
+--
+
+CREATE TABLE `work_hours` (
+  `work_hours_id` int(11) NOT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `day_of_week` varchar(15) DEFAULT NULL,
+  `day_period` varchar(15) DEFAULT NULL,
+  `start_time` time DEFAULT NULL,
+  `end_time` time DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `work_hours`
+--
+DELIMITER $$
+CREATE TRIGGER `work_hours_trigger_insert` AFTER INSERT ON `work_hours` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
+
+    IF NEW.start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
+    END IF;
+
+    IF NEW.end_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    END IF;
+
+    IF NEW.day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day of Week: ", NEW.day_of_week);
+    END IF;
+
+    IF NEW.day_period <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day Period: ", NEW.day_period);
+    END IF;
+
+    IF NEW.start_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Time: ", NEW.start_time);
+    END IF;
+
+    IF NEW.end_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Time: ", NEW.end_time);
+    END IF;
+
+    IF NEW.notes <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notes: ", NEW.notes);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_hours', NEW.work_hours_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `work_hours_trigger_update` AFTER UPDATE ON `work_hours` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.start_date <> OLD.start_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.end_date <> OLD.end_date THEN
+        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    END IF;
+
+    IF NEW.day_of_week <> OLD.day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Day of Week: ", OLD.day_of_week, " -> ", NEW.day_of_week, "<br/>");
+    END IF;
+
+    IF NEW.day_period <> OLD.day_period THEN
+        SET audit_log = CONCAT(audit_log, "Day Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
+    END IF;
+
+    IF NEW.start_time <> OLD.start_time THEN
+        SET audit_log = CONCAT(audit_log, "Start Time: ", OLD.start_time, " -> ", NEW.start_time, "<br/>");
+    END IF;
+
+    IF NEW.end_time <> OLD.end_time THEN
+        SET audit_log = CONCAT(audit_log, "End Time: ", OLD.end_time, " -> ", NEW.end_time, "<br/>");
+    END IF;
+
+    IF NEW.notes <> OLD.notes THEN
+        SET audit_log = CONCAT(audit_log, "Notes: ", OLD.notes, " -> ", NEW.notes, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_hours', NEW.work_hours_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -10814,6 +10912,13 @@ ALTER TABLE `users`
   ADD KEY `users_index_email` (`email`);
 
 --
+-- Indexes for table `work_hours`
+--
+ALTER TABLE `work_hours`
+  ADD PRIMARY KEY (`work_hours_id`),
+  ADD KEY `work_hours_index_work_hours_id` (`work_hours_id`);
+
+--
 -- Indexes for table `work_schedule`
 --
 ALTER TABLE `work_schedule`
@@ -11072,6 +11177,12 @@ ALTER TABLE `upload_setting`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `work_hours`
+--
+ALTER TABLE `work_hours`
+  MODIFY `work_hours_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `work_schedule`

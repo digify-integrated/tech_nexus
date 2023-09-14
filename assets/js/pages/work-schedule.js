@@ -12,6 +12,12 @@
 
         if($('#work-schedule-id').length){
             displayDetails('get work schedule details');
+
+            $(document).on('click','#add-fixed-working-hours',function() {
+                resetModalForm('fixed-working-hours-form');
+
+                $('#fixed-working-hours-modal').modal('show');
+            });
         }
 
         $(document).on('click','.delete-work-schedule',function() {

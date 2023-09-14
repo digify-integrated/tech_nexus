@@ -5793,27 +5793,95 @@ BEGIN
 	ORDER BY work_schedule_name;
 END //
 
-/* Work schedule table */
-CREATE TABLE working_hours (
-    schedule_id INT AUTO_INCREMENT PRIMARY KEY,
-    employee_name VARCHAR(255) NOT NULL,
-    work_schedule_type ENUM('Fixed', 'Shifting', 'Flexible') NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    working_days VARCHAR(15), -- Use a comma-separated list for flexible schedules
-    start_time TIME,         -- Start time (for Fixed schedules)
-    end_time TIME,           -- End time (for Fixed schedules)
-    shift_description VARCHAR(255), -- Description for shifting schedules
-    day_off VARCHAR(15),     -- Day off (for Flexible schedules)
-    notes TEXT             - Any additional notes or comments
-); 
-CREATE TABLE work_schedule(
-	work_schedule_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	work_schedule_name VARCHAR(100) NOT NULL,
-	work_schedule_description VARCHAR(500) NOT NULL,
-	work_schedule_type_id INT UNSIGNED NOT NULL,
+/* Work hours table */
+CREATE TABLE work_hours (
+    work_hours_id INT AUTO_INCREMENT PRIMARY KEY,
+    start_date DATE,
+    end_date DATE,
+    day_of_week VARCHAR(15),
+    day_period VARCHAR(15),
+    start_time TIME,
+    end_time TIME,
+    notes TEXT,
     last_log_by INT NOT NULL
 );
+ 
+CREATE INDEX work_hours_index_work_hours_id ON work_hours(work_hours_id);
 
-CREATE INDEX work_schedule_index_work_schedule_id ON work_schedule(work_schedule_id);
-CREATE INDEX work_schedule_index_work_schedule_type_id ON work_schedule(work_schedule_type_id);
+CREATE TRIGGER work_hours_trigger_update
+AFTER UPDATE ON work_hours
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.start_date <> OLD.start_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.end_date <> OLD.end_date THEN
+        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    END IF;
+
+    IF NEW.day_of_week <> OLD.day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Day of Week: ", OLD.day_of_week, " -> ", NEW.day_of_week, "<br/>");
+    END IF;
+
+    IF NEW.day_period <> OLD.day_period THEN
+        SET audit_log = CONCAT(audit_log, "Day Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
+    END IF;
+
+    IF NEW.start_time <> OLD.start_time THEN
+        SET audit_log = CONCAT(audit_log, "Start Time: ", OLD.start_time, " -> ", NEW.start_time, "<br/>");
+    END IF;
+
+    IF NEW.end_time <> OLD.end_time THEN
+        SET audit_log = CONCAT(audit_log, "End Time: ", OLD.end_time, " -> ", NEW.end_time, "<br/>");
+    END IF;
+
+    IF NEW.notes <> OLD.notes THEN
+        SET audit_log = CONCAT(audit_log, "Notes: ", OLD.notes, " -> ", NEW.notes, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('work_hours', NEW.work_hours_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER work_hours_trigger_insert
+AFTER INSERT ON work_hours
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
+
+    IF NEW.start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
+    END IF;
+
+    IF NEW.end_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    END IF;
+
+    IF NEW.day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day of Week: ", NEW.day_of_week);
+    END IF;
+
+    IF NEW.day_period <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day Period: ", NEW.day_period);
+    END IF;
+
+    IF NEW.start_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Time: ", NEW.start_time);
+    END IF;
+
+    IF NEW.end_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Time: ", NEW.end_time);
+    END IF;
+
+    IF NEW.notes <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notes: ", NEW.notes);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('work_hours', NEW.work_hours_id, audit_log, NEW.last_log_by, NOW());
+END //

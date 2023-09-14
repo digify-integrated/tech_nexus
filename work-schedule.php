@@ -58,6 +58,9 @@
             header('location: 404.php');
             exit;
         }
+
+        $workScheduleDetails = $workScheduleModel->getWorkSchedule($workScheduleID);
+        $workScheduleTypeID = $workScheduleDetails['work_schedule_type_id'];
     }
     else{
         $workScheduleID = null;
