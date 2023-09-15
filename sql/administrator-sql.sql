@@ -5795,9 +5795,9 @@ END //
 
 /* Work hours table */
 CREATE TABLE work_hours (
-    work_hours_id INT AUTO_INCREMENT PRIMARY KEY,
-    start_date DATE,
-    end_date DATE,
+    work_hours_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    work_schedule_id INT UNSIGNED,
+    work_date DATE,
     day_of_week VARCHAR(15),
     day_period VARCHAR(15),
     start_time TIME,
@@ -5807,6 +5807,10 @@ CREATE TABLE work_hours (
 );
  
 CREATE INDEX work_hours_index_work_hours_id ON work_hours(work_hours_id);
+CREATE INDEX work_hours_index_work_schedule_id ON work_hours(work_schedule_id);
+
+ALTER TABLE work_hours
+ADD FOREIGN KEY (work_schedule_id) REFERENCES work_schedule(work_schedule_id);
 
 CREATE TRIGGER work_hours_trigger_update
 AFTER UPDATE ON work_hours
@@ -5814,12 +5818,8 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.start_date <> OLD.start_date THEN
-        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
-    END IF;
-
-    IF NEW.end_date <> OLD.end_date THEN
-        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    IF NEW.work_date <> OLD.work_date THEN
+        SET audit_log = CONCAT(audit_log, "Work Date: ", OLD.work_date, " -> ", NEW.work_date, "<br/>");
     END IF;
 
     IF NEW.day_of_week <> OLD.day_of_week THEN
@@ -5827,7 +5827,7 @@ BEGIN
     END IF;
 
     IF NEW.day_period <> OLD.day_period THEN
-        SET audit_log = CONCAT(audit_log, "Day Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Day of Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
     END IF;
 
     IF NEW.start_time <> OLD.start_time THEN
@@ -5854,12 +5854,8 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
 
-    IF NEW.start_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
-    END IF;
-
-    IF NEW.end_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    IF NEW.work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Date: ", NEW.work_date);
     END IF;
 
     IF NEW.day_of_week <> '' THEN
@@ -5884,4 +5880,50 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('work_hours', NEW.work_hours_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkWorkHoursExist (IN p_work_hours_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_hours
+    WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE insertWorkHours(IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT, OUT work_hours_id INT)
+BEGIN
+    INSERT INTO work_hours (work_schedule_id, work_date, day_of_week, day_period, start_time, end_time, notes, last_log_by) 
+	VALUES(p_work_schedule_id, p_work_date, p_day_of_week, p_day_period, p_start_time, p_end_time, p_notes, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateWorkHours(IN work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
+BEGIN
+	UPDATE work_hours
+    SET work_schedule_id = p_work_schedule_id,
+    work_date = p_work_date,
+    day_of_week = p_day_of_week,
+    day_period = p_day_period,
+    start_time = p_start_time,
+    end_time = p_end_time,
+    notes = p_notes,
+    last_log_by = p_last_log_by
+    WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE deleteWorkHours(IN work_hours_id INT)
+BEGIN
+    DELETE FROM work_hours WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE getWorkHours(IN p_work_hours_id INT)
+BEGIN
+	SELECT * FROM work_hours
+    WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE generateWorkHoursTable(IN p_work_schedule_id INT)
+BEGIN
+	SELECT work_date, day_of_week, day_period, start_time, end_time, notes
+    FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id 
+    ORDER BY p_work_hours_id;
 END //

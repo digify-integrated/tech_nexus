@@ -18,6 +18,12 @@
 
                 $('#fixed-working-hours-modal').modal('show');
             });
+
+            $(document).on('click','#add-flexible-working-hours',function() {
+                resetModalForm('flexible-working-hours-form');
+
+                $('#flexible-working-hours-modal').modal('show');
+            });
         }
 
         $(document).on('click','.delete-work-schedule',function() {

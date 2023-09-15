@@ -116,8 +116,7 @@
         $working_hours_table = '<table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
-                                      <th>Work From Date</th>
-                                      <th>Work To Date</th>
+                                      <th>Work Date</th>
                                       <th>Day Period</th>
                                       <th>Work From</th>
                                       <th>Work To</th>
@@ -239,7 +238,20 @@
                 </div>
                 <div class="modal-body" id="modal-body">
                   <form id="flexible-working-hours-form" method="post" action="#">
-                    <div class="fo
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Work Date <span class="text-danger">*</span></label>
+                        <input class="form-control" type="date" id="work_date" name="work_date">
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Day Period <span class="text-danger">*</span></label>
+                        <select class="form-control modal-select2" name="day_period" id="day_period">
+                          <option value="">--</option>
+                          <option value="Morning">Morning</option>
+                          <option value="Afternoon">Afternoon</option>
+                        </select>
+                      </div>
+                    </div>
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Work From <span class="text-danger">*</span></label>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 14, 2023 at 11:40 AM
+-- Generation Time: Sep 15, 2023 at 11:12 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -346,6 +346,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkUserIDExist` (IN `p_user_id` I
     WHERE user_id = p_user_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkWorkHoursExist` (IN `p_work_hours_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM work_hours
+    WHERE work_hours_id = p_work_hours_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkWorkScheduleExist` (IN `p_work_schedule_id` INT)   BEGIN
 	SELECT COUNT(*) AS total
     FROM work_schedule
@@ -668,6 +674,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` 
     DELETE FROM users WHERE user_id = p_user_id;
 
     COMMIT;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkHours` (IN `work_hours_id` INT)   BEGIN
+    DELETE FROM work_hours WHERE work_hours_id = p_work_hours_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkSchedule` (IN `p_work_schedule_id` INT)   BEGIN
@@ -1845,6 +1855,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateUserAccountTable` (IN `p_is
     DEALLOCATE PREPARE stmt;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWorkHoursTable` (IN `p_work_schedule_id` INT)   BEGIN
+	SELECT work_date, day_of_week, day_period, start_time, end_time, notes
+    FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id 
+    ORDER BY p_work_hours_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateWorkScheduleOptions` ()   BEGIN
 	SELECT work_schedule_id, work_schedule_name FROM work_schedule
 	ORDER BY work_schedule_name;
@@ -2114,6 +2131,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserByRememberToken` (IN `p_remember_token` VARCHAR(255))   BEGIN
 	SELECT * FROM users
 	WHERE remember_token = p_remember_token;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getWorkHours` (IN `p_work_hours_id` INT)   BEGIN
+	SELECT * FROM work_hours
+    WHERE work_hours_id = p_work_hours_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getWorkSchedule` (IN `p_work_schedule_id` INT)   BEGIN
@@ -2415,6 +2437,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` 
 	VALUES(p_file_as, p_email, p_password, p_password_expiry_date, p_last_log_by);
 	
     SET p_user_account_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertWorkHours` (IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT, OUT `work_hours_id` INT)   BEGIN
+    INSERT INTO work_hours (work_schedule_id, work_date, day_of_week, day_period, start_time, end_time, notes, last_log_by) 
+	VALUES(p_work_schedule_id, p_work_date, p_day_of_week, p_day_period, p_start_time, p_end_time, p_notes, p_last_log_by);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertWorkSchedule` (IN `p_work_schedule_name` VARCHAR(100), IN `p_work_schedule_description` VARCHAR(500), IN `p_work_schedule_type_id` INT, IN `p_last_log_by` INT, OUT `p_work_schedule_id` INT)   BEGIN
@@ -2962,6 +2989,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserProfilePicture` (IN `p_us
 	UPDATE users 
     SET profile_picture = p_profile_picture, last_log_by = p_last_log_by 
     WHERE user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWorkHours` (IN `work_hours_id` INT, IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT)   BEGIN
+	UPDATE work_hours
+    SET work_schedule_id = p_work_schedule_id,
+    work_date = p_work_date,
+    day_of_week = p_day_of_week,
+    day_period = p_day_period,
+    start_time = p_start_time,
+    end_time = p_end_time,
+    notes = p_notes,
+    last_log_by = p_last_log_by
+    WHERE work_hours_id = p_work_hours_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWorkSchedule` (IN `p_work_schedule_id` INT, IN `p_work_schedule_name` VARCHAR(100), IN `p_work_schedule_description` VARCHAR(500), IN `p_work_schedule_type_id` INT, IN `p_last_log_by` INT)   BEGIN
@@ -5312,7 +5352,8 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2293, 'system_action_access_rights', 29, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-13 15:35:23'),
 (2294, 'system_action_access_rights', 30, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-13 15:35:23'),
 (2295, 'system_action_access_rights', 31, 'System action access rights created. <br/><br/>Role ID: 1<br/>Role Access: 1', '0', '2023-09-13 15:35:23'),
-(2296, 'work_schedule_type', 3, 'Work schedule type created. <br/><br/>Work Schedule Type Name: Shifting', '0', '2023-09-13 16:47:03');
+(2296, 'work_schedule_type', 3, 'Work schedule type created. <br/><br/>Work Schedule Type Name: Shifting', '0', '2023-09-13 16:47:03'),
+(2297, 'users', 1, 'Last Connection Date: 2023-09-14 14:37:42 -> 2023-09-15 10:18:39<br/>', '0', '2023-09-15 10:18:39');
 
 -- --------------------------------------------------------
 
@@ -10181,7 +10222,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-14 14:37:42', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-15 10:18:39', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '7ecbba0466942300f0a9fd452e938bc0', 0);
 
 --
 -- Triggers `users`
@@ -10326,9 +10367,9 @@ DELIMITER ;
 --
 
 CREATE TABLE `work_hours` (
-  `work_hours_id` int(11) NOT NULL,
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
+  `work_hours_id` int(10) UNSIGNED NOT NULL,
+  `work_schedule_id` int(10) UNSIGNED DEFAULT NULL,
+  `work_date` date DEFAULT NULL,
   `day_of_week` varchar(15) DEFAULT NULL,
   `day_period` varchar(15) DEFAULT NULL,
   `start_time` time DEFAULT NULL,
@@ -10344,12 +10385,8 @@ DELIMITER $$
 CREATE TRIGGER `work_hours_trigger_insert` AFTER INSERT ON `work_hours` FOR EACH ROW BEGIN
     DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
 
-    IF NEW.start_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
-    END IF;
-
-    IF NEW.end_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    IF NEW.work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Date: ", NEW.work_date);
     END IF;
 
     IF NEW.day_of_week <> '' THEN
@@ -10381,12 +10418,8 @@ DELIMITER $$
 CREATE TRIGGER `work_hours_trigger_update` AFTER UPDATE ON `work_hours` FOR EACH ROW BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.start_date <> OLD.start_date THEN
-        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
-    END IF;
-
-    IF NEW.end_date <> OLD.end_date THEN
-        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    IF NEW.work_date <> OLD.work_date THEN
+        SET audit_log = CONCAT(audit_log, "Work Date: ", OLD.work_date, " -> ", NEW.work_date, "<br/>");
     END IF;
 
     IF NEW.day_of_week <> OLD.day_of_week THEN
@@ -10394,7 +10427,7 @@ CREATE TRIGGER `work_hours_trigger_update` AFTER UPDATE ON `work_hours` FOR EACH
     END IF;
 
     IF NEW.day_period <> OLD.day_period THEN
-        SET audit_log = CONCAT(audit_log, "Day Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Day of Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
     END IF;
 
     IF NEW.start_time <> OLD.start_time THEN
@@ -10916,7 +10949,8 @@ ALTER TABLE `users`
 --
 ALTER TABLE `work_hours`
   ADD PRIMARY KEY (`work_hours_id`),
-  ADD KEY `work_hours_index_work_hours_id` (`work_hours_id`);
+  ADD KEY `work_hours_index_work_hours_id` (`work_hours_id`),
+  ADD KEY `work_hours_index_work_schedule_id` (`work_schedule_id`);
 
 --
 -- Indexes for table `work_schedule`
@@ -10948,7 +10982,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2297;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2298;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -11182,7 +11216,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `work_hours`
 --
 ALTER TABLE `work_hours`
-  MODIFY `work_hours_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `work_hours_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `work_schedule`
@@ -11248,6 +11282,12 @@ ALTER TABLE `password_history`
 --
 ALTER TABLE `ui_customization_setting`
   ADD CONSTRAINT `ui_customization_setting_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `work_hours`
+--
+ALTER TABLE `work_hours`
+  ADD CONSTRAINT `work_hours_ibfk_1` FOREIGN KEY (`work_schedule_id`) REFERENCES `work_schedule` (`work_schedule_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
