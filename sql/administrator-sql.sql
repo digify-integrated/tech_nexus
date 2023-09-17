@@ -5922,8 +5922,8 @@ END //
 
 CREATE PROCEDURE generateWorkHoursTable(IN p_work_schedule_id INT)
 BEGIN
-	SELECT work_date, day_of_week, day_period, start_time, end_time, notes
+	SELECT work_hours_id, work_date, day_of_week, day_period, start_time, end_time, notes
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id 
-    ORDER BY p_work_hours_id;
+    ORDER BY work_hours_id;
 END //

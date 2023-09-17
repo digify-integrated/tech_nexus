@@ -472,7 +472,7 @@ function notificationSettingForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -566,7 +566,7 @@ function systemNotificationTemplateForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -658,7 +658,7 @@ function emailNotificationTemplateForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -744,7 +744,7 @@ function smsNotificationTemplateForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {

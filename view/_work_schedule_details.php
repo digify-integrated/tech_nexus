@@ -97,7 +97,7 @@
     if($addWorkingHours['total'] > 0){
       if($workScheduleTypeID == 1){
         $working_hours_add = '<button type="button" class="btn btn-warning" id="add-fixed-working-hours">Add Working Hours</button>';
-        $working_hours_table = '<table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $working_hours_table = '<table id="fixed-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Day of Week</th>
@@ -113,7 +113,7 @@
       }
       else{
         $working_hours_add = '<button type="button" class="btn btn-warning" id="add-flexible-working-hours">Add Working Hours</button>';
-        $working_hours_table = '<table id="working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $working_hours_table = '<table id="flexible-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Work Date</th>
@@ -199,6 +199,7 @@
                             <option value="">--</option>
                             <option value="Morning">Morning</option>
                             <option value="Afternoon">Afternoon</option>
+                            <option value="Evening">Afternoon</option>
                           </select>
                         </div>
                       </div>
@@ -249,6 +250,7 @@
                           <option value="">--</option>
                           <option value="Morning">Morning</option>
                           <option value="Afternoon">Afternoon</option>
+                          <option value="Evening">Afternoon</option>
                         </select>
                       </div>
                     </div>
@@ -272,7 +274,7 @@
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-fixed-working-hours-form" form="fixed-working-hours-form">Submit</button>
+                  <button type="submit" class="btn btn-primary" id="submit-flexible-working-hours-form" form="flexible-working-hours-form">Submit</button>
                 </div>
               </div>
             </div>

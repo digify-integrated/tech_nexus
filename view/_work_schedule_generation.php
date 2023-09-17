@@ -81,6 +81,135 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: fixed working hours table
+        # Description:
+        # Generates the fixed working hours table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'fixed working hours table':
+            if(isset($_POST['work_schedule_id']) && !empty($_POST['work_schedule_id'])){
+                $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateWorkHoursTable(:workScheduleID)');
+                $sql->bindValue(':workScheduleID', $workScheduleID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $updateWorkHours = $userModel->checkSystemActionAccessRights($user_id, 30);
+                $deleteWorkHours = $userModel->checkSystemActionAccessRights($user_id, 31);
+
+                foreach ($options as $row) {
+                    $workHoursID = $row['work_hours_id'];
+                    $dayOfWeek = $row['day_of_week'];
+                    $dayPeriod = $row['day_period'];
+                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i:s a', '');
+                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i:s a', '');
+                    $notes = $row['notes'];
+
+                    $update = '';
+                    if($updateWorkHours['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Fixed Work Hours">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($deleteWorkHours['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Delete Fixed Work Hours">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'DAY_OF_WEEK' => $dayOfWeek,
+                        'DAY_PERIOD' => $dayPeriod,
+                        'WORK_FROM' => $startTime,
+                        'WORK_TO' => $endTime,
+                        'NOTES' => $notes,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $update .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: flexible working hours table
+        # Description:
+        # Generates the flexible working hours table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'flexible working hours table':
+            if(isset($_POST['work_schedule_id']) && !empty($_POST['work_schedule_id'])){
+                $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateWorkHoursTable(:workScheduleID)');
+                $sql->bindValue(':workScheduleID', $workScheduleID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $updateWorkHours = $userModel->checkSystemActionAccessRights($user_id, 30);
+                $deleteWorkHours = $userModel->checkSystemActionAccessRights($user_id, 31);
+
+                foreach ($options as $row) {
+                    $workHoursID = $row['work_hours_id'];
+                    $workDate = $systemModel->checkDate('empty', $row['work_date'], '', 'm/d/Y', '');
+                    $dayPeriod = $row['day_period'];
+                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i:s a', '');
+                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i:s a', '');
+                    $notes = $row['notes'];
+
+                    $update = '';
+                    if($updateWorkHours['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Fixed Work Hours">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($deleteWorkHours['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Delete Fixed Work Hours">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+
+                    $response[] = [
+                        'WORK_DATE' => $workDate,
+                        'DAY_PERIOD' => $dayPeriod,
+                        'WORK_FROM' => $startTime,
+                        'WORK_TO' => $endTime,
+                        'NOTES' => $notes,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $update .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
     }
 }
 

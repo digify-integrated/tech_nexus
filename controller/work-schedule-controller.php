@@ -63,6 +63,12 @@ class WorkScheduleController {
                 case 'save work schedule':
                     $this->saveWorkSchedule();
                     break;
+                case 'save fixed work hours':
+                    $this->saveFixedWorkHours();
+                    break;
+                case 'save flexible work hours':
+                    $this->saveFlexibleWorkHours();
+                    break;
                 case 'get work schedule details':
                     $this->getWorkScheduleDetails();
                     break;

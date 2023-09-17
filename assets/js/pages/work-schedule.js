@@ -13,6 +13,22 @@
         if($('#work-schedule-id').length){
             displayDetails('get work schedule details');
 
+            if($('#fixed-working-hours-table').length){
+                fixedWorkingHoursTable('#fixed-working-hours-table');
+            }
+
+            if($('#flexible-working-hours-table').length){
+                flexibleWorkingHoursTable('#flexible-working-hours-table');
+            }
+
+            if($('#fixed-working-hours-form').length){
+                fixedWorkingHoursForm();
+            }
+
+            if($('#flexible-working-hours-form').length){
+                flexibleWorkingHoursForm();
+            }
+
             $(document).on('click','#add-fixed-working-hours',function() {
                 resetModalForm('fixed-working-hours-form');
 
@@ -334,6 +350,130 @@ function workScheduleTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
+function fixedWorkingHoursTable(datatable_name, buttons = false, show_all = false){
+    const type = 'fixed working hours table';
+    const work_schedule_id = $('#work-schedule-id').text();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'DAY_OF_WEEK' },
+        { 'data' : 'DAY_PERIOD' },
+        { 'data' : 'WORK_FROM' },
+        { 'data' : 'WORK_TO' },
+        { 'data' : 'NOTES' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_work_schedule_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'work_schedule_id' : work_schedule_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function flexibleWorkingHoursTable(datatable_name, buttons = false, show_all = false){
+    const type = 'flexible working hours table';
+    const work_schedule_id = $('#work-schedule-id').text();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'WORK_DATE' },
+        { 'data' : 'DAY_PERIOD' },
+        { 'data' : 'WORK_FROM' },
+        { 'data' : 'WORK_TO' },
+        { 'data' : 'NOTES' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%', 'bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_work_schedule_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'work_schedule_id' : work_schedule_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function workScheduleForm(){
     $('#work-schedule-form').validate({
         rules: {
@@ -359,7 +499,7 @@ function workScheduleForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -426,6 +566,220 @@ function workScheduleForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function fixedWorkingHoursForm(){
+    $('#fixed-working-hours-form').validate({
+        rules: {
+            day_of_week: {
+                required: true
+            },
+            day_period: {
+                required: true
+            },
+            work_from: {
+                required: true
+            },
+            work_to: {
+                required: true
+            }
+        },
+        messages: {
+            day_of_week: {
+                required: 'Please choose the day of week'
+            },
+            day_period: {
+                required: 'Please choose the day period'
+            },
+            work_from: {
+                required: 'Please choose the work from'
+            },
+            work_to: {
+                required: 'Please choose the work to'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const work_schedule_id = $('#work-schedule-id').text();
+            const transaction = 'save fixed work hours';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/work-schedule-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&work_schedule_id=' + work_schedule_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-fixed-working-hours-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Working Hours Success' : 'Update Working Hours Success';
+                        const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                   enableFormSubmitButton('submit-fixed-working-hours-form', 'Submit');
+                    $('#fixed-working-hours-modal').modal('hide');
+                    reloadDatatable('#fixed-working-hours-table');
+                    resetModalForm('fixed-working-hours-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function flexibleWorkingHoursForm(){
+    $('#flexible-working-hours-form').validate({
+        rules: {
+            work_date: {
+                required: true
+            },
+            day_period: {
+                required: true
+            },
+            work_from: {
+                required: true
+            },
+            work_to: {
+                required: true
+            }
+        },
+        messages: {
+            work_date: {
+                required: 'Please choose the work day'
+            },
+            day_period: {
+                required: 'Please choose the day period'
+            },
+            work_from: {
+                required: 'Please choose the work from'
+            },
+            work_to: {
+                required: 'Please choose the work to'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const work_schedule_id = $('#work-schedule-id').text();
+            const transaction = 'save flexible work hours';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/work-schedule-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&work_schedule_id=' + work_schedule_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-flexible-working-hours-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Working Hours Success' : 'Update Working Hours Success';
+                        const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                   enableFormSubmitButton('submit-flexible-working-hours-form', 'Submit');
+                    $('#flexible-working-hours-modal').modal('hide');
+                    reloadDatatable('#flexible-working-hours-table');
+                    resetModalForm('flexible-working-hours-form');
                 }
             });
         

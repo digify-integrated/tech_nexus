@@ -809,7 +809,7 @@ function jobPositionForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -897,7 +897,7 @@ function jobPositionResponsibilityForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -986,7 +986,7 @@ function jobPositionRequirementForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -1075,7 +1075,7 @@ function jobPositionQualificationForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -1164,7 +1164,7 @@ function startJobPositionRecruitmentForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
