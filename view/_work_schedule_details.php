@@ -242,6 +242,7 @@
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Work Date <span class="text-danger">*</span></label>
+                        <input type="hidden" id="work_hours_id" name="work_hours_id">
                         <input class="form-control" type="date" id="work_date" name="work_date">
                       </div>
                       <div class="col-lg-6">

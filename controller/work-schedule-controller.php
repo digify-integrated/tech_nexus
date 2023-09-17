@@ -141,6 +141,53 @@ class WorkScheduleController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: saveFixedWorkHours
+    # Description: 
+    # Updates the existing fixed work hours if it exists; otherwise, inserts a new fixed work hours.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveFixedWorkHours() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $workHoursID = isset($_POST['work_hours_id']) ? htmlspecialchars($_POST['work_hours_id'], ENT_QUOTES, 'UTF-8') : null;
+        $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+        $dayOfWeek = htmlspecialchars($_POST['day_of_week'], ENT_QUOTES, 'UTF-8');
+        $dayPeriod = htmlspecialchars($_POST['day_period'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkJobPositionResponsibilityExist = $this->jobPositionModel->checkJobPositionResponsibilityExist($jobPositionResponsibilityID);
+        $total = $checkJobPositionResponsibilityExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->jobPositionModel->updateJobPositionResponsibility($jobPositionResponsibilityID, $responsibility, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $jobPositionID = $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $responsibility, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
