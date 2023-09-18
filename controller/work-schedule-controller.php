@@ -16,6 +16,7 @@ class WorkScheduleController {
     private $workScheduleModel;
     private $workScheduleTypeModel;
     private $userModel;
+    private $systemModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -29,15 +30,17 @@ class WorkScheduleController {
     # - @param WorkScheduleModel $workScheduleModel     The WorkScheduleModel instance for work schedule related operations.
     # - @param WorkScheduleTypeModel $workScheduleTypeModel     The WorkScheduleTypeModel instance for work schedule type related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(WorkScheduleModel $workScheduleModel, UserModel $userModel, WorkScheduleTypeModel $workScheduleTypeModel, SecurityModel $securityModel) {
+    public function __construct(WorkScheduleModel $workScheduleModel, UserModel $userModel, WorkScheduleTypeModel $workScheduleTypeModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->workScheduleModel = $workScheduleModel;
         $this->workScheduleTypeModel = $workScheduleTypeModel;
         $this->userModel = $userModel;
+        $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -72,8 +75,14 @@ class WorkScheduleController {
                 case 'get work schedule details':
                     $this->getWorkScheduleDetails();
                     break;
+                case 'get hours details':
+                    $this->getWorkHoursDetails();
+                    break;
                 case 'delete work schedule':
                     $this->deleteWorkSchedule();
+                    break;
+                case 'delete work hours':
+                    $this->deleteWorkHours();
                     break;
                 case 'delete multiple work schedule':
                     $this->deleteMultipleWorkSchedule();
@@ -161,6 +170,9 @@ class WorkScheduleController {
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
         $dayOfWeek = htmlspecialchars($_POST['day_of_week'], ENT_QUOTES, 'UTF-8');
         $dayPeriod = htmlspecialchars($_POST['day_period'], ENT_QUOTES, 'UTF-8');
+        $workFrom = $this->systemModel->checkDate('empty', $_POST['work_from'], '', 'H:i:s', '');
+        $workTo = $this->systemModel->checkDate('empty', $_POST['work_to'], '', 'H:i:s', '');
+        $notes = htmlspecialchars($_POST['notes'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -169,17 +181,67 @@ class WorkScheduleController {
             exit;
         }
     
-        $checkJobPositionResponsibilityExist = $this->jobPositionModel->checkJobPositionResponsibilityExist($jobPositionResponsibilityID);
-        $total = $checkJobPositionResponsibilityExist['total'] ?? 0;
+        $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
+        $total = $checkWorkHoursExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->jobPositionModel->updateJobPositionResponsibility($jobPositionResponsibilityID, $responsibility, $userID);
+            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, null, $dayOfWeek, $dayPeriod, $workFrom, $workTo, $notes, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $jobPositionID = $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $responsibility, $userID);
+            $this->workScheduleModel->insertWorkHours($workScheduleID, null, $dayOfWeek, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveFlexibleWorkHours
+    # Description: 
+    # Updates the existing flexible work hours if it exists; otherwise, inserts a new flexible work hours.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveFlexibleWorkHours() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $workHoursID = isset($_POST['work_hours_id']) ? htmlspecialchars($_POST['work_hours_id'], ENT_QUOTES, 'UTF-8') : null;
+        $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+        $workDate = $this->systemModel->checkDate('empty', $_POST['work_date'], '', 'Y-m-d', '');
+        $dayPeriod = htmlspecialchars($_POST['day_period'], ENT_QUOTES, 'UTF-8');
+        $workFrom = $this->systemModel->checkDate('empty', $_POST['work_from'], '', 'H:i:s', '');
+        $workTo = $this->systemModel->checkDate('empty', $_POST['work_to'], '', 'H:i:s', '');
+        $notes = htmlspecialchars($_POST['notes'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
+        $total = $checkWorkHoursExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, $workDate, null, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->workScheduleModel->insertWorkHours($workScheduleID, $workDate, null, $dayPeriod, $workFrom, $workTo, $notes, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -261,6 +323,47 @@ class WorkScheduleController {
         foreach($workScheduleIDs as $workScheduleID){
             $this->workScheduleModel->deleteWorkSchedule($workScheduleID);
         }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteWorkHours
+    # Description: 
+    # Delete the work hours if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteWorkHours() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $workHoursID = htmlspecialchars($_POST['work_hours_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
+        $total = $checkWorkHoursExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->workScheduleModel->deleteWorkHours($workHoursID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -362,6 +465,53 @@ class WorkScheduleController {
         }
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getWorkHoursDetails
+    # Description: 
+    # Handles the retrieval of work hours details such as work day, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getWorkHoursDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['work_schedule_id']) && !empty($_POST['work_schedule_id'])) {
+            $userID = $_SESSION['user_id'];
+            $workScheduleID = $_POST['work_schedule_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $workScheduleDetails = $this->workScheduleModel->getWorkSchedule($workScheduleID);
+            $workScheduleTypeID = $workScheduleDetails['work_schedule_type_id'];
+
+            $workScheduleTypeDetails = $this->workScheduleTypeModel->getWorkScheduleType($workScheduleTypeID);
+            $workScheduleTypeName = $workScheduleTypeDetails['work_schedule_type_name'];
+
+            $response = [
+                'success' => true,
+                'workScheduleName' => $workScheduleDetails['work_schedule_name'],
+                'workScheduleDescription' => $workScheduleDetails['work_schedule_description'],
+                'workScheduleTypeID' => $workScheduleTypeID,
+                'workScheduleTypeName' => $workScheduleTypeName
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
 }
 # -------------------------------------------------------------
 
@@ -373,6 +523,6 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new WorkScheduleController(new WorkScheduleModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new WorkScheduleTypeModel(new DatabaseModel), new SecurityModel());
+$controller = new WorkScheduleController(new WorkScheduleModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new WorkScheduleTypeModel(new DatabaseModel), new SystemModel, new SecurityModel());
 $controller->handleRequest();
 ?>

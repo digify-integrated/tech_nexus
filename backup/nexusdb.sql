@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 17, 2023 at 07:12 AM
+-- Generation Time: Sep 19, 2023 at 01:29 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -2439,7 +2439,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUserAccount` (IN `p_file_as` 
     SET p_user_account_id = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertWorkHours` (IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT, OUT `work_hours_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertWorkHours` (IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT)   BEGIN
     INSERT INTO work_hours (work_schedule_id, work_date, day_of_week, day_period, start_time, end_time, notes, last_log_by) 
 	VALUES(p_work_schedule_id, p_work_date, p_day_of_week, p_day_period, p_start_time, p_end_time, p_notes, p_last_log_by);
 END$$
@@ -5355,7 +5355,8 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2296, 'work_schedule_type', 3, 'Work schedule type created. <br/><br/>Work Schedule Type Name: Shifting', '0', '2023-09-13 16:47:03'),
 (2297, 'users', 1, 'Last Connection Date: 2023-09-14 14:37:42 -> 2023-09-15 10:18:39<br/>', '0', '2023-09-15 10:18:39'),
 (2298, 'users', 1, 'Last Connection Date: 2023-09-15 10:18:39 -> 2023-09-16 13:41:01<br/>', '0', '2023-09-16 13:41:01'),
-(2299, 'users', 1, 'Last Connection Date: 2023-09-16 13:41:01 -> 2023-09-17 11:29:06<br/>', '0', '2023-09-17 11:29:06');
+(2299, 'users', 1, 'Last Connection Date: 2023-09-16 13:41:01 -> 2023-09-17 11:29:06<br/>', '0', '2023-09-17 11:29:06'),
+(2300, 'users', 1, 'Last Connection Date: 2023-09-17 11:29:06 -> 2023-09-18 09:09:35<br/>', '0', '2023-09-18 09:09:35');
 
 -- --------------------------------------------------------
 
@@ -10224,7 +10225,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-17 11:29:06', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '7ecbba0466942300f0a9fd452e938bc0', 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-18 09:09:35', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '73e6c06f7656b0a133e0f70300725125', 0);
 
 --
 -- Triggers `users`
@@ -10984,7 +10985,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2300;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2301;
 
 --
 -- AUTO_INCREMENT for table `bank`

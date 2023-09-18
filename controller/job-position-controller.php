@@ -205,7 +205,7 @@ class JobPositionController {
             exit;
         } 
         else {
-            $jobPositionID = $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $responsibility, $userID);
+            $this->jobPositionModel->insertJobPositionResponsibility($jobPositionID, $responsibility, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -251,7 +251,7 @@ class JobPositionController {
             exit;
         } 
         else {
-            $jobPositionID = $this->jobPositionModel->insertJobPositionRequirement($jobPositionID, $requirement, $userID);
+            $this->jobPositionModel->insertJobPositionRequirement($jobPositionID, $requirement, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -297,7 +297,7 @@ class JobPositionController {
             exit;
         } 
         else {
-            $jobPositionID = $this->jobPositionModel->insertJobPositionQualification($jobPositionID, $qualification, $userID);
+            $this->jobPositionModel->insertJobPositionQualification($jobPositionID, $qualification, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
