@@ -313,10 +313,15 @@ function resetModalForm(form_id) {
       .trigger('change.select2')
       .removeClass('is-invalid');
   
-    var errorMessages = form.querySelectorAll('.error');
-    errorMessages.forEach(function (errorMessage) {
-      errorMessage.parentNode.removeChild(errorMessage);
-    });
+      var errorMessages = form.querySelectorAll('.error');
+      errorMessages.forEach(function(errorMessage) {
+          errorMessage.parentNode.removeChild(errorMessage);
+      });
+      
+      var invalidInputs = document.querySelectorAll('.is-invalid');
+      invalidInputs.forEach(function(invalidInput) {
+          invalidInput.classList.remove('is-invalid');
+      });
 }
 
 function discardCreate(windows_location){

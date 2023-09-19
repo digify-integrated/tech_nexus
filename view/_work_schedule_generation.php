@@ -180,14 +180,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateWorkHours['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Fixed Work Hours">
+                        $update = '<button type="button" class="btn btn-icon btn-info update-flexible-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Flexible Work Hours">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
                     if($deleteWorkHours['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Delete Fixed Work Hours">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-flexible-working-hours" data-work-hours-id="'. $workHoursID .'" title="Delete Flexible Work Hours">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

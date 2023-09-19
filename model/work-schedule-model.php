@@ -42,6 +42,39 @@ class WorkScheduleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateWorkHours
+    # Description: Updates the work schedule.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    # - $p_work_date (date): The work date.
+    # - $p_day_of_week (string): The day of the week.
+    # - $p_day_period (string): The day period.
+    # - $p_start_time (time): The start time.
+    # - $p_end_time (time): The end time.
+    # - $p_notes (string): The notes.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateWorkHours($p_work_hours_id, $p_work_schedule_id, $p_work_date, $p_day_of_week, $p_day_period, $p_start_time, $p_end_time, $p_notes, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateWorkHours(:p_work_hours_id, :p_work_schedule_id, :p_work_date, :p_day_of_week, :p_day_period, :p_start_time, :p_end_time, :p_notes, :p_last_log_by)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_date', $p_work_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_day_of_week', $p_day_of_week, PDO::PARAM_STR);
+        $stmt->bindValue(':p_day_period', $p_day_period, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_time', $p_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_time', $p_end_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_notes', $p_notes, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -75,6 +108,37 @@ class WorkScheduleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertWorkHours
+    # Description: Inserts the work schedule.
+    #
+    # Parameters:
+    # - $p_work_date (date): The work date.
+    # - $p_day_of_week (string): The day of the week.
+    # - $p_day_period (string): The day period.
+    # - $p_start_time (time): The start time.
+    # - $p_end_time (time): The end time.
+    # - $p_notes (string): The notes.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertWorkHours($p_work_schedule_id, $p_work_date, $p_day_of_week, $p_day_period, $p_start_time, $p_end_time, $p_notes, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertWorkHours(:p_work_schedule_id, :p_work_date, :p_day_of_week, :p_day_period, :p_start_time, :p_end_time, :p_notes, :p_last_log_by)');
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_date', $p_work_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_day_of_week', $p_day_of_week, PDO::PARAM_STR);
+        $stmt->bindValue(':p_day_period', $p_day_period, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_time', $p_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_time', $p_end_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_notes', $p_notes, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -92,6 +156,79 @@ class WorkScheduleModel {
     public function checkWorkScheduleExist($p_work_schedule_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkWorkScheduleExist(:p_work_schedule_id)');
         $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkWorkHoursExist
+    # Description: Checks if a work hours exists.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkWorkHoursExist($p_work_hours_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkWorkHoursExist(:p_work_hours_id)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkFixedWorkHoursOverlap
+    # Description: Checks if a fixed work hours overlap.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    # - $p_work_schedule_id (int): The work schedule ID.
+    # - $p_day_of_week (string): The day of the week.
+    # - $p_start_time (time): The start time.
+    # - $p_end_time (time): The end time.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkFixedWorkHoursOverlap($p_work_hours_id, $p_work_schedule_id, $p_day_of_week, $p_start_time, $p_end_time) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkFixedWorkHoursOverlap(:p_work_hours_id, :p_work_schedule_id, :p_day_of_week, :p_start_time, :p_end_time)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_day_of_week', $p_day_of_week, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_time', $p_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_time', $p_end_time, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkFlexibleWorkHoursOverlap
+    # Description: Checks if a flexible work hours overlap.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    # - $p_work_schedule_id (int): The work schedule ID.
+    # - $p_work_date (date): The work date.
+    # - $p_start_time (time): The start time.
+    # - $p_end_time (time): The end time.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkFlexibleWorkHoursOverlap($p_work_hours_id, $p_work_schedule_id, $p_work_date, $p_start_time, $p_end_time) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkFlexibleWorkHoursOverlap(:p_work_hours_id, :p_work_schedule_id, :p_work_date, :p_start_time, :p_end_time)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_date', $p_work_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_time', $p_start_time, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_time', $p_end_time, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -120,6 +257,42 @@ class WorkScheduleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteLinkedWorkHours
+    # Description: Deletes the work hours linked to work schedule.
+    #
+    # Parameters:
+    # - $p_work_schedule_id (int): The work schedule ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLinkedWorkHours($p_work_schedule_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLinkedWorkHours(:p_work_schedule_id)');
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteWorkHours
+    # Description: Deletes the work hours.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteWorkHours($p_work_hours_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteWorkHours(:p_work_hours_id)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -140,6 +313,46 @@ class WorkScheduleModel {
         $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getWorkHours
+    # Description: Retrieves the details of a work hours.
+    #
+    # Parameters:
+    # - $p_work_hours_id (int): The work hours ID.
+    #
+    # Returns:
+    # - An array containing the work hours details.
+    #
+    # -------------------------------------------------------------
+    public function getWorkHours($p_work_hours_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getWorkHours(:p_work_hours_id)');
+        $stmt->bindValue(':p_work_hours_id', $p_work_hours_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getLinkedWorkHours
+    # Description: Retrieves the details of a work hours linked to work schedule.
+    #
+    # Parameters:
+    # - $p_work_schedule_id (int): The work schedule ID.
+    #
+    # Returns:
+    # - An array containing the work hours details.
+    #
+    # -------------------------------------------------------------
+    public function getLinkedWorkHours($p_work_schedule_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLinkedWorkHours(:p_work_schedule_id)');
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 

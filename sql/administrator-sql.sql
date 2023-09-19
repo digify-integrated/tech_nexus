@@ -5738,7 +5738,17 @@ END //
 
 CREATE PROCEDURE deleteWorkSchedule(IN p_work_schedule_id INT)
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM work_hours WHERE work_schedule_id = p_work_schedule_id;
     DELETE FROM work_schedule WHERE work_schedule_id = p_work_schedule_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE getWorkSchedule(IN p_work_schedule_id INT)
@@ -5895,7 +5905,7 @@ BEGIN
 	VALUES(p_work_schedule_id, p_work_date, p_day_of_week, p_day_period, p_start_time, p_end_time, p_notes, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateWorkHours(IN work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
+CREATE PROCEDURE updateWorkHours(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
 BEGIN
 	UPDATE work_hours
     SET work_schedule_id = p_work_schedule_id,
@@ -5909,15 +5919,26 @@ BEGIN
     WHERE work_hours_id = p_work_hours_id;
 END //
 
-CREATE PROCEDURE deleteWorkHours(IN work_hours_id INT)
+CREATE PROCEDURE deleteWorkHours(IN p_work_hours_id INT)
 BEGIN
     DELETE FROM work_hours WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE deleteLinkedWorkHours(IN p_work_schedule_id INT)
+BEGIN
+    DELETE FROM work_hours WHERE work_schedule_id = p_work_schedule_id;
 END //
 
 CREATE PROCEDURE getWorkHours(IN p_work_hours_id INT)
 BEGIN
 	SELECT * FROM work_hours
     WHERE work_hours_id = p_work_hours_id;
+END //
+
+CREATE PROCEDURE getLinkedWorkHours(IN p_work_schedule_id INT)
+BEGIN
+	SELECT * FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id;
 END //
 
 CREATE PROCEDURE generateWorkHoursTable(IN p_work_schedule_id INT)
@@ -5927,3 +5948,190 @@ BEGIN
     WHERE work_schedule_id = p_work_schedule_id 
     ORDER BY work_hours_id;
 END //
+
+CREATE PROCEDURE checkFixedWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_day_of_week VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME)
+BEGIN
+    IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_schedule_id = p_work_schedule_id
+        AND day_of_week = p_day_of_week
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND day_of_week = p_day_of_week
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    END IF;
+END //
+
+CREATE PROCEDURE checkFlexibleWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_start_time TIME, IN p_end_time TIME)
+BEGIN
+    IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_schedule_id = p_work_schedule_id
+        AND work_date = p_work_date
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_date = p_work_date
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    END IF;
+END //
+
+/* Bank account table */
+CREATE TABLE bank_account_type(
+	bank_account_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	bank_account_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX bank_account_type_index_bank_account_type_id ON bank_account_type(bank_account_type_id);
+
+CREATE TRIGGER bank_account_type_trigger_update
+AFTER UPDATE ON bank_account_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_account_type_name <> OLD.bank_account_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Account Type Name: ", OLD.bank_account_type_name, " -> ", NEW.bank_account_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER bank_account_type_trigger_insert
+AFTER INSERT ON bank_account_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank account created. <br/>';
+
+    IF NEW.bank_account_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Account Type Name: ", NEW.bank_account_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkBankAccountTypeExist (IN p_bank_account_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM bank_account_type
+    WHERE bank_account_type_id = p_bank_account_type_id;
+END //
+
+CREATE PROCEDURE insertBankAccountType(IN p_bank_account_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_bank_account_type_id INT)
+BEGIN
+    INSERT INTO bank_account_type (bank_account_type_name, last_log_by) 
+	VALUES(p_bank_account_type_name, p_last_log_by);
+	
+    SET p_bank_account_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBankAccountType(IN p_bank_account_type_id INT, IN p_bank_account_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE bank_account_type
+    SET bank_account_type_name = p_bank_account_type_name,
+    last_log_by = p_last_log_by
+    WHERE bank_account_type_id = p_bank_account_type_id;
+END //
+
+CREATE PROCEDURE deleteBankAccountType(IN p_bank_account_type_id INT)
+BEGIN
+    DELETE FROM bank_account_type WHERE bank_account_type_id = p_bank_account_type_id;
+END //
+
+CREATE PROCEDURE getBankAccountType(IN p_bank_account_type_id INT)
+BEGIN
+	SELECT * FROM bank_account_type
+    WHERE bank_account_type_id = p_bank_account_type_id;
+END //
+
+CREATE PROCEDURE duplicateBankAccountType(IN p_bank_account_type_id INT, IN p_last_log_by INT, OUT p_new_bank_account_type_id INT)
+BEGIN
+    DECLARE p_bank_account_type_name VARCHAR(100);
+    
+    SELECT bank_account_type_name
+    INTO p_bank_account_type_name
+    FROM bank_account_type 
+    WHERE bank_account_type_id = p_bank_account_type_id;
+    
+    INSERT INTO bank_account_type (bank_account_type_name, last_log_by) 
+    VALUES(p_bank_account_type_name, p_last_log_by);
+    
+    SET p_new_bank_account_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBankAccountTypeTable()
+BEGIN
+    SELECT bank_account_type_id, bank_account_type_name
+    FROM bank_account_type
+    ORDER BY bank_account_type_id;
+END //
+
+CREATE PROCEDURE generateBankAccountTypeOptions()
+BEGIN
+	SELECT bank_account_type_id, bank_account_type_name FROM bank_account_type
+	ORDER BY bank_account_type_name;
+END //
+
+/* Contact table */
+CREATE TABLE contact(
+	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	file_as VARCHAR(1000) NOT NULL,
+	first_name VARCHAR(300) NOT NULL,
+	middle_name VARCHAR(300),
+	last_name VARCHAR(300) NOT NULL,
+	suffix VARCHAR(10),
+	is_employee INT NOT NULL,
+	is_customer INT NOT NULL,
+	is_job_applicant INT NOT NULL,
+	user_id INT UNSIGNED,
+	badge_id VARCHAR(500),
+	contact_image VARCHAR(500),
+	contact_signature VARCHAR(500),
+	company_id INT UNSIGNED,
+	job_position_id INT UNSIGNED,
+	job_level_id INT UNSIGNED,
+	department_id INT UNSIGNED,
+	branch_id INT UNSIGNED,
+	manager INT UNSIGNED,
+	coach INT UNSIGNED,
+    civil_status_id INT UNSIGNED,
+    employee_type_id INT UNSIGNED,
+    gender_id INT UNSIGNED,
+    religion_id INT UNSIGNED,
+    blood_type_id INT UNSIGNED,
+    employee_status INT,
+    permanency_date DATE,
+    onboard_date DATE,
+    offboard_date DATE,
+    departure_reason_id INT UNSIGNED,
+    detailed_departure_reason VARCHAR(5000),
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX contact_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_index_user_id ON contact(user_id);
+CREATE INDEX contact_index_company_id ON contact(company_id);
+CREATE INDEX contact_index_job_position_id ON contact(job_position_id);
+CREATE INDEX contact_index_job_level_id ON contact(job_level_id);
+CREATE INDEX contact_index_department_id ON contact(department_id);
+CREATE INDEX contact_index_branch_id ON contact(branch_id);
+CREATE INDEX contact_index_civil_status_id ON contact(civil_status_id);
+CREATE INDEX contact_index_civil_employee_type_id ON contact(employee_type_id);
+CREATE INDEX contact_index_civil_gender_id ON contact(gender_id);
+CREATE INDEX contact_index_civil_religion_id ON contact(religion_id);
+CREATE INDEX contact_index_civil_blood_type_id ON contact(blood_type_id);
+CREATE INDEX contact_index_civil_departure_reason_id ON contact(departure_reason_id);

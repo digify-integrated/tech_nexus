@@ -75,7 +75,10 @@ class WorkScheduleController {
                 case 'get work schedule details':
                     $this->getWorkScheduleDetails();
                     break;
-                case 'get hours details':
+                case 'get fixed work hours details':
+                    $this->getWorkHoursDetails();
+                    break;
+                case 'get flexible work hours details':
                     $this->getWorkHoursDetails();
                     break;
                 case 'delete work schedule':
@@ -135,6 +138,13 @@ class WorkScheduleController {
         $total = $checkWorkScheduleExist['total'] ?? 0;
     
         if ($total > 0) {
+            $workScheduleDetails = $this->workScheduleModel->getWorkSchedule($workScheduleID);
+            $workScheduleTypeIDCurrent = $workScheduleDetails['work_schedule_type_id'];
+
+            if($workScheduleTypeIDCurrent != $workScheduleTypeID){
+                $this->workScheduleModel->deleteLinkedWorkHours($workScheduleID);
+            }            
+
             $this->workScheduleModel->updateWorkSchedule($workScheduleID, $workScheduleName, $workScheduleDescription, $workScheduleTypeID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'workScheduleID' => $this->securityModel->encryptData($workScheduleID)]);
@@ -180,6 +190,14 @@ class WorkScheduleController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $checkFixedWorkHoursOverlap = $this->workScheduleModel->checkFixedWorkHoursOverlap($workHoursID, $workScheduleID, $dayOfWeek, $workFrom, $workTo);
+        $total = $checkFixedWorkHoursOverlap['total'] ?? 0;
+    
+        if ($total > 0) {
+            echo json_encode(['success' => false, 'Overlap' => true]);
+            exit;
+        } 
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
@@ -230,6 +248,14 @@ class WorkScheduleController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $checkFlexibleWorkHoursOverlap = $this->workScheduleModel->checkFlexibleWorkHoursOverlap($workHoursID, $workScheduleID, $workDate, $workFrom, $workTo);
+        $total = $checkFlexibleWorkHoursOverlap['total'] ?? 0;
+    
+        if ($total > 0) {
+            echo json_encode(['success' => false, 'Overlap' => true]);
+            exit;
+        } 
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
@@ -408,7 +434,15 @@ class WorkScheduleController {
             exit;
         }
 
+        $getLinkedWorkHours = $this->workScheduleModel->getLinkedWorkHours($workScheduleID);
+
         $workScheduleID = $this->workScheduleModel->duplicateWorkSchedule($workScheduleID, $userID);
+
+        foreach ($getLinkedWorkHours as $getLinkedWorkHour) {
+            if(!empty($getLinkedWorkHour['work_hours_id'])){
+                $this->workScheduleModel->insertWorkHours($workScheduleID, $getLinkedWorkHour['work_date'], $getLinkedWorkHour['day_of_week'], $getLinkedWorkHour['day_period'], $getLinkedWorkHour['start_time'], $getLinkedWorkHour['end_time'], $getLinkedWorkHour['notes'], $userID);
+            }
+        }
 
         echo json_encode(['success' => true, 'workScheduleID' =>  $this->securityModel->encryptData($workScheduleID)]);
         exit;
@@ -482,9 +516,9 @@ class WorkScheduleController {
             return;
         }
     
-        if (isset($_POST['work_schedule_id']) && !empty($_POST['work_schedule_id'])) {
+        if (isset($_POST['work_hours_id']) && !empty($_POST['work_hours_id'])) {
             $userID = $_SESSION['user_id'];
-            $workScheduleID = $_POST['work_schedule_id'];
+            $workHoursID = $_POST['work_hours_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -493,18 +527,16 @@ class WorkScheduleController {
                 exit;
             }
     
-            $workScheduleDetails = $this->workScheduleModel->getWorkSchedule($workScheduleID);
-            $workScheduleTypeID = $workScheduleDetails['work_schedule_type_id'];
-
-            $workScheduleTypeDetails = $this->workScheduleTypeModel->getWorkScheduleType($workScheduleTypeID);
-            $workScheduleTypeName = $workScheduleTypeDetails['work_schedule_type_name'];
+            $workHoursDetails = $this->workScheduleModel->getWorkHours($workHoursID);
 
             $response = [
                 'success' => true,
-                'workScheduleName' => $workScheduleDetails['work_schedule_name'],
-                'workScheduleDescription' => $workScheduleDetails['work_schedule_description'],
-                'workScheduleTypeID' => $workScheduleTypeID,
-                'workScheduleTypeName' => $workScheduleTypeName
+                'workDate' => $workHoursDetails['work_date'],
+                'dayOfWeek' => $workHoursDetails['day_of_week'],
+                'dayPeriod' => $workHoursDetails['day_period'],
+                'startTime' => $workHoursDetails['start_time'],
+                'endTIme' => $workHoursDetails['end_time'],
+                'notes' => $workHoursDetails['notes']
             ];
 
             echo json_encode($response);

@@ -35,10 +35,142 @@
                 $('#fixed-working-hours-modal').modal('show');
             });
 
+            $(document).on('click','.update-fixed-working-hours',function() {
+                const work_hours_id = $(this).data('work-hours-id');
+        
+                sessionStorage.setItem('work_hours_id', work_hours_id);
+                
+                displayDetails('get fixed work hours details');
+        
+                $('#fixed-working-hours-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-fixed-working-hours',function() {
+                const work_hours_id = $(this).data('work-hours-id');
+                const transaction = 'delete work hours';
+        
+                Swal.fire({
+                    title: 'Confirm Working Hour Deletion',
+                    text: 'Are you sure you want to delete this working hour?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/work-schedule-controller.php',
+                            dataType: 'json',
+                            data: {
+                                work_hours_id : work_hours_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Working Hour Success', 'The working hour has been deleted successfully.', 'success');
+                                    reloadDatatable('#fixed-working-hours-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        showNotification('Delete Working Hour Error', 'The working hour does not exist.', 'danger');
+                                        reloadDatatable('#fixed-working-hours-table');
+                                    }
+                                    else {
+                                        showNotification('Delete Working Hour Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $(document).on('click','#add-flexible-working-hours',function() {
                 resetModalForm('flexible-working-hours-form');
 
                 $('#flexible-working-hours-modal').modal('show');
+            });
+
+            $(document).on('click','.update-flexible-working-hours',function() {
+                const work_hours_id = $(this).data('work-hours-id');
+        
+                sessionStorage.setItem('work_hours_id', work_hours_id);
+                
+                displayDetails('get flexible work hours details');
+        
+                $('#flexible-working-hours-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-flexible-working-hours',function() {
+                const work_hours_id = $(this).data('work-hours-id');
+                const transaction = 'delete work hours';
+        
+                Swal.fire({
+                    title: 'Confirm Working Hour Deletion',
+                    text: 'Are you sure you want to delete this working hour?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/work-schedule-controller.php',
+                            dataType: 'json',
+                            data: {
+                                work_hours_id : work_hours_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Working Hour Success', 'The working hour has been deleted successfully.', 'success');
+                                    reloadDatatable('#flexible-working-hours-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        showNotification('Delete Working Hour Error', 'The working hour does not exist.', 'danger');
+                                        reloadDatatable('#flexible-working-hours-table');
+                                    }
+                                    else {
+                                        showNotification('Delete Working Hour Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
             });
         }
 
@@ -651,12 +783,18 @@ function fixedWorkingHoursForm(){
                         const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
+                        $('#fixed-working-hours-modal').modal('hide');
+                        resetModalForm('fixed-working-hours-form');
                     }
                     else {
-                        if (response.isInactive) {
+                        if (response.Overlap) {
+                            showNotification('Working Hours Overlap', 'This work schedule overlaps with an existing one. Please select a different time slot or adjust your schedule.', 'danger');
+                        }
+                        else if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -669,10 +807,8 @@ function fixedWorkingHoursForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                   enableFormSubmitButton('submit-fixed-working-hours-form', 'Submit');
-                    $('#fixed-working-hours-modal').modal('hide');
+                    enableFormSubmitButton('submit-fixed-working-hours-form', 'Submit');
                     reloadDatatable('#fixed-working-hours-table');
-                    resetModalForm('fixed-working-hours-form');
                 }
             });
         
@@ -758,12 +894,18 @@ function flexibleWorkingHoursForm(){
                         const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
+                        $('#flexible-working-hours-modal').modal('hide');
+                        resetModalForm('flexible-working-hours-form');
                     }
                     else {
-                        if (response.isInactive) {
+                        if (response.Overlap) {
+                            showNotification('Working Hours Overlap', 'This work schedule overlaps with an existing one. Please select a different time slot or adjust your schedule.', 'danger');
+                        }
+                        else if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -776,10 +918,8 @@ function flexibleWorkingHoursForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                   enableFormSubmitButton('submit-flexible-working-hours-form', 'Submit');
-                    $('#flexible-working-hours-modal').modal('hide');
+                    enableFormSubmitButton('submit-flexible-working-hours-form', 'Submit');
                     reloadDatatable('#flexible-working-hours-table');
-                    resetModalForm('flexible-working-hours-form');
                 }
             });
         
@@ -822,6 +962,92 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Work Schedule Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get fixed work hours details':
+            var work_hours_id = sessionStorage.getItem('work_hours_id');
+                    
+            $.ajax({
+                url: 'controller/work-schedule-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    work_hours_id : work_hours_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('fixed-working-hours-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#work_hours_id').val(work_hours_id);
+
+                        checkOptionExist('#day_of_week', response.dayOfWeek, '');
+                        checkOptionExist('#day_period', response.dayPeriod, '');
+
+                        $('#work_from').val(response.startTime);
+                        $('#work_to').val(response.endTIme);
+                        $('#notes').val(response.notes);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                           showNotification('Get Working Hours Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get flexible work hours details':
+            var work_hours_id = sessionStorage.getItem('work_hours_id');
+                    
+            $.ajax({
+                url: 'controller/work-schedule-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    work_hours_id : work_hours_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('flexible-working-hours-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#work_hours_id').val(work_hours_id);
+                        $('#work_date').val(response.workDate);
+
+                        checkOptionExist('#day_period', response.dayPeriod, '');
+
+                        $('#work_from').val(response.startTime);
+                        $('#work_to').val(response.endTIme);
+                        $('#notes').val(response.notes);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                           showNotification('Get Working Hours Details Error', response.message, 'danger');
                         }
                     }
                 },

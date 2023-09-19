@@ -3,7 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    require('model/bank-model.php');
+    require('model/bank-account-type-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -15,21 +15,21 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $bankModel = new BankModel($databaseModel);
+    $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Bank';
+    $page_title = 'Bank Account Type';
     
-    $bankReadAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'read');
-    $bankCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'create');
-    $bankWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'write');
-    $bankDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'delete');
-    $bankDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'duplicate');
+    $bankAccountTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'read');
+    $bankAccountTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'create');
+    $bankAccountTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'write');
+    $bankAccountTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'delete');
+    $bankAccountTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'duplicate');
 
-    if ($bankReadAccess['total'] == 0) {
+    if ($bankAccountTypeReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -41,14 +41,14 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: bank.php');
+            header('location: bank-account-type.php');
             exit;
         }
 
-        $bankID = $securityModel->decryptData($_GET['id']);
+        $bankAccountTypeID = $securityModel->decryptData($_GET['id']);
 
-        $checkBankExist = $bankModel->checkBankExist($bankID);
-        $total = $checkBankExist['total'] ?? 0;
+        $checkBankAccountTypeExist = $bankAccountTypeModel->checkBankAccountTypeExist($bankAccountTypeID);
+        $total = $checkBankAccountTypeExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -56,7 +56,7 @@
         }
     }
     else{
-        $bankID = null;
+        $bankAccountTypeID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -90,10 +90,10 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Technical</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="bank.php">Bank</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="bank-account-type.php">Bank Account Type</a></li>
                     <?php
-                        if(!$newRecord && !empty($bankID)){
-                            echo '<li class="breadcrumb-item" id="bank-id">'. $bankID .'</li>';
+                        if(!$newRecord && !empty($bankAccountTypeID)){
+                            echo '<li class="breadcrumb-item" id="bank-account-type-id">'. $bankAccountTypeID .'</li>';
                         }
 
                         if($newRecord){
@@ -104,21 +104,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Bank</h2>
+                  <h2 class="mb-0">Bank Account Type</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $bankCreateAccess['total'] > 0){
-            require_once('view/_bank_new.php');
+          if($newRecord && $bankAccountTypeCreateAccess['total'] > 0){
+            require_once('view/_bank_account_type_new.php');
           }
-          else if(!empty($bankID) && $bankWriteAccess['total'] > 0){
-            require_once('view/_bank_details.php');
+          else if(!empty($bankAccountTypeID) && $bankAccountTypeWriteAccess['total'] > 0){
+            require_once('view/_bank_account_type_details.php');
           }
           else{
-            require_once('view/_bank.php');
+            require_once('view/_bank_account_type.php');
           }
         ?>
       </div>
@@ -135,7 +135,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/pages/bank.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/bank-account-type.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

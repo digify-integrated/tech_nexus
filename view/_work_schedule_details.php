@@ -199,7 +199,7 @@
                             <option value="">--</option>
                             <option value="Morning">Morning</option>
                             <option value="Afternoon">Afternoon</option>
-                            <option value="Evening">Afternoon</option>
+                            <option value="Evening">Evening</option>
                           </select>
                         </div>
                       </div>
@@ -251,7 +251,7 @@
                           <option value="">--</option>
                           <option value="Morning">Morning</option>
                           <option value="Afternoon">Afternoon</option>
-                          <option value="Evening">Afternoon</option>
+                          <option value="Evening">Evening</option>
                         </select>
                       </div>
                     </div>

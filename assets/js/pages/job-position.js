@@ -1385,7 +1385,7 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                           showNotification('Get Attachment Details Error', response.message, 'danger');
+                           showNotification('Get Qualification Details Error', response.message, 'danger');
                         }
                     }
                 },

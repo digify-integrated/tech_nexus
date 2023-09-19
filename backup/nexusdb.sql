@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 19, 2023 at 01:29 AM
+-- Generation Time: Sep 19, 2023 at 11:28 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -56,6 +56,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `buildMenuItem` (IN `p_user_id` INT,
     INNER JOIN role_users AS ru ON mar.role_id = ru.role_id
     WHERE mar.read_access = 1 AND ru.user_id = p_user_id AND mi.menu_group_id = p_menu_group_id
     ORDER BY mi.order_sequence;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBankAccountTypeExist` (IN `p_bank_account_type_id` INT)   BEGIN
+	SELECT COUNT(*) AS total
+    FROM bank_account_type
+    WHERE bank_account_type_id = p_bank_account_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkBankExist` (IN `p_bank_id` INT)   BEGIN
@@ -140,6 +146,40 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFileTypeExist` (IN `p_file_typ
 	SELECT COUNT(*) AS total
     FROM file_type
     WHERE file_type_id = p_file_type_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFixedWorkHoursOverlap` (IN `p_work_hours_id` INT, IN `p_work_schedule_id` INT, IN `p_day_of_week` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME)   BEGIN
+    IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_schedule_id = p_work_schedule_id
+        AND day_of_week = p_day_of_week
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND day_of_week = p_day_of_week
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `checkFlexibleWorkHoursOverlap` (IN `p_work_hours_id` INT, IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_start_time` TIME, IN `p_end_time` TIME)   BEGIN
+    IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_schedule_id = p_work_schedule_id
+        AND work_date = p_work_date
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM work_hours
+        WHERE work_hours_id != p_work_hours_id
+        AND work_date = p_work_date
+        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+    END IF;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `checkGenderExist` (IN `p_gender_id` INT)   BEGIN
@@ -390,6 +430,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBank` (IN `p_bank_id` INT)   
     DELETE FROM bank WHERE bank_id = p_bank_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBankAccountType` (IN `p_bank_account_type_id` INT)   BEGIN
+    DELETE FROM bank_account_type WHERE bank_account_type_id = p_bank_account_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteBloodType` (IN `p_blood_type_id` INT)   BEGIN
     DELETE FROM blood_type WHERE blood_type_id = p_blood_type_id;
 END$$
@@ -529,6 +573,10 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteJobPositionResponsibility` (IN `p_job_position_responsibility_id` INT)   BEGIN
 	DELETE FROM job_position_responsibility
     WHERE job_position_responsibility_id = p_job_position_responsibility_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteLinkedWorkHours` (IN `p_work_schedule_id` INT)   BEGIN
+    DELETE FROM work_hours WHERE work_schedule_id = p_work_schedule_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
@@ -676,12 +724,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteUserAccount` (IN `p_user_id` 
     COMMIT;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkHours` (IN `work_hours_id` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkHours` (IN `p_work_hours_id` INT)   BEGIN
     DELETE FROM work_hours WHERE work_hours_id = p_work_hours_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkSchedule` (IN `p_work_schedule_id` INT)   BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM work_hours WHERE work_schedule_id = p_work_schedule_id;
     DELETE FROM work_schedule WHERE work_schedule_id = p_work_schedule_id;
+
+    COMMIT;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleteWorkScheduleType` (IN `p_work_schedule_type_id` INT)   BEGIN
@@ -706,6 +764,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBank` (IN `p_bank_id` INT,
     VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
     
     SET p_new_bank_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBankAccountType` (IN `p_bank_account_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_bank_account_type_id` INT)   BEGIN
+    DECLARE p_bank_account_type_name VARCHAR(100);
+    
+    SELECT bank_account_type_name
+    INTO p_bank_account_type_name
+    FROM bank_account_type 
+    WHERE bank_account_type_id = p_bank_account_type_id;
+    
+    INSERT INTO bank_account_type (bank_account_type_name, last_log_by) 
+    VALUES(p_bank_account_type_name, p_last_log_by);
+    
+    SET p_new_bank_account_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `duplicateBloodType` (IN `p_blood_type_id` INT, IN `p_last_log_by` INT, OUT `p_new_blood_type_id` INT)   BEGIN
@@ -1293,6 +1365,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `generateAddUserAccountRoleTable` (I
 	SELECT role_id, role_name FROM role
     WHERE role_id NOT IN (SELECT role_id FROM role_users WHERE user_id = p_user_account_id)
     ORDER BY role_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBankAccountTypeOptions` ()   BEGIN
+	SELECT bank_account_type_id, bank_account_type_name FROM bank_account_type
+	ORDER BY bank_account_type_name;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBankAccountTypeTable` ()   BEGIN
+    SELECT bank_account_type_id, bank_account_type_name
+    FROM bank_account_type
+    ORDER BY bank_account_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `generateBankOptions` ()   BEGIN
@@ -1911,6 +1994,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getBank` (IN `p_bank_id` INT)   BEG
     WHERE bank_id = p_bank_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getBankAccountType` (IN `p_bank_account_type_id` INT)   BEGIN
+	SELECT * FROM bank_account_type
+    WHERE bank_account_type_id = p_bank_account_type_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getBloodType` (IN `p_blood_type_id` INT)   BEGIN
 	SELECT * FROM blood_type
     WHERE blood_type_id = p_blood_type_id;
@@ -2036,6 +2124,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `getLinkedJobPositionResponsibility`
     WHERE job_position_id = p_job_position_id;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getLinkedWorkHours` (IN `p_work_schedule_id` INT)   BEGIN
+	SELECT * FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getMenuGroup` (IN `p_menu_group_id` INT)   BEGIN
 	SELECT * FROM menu_group
 	WHERE menu_group_id = p_menu_group_id;
@@ -2158,6 +2251,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBank` (IN `p_bank_name` VARCH
 	VALUES(p_bank_name, p_bank_identifier_code, p_last_log_by);
 	
     SET p_bank_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBankAccountType` (IN `p_bank_account_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_bank_account_type_id` INT)   BEGIN
+    INSERT INTO bank_account_type (bank_account_type_name, last_log_by) 
+	VALUES(p_bank_account_type_name, p_last_log_by);
+	
+    SET p_bank_account_type_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertBloodType` (IN `p_blood_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_blood_type_id` INT)   BEGIN
@@ -2489,6 +2589,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBank` (IN `p_bank_id` INT, IN
     bank_identifier_code = p_bank_identifier_code,
     last_log_by = p_last_log_by
     WHERE bank_id = p_bank_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBankAccountType` (IN `p_bank_account_type_id` INT, IN `p_bank_account_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
+	UPDATE bank_account_type
+    SET bank_account_type_name = p_bank_account_type_name,
+    last_log_by = p_last_log_by
+    WHERE bank_account_type_id = p_bank_account_type_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `updateBloodType` (IN `p_blood_type_id` INT, IN `p_blood_type_name` VARCHAR(100), IN `p_last_log_by` INT)   BEGIN
@@ -2991,7 +3098,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `updateUserProfilePicture` (IN `p_us
     WHERE user_id = p_user_id;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWorkHours` (IN `work_hours_id` INT, IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `updateWorkHours` (IN `p_work_hours_id` INT, IN `p_work_schedule_id` INT, IN `p_work_date` DATE, IN `p_day_of_week` VARCHAR(15), IN `p_day_period` VARCHAR(15), IN `p_start_time` TIME, IN `p_end_time` TIME, IN `p_notes` TEXT, IN `p_last_log_by` INT)   BEGIN
 	UPDATE work_hours
     SET work_schedule_id = p_work_schedule_id,
     work_date = p_work_date,
@@ -5356,7 +5463,38 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2297, 'users', 1, 'Last Connection Date: 2023-09-14 14:37:42 -> 2023-09-15 10:18:39<br/>', '0', '2023-09-15 10:18:39'),
 (2298, 'users', 1, 'Last Connection Date: 2023-09-15 10:18:39 -> 2023-09-16 13:41:01<br/>', '0', '2023-09-16 13:41:01'),
 (2299, 'users', 1, 'Last Connection Date: 2023-09-16 13:41:01 -> 2023-09-17 11:29:06<br/>', '0', '2023-09-17 11:29:06'),
-(2300, 'users', 1, 'Last Connection Date: 2023-09-17 11:29:06 -> 2023-09-18 09:09:35<br/>', '0', '2023-09-18 09:09:35');
+(2300, 'users', 1, 'Last Connection Date: 2023-09-17 11:29:06 -> 2023-09-18 09:09:35<br/>', '0', '2023-09-18 09:09:35'),
+(2301, 'work_hours', 1, 'Work hours created. <br/><br/>Day of Week: Monday<br/>Day Period: Morning<br/>Start Time: 08:00:00<br/>End Time: 12:00:00<br/>Notes: test', '1', '2023-09-19 10:42:21'),
+(2302, 'work_hours', 2, 'Work hours created. <br/><br/>Work Date: 2023-09-19<br/>Day Period: Morning<br/>Start Time: 10:48:00<br/>End Time: 22:48:00<br/>Notes: t', '1', '2023-09-19 10:48:57'),
+(2303, 'work_hours', 3, 'Work hours created. <br/><br/>Work Date: 2023-09-20<br/>Day Period: Morning<br/>Start Time: 08:00:00<br/>End Time: 20:00:00', '1', '2023-09-19 10:49:17'),
+(2304, 'work_hours', 4, 'Work hours created. <br/><br/>Work Date: 2023-09-09<br/>Day Period: Morning<br/>Start Time: 08:06:00<br/>End Time: 11:20:00<br/>Notes: as', '1', '2023-09-19 11:21:00'),
+(2305, 'work_hours', 5, 'Work hours created. <br/><br/>Work Date: 2023-09-09<br/>Day Period: Morning<br/>Start Time: 08:06:00<br/>End Time: 11:20:00<br/>Notes: as', '1', '2023-09-19 11:24:58'),
+(2306, 'work_hours', 6, 'Work hours created. <br/><br/>Work Date: 2023-09-09<br/>Day Period: Morning<br/>Start Time: 08:07:00<br/>End Time: 11:20:00<br/>Notes: as', '1', '2023-09-19 11:25:07'),
+(2307, 'work_hours', 6, 'Work Date: 2023-09-09 -> 2023-01-12<br/>', '1', '2023-09-19 11:45:47'),
+(2308, 'work_hours', 6, 'Work Date: 2023-01-12 -> 2023-01-23<br/>Day of Period: Morning -> Afternoon<br/>Start Time: 08:07:00 -> 08:08:00<br/>End Time: 11:20:00 -> 11:05:00<br/>Notes: as -> asasd<br/>', '1', '2023-09-19 11:46:05'),
+(2309, 'work_hours', 5, 'End Time: 11:20:00 -> 11:24:00<br/>', '1', '2023-09-19 13:26:55'),
+(2310, 'work_hours', 7, 'Work hours created. <br/><br/>Work Date: 2023-01-01<br/>Day Period: Morning<br/>Start Time: 08:30:00<br/>End Time: 09:30:00', '1', '2023-09-19 14:52:40'),
+(2311, 'work_hours', 6, 'Work Date: 2023-01-23 -> 2023-01-02<br/>', '1', '2023-09-19 14:54:54'),
+(2312, 'work_hours', 8, 'Work hours created. <br/><br/>Day of Week: Monday<br/>Day Period: Morning<br/>Start Time: 08:00:00<br/>End Time: 09:00:00<br/>Notes: test', '1', '2023-09-19 14:58:26'),
+(2313, 'work_hours', 8, 'Start Time: 08:00:00 -> 08:05:00<br/>', '1', '2023-09-19 15:12:02'),
+(2314, 'work_hours', 9, 'Work hours created. <br/><br/>Day of Week: Monday<br/>Day Period: Morning<br/>Start Time: 08:00:00<br/>End Time: 08:04:00', '1', '2023-09-19 15:12:22'),
+(2315, 'work_schedule', 6, 'Work schedule created. <br/><br/>Work Schedule Name: tes<br/>Work Schedule Description: test<br/>Work Schedule Type ID: 1', '1', '2023-09-19 15:58:02'),
+(2316, 'work_hours', 10, 'Work hours created. <br/><br/>Day of Week: Monday<br/>Day Period: Afternoon<br/>Start Time: 08:00:00<br/>End Time: 09:00:00<br/>Notes: test', '1', '2023-09-19 15:58:12'),
+(2317, 'work_schedule', 7, 'Work schedule created. <br/><br/>Work Schedule Name: tes<br/>Work Schedule Description: test<br/>Work Schedule Type ID: 1', '1', '2023-09-19 15:58:26'),
+(2318, 'work_hours', 11, 'Work hours created. <br/><br/>Day of Week: Monday<br/>Day Period: Afternoon<br/>Start Time: 08:00:00<br/>End Time: 09:00:00<br/>Notes: test', '1', '2023-09-19 15:58:26'),
+(2319, 'work_schedule', 7, 'Work Schedule Type ID: 1 -> 2<br/>', '1', '2023-09-19 15:59:04'),
+(2320, 'work_schedule', 7, 'Work Schedule Type ID: 2 -> 1<br/>', '1', '2023-09-19 15:59:16'),
+(2321, 'work_schedule', 7, 'Work Schedule Type ID: 1 -> 2<br/>', '1', '2023-09-19 16:06:18'),
+(2322, 'work_schedule', 7, 'Work Schedule Type ID: 2 -> 1<br/>', '1', '2023-09-19 16:06:27'),
+(2323, 'work_schedule', 7, 'Work Schedule Type ID: 1 -> 3<br/>', '1', '2023-09-19 16:06:34'),
+(2324, 'work_schedule', 7, 'Work Schedule Type ID: 3 -> 1<br/>', '1', '2023-09-19 16:11:42'),
+(2325, 'menu_item', 43, 'Menu item created. <br/><br/>Menu Item Name: Bank Account Type<br/>Menu Group ID: 1<br/>URL: bank-account-type.php<br/>Parent ID: 25<br/>Order Sequence: 2', '0', '2023-09-19 16:19:28'),
+(2326, 'menu_item_access_right', 43, 'Menu item access rights created. <br/><br/>Role ID: 1<br/>Read Access: 1<br/>Write Access: 1<br/>Create Access: 1<br/>Delete Access: 1<br/>Duplicate Access: 1', '0', '2023-09-19 16:19:28'),
+(2327, 'bank_account_type', 1, 'Bank account created. <br/><br/>Bank Account Type Name: test', '1', '2023-09-19 16:33:12'),
+(2328, 'bank_account_type', 1, 'Bank Account Type Name: test -> test2<br/>', '1', '2023-09-19 16:33:15'),
+(2329, 'bank_account_type', 2, 'Bank account created. <br/><br/>Bank Account Type Name: test2', '1', '2023-09-19 16:33:17'),
+(2330, 'bank_account_type', 3, 'Bank account created. <br/><br/>Bank Account Type Name: test2', '1', '2023-09-19 16:33:20'),
+(2331, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: tes<br/>Job Position Description: test', '1', '2023-09-19 17:24:08');
 
 -- --------------------------------------------------------
 
@@ -5406,6 +5544,50 @@ CREATE TRIGGER `bank_trigger_update` AFTER UPDATE ON `bank` FOR EACH ROW BEGIN
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
         VALUES ('bank', NEW.bank_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `bank_account_type`
+--
+
+CREATE TABLE `bank_account_type` (
+  `bank_account_type_id` int(10) UNSIGNED NOT NULL,
+  `bank_account_type_name` varchar(100) NOT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `bank_account_type`
+--
+DELIMITER $$
+CREATE TRIGGER `bank_account_type_trigger_insert` AFTER INSERT ON `bank_account_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Bank account created. <br/>';
+
+    IF NEW.bank_account_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Account Type Name: ", NEW.bank_account_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `bank_account_type_trigger_update` AFTER UPDATE ON `bank_account_type` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_account_type_name <> OLD.bank_account_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Bank Account Type Name: ", OLD.bank_account_type_name, " -> ", NEW.bank_account_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('bank_account_type', NEW.bank_account_type_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END
 $$
@@ -8700,6 +8882,13 @@ CREATE TABLE `job_position` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `job_position`
+--
+
+INSERT INTO `job_position` (`job_position_id`, `job_position_name`, `job_position_description`, `recruitment_status`, `department_id`, `expected_new_employees`, `last_log_by`) VALUES
+(1, 'tes', 'test', NULL, 0, 0, 1);
+
+--
 -- Triggers `job_position`
 --
 DELIMITER $$
@@ -9023,7 +9212,8 @@ INSERT INTO `menu_item` (`menu_item_id`, `menu_item_name`, `menu_group_id`, `men
 (39, 'Bank', 3, 'bank.php', 11, '', 2, 0),
 (40, 'Holiday Type', 1, 'holiday-type.php', 25, '', 8, 0),
 (41, 'Work Schedule Type', 1, 'work-schedule-type.php', 25, '', 23, 0),
-(42, 'Work Schedule', 1, 'work-schedule.php', 25, '', 23, 0);
+(42, 'Work Schedule', 1, 'work-schedule.php', 25, '', 23, 0),
+(43, 'Bank Account Type', 1, 'bank-account-type.php', 25, '', 2, 0);
 
 --
 -- Triggers `menu_item`
@@ -9160,7 +9350,8 @@ INSERT INTO `menu_item_access_right` (`menu_item_id`, `role_id`, `read_access`, 
 (39, 1, 1, 1, 1, 1, 1, 0),
 (40, 1, 1, 1, 1, 1, 1, 0),
 (41, 1, 1, 1, 1, 1, 1, 0),
-(42, 1, 1, 1, 1, 1, 1, 0);
+(42, 1, 1, 1, 1, 1, 1, 0),
+(43, 1, 1, 1, 1, 1, 1, 0);
 
 --
 -- Triggers `menu_item_access_right`
@@ -10382,6 +10573,13 @@ CREATE TABLE `work_hours` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `work_hours`
+--
+
+INSERT INTO `work_hours` (`work_hours_id`, `work_schedule_id`, `work_date`, `day_of_week`, `day_period`, `start_time`, `end_time`, `notes`, `last_log_by`) VALUES
+(10, 6, NULL, 'Monday', 'Afternoon', '08:00:00', '09:00:00', 'test', 1);
+
+--
 -- Triggers `work_hours`
 --
 DELIMITER $$
@@ -10472,8 +10670,8 @@ CREATE TABLE `work_schedule` (
 --
 
 INSERT INTO `work_schedule` (`work_schedule_id`, `work_schedule_name`, `work_schedule_description`, `work_schedule_type_id`, `last_log_by`) VALUES
-(4, 'Fixed Work Schedule', 'Fixed Work Schedule', 1, 1),
-(5, 'Flexible Work Schedule', 'Flexible Work Schedule', 2, 1);
+(6, 'tes', 'test', 1, 1),
+(7, 'tes', 'test', 1, 1);
 
 --
 -- Triggers `work_schedule`
@@ -10666,6 +10864,13 @@ ALTER TABLE `audit_log`
 ALTER TABLE `bank`
   ADD PRIMARY KEY (`bank_id`),
   ADD KEY `bank_index_bank_id` (`bank_id`);
+
+--
+-- Indexes for table `bank_account_type`
+--
+ALTER TABLE `bank_account_type`
+  ADD PRIMARY KEY (`bank_account_type_id`),
+  ADD KEY `bank_account_type_index_bank_account_type_id` (`bank_account_type_id`);
 
 --
 -- Indexes for table `blood_type`
@@ -10985,13 +11190,19 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2301;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2332;
 
 --
 -- AUTO_INCREMENT for table `bank`
 --
 ALTER TABLE `bank`
   MODIFY `bank_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `bank_account_type`
+--
+ALTER TABLE `bank_account_type`
+  MODIFY `bank_account_type_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `blood_type`
@@ -11111,7 +11322,7 @@ ALTER TABLE `job_level`
 -- AUTO_INCREMENT for table `job_position`
 --
 ALTER TABLE `job_position`
-  MODIFY `job_position_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `job_position_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `job_position_qualification`
@@ -11141,7 +11352,7 @@ ALTER TABLE `menu_group`
 -- AUTO_INCREMENT for table `menu_item`
 --
 ALTER TABLE `menu_item`
-  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `menu_item_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `nationality`
@@ -11219,13 +11430,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `work_hours`
 --
 ALTER TABLE `work_hours`
-  MODIFY `work_hours_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `work_hours_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `work_schedule`
 --
 ALTER TABLE `work_schedule`
-  MODIFY `work_schedule_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `work_schedule_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `work_schedule_type`
