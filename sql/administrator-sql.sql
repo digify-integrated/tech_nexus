@@ -6089,15 +6089,16 @@ END //
 /* Contact table */
 CREATE TABLE contact(
 	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	user_id INT UNSIGNED,
 	file_as VARCHAR(1000) NOT NULL,
 	first_name VARCHAR(300) NOT NULL,
 	middle_name VARCHAR(300),
 	last_name VARCHAR(300) NOT NULL,
 	suffix VARCHAR(10),
+	nickname VARCHAR(100),
 	is_employee INT NOT NULL,
 	is_customer INT NOT NULL,
 	is_job_applicant INT NOT NULL,
-	user_id INT UNSIGNED,
 	badge_id VARCHAR(500),
 	contact_image VARCHAR(500),
 	contact_signature VARCHAR(500),
@@ -6106,13 +6107,15 @@ CREATE TABLE contact(
 	job_level_id INT UNSIGNED,
 	department_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
-	manager INT UNSIGNED,
-	coach INT UNSIGNED,
     civil_status_id INT UNSIGNED,
     employee_type_id INT UNSIGNED,
     gender_id INT UNSIGNED,
     religion_id INT UNSIGNED,
     blood_type_id INT UNSIGNED,
+    birthday DATE NOT NULL,
+    birth_place VARCHAR(1000),
+    height DOUBLE,
+    weight DOUBLE,
     employee_status INT,
     permanency_date DATE,
     onboard_date DATE,
@@ -6130,8 +6133,8 @@ CREATE INDEX contact_index_job_level_id ON contact(job_level_id);
 CREATE INDEX contact_index_department_id ON contact(department_id);
 CREATE INDEX contact_index_branch_id ON contact(branch_id);
 CREATE INDEX contact_index_civil_status_id ON contact(civil_status_id);
-CREATE INDEX contact_index_civil_employee_type_id ON contact(employee_type_id);
-CREATE INDEX contact_index_civil_gender_id ON contact(gender_id);
-CREATE INDEX contact_index_civil_religion_id ON contact(religion_id);
-CREATE INDEX contact_index_civil_blood_type_id ON contact(blood_type_id);
-CREATE INDEX contact_index_civil_departure_reason_id ON contact(departure_reason_id);
+CREATE INDEX contact_index_employee_type_id ON contact(employee_type_id);
+CREATE INDEX contact_index_gender_id ON contact(gender_id);
+CREATE INDEX contact_index_religion_id ON contact(religion_id);
+CREATE INDEX contact_index_blood_type_id ON contact(blood_type_id);
+CREATE INDEX contact_index_departure_reason_id ON contact(departure_reason_id);

@@ -15,7 +15,7 @@ INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('T
 
 /* ----------------------- */
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Users & Companies', '2', '', '', 'users', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Users & Companies', '2', '', '', 'user', '1', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Company', '2', 'company.php', '1', '', '3', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('User Account', '2', 'user-account.php', '1', '', '21', '0');
 
@@ -84,13 +84,6 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Job Level', '1', 'job-level.php', '25', '', '10', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee Type', '1', 'employee-type.php', '25', '', '5', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Departure Reason', '1', 'departure-reason.php', '25', '', '4', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('ID Type', '1', 'id-type.php', '25', '', '9', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Gender', '1', 'gender.php', '25', '', '7', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Religion', '1', 'religion.php', '25', '', '18', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Nationality', '1', 'nationality.php', '25', '', '14', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Relation', '1', 'relation.php', '25', '', '18', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Civil Status', '1', 'civil-status.php', '25', '', '3', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Blood Type', '1', 'blood-type.php', '25', '', '2', '0');
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('25', '1', '1', '0', '0', '0', '0', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('26', '1', '1', '1', '1', '1', '1', '0');
@@ -99,6 +92,24 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('29', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('30', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('31', '1', '1', '1', '1', '1', '1', '0');
+
+/* ----------------------- */
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('ID Type', '3', 'id-type.php', '11', '', '9', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Gender', '3', 'gender.php', '11', '', '7', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Religion', '3', 'religion.php', '11', '', '18', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Nationality', '3', 'nationality.php', '11', '', '14', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Relation', '3', 'relation.php', '11', '', '18', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Civil Status', '3', 'civil-status.php', '11', '', '3', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Blood Type', '3', 'blood-type.php', '11', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank', '3', 'bank.php', '11', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Holiday Type', '13', 'holiday-type.php', '11', '', '8', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule Type', '1', 'work-schedule-type.php', '25', '', '23', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule', '1', 'work-schedule.php', '25', '', '23', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank Account Type', '3', 'bank-account-type.php', '11', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '44', '', '5', '0');
+
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('32', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('33', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('34', '1', '1', '1', '1', '1', '1', '0');
@@ -106,20 +117,13 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('36', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('37', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('38', '1', '1', '1', '1', '1', '1', '0');
-
-/* ----------------------- */
-
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank', '3', 'bank.php', '11', '', '2', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Holiday Type', '1', 'holiday-type.php', '25', '', '8', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule Type', '1', 'work-schedule-type.php', '25', '', '23', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule', '1', 'work-schedule.php', '25', '', '23', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank Account Type', '1', 'bank-account-type.php', '11', '', '2', '0');
-
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('39', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('40', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('41', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('42', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('43', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('44', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('45', '1', '1', '1', '1', '1', '1', '0');
 
 INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Fixed', '0');
 INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Flexible', '0');
