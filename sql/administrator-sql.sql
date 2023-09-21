@@ -6086,9 +6086,9 @@ BEGIN
 	ORDER BY bank_account_type_name;
 END //
 
-/* Contact table */
-CREATE TABLE contact(
-	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+/* Employee table */
+CREATE TABLE employee(
+	employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	user_id INT UNSIGNED,
 	file_as VARCHAR(1000) NOT NULL,
 	first_name VARCHAR(300) NOT NULL,
@@ -6096,19 +6096,16 @@ CREATE TABLE contact(
 	last_name VARCHAR(300) NOT NULL,
 	suffix VARCHAR(10),
 	nickname VARCHAR(100),
-	is_employee INT NOT NULL,
-	is_customer INT NOT NULL,
-	is_job_applicant INT NOT NULL,
 	badge_id VARCHAR(500),
-	contact_image VARCHAR(500),
-	contact_signature VARCHAR(500),
+	employee_image VARCHAR(500),
+	employee_signature VARCHAR(500),
 	company_id INT UNSIGNED,
+    employee_type_id INT UNSIGNED,
+	department_id INT UNSIGNED,
 	job_position_id INT UNSIGNED,
 	job_level_id INT UNSIGNED,
-	department_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
     civil_status_id INT UNSIGNED,
-    employee_type_id INT UNSIGNED,
     gender_id INT UNSIGNED,
     religion_id INT UNSIGNED,
     blood_type_id INT UNSIGNED,
@@ -6125,16 +6122,24 @@ CREATE TABLE contact(
     last_log_by INT NOT NULL
 );
 
-CREATE INDEX contact_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_index_user_id ON contact(user_id);
-CREATE INDEX contact_index_company_id ON contact(company_id);
-CREATE INDEX contact_index_job_position_id ON contact(job_position_id);
-CREATE INDEX contact_index_job_level_id ON contact(job_level_id);
-CREATE INDEX contact_index_department_id ON contact(department_id);
-CREATE INDEX contact_index_branch_id ON contact(branch_id);
-CREATE INDEX contact_index_civil_status_id ON contact(civil_status_id);
-CREATE INDEX contact_index_employee_type_id ON contact(employee_type_id);
-CREATE INDEX contact_index_gender_id ON contact(gender_id);
-CREATE INDEX contact_index_religion_id ON contact(religion_id);
-CREATE INDEX contact_index_blood_type_id ON contact(blood_type_id);
-CREATE INDEX contact_index_departure_reason_id ON contact(departure_reason_id);
+CREATE INDEX employee_index_employee_id ON employee(employee_id);
+CREATE INDEX employee_index_user_id ON employee(user_id);
+CREATE INDEX employee_index_company_id ON employee(company_id);
+CREATE INDEX employee_index_job_position_id ON employee(job_position_id);
+CREATE INDEX employee_index_job_level_id ON employee(job_level_id);
+CREATE INDEX employee_index_department_id ON employee(department_id);
+CREATE INDEX employee_index_branch_id ON employee(branch_id);
+CREATE INDEX employee_index_civil_status_id ON employee(civil_status_id);
+CREATE INDEX employee_index_employee_type_id ON employee(employee_type_id);
+CREATE INDEX employee_index_gender_id ON employee(gender_id);
+CREATE INDEX employee_index_religion_id ON employee(religion_id);
+CREATE INDEX employee_index_blood_type_id ON employee(blood_type_id);
+CREATE INDEX employee_index_departure_reason_id ON employee(departure_reason_id);
+
+CREATE PROCEDURE insertEmployee(IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_badge_id VARCHAR(500), IN p_department_id INT, IN p_job_position_id INT, IN p_last_log_by INT, OUT p_employee_id INT)
+BEGIN
+    INSERT INTO employee (file_as, first_name, middle_name, last_name, suffix, badge_id, department_id, job_position_id, last_log_by) 
+	VALUES(p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_badge_id, p_department_id, p_job_position_id, p_last_log_by);
+	
+    SET p_employee_id = LAST_INSERT_ID();
+END //

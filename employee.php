@@ -3,7 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    #require('model/employee-model.php');
+    require('model/employee-model.php');
     require('model/department-model.php');
     require('model/job-position-model.php');
     require('model/job-level-model.php');
@@ -20,7 +20,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    #$employeeModel = new EmployeeModel($databaseModel);
+    $employeeModel = new EmployeeModel($databaseModel);
     $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);
     $jobLevelModel = new JobLevelModel($databaseModel);
@@ -57,13 +57,13 @@
 
         $employeeID = $securityModel->decryptData($_GET['id']);
 
-        $checkEmployeeExist = $employeeModel->checkEmployeeExist($employeeID);
+        /*$checkEmployeeExist = $employeeModel->checkEmployeeExist($employeeID);
         $total = $checkEmployeeExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
             exit;
-        }
+        }*/
     }
     else{
         $employeeID = null;

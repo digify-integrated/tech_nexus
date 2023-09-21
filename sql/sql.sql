@@ -348,6 +348,7 @@ INSERT INTO interface_setting (interface_setting_name, interface_setting_descrip
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed Login Attempt', 'This sets the maximum failed login attempt before the user is locked-out.', 5, '0');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', 5, '0');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Default Forgot Password Link', 'This sets the default forgot password link.', 'http://localhost/tech_nexus/password-reset.php?id=', '0');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('File As Arrangement', 'This sets the arrangement of the file as.', '{last_name}, {first_name} {suffix} {middle_name}', '0');
 
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Profile Image', 'Sets the upload setting when uploading user account profile image.', 5, '0');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Interface Setting', 'Sets the upload setting when uploading interface setting image.', 5, '0');

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 20, 2023 at 11:34 AM
+-- Generation Time: Sep 21, 2023 at 11:27 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -2328,6 +2328,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmailSetting` (IN `p_email_se
 	VALUES(p_email_setting_name, p_email_setting_description, p_mail_host, p_port, p_smtp_auth, p_smtp_auto_tls, p_mail_username, p_mail_encryption, p_mail_from_name, p_mail_from_email, p_last_log_by);
 	
     SET p_email_setting_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployee` (IN `p_file_as` VARCHAR(1000), IN `p_first_name` VARCHAR(300), IN `p_middle_name` VARCHAR(300), IN `p_last_name` VARCHAR(300), IN `p_suffix` VARCHAR(10), IN `p_badge_id` VARCHAR(500), IN `p_department_id` INT, IN `p_job_position_id` INT, IN `p_last_log_by` INT, OUT `p_employee_id` INT)   BEGIN
+    INSERT INTO employee (file_as, first_name, middle_name, last_name, suffix, badge_id, department_id, job_position_id, last_log_by) 
+	VALUES(p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_badge_id, p_department_id, p_job_position_id, p_last_log_by);
+	
+    SET p_employee_id = LAST_INSERT_ID();
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployeeType` (IN `p_employee_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_employee_type_id` INT)   BEGIN
@@ -5457,7 +5464,10 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2291, 'email_setting', 1, 'Email setting created. <br/><br/>Email Setting Name: Security Email Setting<br/>Email Setting Description: \r\nEmail setting for security emails.<br/>Mail Host: smtp.hostinger.com<br/>Port: 465<br/>SMTP Auth: 1<br/>Mail Username: encore-noreply@encorefinancials.com<br/>Mail Encryption: ssl<br/>Mail From Name: encore-noreply@encorefinancials.com<br/>Mail From Email: encore-noreply@encorefinancials.com', '0', '2023-09-20 17:19:22'),
 (2292, 'notification_setting', 1, 'Notification setting created. <br/><br/>Notification Setting Name: Login OTP<br/>Notification Setting Description: Notification setting for Login OTP received by the users.<br/>Email Notification: 1<br/>Email Notification Subject: Login OTP - Secure Access to Your Account<br/>Email Notification Body: <p>To ensure the security of your account, we have generated a unique One-Time Password (OTP) for you to use during the login process. Please use the following OTP to access your account:</p>\r\n<p>OTP: <strong>{OTP_CODE}</strong></p>\r\n<p>Please note that this OTP is valid for &lt;strong&gt;5 minutes&lt;/strong&gt;. Once you have logged in successfully, we recommend enabling two-factor authentication for an added layer of security.</p>\r\n<p>If you did not initiate this login or believe it was sent to you in error, please disregard this email and delete it immediately. Your account\'s security remains our utmost priority.</p>\r\n<p>&nbsp;</p>\r\n<p>Note: This is an automatically generated email. Please do not reply to this address.</p>', '1', '2023-09-20 17:19:22'),
 (2293, 'notification_setting', 2, 'Notification setting created. <br/><br/>Notification Setting Name: Forgot Password<br/>Notification Setting Description: Notification setting when the user initiates forgot password.<br/>Email Notification: 1<br/>Email Notification Subject: Password Reset Request - Action Required<br/>Email Notification Body: <p>We have received a request to reset your password. To ensure the security of your account, please follow the instructions below:</p>\r\n<p>1. Click on the link below to reset your password:</p>\r\n<p><a href=\"{RESET_LINK}\"><strong>Reset Password</strong></a></p>\r\n<p>2. If the button does not work, you can copy and paste the following link into your browser\'s address bar:</p>\r\n<p><strong>{RESET_LINK}</strong></p>\r\n<p>Please note that this link is time-sensitive and will expire after <strong>10 minutes</strong>. If you do not reset your password within this timeframe, you may need to request another password reset.</p>\r\n<p>If you did not initiate this password reset request or believe it was sent to you in error, please disregard this email and delete it immediately. Your account\'s security remains our utmost priority.</p>\r\n<p>&nbsp;</p>\r\n<p>Note: This is an automatically generated email. Please do not reply to this address.</p>', '1', '2023-09-20 17:19:22'),
-(2294, 'menu_item', 43, 'Menu Group ID: 1 -> 3<br/>', '0', '2023-09-20 17:20:01');
+(2294, 'menu_item', 43, 'Menu Group ID: 1 -> 3<br/>', '0', '2023-09-20 17:20:01'),
+(2295, 'system_setting', 4, 'System setting created. <br/><br/>System Setting Name: File As Arrangement<br/>System Setting Description: This sets the arrangement of the file as.<br/>Value: {last_name}, {first_name} {suffix} {middle_name}', '0', '2023-09-21 15:35:59'),
+(2296, 'department', 1, 'Department created. <br/><br/>Department Name: Data Center Department', '1', '2023-09-21 15:47:11'),
+(2297, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: Data Center Staff<br/>Job Position Description: Data Center Staff<br/>Department ID: 1', '1', '2023-09-21 15:47:26');
 
 -- --------------------------------------------------------
 
@@ -7573,50 +7583,6 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `contact`
---
-
-CREATE TABLE `contact` (
-  `contact_id` int(10) UNSIGNED NOT NULL,
-  `file_as` varchar(1000) NOT NULL,
-  `first_name` varchar(300) NOT NULL,
-  `middle_name` varchar(300) DEFAULT NULL,
-  `last_name` varchar(300) NOT NULL,
-  `suffix` varchar(10) DEFAULT NULL,
-  `nickname` varchar(100) DEFAULT NULL,
-  `is_employee` int(11) NOT NULL,
-  `is_customer` int(11) NOT NULL,
-  `is_job_applicant` int(11) NOT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
-  `badge_id` varchar(500) DEFAULT NULL,
-  `contact_image` varchar(500) DEFAULT NULL,
-  `contact_signature` varchar(500) DEFAULT NULL,
-  `company_id` int(10) UNSIGNED DEFAULT NULL,
-  `job_position_id` int(10) UNSIGNED DEFAULT NULL,
-  `job_level_id` int(10) UNSIGNED DEFAULT NULL,
-  `department_id` int(10) UNSIGNED DEFAULT NULL,
-  `branch_id` int(10) UNSIGNED DEFAULT NULL,
-  `civil_status_id` int(10) UNSIGNED DEFAULT NULL,
-  `employee_type_id` int(10) UNSIGNED DEFAULT NULL,
-  `gender_id` int(10) UNSIGNED DEFAULT NULL,
-  `religion_id` int(10) UNSIGNED DEFAULT NULL,
-  `blood_type_id` int(10) UNSIGNED DEFAULT NULL,
-  `birthday` date NOT NULL,
-  `birth_place` varchar(1000) DEFAULT NULL,
-  `height` double DEFAULT NULL,
-  `weight` double DEFAULT NULL,
-  `employee_status` int(11) DEFAULT NULL,
-  `permanency_date` date DEFAULT NULL,
-  `onboard_date` date DEFAULT NULL,
-  `offboard_date` date DEFAULT NULL,
-  `departure_reason_id` int(10) UNSIGNED DEFAULT NULL,
-  `detailed_departure_reason` varchar(5000) DEFAULT NULL,
-  `last_log_by` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `country`
 --
 
@@ -8021,6 +7987,13 @@ CREATE TABLE `department` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `department`
+--
+
+INSERT INTO `department` (`department_id`, `department_name`, `parent_department`, `manager`, `last_log_by`) VALUES
+(1, 'Data Center Department', 0, 0, 1);
+
+--
 -- Triggers `department`
 --
 DELIMITER $$
@@ -8315,6 +8288,55 @@ CREATE TRIGGER `email_setting_trigger_update` AFTER UPDATE ON `email_setting` FO
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employee`
+--
+
+CREATE TABLE `employee` (
+  `employee_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `file_as` varchar(1000) NOT NULL,
+  `first_name` varchar(300) NOT NULL,
+  `middle_name` varchar(300) DEFAULT NULL,
+  `last_name` varchar(300) NOT NULL,
+  `suffix` varchar(10) DEFAULT NULL,
+  `nickname` varchar(100) DEFAULT NULL,
+  `badge_id` varchar(500) DEFAULT NULL,
+  `employee_image` varchar(500) DEFAULT NULL,
+  `employee_signature` varchar(500) DEFAULT NULL,
+  `company_id` int(10) UNSIGNED DEFAULT NULL,
+  `employee_type_id` int(10) UNSIGNED DEFAULT NULL,
+  `department_id` int(10) UNSIGNED DEFAULT NULL,
+  `job_position_id` int(10) UNSIGNED DEFAULT NULL,
+  `job_level_id` int(10) UNSIGNED DEFAULT NULL,
+  `branch_id` int(10) UNSIGNED DEFAULT NULL,
+  `civil_status_id` int(10) UNSIGNED DEFAULT NULL,
+  `gender_id` int(10) UNSIGNED DEFAULT NULL,
+  `religion_id` int(10) UNSIGNED DEFAULT NULL,
+  `blood_type_id` int(10) UNSIGNED DEFAULT NULL,
+  `birthday` date NOT NULL,
+  `birth_place` varchar(1000) DEFAULT NULL,
+  `height` double DEFAULT NULL,
+  `weight` double DEFAULT NULL,
+  `employee_status` int(11) DEFAULT NULL,
+  `permanency_date` date DEFAULT NULL,
+  `onboard_date` date DEFAULT NULL,
+  `offboard_date` date DEFAULT NULL,
+  `departure_reason_id` int(10) UNSIGNED DEFAULT NULL,
+  `detailed_departure_reason` varchar(5000) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employee`
+--
+
+INSERT INTO `employee` (`employee_id`, `user_id`, `file_as`, `first_name`, `middle_name`, `last_name`, `suffix`, `nickname`, `badge_id`, `employee_image`, `employee_signature`, `company_id`, `employee_type_id`, `department_id`, `job_position_id`, `job_level_id`, `branch_id`, `civil_status_id`, `gender_id`, `religion_id`, `blood_type_id`, `birthday`, `birth_place`, `height`, `weight`, `employee_status`, `permanency_date`, `onboard_date`, `offboard_date`, `departure_reason_id`, `detailed_departure_reason`, `last_log_by`) VALUES
+(1, NULL, 'Agulto, Lawrence Jr. De Vera', 'Lawrence', 'De Vera', 'Agulto', 'Jr.', NULL, '1', NULL, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
+(2, NULL, 'Agulto, Lawrence Jr De Vera', 'Lawrence', 'De Vera', 'Agulto', 'Jr', NULL, '2', NULL, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -8887,6 +8909,13 @@ CREATE TABLE `job_position` (
   `expected_new_employees` int(11) NOT NULL DEFAULT 0,
   `last_log_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `job_position`
+--
+
+INSERT INTO `job_position` (`job_position_id`, `job_position_name`, `job_position_description`, `recruitment_status`, `department_id`, `expected_new_employees`, `last_log_by`) VALUES
+(1, 'Data Center Staff', 'Data Center Staff', NULL, 1, 0, 1);
 
 --
 -- Triggers `job_position`
@@ -10137,7 +10166,8 @@ CREATE TABLE `system_setting` (
 INSERT INTO `system_setting` (`system_setting_id`, `system_setting_name`, `system_setting_description`, `value`, `last_log_by`) VALUES
 (1, 'Max Failed Login Attempt', 'This sets the maximum failed login attempt before the user is locked-out.', '5', 0),
 (2, 'Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', '5', 0),
-(3, 'Default Forgot Password Link', 'This sets the default forgot password link.', 'http://localhost/tech_nexus/password-reset.php?id=', 0);
+(3, 'Default Forgot Password Link', 'This sets the default forgot password link.', 'http://localhost/tech_nexus/password-reset.php?id=', 0),
+(4, 'File As Arrangement', 'This sets the arrangement of the file as.', '{last_name}, {first_name} {suffix} {middle_name}', 0);
 
 --
 -- Triggers `system_setting`
@@ -10420,7 +10450,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '4e76878c9aa2a2a86a8edd70cfb6882a', 0);
 
 --
 -- Triggers `users`
@@ -10898,25 +10928,6 @@ ALTER TABLE `company`
   ADD KEY `company_index_company_id` (`company_id`);
 
 --
--- Indexes for table `contact`
---
-ALTER TABLE `contact`
-  ADD PRIMARY KEY (`contact_id`),
-  ADD KEY `contact_index_contact_id` (`contact_id`),
-  ADD KEY `contact_index_user_id` (`user_id`),
-  ADD KEY `contact_index_company_id` (`company_id`),
-  ADD KEY `contact_index_job_position_id` (`job_position_id`),
-  ADD KEY `contact_index_job_level_id` (`job_level_id`),
-  ADD KEY `contact_index_department_id` (`department_id`),
-  ADD KEY `contact_index_branch_id` (`branch_id`),
-  ADD KEY `contact_index_civil_status_id` (`civil_status_id`),
-  ADD KEY `contact_index_employee_type_id` (`employee_type_id`),
-  ADD KEY `contact_index_gender_id` (`gender_id`),
-  ADD KEY `contact_index_religion_id` (`religion_id`),
-  ADD KEY `contact_index_blood_type_id` (`blood_type_id`),
-  ADD KEY `contact_index_departure_reason_id` (`departure_reason_id`);
-
---
 -- Indexes for table `country`
 --
 ALTER TABLE `country`
@@ -10960,6 +10971,25 @@ ALTER TABLE `district`
 ALTER TABLE `email_setting`
   ADD PRIMARY KEY (`email_setting_id`),
   ADD KEY `email_setting_index_email_setting_id` (`email_setting_id`);
+
+--
+-- Indexes for table `employee`
+--
+ALTER TABLE `employee`
+  ADD PRIMARY KEY (`employee_id`),
+  ADD KEY `employee_index_employee_id` (`employee_id`),
+  ADD KEY `employee_index_user_id` (`user_id`),
+  ADD KEY `employee_index_company_id` (`company_id`),
+  ADD KEY `employee_index_job_position_id` (`job_position_id`),
+  ADD KEY `employee_index_job_level_id` (`job_level_id`),
+  ADD KEY `employee_index_department_id` (`department_id`),
+  ADD KEY `employee_index_branch_id` (`branch_id`),
+  ADD KEY `employee_index_civil_status_id` (`civil_status_id`),
+  ADD KEY `employee_index_employee_type_id` (`employee_type_id`),
+  ADD KEY `employee_index_gender_id` (`gender_id`),
+  ADD KEY `employee_index_religion_id` (`religion_id`),
+  ADD KEY `employee_index_blood_type_id` (`blood_type_id`),
+  ADD KEY `employee_index_departure_reason_id` (`departure_reason_id`);
 
 --
 -- Indexes for table `employee_type`
@@ -11198,7 +11228,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2295;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2298;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -11243,12 +11273,6 @@ ALTER TABLE `company`
   MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `contact`
---
-ALTER TABLE `contact`
-  MODIFY `contact_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `country`
 --
 ALTER TABLE `country`
@@ -11264,7 +11288,7 @@ ALTER TABLE `currency`
 -- AUTO_INCREMENT for table `department`
 --
 ALTER TABLE `department`
-  MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `department_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `departure_reason`
@@ -11283,6 +11307,12 @@ ALTER TABLE `district`
 --
 ALTER TABLE `email_setting`
   MODIFY `email_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `employee`
+--
+ALTER TABLE `employee`
+  MODIFY `employee_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `employee_type`
@@ -11336,7 +11366,7 @@ ALTER TABLE `job_level`
 -- AUTO_INCREMENT for table `job_position`
 --
 ALTER TABLE `job_position`
-  MODIFY `job_position_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `job_position_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `job_position_qualification`
@@ -11420,7 +11450,7 @@ ALTER TABLE `system_action`
 -- AUTO_INCREMENT for table `system_setting`
 --
 ALTER TABLE `system_setting`
-  MODIFY `system_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `system_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `ui_customization_setting`

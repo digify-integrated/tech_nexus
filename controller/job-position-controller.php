@@ -28,7 +28,7 @@ class JobPositionController {
     # Parameters:
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
-    # - @param departmentModel $departmentModel     The DepartmentModel instance for department related operations.
+    # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
