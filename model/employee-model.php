@@ -50,28 +50,14 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_file_as (string): The employee full name.
-    # - $p_first_name (string): The employee first name.
-    # - $p_middle_name (string): The employee middle name.
-    # - $p_last_name (string): The employee last name.
-    # - $p_suffix (string): The employee suffix.
-    # - $p_badge_id (string): The employee badge ID.
-    # - $p_department_id (int): The employee department.
-    # - $p_job_position_id (int): The employee job position.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertEmployee($p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_badge_id, $p_department_id, $p_job_position_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmployee(:p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_badge_id, :p_department_id, :p_job_position_id, :p_last_log_by, @p_employee_id)');
+    public function insertEmployee($p_file_as, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmployee(:p_file_as, :p_last_log_by, @p_employee_id)');
         $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
-        $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_suffix', $p_suffix, PDO::PARAM_STR);
-        $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
-        $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -79,6 +65,34 @@ class EmployeeModel {
         $p_employee_id = $result->fetch(PDO::FETCH_ASSOC)['p_employee_id'];
 
         return $p_employee_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertEmployeePersonalInformation
+    # Description: Inserts the employee.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact id.
+    # - $p_first_name (string): The employee first name.
+    # - $p_middle_name (string): The employee middle name.
+    # - $p_last_name (string): The employee last name.
+    # - $p_suffix (string): The employee suffix.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertEmployeePersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmployeePersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_suffix', $p_suffix, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 

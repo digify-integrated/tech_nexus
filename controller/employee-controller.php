@@ -114,16 +114,13 @@ class EmployeeController {
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
-        $badgeID = htmlspecialchars($_POST['badge_id'], ENT_QUOTES, 'UTF-8');
-        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
-        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
 
         $systemSettingDetails = $this->systemSettingModel->getSystemSetting(4);
         $fileAs = $systemSettingDetails['value'];
         $fileAs = str_replace('{last_name}', $lastName, $fileAs);
         $fileAs = str_replace('{first_name}', $firstName, $fileAs);
-        $fileAs = str_replace('{suffix}', $suffix, $fileAs);
         $fileAs = str_replace('{middle_name}', $middleName, $fileAs);
+        $fileAs = str_replace('{suffix}', $suffix, $fileAs);
         $fileAs = trim($fileAs);
     
         $user = $this->userModel->getUserByID($userID);
@@ -133,7 +130,8 @@ class EmployeeController {
             exit;
         }
     
-        $employeeID = $this->employeeModel->insertEmployee($fileAs, $firstName, $middleName, $lastName, $suffix, $badgeID, $departmentID, $jobPositionID, $userID);
+        $employeeID = $this->employeeModel->insertEmployee($fileAs, $userID);
+        $this->employeeModel->insertEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'employeeID' => $this->securityModel->encryptData($employeeID)]);
         exit;

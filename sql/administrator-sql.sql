@@ -6086,25 +6086,92 @@ BEGIN
 	ORDER BY bank_account_type_name;
 END //
 
-/* Employee table */
-CREATE TABLE employee(
-	employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+/* Contact table */
+CREATE TABLE contact(
+	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	user_id INT UNSIGNED,
 	file_as VARCHAR(1000) NOT NULL,
-	first_name VARCHAR(300) NOT NULL,
+    is_employee TINYINT(1),
+    is_applicant TINYINT(1),
+    is_customer TINYINT(1),
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX contact_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_index_user_id ON contact(user_id);
+
+CREATE TRIGGER contact_trigger_update
+AFTER UPDATE ON contact
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.user_id <> OLD.user_id THEN
+        SET audit_log = CONCAT(audit_log, "User ID: ", OLD.user_id, " -> ", NEW.user_id, "<br/>");
+    END IF;
+
+    IF NEW.file_as <> OLD.file_as THEN
+        SET audit_log = CONCAT(audit_log, "File As: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
+    END IF;
+
+    IF NEW.is_employee <> OLD.is_employee THEN
+        SET audit_log = CONCAT(audit_log, "Is Employee: ", OLD.is_employee, " -> ", NEW.is_employee, "<br/>");
+    END IF;
+
+    IF NEW.is_applicant <> OLD.is_applicant THEN
+        SET audit_log = CONCAT(audit_log, "Is Applicant: ", OLD.is_applicant, " -> ", NEW.is_applicant, "<br/>");
+    END IF;
+
+    IF NEW.is_customer <> OLD.is_customer THEN
+        SET audit_log = CONCAT(audit_log, "Is Customer: ", OLD.is_customer, " -> ", NEW.is_customer, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_trigger_insert
+AFTER INSERT ON contact
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact created. <br/>';
+
+    IF NEW.user_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>User ID: ", NEW.user_id);
+    END IF;
+
+    IF NEW.file_as <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
+    END IF;
+
+    IF NEW.is_employee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Employee: ", NEW.is_employee);
+    END IF;
+
+    IF NEW.is_applicant <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Applicant: ", NEW.is_applicant);
+    END IF;
+
+    IF NEW.is_customer <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Customer: ", NEW.is_customer);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TABLE contact_personal_information(
+	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
+	contact_image VARCHAR(500),
+	contact_signature VARCHAR(500),
+    first_name VARCHAR(300) NOT NULL,
 	middle_name VARCHAR(300),
 	last_name VARCHAR(300) NOT NULL,
 	suffix VARCHAR(10),
 	nickname VARCHAR(100),
-	badge_id VARCHAR(500),
-	employee_image VARCHAR(500),
-	employee_signature VARCHAR(500),
-	company_id INT UNSIGNED,
-    employee_type_id INT UNSIGNED,
-	department_id INT UNSIGNED,
-	job_position_id INT UNSIGNED,
-	job_level_id INT UNSIGNED,
-	branch_id INT UNSIGNED,
+	bio VARCHAR(1000),
     civil_status_id INT UNSIGNED,
     gender_id INT UNSIGNED,
     religion_id INT UNSIGNED,
@@ -6113,7 +6180,161 @@ CREATE TABLE employee(
     birth_place VARCHAR(1000),
     height DOUBLE,
     weight DOUBLE,
-    employee_status INT,
+    last_log_by INT NOT NULL
+);
+
+ALTER TABLE contact_personal_information
+ADD FOREIGN KEY (contact_id) REFERENCES contact(contact_id);
+
+CREATE INDEX contact_personal_information_index_contact_id ON contact_personal_information(contact_id);
+CREATE INDEX contact_personal_information_index_civil_status_id ON contact_personal_information(civil_status_id);
+CREATE INDEX contact_personal_information_index_gender_id ON contact_personal_information(gender_id);
+CREATE INDEX contact_personal_information_index_religion_id ON contact_personal_information(religion_id);
+CREATE INDEX contact_personal_information_index_blood_type_id ON contact_personal_information(blood_type_id);
+
+CREATE TRIGGER contact_personal_information_trigger_update
+AFTER UPDATE ON contact_personal_information
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.first_name <> OLD.first_name THEN
+        SET audit_log = CONCAT(audit_log, "First Name: ", OLD.first_name, " -> ", NEW.first_name, "<br/>");
+    END IF;
+
+    IF NEW.middle_name <> OLD.middle_name THEN
+        SET audit_log = CONCAT(audit_log, "Middle Name: ", OLD.middle_name, " -> ", NEW.middle_name, "<br/>");
+    END IF;
+
+    IF NEW.last_name <> OLD.last_name THEN
+        SET audit_log = CONCAT(audit_log, "Last Name: ", OLD.last_name, " -> ", NEW.last_name, "<br/>");
+    END IF;
+
+    IF NEW.suffix <> OLD.suffix THEN
+        SET audit_log = CONCAT(audit_log, "Suffix: ", OLD.suffix, " -> ", NEW.suffix, "<br/>");
+    END IF;
+
+    IF NEW.nickname <> OLD.nickname THEN
+        SET audit_log = CONCAT(audit_log, "Nickname: ", OLD.nickname, " -> ", NEW.nickname, "<br/>");
+    END IF;
+
+    IF NEW.bio <> OLD.bio THEN
+        SET audit_log = CONCAT(audit_log, "Bio: ", OLD.bio, " -> ", NEW.bio, "<br/>");
+    END IF;
+
+    IF NEW.civil_status_id <> OLD.civil_status_id THEN
+        SET audit_log = CONCAT(audit_log, "Civil Status ID: ", OLD.civil_status_id, " -> ", NEW.civil_status_id, "<br/>");
+    END IF;
+
+    IF NEW.gender_id <> OLD.gender_id THEN
+        SET audit_log = CONCAT(audit_log, "Gender ID: ", OLD.gender_id, " -> ", NEW.gender_id, "<br/>");
+    END IF;
+    
+    IF NEW.religion_id <> OLD.religion_id THEN
+        SET audit_log = CONCAT(audit_log, "Religion ID: ", OLD.religion_id, " -> ", NEW.religion_id, "<br/>");
+    END IF;
+    
+    IF NEW.blood_type_id <> OLD.blood_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Blood Type ID: ", OLD.blood_type_id, " -> ", NEW.blood_type_id, "<br/>");
+    END IF;
+    
+    IF NEW.birthday <> OLD.birthday THEN
+        SET audit_log = CONCAT(audit_log, "Birthday: ", OLD.birthday, " -> ", NEW.birthday, "<br/>");
+    END IF;
+    
+    IF NEW.birth_place <> OLD.birth_place THEN
+        SET audit_log = CONCAT(audit_log, "Birth Place: ", OLD.birth_place, " -> ", NEW.birth_place, "<br/>");
+    END IF;
+    
+    IF NEW.height <> OLD.height THEN
+        SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " -> ", NEW.height, "<br/>");
+    END IF;
+    
+    IF NEW.weight <> OLD.weight THEN
+        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " -> ", NEW.weight, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_personal_information_trigger_insert
+AFTER INSERT ON contact_personal_information
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact personal information created. <br/>';
+
+    IF NEW.first_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>First Name: ", NEW.first_name);
+    END IF;
+
+    IF NEW.middle_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Middle Name: ", NEW.middle_name);
+    END IF;
+
+    IF NEW.last_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Name: ", NEW.last_name);
+    END IF;
+
+    IF NEW.suffix <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Suffix: ", NEW.suffix);
+    END IF;
+
+    IF NEW.nickname <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Nickname: ", NEW.nickname);
+    END IF;
+
+    IF NEW.bio <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bio: ", NEW.bio);
+    END IF;
+
+    IF NEW.civil_status_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Civil Status: ", NEW.civil_status_id);
+    END IF;
+
+    IF NEW.gender_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Gender ID: ", NEW.gender_id);
+    END IF;
+
+    IF NEW.religion_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Religion ID: ", NEW.religion_id);
+    END IF;
+
+    IF NEW.blood_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Blood Type ID: ", NEW.blood_type_id);
+    END IF;
+
+    IF NEW.birthday <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Birthday: ", NEW.birthday);
+    END IF;
+
+    IF NEW.birth_place <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Birth Place: ", NEW.birth_place);
+    END IF;
+
+    IF NEW.height <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Height: ", NEW.height);
+    END IF;
+
+    IF NEW.weight <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Weight: ", NEW.weight);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TABLE contact_employment_information(
+	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
+	badge_id VARCHAR(500) NOT NULL,
+    employee_type_id INT UNSIGNED,
+	department_id INT UNSIGNED,
+	job_position_id INT UNSIGNED,
+	job_level_id INT UNSIGNED,
+	branch_id INT UNSIGNED,
+	employee_status TINYINT(1) NOT NULL,
     permanency_date DATE,
     onboard_date DATE,
     offboard_date DATE,
@@ -6122,24 +6343,145 @@ CREATE TABLE employee(
     last_log_by INT NOT NULL
 );
 
-CREATE INDEX employee_index_employee_id ON employee(employee_id);
-CREATE INDEX employee_index_user_id ON employee(user_id);
-CREATE INDEX employee_index_company_id ON employee(company_id);
-CREATE INDEX employee_index_job_position_id ON employee(job_position_id);
-CREATE INDEX employee_index_job_level_id ON employee(job_level_id);
-CREATE INDEX employee_index_department_id ON employee(department_id);
-CREATE INDEX employee_index_branch_id ON employee(branch_id);
-CREATE INDEX employee_index_civil_status_id ON employee(civil_status_id);
-CREATE INDEX employee_index_employee_type_id ON employee(employee_type_id);
-CREATE INDEX employee_index_gender_id ON employee(gender_id);
-CREATE INDEX employee_index_religion_id ON employee(religion_id);
-CREATE INDEX employee_index_blood_type_id ON employee(blood_type_id);
-CREATE INDEX employee_index_departure_reason_id ON employee(departure_reason_id);
+ALTER TABLE contact_employment_information
+ADD FOREIGN KEY (contact_id) REFERENCES contact(contact_id);
 
-CREATE PROCEDURE insertEmployee(IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_badge_id VARCHAR(500), IN p_department_id INT, IN p_job_position_id INT, IN p_last_log_by INT, OUT p_employee_id INT)
+CREATE INDEX contact_employment_information_index_contact_id ON contact_employment_information(contact_id);
+CREATE INDEX contact_employment_information_index_employee_type_id ON contact_employment_information(employee_type_id);
+CREATE INDEX contact_employment_information_index_department_id ON contact_employment_information(department_id);
+CREATE INDEX contact_employment_information_index_job_position_id ON contact_employment_information(job_position_id);
+CREATE INDEX contact_employment_information_index_job_level_id ON contact_employment_information(job_level_id);
+CREATE INDEX contact_employment_information_index_branch_id ON contact_employment_information(branch_id);
+CREATE INDEX contact_employment_information_index_departure_reason_id ON contact_employment_information(departure_reason_id);
+
+CREATE TRIGGER contact_employment_information_trigger_update
+AFTER UPDATE ON contact_employment_information
+FOR EACH ROW
 BEGIN
-    INSERT INTO employee (file_as, first_name, middle_name, last_name, suffix, badge_id, department_id, job_position_id, last_log_by) 
-	VALUES(p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_badge_id, p_department_id, p_job_position_id, p_last_log_by);
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.badge_id <> OLD.badge_id THEN
+        SET audit_log = CONCAT(audit_log, "Badge ID: ", OLD.badge_id, " -> ", NEW.badge_id, "<br/>");
+    END IF;
+
+    IF NEW.employee_type_id <> OLD.employee_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Employee Type ID: ", OLD.employee_type_id, " -> ", NEW.employee_type_id, "<br/>");
+    END IF;
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.job_position_id <> OLD.job_position_id THEN
+        SET audit_log = CONCAT(audit_log, "Job Position ID: ", OLD.job_position_id, " -> ", NEW.job_position_id, "<br/>");
+    END IF;
+
+    IF NEW.job_level_id <> OLD.job_level_id THEN
+        SET audit_log = CONCAT(audit_log, "Job Level ID: ", OLD.job_level_id, " -> ", NEW.job_level_id, "<br/>");
+    END IF;
+
+    IF NEW.branch_id <> OLD.branch_id THEN
+        SET audit_log = CONCAT(audit_log, "Branch ID: ", OLD.branch_id, " -> ", NEW.branch_id, "<br/>");
+    END IF;
+
+    IF NEW.employee_status <> OLD.employee_status THEN
+        SET audit_log = CONCAT(audit_log, "Employee Status ID: ", OLD.employee_status, " -> ", NEW.employee_status, "<br/>");
+    END IF;
+
+    IF NEW.permanency_date <> OLD.permanency_date THEN
+        SET audit_log = CONCAT(audit_log, "Permanency Date: ", OLD.permanency_date, " -> ", NEW.permanency_date, "<br/>");
+    END IF;
+    
+    IF NEW.onboard_date <> OLD.onboard_date THEN
+        SET audit_log = CONCAT(audit_log, "On Board Date: ", OLD.onboard_date, " -> ", NEW.onboard_date, "<br/>");
+    END IF;
+    
+    IF NEW.offboard_date <> OLD.offboard_date THEN
+        SET audit_log = CONCAT(audit_log, "Off Board Date: ", OLD.offboard_date, " -> ", NEW.offboard_date, "<br/>");
+    END IF;
+    
+    IF NEW.departure_reason_id <> OLD.departure_reason_id THEN
+        SET audit_log = CONCAT(audit_log, "Departure Reason ID: ", OLD.departure_reason_id, " -> ", NEW.departure_reason_id, "<br/>");
+    END IF;
+    
+    IF NEW.detailed_departure_reason <> OLD.detailed_departure_reason THEN
+        SET audit_log = CONCAT(audit_log, "Detailed Departure Reason: ", OLD.detailed_departure_reason, " -> ", NEW.detailed_departure_reason, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_employment_information_trigger_insert
+AFTER INSERT ON contact_employment_information
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact employement information created. <br/>';
+
+    IF NEW.badge_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Badge ID: ", NEW.badge_id);
+    END IF;
+
+    IF NEW.employee_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Type ID: ", NEW.employee_type_id);
+    END IF;
+
+    IF NEW.department_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department ID: ", NEW.department_id);
+    END IF;
+
+    IF NEW.job_position_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Position ID: ", NEW.job_position_id);
+    END IF;
+
+    IF NEW.job_level_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Level ID: ", NEW.job_level_id);
+    END IF;
+
+    IF NEW.branch_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Branch ID: ", NEW.branch_id);
+    END IF;
+
+    IF NEW.employee_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Status: ", NEW.employee_status);
+    END IF;
+
+    IF NEW.permanency_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Permanency Date: ", NEW.permanency_date);
+    END IF;
+
+    IF NEW.onboard_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On Board Date: ", NEW.onboard_date);
+    END IF;
+
+    IF NEW.offboard_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Off Board Date: ", NEW.offboard_date);
+    END IF;
+
+    IF NEW.departure_reason_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Departure Reason ID: ", NEW.departure_reason_id);
+    END IF;
+
+    IF NEW.detailed_departure_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Details Departure Reason: ", NEW.detailed_departure_reason);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE insertEmployee(IN p_file_as VARCHAR(1000), IN p_last_log_by INT, OUT p_contact_id INT)
+BEGIN
+    INSERT INTO contact (file_as, is_employee, last_log_by) 
+	VALUES(p_file_as, 1, p_last_log_by);
 	
-    SET p_employee_id = LAST_INSERT_ID();
+    SET p_contact_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE insertEmployeePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //

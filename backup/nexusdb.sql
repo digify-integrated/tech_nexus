@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 21, 2023 at 11:27 AM
+-- Generation Time: Sep 24, 2023 at 10:35 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -2330,11 +2330,16 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmailSetting` (IN `p_email_se
     SET p_email_setting_id = LAST_INSERT_ID();
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployee` (IN `p_file_as` VARCHAR(1000), IN `p_first_name` VARCHAR(300), IN `p_middle_name` VARCHAR(300), IN `p_last_name` VARCHAR(300), IN `p_suffix` VARCHAR(10), IN `p_badge_id` VARCHAR(500), IN `p_department_id` INT, IN `p_job_position_id` INT, IN `p_last_log_by` INT, OUT `p_employee_id` INT)   BEGIN
-    INSERT INTO employee (file_as, first_name, middle_name, last_name, suffix, badge_id, department_id, job_position_id, last_log_by) 
-	VALUES(p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_badge_id, p_department_id, p_job_position_id, p_last_log_by);
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployee` (IN `p_file_as` VARCHAR(1000), IN `p_last_log_by` INT, OUT `p_contact_id` INT)   BEGIN
+    INSERT INTO contact (file_as, is_employee, last_log_by) 
+	VALUES(p_file_as, 1, p_last_log_by);
 	
-    SET p_employee_id = LAST_INSERT_ID();
+    SET p_contact_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployeePersonalInformation` (IN `p_contact_id` INT, IN `p_first_name` VARCHAR(300), IN `p_middle_name` VARCHAR(300), IN `p_last_name` VARCHAR(300), IN `p_suffix` VARCHAR(10), IN `p_last_log_by` INT)   BEGIN
+    INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertEmployeeType` (IN `p_employee_type_name` VARCHAR(100), IN `p_last_log_by` INT, OUT `p_employee_type_id` INT)   BEGIN
@@ -5467,7 +5472,10 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2294, 'menu_item', 43, 'Menu Group ID: 1 -> 3<br/>', '0', '2023-09-20 17:20:01'),
 (2295, 'system_setting', 4, 'System setting created. <br/><br/>System Setting Name: File As Arrangement<br/>System Setting Description: This sets the arrangement of the file as.<br/>Value: {last_name}, {first_name} {suffix} {middle_name}', '0', '2023-09-21 15:35:59'),
 (2296, 'department', 1, 'Department created. <br/><br/>Department Name: Data Center Department', '1', '2023-09-21 15:47:11'),
-(2297, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: Data Center Staff<br/>Job Position Description: Data Center Staff<br/>Department ID: 1', '1', '2023-09-21 15:47:26');
+(2297, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: Data Center Staff<br/>Job Position Description: Data Center Staff<br/>Department ID: 1', '1', '2023-09-21 15:47:26'),
+(2298, 'contact', 1, 'Contact created. <br/><br/>File As: Agulto, Lawrence<br/>Is Employee: 1', '1', '2023-09-24 15:01:38'),
+(2299, 'contact', 2, 'Contact created. <br/><br/>File As: Agulto, Lawrence<br/>Is Employee: 1', '1', '2023-09-24 15:02:10'),
+(2300, 'contact', 2, 'Contact personal information created. <br/><br/>First Name: Lawrence<br/>Last Name: Agulto', '1', '2023-09-24 15:02:11');
 
 -- --------------------------------------------------------
 
@@ -7583,6 +7591,407 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `contact`
+--
+
+CREATE TABLE `contact` (
+  `contact_id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `file_as` varchar(1000) NOT NULL,
+  `is_employee` tinyint(1) DEFAULT NULL,
+  `is_applicant` tinyint(1) DEFAULT NULL,
+  `is_customer` tinyint(1) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `contact`
+--
+
+INSERT INTO `contact` (`contact_id`, `user_id`, `file_as`, `is_employee`, `is_applicant`, `is_customer`, `last_log_by`) VALUES
+(1, NULL, 'Agulto, Lawrence', 1, NULL, NULL, 1),
+(2, NULL, 'Agulto, Lawrence', 1, NULL, NULL, 1);
+
+--
+-- Triggers `contact`
+--
+DELIMITER $$
+CREATE TRIGGER `contact_trigger_insert` AFTER INSERT ON `contact` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact created. <br/>';
+
+    IF NEW.user_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>User ID: ", NEW.user_id);
+    END IF;
+
+    IF NEW.file_as <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
+    END IF;
+
+    IF NEW.is_employee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Employee: ", NEW.is_employee);
+    END IF;
+
+    IF NEW.is_applicant <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Applicant: ", NEW.is_applicant);
+    END IF;
+
+    IF NEW.is_customer <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Customer: ", NEW.is_customer);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `contact_trigger_update` AFTER UPDATE ON `contact` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.user_id <> OLD.user_id THEN
+        SET audit_log = CONCAT(audit_log, "User ID: ", OLD.user_id, " -> ", NEW.user_id, "<br/>");
+    END IF;
+
+    IF NEW.file_as <> OLD.file_as THEN
+        SET audit_log = CONCAT(audit_log, "File As: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
+    END IF;
+
+    IF NEW.is_employee <> OLD.is_employee THEN
+        SET audit_log = CONCAT(audit_log, "Is Employee: ", OLD.is_employee, " -> ", NEW.is_employee, "<br/>");
+    END IF;
+
+    IF NEW.is_applicant <> OLD.is_applicant THEN
+        SET audit_log = CONCAT(audit_log, "Is Applicant: ", OLD.is_applicant, " -> ", NEW.is_applicant, "<br/>");
+    END IF;
+
+    IF NEW.is_customer <> OLD.is_customer THEN
+        SET audit_log = CONCAT(audit_log, "Is Customer: ", OLD.is_customer, " -> ", NEW.is_customer, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contact_employment_information`
+--
+
+CREATE TABLE `contact_employment_information` (
+  `contact_id` int(10) UNSIGNED NOT NULL,
+  `badge_id` varchar(500) NOT NULL,
+  `employee_type_id` int(10) UNSIGNED DEFAULT NULL,
+  `department_id` int(10) UNSIGNED DEFAULT NULL,
+  `job_position_id` int(10) UNSIGNED DEFAULT NULL,
+  `job_level_id` int(10) UNSIGNED DEFAULT NULL,
+  `branch_id` int(10) UNSIGNED DEFAULT NULL,
+  `employee_status` tinyint(1) NOT NULL,
+  `permanency_date` date DEFAULT NULL,
+  `onboard_date` date DEFAULT NULL,
+  `offboard_date` date DEFAULT NULL,
+  `departure_reason_id` int(10) UNSIGNED DEFAULT NULL,
+  `detailed_departure_reason` varchar(5000) DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `contact_employment_information`
+--
+DELIMITER $$
+CREATE TRIGGER `contact_employment_information_trigger_insert` AFTER INSERT ON `contact_employment_information` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact employement information created. <br/>';
+
+    IF NEW.badge_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Badge ID: ", NEW.badge_id);
+    END IF;
+
+    IF NEW.employee_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Type ID: ", NEW.employee_type_id);
+    END IF;
+
+    IF NEW.department_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department ID: ", NEW.department_id);
+    END IF;
+
+    IF NEW.job_position_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Position ID: ", NEW.job_position_id);
+    END IF;
+
+    IF NEW.job_level_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Level ID: ", NEW.job_level_id);
+    END IF;
+
+    IF NEW.branch_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Branch ID: ", NEW.branch_id);
+    END IF;
+
+    IF NEW.employee_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employee Status: ", NEW.employee_status);
+    END IF;
+
+    IF NEW.permanency_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Permanency Date: ", NEW.permanency_date);
+    END IF;
+
+    IF NEW.onboard_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On Board Date: ", NEW.onboard_date);
+    END IF;
+
+    IF NEW.offboard_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Off Board Date: ", NEW.offboard_date);
+    END IF;
+
+    IF NEW.departure_reason_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Departure Reason ID: ", NEW.departure_reason_id);
+    END IF;
+
+    IF NEW.detailed_departure_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Details Departure Reason: ", NEW.detailed_departure_reason);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `contact_employment_information_trigger_update` AFTER UPDATE ON `contact_employment_information` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.badge_id <> OLD.badge_id THEN
+        SET audit_log = CONCAT(audit_log, "Badge ID: ", OLD.badge_id, " -> ", NEW.badge_id, "<br/>");
+    END IF;
+
+    IF NEW.employee_type_id <> OLD.employee_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Employee Type ID: ", OLD.employee_type_id, " -> ", NEW.employee_type_id, "<br/>");
+    END IF;
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.job_position_id <> OLD.job_position_id THEN
+        SET audit_log = CONCAT(audit_log, "Job Position ID: ", OLD.job_position_id, " -> ", NEW.job_position_id, "<br/>");
+    END IF;
+
+    IF NEW.job_level_id <> OLD.job_level_id THEN
+        SET audit_log = CONCAT(audit_log, "Job Level ID: ", OLD.job_level_id, " -> ", NEW.job_level_id, "<br/>");
+    END IF;
+
+    IF NEW.branch_id <> OLD.branch_id THEN
+        SET audit_log = CONCAT(audit_log, "Branch ID: ", OLD.branch_id, " -> ", NEW.branch_id, "<br/>");
+    END IF;
+
+    IF NEW.employee_status <> OLD.employee_status THEN
+        SET audit_log = CONCAT(audit_log, "Employee Status ID: ", OLD.employee_status, " -> ", NEW.employee_status, "<br/>");
+    END IF;
+
+    IF NEW.permanency_date <> OLD.permanency_date THEN
+        SET audit_log = CONCAT(audit_log, "Permanency Date: ", OLD.permanency_date, " -> ", NEW.permanency_date, "<br/>");
+    END IF;
+    
+    IF NEW.onboard_date <> OLD.onboard_date THEN
+        SET audit_log = CONCAT(audit_log, "On Board Date: ", OLD.onboard_date, " -> ", NEW.onboard_date, "<br/>");
+    END IF;
+    
+    IF NEW.offboard_date <> OLD.offboard_date THEN
+        SET audit_log = CONCAT(audit_log, "Off Board Date: ", OLD.offboard_date, " -> ", NEW.offboard_date, "<br/>");
+    END IF;
+    
+    IF NEW.departure_reason_id <> OLD.departure_reason_id THEN
+        SET audit_log = CONCAT(audit_log, "Departure Reason ID: ", OLD.departure_reason_id, " -> ", NEW.departure_reason_id, "<br/>");
+    END IF;
+    
+    IF NEW.detailed_departure_reason <> OLD.detailed_departure_reason THEN
+        SET audit_log = CONCAT(audit_log, "Detailed Departure Reason: ", OLD.detailed_departure_reason, " -> ", NEW.detailed_departure_reason, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `contact_personal_information`
+--
+
+CREATE TABLE `contact_personal_information` (
+  `contact_id` int(10) UNSIGNED NOT NULL,
+  `contact_image` varchar(500) DEFAULT NULL,
+  `contact_signature` varchar(500) DEFAULT NULL,
+  `first_name` varchar(300) NOT NULL,
+  `middle_name` varchar(300) DEFAULT NULL,
+  `last_name` varchar(300) NOT NULL,
+  `suffix` varchar(10) DEFAULT NULL,
+  `nickname` varchar(100) DEFAULT NULL,
+  `bio` varchar(1000) DEFAULT NULL,
+  `civil_status_id` int(10) UNSIGNED DEFAULT NULL,
+  `gender_id` int(10) UNSIGNED DEFAULT NULL,
+  `religion_id` int(10) UNSIGNED DEFAULT NULL,
+  `blood_type_id` int(10) UNSIGNED DEFAULT NULL,
+  `birthday` date NOT NULL,
+  `birth_place` varchar(1000) DEFAULT NULL,
+  `height` double DEFAULT NULL,
+  `weight` double DEFAULT NULL,
+  `last_log_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `contact_personal_information`
+--
+
+INSERT INTO `contact_personal_information` (`contact_id`, `contact_image`, `contact_signature`, `first_name`, `middle_name`, `last_name`, `suffix`, `nickname`, `bio`, `civil_status_id`, `gender_id`, `religion_id`, `blood_type_id`, `birthday`, `birth_place`, `height`, `weight`, `last_log_by`) VALUES
+(2, NULL, NULL, 'Lawrence', '', 'Agulto', '', NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, 1);
+
+--
+-- Triggers `contact_personal_information`
+--
+DELIMITER $$
+CREATE TRIGGER `contact_personal_information_trigger_insert` AFTER INSERT ON `contact_personal_information` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact personal information created. <br/>';
+
+    IF NEW.first_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>First Name: ", NEW.first_name);
+    END IF;
+
+    IF NEW.middle_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Middle Name: ", NEW.middle_name);
+    END IF;
+
+    IF NEW.last_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Name: ", NEW.last_name);
+    END IF;
+
+    IF NEW.suffix <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Suffix: ", NEW.suffix);
+    END IF;
+
+    IF NEW.nickname <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Nickname: ", NEW.nickname);
+    END IF;
+
+    IF NEW.bio <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bio: ", NEW.bio);
+    END IF;
+
+    IF NEW.civil_status_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Civil Status: ", NEW.civil_status_id);
+    END IF;
+
+    IF NEW.gender_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Gender ID: ", NEW.gender_id);
+    END IF;
+
+    IF NEW.religion_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Religion ID: ", NEW.religion_id);
+    END IF;
+
+    IF NEW.blood_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Blood Type ID: ", NEW.blood_type_id);
+    END IF;
+
+    IF NEW.birthday <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Birthday: ", NEW.birthday);
+    END IF;
+
+    IF NEW.birth_place <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Birth Place: ", NEW.birth_place);
+    END IF;
+
+    IF NEW.height <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Height: ", NEW.height);
+    END IF;
+
+    IF NEW.weight <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Weight: ", NEW.weight);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `contact_personal_information_trigger_update` AFTER UPDATE ON `contact_personal_information` FOR EACH ROW BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.first_name <> OLD.first_name THEN
+        SET audit_log = CONCAT(audit_log, "First Name: ", OLD.first_name, " -> ", NEW.first_name, "<br/>");
+    END IF;
+
+    IF NEW.middle_name <> OLD.middle_name THEN
+        SET audit_log = CONCAT(audit_log, "Middle Name: ", OLD.middle_name, " -> ", NEW.middle_name, "<br/>");
+    END IF;
+
+    IF NEW.last_name <> OLD.last_name THEN
+        SET audit_log = CONCAT(audit_log, "Last Name: ", OLD.last_name, " -> ", NEW.last_name, "<br/>");
+    END IF;
+
+    IF NEW.suffix <> OLD.suffix THEN
+        SET audit_log = CONCAT(audit_log, "Suffix: ", OLD.suffix, " -> ", NEW.suffix, "<br/>");
+    END IF;
+
+    IF NEW.nickname <> OLD.nickname THEN
+        SET audit_log = CONCAT(audit_log, "Nickname: ", OLD.nickname, " -> ", NEW.nickname, "<br/>");
+    END IF;
+
+    IF NEW.bio <> OLD.bio THEN
+        SET audit_log = CONCAT(audit_log, "Bio: ", OLD.bio, " -> ", NEW.bio, "<br/>");
+    END IF;
+
+    IF NEW.civil_status_id <> OLD.civil_status_id THEN
+        SET audit_log = CONCAT(audit_log, "Civil Status ID: ", OLD.civil_status_id, " -> ", NEW.civil_status_id, "<br/>");
+    END IF;
+
+    IF NEW.gender_id <> OLD.gender_id THEN
+        SET audit_log = CONCAT(audit_log, "Gender ID: ", OLD.gender_id, " -> ", NEW.gender_id, "<br/>");
+    END IF;
+    
+    IF NEW.religion_id <> OLD.religion_id THEN
+        SET audit_log = CONCAT(audit_log, "Religion ID: ", OLD.religion_id, " -> ", NEW.religion_id, "<br/>");
+    END IF;
+    
+    IF NEW.blood_type_id <> OLD.blood_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Blood Type ID: ", OLD.blood_type_id, " -> ", NEW.blood_type_id, "<br/>");
+    END IF;
+    
+    IF NEW.birthday <> OLD.birthday THEN
+        SET audit_log = CONCAT(audit_log, "Birthday: ", OLD.birthday, " -> ", NEW.birthday, "<br/>");
+    END IF;
+    
+    IF NEW.birth_place <> OLD.birth_place THEN
+        SET audit_log = CONCAT(audit_log, "Birth Place: ", OLD.birth_place, " -> ", NEW.birth_place, "<br/>");
+    END IF;
+    
+    IF NEW.height <> OLD.height THEN
+        SET audit_log = CONCAT(audit_log, "Height: ", OLD.height, " -> ", NEW.height, "<br/>");
+    END IF;
+    
+    IF NEW.weight <> OLD.weight THEN
+        SET audit_log = CONCAT(audit_log, "Weight: ", OLD.weight, " -> ", NEW.weight, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `country`
 --
 
@@ -8288,55 +8697,6 @@ CREATE TRIGGER `email_setting_trigger_update` AFTER UPDATE ON `email_setting` FO
 END
 $$
 DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `employee`
---
-
-CREATE TABLE `employee` (
-  `employee_id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
-  `file_as` varchar(1000) NOT NULL,
-  `first_name` varchar(300) NOT NULL,
-  `middle_name` varchar(300) DEFAULT NULL,
-  `last_name` varchar(300) NOT NULL,
-  `suffix` varchar(10) DEFAULT NULL,
-  `nickname` varchar(100) DEFAULT NULL,
-  `badge_id` varchar(500) DEFAULT NULL,
-  `employee_image` varchar(500) DEFAULT NULL,
-  `employee_signature` varchar(500) DEFAULT NULL,
-  `company_id` int(10) UNSIGNED DEFAULT NULL,
-  `employee_type_id` int(10) UNSIGNED DEFAULT NULL,
-  `department_id` int(10) UNSIGNED DEFAULT NULL,
-  `job_position_id` int(10) UNSIGNED DEFAULT NULL,
-  `job_level_id` int(10) UNSIGNED DEFAULT NULL,
-  `branch_id` int(10) UNSIGNED DEFAULT NULL,
-  `civil_status_id` int(10) UNSIGNED DEFAULT NULL,
-  `gender_id` int(10) UNSIGNED DEFAULT NULL,
-  `religion_id` int(10) UNSIGNED DEFAULT NULL,
-  `blood_type_id` int(10) UNSIGNED DEFAULT NULL,
-  `birthday` date NOT NULL,
-  `birth_place` varchar(1000) DEFAULT NULL,
-  `height` double DEFAULT NULL,
-  `weight` double DEFAULT NULL,
-  `employee_status` int(11) DEFAULT NULL,
-  `permanency_date` date DEFAULT NULL,
-  `onboard_date` date DEFAULT NULL,
-  `offboard_date` date DEFAULT NULL,
-  `departure_reason_id` int(10) UNSIGNED DEFAULT NULL,
-  `detailed_departure_reason` varchar(5000) DEFAULT NULL,
-  `last_log_by` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `employee`
---
-
-INSERT INTO `employee` (`employee_id`, `user_id`, `file_as`, `first_name`, `middle_name`, `last_name`, `suffix`, `nickname`, `badge_id`, `employee_image`, `employee_signature`, `company_id`, `employee_type_id`, `department_id`, `job_position_id`, `job_level_id`, `branch_id`, `civil_status_id`, `gender_id`, `religion_id`, `blood_type_id`, `birthday`, `birth_place`, `height`, `weight`, `employee_status`, `permanency_date`, `onboard_date`, `offboard_date`, `departure_reason_id`, `detailed_departure_reason`, `last_log_by`) VALUES
-(1, NULL, 'Agulto, Lawrence Jr. De Vera', 'Lawrence', 'De Vera', 'Agulto', 'Jr.', NULL, '1', NULL, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
-(2, NULL, 'Agulto, Lawrence Jr De Vera', 'Lawrence', 'De Vera', 'Agulto', 'Jr', NULL, '2', NULL, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -10450,7 +10810,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, NULL, '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, '4e76878c9aa2a2a86a8edd70cfb6882a', 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-24 12:33:03', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, 'c6b542f43582acdd29e8040c596b6cbb', 0);
 
 --
 -- Triggers `users`
@@ -10928,6 +11288,38 @@ ALTER TABLE `company`
   ADD KEY `company_index_company_id` (`company_id`);
 
 --
+-- Indexes for table `contact`
+--
+ALTER TABLE `contact`
+  ADD PRIMARY KEY (`contact_id`),
+  ADD KEY `contact_index_contact_id` (`contact_id`),
+  ADD KEY `contact_index_user_id` (`user_id`);
+
+--
+-- Indexes for table `contact_employment_information`
+--
+ALTER TABLE `contact_employment_information`
+  ADD PRIMARY KEY (`contact_id`),
+  ADD KEY `contact_employment_information_index_contact_id` (`contact_id`),
+  ADD KEY `contact_employment_information_index_employee_type_id` (`employee_type_id`),
+  ADD KEY `contact_employment_information_index_department_id` (`department_id`),
+  ADD KEY `contact_employment_information_index_job_position_id` (`job_position_id`),
+  ADD KEY `contact_employment_information_index_job_level_id` (`job_level_id`),
+  ADD KEY `contact_employment_information_index_branch_id` (`branch_id`),
+  ADD KEY `contact_employment_information_index_departure_reason_id` (`departure_reason_id`);
+
+--
+-- Indexes for table `contact_personal_information`
+--
+ALTER TABLE `contact_personal_information`
+  ADD PRIMARY KEY (`contact_id`),
+  ADD KEY `contact_personal_information_index_contact_id` (`contact_id`),
+  ADD KEY `contact_personal_information_index_civil_status_id` (`civil_status_id`),
+  ADD KEY `contact_personal_information_index_gender_id` (`gender_id`),
+  ADD KEY `contact_personal_information_index_religion_id` (`religion_id`),
+  ADD KEY `contact_personal_information_index_blood_type_id` (`blood_type_id`);
+
+--
 -- Indexes for table `country`
 --
 ALTER TABLE `country`
@@ -10971,25 +11363,6 @@ ALTER TABLE `district`
 ALTER TABLE `email_setting`
   ADD PRIMARY KEY (`email_setting_id`),
   ADD KEY `email_setting_index_email_setting_id` (`email_setting_id`);
-
---
--- Indexes for table `employee`
---
-ALTER TABLE `employee`
-  ADD PRIMARY KEY (`employee_id`),
-  ADD KEY `employee_index_employee_id` (`employee_id`),
-  ADD KEY `employee_index_user_id` (`user_id`),
-  ADD KEY `employee_index_company_id` (`company_id`),
-  ADD KEY `employee_index_job_position_id` (`job_position_id`),
-  ADD KEY `employee_index_job_level_id` (`job_level_id`),
-  ADD KEY `employee_index_department_id` (`department_id`),
-  ADD KEY `employee_index_branch_id` (`branch_id`),
-  ADD KEY `employee_index_civil_status_id` (`civil_status_id`),
-  ADD KEY `employee_index_employee_type_id` (`employee_type_id`),
-  ADD KEY `employee_index_gender_id` (`gender_id`),
-  ADD KEY `employee_index_religion_id` (`religion_id`),
-  ADD KEY `employee_index_blood_type_id` (`blood_type_id`),
-  ADD KEY `employee_index_departure_reason_id` (`departure_reason_id`);
 
 --
 -- Indexes for table `employee_type`
@@ -11228,7 +11601,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2298;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2301;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -11273,6 +11646,12 @@ ALTER TABLE `company`
   MODIFY `company_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `contact`
+--
+ALTER TABLE `contact`
+  MODIFY `contact_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `country`
 --
 ALTER TABLE `country`
@@ -11307,12 +11686,6 @@ ALTER TABLE `district`
 --
 ALTER TABLE `email_setting`
   MODIFY `email_setting_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `employee`
---
-ALTER TABLE `employee`
-  MODIFY `employee_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `employee_type`
@@ -11497,6 +11870,18 @@ ALTER TABLE `zoom_api`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `contact_employment_information`
+--
+ALTER TABLE `contact_employment_information`
+  ADD CONSTRAINT `contact_employment_information_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`);
+
+--
+-- Constraints for table `contact_personal_information`
+--
+ALTER TABLE `contact_personal_information`
+  ADD CONSTRAINT `contact_personal_information_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`contact_id`);
 
 --
 -- Constraints for table `file_extension`

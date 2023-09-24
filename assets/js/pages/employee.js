@@ -75,15 +75,6 @@ function addEmployeeForm(){
             },
             last_name: {
                 required: true
-            },
-            badge_id: {
-                required: true
-            },
-            department_id: {
-                required: true
-            },
-            job_position_id: {
-                required: true
             }
         },
         messages: {
@@ -92,15 +83,6 @@ function addEmployeeForm(){
             },
             last_name: {
                 required: 'Please enter the last name'
-            },
-            badge_id: {
-                required: 'Please enter the badge ID'
-            },
-            department_id: {
-                required: 'Please choose the department'
-            },
-            job_position_id: {
-                required: 'Please choose the job position'
             }
         },
         errorPlacement: function (error, element) {
