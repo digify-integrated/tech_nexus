@@ -31,7 +31,15 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-header">
-              <h5>Personal Information</h5>
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Personal Information</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                 <button type="submit" form="file-type-form" class="btn btn-success" id="submit-data">Save</button>
+                  <button type="button" id="discard-update" class="btn btn-outline-danger">Discard</button>
+                </div>
+              </div>
             </div>
             <div class="card-body">
               <div class="row">
@@ -145,6 +153,228 @@
                     <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Contact Information</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-contact-information">Add Contact Information</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="contact-information-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Contact Information Type</th>
+                      <th>Email</th>
+                      <th>Mobile</th>
+                      <th>Telephone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Employee Address</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-employee-address">Add Employee Address</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="employee-address-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Address Type</th>
+                      <th>Address</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Employee Identification</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-employee-identification">Add Employee Identification</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="employee-identification-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>ID Type</th>
+                      <th>ID Number</th>
+                      <th>ID Classification</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Educational Background</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-educational-background">Add Educational Background</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="educational-background-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Educational Stage</th>
+                      <th>Institution Name</th>
+                      <th>Degree Earned</th>
+                      <th>Field of Study</th>
+                      <th>Year Attended</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-7">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Family Details</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-family-details">Add Family Details</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="family-details-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Name<th>
+                      <th>Relationship</th>
+                      <th>Birthday</th>
+                      <th>School</th>
+                      <th>Employment</th>
+                      <th>Email</th>
+                      <th>Mobile</th>
+                      <th>Telephone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Emergency Contact</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-emergency-contact">Add Emergency Contact</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="emergency-contact-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Relationship</th>
+                      <th>Email</th>
+                      <th>Mobile</th>
+                      <th>Telephone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Employment History</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <button type="button" class="btn btn-warning" id="add-employment History">Add Employment History</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="dt-responsive table-responsive">
+                <table id="employment-history-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Address</th>
+                      <th>Contact Numbers</th>
+                      <th>Last Position Held</th>
+                      <th>Period of Employment</th>
+                      <th>Basic Function</th>
+                      <th>Starting Salary</th>
+                      <th>Final Salary</th>
+                      <th>Reason for Separation</th>
+                      <th>Immediate Supervisor</th>
+                      <th>Position of Immediate Supervisor</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
           </div>
