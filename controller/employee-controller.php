@@ -69,8 +69,8 @@ class EmployeeController {
                 case 'add employee':
                     $this->insertEmployee();
                     break;
-                case 'get employee details':
-                    $this->getEmployeeDetails();
+                case 'get employee personal information details':
+                    $this->getEmployeePersonalInformation();
                     break;
                 case 'delete employee':
                     $this->deleteEmployee();
@@ -269,16 +269,16 @@ class EmployeeController {
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployeeDetails
+    # Function: getEmployeePersonalInformation
     # Description: 
-    # Handles the retrieval of employee details such as employee name, etc.
+    # Handles the retrieval of employee personal information details such as first name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getEmployeeDetails() {
+    public function getEmployeePersonalInformation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -294,12 +294,24 @@ class EmployeeController {
                 exit;
             }
     
-            $employeeDetails = $this->employeeModel->getEmployee($employeeID);
+            $employeeDetails = $this->employeeModel->getEmployeePersonalInformation($employeeID);
 
             $response = [
                 'success' => true,
-                'employeeName' => $employeeDetails['employee_name'],
-                'employeeIdentifierCode' => $employeeDetails['employee_identifier_code']
+                'firstName' => $employeeDetails['first_name'],
+                'middleName' => $employeeDetails['middle_name'],
+                'lastName' => $employeeDetails['last_name'],
+                'suffix' => $employeeDetails['suffix'],
+                'nickname' => $employeeDetails['nickname'],
+                'bio' => $employeeDetails['bio'],
+                'civilStatusID' => $employeeDetails['civil_status_id'],
+                'genderID' => $employeeDetails['gender_id'],
+                'religionID' => $employeeDetails['religion_id'],
+                'bloodTypeID' => $employeeDetails['blood_type_id'],
+                'birthday' => $employeeDetails['birthday'],
+                'birth_place' => $employeeDetails['birth_place'],
+                'height' => $employeeDetails['height'],
+                'weight' => $employeeDetails['weight']
             ];
 
             echo json_encode($response);

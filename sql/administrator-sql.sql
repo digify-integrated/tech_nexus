@@ -6485,3 +6485,9 @@ BEGIN
     INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
 	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //
+
+CREATE PROCEDURE getEmployeePersonalInformation(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM contact_personal_information
+    WHERE contact_id = p_contact_id;
+END //

@@ -147,19 +147,19 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployee
+    # Function: getEmployeePersonalInformation
     # Description: Retrieves the details of a employee.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns:
     # - An array containing the employee details.
     #
     # -------------------------------------------------------------
-    public function getEmployee($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getEmployee(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function getEmployeePersonalInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployeePersonalInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

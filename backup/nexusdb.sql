@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 24, 2023 at 10:35 AM
+-- Generation Time: Sep 27, 2023 at 11:45 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -2047,6 +2047,11 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmailSetting` (IN `p_email_setting_id` INT)   BEGIN
 	SELECT * FROM email_setting
     WHERE email_setting_id = p_email_setting_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmployeePersonalInformation` (IN `p_contact_id` INT)   BEGIN
+	SELECT * FROM contact_personal_information
+    WHERE contact_id = p_contact_id;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getEmployeeType` (IN `p_employee_type_id` INT)   BEGIN
@@ -5475,7 +5480,13 @@ INSERT INTO `audit_log` (`audit_log_id`, `table_name`, `reference_id`, `log`, `c
 (2297, 'job_position', 1, 'Job position created. <br/><br/>Job Position Name: Data Center Staff<br/>Job Position Description: Data Center Staff<br/>Department ID: 1', '1', '2023-09-21 15:47:26'),
 (2298, 'contact', 1, 'Contact created. <br/><br/>File As: Agulto, Lawrence<br/>Is Employee: 1', '1', '2023-09-24 15:01:38'),
 (2299, 'contact', 2, 'Contact created. <br/><br/>File As: Agulto, Lawrence<br/>Is Employee: 1', '1', '2023-09-24 15:02:10'),
-(2300, 'contact', 2, 'Contact personal information created. <br/><br/>First Name: Lawrence<br/>Last Name: Agulto', '1', '2023-09-24 15:02:11');
+(2300, 'contact', 2, 'Contact personal information created. <br/><br/>First Name: Lawrence<br/>Last Name: Agulto', '1', '2023-09-24 15:02:11'),
+(2301, 'users', 1, 'Last Connection Date: 2023-09-24 12:33:03 -> 2023-09-25 08:59:01<br/>', '0', '2023-09-25 08:59:01'),
+(2302, 'contact', 3, 'Contact created. <br/><br/>File As: test, tes test tes<br/>Is Employee: 1', '1', '2023-09-25 08:59:10'),
+(2303, 'contact', 3, 'Contact personal information created. <br/><br/>First Name: tes<br/>Middle Name: tes<br/>Last Name: test<br/>Suffix: test', '1', '2023-09-25 08:59:10'),
+(2304, 'users', 1, 'Last Connection Date: 2023-09-25 08:59:01 -> 2023-09-27 10:26:31<br/>', '0', '2023-09-27 10:26:31'),
+(2305, 'contact', 4, 'Contact created. <br/><br/>File As: test, tes<br/>Is Employee: 1', '1', '2023-09-27 10:26:47'),
+(2306, 'contact', 4, 'Contact personal information created. <br/><br/>First Name: tes<br/>Last Name: test', '1', '2023-09-27 10:26:47');
 
 -- --------------------------------------------------------
 
@@ -7610,7 +7621,9 @@ CREATE TABLE `contact` (
 
 INSERT INTO `contact` (`contact_id`, `user_id`, `file_as`, `is_employee`, `is_applicant`, `is_customer`, `last_log_by`) VALUES
 (1, NULL, 'Agulto, Lawrence', 1, NULL, NULL, 1),
-(2, NULL, 'Agulto, Lawrence', 1, NULL, NULL, 1);
+(2, NULL, 'Agulto, Lawrence', 1, NULL, NULL, 1),
+(3, NULL, 'test, tes test tes', 1, NULL, NULL, 1),
+(4, NULL, 'test, tes', 1, NULL, NULL, 1);
 
 --
 -- Triggers `contact`
@@ -7851,7 +7864,9 @@ CREATE TABLE `contact_personal_information` (
 --
 
 INSERT INTO `contact_personal_information` (`contact_id`, `contact_image`, `contact_signature`, `first_name`, `middle_name`, `last_name`, `suffix`, `nickname`, `bio`, `civil_status_id`, `gender_id`, `religion_id`, `blood_type_id`, `birthday`, `birth_place`, `height`, `weight`, `last_log_by`) VALUES
-(2, NULL, NULL, 'Lawrence', '', 'Agulto', '', NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, 1);
+(2, NULL, NULL, 'Lawrence', '', 'Agulto', '', NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, 1),
+(3, NULL, NULL, 'tes', 'tes', 'test', 'test', NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, 1),
+(4, NULL, NULL, 'tes', '', 'test', '', NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00', NULL, NULL, NULL, 1);
 
 --
 -- Triggers `contact_personal_information`
@@ -10810,7 +10825,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `file_as`, `email`, `password`, `profile_picture`, `is_locked`, `is_active`, `last_failed_login_attempt`, `failed_login_attempts`, `last_connection_date`, `password_expiry_date`, `reset_token`, `reset_token_expiry_date`, `receive_notification`, `two_factor_auth`, `otp`, `otp_expiry_date`, `failed_otp_attempts`, `last_password_change`, `account_lock_duration`, `last_password_reset`, `remember_me`, `remember_token`, `last_log_by`) VALUES
-(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-24 12:33:03', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, 'c6b542f43582acdd29e8040c596b6cbb', 0);
+(1, 'Administrator', 'ldagulto@encorefinancials.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', NULL, 0, 1, NULL, 0, '2023-09-27 10:26:31', '2023-12-30', NULL, NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, 0, 'fa9685dccb79a0e3ed3ba1f1e9a73412', 0);
 
 --
 -- Triggers `users`
@@ -11601,7 +11616,7 @@ ALTER TABLE `zoom_api`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2301;
+  MODIFY `audit_log_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2307;
 
 --
 -- AUTO_INCREMENT for table `bank`
@@ -11649,7 +11664,7 @@ ALTER TABLE `company`
 -- AUTO_INCREMENT for table `contact`
 --
 ALTER TABLE `contact`
-  MODIFY `contact_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `contact_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `country`

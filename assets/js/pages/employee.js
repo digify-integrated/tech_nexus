@@ -9,6 +9,14 @@
         if($('#add-employee-form').length){
             addEmployeeForm();
         }
+
+        if($('#personal-information-form').length){
+            personalInformationForm();
+        }
+
+        if($('#employee-id').length){
+            displayDetails('get employee personal information details');
+        }
     });
 })(jQuery);
 
@@ -161,9 +169,118 @@ function addEmployeeForm(){
     });
 }
 
+function personalInformationForm(){
+    $('#personal-information-form').validate({
+        rules: {
+            first_name: {
+                required: true
+            },
+            last_name: {
+                required: true
+            },
+            birthday: {
+                required: true
+            },
+            gender: {
+                required: true
+            },
+            civil_status: {
+                required: true
+            },
+        },
+        messages: {
+            first_name: {
+                required: 'Please enter the first name'
+            },
+            last_name: {
+                required: 'Please enter the last name'
+            },
+            gender: {
+                required: 'Please choose the gender'
+            },
+            civil_status: {
+                required: 'Please choose the civil status'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'update employee personal information';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Update Personal Information Success';
+                        const notificationDescription = 'The personal information has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'employee.php?id=' + response.employeeID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get employee details':
+        case 'get employee personal information details':
             const employee_id = $('#employee-id').text();
             
             $.ajax({
@@ -175,23 +292,33 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('employee-form');
+                    resetModalForm('personal-information-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#employee_id').val(employee_id);
-                        $('#employee_name').val(response.employeeName);
-                        $('#employee_identifier_code').val(response.employeeIdentifierCode);
+                        $('#first_name').val(response.firstName);
+                        $('#last_name').val(response.lastName);
+                        $('#middle_name').val(response.middleName);
+                        $('#suffix').val(response.suffix);
+                        $('#nickname').val(response.nickname);
+                        $('#birthday').val(response.birthday);
+                        $('#birth_place').val(response.birth_place);
+                        $('#height').val(response.height);
+                        $('#weight').val(response.weight);
+                        $('#bio').val(response.bio);
 
-                        $('#employee_name_label').text(response.employeeName);
-                        $('#employee_identifier_code_label').text(response.employeeIdentifierCode);
+                        checkOptionExist('#gender', response.genderID, '');
+                        checkOptionExist('#civil_status', response.civilStatusID, '');
+                        checkOptionExist('#religion', response.religionID, '');
+                        checkOptionExist('#blood_type', response.bloodTypeID, '');
+
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Employee Details Error', response.message, 'danger');
+                            showNotification('Get Personal Information Details Error', response.message, 'danger');
                         }
                     }
                 },
