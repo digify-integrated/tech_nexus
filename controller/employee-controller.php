@@ -18,6 +18,7 @@ class EmployeeController {
     private $systemSettingModel;
     private $departmentModel;
     private $jobPositionModel;
+    private $systemModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -33,17 +34,19 @@ class EmployeeController {
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
+    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel) {
+    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->employeeModel = $employeeModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->departmentModel = $departmentModel;
         $this->jobPositionModel = $jobPositionModel;
+        $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -69,6 +72,9 @@ class EmployeeController {
                 case 'add employee':
                     $this->insertEmployee();
                     break;
+                case 'save employee personal information':
+                    $this->saveEmployeePersonalInformation();
+                    break;
                 case 'get employee personal information details':
                     $this->getEmployeePersonalInformation();
                     break;
@@ -85,6 +91,68 @@ class EmployeeController {
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
             }
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #   Save methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveEmployeePersonalInformation
+    # Description: 
+    # Updates the existing employee personal information if it exists; otherwise, inserts a new employee personal information.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveEmployeePersonalInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = isset($_POST['employee_id']) ? htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8') : null;
+        $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
+        $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
+        $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
+        $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
+        $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
+        $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
+        $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
+        $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');
+        $religion = htmlspecialchars($_POST['religion'], ENT_QUOTES, 'UTF-8');
+        $bloodType = htmlspecialchars($_POST['blood_type'], ENT_QUOTES, 'UTF-8');
+        $birthday = $this->systemModel->checkDate('empty', $_POST['birthday'], '', 'Y-m-d', '');
+        $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
+        $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
+        $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeePersonalInformationExist = $this->employeeModel->checkEmployeePersonalInformationExist($employeeID);
+        $total = $checkEmployeePersonalInformationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
         }
     }
     # -------------------------------------------------------------
@@ -114,14 +182,6 @@ class EmployeeController {
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
-
-        $systemSettingDetails = $this->systemSettingModel->getSystemSetting(4);
-        $fileAs = $systemSettingDetails['value'];
-        $fileAs = str_replace('{last_name}', $lastName, $fileAs);
-        $fileAs = str_replace('{first_name}', $firstName, $fileAs);
-        $fileAs = str_replace('{middle_name}', $middleName, $fileAs);
-        $fileAs = str_replace('{suffix}', $suffix, $fileAs);
-        $fileAs = trim($fileAs);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -130,8 +190,8 @@ class EmployeeController {
             exit;
         }
     
-        $employeeID = $this->employeeModel->insertEmployee($fileAs, $userID);
-        $this->employeeModel->insertEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
+        $employeeID = $this->employeeModel->insertEmployee($userID);
+        $this->employeeModel->insertPartialEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'employeeID' => $this->securityModel->encryptData($employeeID)]);
         exit;
@@ -308,7 +368,7 @@ class EmployeeController {
                 'genderID' => $employeeDetails['gender_id'],
                 'religionID' => $employeeDetails['religion_id'],
                 'bloodTypeID' => $employeeDetails['blood_type_id'],
-                'birthday' => $employeeDetails['birthday'],
+                'birthday' =>  $this->systemModel->checkDate('empty', $employeeDetails['birthday'], '', 'm/d/Y', ''),
                 'birth_place' => $employeeDetails['birth_place'],
                 'height' => $employeeDetails['height'],
                 'weight' => $employeeDetails['weight']
@@ -332,6 +392,6 @@ require_once '../model/system-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

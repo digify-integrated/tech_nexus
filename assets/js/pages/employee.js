@@ -233,7 +233,7 @@ function personalInformationForm(){
         },
         submitHandler: function(form) {
             const employee_id = $('#employee-id').text();
-            const transaction = 'update employee personal information';
+            const transaction = 'save employee personal information';
         
             $.ajax({
                 type: 'POST',
@@ -248,8 +248,8 @@ function personalInformationForm(){
                         const notificationMessage = 'Update Personal Information Success';
                         const notificationDescription = 'The personal information has been updated successfully.';
                         
-                        setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'employee.php?id=' + response.employeeID;
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        displayDetails('get employee personal information details');
                     }
                     else {
                         if (response.isInactive) {

@@ -110,8 +110,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $workHoursID = $row['work_hours_id'];
                     $dayOfWeek = $row['day_of_week'];
                     $dayPeriod = $row['day_period'];
-                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i:s a', '');
-                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i:s a', '');
+                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i a', '');
+                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i a', '');
                     $notes = $row['notes'];
 
                     $update = '';
@@ -174,8 +174,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $workHoursID = $row['work_hours_id'];
                     $workDate = $systemModel->checkDate('empty', $row['work_date'], '', 'm/d/Y', '');
                     $dayPeriod = $row['day_period'];
-                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i:s a', '');
-                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i:s a', '');
+                    $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i a', '');
+                    $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i a', '');
                     $notes = $row['notes'];
 
                     $update = '';

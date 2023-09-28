@@ -42,8 +42,8 @@
             </div>
             <div class="card-body">
               <div class="row">
-                <form class="user-upload mb-4">
-                  <div class="col-sm-12 text-center mb-3">
+                <div class="col-sm-12 text-center mb-3">
+                  <form class="user-upload mb-4">
                     <div class="user-upload wid-75">
                       <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="img" class="img-fluid">
                       <label for="uplfile" class="img-avtar-upload">
@@ -52,8 +52,8 @@
                       </label>
                       <input type="file" id="uplfile" class="d-none">
                     </div>
-                  </div>
-                </form>
+                  </form>
+                </div>
               </div>
               <form id="personal-information-form" method="post" action="#">
                 <div class="row">
@@ -90,7 +90,12 @@
                   <div class="col-sm-6">
                     <div class="form-group">
                       <label class="form-label">Birthday <span class="text-danger">*</span></label>
-                      <input type="date" class="form-control" id="birthday" name="birthday">
+                      <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
                     </div>
                   </div>
                   <div class="col-sm-6">
@@ -104,6 +109,7 @@
                       <label class="form-label">Gender <span class="text-danger">*</span></label>
                       <select class="form-control select2" name="gender" id="gender">
                         <option value="">--</option>
+                        <?php echo $genderModel->generateGenderOptions(); ?>
                       </select>
                     </div>
                   </div>
@@ -112,6 +118,7 @@
                       <label class="form-label">Civil Status <span class="text-danger">*</span></label>
                       <select class="form-control select2" name="civil_status" id="civil_status">
                         <option value="">--</option>
+                        <?php echo $civilStatusModel->generateCivilStatusOptions(); ?>
                       </select>
                     </div>
                   </div>
@@ -120,6 +127,7 @@
                       <label class="form-label">Religion</label>
                       <select class="form-control select2" name="religion" id="religion">
                         <option value="">--</option>
+                        <?php echo $religionModel->generateReligionOptions(); ?>
                       </select>
                     </div>
                   </div>
@@ -128,6 +136,7 @@
                       <label class="form-label">Blood Type</label>
                       <select class="form-control select2" name="blood_type" id="blood_type">
                         <option value="">--</option>
+                        <?php echo $bloodTypeModel->generateBloodTypeOptions(); ?>
                       </select>
                     </div>
                   </div>
@@ -295,7 +304,7 @@
                 <table id="family-details-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                   <thead>
                     <tr>
-                      <th>Name<th>
+                      <th>Name</th>
                       <th>Relationship</th>
                       <th>Birthday</th>
                       <th>School</th>

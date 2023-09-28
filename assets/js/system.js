@@ -22,6 +22,7 @@
                 var filter_date_picker = new Datepicker(element, {
                     buttonClass: 'btn',
                     todayHighlight: true,
+                    todayBtn: true,
                     clearBtn: true,
                     autohide: true
                 });
@@ -41,6 +42,17 @@
         if($('.filter-select2').length){
             $('.filter-select2').select2({
                 dropdownParent: $('#filter-canvas')
+            });
+        }
+
+        if($('.regular-datepicker').length){
+            var regular_datepickers = document.querySelectorAll('.regular-datepicker');
+            regular_datepickers.forEach(function(element) {
+                var filter_date_picker = new Datepicker(element, {
+                    buttonClass: 'btn',
+                    todayHighlight: true,
+                    autohide: true,
+                });
             });
         }
 

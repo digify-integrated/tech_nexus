@@ -531,11 +531,11 @@ class WorkScheduleController {
 
             $response = [
                 'success' => true,
-                'workDate' => $workHoursDetails['work_date'],
+                'workDate' => $this->systemModel->checkDate('empty', $workHoursDetails['work_date'], '', 'm/d/Y', ''),
                 'dayOfWeek' => $workHoursDetails['day_of_week'],
                 'dayPeriod' => $workHoursDetails['day_period'],
-                'startTime' => $workHoursDetails['start_time'],
-                'endTIme' => $workHoursDetails['end_time'],
+                'startTime' => $this->systemModel->checkDate('empty', $workHoursDetails['start_time'], '', 'H:i', ''),
+                'endTIme' => $this->systemModel->checkDate('empty', $workHoursDetails['end_time'], '', 'H:i', ''),
                 'notes' => $workHoursDetails['notes']
             ];
 

@@ -185,10 +185,10 @@ class BankAccountTypeModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $holidayTypeID = $row['bank_account_type_id'];
-            $holidayTypeName = $row['bank_account_type_name'];
+            $bankAccountTypeID = $row['bank_account_type_id'];
+            $bankAccountTypeName = $row['bank_account_type_name'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($holidayTypeID, ENT_QUOTES) . '">' . htmlspecialchars($holidayTypeName, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($bankAccountTypeID, ENT_QUOTES) . '">' . htmlspecialchars($bankAccountTypeName, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

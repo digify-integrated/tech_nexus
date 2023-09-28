@@ -206,11 +206,11 @@
                       <div class="form-group row">
                         <div class="col-lg-6">
                           <label class="form-label">Work From <span class="text-danger">*</span></label>
-                          <input class="form-control" type="time" id="work_from" name="work_from">
+                          <input class="form-control" id="work_from" name="work_from" type="time">
                         </div>
                         <div class="col-lg-6">
                           <label class="form-label">Work To <span class="text-danger">*</span></label>
-                          <input class="form-control" type="time" id="work_to" name="work_to">
+                          <input class="form-control" id="work_to" name="work_to" type="time">
                         </div>
                       </div>
                       <div class="form-group row">
@@ -243,7 +243,12 @@
                       <div class="col-lg-6">
                         <label class="form-label">Work Date <span class="text-danger">*</span></label>
                         <input type="hidden" id="work_hours_id" name="work_hours_id">
-                        <input class="form-control" type="date" id="work_date" name="work_date">
+                        <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="work_date" name="work_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Day Period <span class="text-danger">*</span></label>
@@ -258,11 +263,11 @@
                     <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Work From <span class="text-danger">*</span></label>
-                        <input class="form-control" type="time" id="work_from" name="work_from">
+                        <input class="form-control" id="work_from" name="work_from" type="time">
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Work To <span class="text-danger">*</span></label>
-                        <input class="form-control" type="time" id="work_to" name="work_to">
+                        <input class="form-control" id="work_to" name="work_to" type="time">
                       </div>
                     </div>
                     <div class="form-group row">

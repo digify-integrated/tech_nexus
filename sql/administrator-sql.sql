@@ -5653,6 +5653,309 @@ BEGIN
 	ORDER BY work_schedule_type_name;
 END //
 
+/* Address type table */
+CREATE TABLE address_type(
+	address_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	address_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX address_type_index_address_type_id ON address_type(address_type_id);
+
+CREATE TRIGGER address_type_trigger_update
+AFTER UPDATE ON address_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.address_type_name <> OLD.address_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Address Type Name: ", OLD.address_type_name, " -> ", NEW.address_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('address_type', NEW.address_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER address_type_trigger_insert
+AFTER INSERT ON address_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Address type created. <br/>';
+
+    IF NEW.address_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address Type Name: ", NEW.address_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('address_type', NEW.address_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkAddressTypeExist (IN p_address_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM address_type
+    WHERE address_type_id = p_address_type_id;
+END //
+
+CREATE PROCEDURE insertAddressType(IN p_address_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_address_type_id INT)
+BEGIN
+    INSERT INTO address_type (address_type_name, last_log_by) 
+	VALUES(p_address_type_name, p_last_log_by);
+	
+    SET p_address_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateAddressType(IN p_address_type_id INT, IN p_address_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE address_type
+    SET address_type_name = p_address_type_name,
+    last_log_by = p_last_log_by
+    WHERE address_type_id = p_address_type_id;
+END //
+
+CREATE PROCEDURE deleteAddressType(IN p_address_type_id INT)
+BEGIN
+    DELETE FROM address_type WHERE address_type_id = p_address_type_id;
+END //
+
+CREATE PROCEDURE getAddressType(IN p_address_type_id INT)
+BEGIN
+	SELECT * FROM address_type
+    WHERE address_type_id = p_address_type_id;
+END //
+
+CREATE PROCEDURE duplicateAddressType(IN p_address_type_id INT, IN p_last_log_by INT, OUT p_new_address_type_id INT)
+BEGIN
+    DECLARE p_address_type_name VARCHAR(100);
+    
+    SELECT address_type_name
+    INTO p_address_type_name
+    FROM address_type 
+    WHERE address_type_id = p_address_type_id;
+    
+    INSERT INTO address_type (address_type_name, last_log_by) 
+    VALUES(p_address_type_name, p_last_log_by);
+    
+    SET p_new_address_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateAddressTypeTable()
+BEGIN
+    SELECT address_type_id, address_type_name
+    FROM address_type
+    ORDER BY address_type_id;
+END //
+
+CREATE PROCEDURE generateAddressTypeOptions()
+BEGIN
+	SELECT address_type_id, address_type_name FROM address_type
+	ORDER BY address_type_name;
+END //
+
+/* Educational stage table */
+CREATE TABLE educational_stage(
+	educational_stage_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	educational_stage_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX educational_stage_index_educational_stage_id ON educational_stage(educational_stage_id);
+
+CREATE TRIGGER educational_stage_trigger_update
+AFTER UPDATE ON educational_stage
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.educational_stage_name <> OLD.educational_stage_name THEN
+        SET audit_log = CONCAT(audit_log, "Educational Stage Name: ", OLD.educational_stage_name, " -> ", NEW.educational_stage_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('educational_stage', NEW.educational_stage_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER educational_stage_trigger_insert
+AFTER INSERT ON educational_stage
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Educational stage created. <br/>';
+
+    IF NEW.educational_stage_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Educational Stage Name: ", NEW.educational_stage_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('educational_stage', NEW.educational_stage_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkEducationalStageExist (IN p_educational_stage_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM educational_stage
+    WHERE educational_stage_id = p_educational_stage_id;
+END //
+
+CREATE PROCEDURE insertEducationalStage(IN p_educational_stage_name VARCHAR(100), IN p_last_log_by INT, OUT p_educational_stage_id INT)
+BEGIN
+    INSERT INTO educational_stage (educational_stage_name, last_log_by) 
+	VALUES(p_educational_stage_name, p_last_log_by);
+	
+    SET p_educational_stage_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateEducationalStage(IN p_educational_stage_id INT, IN p_educational_stage_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE educational_stage
+    SET educational_stage_name = p_educational_stage_name,
+    last_log_by = p_last_log_by
+    WHERE educational_stage_id = p_educational_stage_id;
+END //
+
+CREATE PROCEDURE deleteEducationalStage(IN p_educational_stage_id INT)
+BEGIN
+    DELETE FROM educational_stage WHERE educational_stage_id = p_educational_stage_id;
+END //
+
+CREATE PROCEDURE getEducationalStage(IN p_educational_stage_id INT)
+BEGIN
+	SELECT * FROM educational_stage
+    WHERE educational_stage_id = p_educational_stage_id;
+END //
+
+CREATE PROCEDURE duplicateEducationalStage(IN p_educational_stage_id INT, IN p_last_log_by INT, OUT p_new_educational_stage_id INT)
+BEGIN
+    DECLARE p_educational_stage_name VARCHAR(100);
+    
+    SELECT educational_stage_name
+    INTO p_educational_stage_name
+    FROM educational_stage 
+    WHERE educational_stage_id = p_educational_stage_id;
+    
+    INSERT INTO educational_stage (educational_stage_name, last_log_by) 
+    VALUES(p_educational_stage_name, p_last_log_by);
+    
+    SET p_new_educational_stage_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateEducationalStageTable()
+BEGIN
+    SELECT educational_stage_id, educational_stage_name
+    FROM educational_stage
+    ORDER BY educational_stage_id;
+END //
+
+CREATE PROCEDURE generateEducationalStageOptions()
+BEGIN
+	SELECT educational_stage_id, educational_stage_name FROM educational_stage
+	ORDER BY educational_stage_name;
+END //
+
+/* Contact information type table */
+CREATE TABLE contact_information_type(
+	contact_information_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	contact_information_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT NOT NULL
+);
+
+CREATE INDEX contact_information_type_index_contact_information_type_id ON contact_information_type(contact_information_type_id);
+
+CREATE TRIGGER contact_information_type_trigger_update
+AFTER UPDATE ON contact_information_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contact_information_type_name <> OLD.contact_information_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Contact Information Type Name: ", OLD.contact_information_type_name, " -> ", NEW.contact_information_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_information_type', NEW.contact_information_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_information_type_trigger_insert
+AFTER INSERT ON contact_information_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact information type created. <br/>';
+
+    IF NEW.contact_information_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact Information Type Name: ", NEW.contact_information_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_information_type', NEW.contact_information_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE PROCEDURE checkContactInformationTypeExist (IN p_contact_information_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_information_type
+    WHERE contact_information_type_id = p_contact_information_type_id;
+END //
+
+CREATE PROCEDURE insertContactInformationType(IN p_contact_information_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_contact_information_type_id INT)
+BEGIN
+    INSERT INTO contact_information_type (contact_information_type_name, last_log_by) 
+	VALUES(p_contact_information_type_name, p_last_log_by);
+	
+    SET p_contact_information_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateContactInformationType(IN p_contact_information_type_id INT, IN p_contact_information_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_information_type
+    SET contact_information_type_name = p_contact_information_type_name,
+    last_log_by = p_last_log_by
+    WHERE contact_information_type_id = p_contact_information_type_id;
+END //
+
+CREATE PROCEDURE deleteContactInformationType(IN p_contact_information_type_id INT)
+BEGIN
+    DELETE FROM contact_information_type WHERE contact_information_type_id = p_contact_information_type_id;
+END //
+
+CREATE PROCEDURE getContactInformationType(IN p_contact_information_type_id INT)
+BEGIN
+	SELECT * FROM contact_information_type
+    WHERE contact_information_type_id = p_contact_information_type_id;
+END //
+
+CREATE PROCEDURE duplicateContactInformationType(IN p_contact_information_type_id INT, IN p_last_log_by INT, OUT p_new_contact_information_type_id INT)
+BEGIN
+    DECLARE p_contact_information_type_name VARCHAR(100);
+    
+    SELECT contact_information_type_name
+    INTO p_contact_information_type_name
+    FROM contact_information_type 
+    WHERE contact_information_type_id = p_contact_information_type_id;
+    
+    INSERT INTO contact_information_type (contact_information_type_name, last_log_by) 
+    VALUES(p_contact_information_type_name, p_last_log_by);
+    
+    SET p_new_contact_information_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateContactInformationTypeTable()
+BEGIN
+    SELECT contact_information_type_id, contact_information_type_name
+    FROM contact_information_type
+    ORDER BY contact_information_type_id;
+END //
+
+CREATE PROCEDURE generateContactInformationTypeOptions()
+BEGIN
+	SELECT contact_information_type_id, contact_information_type_name FROM contact_information_type
+	ORDER BY contact_information_type_name;
+END //
+
 /* Work schedule table */
 CREATE TABLE work_schedule(
 	work_schedule_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -5985,7 +6288,7 @@ BEGIN
     END IF;
 END //
 
-/* Bank account table */
+/* Bank account type table */
 CREATE TABLE bank_account_type(
 	bank_account_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	bank_account_type_name VARCHAR(100) NOT NULL,
@@ -6014,7 +6317,7 @@ CREATE TRIGGER bank_account_type_trigger_insert
 AFTER INSERT ON bank_account_type
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Bank account created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Bank account type created. <br/>';
 
     IF NEW.bank_account_type_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Bank Account Type Name: ", NEW.bank_account_type_name);
@@ -6090,7 +6393,6 @@ END //
 CREATE TABLE contact(
 	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	user_id INT UNSIGNED,
-	file_as VARCHAR(1000) NOT NULL,
     is_employee TINYINT(1),
     is_applicant TINYINT(1),
     is_customer TINYINT(1),
@@ -6108,10 +6410,6 @@ BEGIN
 
     IF NEW.user_id <> OLD.user_id THEN
         SET audit_log = CONCAT(audit_log, "User ID: ", OLD.user_id, " -> ", NEW.user_id, "<br/>");
-    END IF;
-
-    IF NEW.file_as <> OLD.file_as THEN
-        SET audit_log = CONCAT(audit_log, "File As: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
     END IF;
 
     IF NEW.is_employee <> OLD.is_employee THEN
@@ -6142,10 +6440,6 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>User ID: ", NEW.user_id);
     END IF;
 
-    IF NEW.file_as <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>File As: ", NEW.file_as);
-    END IF;
-
     IF NEW.is_employee <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Is Employee: ", NEW.is_employee);
     END IF;
@@ -6162,6 +6456,22 @@ BEGIN
     VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkEmployeeExist (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE insertEmployee(IN p_last_log_by INT, OUT p_contact_id INT)
+BEGIN
+    INSERT INTO contact (is_employee, last_log_by) 
+	VALUES(1, p_last_log_by);
+	
+    SET p_contact_id = LAST_INSERT_ID();
+END //
+
+/* Contact personal information table */
 CREATE TABLE contact_personal_information(
 	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
 	contact_image VARCHAR(500),
@@ -6176,7 +6486,7 @@ CREATE TABLE contact_personal_information(
     gender_id INT UNSIGNED,
     religion_id INT UNSIGNED,
     blood_type_id INT UNSIGNED,
-    birthday DATE NOT NULL,
+    birthday DATE,
     birth_place VARCHAR(1000),
     height DOUBLE,
     weight DOUBLE,
@@ -6326,6 +6636,53 @@ BEGIN
     VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE PROCEDURE checkEmployeePersonalInformationExist (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_personal_information
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE insertEmployeePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height DOUBLE, IN p_weight DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
+END //
+
+CREATE PROCEDURE insertPartialEmployeePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateEmployeePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height DOUBLE, IN p_weight DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_personal_information
+    SET first_name = p_first_name,
+    middle_name = p_middle_name,
+    last_name = p_last_name,
+    suffix = p_suffix,
+    nickname = p_nickname,
+    bio = p_bio,
+    civil_status_id = p_civil_status_id,
+    gender_id = p_gender_id,
+    religion_id = p_religion_id,
+    blood_type_id = p_blood_type_id,
+    birthday = p_birthday,
+    birth_place = p_birth_place,
+    height = p_height,
+    weight = p_weight,
+    last_log_by = p_last_log_by
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE getEmployeePersonalInformation(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM contact_personal_information
+    WHERE contact_id = p_contact_id;
+END //
+
+/* Contact employment information table */
 CREATE TABLE contact_employment_information(
 	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
 	badge_id VARCHAR(500) NOT NULL,
@@ -6470,24 +6827,4 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-CREATE PROCEDURE insertEmployee(IN p_file_as VARCHAR(1000), IN p_last_log_by INT, OUT p_contact_id INT)
-BEGIN
-    INSERT INTO contact (file_as, is_employee, last_log_by) 
-	VALUES(p_file_as, 1, p_last_log_by);
-	
-    SET p_contact_id = LAST_INSERT_ID();
-END //
-
-CREATE PROCEDURE insertEmployeePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
-BEGIN
-    INSERT INTO contact_personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
-	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
-END //
-
-CREATE PROCEDURE getEmployeePersonalInformation(IN p_contact_id INT)
-BEGIN
-	SELECT * FROM contact_personal_information
-    WHERE contact_id = p_contact_id;
 END //

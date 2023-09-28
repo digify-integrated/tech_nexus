@@ -103,12 +103,16 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Civil Status', '3', 'civil-status.php', '11', '', '3', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Blood Type', '3', 'blood-type.php', '11', '', '2', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank', '3', 'bank.php', '11', '', '2', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Holiday Type', '13', 'holiday-type.php', '11', '', '8', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Holiday Type', '3', 'holiday-type.php', '11', '', '8', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule Type', '1', 'work-schedule-type.php', '25', '', '23', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Work Schedule', '1', 'work-schedule.php', '25', '', '23', '0');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Bank Account Type', '3', 'bank-account-type.php', '11', '', '2', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Contact Information Type', '3', 'contact-information-type.php', '11', '', '3', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Address Type', '3', 'address-type.php', '11', '', '1', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Educational Stage', '3', 'educational-stage.php', '11', '', '5', '0');
+
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '0');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '44', '', '5', '0');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '0');
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('32', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('33', '1', '1', '1', '1', '1', '1', '0');
@@ -122,8 +126,11 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('41', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('42', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('43', '1', '1', '1', '1', '1', '1', '0');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('44', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('44', '1', '1', '1', '1', '1', '1', '0');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('45', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('46', '1', '1', '1', '1', '1', '1', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('47', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('48', '1', '1', '1', '1', '1', '1', '0');
 
 INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Fixed', '0');
 INSERT INTO work_schedule_type (work_schedule_type_name, last_log_by) VALUES ('Flexible', '0');
@@ -2340,12 +2347,306 @@ INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Loreto', '82', '0')
 INSERT INTO city (city_name, state_id, last_log_by) VALUES ('San Jose', '82', '0');
 INSERT INTO city (city_name, state_id, last_log_by) VALUES ('Tubajon', '82', '0');
 
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Philippine Peso', '₱', 'PHP', '0');
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('United States Dollar', '$', 'USD', '0');
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Japanese Yen', '¥', 'JPY', '0');
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('South Korean Won', '₩', 'KRW', '0');
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Euro', '€', 'EUR', '0');
-INSERT INTO currency (currency_name, symbol, shorthand, last_log_by) VALUES ('Pound Sterling', '£', 'GBP', '0');
+INSERT INTO currency (currency_name, symbol, shorthand, last_log_by)
+VALUES
+    ('Philippine Peso', '₱', 'PHP', '0'),
+    ('United States Dollar', '$', 'USD', '0'),
+    ('Japanese Yen', '¥', 'JPY', '0'),
+    ('South Korean Won', '₩', 'KRW', '0'),
+    ('Euro', '€', 'EUR', '0'),
+    ('Pound Sterling', '£', 'GBP', '0');
+
+INSERT INTO civil_status (civil_status_name, last_log_by)
+VALUES
+    ('Single', '0'),
+    ('Married', '0'),
+    ('Divorced', '0'),
+    ('Widowed', '0'),
+    ('Separated', '0'),
+    ('In a Relationship', '0'),
+    ('Engaged', '0');
+
+INSERT INTO relation (relation_name, last_log_by)
+VALUES
+    ('Parent', '0'),
+    ('Child', '0'),
+    ('Spouse', '0'),
+    ('Sibling', '0'),
+    ('Grandparent', '0'),
+    ('Grandchild', '0'),
+    ('Aunt', '0'),
+    ('Uncle', '0'),
+    ('Cousin', '0'),
+    ('Friend', '0'),
+    ('Partner', '0'),
+    ('Roommate', '0');
+
+INSERT INTO id_type (id_type_name, last_log_by)
+VALUES
+    ('Philippine Passport', '0'),
+    ('Driver\'s License', '0'),
+    ('Unified Multi-Purpose ID (UMID)', '0'),
+    ('Social Security System (SSS) ID', '0'),
+    ('Government Service Insurance System (GSIS) ID', '0'),
+    ('Postal ID', '0'),
+    ('Professional Regulation Commission (PRC) ID', '0'),
+    ('Voter\'s ID', '0'),
+    ('National Bureau of Investigation (NBI) Clearance', '0'),
+    ('Police Clearance', '0'),
+    ('Barangay ID', '0'),
+    ('Senior Citizen ID', '0'),
+    ('PhilHealth ID', '0'),
+    ('Home Development Mutual Fund (Pag-IBIG) ID', '0'),
+    ('Company ID', '0'),
+    ('Student ID', '0');
+
+INSERT INTO departure_reason (departure_reason_name, last_log_by)
+VALUES
+    ('Job Relocation', '0'),
+    ('Retirement', '0'),
+    ('Pursuing Higher Education', '0'),
+    ('Family Reunion', '0'),
+    ('Marriage Abroad', '0'),
+    ('Travel for Tourism', '0'),
+    ('Temporary Work Assignment', '0'),
+    ('Seeking Asylum', '0'),
+    ('Healthcare Treatment Abroad', '0'),
+    ('Joining a Spouse or Family Member', '0'),
+    ('Change in Immigration Status', '0'),
+    ('Returning to Home Country', '0'),
+    ('Expiry of Visa or Permit', '0'),
+    ('Deportation', '0'),
+    ('Naturalization or Citizenship in Another Country', '0'),
+    ('Business Opportunities Abroad', '0');
+
+INSERT INTO employee_type (employee_type_name, last_log_by)
+VALUES
+    ('Full-Time', '0'),
+    ('Part-Time', '0'),
+    ('Temporary', '0'),
+    ('Contractual', '0'),
+    ('Intern', '0'),
+    ('Freelancer', '0'),
+    ('Consultant', '0');
+
+INSERT INTO job_level (current_level, rank, functional_level, last_log_by)
+VALUES
+    ('I', 'Trainee', 'Unskilled', '0'),
+    ('II', 'Staff', 'Skilled', '0'),
+    ('III', 'Assistant', 'Clerical/Regular', '0'),
+    ('IV', 'Associate', 'Senior Staff', '0'),
+    ('V', 'Assistant Supervisor', 'Supervising Staff', '0'),
+    ('VI', 'Supervisor', 'Junior Officer', '0'),
+    ('VII', 'Assistant Manager', 'Junior Officer', '0'),
+    ('VIII', 'Manager', 'Regular Officer', '0'),
+    ('IX', 'Senior Manager', 'Regular Officer', '0'),
+    ('X', ' Asst. Vice President', 'Senior Officer', '0'),
+    ('XI', ' Vice President', 'Senior Officer', '0'),
+    ('XIII', ' Senior Vice President', 'Executive', '0'),
+    ('XIV', ' Executive Vice President', 'Executive', '0'),
+    ('XV', 'President', 'Executive', '0');
+
+INSERT INTO blood_type (blood_type_name, last_log_by)
+VALUES
+    ('A+', '0'),
+    ('A-', '0'),
+    ('B+', '0'),
+    ('B-', '0'),
+    ('AB+', '0'),
+    ('AB-', '0'),
+    ('O+', '0'),
+    ('O-', '0');
+
+INSERT INTO holiday_type (holiday_type_name, last_log_by)
+VALUES
+    ('Regular Holiday', '0'),
+    ('Local Holiday', '0'),
+    ('Special Non-Working Holiday', '0'),
+    ('Special Working Holiday', '0'),
+    ('Special (One-Time) Holiday', '0');
+
+INSERT INTO bank_account_type (bank_account_type_name, last_log_by)
+VALUES
+    ('Savings Account', '0'),
+    ('Checking Account', '0'),
+    ('Time Deposit Account', '0'),
+    ('Salary Account', '0'),
+    ('Business Account', '0');
+
+INSERT INTO address_type (address_type_name, last_log_by)
+VALUES
+    ('Home Address', '0'),
+    ('Work Address', '0'),
+    ('Mailing Address', '0'),
+    ('Billing Address', '0'),
+    ('Shipping Address', '0');
+
+INSERT INTO educational_stage (educational_stage_name, last_log_by)
+VALUES
+    ('Preschool', '0'),
+    ('Primary School', '0'),
+    ('Junior High School', '0'),
+    ('Senior High School', '0'),
+    ('College', '0'),
+    ('Postgraduate', '0');
+
+INSERT INTO contact_information_type (contact_information_type_name, last_log_by)
+VALUES
+    ('Personal', '0'),
+    ('Work', '0');
+
+INSERT INTO bank (bank_name, bank_identifier_code, last_log_by)
+VALUES
+    ('Banco de Oro (BDO)', '010530667', '0'),
+    ('Metrobank', '010269996', '0'),
+    ('Land Bank of the Philippines', '010350025', '0'),
+    ('Bank of the Philippine Islands (BPI)', '010040018', '0'),
+    ('Philippine National Bank (PNB)', '010080010', '0'),
+    ('Security Bank', '010140015', '0'),
+    ('UnionBank of the Philippines', '010419995', '0'),
+    ('Development Bank of the Philippines (DBP)', '010590018', '0'),
+    ('EastWest Bank', '010620014', '0'),
+    ('China Banking Corporation (Chinabank)', '010100013', '0'),
+    ('RCBC (Rizal Commercial Banking Corporation)', '010280014', '0'),
+    ('Maybank Philippines', '010220016', '0');
+
+INSERT INTO gender (gender_name, last_log_by)
+VALUES
+    ('Male', '0'),
+    ('Female', '0');
+
+INSERT INTO nationality (nationality_name, last_log_by)
+VALUES
+    ('American', '0'),
+    ('British', '0'),
+    ('Canadian', '0'),
+    ('Australian', '0'),
+    ('German', '0'),
+    ('French', '0'),
+    ('Japanese', '0'),
+    ('Chinese', '0'),
+    ('Indian', '0'),
+    ('Mexican', '0'),
+    ('Brazilian', '0'),
+    ('Russian', '0'),
+    ('Italian', '0'),
+    ('Spanish', '0'),
+    ('Argentinian', '0'),
+    ('Swiss', '0'),
+    ('Dutch', '0'),
+    ('Swedish', '0'),
+    ('Norwegian', '0'),
+    ('Danish', '0'),
+    ('Finnish', '0'),
+    ('Greek', '0'),
+    ('Irish', '0'),
+    ('Turkish', '0'),
+    ('Egyptian', '0'),
+    ('Saudi Arabian', '0'),
+    ('Emirati', '0'),
+    ('South Korean', '0'),
+    ('Thai', '0'),
+    ('Vietnamese', '0'),
+    ('Filipino', '0'),
+    ('Indonesian', '0'),
+    ('Malaysian', '0'),
+    ('Singaporean', '0'),
+    ('Chilean', '0'),
+    ('Colombian', '0'),
+    ('Peruvian', '0'),
+    ('Venezuelan', '0'),
+    ('Panamanian', '0'),
+    ('Costa Rican', '0'),
+    ('Jamaican', '0'),
+    ('Trinidadian and Tobagonian', '0'),
+    ('Nigerian', '0'),
+    ('South African', '0'),
+    ('Kenyan', '0'),
+    ('Ghanaian', '0'),
+    ('Ethiopian', '0'),
+    ('Moroccan', '0'),
+    ('Tunisian', '0'),
+    ('Algerian', '0'),
+    ('Iraqi', '0'),
+    ('Iranian', '0'),
+    ('Afghan', '0'),
+    ('Pakistani', '0'),
+    ('Bangladeshi', '0'),
+    ('Sri Lankan', '0'),
+    ('Nepali', '0'),
+    ('Bhutanese', '0'),
+    ('Japanese', '0'),
+    ('Korean', '0'),
+    ('Vietnamese', '0'),
+    ('Cambodian', '0'),
+    ('Laotian', '0'),
+    ('Myanmar (Burmese)', '0'),
+    ('Mongolian', '0'),
+    ('Kazakh', '0'),
+    ('Uzbek', '0'),
+    ('Turkmen', '0'),
+    ('Kyrgyz', '0'),
+    ('Tajik', '0'),
+    ('Azerbaijani', '0'),
+    ('Armenian', '0'),
+    ('Georgian', '0'),
+    ('Ukrainian', '0'),
+    ('Belarusian', '0'),
+    ('Estonian', '0'),
+    ('Latvian', '0'),
+    ('Lithuanian', '0'),
+    ('Polish', '0'),
+    ('Czech', '0'),
+    ('Slovak', '0'),
+    ('Hungarian', '0'),
+    ('Romanian', '0'),
+    ('Bulgarian', '0'),
+    ('Croatian', '0'),
+    ('Serbian', '0'),
+    ('Bosnian and Herzegovinian', '0'),
+    ('Slovenian', '0'),
+    ('Macedonian', '0'),
+    ('Cypriot', '0'),
+    ('Maltese', '0'),
+    ('Icelandic', '0'),
+    ('Scottish', '0'),
+    ('Welsh', '0'),
+    ('Catalan', '0'),
+    ('Portuguese', '0'),
+    ('Luxembourgish', '0'),
+    ('Austrian', '0'),
+    ('Belgian', '0'),
+    ('Lichtensteiner', '0'),
+    ('Monacan', '0'),
+    ('Andorran', '0'),
+    ('San Marinese', '0'),
+    ('Vatican', '0'),
+    ('Montenegrin', '0'),
+    ('Albanian', '0'),
+    ('Moldovan', '0');
+
+INSERT INTO religion (religion_name, last_log_by)
+VALUES
+    ('Christianity', '0'),
+    ('Islam', '0'),
+    ('Hinduism', '0'),
+    ('Buddhism', '0'),
+    ('Sikhism', '0'),
+    ('Judaism', '0'),
+    ('Baháʼí Faith', '0'),
+    ('Jainism', '0'),
+    ('Shintoism', '0'),
+    ('Taoism', '0'),
+    ('Zoroastrianism', '0'),
+    ('African Traditional Religions', '0'),
+    ('Native American Spirituality', '0'),
+    ('Rastafarianism', '0'),
+    ('Scientology', '0'),
+    ('Atheism', '0'),
+    ('Agnosticism', '0'),
+    ('Wicca', '0'),
+    ('Druidry', '0'),
+    ('Confucianism', '0');
 
 INSERT INTO email_setting (email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_password, mail_encryption, mail_from_name, mail_from_email, last_log_by) VALUES ('Security Email Setting', '
 Email setting for security emails.', 'smtp.hostinger.com', '465', '1', '0', 'encore-noreply@encorefinancials.com', 'UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D', 'ssl', 'encore-noreply@encorefinancials.com', 'encore-noreply@encorefinancials.com' , '0');
