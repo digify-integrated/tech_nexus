@@ -340,7 +340,7 @@ class RoleController {
             $total = $checkRoleUserExist['total'] ?? 0;
         
             if ($total === 0) {
-                $this->roleModel->insertRoleUser($userAccountID, $roleID, $userID);
+                $this->roleModel->insertRoleUser($userAccountID, $roleID);
             }
         }
         
@@ -381,7 +381,7 @@ class RoleController {
             $total = $checkRoleUserExist['total'] ?? 0;
         
             if ($total === 0) {
-                $this->roleModel->insertRoleUser($userAccountID, $roleID, $userID);
+                $this->roleModel->insertRoleUser($userAccountID, $roleID);
             }
         }
         

@@ -16,6 +16,50 @@
 
         if($('#employee-id').length){
             displayDetails('get employee personal information details');
+
+            $('#employee_image').change(function() {
+                var selectedFile = $(this)[0].files[0];
+
+                if (selectedFile) {
+                    const transaction = 'change employee image';
+                    const employee_id = $('#employee-id').text();
+
+                    var formData = new FormData();
+                    formData.append('employee_id', employee_id);
+                    formData.append('transaction', transaction);
+                    formData.append('employee_image', selectedFile);
+            
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/employee-controller.php',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showNotification('Employee Image Change Success', 'The employee image has been successfully updated.', 'success');
+                                displayDetails('get employee personal information details');
+                            }
+                            else{
+                                if(response.isInactive){
+                                    window.location = 'logout.php?logout';
+                                }
+                                else{
+                                    showNotification('Employee Image Change Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                }
+            });
         }
     });
 })(jQuery);
@@ -306,6 +350,8 @@ function displayDetails(transaction){
                         $('#height').val(response.height);
                         $('#weight').val(response.weight);
                         $('#bio').val(response.bio);
+
+                        $('#emp_image').attr('src', response.employeeImage);
 
                         checkOptionExist('#gender', response.genderID, '');
                         checkOptionExist('#civil_status', response.civilStatusID, '');

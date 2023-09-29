@@ -265,11 +265,10 @@ class RoleModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertRoleUser($p_user_id, $p_role_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertRoleUser(:p_user_id, :p_role_id, :p_last_log_by)');
+    public function insertRoleUser($p_user_id, $p_role_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertRoleUser(:p_user_id, :p_role_id)');
         $stmt->bindValue(':p_user_id', $p_user_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_role_id', $p_role_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------

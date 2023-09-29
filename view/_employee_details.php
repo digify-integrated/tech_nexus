@@ -44,14 +44,12 @@
               <div class="row">
                 <div class="col-sm-12 text-center mb-3">
                   <form class="user-upload mb-4">
-                    <div class="user-upload wid-75">
-                      <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="img" class="img-fluid">
-                      <label for="uplfile" class="img-avtar-upload">
-                        <i class="ti ti-camera f-24 mb-1"></i>
-                        <span>Upload</span>
-                      </label>
-                      <input type="file" id="uplfile" class="d-none">
-                    </div>
+                    <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
+                    <label for="employee_image" class="img-avtar-upload">
+                      <i class="ti ti-camera f-24 mb-1"></i>
+                      <span>Upload</span>
+                     </label>
+                    <input type="file" id="employee_image" name="employee_image" class="d-none">
                   </form>
                 </div>
               </div>

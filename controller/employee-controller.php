@@ -18,6 +18,8 @@ class EmployeeController {
     private $systemSettingModel;
     private $departmentModel;
     private $jobPositionModel;
+    private $uploadSettingModel;
+    private $fileExtensionModel;
     private $systemModel;
     private $securityModel;
 
@@ -34,18 +36,21 @@ class EmployeeController {
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
+    # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->employeeModel = $employeeModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->departmentModel = $departmentModel;
         $this->jobPositionModel = $jobPositionModel;
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -86,6 +91,9 @@ class EmployeeController {
                     break;
                 case 'duplicate employee':
                     $this->duplicateEmployee();
+                    break;
+                case 'change employee image':
+                    $this->updateEmployeeImage();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -194,6 +202,109 @@ class EmployeeController {
         $this->employeeModel->insertPartialEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'employeeID' => $this->securityModel->encryptData($employeeID)]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateEmployeeImage
+    # Description: 
+    # Handles the update of the employee image.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateEmployeeImage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $employeeImageFileName = $_FILES['employee_image']['name'];
+        $employeeImageFileSize = $_FILES['employee_image']['size'];
+        $employeeImageFileError = $_FILES['employee_image']['error'];
+        $employeeImageTempName = $_FILES['employee_image']['tmp_name'];
+        $employeeImageFileExtension = explode('.', $employeeImageFileName);
+        $employeeImageActualFileExtension = strtolower(end($employeeImageFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(4);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(4);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($employeeImageActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($employeeImageTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the employee image.']);
+            exit;
+        }
+        
+        if($employeeImageFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($employeeImageFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The uploaded file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $employeeImageActualFileExtension;
+
+        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee/employee_image/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee/employee_image/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        $employeeDetails = $this->employeeModel->getEmployeePersonalInformation($employeeID);
+        $employeeImage = $employeeDetails['employee_image'] !== null ? '.' . $employeeDetails['employee_image'] : null;
+
+        if(file_exists($employeeImage)){
+            if (!unlink($employeeImage)) {
+                echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        if(!move_uploaded_file($employeeImageTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->employeeModel->updateEmployeeImage($employeeID, $filePath, $userID);
+
+        echo json_encode(['success' => true]);
         exit;
     }
     # -------------------------------------------------------------
@@ -355,9 +466,11 @@ class EmployeeController {
             }
     
             $employeeDetails = $this->employeeModel->getEmployeePersonalInformation($employeeID);
+            $employeeImage = $this->systemModel->checkImage($employeeDetails['employee_image'], 'profile');
 
             $response = [
                 'success' => true,
+                'employeeImage' => $employeeImage,
                 'firstName' => $employeeDetails['first_name'],
                 'middleName' => $employeeDetails['middle_name'],
                 'lastName' => $employeeDetails['last_name'],
@@ -389,9 +502,11 @@ require_once '../model/department-model.php';
 require_once '../model/job-position-model.php';
 require_once '../model/user-model.php';
 require_once '../model/system-setting-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

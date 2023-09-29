@@ -64,6 +64,28 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateEmployeeImage
+    # Description: Updates the employee personal information.
+    #
+    # Parameters:
+    # - $p_employee_id (int): The employee ID.
+    # - $p_employee_image (string): The image of the employee.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateEmployeeImage($p_employee_id, $p_employee_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateEmployeeImage(:p_employee_id, :p_employee_image, :p_last_log_by)');
+        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_employee_image', $p_employee_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -117,7 +139,6 @@ class EmployeeModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
-
 
     # -------------------------------------------------------------
     #
@@ -241,15 +262,15 @@ class EmployeeModel {
     # Description: Retrieves the details of a employee.
     #
     # Parameters:
-    # - $p_contact_id (int): The contact ID.
+    # - $p_employee_id (int): The employee ID.
     #
     # Returns:
     # - An array containing the employee details.
     #
     # -------------------------------------------------------------
-    public function getEmployeePersonalInformation($p_contact_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getEmployeePersonalInformation(:p_contact_id)');
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+    public function getEmployeePersonalInformation($p_employee_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployeePersonalInformation(:p_employee_id)');
+        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
