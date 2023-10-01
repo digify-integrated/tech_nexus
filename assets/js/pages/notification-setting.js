@@ -831,7 +831,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('notification-setting-form');
+                    resetForm('notification-setting-form');
                 },
                 success: function(response) {
                     if (response.success) {

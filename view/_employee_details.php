@@ -13,8 +13,8 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="employee-information-tab" data-bs-toggle="tab" href="#employee-information" role="tab" aria-selected="true">
-            <i class="ti ti-id me-2"></i>Employee Details
+          <a class="nav-link" id="employement-details-tab" data-bs-toggle="tab" href="#employement-details" role="tab" aria-selected="true">
+            <i class="ti ti-id me-2"></i>Employment Details
           </a>
         </li>
       </ul>
@@ -36,7 +36,7 @@
                   <h5>Personal Information</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                 <button type="submit" form="personal-information-form" class="btn btn-success" id="submit-data">Save</button>
+                 <button type="submit" form="personal-information-form" class="btn btn-success" id="submit-personal-information-data">Save</button>
                 </div>
               </div>
             </div>
@@ -423,9 +423,101 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane" id="employee-information" role="tabpanel" aria-labelledby="employee-information-tab">
+    <div class="tab-pane" id="employement-details" role="tabpanel" aria-labelledby="employement-details-tab">
       <div class="row">
-          
+        <div class="col-lg-12"> 
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Employment Details</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                 <button type="submit" form="employment-information-form" class="btn btn-success" id="submit-employment-information-data">Save</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="employment-information-form" method="post" action="#">
+                <div class="row">
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Badge ID <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="badge_id" name="badge_id" maxlength="300" autocomplete="off">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Department <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="department_id" id="department_id">
+                        <option value="">--</option>
+                        <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Job Position <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="job_position_id" id="job_position_id">
+                        <option value="">--</option>
+                        <?php echo $jobPositionModel->generateJobPositionOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Employee Type <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="employee_type_id" id="employee_type_id">
+                        <option value="">--</option>
+                        <?php echo $employeeTypeModel->generateEmployeeTypeOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Job Level <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="job_level_id" id="job_level_id">
+                        <option value="">--</option>
+                        <?php echo $jobLevelModel->generateJobLevelOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group">
+                      <label class="form-label">Branch <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="branch_id" id="branch_id">
+                        <option value="">--</option>
+                        <?php echo $branchModel->generateBranchOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-group">
+                      <label class="form-label">On-Board Date <span class="text-danger">*</span></label>
+                      <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="onboard_date" name="onboard_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-group">
+                      <label class="form-label">Permanency Date</label>
+                      <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="permanency_date" name="permanency_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -443,7 +535,7 @@
             </div>
             <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
               <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('contact', $employeeID) .'
+                '. $userModel->generateLogNotes('employee', $employeeID) .'
               </div>
             </div>
           </div>

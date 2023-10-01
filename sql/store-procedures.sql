@@ -928,13 +928,6 @@ BEGIN
     ORDER BY system_action_name;
 END //
 
-CREATE PROCEDURE generateRoleSystemActionAccessTable(IN p_role_id INT)
-BEGIN
-	SELECT system_action_id, system_action_name FROM system_action
-    WHERE system_action_id IN (SELECT system_action_id FROM system_action_access_rights WHERE role_id = p_role_id)
-    ORDER BY system_action_name;
-END //
-
 CREATE PROCEDURE generateAddSystemActionRoleAccessTable(IN p_system_action_id INT)
 BEGIN
 	SELECT role_id, role_name FROM role
@@ -3873,7 +3866,7 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/*  Table Stored Procedures */
+/* Employee Personal Information Table Stored Procedures */
 
 CREATE PROCEDURE checkEmployeePersonalInformationExist (IN p_employee_id INT)
 BEGIN
@@ -3925,6 +3918,44 @@ END //
 CREATE PROCEDURE getEmployeePersonalInformation(IN p_employee_id INT)
 BEGIN
 	SELECT * FROM employee_personal_information
+    WHERE employee_id = p_employee_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Employee Employment Information Table Stored Procedures */
+
+CREATE PROCEDURE checkEmployeeEmploymentInformationExist (IN p_employee_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM employee_employment_information
+    WHERE employee_id = p_employee_id;
+END //
+
+CREATE PROCEDURE insertEmployeeEmploymentInformation(IN p_employee_id INT, IN p_badge_id VARCHAR(500), IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO employee_employment_information (employee_id, badge_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, permanency_date, onboard_date, last_log_by) 
+	VALUES(p_employee_id, p_badge_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_permanency_date, p_onboard_date, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateEmployeeEmploymentInformation(IN p_employee_id INT, IN p_badge_id VARCHAR(500), IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
+BEGIN
+	UPDATE employee_employment_information
+    SET badge_id = p_badge_id,
+    employee_type_id = p_employee_type_id,
+    department_id = p_department_id,
+    job_position_id = p_job_position_id,
+    job_level_id = p_job_level_id,
+    branch_id = p_branch_id,
+    permanency_date = p_permanency_date,
+    onboard_date = p_onboard_date,
+    last_log_by = p_last_log_by
+    WHERE employee_id = p_employee_id;
+END //
+
+CREATE PROCEDURE getEmployeeEmploymentInformation(IN p_employee_id INT)
+BEGIN
+	SELECT * FROM employee_employment_information
     WHERE employee_id = p_employee_id;
 END //
 

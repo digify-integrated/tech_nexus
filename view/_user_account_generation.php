@@ -72,7 +72,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $profilePicture = $systemModel->checkImage($row['profile_picture'], 'profile');
                     $lastPasswordReset = ($row['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_password_reset'])) : 'Never Reset';
                     $lastConnectionDate = ($row['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_connection_date'])) : 'Never Connected';
-                    $lastFailedLoginAttempt = ($row['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_failed_login_attempt'])) : 'Never Connected';
+                    $lastFailedLoginAttempt = ($row['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($row['last_failed_login_attempt'])) : 'No Failed Login Attempt';
                     $userAccountIDEncrypted = $securityModel->encryptData($userAccountID);
                     
                     $isActiveBadge = $isActive ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';

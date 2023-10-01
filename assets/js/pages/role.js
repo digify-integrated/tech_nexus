@@ -953,6 +953,9 @@ function displayDetails(transaction){
                     role_id : role_id, 
                     transaction : transaction
                 },
+                beforeSend: function() {
+                    resetForm('role-form');
+                },
                 success: function(response) {
                     if (response.success) {
                         $('#role_id').val(role_id);

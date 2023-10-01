@@ -1253,7 +1253,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('job-position-form');
+                    resetForm('job-position-form');
                 },
                 success: function(response) {
                     if (response.success) {

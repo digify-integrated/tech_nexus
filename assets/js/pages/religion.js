@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('religion-form');
+                    resetForm('religion-form');
                 },
                 success: function(response) {
                     if (response.success) {

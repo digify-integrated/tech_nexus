@@ -435,7 +435,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('zoom-api-form');
+                    resetForm('zoom-api-form');
                 },
                 success: function(response) {
                     if (response.success) {

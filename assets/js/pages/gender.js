@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('gender-form');
+                    resetForm('gender-form');
                 },
                 success: function(response) {
                     if (response.success) {

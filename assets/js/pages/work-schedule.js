@@ -942,7 +942,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('work-schedule-form');
+                    resetForm('work-schedule-form');
                 },
                 success: function(response) {
                     if (response.success) {

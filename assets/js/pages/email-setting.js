@@ -572,7 +572,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('email-setting-form');
+                    resetForm('email-setting-form');
                 },
                 success: function(response) {
                     if (response.success) {

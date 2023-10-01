@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('bank-account-type-form');
+                    resetForm('bank-account-type-form');
                 },
                 success: function(response) {
                     if (response.success) {

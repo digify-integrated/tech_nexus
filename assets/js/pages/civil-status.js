@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('civil-status-form');
+                    resetForm('civil-status-form');
                 },
                 success: function(response) {
                     if (response.success) {

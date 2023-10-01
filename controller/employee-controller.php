@@ -80,8 +80,14 @@ class EmployeeController {
                 case 'save employee personal information':
                     $this->saveEmployeePersonalInformation();
                     break;
+                case 'save employee employment information':
+                    $this->saveEmployeeEmploymentInformation();
+                    break;
                 case 'get employee personal information details':
                     $this->getEmployeePersonalInformation();
+                    break;
+                case 'get employee employment information details':
+                    $this->getEmployeeEmploymentInformation();
                     break;
                 case 'delete employee':
                     $this->deleteEmployee();
@@ -158,6 +164,58 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveEmployeeEmploymentInformation
+    # Description: 
+    # Updates the existing employee employment information if it exists; otherwise, inserts a new employee employment information.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveEmployeeEmploymentInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = isset($_POST['employee_id']) ? htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8') : null;
+        $badgeID = htmlspecialchars($_POST['badge_id'], ENT_QUOTES, 'UTF-8');
+        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
+        $jobLevelID = htmlspecialchars($_POST['job_level_id'], ENT_QUOTES, 'UTF-8');
+        $employeeTypeID = htmlspecialchars($_POST['employee_type_id'], ENT_QUOTES, 'UTF-8');
+        $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
+        $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
+        $permanencyDate = $this->systemModel->checkDate('empty', $_POST['permanency_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeEmploymentInformationExist = $this->employeeModel->checkEmployeeEmploymentInformationExist($employeeID);
+        $total = $checkEmployeeEmploymentInformationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateEmployeeEmploymentInformation($employeeID, $badgeID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertEmployeeEmploymentInformation($employeeID, $badgeID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -485,6 +543,53 @@ class EmployeeController {
                 'birth_place' => $employeeDetails['birth_place'],
                 'height' => $employeeDetails['height'],
                 'weight' => $employeeDetails['weight']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getEmployeeEmploymentInformation
+    # Description: 
+    # Handles the retrieval of employee employment information details such as badge ID, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getEmployeeEmploymentInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['employee_id']) && !empty($_POST['employee_id'])) {
+            $userID = $_SESSION['user_id'];
+            $employeeID = $_POST['employee_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $employeeDetails = $this->employeeModel->getEmployeeEmploymentInformation($employeeID);
+
+            $response = [
+                'success' => true,
+                'badgeID' => $employeeDetails['badge_id'] ?? null,
+                'employeeTypeID' => $employeeDetails['employee_type_id'] ?? null,
+                'departmentID' => $employeeDetails['department_id'] ?? null,
+                'jobPositionID' => $employeeDetails['job_position_id'] ?? null,
+                'jobLevelID' => $employeeDetails['job_level_id'] ?? null,
+                'branchID' => $employeeDetails['branch_id'] ?? null,
+                'permanencyDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['permanency_date'] ?? null, '', 'm/d/Y', ''),
+                'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);

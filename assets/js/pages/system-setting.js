@@ -431,7 +431,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('system-setting-form');
+                    resetForm('system-setting-form');
                 },
                 success: function(response) {
                     if (response.success) {

@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('holiday-type-form');
+                    resetForm('holiday-type-form');
                 },
                 success: function(response) {
                     if (response.success) {

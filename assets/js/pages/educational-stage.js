@@ -417,7 +417,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('educational-stage-form');
+                    resetForm('educational-stage-form');
                 },
                 success: function(response) {
                     if (response.success) {

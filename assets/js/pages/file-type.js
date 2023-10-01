@@ -639,7 +639,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('file-type-form');
+                    resetForm('file-type-form');
                 },
                 success: function(response) {
                     if (response.success) {

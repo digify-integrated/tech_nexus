@@ -1331,6 +1331,9 @@ function displayDetails(transaction){
                     user_account_id : user_account_id, 
                     transaction : transaction
                 },
+                beforeSend: function() {
+                    resetForm('user-account-form');
+                },
                 success: function(response) {
                     if (response.success) {
                         $('#user_account_id').val(user_account_id);

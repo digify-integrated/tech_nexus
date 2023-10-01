@@ -55,6 +55,8 @@
         $roleID = null;
     }
 
+    $newRecord = isset($_GET['new']);
+
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
 ?>

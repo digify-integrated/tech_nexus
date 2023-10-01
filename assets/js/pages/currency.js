@@ -433,7 +433,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('currency-form');
+                    resetForm('currency-form');
                 },
                 success: function(response) {
                     if (response.success) {

@@ -259,7 +259,7 @@
         });
 
         $(document).on('click','#create-file-extension',function() {
-            resetModalForm("file-extension-form");
+            resetForm("file-extension-form");
 
             $('#file-extension-modal').modal('show');
         });

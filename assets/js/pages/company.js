@@ -473,7 +473,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('company-form');
+                    resetForm('company-form');
                 },
                 success: function(response) {
                     if (response.success) {

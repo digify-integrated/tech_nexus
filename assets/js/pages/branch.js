@@ -429,7 +429,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('branch-form');
+                    resetForm('branch-form');
                 },
                 success: function(response) {
                     if (response.success) {

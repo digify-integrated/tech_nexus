@@ -799,6 +799,9 @@ function displayDetails(transaction){
                     menu_item_id : menu_item_id, 
                     transaction : transaction
                 },
+                beforeSend: function() {
+                    resetForm('menu-item-form');
+                },
                 success: function(response) {
                     if (response.success) {
                         $('#menu_item_id').val(menu_item_id);

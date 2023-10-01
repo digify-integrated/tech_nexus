@@ -433,7 +433,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('job-level-form');
+                    resetForm('job-level-form');
                 },
                 success: function(response) {
                     if (response.success) {

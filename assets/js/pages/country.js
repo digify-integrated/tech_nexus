@@ -431,7 +431,7 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetModalForm('country-form');
+                    resetForm('country-form');
                 },
                 success: function(response) {
                     if (response.success) {
