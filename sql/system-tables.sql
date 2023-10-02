@@ -2832,6 +2832,8 @@ CREATE TABLE department(
 CREATE INDEX department_index_department_id ON department(department_id);
 CREATE INDEX department_index_parent_department ON department(parent_department);
 
+INSERT INTO department (department_name, last_log_by) VALUES ('Data Center', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Job Position Table */
@@ -2840,15 +2842,18 @@ CREATE TABLE job_position(
 	job_position_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	job_position_name VARCHAR(100) NOT NULL,
 	job_position_description VARCHAR(2000) NOT NULL,
-	recruitment_status TINYINT(1),
-	department_id INT,
+	recruitment_status TINYINT(1) DEFAULT 0,
+	department_id INT UNSIGNED,
 	expected_new_employees INT NOT NULL DEFAULT 0,
     last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
 CREATE INDEX job_position_index_job_position_id ON job_position(job_position_id);
 CREATE INDEX job_position_index_department_id ON job_position(department_id);
+
+INSERT INTO job_position (job_position_name, job_position_description, department_id, last_log_by) VALUES ('Data Center Staff', 'Data Center Staff', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -3864,6 +3864,59 @@ BEGIN
     SET p_employee_id = LAST_INSERT_ID();
 END //
 
+CREATE PROCEDURE generateEmployeeTable(IN p_employee_status ENUM('active', 'archived', 'all'), IN p_filter_department INT, IN p_filter_job_position INT, IN p_filter_job_level INT, IN p_filter_branch INT, IN p_filter_employee_type INT)
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM employee 
+    JOIN employee_personal_information ON employee.employee_id = employee_personal_information.employee_id 
+    JOIN employee_employment_information ON employee.employee_id = employee_employment_information.employee_id';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_employee_status IS NOT NULL THEN
+        IF p_employee_status = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' AND employee_status = 1');
+        ELSEIF p_employee_status = 'archived' THEN
+            SET conditionList = CONCAT(conditionList, ' AND employee_status = 0');
+        END IF;
+    END IF;
+
+    IF p_filter_department IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND department_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_department));
+    END IF;
+
+    IF p_filter_job_position IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND job_position_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_position));
+    END IF;
+
+    IF p_filter_job_level IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND job_level_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_level));
+    END IF;
+
+    IF p_filter_branch IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND branch_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_branch));
+    END IF;
+
+    IF p_filter_employee_type IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND employee_type_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_employee_type));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' ORDER BY employee.employee_id;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Employee Personal Information Table Stored Procedures */

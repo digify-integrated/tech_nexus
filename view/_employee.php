@@ -45,9 +45,7 @@
                 </th>
                 <th>Employee</th>
                 <th>Department</th>
-                <th>Job Position</th>
                 <th>Branch</th>
-                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>

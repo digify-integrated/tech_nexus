@@ -66,23 +66,38 @@
                 }
             });
         }
+
+        $(document).on('click','#filter-datatable',function() {
+            employeeTable('#employee-table');
+        });
     });
 })(jQuery);
 
 function employeeTable(datatable_name, buttons = false, show_all = false){
     const type = 'employee table';
+    var filter_employee_status = $('#filter_employee_status').val();
+    var filter_department = $('#filter_department').val();
+    var filter_job_position = $('#filter_job_position').val();
+    var filter_job_level = $('#filter_job_level').val();
+    var filter_branch = $('#filter_branch').val();
+    var filter_employee_type = $('#filter_employee_type').val();
+
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'BANK_NAME' },
+        { 'data' : 'EMPLOYEE' },
+        { 'data' : 'DEPARTMENT' },
+        { 'data' : 'BRANCH' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': '44%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -92,7 +107,15 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_employee_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type},
+            'data': {
+                'type' : type,
+                'filter_employee_status' : filter_employee_status,
+                'filter_department' : filter_department,
+                'filter_job_position' : filter_job_position,
+                'filter_job_level' : filter_job_level,
+                'filter_branch' : filter_branch,
+                'filter_employee_type' : filter_employee_type,
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

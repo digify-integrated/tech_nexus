@@ -1850,8 +1850,8 @@ class UserController {
         $defaultForgotPasswordLink = $systemSettingDetails['value'];
 
         $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(2);
-        $emailSubject = $notificationSettingDetails['email_notification_subject'];
-        $emailBody = $notificationSettingDetails['email_notification_body'];
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{RESET_LINK}', $defaultForgotPasswordLink . $userID .'&token=' . $resetToken, $emailBody);
 
         $message = file_get_contents('../email-template/default-email.html');

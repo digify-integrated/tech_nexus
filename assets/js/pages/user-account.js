@@ -940,7 +940,19 @@ function userAccountTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_user_account_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_status' : filter_status, 'filter_locked' : filter_locked, 'filter_password_expiry_date_start_date' : filter_password_expiry_date_start_date, 'filter_password_expiry_date_end_date' : filter_password_expiry_date_end_date, 'filter_last_connection_date_start_date' : filter_last_connection_date_start_date, 'filter_last_connection_date_end_date' : filter_last_connection_date_end_date, 'filter_last_password_reset_start_date' : filter_last_password_reset_start_date, 'filter_last_password_reset_end_date' : filter_last_password_reset_end_date, 'filter_last_failed_login_attempt_start_date' : filter_last_failed_login_attempt_start_date, 'filter_last_failed_login_attempt_end_date' : filter_last_failed_login_attempt_end_date},
+            'data': {
+                'type' : type, 
+                'filter_status' : filter_status, 
+                'filter_locked' : filter_locked, 
+                'filter_password_expiry_date_start_date' : filter_password_expiry_date_start_date, 
+                'filter_password_expiry_date_end_date' : filter_password_expiry_date_end_date, 
+                'filter_last_connection_date_start_date' : filter_last_connection_date_start_date, 
+                'filter_last_connection_date_end_date' : filter_last_connection_date_end_date, 
+                'filter_last_password_reset_start_date' : filter_last_password_reset_start_date, 
+                'filter_last_password_reset_end_date' : filter_last_password_reset_end_date, 
+                'filter_last_failed_login_attempt_start_date' : filter_last_failed_login_attempt_start_date, 
+                'filter_last_failed_login_attempt_end_date' : filter_last_failed_login_attempt_end_date
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
