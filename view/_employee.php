@@ -64,11 +64,18 @@
   </div>
   <div class="offcanvas-body">
     <div class="form-group mb-4">
-      <label class="form-label" for="filter_employee_status">Employee Status</label>
-      <select class="form-control filter-select2" name="filter_employee_status" id="filter_employee_status">
+      <label class="form-label" for="filter_employment_status">Employment Status</label>
+      <select class="form-control filter-select2" name="filter_employment_status" id="filter_employment_status">
         <option value="">--</option>
         <option value="active">Active</option>
         <option value="archived">Archived</option>
+      </select>
+    </div>
+    <div class="form-group mb-4">
+      <label class="form-label" for="filter_company">Company</label>
+      <select class="form-control filter-select2" name="filter_company" id="filter_company">
+        <option value="">--</option>
+        <?php echo $companyModel->generateCompanyOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">

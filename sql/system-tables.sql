@@ -3463,27 +3463,30 @@ VALUES
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Table */
+/* Contact Table */
 
-CREATE TABLE employee(
-	employee_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+CREATE TABLE contact(
+	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	user_id INT UNSIGNED,
+	is_employee TINYINT(1) DEFAULT 0,
+	is_applicant TINYINT(1) DEFAULT 0,
+	is_customer TINYINT(1) DEFAULT 0,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX employee_index_employee_id ON employee(employee_id);
-CREATE INDEX employee_index_user_id ON employee(user_id);
+CREATE INDEX contact_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_index_user_id ON contact(user_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Personal Information Table */
+/* Personal Information Table */
 
-CREATE TABLE employee_personal_information(
-	employee_id INT UNSIGNED PRIMARY KEY NOT NULL,
-	employee_image VARCHAR(500),
-	employee_signature VARCHAR(500),
+CREATE TABLE personal_information(
+	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
+	contact_image VARCHAR(500),
+	contact_signature VARCHAR(500),
     first_name VARCHAR(300) NOT NULL,
 	middle_name VARCHAR(300),
 	last_name VARCHAR(300) NOT NULL,
@@ -3499,46 +3502,66 @@ CREATE TABLE employee_personal_information(
     height FLOAT,
     weight FLOAT,
     last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
-
-CREATE INDEX employee_personal_information_index_employee_id ON employee_personal_information(employee_id);
-CREATE INDEX employee_personal_information_index_civil_status_id ON employee_personal_information(civil_status_id);
-CREATE INDEX employee_personal_information_index_gender_id ON employee_personal_information(gender_id);
-CREATE INDEX employee_personal_information_index_religion_id ON employee_personal_information(religion_id);
-CREATE INDEX employee_personal_information_index_blood_type_id ON employee_personal_information(blood_type_id);
+CREATE INDEX personal_information_index_contact_id ON personal_information(contact_id);
+CREATE INDEX personal_information_index_civil_status_id ON personal_information(civil_status_id);
+CREATE INDEX personal_information_index_gender_id ON personal_information(gender_id);
+CREATE INDEX personal_information_index_religion_id ON personal_information(religion_id);
+CREATE INDEX personal_information_index_blood_type_id ON personal_information(blood_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Employment Information Table */
+/* Employment Information Table */
 
-CREATE TABLE employee_employment_information(
-	employee_id INT UNSIGNED PRIMARY KEY NOT NULL,
+CREATE TABLE employment_information(
+	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
 	badge_id VARCHAR(500) NOT NULL,
+    company_id INT UNSIGNED,
     employee_type_id INT UNSIGNED,
 	department_id INT UNSIGNED,
 	job_position_id INT UNSIGNED,
 	job_level_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
-	employee_status TINYINT(1) NOT NULL DEFAULT 1,
+	employment_status TINYINT(1) NOT NULL DEFAULT 1,
     permanency_date DATE,
     onboard_date DATE,
     offboard_date DATE,
     departure_reason_id INT UNSIGNED,
     detailed_departure_reason VARCHAR(5000),
     last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX employee_employment_information_index_employee_id ON employee_employment_information(employee_id);
-CREATE INDEX employee_employment_information_index_employee_type_id ON employee_employment_information(employee_type_id);
-CREATE INDEX employee_employment_information_index_department_id ON employee_employment_information(department_id);
-CREATE INDEX employee_employment_information_index_job_position_id ON employee_employment_information(job_position_id);
-CREATE INDEX employee_employment_information_index_job_level_id ON employee_employment_information(job_level_id);
-CREATE INDEX employee_employment_information_index_branch_id ON employee_employment_information(branch_id);
-CREATE INDEX employee_employment_information_index_departure_reason_id ON employee_employment_information(departure_reason_id);
+CREATE INDEX employment_information_index_id ON employment_information(contact_id);
+CREATE INDEX employment_information_index_company_id ON employment_information(company_id);
+CREATE INDEX employment_information_index_employee_type_id ON employment_information(employee_type_id);
+CREATE INDEX employment_information_index_department_id ON employment_information(department_id);
+CREATE INDEX employment_information_index_job_position_id ON employment_information(job_position_id);
+CREATE INDEX employment_information_index_job_level_id ON employment_information(job_level_id);
+CREATE INDEX employment_information_index_branch_id ON employment_information(branch_id);
+CREATE INDEX employment_information_index_departure_reason_id ON employment_information(departure_reason_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Information Table */
+
+CREATE TABLE contact_information(
+    contact_information_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	contact_id INT UNSIGNED NOT NULL,
+	contact_information_type_id INT UNSIGNED NOT NULL,
+	mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_information_index_id ON contact_information(contact_id);
+CREATE INDEX contact_information_index_contact_information_type_id ON contact_information_type(contact_information_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

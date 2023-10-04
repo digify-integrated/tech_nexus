@@ -4,6 +4,7 @@
     require('model/database-model.php');
     require('model/user-model.php');
     require('model/employee-model.php');
+    require('model/company-model.php');
     require('model/department-model.php');
     require('model/job-position-model.php');
     require('model/job-level-model.php');
@@ -25,6 +26,7 @@
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
     $employeeModel = new EmployeeModel($databaseModel);
+    $companyModel = new CompanyModel($databaseModel);
     $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);
     $jobLevelModel = new JobLevelModel($databaseModel);

@@ -440,13 +440,22 @@
             <div class="card-body">
               <form id="employment-information-form" method="post" action="#">
                 <div class="row">
-                  <div class="col-sm-4">
+                  <div class="col-sm-3">
                     <div class="form-group">
                       <label class="form-label">Badge ID <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="badge_id" name="badge_id" maxlength="300" autocomplete="off">
                     </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-3">
+                    <div class="form-group">
+                      <label class="form-label">Company <span class="text-danger">*</span></label>
+                      <select class="form-control select2" name="company_id" id="company_id">
+                        <option value="">--</option>
+                        <?php echo $companyModel->generateCompanyOptions(); ?>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-3">
                     <div class="form-group">
                       <label class="form-label">Department <span class="text-danger">*</span></label>
                       <select class="form-control select2" name="department_id" id="department_id">
@@ -455,7 +464,7 @@
                       </select>
                     </div>
                   </div>
-                  <div class="col-sm-4">
+                  <div class="col-sm-3">
                     <div class="form-group">
                       <label class="form-label">Job Position <span class="text-danger">*</span></label>
                       <select class="form-control select2" name="job_position_id" id="job_position_id">

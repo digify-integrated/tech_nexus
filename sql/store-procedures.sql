@@ -1823,6 +1823,12 @@ BEGIN
     ORDER BY company_id;
 END //
 
+CREATE PROCEDURE generateCompanyOptions()
+BEGIN
+	SELECT company_id, company_name FROM company
+	ORDER BY company_name;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Email Setting Table Stored Procedures */
@@ -3849,38 +3855,43 @@ END //
 
 /* Employee Table Stored Procedures */
 
-CREATE PROCEDURE checkEmployeeExist (IN p_employee_id INT)
+CREATE PROCEDURE checkEmployeeExist (IN p_contact_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM employee
-    WHERE employee_id = p_employee_id;
+    FROM contact
+    WHERE contact_id = p_contact_id AND is_employee = 1;
 END //
 
-CREATE PROCEDURE insertEmployee(IN p_last_log_by INT, OUT p_employee_id INT)
+CREATE PROCEDURE insertEmployee(IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN
-    INSERT INTO employee (last_log_by) 
-	VALUES(p_last_log_by);
+    INSERT INTO contact (is_employee, last_log_by) 
+	VALUES(1, p_last_log_by);
 	
-    SET p_employee_id = LAST_INSERT_ID();
+    SET p_contact_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateEmployeeTable(IN p_employee_status ENUM('active', 'archived', 'all'), IN p_filter_department INT, IN p_filter_job_position INT, IN p_filter_job_level INT, IN p_filter_branch INT, IN p_filter_employee_type INT)
+CREATE PROCEDURE generateEmployeeTable(IN p_employment_status ENUM('active', 'archived', 'all'), IN p_company_id INT, IN p_filter_department INT, IN p_filter_job_position INT, IN p_filter_job_level INT, IN p_filter_branch INT, IN p_filter_employee_type INT)
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
-    SET query = 'SELECT * FROM employee 
-    JOIN employee_personal_information ON employee.employee_id = employee_personal_information.employee_id 
-    JOIN employee_employment_information ON employee.employee_id = employee_employment_information.employee_id';
+    SET query = 'SELECT * FROM contact 
+    JOIN personal_information ON contact.contact_id = personal_information.contact_id 
+    JOIN employment_information ON contact.contact_id = employment_information.contact_id';
     
-    SET conditionList = ' WHERE 1';
+    SET conditionList = ' WHERE is_employee = 1';
 
-    IF p_employee_status IS NOT NULL THEN
-        IF p_employee_status = 'active' THEN
-            SET conditionList = CONCAT(conditionList, ' AND employee_status = 1');
-        ELSEIF p_employee_status = 'archived' THEN
-            SET conditionList = CONCAT(conditionList, ' AND employee_status = 0');
+    IF p_employment_status IS NOT NULL THEN
+        IF p_employment_status = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' AND employment_status = 1');
+        ELSEIF p_employment_status = 'archived' THEN
+            SET conditionList = CONCAT(conditionList, ' AND employment_status = 0');
         END IF;
+    END IF;
+
+    IF p_company_id IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_company_id));
     END IF;
 
     IF p_filter_department IS NOT NULL THEN
@@ -3910,7 +3921,7 @@ BEGIN
 
     SET query = CONCAT(query, conditionList);
 
-    SET query = CONCAT(query, ' ORDER BY employee.employee_id;');
+    SET query = CONCAT(query, ' ORDER BY personal_information.first_name;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -3919,30 +3930,30 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Personal Information Table Stored Procedures */
+/* Personal Information Table Stored Procedures */
 
-CREATE PROCEDURE checkEmployeePersonalInformationExist (IN p_employee_id INT)
+CREATE PROCEDURE checkPersonalInformationExist (IN p_contact_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM employee_personal_information
-    WHERE employee_id = p_employee_id;
+    FROM personal_information
+    WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertEmployeePersonalInformation(IN p_employee_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employee_personal_information (employee_id, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
-	VALUES(p_employee_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
+    INSERT INTO personal_information (contact_id, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertPartialEmployeePersonalInformation(IN p_employee_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
+CREATE PROCEDURE insertPartialPersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employee_personal_information (employee_id, first_name, middle_name, last_name, suffix, last_log_by) 
-	VALUES(p_employee_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
+    INSERT INTO personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
+	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmployeePersonalInformation(IN p_employee_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
-	UPDATE employee_personal_information
+	UPDATE personal_information
     SET first_name = p_first_name,
     middle_name = p_middle_name,
     last_name = p_last_name,
@@ -3958,43 +3969,44 @@ BEGIN
     height = p_height,
     weight = p_weight,
     last_log_by = p_last_log_by
-    WHERE employee_id = p_employee_id;
+    WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE updateEmployeeImage(IN p_employee_id INT, IN p_employee_image VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateContactImage(IN p_contact_id INT, IN p_contact_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-	UPDATE employee_personal_information 
-    SET employee_image = p_employee_image, last_log_by = p_last_log_by 
-    WHERE employee_id = p_employee_id;
+	UPDATE personal_information 
+    SET contact_image = p_contact_image, last_log_by = p_last_log_by 
+    WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE getEmployeePersonalInformation(IN p_employee_id INT)
+CREATE PROCEDURE getPersonalInformation(IN p_contact_id INT)
 BEGIN
-	SELECT * FROM employee_personal_information
-    WHERE employee_id = p_employee_id;
+	SELECT * FROM personal_information
+    WHERE contact_id = p_contact_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Employment Information Table Stored Procedures */
+/*  Employment Information Table Stored Procedures */
 
-CREATE PROCEDURE checkEmployeeEmploymentInformationExist (IN p_employee_id INT)
+CREATE PROCEDURE checkEmploymentInformationExist (IN p_contact_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
-    FROM employee_employment_information
-    WHERE employee_id = p_employee_id;
+    FROM employment_information
+    WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertEmployeeEmploymentInformation(IN p_employee_id INT, IN p_badge_id VARCHAR(500), IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employee_employment_information (employee_id, badge_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, permanency_date, onboard_date, last_log_by) 
-	VALUES(p_employee_id, p_badge_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_permanency_date, p_onboard_date, p_last_log_by);
+    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, permanency_date, onboard_date, last_log_by) 
+	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_permanency_date, p_onboard_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmployeeEmploymentInformation(IN p_employee_id INT, IN p_badge_id VARCHAR(500), IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-	UPDATE employee_employment_information
+	UPDATE employment_information
     SET badge_id = p_badge_id,
+    company_id = p_company_id,
     employee_type_id = p_employee_type_id,
     department_id = p_department_id,
     job_position_id = p_job_position_id,
@@ -4003,13 +4015,61 @@ BEGIN
     permanency_date = p_permanency_date,
     onboard_date = p_onboard_date,
     last_log_by = p_last_log_by
-    WHERE employee_id = p_employee_id;
+    WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE getEmployeeEmploymentInformation(IN p_employee_id INT)
+CREATE PROCEDURE getEmploymentInformation(IN p_contact_id INT)
 BEGIN
-	SELECT * FROM employee_employment_information
-    WHERE employee_id = p_employee_id;
+	SELECT * FROM employment_information
+    WHERE contact_id = p_contact_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Contact Information Table Stored Procedures */
+
+CREATE PROCEDURE checkContactInformationExist (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_information
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE insertContactInformation(IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO employment_information (contact_id, contact_information_type_id, mobile, telephone, email, last_log_by) 
+	VALUES(p_contact_id, p_contact_information_type_id, p_mobile, p_telephone, p_email, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactInformation(IN p_employee_contact_information_id INT, IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_information
+    SET contact_id = p_contact_id,
+    contact_information_type_id = p_contact_information_type_id,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    last_log_by = p_last_log_by
+    WHERE employee_contact_information_id = p_employee_contact_information_id;
+END //
+
+CREATE PROCEDURE deleteContactInformation(IN p_bank_account_type_id INT)
+BEGIN
+    DELETE FROM contact_information WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE getContactInformation(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM contact_information
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE generateContactInformation(IN p_contact_id INT)
+BEGIN
+	SELECT contact_information_type_id, mobile, telephone, email 
+    FROM contact_information
+    WHERE contact_id = p_contact_id 
+    ORDER BY mobile;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

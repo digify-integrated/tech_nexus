@@ -17,33 +17,33 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateEmployeePersonalInformation
-    # Description: Updates the employee personal information.
+    # Function: updatePersonalInformation
+    # Description: Updates the personal information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_first_name (string): The first name of the employee.
-    # - $p_middle_name (string): The middle name of the employee.
-    # - $p_last_name (string): The last name of the employee.
-    # - $p_suffix (string): The suffix of the employee.
-    # - $p_nickname (string): The nickname of the employee.
-    # - $p_bio (string): The bio of the employee.
-    # - $p_civil_status_id (int): The civil status of the employee.
-    # - $p_gender_id (int): The gender of the employee.
-    # - $p_religion_id (int): The religion of the employee.
-    # - $p_blood_type_id (int): The blood type of the employee.
-    # - $p_birthday (date): The birthday of the employee.
-    # - $p_birth_place (string): The birth place of the employee.
-    # - $p_height (double): The height of the employee.
-    # - $p_weight (double): The weight of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_first_name (string): The first name.
+    # - $p_middle_name (string): The middle name.
+    # - $p_last_name (string): The last name.
+    # - $p_suffix (string): The suffix.
+    # - $p_nickname (string): The nickname.
+    # - $p_bio (string): The bio.
+    # - $p_civil_status_id (int): The civil status.
+    # - $p_gender_id (int): The gender.
+    # - $p_religion_id (int): The religion.
+    # - $p_blood_type_id (int): The blood type.
+    # - $p_birthday (date): The birthday.
+    # - $p_birth_place (string): The birth place.
+    # - $p_height (double): The height.
+    # - $p_weight (double): The weight.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateEmployeePersonalInformation($p_employee_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateEmployeePersonalInformation(:p_employee_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function updatePersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -66,20 +66,20 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: updateEmployeeImage
-    # Description: Updates the employee personal information.
+    # Description: Updates the employee image.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_employee_image (string): The image of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_contact_image (string): The image of the contact.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateEmployeeImage($p_employee_id, $p_employee_image, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateEmployeeImage(:p_employee_id, :p_employee_image, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_employee_image', $p_employee_image, PDO::PARAM_STR);
+    public function updateEmployeeImage($p_contact_id, $p_contact_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactImage(:p_contact_id, :p_contact_image, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_image', $p_contact_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -87,28 +87,30 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateEmployeeEmploymentInformation
-    # Description: Updates the employee employment information.
+    # Function: updateEmploymentInformation
+    # Description: Updates the employment information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_badge_id (string): The badge ID of the employee.
-    # - $p_employee_type_id (int): The employee type of the employee.
-    # - $p_department_id (int): The department of the employee.
-    # - $p_job_position_id (int): The job position of the employee.
-    # - $p_job_level_id (int): The job level of the employee.
-    # - $p_branch_id (int): The branch of the employee.
-    # - $p_permanency_date (date): The permanency date of the employee.
-    # - $p_onboard_date (date): The onboard date of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_badge_id (string): The badge ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_employee_type_id (int): The employee type ID.
+    # - $p_department_id (int): The department ID.
+    # - $p_job_position_id (int): The job position ID.
+    # - $p_job_level_id (int): The job level ID.
+    # - $p_branch_id (int): The branch ID.
+    # - $p_permanency_date (date): The permanency date.
+    # - $p_onboard_date (date): The onboard date.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateEmployeeEmploymentInformation($p_employee_id, $p_badge_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_permanency_date, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateEmployeeEmploymentInformation (:p_employee_id, :p_badge_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_permanency_date, :p_onboard_date, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function updateEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_permanency_date, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateEmploymentInformation (:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_permanency_date, :p_onboard_date, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_employee_type_id', $p_employee_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
@@ -137,36 +139,36 @@ class EmployeeModel {
     #
     # -------------------------------------------------------------
     public function insertEmployee($p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmployee(:p_last_log_by, @p_employee_id)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmployee(:p_last_log_by, @p_contact_id)');
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
-        $result = $this->db->getConnection()->query("SELECT @p_employee_id AS p_employee_id");
-        $p_employee_id = $result->fetch(PDO::FETCH_ASSOC)['p_employee_id'];
+        $result = $this->db->getConnection()->query("SELECT @p_contact_id AS p_contact_id");
+        $p_contact_id = $result->fetch(PDO::FETCH_ASSOC)['p_contact_id'];
 
-        return $p_employee_id;
+        return $p_contact_id;
     }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: insertPartialEmployeePersonalInformation
-    # Description: Inserts the partial employee personal details.
+    # Function: insertPartialPersonalInformation
+    # Description: Inserts the partial personal details.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_first_name (string): The first name of the employee.
-    # - $p_middle_name (string): The middle name of the employee.
-    # - $p_last_name (string): The last name of the employee.
-    # - $p_suffix (string): The suffix of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_first_name (string): The first name.
+    # - $p_middle_name (string): The middle name.
+    # - $p_last_name (string): The last name.
+    # - $p_suffix (string): The suffix.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPartialEmployeePersonalInformation($p_employee_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartialEmployeePersonalInformation(:p_employee_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function insertPartialPersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartialPersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -178,33 +180,33 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: insertEmployeePersonalInformation
-    # Description: Inserts the employee personal information.
+    # Function: insertPersonalInformation
+    # Description: Inserts the personal information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_first_name (string): The first name of the employee.
-    # - $p_middle_name (string): The middle name of the employee.
-    # - $p_last_name (string): The last name of the employee.
-    # - $p_suffix (string): The suffix of the employee.
-    # - $p_nickname (string): The nickname of the employee.
-    # - $p_bio (string): The bio of the employee.
-    # - $p_civil_status_id (int): The civil status of the employee.
-    # - $p_gender_id (int): The gender of the employee.
-    # - $p_religion_id (int): The religion of the employee.
-    # - $p_blood_type_id (int): The blood type of the employee.
-    # - $p_birthday (date): The birthday of the employee.
-    # - $p_birth_place (string): The birth place of the employee.
-    # - $p_height (double): The height of the employee.
-    # - $p_weight (double): The weight of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_first_name (string): The first name.
+    # - $p_middle_name (string): The middle name.
+    # - $p_last_name (string): The last name.
+    # - $p_suffix (string): The suffix.
+    # - $p_nickname (string): The nickname.
+    # - $p_bio (string): The bio.
+    # - $p_civil_status_id (int): The civil status.
+    # - $p_gender_id (int): The gender.
+    # - $p_religion_id (int): The religion.
+    # - $p_blood_type_id (int): The blood type.
+    # - $p_birthday (date): The birthday.
+    # - $p_birth_place (string): The birth place.
+    # - $p_height (double): The height.
+    # - $p_weight (double): The weight.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertEmployeePersonalInformation($p_employee_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmployeePersonalInformation(:p_employee_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function insertPersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -224,30 +226,32 @@ class EmployeeModel {
     }
     # -------------------------------------------------------------
 
-     # -------------------------------------------------------------
+    # -------------------------------------------------------------
     #
-    # Function: insertmployeeEmploymentInformation
+    # Function: insertEmploymentInformation
     # Description: Inserts the employee employment information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_badge_id (string): The badge ID of the employee.
-    # - $p_employee_type_id (int): The employee type of the employee.
-    # - $p_department_id (int): The department of the employee.
-    # - $p_job_position_id (int): The job position of the employee.
-    # - $p_job_level_id (int): The job level of the employee.
-    # - $p_branch_id (int): The branch of the employee.
-    # - $p_permanency_date (date): The permanency date of the employee.
-    # - $p_onboard_date (date): The onboard date of the employee.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_badge_id (string): The badge ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_employee_type_id (int): The employee type ID.
+    # - $p_department_id (int): The department ID.
+    # - $p_job_position_id (int): The job position ID.
+    # - $p_job_level_id (int): The job level ID.
+    # - $p_branch_id (int): The branch ID.
+    # - $p_permanency_date (date): The permanency date.
+    # - $p_onboard_date (date): The onboard date.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertEmployeeEmploymentInformation($p_employee_id, $p_badge_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_permanency_date, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmployeeEmploymentInformation(:p_employee_id, :p_badge_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_permanency_date, :p_onboard_date, :p_last_log_by)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function insertEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_permanency_date, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmploymentInformation(:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_permanency_date, :p_onboard_date, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_employee_type_id', $p_employee_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
@@ -270,14 +274,14 @@ class EmployeeModel {
     # Description: Checks if a employee exists.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkEmployeeExist($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkEmployeeExist(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function checkEmployeeExist($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkEmployeeExist(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -285,18 +289,18 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: checkEmployeePersonalInformationExist
-    # Description: Checks if a employee personal information exists.
+    # Function: checkPersonalInformationExist
+    # Description: Checks if a personal information exists.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkEmployeePersonalInformationExist($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkEmployeePersonalInformationExist(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function checkPersonalInformationExist($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkPersonalInformationExist(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -304,18 +308,18 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: checkEmployeeEmploymentInformationExist
-    # Description: Checks if a employee employment information exists.
+    # Function: checkEmploymentInformationExist
+    # Description: Checks if a employment information exists.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkEmployeeEmploymentInformationExist($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkEmployeeEmploymentInformationExist(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function checkEmploymentInformationExist($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkEmploymentInformationExist(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -331,14 +335,14 @@ class EmployeeModel {
     # Description: Deletes the employee.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteEmployee($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteEmployee(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function deleteEmployee($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteEmployee(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -349,19 +353,19 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployeePersonalInformation
-    # Description: Retrieves the details of a employee personal information.
+    # Function: getPersonalInformation
+    # Description: Retrieves the details of a personal information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns:
-    # - An array containing the employee details.
+    # - An array containing the personal information.
     #
     # -------------------------------------------------------------
-    public function getEmployeePersonalInformation($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getEmployeePersonalInformation(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function getPersonalInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getPersonalInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -369,81 +373,21 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployeeEmploymentInformation
-    # Description: Retrieves the details of a employee employment information.
+    # Function: getEmploymentInformation
+    # Description: Retrieves the details of a employment information.
     #
     # Parameters:
-    # - $p_employee_id (int): The employee ID.
+    # - $p_contact_id (int): The contact ID.
     #
     # Returns:
-    # - An array containing the employee details.
+    # - An array containing the employment information.
     #
     # -------------------------------------------------------------
-    public function getEmployeeEmploymentInformation($p_employee_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getEmployeeEmploymentInformation(:p_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
+    public function getEmploymentInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmploymentInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateEmployee
-    # Description: Duplicates the employee.
-    #
-    # Parameters:
-    # - $p_employee_id (int): The employee ID.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function duplicateEmployee($p_employee_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL duplicateEmployee(:p_employee_id, :p_last_log_by, @p_new_employee_id)');
-        $stmt->bindValue(':p_employee_id', $p_employee_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $result = $this->db->getConnection()->query("SELECT @p_new_employee_id AS employee_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['employee_id'];
-
-        return $systemActionID;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Generate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: generateEmployeeOptions
-    # Description: Generates the employee options.
-    #
-    # Parameters:None
-    #
-    # Returns: String.
-    #
-    # -------------------------------------------------------------
-    public function generateEmployeeOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeOptions()');
-        $stmt->execute();
-        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $htmlOptions = '';
-        foreach ($options as $row) {
-            $employeeID = $row['employee_id'];
-            $employeeName = $row['employee_name'];
-
-            $htmlOptions .= '<option value="' . htmlspecialchars($employeeID, ENT_QUOTES) . '">' . htmlspecialchars($employeeName, ENT_QUOTES) .'</option>';
-        }
-
-        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

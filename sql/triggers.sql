@@ -2294,44 +2294,10 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Table Triggers */
+/* Personal Information Table Triggers */
 
-CREATE TRIGGER employee_trigger_update
-AFTER UPDATE ON employee
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT '';
-
-    IF NEW.user_id <> OLD.user_id THEN
-        SET audit_log = CONCAT(audit_log, "User ID: ", OLD.user_id, " -> ", NEW.user_id, "<br/>");
-    END IF;
-    
-    IF LENGTH(audit_log) > 0 THEN
-        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
-    END IF;
-END //
-
-CREATE TRIGGER employee_trigger_insert
-AFTER INSERT ON employee
-FOR EACH ROW
-BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Employee created. <br/>';
-
-    IF NEW.user_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>User ID: ", NEW.user_id);
-    END IF;
-
-    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
-END //
-
-/* ----------------------------------------------------------------------------------------------------------------------------- */
-
-/* Employee Personal Information Table Triggers */
-
-CREATE TRIGGER employee_personal_information_trigger_update
-AFTER UPDATE ON employee_personal_information
+CREATE TRIGGER personal_information_trigger_update
+AFTER UPDATE ON personal_information
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
@@ -2394,15 +2360,15 @@ BEGIN
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
-CREATE TRIGGER employee_personal_information_trigger_insert
-AFTER INSERT ON employee_personal_information
+CREATE TRIGGER personal_information_trigger_insert
+AFTER INSERT ON personal_information
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Contact personal information created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Personal information created. <br/>';
 
     IF NEW.first_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>First Name: ", NEW.first_name);
@@ -2461,15 +2427,15 @@ BEGIN
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employee Employment Information Table Triggers */
+/* Employment Information Table Triggers */
 
-CREATE TRIGGER employee_employment_information_trigger_update
-AFTER UPDATE ON employee_employment_information
+CREATE TRIGGER employment_information_trigger_update
+AFTER UPDATE ON employment_information
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
@@ -2480,6 +2446,10 @@ BEGIN
 
     IF NEW.employee_type_id <> OLD.employee_type_id THEN
         SET audit_log = CONCAT(audit_log, "Employee Type ID: ", OLD.employee_type_id, " -> ", NEW.employee_type_id, "<br/>");
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
     END IF;
 
     IF NEW.department_id <> OLD.department_id THEN
@@ -2498,8 +2468,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Branch ID: ", OLD.branch_id, " -> ", NEW.branch_id, "<br/>");
     END IF;
 
-    IF NEW.employee_status <> OLD.employee_status THEN
-        SET audit_log = CONCAT(audit_log, "Employee Status ID: ", OLD.employee_status, " -> ", NEW.employee_status, "<br/>");
+    IF NEW.employment_status <> OLD.employment_status THEN
+        SET audit_log = CONCAT(audit_log, "Employment Status ID: ", OLD.employment_status, " -> ", NEW.employment_status, "<br/>");
     END IF;
 
     IF NEW.permanency_date <> OLD.permanency_date THEN
@@ -2524,15 +2494,15 @@ BEGIN
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('employee', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
-CREATE TRIGGER employee_employment_information_trigger_insert
-AFTER INSERT ON employee_employment_information
+CREATE TRIGGER employment_information_trigger_insert
+AFTER INSERT ON employment_information
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Contact employement information created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Employment information created. <br/>';
 
     IF NEW.badge_id <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Badge ID: ", NEW.badge_id);
@@ -2540,6 +2510,10 @@ BEGIN
 
     IF NEW.employee_type_id <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Employee Type ID: ", NEW.employee_type_id);
+    END IF;
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
     END IF;
 
     IF NEW.department_id <> '' THEN
@@ -2558,8 +2532,8 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Branch ID: ", NEW.branch_id);
     END IF;
 
-    IF NEW.employee_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Employee Status: ", NEW.employee_status);
+    IF NEW.employment_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employement Status: ", NEW.employment_status);
     END IF;
 
     IF NEW.permanency_date <> '' THEN
@@ -2583,7 +2557,7 @@ BEGIN
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('employee', NEW.employee_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('employee', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

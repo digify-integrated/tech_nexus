@@ -19,8 +19,8 @@
         }
 
         if($('#employee-id').length){
-            displayDetails('get employee personal information details');
-            displayDetails('get employee employment information details');
+            displayDetails('get personal information details');
+            displayDetails('get employment information details');
 
             $('#employee_image').change(function() {
                 var selectedFile = $(this)[0].files[0];
@@ -44,7 +44,7 @@
                         success: function(response) {
                             if (response.success) {
                                 showNotification('Employee Image Change Success', 'The employee image has been successfully updated.', 'success');
-                                displayDetails('get employee personal information details');
+                                displayDetails('get personal information details');
                             }
                             else{
                                 if(response.isInactive){
@@ -75,7 +75,8 @@
 
 function employeeTable(datatable_name, buttons = false, show_all = false){
     const type = 'employee table';
-    var filter_employee_status = $('#filter_employee_status').val();
+    var filter_employment_status = $('#filter_employment_status').val();
+    var filter_company = $('#filter_company').val();
     var filter_department = $('#filter_department').val();
     var filter_job_position = $('#filter_job_position').val();
     var filter_job_level = $('#filter_job_level').val();
@@ -109,7 +110,8 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
             'dataType': 'json',
             'data': {
                 'type' : type,
-                'filter_employee_status' : filter_employee_status,
+                'filter_employment_status' : filter_employment_status,
+                'filter_company' : filter_company,
                 'filter_department' : filter_department,
                 'filter_job_position' : filter_job_position,
                 'filter_job_level' : filter_job_level,
@@ -305,7 +307,7 @@ function personalInformationForm(){
         },
         submitHandler: function(form) {
             const employee_id = $('#employee-id').text();
-            const transaction = 'save employee personal information';
+            const transaction = 'save personal information';
         
             $.ajax({
                 type: 'POST',
@@ -321,7 +323,7 @@ function personalInformationForm(){
                         const notificationDescription = 'The personal information has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        displayDetails('get employee personal information details');
+                        displayDetails('get personal information details');
                     }
                     else {
                         if (response.isInactive) {
@@ -356,6 +358,9 @@ function employmentInformationForm(){
             badge_id: {
                 required: true
             },
+            company_id: {
+                required: true
+            },
             department_id: {
                 required: true
             },
@@ -381,6 +386,9 @@ function employmentInformationForm(){
         messages: {
             badge_id: {
                 required: 'Please enter the badge ID'
+            },
+            company_id: {
+                required: 'Please choose the company'
             },
             department_id: {
                 required: 'Please choose the department'
@@ -432,7 +440,7 @@ function employmentInformationForm(){
         },
         submitHandler: function(form) {
             const employee_id = $('#employee-id').text();
-            const transaction = 'save employee employment information';
+            const transaction = 'save employment information';
         
             $.ajax({
                 type: 'POST',
@@ -448,7 +456,7 @@ function employmentInformationForm(){
                         const notificationDescription = 'The employment information has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        displayDetails('get employee employment information details');
+                        displayDetails('get employment information details');
                     }
                     else {
                         if (response.isInactive) {
@@ -479,7 +487,7 @@ function employmentInformationForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get employee personal information details':
+        case 'get personal information details':
             var employee_id = $('#employee-id').text();
             
             $.ajax({
@@ -531,7 +539,7 @@ function displayDetails(transaction){
                 }
             });
             break;
-        case 'get employee employment information details':
+        case 'get employment information details':
             var employee_id = $('#employee-id').text();
             
             $.ajax({
@@ -551,6 +559,7 @@ function displayDetails(transaction){
                         $('#onboard_date').val(response.onboardDate);
                         $('#permanency_date').val(response.permanencyDate);
 
+                        checkOptionExist('#company_id', response.companyID, '');
                         checkOptionExist('#department_id', response.departmentID, '');
                         checkOptionExist('#job_position_id', response.jobPositionID, '');
                         checkOptionExist('#employee_type_id', response.employeeTypeID, '');

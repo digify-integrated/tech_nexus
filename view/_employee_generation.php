@@ -42,16 +42,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'employee table':
-            if(isset($_POST['filter_employee_status']) && isset($_POST['filter_department']) && isset($_POST['filter_job_position']) && isset($_POST['filter_job_level']) && isset($_POST['filter_branch']) && isset($_POST['filter_employee_type'])){
-                $filterEmployeeStatus = htmlspecialchars($_POST['filter_employee_status'], ENT_QUOTES, 'UTF-8');
+            if(isset($_POST['filter_employment_status']) && isset($_POST['filter_company']) && isset($_POST['filter_department']) && isset($_POST['filter_job_position']) && isset($_POST['filter_job_level']) && isset($_POST['filter_branch']) && isset($_POST['filter_employee_type'])){
+                $filterEmployeeStatus = htmlspecialchars($_POST['filter_employment_status'], ENT_QUOTES, 'UTF-8');
+                $filterCompany = htmlspecialchars($_POST['filter_company'], ENT_QUOTES, 'UTF-8');
                 $filterDepartment = htmlspecialchars($_POST['filter_department'], ENT_QUOTES, 'UTF-8');
                 $filterJobPosition = htmlspecialchars($_POST['filter_job_position'], ENT_QUOTES, 'UTF-8');
                 $filterJobLevel = htmlspecialchars($_POST['filter_job_level'], ENT_QUOTES, 'UTF-8');
                 $filterBranch = htmlspecialchars($_POST['filter_branch'], ENT_QUOTES, 'UTF-8');
                 $filterEmployeeType = htmlspecialchars($_POST['filter_employee_type'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeTable(:filterEmployeeStatus, :filterDepartment, :filterJobPosition, :filterJobLevel, :filterBranch, :filterEmployeeType)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeTable(:filterEmployeeStatus, :filterCompany, :filterDepartment, :filterJobPosition, :filterJobLevel, :filterBranch, :filterEmployeeType)');
                 $sql->bindValue(':filterEmployeeStatus', $filterEmployeeStatus, PDO::PARAM_STR);
+                $sql->bindValue(':filterCompany', $filterCompany, PDO::PARAM_INT);
                 $sql->bindValue(':filterDepartment', $filterDepartment, PDO::PARAM_INT);
                 $sql->bindValue(':filterJobPosition', $filterJobPosition, PDO::PARAM_INT);
                 $sql->bindValue(':filterJobLevel', $filterJobLevel, PDO::PARAM_INT);

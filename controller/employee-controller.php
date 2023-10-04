@@ -16,6 +16,7 @@ class EmployeeController {
     private $employeeModel;
     private $userModel;
     private $systemSettingModel;
+    private $companyModel;
     private $departmentModel;
     private $jobPositionModel;
     private $uploadSettingModel;
@@ -34,6 +35,7 @@ class EmployeeController {
     # - @param EmployeeModel $employeeModel     The EmployeeModel instance for employee related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
+    # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
@@ -43,10 +45,11 @@ class EmployeeController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, CompanyModel $companyModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->employeeModel = $employeeModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
+        $this->companyModel = $companyModel;
         $this->departmentModel = $departmentModel;
         $this->jobPositionModel = $jobPositionModel;
         $this->uploadSettingModel = $uploadSettingModel;
@@ -77,26 +80,23 @@ class EmployeeController {
                 case 'add employee':
                     $this->insertEmployee();
                     break;
-                case 'save employee personal information':
-                    $this->saveEmployeePersonalInformation();
+                case 'save personal information':
+                    $this->savePersonalInformation();
                     break;
-                case 'save employee employment information':
-                    $this->saveEmployeeEmploymentInformation();
+                case 'save employment information':
+                    $this->saveEmploymentInformation();
                     break;
-                case 'get employee personal information details':
-                    $this->getEmployeePersonalInformation();
+                case 'get personal information details':
+                    $this->getPersonalInformation();
                     break;
-                case 'get employee employment information details':
-                    $this->getEmployeeEmploymentInformation();
+                case 'get employment information details':
+                    $this->getEmploymentInformation();
                     break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
                 case 'delete multiple employee':
                     $this->deleteMultipleEmployee();
-                    break;
-                case 'duplicate employee':
-                    $this->duplicateEmployee();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -115,16 +115,16 @@ class EmployeeController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveEmployeePersonalInformation
+    # Function: savePersonalInformation
     # Description: 
-    # Updates the existing employee personal information if it exists; otherwise, inserts a new employee personal information.
+    # Updates the existing personal information if it exists; otherwise, inserts a new personal information.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveEmployeePersonalInformation() {
+    public function savePersonalInformation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -153,17 +153,17 @@ class EmployeeController {
             exit;
         }
     
-        $checkEmployeePersonalInformationExist = $this->employeeModel->checkEmployeePersonalInformationExist($employeeID);
-        $total = $checkEmployeePersonalInformationExist['total'] ?? 0;
+        $checkPersonalInformationExist = $this->employeeModel->checkPersonalInformationExist($employeeID);
+        $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updatePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updatePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -173,16 +173,16 @@ class EmployeeController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveEmployeeEmploymentInformation
+    # Function: saveEmploymentInformation
     # Description: 
-    # Updates the existing employee employment information if it exists; otherwise, inserts a new employee employment information.
+    # Updates the existing employment information if it exists; otherwise, inserts a new employment information.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveEmployeeEmploymentInformation() {
+    public function saveEmploymentInformation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -190,6 +190,7 @@ class EmployeeController {
         $userID = $_SESSION['user_id'];
         $employeeID = isset($_POST['employee_id']) ? htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8') : null;
         $badgeID = htmlspecialchars($_POST['badge_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
         $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
         $jobLevelID = htmlspecialchars($_POST['job_level_id'], ENT_QUOTES, 'UTF-8');
@@ -205,17 +206,17 @@ class EmployeeController {
             exit;
         }
     
-        $checkEmployeeEmploymentInformationExist = $this->employeeModel->checkEmployeeEmploymentInformationExist($employeeID);
-        $total = $checkEmployeeEmploymentInformationExist['total'] ?? 0;
+        $checkEmploymentInformationExist = $this->employeeModel->checkEmploymentInformationExist($employeeID);
+        $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmployeeEmploymentInformation($employeeID, $badgeID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmployeeEmploymentInformation($employeeID, $badgeID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -257,7 +258,7 @@ class EmployeeController {
         }
     
         $employeeID = $this->employeeModel->insertEmployee($userID);
-        $this->employeeModel->insertPartialEmployeePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
+        $this->employeeModel->insertPartialPersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'employeeID' => $this->securityModel->encryptData($employeeID)]);
         exit;
@@ -345,8 +346,8 @@ class EmployeeController {
             exit;
         }
 
-        $employeeDetails = $this->employeeModel->getEmployeePersonalInformation($employeeID);
-        $employeeImage = $employeeDetails['employee_image'] !== null ? '.' . $employeeDetails['employee_image'] : null;
+        $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
+        $employeeImage = $employeeDetails['contact_image'] !== null ? '.' . $employeeDetails['contact_image'] : null;
 
         if(file_exists($employeeImage)){
             if (!unlink($employeeImage)) {
@@ -448,66 +449,21 @@ class EmployeeController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateEmployee
-    # Description: 
-    # Duplicates the employee if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function duplicateEmployee() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
-        $total = $checkEmployeeExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-
-        $employeeID = $this->employeeModel->duplicateEmployee($employeeID, $userID);
-
-        echo json_encode(['success' => true, 'employeeID' =>  $this->securityModel->encryptData($employeeID)]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployeePersonalInformation
+    # Function: getPersonalInformation
     # Description: 
-    # Handles the retrieval of employee personal information details such as first name, etc.
+    # Handles the retrieval of personal information details such as first name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getEmployeePersonalInformation() {
+    public function getPersonalInformation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -523,8 +479,8 @@ class EmployeeController {
                 exit;
             }
     
-            $employeeDetails = $this->employeeModel->getEmployeePersonalInformation($employeeID);
-            $employeeImage = $this->systemModel->checkImage($employeeDetails['employee_image'], 'profile');
+            $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
+            $employeeImage = $this->systemModel->checkImage($employeeDetails['contact_image'], 'profile');
 
             $response = [
                 'success' => true,
@@ -553,16 +509,16 @@ class EmployeeController {
 
     # -------------------------------------------------------------
     #
-    # Function: getEmployeeEmploymentInformation
+    # Function: getEmploymentInformation
     # Description: 
-    # Handles the retrieval of employee employment information details such as badge ID, etc.
+    # Handles the retrieval of employment information details such as badge ID, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getEmployeeEmploymentInformation() {
+    public function getEmploymentInformation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -578,12 +534,13 @@ class EmployeeController {
                 exit;
             }
     
-            $employeeDetails = $this->employeeModel->getEmployeeEmploymentInformation($employeeID);
+            $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
 
             $response = [
                 'success' => true,
                 'badgeID' => $employeeDetails['badge_id'] ?? null,
                 'employeeTypeID' => $employeeDetails['employee_type_id'] ?? null,
+                'companyID' => $employeeDetails['company_id'] ?? null,
                 'departmentID' => $employeeDetails['department_id'] ?? null,
                 'jobPositionID' => $employeeDetails['job_position_id'] ?? null,
                 'jobLevelID' => $employeeDetails['job_level_id'] ?? null,
@@ -603,6 +560,7 @@ class EmployeeController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/employee-model.php';
+require_once '../model/company-model.php';
 require_once '../model/department-model.php';
 require_once '../model/job-position-model.php';
 require_once '../model/user-model.php';
@@ -612,6 +570,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>
