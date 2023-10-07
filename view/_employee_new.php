@@ -20,26 +20,54 @@
         <form id="add-employee-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">First Name <span class="text-danger">*</span></label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
                 <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Middle Name</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Last Name <span class="text-danger">*</span></label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
+            </div>
+            <label class="col-lg-2 col-form-label">Suffix</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Suffix</label>
-            <div class="col-lg-10">
-              <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="company_id" id="company_id">
+                <option value="">--</option>
+                <?php echo $companyModel->generateCompanyOptions(); ?>
+              </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Branch <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="branch_id" id="branch_id">
+                <option value="">--</option>
+                <?php echo $branchModel->generateBranchOptions(); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Department <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="department_id" id="department_id">
+                <option value="">--</option>
+                <?php echo $departmentModel->generateDepartmentOptions(); ?>
+              </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Job Position <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="job_position_id" id="job_position_id">
+                <option value="">--</option>
+                <?php echo $jobPositionModel->generateJobPositionOptions(); ?>
+              </select>
             </div>
           </div>
         </form>

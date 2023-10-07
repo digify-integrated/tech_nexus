@@ -157,7 +157,19 @@ function addEmployeeForm(){
             },
             last_name: {
                 required: true
-            }
+            },
+            company_id: {
+                required: true
+            },
+            branch_id: {
+                required: true
+            },
+            department_id: {
+                required: true
+            },
+            job_position_id: {
+                required: true
+            },
         },
         messages: {
             first_name: {
@@ -165,7 +177,19 @@ function addEmployeeForm(){
             },
             last_name: {
                 required: 'Please enter the last name'
-            }
+            },
+            company_id: {
+                required: 'Please choose the company'
+            },
+            branch_id: {
+                required: 'Please choose the branch'
+            },
+            department_id: {
+                required: 'Please choose the department'
+            },
+            job_position_id: {
+                required: 'Please choose the job position'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2')) {

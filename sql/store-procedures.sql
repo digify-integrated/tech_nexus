@@ -222,7 +222,7 @@ BEGIN
     
     SET conditionList = ' WHERE 1';
 
-    IF p_is_active IS NOT NULL THEN
+    IF p_is_active <> 'all' THEN
         IF p_is_active = 'active' THEN
             SET conditionList = CONCAT(conditionList, ' AND is_active = 1');
         ELSEIF p_is_active = 'inactive' THEN
@@ -230,7 +230,7 @@ BEGIN
         END IF;
     END IF;
 
-    IF p_is_locked IS NOT NULL THEN
+    IF p_is_locked <> 'all' THEN
         IF p_is_locked = 'yes' THEN
             SET conditionList = CONCAT(conditionList, ' AND is_locked = 1');
         ELSEIF p_is_locked = 'no' THEN
@@ -3875,13 +3875,13 @@ BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
-    SET query = 'SELECT * FROM contact 
-    JOIN personal_information ON contact.contact_id = personal_information.contact_id 
-    JOIN employment_information ON contact.contact_id = employment_information.contact_id';
+    SET query = 'SELECT contact.contact_id AS contact_id, contact_image, first_name, middle_name, last_name, suffix, department_id, branch_id, job_position_id FROM contact 
+    LEFT OUTER JOIN personal_information ON personal_information.contact_id = contact.contact_id 
+    LEFT OUTER JOIN employment_information ON employment_information.contact_id = contact.contact_id';
     
     SET conditionList = ' WHERE is_employee = 1';
 
-    IF p_employment_status IS NOT NULL THEN
+    IF p_employment_status <> 'all' THEN
         IF p_employment_status = 'active' THEN
             SET conditionList = CONCAT(conditionList, ' AND employment_status = 1');
         ELSEIF p_employment_status = 'archived' THEN
@@ -3889,32 +3889,32 @@ BEGIN
         END IF;
     END IF;
 
-    IF p_company_id IS NOT NULL THEN
+    IF p_company_id <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND company_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_company_id));
     END IF;
 
-    IF p_filter_department IS NOT NULL THEN
+    IF p_filter_department <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND department_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_department));
     END IF;
 
-    IF p_filter_job_position IS NOT NULL THEN
+    IF p_filter_job_position <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND job_position_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_position));
     END IF;
 
-    IF p_filter_job_level IS NOT NULL THEN
+    IF p_filter_job_level <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND job_level_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_level));
     END IF;
 
-    IF p_filter_branch IS NOT NULL THEN
+    IF p_filter_branch <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND branch_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_branch));
     END IF;
 
-    IF p_filter_employee_type IS NOT NULL THEN
+    IF p_filter_employee_type <> 'all' THEN
         SET conditionList = CONCAT(conditionList, ' AND employee_type_id = ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_filter_employee_type));
     END IF;

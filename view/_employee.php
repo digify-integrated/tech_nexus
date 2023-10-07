@@ -66,7 +66,7 @@
     <div class="form-group mb-4">
       <label class="form-label" for="filter_employment_status">Employment Status</label>
       <select class="form-control filter-select2" name="filter_employment_status" id="filter_employment_status">
-        <option value="">--</option>
+        <option value="all">--</option>
         <option value="active">Active</option>
         <option value="archived">Archived</option>
       </select>
@@ -74,42 +74,42 @@
     <div class="form-group mb-4">
       <label class="form-label" for="filter_company">Company</label>
       <select class="form-control filter-select2" name="filter_company" id="filter_company">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $companyModel->generateCompanyOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">
       <label class="form-label" for="filter_department">Department</label>
       <select class="form-control filter-select2" name="filter_department" id="filter_department">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $departmentModel->generateDepartmentOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">
       <label class="form-label" for="filter_job_position">Job Position</label>
       <select class="form-control filter-select2" name="filter_job_position" id="filter_job_position">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $jobPositionModel->generateJobPositionOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">
       <label class="form-label" for="filter_job_level">Job Level</label>
       <select class="form-control filter-select2" name="filter_job_level" id="filter_job_level">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $jobLevelModel->generateJobLevelOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">
       <label class="form-label" for="filter_branch">Branch</label>
       <select class="form-control filter-select2" name="filter_branch" id="filter_branch">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $branchModel->generateBranchOptions(); ?>
       </select>
     </div>
     <div class="form-group mb-4">
       <label class="form-label" for="filter_employee_type">Employee Type</label>
       <select class="form-control filter-select2" name="filter_employee_type" id="filter_employee_type">
-        <option value="">--</option>
+        <option value="all">--</option>
         <?php echo $employeeTypeModel->generateEmployeeTypeOptions(); ?>
       </select>
     </div>

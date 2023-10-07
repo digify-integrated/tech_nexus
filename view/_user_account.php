@@ -84,7 +84,7 @@
     <div class="form-group mb-4">
       <label class="form-label" for="filter_status">Status</label>
       <select class="form-control filter-select2" name="filter_status" id="filter_status">
-        <option value="">--</option>
+        <option value="all">--</option>
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
       </select>
@@ -92,7 +92,7 @@
     <div class="form-group mb-4">
       <label class="form-label" for="filter_locked">Locked</label>
       <select class="form-control filter-select2" name="filter_locked" id="filter_locked">
-        <option value="">--</option>
+        <option value="all">--</option>
         <option value="yes">Yes</option>
         <option value="no">No</option>
       </select>

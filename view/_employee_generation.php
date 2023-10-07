@@ -66,7 +66,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
 
                 foreach ($options as $row) {
-                    $employeeID = $row['employee_id'];
+                    $employeeID = $row['contact_id'];
                     $firstName = $row['first_name'];
                     $middleName = $row['middle_name'];
                     $lastName = $row['last_name'];
@@ -74,7 +74,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $departmentID = $row['department_id'];
                     $jobpPositionID = $row['job_position_id'];
                     $branchID = $row['branch_id'];
-                    $employeeImage = $systemModel->checkImage($row['employee_image'], 'profile');
+                    $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
 
                     $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
                     $employeeName = str_replace('{last_name}', $lastName, $employeeName);
@@ -83,9 +83,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
 
 
-                    $departmentName = $departmentModel->getDepartment($departmentID)['department_name'];
-                    $jobPositionName = $jobPositionModel->getJobPosition($departmentID)['job_position_name'];
-                    $branchName = $branchModel->getBranch($branchID)['branch_name'];
+                    $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
+                    $jobPositionName = $jobPositionModel->getJobPosition($departmentID)['job_position_name'] ?? null;
+                    $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? null;
                    
                     $employeeIDEncrypted = $securityModel->encryptData($employeeID);
 
