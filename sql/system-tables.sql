@@ -218,6 +218,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee-contact-information.php', '47', '', '5', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3548,19 +3549,19 @@ CREATE INDEX employment_information_index_departure_reason_id ON employment_info
 
 /* Contact Information Table */
 
-CREATE TABLE contact_information(
-    contact_information_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	contact_id INT UNSIGNED NOT NULL,
-	contact_information_type_id INT UNSIGNED NOT NULL,
-	mobile VARCHAR(20),
+CREATE TABLE contact_information (
+    contact_information_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    contact_information_type_id INT UNSIGNED NOT NULL,
+    mobile VARCHAR(20),
 	telephone VARCHAR(20),
 	email VARCHAR(100),
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+    is_primary TINYINT DEFAULT 0,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id)
 );
 
-CREATE INDEX contact_information_index_id ON contact_information(contact_id);
+CREATE INDEX contact_information_index_contact_information_id ON contact_information(contact_information_id);
+CREATE INDEX contact_information_index_contact_id ON contact_information(contact_id);
 CREATE INDEX contact_information_index_contact_information_type_id ON contact_information_type(contact_information_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

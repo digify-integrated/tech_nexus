@@ -249,6 +249,10 @@ class EmployeeController {
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
+        $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+        $jobPositionID = htmlspecialchars($_POST['job_position_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -259,6 +263,7 @@ class EmployeeController {
     
         $employeeID = $this->employeeModel->insertEmployee($userID);
         $this->employeeModel->insertPartialPersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $userID);
+        $this->employeeModel->insertPartialEmploymentInformation($employeeID, $companyID, $departmentID, $jobPositionID, $branchID, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'employeeID' => $this->securityModel->encryptData($employeeID)]);
         exit;

@@ -3996,6 +3996,12 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE insertPartialEmploymentInformation(IN p_contact_id INT, IN p_company_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_branch_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO employment_information (contact_id, company_id, department_id, job_position_id, branch_id, last_log_by) 
+	VALUES(p_contact_id, p_company_id, p_department_id, p_job_position_id, p_branch_id, p_last_log_by);
+END //
+
 CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_permanency_date DATE, IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
     INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, permanency_date, onboard_date, last_log_by) 

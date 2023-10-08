@@ -180,6 +180,34 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
+    # Function: insertPartialEmploymentInformation
+    # Description: Inserts the partial employment details.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_department_id (int): The department ID.
+    # - $p_job_position_id (int): The job position ID.
+    # - $p_branch_id (int): The branch ID.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertPartialEmploymentInformation($p_contact_id, $p_company_id, $p_department_id, $p_job_position_id, $p_branch_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartialEmploymentInformation(:p_contact_id, :p_company_id, :p_department_id, :p_job_position_id, :p_branch_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_department_id', $p_department_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: insertPersonalInformation
     # Description: Inserts the personal information.
     #
