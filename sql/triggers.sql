@@ -692,7 +692,7 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/*  Table Triggers */
+/* System Setting Table Triggers */
 
 CREATE TRIGGER system_setting_trigger_update
 AFTER UPDATE ON system_setting
@@ -738,6 +738,56 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('system_setting', NEW.system_setting_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Country Table Triggers */
+
+CREATE TRIGGER country_trigger_update
+AFTER UPDATE ON country
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.country_name <> OLD.country_name THEN
+        SET audit_log = CONCAT(audit_log, "Country Name: ", OLD.country_name, " -> ", NEW.country_name, "<br/>");
+    END IF;
+
+    IF NEW.country_code <> OLD.country_code THEN
+        SET audit_log = CONCAT(audit_log, "Country Code: ", OLD.country_code, " -> ", NEW.country_code, "<br/>");
+    END IF;
+
+    IF NEW.phone_code <> OLD.phone_code THEN
+        SET audit_log = CONCAT(audit_log, "Phone Code: ", OLD.phone_code, " -> ", NEW.phone_code, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('state', NEW.country_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER country_trigger_insert
+AFTER INSERT ON country
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Country created. <br/>';
+
+    IF NEW.country_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Country Name: ", NEW.country_name);
+    END IF;
+
+    IF NEW.country_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Country Code: ", NEW.country_code);
+    END IF;
+
+    IF NEW.phone_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Phone Code: ", NEW.phone_code);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('state', NEW.country_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
