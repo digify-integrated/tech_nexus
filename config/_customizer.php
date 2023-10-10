@@ -101,28 +101,6 @@
             </div>
           </li>
           <li class="list-group-item">
-            <div class="pc-rtl">
-              <h6 class="mb-1">Theme Layout</h6>
-              <p class="text-muted text-sm">LTR/RTL</p>
-              <div class="row theme-direction">
-                <div class="col-6">
-                  <div class="d-grid">
-                    <button class="preset-btn btn active ui-rtl" data-value="false" onclick="layout_rtl_change('false');">
-                      <img src="./assets/images/customizer/img-layout-1.svg" alt="img" class="img-fluid" width="70%" />
-                    </button>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="d-grid">
-                    <button class="preset-btn btn ui-rtl" data-value="true" onclick="layout_rtl_change('true');">
-                      <img src="./assets/images/customizer/img-layout-2.svg" alt="img" class="img-fluid" width="70%" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
             <div class="pc-container-width">
               <h6 class="mb-1">Layout Width</h6>
               <p class="text-muted text-sm">Choose Full or Container Layout</p>

@@ -531,7 +531,6 @@ function getUISettings(){
                 layout_sidebar_change(response.themeContrast);
                 change_box_container(response.boxContainer);
                 layout_caption_change(response.captionShow);
-                layout_rtl_change(response.rtlLayout);
                 preset_change(response.presetTheme);
             } 
             else {

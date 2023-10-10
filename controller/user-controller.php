@@ -795,14 +795,15 @@ class UserController {
             }
     
             $uiCustomizationSetting = $this->userModel->getUICustomizationSetting($userID);
+            
             $response = [
                 'success' => true,
-                'themeContrast' => $uiCustomizationSetting['theme_contrast'] ?? false,
-                'captionShow' => $uiCustomizationSetting['caption_show'] ?? true,
+                'themeContrast' => $uiCustomizationSetting['theme_contrast'] ?? 'true',
+                'captionShow' => $uiCustomizationSetting['caption_show'] ?? 'true',
                 'presetTheme' => $uiCustomizationSetting['preset_theme'] ?? 'preset-1',
-                'darkLayout' => $uiCustomizationSetting['dark_layout'] ?? false,
-                'rtlLayout' => $uiCustomizationSetting['rtl_layout'] ?? false,
-                'boxContainer' => $uiCustomizationSetting['box_container'] ?? false
+                'darkLayout' => $uiCustomizationSetting['dark_layout'] ?? 'false',
+                'rtlLayout' => $uiCustomizationSetting['rtl_layout'] ?? 'true',
+                'boxContainer' => $uiCustomizationSetting['box_container'] ?? 'false'
             ];
 
             echo json_encode($response);
@@ -810,13 +811,13 @@ class UserController {
         }
         else {
             $response = [
-                'success' => true,
-                'themeContrast' => false,
-                'captionShow' => true,
+                'success' => 'true',
+                'themeContrast' => 'false',
+                'captionShow' => 'true',
                 'presetTheme' => 'preset-1',
-                'darkLayout' => false,
-                'rtlLayout' => false,
-                'boxContainer' => false
+                'darkLayout' => 'false',
+                'rtlLayout' => 'true',
+                'boxContainer' => 'false'
             ];
 
             echo json_encode($response);

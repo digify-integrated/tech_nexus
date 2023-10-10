@@ -77,12 +77,12 @@ CREATE INDEX audit_log_index_changed_by ON audit_log(changed_by);
 CREATE TABLE ui_customization_setting (
     ui_customization_setting_id INT(10) UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     user_id INT UNSIGNED NOT NULL,
-    theme_contrast VARCHAR(15) NOT NULL DEFAULT 'false',
-    caption_show VARCHAR(15) NOT NULL DEFAULT 'true',
-    preset_theme VARCHAR(15) NOT NULL DEFAULT 'preset-1',
-    dark_layout VARCHAR(15) NOT NULL DEFAULT 'false',
-    rtl_layout VARCHAR(15) NOT NULL DEFAULT 'false',
-    box_container VARCHAR(15) NOT NULL DEFAULT 'false',
+    theme_contrast VARCHAR(15),
+    caption_show VARCHAR(15),
+    preset_theme VARCHAR(15),
+    dark_layout VARCHAR(15),
+    rtl_layout VARCHAR(15),
+    box_container VARCHAR(15),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -218,7 +218,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee-contact-information.php', '47', '', '5', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Contact Information', '1', 'employee-contact-information.php', '47', '', '3', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -296,6 +296,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('47', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('48', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('49', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

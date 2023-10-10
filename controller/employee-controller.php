@@ -19,8 +19,14 @@ class EmployeeController {
     private $companyModel;
     private $departmentModel;
     private $jobPositionModel;
+    private $employeeTypeModel;
+    private $jobLevelModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $genderModel;
+    private $civilStatusModel;
+    private $religionModel;
+    private $bloodTypeModel;
     private $systemModel;
     private $securityModel;
 
@@ -38,22 +44,37 @@ class EmployeeController {
     # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param JobPositionModel $jobPositionModel     The JobPositionModel instance for job position related operations.
+    # - @param EmployeeTypeModel $employeeTypeModel     The EmployeeTypeModel instance for employee type related operations.
+    # - @param JobLevelModel $jobLevelModel     The JobLevelModel instance for job level related operations.
+    # - @param BranchModel $branchModel     The BranchModel instance for branch related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
+    # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
+    # - @param GenderModel $genderModel     The GenderModel instance for gender related operations.
+    # - @param CivilStatusModel $civilStatusModel     The CivilStatusModel instance for civil status related operations.
+    # - @param ReligionModel $religionModel     The ReligionModel instance for religion related operations.
+    # - @param BloodTypeModel $religionModel     The BloodTypeModel instance for blood type related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, CompanyModel $companyModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(EmployeeModel $employeeModel, UserModel $userModel, CompanyModel $companyModel, DepartmentModel $departmentModel, JobPositionModel $jobPositionModel, EmployeeTypeModel $employeeTypeModel, JobLevelModel $jobLevelModel, BranchModel $branchModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, GenderModel $genderModel, CivilStatusModel $civilStatusModel, ReligionModel $religionModel, BloodTypeModel $bloodTypeModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->employeeModel = $employeeModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->companyModel = $companyModel;
         $this->departmentModel = $departmentModel;
         $this->jobPositionModel = $jobPositionModel;
+        $this->employeeTypeModel = $employeeTypeModel;
+        $this->jobLevelModel = $jobLevelModel;
+        $this->branchModel = $branchModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->genderModel = $genderModel;
+        $this->civilStatusModel = $civilStatusModel;
+        $this->religionModel = $religionModel;
+        $this->bloodTypeModel = $bloodTypeModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -486,22 +507,46 @@ class EmployeeController {
     
             $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
             $employeeImage = $this->systemModel->checkImage($employeeDetails['contact_image'], 'profile');
+            $firstName = $employeeDetails['first_name'];
+            $middleName = $employeeDetails['middle_name'];
+            $lastName = $employeeDetails['last_name'];
+            $suffix = $employeeDetails['suffix'];
+            $genderID = $employeeDetails['gender_id'];
+            $civilStatusID = $employeeDetails['civil_status_id'];
+            $religionID = $employeeDetails['religion_id'];
+            $bloodTypeID = $employeeDetails['blood_type_id'];
+
+            $genderName = $this->genderModel->getGender($genderID)['gender_name'] ?? null;
+            $civilStatusName = $this->civilStatusModel->getCivilStatus($civilStatusID)['civil_status_name'] ?? null;
+            $religionName = $this->religionModel->getReligion($religionID)['religion_name'] ?? null;
+            $bloodTypeName = $this->bloodTypeModel->getBloodType($bloodTypeID)['blood_type_name'] ?? null;
+
+            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
+            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
+            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
+            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
+            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
 
             $response = [
                 'success' => true,
                 'employeeImage' => $employeeImage,
-                'firstName' => $employeeDetails['first_name'],
-                'middleName' => $employeeDetails['middle_name'],
-                'lastName' => $employeeDetails['last_name'],
-                'suffix' => $employeeDetails['suffix'],
+                'employeeName' => $employeeName,
+                'firstName' => $firstName,
+                'middleName' => $middleName,
+                'lastName' => $lastName,
+                'suffix' => $suffix,
                 'nickname' => $employeeDetails['nickname'],
-                'bio' => $employeeDetails['bio'],
-                'civilStatusID' => $employeeDetails['civil_status_id'],
-                'genderID' => $employeeDetails['gender_id'],
-                'religionID' => $employeeDetails['religion_id'],
-                'bloodTypeID' => $employeeDetails['blood_type_id'],
+                'bio' => $employeeDetails['bio'] ?? 'No employee bio.',
+                'civilStatusID' => $civilStatusID,
+                'civilStatusName' => $civilStatusName,
+                'genderID' => $genderID,
+                'genderName' => $genderName,
+                'religionID' => $religionID,
+                'religionName' => $religionName,
+                'bloodTypeID' => $bloodTypeID,
+                'bloodTypeName' => $bloodTypeName,
                 'birthday' =>  $this->systemModel->checkDate('empty', $employeeDetails['birthday'], '', 'm/d/Y', ''),
-                'birth_place' => $employeeDetails['birth_place'],
+                'birthPlace' => $employeeDetails['birth_place'],
                 'height' => $employeeDetails['height'],
                 'weight' => $employeeDetails['weight']
             ];
@@ -540,16 +585,38 @@ class EmployeeController {
             }
     
             $employeeDetails = $this->employeeModel->getEmploymentInformation($employeeID);
+            $departmentID = $employeeDetails['department_id'] ?? null;
+            $companyID = $employeeDetails['company_id'] ?? null;
+            $jobPositionID = $employeeDetails['job_position_id'] ?? null;
+            $employeeTypeID = $employeeDetails['employee_type_id'] ?? null;
+            $jobLevelID = $employeeDetails['job_level_id'] ?? null;
+            $branchID = $employeeDetails['branch_id'] ?? null;
+            $employmentStatus = $employeeDetails['employment_status'] ?? null;
+            $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
+            $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? null;
+            $departmentName = $this->departmentModel->getDepartment($departmentID)['department_name'] ?? null;
+            $employeeTypeName = $this->employeeTypeModel->getEmployeeType($employeeTypeID)['employee_type_name'] ?? null;
+            $jobLevelName = $this->jobLevelModel->getJobLevel($jobLevelID)['rank'] ?? null;
+            $branchName = $this->branchModel->getBranch($branchID)['branch_name'] ?? null;
+
+            $isActiveBadge = $employmentStatus ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
 
             $response = [
                 'success' => true,
                 'badgeID' => $employeeDetails['badge_id'] ?? null,
-                'employeeTypeID' => $employeeDetails['employee_type_id'] ?? null,
-                'companyID' => $employeeDetails['company_id'] ?? null,
-                'departmentID' => $employeeDetails['department_id'] ?? null,
-                'jobPositionID' => $employeeDetails['job_position_id'] ?? null,
-                'jobLevelID' => $employeeDetails['job_level_id'] ?? null,
-                'branchID' => $employeeDetails['branch_id'] ?? null,
+                'employeeTypeID' => $employeeTypeID,
+                'employeeTypeName' => $employeeTypeName,
+                'companyID' => $companyID,
+                'companyName' => $companyName,
+                'departmentID' => $departmentID,
+                'departmentName' => $departmentName,
+                'jobPositionID' => $jobPositionID,
+                'jobPositionName' => $jobPositionName,
+                'jobLevelID' => $jobLevelID,
+                'jobLevelName' => $jobLevelName,
+                'branchID' => $branchID,
+                'branchName' => $branchName,
+                'isActiveBadge' => $isActiveBadge,
                 'permanencyDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['permanency_date'] ?? null, '', 'm/d/Y', ''),
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
             ];
@@ -565,16 +632,23 @@ class EmployeeController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/employee-model.php';
+require_once '../model/user-model.php';
 require_once '../model/company-model.php';
 require_once '../model/department-model.php';
 require_once '../model/job-position-model.php';
-require_once '../model/user-model.php';
+require_once '../model/employee-type-model.php';
+require_once '../model/job-level-model.php';
+require_once '../model/branch-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/gender-model.php';
+require_once '../model/civil-status-model.php';
+require_once '../model/religion-model.php';
+require_once '../model/blood-type-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new EmployeeTypeModel(new DatabaseModel), new JobLevelModel(new DatabaseModel), new BranchModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new GenderModel(new DatabaseModel), new CivilStatusModel(new DatabaseModel), new ReligionModel(new DatabaseModel), new BloodTypeModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

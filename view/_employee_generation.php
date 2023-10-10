@@ -72,7 +72,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $lastName = $row['last_name'];
                     $suffix = $row['suffix'];
                     $departmentID = $row['department_id'];
-                    $jobpPositionID = $row['job_position_id'];
+                    $jobPositionID = $row['job_position_id'];
                     $branchID = $row['branch_id'];
                     $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
 
@@ -82,9 +82,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $employeeName = str_replace('{suffix}', $suffix, $employeeName);
                     $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
 
-
                     $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
-                    $jobPositionName = $jobPositionModel->getJobPosition($departmentID)['job_position_name'] ?? null;
+                    $jobPositionName = $jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
                     $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? null;
                    
                     $employeeIDEncrypted = $securityModel->encryptData($employeeID);

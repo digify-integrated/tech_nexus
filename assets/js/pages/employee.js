@@ -533,12 +533,26 @@ function displayDetails(transaction){
                         $('#suffix').val(response.suffix);
                         $('#nickname').val(response.nickname);
                         $('#birthday').val(response.birthday);
-                        $('#birth_place').val(response.birth_place);
+                        $('#birth_place').val(response.birthPlace);
                         $('#height').val(response.height);
                         $('#weight').val(response.weight);
                         $('#bio').val(response.bio);
 
+                        $('#employee_bio').text(response.bio);
+                        $('#employee_name').text(response.employeeName);
+                        $('#full_name').text(response.employeeName);
+                        $('#employee_nickname').text(response.nickname);
+                        $('#employee_birthday').text(response.birthday);
+                        $('#employee_birth_place').text(response.birthPlace);
+                        $('#employee_gender').text(response.genderName);
+                        $('#employee_religion').text(response.religionName);
+                        $('#employee_blood_type').text(response.bloodTypeName);
+                        $('#employee_civil_status').text(response.civilStatusName);
+                        $('#employee_height').text(response.height + ' cm');
+                        $('#employee_weight').text(response.weight + ' kg');
+
                         $('#emp_image').attr('src', response.employeeImage);
+                        $('#employee_summary_image').attr('src', response.employeeImage);
 
                         checkOptionExist('#gender', response.genderID, '');
                         checkOptionExist('#civil_status', response.civilStatusID, '');
@@ -582,6 +596,19 @@ function displayDetails(transaction){
                         $('#badge_id').val(response.badgeID);
                         $('#onboard_date').val(response.onboardDate);
                         $('#permanency_date').val(response.permanencyDate);
+
+                        document.getElementById('employee-status-badge').innerHTML = response.isActiveBadge;
+
+                        $('#employee_badge_id').text(response.badgeID);
+                        $('#employee_company').text(response.companyName);
+                        $('#employee_department').text(response.departmentName);
+                        $('#employee_type').text(response.employeeTypeName);
+                        $('#employee_job_level').text(response.jobLevelName);
+                        $('#employee_branch').text(response.branchName);
+                        $('#employee_onboard_date').text(response.onboardDate);
+                        $('#employee_permanency_date').text(response.permanencyDate);
+
+                        $('#job_position').text(response.jobPositionName);
 
                         checkOptionExist('#company_id', response.companyID, '');
                         checkOptionExist('#department_id', response.departmentID, '');

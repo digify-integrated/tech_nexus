@@ -2544,7 +2544,7 @@ BEGIN
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-        VALUES ('employee', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+        VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
     END IF;
 END //
 
@@ -2607,7 +2607,7 @@ BEGIN
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
-    VALUES ('employee', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
+    VALUES ('contact', NEW.contact_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
