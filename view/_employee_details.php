@@ -4,7 +4,7 @@
       <ul class="nav nav-tabs profile-tabs" id="myTab" role="tablist">
         <li class="nav-item">
           <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-tab-content" role="tab" aria-selected="true">
-            <i class="ti ti-user me-2"></i>Profile
+            <i class="ti ti-user me-2"></i>Employee Profile
           </a>
         </li>
         <?php
@@ -370,7 +370,7 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-lg-4">
+                  <div class="col-lg-6">
                     <div class="card">
                       <div class="card-header">
                         <div class="row align-items-center">
@@ -400,7 +400,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-4">
+                  <div class="col-lg-6">
                     <div class="card">
                       <div class="card-header">
                         <div class="row align-items-center">
@@ -428,7 +428,9 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-4">
+                </div>
+                <div class="row">
+                  <div class="col-lg-6">
                     <div class="card">
                       <div class="card-header">
                         <div class="row align-items-center">
