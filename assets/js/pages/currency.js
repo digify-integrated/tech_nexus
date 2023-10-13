@@ -82,8 +82,8 @@
     
             if(currency_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Currencys Deletion',
-                    text: 'Are you sure you want to delete these currencys?',
+                    title: 'Confirm Multiple Currencies Deletion',
+                    text: 'Are you sure you want to delete these currencies?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,7 +103,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Currency Success', 'The selected currencys have been deleted successfully.', 'success');
+                                    showNotification('Delete Currency Success', 'The selected currencies have been deleted successfully.', 'success');
                                         reloadDatatable('#currency-table');
                                 }
                                 else {
@@ -133,7 +133,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Currency Error', 'Please select the currencys you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Currency Error', 'Please select the currencies you wish to delete.', 'danger');
             }
         });
 

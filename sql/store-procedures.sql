@@ -724,23 +724,23 @@ BEGIN
 	IF p_access_type = 'read' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where read_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where read_access = 1 AND menu_item_id = p_menu_item_id);
     ELSEIF p_access_type = 'write' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where write_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where write_access = 1 AND menu_item_id = p_menu_item_id);
     ELSEIF p_access_type = 'create' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where create_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where create_access = 1 AND menu_item_id = p_menu_item_id);
     ELSEIF p_access_type = 'delete' THEN
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where delete_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where delete_access = 1 AND menu_item_id = p_menu_item_id);
     ELSE
         SELECT COUNT(role_id) AS total
         FROM role_users
-        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where duplicate_access = 1 AND menu_item_id = menu_item_id);
+        WHERE user_id = p_user_id AND role_id IN (SELECT role_id FROM menu_item_access_right where duplicate_access = 1 AND menu_item_id = p_menu_item_id);
     END IF;
 END //
 
@@ -1211,10 +1211,10 @@ BEGIN
     WHERE upload_setting_id = p_upload_setting_id AND file_extension_id = p_file_extension_id;
 END //
 
-CREATE PROCEDURE insertUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT)
 BEGIN
-    INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id, last_log_by) 
-	VALUES(p_upload_setting_id, p_file_extension_id, p_last_log_by);
+    INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) 
+	VALUES(p_upload_setting_id, p_file_extension_id);
 END //
 
 CREATE PROCEDURE deleteUploadSettingFileExtension(IN p_upload_setting_id INT, IN p_file_extension_id INT)

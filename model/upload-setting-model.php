@@ -82,16 +82,14 @@ class UploadSettingModel {
     # Parameters:
     # - $p_upload_setting_id (int): The upload setting ID.
     # - $p_file_extension_id (int): The file extension ID.
-    # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertUploadSettingFileExtension($p_upload_setting_id, $p_file_extension_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertUploadSettingFileExtension(:p_upload_setting_id, :p_file_extension_id, :p_last_log_by)');
+    public function insertUploadSettingFileExtension($p_upload_setting_id, $p_file_extension_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertUploadSettingFileExtension(:p_upload_setting_id, :p_file_extension_id)');
         $stmt->bindValue(':p_upload_setting_id', $p_upload_setting_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_file_extension_id', $p_file_extension_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
