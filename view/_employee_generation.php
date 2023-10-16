@@ -12,6 +12,7 @@ require_once '../model/job-level-model.php';
 require_once '../model/branch-model.php';
 require_once '../model/employee-type-model.php';
 require_once '../model/system-setting-model.php';
+require_once '../model/contact-information-type-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -23,6 +24,7 @@ $jobLevelModel = new JobLevelModel($databaseModel);
 $branchModel = new BranchModel($databaseModel);
 $employeeTypeModel = new EmployeeTypeModel($databaseModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
+$contactInformationTypeModel = new ContactInformationTypeModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -112,6 +114,79 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <a href="employee.php?id='. $employeeIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact information table
+        # Description:
+        # Generates the contact information table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact information table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactInformationTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 31);
+                $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
+
+                foreach ($options as $row) {
+                    $contactInformationID = $row['contact_information_id'];
+                    $contactInformationTypeID = $row['contact_information_type_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+
+                    $contactInformationTypeName = $contactInformationTypeModel->getContactInformationType($contactInformationTypeID)['contact_information_type_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-information" data-contact-information-id="'. $contactInformationID .'" title="Edit Contact Information">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactInformation['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-information" data-contact-information-id="'. $contactInformationID .'" title="Delete Contact Information">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'CONTACT_INFORMATION_TYPE' => '<div class="row">
+                                        <div class="col">
+                                        <h6 class="mb-0">'. $contactInformationTypeName .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $isPrimaryBadge .'</p>
+                                        </div>
+                                    </div>',
+                        'EMAIL' => $email,
+                        'MOBILE' => $mobile,
+                        'TELEPHONE' => $telephone,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
                                     '. $delete .'
                                 </div>'
                     ];

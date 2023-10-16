@@ -547,8 +547,8 @@ class EmployeeController {
                 'bloodTypeName' => $bloodTypeName,
                 'birthday' =>  $this->systemModel->checkDate('empty', $employeeDetails['birthday'], '', 'm/d/Y', ''),
                 'birthPlace' => $employeeDetails['birth_place'],
-                'height' => $employeeDetails['height'],
-                'weight' => $employeeDetails['weight']
+                'height' => $employeeDetails['height'] ?? 0,
+                'weight' => $employeeDetails['weight'] ?? 0
             ];
 
             echo json_encode($response);

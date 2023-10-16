@@ -22,6 +22,81 @@
             displayDetails('get personal information details');
             displayDetails('get employment information details');
 
+            if($('#contact-information-table').length){
+                contactInformationTable('#contact-information-table');
+            }
+
+            $(document).on('click','#add-contact-information',function() {
+                resetModalForm("contact-information-form");
+
+                $('#contact-information-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-information',function() {
+                const contact_information_id = $(this).data('contact-information-id');
+        
+                sessionStorage.setItem('contact_information_id', contact_information_id);
+                
+                displayDetails('get contact information details');
+        
+                $('#contact-information-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-contact-information',function() {
+                const contact_information_id = $(this).data('contact-information-id');
+                const transaction = 'delete file extension';
+        
+                Swal.fire({
+                    title: 'Confirm File Extension Deletion',
+                    text: 'Are you sure you want to delete this file extension?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/file-extension-controller.php',
+                            dataType: 'json',
+                            data: {
+                                file_extension_id : file_extension_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete File Extension Success', 'The file extension has been deleted successfully.', 'success');
+                                    reloadDatatable('#file-extension-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete File Extension Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $('#employee_image').change(function() {
                 var selectedFile = $(this)[0].files[0];
 
@@ -150,13 +225,13 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
 }
 
 function contactInformationTable(datatable_name, buttons = false, show_all = false){
-    const type = 'employee shortcut contact information table';
+    const type = 'contact information table';
     const employee_id = $('#employee-id').text();
 
     var settings;
 
     const column = [ 
-        { 'data' : 'CONTACT_INFROMATION_TYPE_ID' },
+        { 'data' : 'CONTACT_INFORMATION_TYPE' },
         { 'data' : 'EMAIL' },
         { 'data' : 'MOBILE' },
         { 'data' : 'TELEPHONE' },
@@ -175,7 +250,7 @@ function contactInformationTable(datatable_name, buttons = false, show_all = fal
 
     settings = {
         'ajax': { 
-            'url' : 'view/_employee_contact_information_generation.php',
+            'url' : 'view/_employee_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {

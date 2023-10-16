@@ -4034,45 +4034,9 @@ END //
 
 /*  Contact Information Table Stored Procedures */
 
-CREATE PROCEDURE checkContactInformationExist (IN p_contact_id INT)
+CREATE PROCEDURE generateContactInformationTable(IN p_contact_id INT)
 BEGIN
-	SELECT COUNT(*) AS total
-    FROM contact_information
-    WHERE contact_id = p_contact_id;
-END //
-
-CREATE PROCEDURE insertContactInformation(IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
-BEGIN
-    INSERT INTO employment_information (contact_id, contact_information_type_id, mobile, telephone, email, last_log_by) 
-	VALUES(p_contact_id, p_contact_information_type_id, p_mobile, p_telephone, p_email, p_last_log_by);
-END //
-
-CREATE PROCEDURE updateContactInformation(IN p_employee_contact_information_id INT, IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
-BEGIN
-	UPDATE contact_information
-    SET contact_id = p_contact_id,
-    contact_information_type_id = p_contact_information_type_id,
-    mobile = p_mobile,
-    telephone = p_telephone,
-    email = p_email,
-    last_log_by = p_last_log_by
-    WHERE employee_contact_information_id = p_employee_contact_information_id;
-END //
-
-CREATE PROCEDURE deleteContactInformation(IN p_bank_account_type_id INT)
-BEGIN
-    DELETE FROM contact_information WHERE contact_id = p_contact_id;
-END //
-
-CREATE PROCEDURE getContactInformation(IN p_contact_id INT)
-BEGIN
-	SELECT * FROM contact_information
-    WHERE contact_id = p_contact_id;
-END //
-
-CREATE PROCEDURE generateContactInformation(IN p_contact_id INT)
-BEGIN
-	SELECT contact_information_type_id, mobile, telephone, email 
+	SELECT contact_information_id, contact_information_type_id, mobile, telephone, email, is_primary
     FROM contact_information
     WHERE contact_id = p_contact_id 
     ORDER BY mobile;

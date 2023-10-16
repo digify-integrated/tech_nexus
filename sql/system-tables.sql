@@ -218,7 +218,6 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Contact Information', '1', 'employee-contact-information.php', '47', '', '3', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -296,7 +295,6 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('47', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('48', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('49', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -342,6 +340,10 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Stop Job Po
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Working Hours', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Working Hours', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Working Hours', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Contact Information', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Contact Information', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Contact Information', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -391,6 +393,10 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('29', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('30', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('31', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('32', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('33', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('34', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

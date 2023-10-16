@@ -48,7 +48,7 @@
     $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
     $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
     $employeeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'duplicate');
-    $contactInformationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'create');
+    $addEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');
