@@ -14,6 +14,9 @@
     require('model/civil-status-model.php');
     require('model/religion-model.php');
     require('model/blood-type-model.php');
+    require('model/contact-information-type-model.php');
+    require('model/address-type-model.php');
+    require('model/city-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -36,6 +39,9 @@
     $civilStatusModel = new CivilStatusModel($databaseModel);
     $religionModel = new ReligionModel($databaseModel);
     $bloodTypeModel = new BloodTypeModel($databaseModel);
+    $contactInformationTypeModel = new ContactInformationTypeModel($databaseModel);
+    $addressTypeModel = new AddressTypeModel($databaseModel);
+    $cityModel = new CityModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -49,6 +55,7 @@
     $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
     $employeeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'duplicate');
     $addEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
+    $addEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 36);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

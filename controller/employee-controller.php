@@ -107,17 +107,41 @@ class EmployeeController {
                 case 'save employment information':
                     $this->saveEmploymentInformation();
                     break;
+                case 'save contact information':
+                    $this->saveContactInformation();
+                    break;
+                case 'tag contact information as primary':
+                    $this->tagContactInformationAsPrimary();
+                    break;
+                case 'save contact address':
+                    $this->saveContactAddress();
+                    break;
+                case 'tag contact address as primary':
+                    $this->tagContactAddressAsPrimary();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
                 case 'get employment information details':
                     $this->getEmploymentInformation();
                     break;
+                case 'get contact information details':
+                    $this->getContactInformation();
+                    break;
+                case 'get contact address details':
+                    $this->getContactAddress();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
                 case 'delete multiple employee':
                     $this->deleteMultipleEmployee();
+                    break;
+                case 'delete contact information':
+                    $this->deleteContactInformation();
+                    break;
+                case 'delete contact address':
+                    $this->deleteContactAddress();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -184,7 +208,7 @@ class EmployeeController {
             exit;
         } 
         else {
-            $this->employeeModel->updatePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertPersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -240,6 +264,103 @@ class EmployeeController {
             $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactInformation
+    # Description: 
+    # Updates the existing contact information if it exists; otherwise, inserts a new contact information.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactInformationID = isset($_POST['contact_information_id']) ? htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $contactInformationTypeID = htmlspecialchars($_POST['contact_information_type_id'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['contact_information_email'], ENT_QUOTES, 'UTF-8');
+        $mobile = htmlspecialchars($_POST['contact_information_mobile'], ENT_QUOTES, 'UTF-8');
+        $telephone = htmlspecialchars($_POST['contact_information_telephone'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactInformationExist = $this->employeeModel->checkContactInformationExist($contactInformationID);
+        $total = $checkContactInformationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactInformation($contactInformationID, $employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactInformation($employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactAddress
+    # Description: 
+    # Updates the existing contact address if it exists; otherwise, inserts a new contact address.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactAddress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactAddressID = isset($_POST['employee_address_id']) ? htmlspecialchars($_POST['employee_address_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $addressTypeID = htmlspecialchars($_POST['address_type_id'], ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($_POST['employee_address'], ENT_QUOTES, 'UTF-8');
+        $cityID = htmlspecialchars($_POST['employee_address_city_id'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactAddressExist = $this->employeeModel->checkContactAddressExist($contactAddressID);
+        $total = $checkContactAddressExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactAddress($contactAddressID, $employeeID, $addressTypeID, $address, $cityID, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactAddress($employeeID, $addressTypeID, $address, $cityID, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
     }
@@ -475,6 +596,176 @@ class EmployeeController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteContactInformation
+    # Description: 
+    # Delete the contact information if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactInformationID = htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactInformationExist = $this->employeeModel->checkContactInformationExist($contactInformationID);
+        $total = $checkContactInformationExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactInformation($contactInformationID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactAddress
+    # Description: 
+    # Delete the contact address if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactAddress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactAddressID = htmlspecialchars($_POST['employee_address_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactAddressExist = $this->employeeModel->checkContactAddressExist($contactAddressID);
+        $total = $checkContactAddressExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactAddress($contactAddressID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Custom methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagContactInformationAsPrimary
+    # Description: 
+    # Updates the contact information as primary.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagContactInformationAsPrimary() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactInformationID = htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8');
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactInformationExist = $this->employeeModel->checkContactInformationExist($contactInformationID);
+        $total = $checkContactInformationExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->updateContactInformationStatus($contactInformationID, $employeeID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagContactAddressAsPrimary
+    # Description: 
+    # Updates the contact address as primary.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagContactAddressAsPrimary() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactAddressID = htmlspecialchars($_POST['employee_address_id'], ENT_QUOTES, 'UTF-8');
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactAddressExist = $this->employeeModel->checkContactAddressExist($contactAddressID);
+        $total = $checkContactAddressExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->updateContactAddressStatus($contactAddressID, $employeeID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -619,6 +910,91 @@ class EmployeeController {
                 'isActiveBadge' => $isActiveBadge,
                 'permanencyDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['permanency_date'] ?? null, '', 'm/d/Y', ''),
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactInformation
+    # Description: 
+    # Handles the retrieval of contact information details such as email, telephone, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactInformation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_information_id']) && !empty($_POST['contact_information_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactInformationID = $_POST['contact_information_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactInformationDetails = $this->employeeModel->getContactInformation($contactInformationID);
+
+            $response = [
+                'success' => true,
+                'contactInformationTypeID' => $contactInformationDetails['contact_information_type_id'] ?? null,
+                'mobile' => $contactInformationDetails['mobile'] ?? null,
+                'telephone' => $contactInformationDetails['telephone'] ?? null,
+                'email' => $contactInformationDetails['email'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactAddress
+    # Description: 
+    # Handles the retrieval of contact address details such as address type, address, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactAddress() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['employee_address_id']) && !empty($_POST['employee_address_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactAddressID = $_POST['employee_address_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactAddressDetails = $this->employeeModel->getContactAddress($contactAddressID);
+
+            $response = [
+                'success' => true,
+                'addressTypeID' => $contactAddressDetails['address_type_id'] ?? null,
+                'address' => $contactAddressDetails['address'] ?? null,
+                'cityID' => $contactAddressDetails['city_id'] ?? null
             ];
 
             echo json_encode($response);

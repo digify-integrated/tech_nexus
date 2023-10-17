@@ -222,11 +222,40 @@
               </ul>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Contact Information</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-information-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Address</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-address-summary">
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <?php 
        if($employeeWriteAccess['total'] > 0){
+
+        $contactInformationAdd = '';
+        if($addEmployeeContactInformation['total'] > 0){
+          $contactInformationAdd = '<button type="button" class="btn btn-warning" id="add-contact-information">Add</button>';
+        }
+
+        $employeeAddressAdd = '';
+        if($addEmployeeAddress['total'] > 0){
+          $employeeAddressAdd = '<button type="button" class="btn btn-warning" id="add-contact-address">Add</button>';
+        }
+
         echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
                 <div class="row">
                   <div class="col-lg-12">
@@ -370,7 +399,7 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-12">
                     <div class="card">
                       <div class="card-header">
                         <div class="row align-items-center">
@@ -378,19 +407,20 @@
                             <h5>Contact Information</h5>
                           </div>
                           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-contact-information">Add</button>
+                            '. $contactInformationAdd .'
                           </div>
                         </div>
                       </div>
                       <div class="card-body">
                         <div class="dt-responsive table-responsive">
-                          <table id="contact-information-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                          <table id="contact-information-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                             <thead>
                               <tr>
-                                <th>Contact Information Type</th>
+                                <th>Contact Information</th>
                                 <th>Email</th>
                                 <th>Mobile</th>
                                 <th>Telephone</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                               </tr>
                             </thead>
@@ -400,25 +430,28 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-6">
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
                     <div class="card">
                       <div class="card-header">
                         <div class="row align-items-center">
                           <div class="col-md-6">
-                            <h5>Employee Address</h5>
+                            <h5>Address</h5>
                           </div>
                           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-employee-address">Add</button>
+                            '. $employeeAddressAdd .'
                           </div>
                         </div>
                       </div>
                       <div class="card-body">
                         <div class="dt-responsive table-responsive">
-                          <table id="employee-address-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                          <table id="contact-address-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                             <thead>
                               <tr>
                                 <th>Address Type</th>
                                 <th>Address</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                               </tr>
                             </thead>
@@ -738,6 +771,87 @@
                   </div>
                 </div>
               </div>';
+
+              if($addEmployeeContactInformation['total'] > 0){
+                echo '<div id="contact-information-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-information-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-information-modal-title">Contact Information</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-information-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label">Contact Information Type <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_information_id" name="contact_information_id">
+                                  <select class="form-control modal-select2" name="contact_information_type_id" id="contact_information_type_id">
+                                    <option value="">--</option>
+                                    '. $contactInformationTypeModel->generateContactInformationTypeOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_information_email">Email</label>
+                                  <input type="email" class="form-control" id="contact_information_email" name="contact_information_email" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_information_mobile">Mobile</label>
+                                  <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_information_telephone">Telephone</label>
+                                  <input type="text" class="form-control" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-information" form="contact-information-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeAddress['total'] > 0){
+                echo '<div id="contact-address-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-address-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-address-modal-title">Address</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-address-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label">Address Type <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="employee_address_id" name="employee_address_id">
+                                  <select class="form-control modal-select2" name="address_type_id" id="address_type_id">
+                                    <option value="">--</option>
+                                    '. $addressTypeModel->generateAddressTypeOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="employee_address">Address <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="employee_address" name="employee_address" maxlength="1000" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_information_email">City <span class="text-danger">*</span></label>
+                                  <select class="form-control modal-select2" name="employee_address_city_id" id="employee_address_city_id">
+                                  <option value="">--</option>
+                                  '. $cityModel->generateCityOptions() .'
+                                  </select>
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-address" form="contact-address-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
        }
     ?>
   </div>

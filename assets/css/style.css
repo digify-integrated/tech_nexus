@@ -27827,7 +27827,7 @@ body.anim-slip-from-top.modal-open .pc-header {
 
 /* Border versions */
 .table-bordered {
-  border: 1px solid #e7eaee;
+  border: 0px solid #e7eaee;
 }
 .table-bordered td,
 .table-bordered th {

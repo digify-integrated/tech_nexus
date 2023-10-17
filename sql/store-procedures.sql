@@ -4034,12 +4034,125 @@ END //
 
 /*  Contact Information Table Stored Procedures */
 
+CREATE PROCEDURE checkContactInformationExist (IN p_contact_information_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_information
+    WHERE contact_information_id = p_contact_information_id;
+END //
+
+CREATE PROCEDURE insertContactInformation(IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_information (contact_id, contact_information_type_id, mobile, telephone, email, last_log_by) 
+	VALUES(p_contact_id, p_contact_information_type_id, p_mobile, p_telephone, p_email, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactInformation(IN p_contact_information_id INT, IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_information
+    SET contact_id = p_contact_id,
+    contact_information_type_id = p_contact_information_type_id,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    last_log_by = p_last_log_by
+    WHERE contact_information_id = p_contact_information_id;
+END //
+
+CREATE PROCEDURE deleteContactInformation(IN p_contact_information_id INT)
+BEGIN
+    DELETE FROM contact_information WHERE contact_information_id = p_contact_information_id;
+END //
+
+CREATE PROCEDURE getContactInformation(IN p_contact_information_id INT)
+BEGIN
+	SELECT * FROM contact_information
+    WHERE contact_information_id = p_contact_information_id;
+END //
+
+CREATE PROCEDURE updateContactInformationStatus(IN p_contact_information_id INT, IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	UPDATE contact_information SET is_primary = 0 WHERE contact_information_id != p_contact_information_id AND contact_id = p_contact_id;
+	UPDATE contact_information SET is_primary = 1, last_log_by = p_last_log_by WHERE contact_information_id = p_contact_information_id AND contact_id = p_contact_id;
+
+    COMMIT;
+END //
+
 CREATE PROCEDURE generateContactInformationTable(IN p_contact_id INT)
 BEGIN
 	SELECT contact_information_id, contact_information_type_id, mobile, telephone, email, is_primary
     FROM contact_information
     WHERE contact_id = p_contact_id 
-    ORDER BY mobile;
+    ORDER BY is_primary DESC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Address Table Stored Procedures */
+
+CREATE PROCEDURE checkContactAddressExist (IN p_contact_address_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_address
+    WHERE contact_address_id = p_contact_address_id;
+END //
+
+CREATE PROCEDURE insertContactAddress(IN p_contact_id INT, IN p_address_type_id INT, IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_address (contact_id, address_type_id, address, city_id, last_log_by) 
+	VALUES(p_contact_id, p_address_type_id, p_address, p_city_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactAddress(IN p_contact_address_id INT, IN p_contact_id INT, IN p_address_type_id INT, IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_address
+    SET contact_id = p_contact_id,
+    address_type_id = p_address_type_id,
+    address = p_address,
+    city_id = p_city_id,
+    last_log_by = p_last_log_by
+    WHERE contact_address_id = p_contact_address_id;
+END //
+
+CREATE PROCEDURE deleteContactAddress(IN p_contact_address_id INT)
+BEGIN
+    DELETE FROM contact_address WHERE contact_address_id = p_contact_address_id;
+END //
+
+CREATE PROCEDURE getContactAddress(IN p_contact_address_id INT)
+BEGIN
+	SELECT * FROM contact_address
+    WHERE contact_address_id = p_contact_address_id;
+END //
+
+CREATE PROCEDURE updateContactAddressStatus(IN p_contact_address_id INT, IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	UPDATE contact_address SET is_primary = 0 WHERE contact_address_id != p_contact_address_id AND contact_id = p_contact_id;
+	UPDATE contact_address SET is_primary = 1, last_log_by = p_last_log_by WHERE contact_address_id = p_contact_address_id AND contact_id = p_contact_id;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE generateContactAddressTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_address_id, address_type_id, address, city_id, is_primary
+    FROM contact_address
+    WHERE contact_id = p_contact_id 
+    ORDER BY is_primary DESC;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

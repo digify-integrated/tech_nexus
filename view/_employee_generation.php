@@ -11,6 +11,10 @@ require_once '../model/job-position-model.php';
 require_once '../model/job-level-model.php';
 require_once '../model/branch-model.php';
 require_once '../model/employee-type-model.php';
+require_once '../model/address-type-model.php';
+require_once '../model/city-model.php';
+require_once '../model/state-model.php';
+require_once '../model/country-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
 
@@ -23,8 +27,12 @@ $jobPositionModel = new JobPositionModel($databaseModel);
 $jobLevelModel = new JobLevelModel($databaseModel);
 $branchModel = new BranchModel($databaseModel);
 $employeeTypeModel = new EmployeeTypeModel($databaseModel);
-$systemSettingModel = new SystemSettingModel($databaseModel);
 $contactInformationTypeModel = new ContactInformationTypeModel($databaseModel);
+$addressTypeModel = new AddressTypeModel($databaseModel);
+$cityModel = new CityModel($databaseModel);
+$stateModel = new StateModel($databaseModel);
+$countryModel = new CountryModel($databaseModel);
+$systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -146,8 +154,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 31);
-                $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
+                $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 33);
+                $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 34);
+                $tagEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 35);
 
                 foreach ($options as $row) {
                     $contactInformationID = $row['contact_information_id'];
@@ -168,6 +177,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </button>';
                     }
 
+                    $tag = '';
+                    if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactInformation['total'] > 0 && !$isPrimary){
+                        $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-information-as-primary" data-contact-information-id="'. $contactInformationID .'" title="Tag Contact Information As Primary">
+                                            <i class="ti ti-check"></i>
+                                        </button>';
+                    }
+
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactInformation['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-information" data-contact-information-id="'. $contactInformationID .'" title="Delete Contact Information">
@@ -176,21 +192,265 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
     
                     $response[] = [
-                        'CONTACT_INFORMATION_TYPE' => '<div class="row">
-                                        <div class="col">
-                                        <h6 class="mb-0">'. $contactInformationTypeName .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $isPrimaryBadge .'</p>
-                                        </div>
-                                    </div>',
+                        'CONTACT_INFORMATION_TYPE' => $contactInformationTypeName,
                         'EMAIL' => $email,
                         'MOBILE' => $mobile,
                         'TELEPHONE' => $telephone,
+                        'STATUS' => $isPrimaryBadge,
                         'ACTION' => '<div class="d-flex gap-2">
                                     '. $update .'
+                                    '. $tag .'
                                     '. $delete .'
                                 </div>'
                     ];
                 }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact information summary
+        # Description:
+        # Generates the contact information summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact information summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactInformationTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactInformationID = $row['contact_information_id'];
+                    $contactInformationTypeID = $row['contact_information_type_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+
+                    $contactInformationTypeName = $contactInformationTypeModel->getContactInformationType($contactInformationTypeID)['contact_information_type_name'] ?? null;
+
+                    $mobileDetails = !empty($mobile) ? '<div class="me-2"><p class="mb-2">Mobile</p><p class="mb-0 text-muted">' . $mobile . '</p></div>' : '';
+                    $emailDetails = !empty($email) ? '<div class="me-2"><p class="mb-2">Email</p><p class="mb-0 text-muted">' . $email . '</p></div>' : '';
+                    $telephoneDetails = !empty($telephone) ? '<div class="me-2"><p class="mb-2">Telephone</p><p class="mb-0 text-muted">' . $telephone . '</p></div>' : '';
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                    '. $emailDetails .'
+                                    '. $mobileDetails .'
+                                    '. $telephoneDetails .'
+                                    <div class="">
+                                        <div class="text-success d-inline-block me-2">
+                                        '. $isPrimaryBadge .'
+                                        </div>
+                                    </div>
+                                    </div>
+                                </li>';
+                }
+
+                $response[] = [
+                    'contactInformationSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact address table
+        # Description:
+        # Generates the contact address table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact address table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactAddressTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
+                $deleteEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 38);
+                $tagEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 39);
+
+                foreach ($options as $row) {
+                    $contactAddressID = $row['contact_address_id'];
+                    $addressTypeID = $row['address_type_id'];
+                    $address = $row['address'];
+                    $cityID = $row['city_id'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+
+                    $cityDetails = $cityModel->getCity($cityID);
+                    $cityName = $cityDetails['city_name'];
+                    $stateID = $cityDetails['state_id'];
+    
+                    $stateDetails = $stateModel->getState($stateID);
+                    $stateName = $stateDetails['state_name'];
+                    $countryID = $stateDetails['country_id'];
+    
+                    $countryName = $countryModel->getCountry($countryID)['country_name'];
+    
+                    $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
+
+                    $addressTypeName = $addressTypeModel->getAddressType($addressTypeID)['address_type_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactAddress['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-address" data-contact-address-id="'. $contactAddressID .'" title="Edit Contact Address">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $tag = '';
+                    if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactAddress['total'] > 0 && !$isPrimary){
+                        $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-address-as-primary" data-contact-address-id="'. $contactAddressID .'" title="Tag Contact Address As Primary">
+                                            <i class="ti ti-check"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactAddress['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-address" data-contact-address-id="'. $contactAddressID .'" title="Delete Contact Address">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'ADDRESS_TYPE' => $addressTypeName,
+                        'ADDRESS' => $contactAddress,
+                        'STATUS' => $isPrimaryBadge,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $tag .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact address summary
+        # Description:
+        # Generates the contact address summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact address summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactAddressTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactAddressID = $row['contact_address_id'];
+                    $addressTypeID = $row['address_type_id'];
+                    $address = $row['address'];
+                    $cityID = $row['city_id'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+
+                    $cityDetails = $cityModel->getCity($cityID);
+                    $cityName = $cityDetails['city_name'];
+                    $stateID = $cityDetails['state_id'];
+    
+                    $stateDetails = $stateModel->getState($stateID);
+                    $stateName = $stateDetails['state_name'];
+                    $countryID = $stateDetails['country_id'];
+    
+                    $countryName = $countryModel->getCountry($countryID)['country_name'];
+    
+                    $contactAddress = $address . ', ' . $cityName . ', ' . $stateName . ', ' . $countryName;
+
+                    $addressTypeName = $addressTypeModel->getAddressType($addressTypeID)['address_type_name'] ?? null;
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-2">
+                                        <p class="mb-2">'. $addressTypeName .'</p>
+                                        <p class="mb-0 text-muted">' . $contactAddress . '</p>
+                                    </div>
+                                    <div class="">
+                                        <div class="text-success d-inline-block me-2">
+                                        '. $isPrimaryBadge .'
+                                        </div>
+                                    </div>
+                                    </div>
+                                </li>';
+                }
+
+                $response[] = [
+                    'contactAddressSummary' => $details
+                ];
     
                 echo json_encode($response);
             }

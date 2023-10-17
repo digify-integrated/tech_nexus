@@ -2612,6 +2612,64 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Information Table Triggers */
+
+CREATE TRIGGER contact_information_trigger_update
+AFTER UPDATE ON contact_information
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contact_information_type_id <> OLD.contact_information_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Contact Information Type ID: ", OLD.contact_information_type_id, " -> ", NEW.badge_id, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_information', NEW.contact_information_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_information_trigger_insert
+AFTER INSERT ON contact_information
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact information created. <br/>';
+
+    IF NEW.contact_information_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact Information Type ID: ", NEW.contact_information_type_id);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_information', NEW.contact_information_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 
