@@ -17,6 +17,7 @@
     require('model/contact-information-type-model.php');
     require('model/address-type-model.php');
     require('model/city-model.php');
+    require('model/id-type-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -42,6 +43,7 @@
     $contactInformationTypeModel = new ContactInformationTypeModel($databaseModel);
     $addressTypeModel = new AddressTypeModel($databaseModel);
     $cityModel = new CityModel($databaseModel);
+    $idTypeModel = new IDTypeModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -55,7 +57,11 @@
     $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
     $employeeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'duplicate');
     $addEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
+    $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 33);
     $addEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 36);
+    $updateEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
+    $addEmployeeIdentification = $userModel->checkSystemActionAccessRights($user_id, 40);
+    $updateEmployeeIdentification = $userModel->checkSystemActionAccessRights($user_id, 41);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

@@ -4157,6 +4157,67 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Identification Table Stored Procedures */
+
+CREATE PROCEDURE checkContactIdentificationExist (IN p_contact_identification_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_identification
+    WHERE contact_identification_id = p_contact_identification_id;
+END //
+
+CREATE PROCEDURE insertContactIdentification(IN p_contact_id INT, IN p_id_type_id INT, IN p_id_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_identification (contact_id, id_type_id, id_number, last_log_by) 
+	VALUES(p_contact_id, p_id_type_id, p_id_number, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactIdentification(IN p_contact_identification_id INT, IN p_contact_id INT, IN p_id_type_id INT, IN p_id_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_identification
+    SET contact_id = p_contact_id,
+    id_type_id = p_id_type_id,
+    id_number = p_id_number,
+    last_log_by = p_last_log_by
+    WHERE contact_identification_id = p_contact_identification_id;
+END //
+
+CREATE PROCEDURE deleteContactIdentification(IN p_contact_identification_id INT)
+BEGIN
+    DELETE FROM contact_identification WHERE contact_identification_id = p_contact_identification_id;
+END //
+
+CREATE PROCEDURE getContactIdentification(IN p_contact_identification_id INT)
+BEGIN
+	SELECT * FROM contact_identification
+    WHERE contact_identification_id = p_contact_identification_id;
+END //
+
+CREATE PROCEDURE updateContactIdentificationStatus(IN p_contact_identification_id INT, IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	UPDATE contact_identification SET is_primary = 0 WHERE contact_identification_id != p_contact_identification_id AND contact_id = p_contact_id;
+	UPDATE contact_identification SET is_primary = 1, last_log_by = p_last_log_by WHERE contact_identification_id = p_contact_identification_id AND contact_id = p_contact_id;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE generateContactIdentificationTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_identification_id, id_type_id, id_number, is_primary
+    FROM contact_identification
+    WHERE contact_id = p_contact_id 
+    ORDER BY is_primary DESC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

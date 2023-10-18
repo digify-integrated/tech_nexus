@@ -226,6 +226,54 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactIdentification
+    # Description: Updates the contact identfication.
+    #
+    # Parameters:
+    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_id_type_id (int): The ID type ID.
+    # - $p_id_number (string): The ID Number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactIdentification($p_contact_identfication_id, $p_contact_id, $p_id_type_id, $p_id_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentification (:p_contact_identfication_id, :p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_id_type_id', $p_id_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_id_number', $p_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactIdentificationStatus
+    # Description: Updates the contact identfication as primary.
+    #
+    # Parameters:
+    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactIdentificationStatus($p_contact_identfication_id, $p_contact_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentificationStatus (:p_contact_identfication_id, :p_contact_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -449,6 +497,30 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertContactIdentification
+    # Description: Inserts the contact identfication.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_id_type_id (int): The ID type ID.
+    # - $p_id_number (string): The ID Number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactIdentification($p_contact_id, $p_id_type_id, $p_id_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactIdentification (:p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_id_type_id', $p_id_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_id_number', $p_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -548,6 +620,25 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactIdentificationExist
+    # Description: Checks if a contact identfication exists.
+    #
+    # Parameters:
+    # - $p_contact_identfication_id (int): The contact identfication ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactIdentificationExist($p_contact_identfication_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactIdentificationExist(:p_contact_identfication_id)');
+        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -601,6 +692,24 @@ class EmployeeModel {
     public function deleteContactAddress($p_contact_address_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactAddress(:p_contact_address_id)');
         $stmt->bindValue(':p_contact_address_id', $p_contact_address_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactIdentification
+    # Description: Deletes the contact identfication.
+    #
+    # Parameters:
+    # - $p_contact_identfication_id (int): The contact identfication ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactIdentification($p_contact_identfication_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactIdentification(:p_contact_identfication_id)');
+        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -684,6 +793,26 @@ class EmployeeModel {
     public function getContactAddress($p_contact_address_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getContactAddress(:p_contact_address_id)');
         $stmt->bindValue(':p_contact_address_id', $p_contact_address_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactIdentification
+    # Description: Retrieves the details of a contact identfication.
+    #
+    # Parameters:
+    # - $p_contact_identfication_id (int): The contact identfication ID.
+    #
+    # Returns:
+    # - An array containing the contact identfication.
+    #
+    # -------------------------------------------------------------
+    public function getContactIdentification($p_contact_identfication_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactIdentification(:p_contact_identfication_id)');
+        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

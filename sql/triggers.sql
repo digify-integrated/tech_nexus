@@ -2621,7 +2621,7 @@ BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
     IF NEW.contact_information_type_id <> OLD.contact_information_type_id THEN
-        SET audit_log = CONCAT(audit_log, "Contact Information Type ID: ", OLD.contact_information_type_id, " -> ", NEW.badge_id, "<br/>");
+        SET audit_log = CONCAT(audit_log, "Contact Information Type ID: ", OLD.contact_information_type_id, " -> ", NEW.contact_information_type_id, "<br/>");
     END IF;
 
     IF NEW.mobile <> OLD.mobile THEN
@@ -2666,6 +2666,48 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('contact_information', NEW.contact_information_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Identification Table Triggers */
+
+CREATE TRIGGER contact_identification_trigger_update
+AFTER UPDATE ON contact_identification
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.id_type_id <> OLD.id_type_id THEN
+        SET audit_log = CONCAT(audit_log, "ID Type ID: ", OLD.id_type_id, " -> ", NEW.id_type_id, "<br/>");
+    END IF;
+
+    IF NEW.id_number <> OLD.id_number THEN
+        SET audit_log = CONCAT(audit_log, "ID Number: ", OLD.id_number, " -> ", NEW.id_number, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_identification', NEW.contact_identification_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_identification_trigger_insert
+AFTER INSERT ON contact_identification
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact identification created. <br/>';
+
+    IF NEW.id_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>ID Type ID: ", NEW.id_type_id);
+    END IF;
+
+    IF NEW.id_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>ID Number: ", NEW.id_number);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_identification', NEW.contact_identification_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

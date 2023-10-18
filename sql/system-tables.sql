@@ -344,11 +344,15 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employe
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Contact Information', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Contact Information', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Employee Contact Information As Primary', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Address', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Address', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Address', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Employee Address As Primary', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Employee Identification As Primary', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -402,11 +406,15 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('33', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('34', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('35', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('36', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('37', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('38', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('39', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('40', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('41', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('42', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('43', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -2745,6 +2753,8 @@ CREATE INDEX company_index_company_id ON company(company_id);
 CREATE INDEX company_index_city_id ON company(city_id);
 CREATE INDEX company_index_currency_id ON company(currency_id);
 
+INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Encore Leasing and Finance Corp.', 'Km 114', '257', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Email Setting Table */
@@ -2833,6 +2843,8 @@ CREATE TABLE branch(
 
 CREATE INDEX branch_index_branch_id ON branch(branch_id);
 CREATE INDEX branch_index_city_id ON branch(city_id);
+
+INSERT INTO branch (branch_name, address, city_id, last_log_by) VALUES ('Nueva Ecija Hub', 'Km 114', '257', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3603,6 +3615,26 @@ CREATE INDEX contact_address_index_contact_address_id ON contact_address(contact
 CREATE INDEX contact_address_index_contact_id ON contact_information(contact_id);
 CREATE INDEX contact_address_index_address_type_id ON address_type(address_type_id);
 CREATE INDEX contact_address_index_city_id ON city(city_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Identification Table */
+
+CREATE TABLE contact_identification (
+    contact_identification_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    id_type_id INT UNSIGNED NOT NULL,
+    id_number VARCHAR(100) NOT NULL,
+    is_primary TINYINT DEFAULT 0,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_identification_index_contact_identification_id ON contact_identification(contact_identification_id);
+CREATE INDEX contact_identification_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_identification_index_id_type_id ON id_type(id_type_id);
+CREATE INDEX contact_identification_index_city_id ON city(city_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

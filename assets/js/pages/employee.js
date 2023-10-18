@@ -46,6 +46,18 @@
                 employeeAddressForm();
             }
 
+            if($('#contact-identification-table').length){
+                employeeIdentificationTable('#contact-identification-table');
+            }
+
+            if($('#contact-identification-summary').length){
+                employeeIdentificationSummary();
+            }
+
+            if($('#contact-identification-form').length){
+                employeeIdentificationForm();
+            }
+
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
 
@@ -183,9 +195,9 @@
             });
 
             $(document).on('click','.update-contact-address',function() {
-                const employee_address_id = $(this).data('contact-address-id');
+                const contact_address_id = $(this).data('contact-address-id');
         
-                sessionStorage.setItem('employee_address_id', employee_address_id);
+                sessionStorage.setItem('contact_address_id', contact_address_id);
                 
                 displayDetails('get contact address details');
         
@@ -193,13 +205,13 @@
             });
 
             $(document).on('click','.tag-contact-address-as-primary',function() {
-                const employee_address_id = $(this).data('contact-address-id');
+                const contact_address_id = $(this).data('contact-address-id');
                 const employee_id = $('#employee-id').text();
                 const transaction = 'tag contact address as primary';
         
                 Swal.fire({
-                    title: 'Confirm Contact Address Tag As Primary',
-                    text: 'Are you sure you want to tag this contact address as primary?',
+                    title: 'Confirm Address Tag As Primary',
+                    text: 'Are you sure you want to tag this address as primary?',
                     icon: 'info',
                     showCancelButton: !0,
                     confirmButtonText: 'Tag As Primary',
@@ -214,13 +226,13 @@
                             url: 'controller/employee-controller.php',
                             dataType: 'json',
                             data: {
-                                employee_address_id : employee_address_id, 
+                                contact_address_id : contact_address_id, 
                                 employee_id : employee_id, 
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Tag Contact Address As Primary Success', 'The contact address has been tagged as primary successfully.', 'success');
+                                    showNotification('Tag Address As Primary Success', 'The address has been tagged as primary successfully.', 'success');
                                     reloadDatatable('#contact-address-table');
                                     employeeAddressSummary();
                                 }
@@ -233,7 +245,7 @@
                                         window.location = '404.php';
                                     }
                                     else {
-                                        showNotification('Tag Contact Address As Primary Error', response.message, 'danger');
+                                        showNotification('Tag Address As Primary Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -251,12 +263,12 @@
             });
 
             $(document).on('click','.delete-contact-address',function() {
-                const employee_address_id = $(this).data('contact-address-id');
+                const contact_address_id = $(this).data('contact-address-id');
                 const transaction = 'delete contact address';
         
                 Swal.fire({
-                    title: 'Confirm Contact Address Deletion',
-                    text: 'Are you sure you want to delete this contact address?',
+                    title: 'Confirm Address Deletion',
+                    text: 'Are you sure you want to delete this address?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -271,12 +283,12 @@
                             url: 'controller/employee-controller.php',
                             dataType: 'json',
                             data: {
-                                employee_address_id : employee_address_id, 
+                                contact_address_id : contact_address_id, 
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Contact Address Success', 'The contact address has been deleted successfully.', 'success');
+                                    showNotification('Delete Address Success', 'The address has been deleted successfully.', 'success');
                                     reloadDatatable('#contact-address-table');
                                     employeeAddressSummary();
                                 }
@@ -289,7 +301,137 @@
                                         window.location = '404.php';
                                     }
                                     else {
-                                        showNotification('Delete Contact Address Error', response.message, 'danger');
+                                        showNotification('Delete Address Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-identification',function() {
+                resetModalForm("contact-identification-form");
+
+                $('#contact-identification-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-identification',function() {
+                const contact_identification_id = $(this).data('contact-identification-id');
+        
+                sessionStorage.setItem('contact_identification_id', contact_identification_id);
+                
+                displayDetails('get contact identification details');
+        
+                $('#contact-identification-modal').modal('show');
+            });
+
+            $(document).on('click','.tag-contact-identification-as-primary',function() {
+                const contact_identification_id = $(this).data('contact-identification-id');
+                const employee_id = $('#employee-id').text();
+                const transaction = 'tag contact identification as primary';
+        
+                Swal.fire({
+                    title: 'Confirm Employee Identification Tag As Primary',
+                    text: 'Are you sure you want to tag this employee identification as primary?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Tag As Primary',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_identification_id : contact_identification_id, 
+                                employee_id : employee_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Tag Employee Address As Primary Success', 'The employee identification has been tagged as primary successfully.', 'success');
+                                    reloadDatatable('#contact-identification-table');
+                                    employeeIdentificationSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Tag Employee Address As Primary Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','.delete-contact-identification',function() {
+                const contact_identification_id = $(this).data('contact-identification-id');
+                const transaction = 'delete contact identification';
+        
+                Swal.fire({
+                    title: 'Confirm Employee Identification Deletion',
+                    text: 'Are you sure you want to delete this employee identification?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_identification_id : contact_identification_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Employee Identification Success', 'The employee identification has been deleted successfully.', 'success');
+                                    reloadDatatable('#contact-identification-table');
+                                    employeeAddressSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Employee Identification Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -600,6 +742,93 @@ function employeeAddressSummary(){
         },
         success: function(response) {
             document.getElementById('contact-address-summary').innerHTML = response[0].contactAddressSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeIdentificationTable(datatable_name, buttons = false, show_all = false){
+    const type = 'contact identification table';
+    const employee_id = $('#employee-id').text();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'ID_TYPE' },
+        { 'data' : 'ID_NUMBER' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '25%', 'aTargets': 0 },
+        { 'width': '25%', 'aTargets': 1 },
+        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '25%','bSortable': false, 'aTargets': 3 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_employee_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'employee_id' : employee_id,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 2, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function employeeIdentificationSummary(){
+    const type = 'contact identification summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-identification-summary').innerHTML = response[0].contactIdentificationSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -1076,10 +1305,10 @@ function employeeAddressForm(){
             address_type_id: {
                 required: true
             },
-            employee_address: {
+            contact_address: {
                 required: true
             },
-            employee_address_city_id: {
+            contact_address_city_id: {
                 required: true
             },
         },
@@ -1087,10 +1316,10 @@ function employeeAddressForm(){
             address_type_id: {
                 required: 'Please choose the address type'
             },
-            employee_address: {
+            contact_address: {
                 required: 'Please enter the address'
             },
-            employee_address_city_id: {
+            contact_address_city_id: {
                 required: 'Please choose the city'
             },
         },
@@ -1164,6 +1393,102 @@ function employeeAddressForm(){
                     reloadDatatable('#contact-address-table');
                     employeeAddressSummary();
                     resetModalForm('contact-address-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeIdentificationForm(){
+    $('#contact-identification-form').validate({
+        rules: {
+            id_type_id: {
+                required: true
+            },
+            id_number: {
+                required: true
+            }
+        },
+        messages: {
+            id_type_id: {
+                required: 'Please choose the ID type'
+            },
+            id_number: {
+                required: 'Please enter the ID number'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact identification';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-identification');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Employee Identification Success' : 'Update Employee Identification Success';
+                        const notificationDescription = response.insertRecord ? 'The employee identification has been inserted successfully.' : 'The employee identification has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-identification', 'Submit');
+                    $('#contact-identification-modal').modal('hide');
+                    reloadDatatable('#contact-identification-table');
+                    employeeIdentificationSummary();
+                    resetModalForm('contact-identification-form');
                 }
             });
         
@@ -1340,14 +1665,14 @@ function displayDetails(transaction){
             });
             break;
         case 'get contact address details':
-            var employee_address_id = sessionStorage.getItem('employee_address_id');
+            var contact_address_id = sessionStorage.getItem('contact_address_id');
 
             $.ajax({
                 url: 'controller/employee-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    employee_address_id : employee_address_id, 
+                    contact_address_id : contact_address_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
@@ -1355,11 +1680,11 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#employee_address_id').val(employee_address_id);
-                        $('#employee_address').val(response.address);
+                        $('#contact_address_id').val(contact_address_id);
+                        $('#contact_address').val(response.address);
                         
                         checkOptionExist('#address_type_id', response.addressTypeID, '');
-                        checkOptionExist('#employee_address_city_id', response.cityID, '');
+                        checkOptionExist('#contact_address_city_id', response.cityID, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -1367,6 +1692,45 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Address Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact identification details':
+            var contact_identification_id = sessionStorage.getItem('contact_identification_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_identification_id : contact_identification_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-identification-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_identification_id').val(contact_identification_id);
+                        $('#contact_id_number').val(response.idNumber);
+                        
+                        checkOptionExist('#id_type_id', response.idTypeID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Employee Identification Details Error', response.message, 'danger');
                         }
                     }
                 },

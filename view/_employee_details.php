@@ -240,6 +240,15 @@
               </ul>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Employee Identification</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-identification-summary">
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -256,409 +265,490 @@
           $employeeAddressAdd = '<button type="button" class="btn btn-warning" id="add-contact-address">Add</button>';
         }
 
+        $employeeIdentificationAdd = '';
+        if($addEmployeeIdentification['total'] > 0){
+          $employeeIdentificationAdd = '<button type="button" class="btn btn-warning" id="add-contact-identification">Add</button>';
+        }
+
         echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
                 <div class="row">
-                  <div class="col-lg-12">
+                  <div class="col-lg-3">
                     <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Personal Information</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                          <button type="submit" form="personal-information-form" class="btn btn-success" id="submit-personal-information-data">Save</button>
-                          </div>
-                        </div>
-                      </div>
                       <div class="card-body">
+                        <ul class="nav flex-column nav-pills" id="v-personal-information-edit-tab" role="tablist" aria-orientation="vertical">
+                          <li><a class="nav-link active" id="v-personal-information-tab" data-bs-toggle="pill" href="#v-personal-information" role="tab" aria-controls="v-personal-information" aria-selected="true">Personal Information</a></li>
+                          <li><a class="nav-link" id="v-contact-information-tab" data-bs-toggle="pill" href="#v-contact-information" role="tab" aria-controls="v-contact-information" aria-selected="false">Contact Information</a></li>
+                          <li><a class="nav-link" id="v-address-tab" data-bs-toggle="pill" href="#v-address" role="tab" aria-controls="v-address" aria-selected="false">Address</a></li>
+                          <li><a class="nav-link" id="v-employee-identification-tab" data-bs-toggle="pill" href="#v-employee-identification" role="tab" aria-controls="v-employee-identification" aria-selected="false">Employee Identification</a></li>
+                          <li><a class="nav-link" id="v-educational-background-tab" data-bs-toggle="pill" href="#v-educational-background" role="tab" aria-controls="v-educational-background" aria-selected="false">Educational Background</a></li>
+                          <li><a class="nav-link" id="v-family-details-tab" data-bs-toggle="pill" href="#v-family-details" role="tab" aria-controls="v-family-details" aria-selected="false">Family Background</a></li>
+                          <li><a class="nav-link" id="v-emergency-contact-tab" data-bs-toggle="pill" href="#v-emergency-contact" role="tab" aria-controls="v-emergency-contact" aria-selected="false">Emergency Contact</a></li>
+                          <li><a class="nav-link" id="v-trainings-and-seminars-tab" data-bs-toggle="pill" href="#v-trainings-and-seminars" role="tab" aria-controls="v-trainings-and-seminars" aria-selected="false">Trainings & Seminars</a></li>
+                          <li><a class="nav-link" id="v-employment-history-tab" data-bs-toggle="pill" href="#v-employment-history" role="tab" aria-controls="v-employment-history" aria-selected="false">Employment History</a></li>
+                          <li><a class="nav-link" id="v-employee-skills-tab" data-bs-toggle="pill" href="#v-employee-skills" role="tab" aria-controls="v-employee-skills" aria-selected="false">Skills</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div class="tab-content" id="v-personal-information-edit-tab-content">
+                      <div class="tab-pane fade show active" id="v-personal-information" role="tabpanel" aria-labelledby="v-personal-information-tab">
                         <div class="row">
-                          <div class="col-sm-12 text-center mb-3">
-                            <form class="user-upload mb-4">
-                              <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
-                              <label for="employee_image" class="img-avtar-upload">
-                                <i class="ti ti-camera f-24 mb-1"></i>
-                                <span>Upload</span>
-                              </label>
-                              <input type="file" id="employee_image" name="employee_image" class="d-none">
-                            </form>
-                          </div>
-                        </div>
-                        <form id="personal-information-form" method="post" action="#">
-                          <div class="row">
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Middle Name</label>
-                                <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Suffix</label>
-                                <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Nickname</label>
-                                <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Birthday <span class="text-danger">*</span></label>
-                                <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Personal Information</h5>
                                   </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                  <button type="submit" form="v-personal-information" class="btn btn-success" id="submit-personal-information-data">Save</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="row">
+                                  <div class="col-sm-12 text-center mb-3">
+                                    <form class="user-upload mb-4">
+                                      <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
+                                      <label for="employee_image" class="img-avtar-upload">
+                                        <i class="ti ti-camera f-24 mb-1"></i>
+                                        <span>Upload</span>
+                                      </label>
+                                      <input type="file" id="employee_image" name="employee_image" class="d-none">
+                                    </form>
+                                  </div>
+                                </div>
+                                <form id="v-personal-information" method="post" action="#">
+                                  <div class="row">
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Suffix</label>
+                                        <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Nickname</label>
+                                        <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Birthday <span class="text-danger">*</span></label>
+                                        <div class="input-group date">
+                                            <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
+                                            <span class="input-group-text">
+                                              <i class="feather icon-calendar"></i>
+                                            </span>
+                                          </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Birth Place</label>
+                                        <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" name="gender" id="gender">
+                                          <option value="">--</option>
+                                          '. $genderModel->generateGenderOptions() .'
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                                        <select class="form-control select2" name="civil_status" id="civil_status">
+                                          <option value="">--</option>
+                                          '. $civilStatusModel->generateCivilStatusOptions() .'
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                      <div class="form-group">
+                                        <label class="form-label">Religion</label>
+                                        <select class="form-control select2" name="religion" id="religion">
+                                          <option value="">--</option>
+                                          '. $religionModel->generateReligionOptions() .'
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                      <div class="form-group">
+                                        <label class="form-label">Blood Type</label>
+                                        <select class="form-control select2" name="blood_type" id="blood_type">
+                                          <option value="">--</option>
+                                          '. $bloodTypeModel->generateBloodTypeOptions() .'
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                      <div class="form-group">
+                                        <label class="form-label">Height</label>
+                                        <div class="input-group">
+                                          <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
+                                          <span class="input-group-text">cm</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                      <div class="form-group">
+                                        <label class="form-label">Weight</label>
+                                        <div class="input-group">
+                                          <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
+                                          <span class="input-group-text">kg</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                      <div class="form-group">
+                                        <label class="form-label">Bio</label>
+                                        <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </form>
                               </div>
                             </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Birth Place</label>
-                                <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="v-contact-information" role="tabpanel" aria-labelledby="v-contact-information-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Contact Information</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    '. $contactInformationAdd .'
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="gender" id="gender">
-                                  <option value="">--</option>
-                                  '. $genderModel->generateGenderOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Civil Status <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="civil_status" id="civil_status">
-                                  <option value="">--</option>
-                                  '. $civilStatusModel->generateCivilStatusOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Religion</label>
-                                <select class="form-control select2" name="religion" id="religion">
-                                  <option value="">--</option>
-                                  '. $religionModel->generateReligionOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Blood Type</label>
-                                <select class="form-control select2" name="blood_type" id="blood_type">
-                                  <option value="">--</option>
-                                  '. $bloodTypeModel->generateBloodTypeOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Height</label>
-                                <div class="input-group">
-                                  <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
-                                  <span class="input-group-text">cm</span>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-information-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Contact Information</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
+                                        <th>Telephone</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
                                 </div>
                               </div>
                             </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Weight</label>
-                                <div class="input-group">
-                                  <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
-                                  <span class="input-group-text">kg</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="v-address" role="tabpanel" aria-labelledby="v-address-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Address</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    '. $employeeAddressAdd .'
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-address-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Address Type</th>
+                                        <th>Address</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
                                 </div>
                               </div>
                             </div>
-                            <div class="col-sm-12">
-                              <div class="form-group">
-                                <label class="form-label">Bio</label>
-                                <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="v-employee-identification" role="tabpanel" aria-labelledby="v-employee-identification-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Employee Identification</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    '. $employeeIdentificationAdd .'
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-identification-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>ID Type</th>
+                                        <th>ID Number</th>
+                                        <th>ID Classification</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </form>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Contact Information</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            '. $contactInformationAdd .'
+                      <div class="tab-pane fade" id="v-educational-background" role="tabpanel" aria-labelledby="v-educational-background-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Educational Background</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-educational-background">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="educational-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Educational Stage</th>
+                                        <th>Institution Name</th>
+                                        <th>Degree Earned</th>
+                                        <th>Field of Study</th>
+                                        <th>Year Attended</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="contact-information-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Contact Information</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Telephone</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Address</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            '. $employeeAddressAdd .'
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="contact-address-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Address Type</th>
-                                <th>Address</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Employee Identification</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-employee-identification">Add</button>
+                      <div class="tab-pane fade" id="v-family-details" role="tabpanel" aria-labelledby="v-family-details-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Family Details</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-family-details">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="family-details-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Name</th>
+                                        <th>Relationship</th>
+                                        <th>Birthday</th>
+                                        <th>School</th>
+                                        <th>Employment</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
+                                        <th>Telephone</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        
                       </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="employee-identification-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>ID Type</th>
-                                <th>ID Number</th>
-                                <th>ID Classification</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Educational Background</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-educational-background">Add</button>
+                      <div class="tab-pane fade" id="v-emergency-contact" role="tabpanel" aria-labelledby="v-emergency-contact-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Emergency Contact</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-emergency-contact">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="emergency-contact-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Name</th>
+                                        <th>Relationship</th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
+                                        <th>Telephone</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="educational-background-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Educational Stage</th>
-                                <th>Institution Name</th>
-                                <th>Degree Earned</th>
-                                <th>Field of Study</th>
-                                <th>Year Attended</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Family Details</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-family-details">Add</button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="family-details-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Name</th>
-                                <th>Relationship</th>
-                                <th>Birthday</th>
-                                <th>School</th>
-                                <th>Employment</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Telephone</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Emergency Contact</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-emergency-contact">Add</button>
+                      <div class="tab-pane fade" id="v-trainings-and-seminars" role="tabpanel" aria-labelledby="v-trainings-and-seminars-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Trainings & Seminars</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-tranings-and-seminars">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="tranings-and-seminars-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Traning Name</th>
+                                        <th>Training Date</th>
+                                        <th>Training Location</th>
+                                        <th>Training Provider</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="emergency-contact-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Name</th>
-                                <th>Relationship</th>
-                                <th>Email</th>
-                                <th>Mobile</th>
-                                <th>Telephone</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Trainings & Seminars</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-tranings-and-seminars">Add</button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="tranings-and-seminars-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Traning Name</th>
-                                <th>Training Date</th>
-                                <th>Training Location</th>
-                                <th>Training Provider</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Employment History</h5>
-                          </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                            <button type="button" class="btn btn-warning" id="add-employment-history">Add</button>
+                      <div class="tab-pane fade" id="v-employment-history" role="tabpanel" aria-labelledby="v-employment-history-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Employment History</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-employment-history">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="employment-history-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Company</th>
+                                        <th>Address</th>
+                                        <th>Contact Numbers</th>
+                                        <th>Last Position Held</th>
+                                        <th>Period of Employment</th>
+                                        <th>Basic Function</th>
+                                        <th>Starting Salary</th>
+                                        <th>Final Salary</th>
+                                        <th>Reason for Separation</th>
+                                        <th>Immediate Supervisor</th>
+                                        <th>Position of Immediate Supervisor</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div class="card-body">
-                        <div class="dt-responsive table-responsive">
-                          <table id="employment-history-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                            <thead>
-                              <tr>
-                                <th>Company</th>
-                                <th>Address</th>
-                                <th>Contact Numbers</th>
-                                <th>Last Position Held</th>
-                                <th>Period of Employment</th>
-                                <th>Basic Function</th>
-                                <th>Starting Salary</th>
-                                <th>Final Salary</th>
-                                <th>Reason for Separation</th>
-                                <th>Immediate Supervisor</th>
-                                <th>Position of Immediate Supervisor</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody></tbody>
-                          </table>
+                      <div class="tab-pane fade" id="v-employee-skills" role="tabpanel" aria-labelledby="v-employee-skills-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Employment History</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-employment-history">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-skills-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Company</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -772,7 +862,7 @@
                 </div>
               </div>';
 
-              if($addEmployeeContactInformation['total'] > 0){
+              if($addEmployeeContactInformation['total'] > 0 || $updateEmployeeContactInformation ['total'] > 0){
                 echo '<div id="contact-information-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-information-modal-title" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                           <div class="modal-content">
@@ -813,7 +903,7 @@
                       </div>';
               }
 
-              if($addEmployeeAddress['total'] > 0){
+              if($addEmployeeAddress['total'] > 0 || $updateEmployeeAddress['total'] > 0){
                 echo '<div id="contact-address-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-address-modal-title" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                           <div class="modal-content">
@@ -825,19 +915,19 @@
                               <form id="contact-address-form" method="post" action="#">
                                 <div class="form-group">
                                   <label class="form-label">Address Type <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="employee_address_id" name="employee_address_id">
+                                  <input type="hidden" id="contact_address_id" name="contact_address_id">
                                   <select class="form-control modal-select2" name="address_type_id" id="address_type_id">
                                     <option value="">--</option>
                                     '. $addressTypeModel->generateAddressTypeOptions() .'
                                   </select>
                                 </div>
                                 <div class="form-group">
-                                  <label class="form-label" for="employee_address">Address <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="employee_address" name="employee_address" maxlength="1000" autocomplete="off">
+                                  <label class="form-label" for="contact_address">Address <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="contact_address" name="contact_address" maxlength="1000" autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                   <label class="form-label" for="contact_information_email">City <span class="text-danger">*</span></label>
-                                  <select class="form-control modal-select2" name="employee_address_city_id" id="employee_address_city_id">
+                                  <select class="form-control modal-select2" name="contact_address_city_id" id="contact_address_city_id">
                                   <option value="">--</option>
                                   '. $cityModel->generateCityOptions() .'
                                   </select>
@@ -847,6 +937,39 @@
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               <button type="submit" class="btn btn-primary" id="submit-contact-address" form="contact-address-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeIdentification['total'] > 0 || $updateEmployeeIdentification['total'] > 0){
+                echo '<div id="contact-identification-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-identification-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-identification-modal-title">Employe Identification</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-identification-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label">Address Type <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_identification_id" name="contact_identification_id">
+                                  <select class="form-control modal-select2" name="id_type_id" id="id_type_id">
+                                    <option value="">--</option>
+                                    '. $idTypeModel->generateIDTypeOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_id_number">ID Number <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="contact_id_number" name="contact_id_number" maxlength="100" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-identification" form="contact-identification-form">Submit</button>
                             </div>
                           </div>
                         </div>

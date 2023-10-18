@@ -15,6 +15,7 @@ require_once '../model/address-type-model.php';
 require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
+require_once '../model/id-type-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
 
@@ -31,6 +32,7 @@ $contactInformationTypeModel = new ContactInformationTypeModel($databaseModel);
 $addressTypeModel = new AddressTypeModel($databaseModel);
 $cityModel = new CityModel($databaseModel);
 $stateModel = new StateModel($databaseModel);
+$idTypeModel = new IDTypeModel($databaseModel);
 $countryModel = new CountryModel($databaseModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
@@ -277,6 +279,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </li>';
                 }
 
+                if(empty($details)){
+                    $details = 'No contact information found.';
+                }
+
                 $response[] = [
                     'contactInformationSummary' => $details
                 ];
@@ -448,8 +454,161 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </li>';
                 }
 
+                if(empty($details)){
+                    $details = 'No address found.';
+                }
+
                 $response[] = [
                     'contactAddressSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact identification table
+        # Description:
+        # Generates the contact identification table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact identification table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactIdentificationTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 41);
+                $deleteEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 42);
+                $tagEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 23);
+
+                foreach ($options as $row) {
+                    $contactIdentificationID = $row['contact_identification_id'];
+                    $idTypeID = $row['id_type_id'];
+                    $idNumber = $row['id_number'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Secondary</span>';
+    
+                    $idTypeName = $idTypeModel->getIDType($idTypeID)['id_type_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactIdentification['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Contact Identification">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $tag = '';
+                    if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactIdentification['total'] > 0 && !$isPrimary){
+                        $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-identification-as-primary" data-contact-identification-id="'. $contactIdentificationID .'" title="Tag Contact Identification As Primary">
+                                            <i class="ti ti-check"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactIdentification['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Delete Contact Identification">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'ID_TYPE' => $idTypeName,
+                        'ID_NUMBER' => $idNumber,
+                        'STATUS' => $isPrimaryBadge,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $tag .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact identification summary
+        # Description:
+        # Generates the contact identification summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact identification summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactIdentificationTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactIdentificationID = $row['contact_identification_id'];
+                    $idTypeID = $row['id_type_id'];
+                    $idNumber = $row['id_number'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Secondary</span>';
+    
+                    $idTypeName = $idTypeModel->getIDType($idTypeID)['id_type_name'] ?? null;
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-2">
+                                        <p class="mb-2">'. $idTypeName .'</p>
+                                        <p class="mb-0 text-muted">' . $idNumber . '</p>
+                                    </div>
+                                    <div class="">
+                                        <div class="text-success d-inline-block me-2">
+                                        '. $isPrimaryBadge .'
+                                        </div>
+                                    </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No employee identification found.';
+                }
+
+                $response[] = [
+                    'contactIdentificationSummary' => $details
                 ];
     
                 echo json_encode($response);
