@@ -16,6 +16,8 @@ require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
 require_once '../model/id-type-model.php';
+require_once '../model/educational-stage-model.php';
+require_once '../model/relation-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
 
@@ -34,6 +36,8 @@ $cityModel = new CityModel($databaseModel);
 $stateModel = new StateModel($databaseModel);
 $idTypeModel = new IDTypeModel($databaseModel);
 $countryModel = new CountryModel($databaseModel);
+$educationalStageModel = new EducationalStageModel($databaseModel);
+$relationModel = new RelationModel($databaseModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -505,21 +509,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactIdentification['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Contact Identification">
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Employee Identification">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $tag = '';
                     if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactIdentification['total'] > 0 && !$isPrimary){
-                        $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-identification-as-primary" data-contact-identification-id="'. $contactIdentificationID .'" title="Tag Contact Identification As Primary">
+                        $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-identification-as-primary" data-contact-identification-id="'. $contactIdentificationID .'" title="Tag Employee Identification As Primary">
                                             <i class="ti ti-check"></i>
                                         </button>';
                     }
 
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactIdentification['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Delete Contact Identification">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-identification" data-contact-identification-id="'. $contactIdentificationID .'" title="Delete Employee Identification">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }
@@ -609,6 +613,462 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactIdentificationSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact educational background table
+        # Description:
+        # Generates the contact educational background table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact educational background table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactEducationalBackgroundTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 44);
+                $deleteEmployeeContactEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 45);
+
+                foreach ($options as $row) {
+                    $contactEducationalBackgroundID = $row['contact_educational_background_id'];
+                    $educationalStageID = $row['educational_stage_id'];
+                    $institutionName = $row['institution_name'];
+                    $degreeEarned = $row['degree_earned'];
+                    $fieldOfStudy = $row['field_of_study'];
+                    $startDate = $systemModel->checkDate('empty', $row['start_date'], '', 'M Y', '');
+                    $endDate = $systemModel->checkDate('empty', $row['end_date'], '', 'M Y', '');
+
+                    if(empty($endDate)){
+                       $endDate = 'Present'; 
+                    }
+    
+                    $educationalStageName = $educationalStageModel->getEducationalStage($educationalStageID)['educational_stage_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactEducationalBackground['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-educational-background" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Edit Educational Background">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactEducationalBackground['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-educational-background" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Delete Educational Background">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'EDUCATIONAL_STAGE' => $educationalStageName,
+                        'INSTITUTION_NAME' => $institutionName,
+                        'DEGREE_EARNED' => $degreeEarned,
+                        'FIELD_OF_STUDY' => $fieldOfStudy,
+                        'YEAR_ATTENDED' => $startDate .' - ' . $endDate,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact educational background summary
+        # Description:
+        # Generates the contact educational background summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact educational background summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactEducationalBackgroundTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactEducationalBackgroundID = $row['contact_educational_background_id'];
+                    $educationalStageID = $row['educational_stage_id'];
+                    $institutionName = $row['institution_name'];
+                    $degreeEarned = $row['degree_earned'];
+                    $fieldOfStudy = $row['field_of_study'];
+                    $startDate = $systemModel->checkDate('empty', $row['start_date'], '', 'M Y', '');
+                    $endDate = $systemModel->checkDate('empty', $row['end_date'], '', 'M Y', '');
+
+                    if(empty($endDate)){
+                       $endDate = 'Present'; 
+                    }
+    
+                    $educationalStageName = $educationalStageModel->getEducationalStage($educationalStageID)['educational_stage_name'] ?? null;
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p class="mb-1">'. $institutionName .'</p>
+                                            <p class="mb-1 text-muted">'. $degreeEarned .'</p>
+                                            <p class="mb-1 text-muted">'. $fieldOfStudy .'</p><br/>
+                                            <p class="mb-0">'. $startDate .' - '. $endDate .'</p>
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No educational background found.';
+                }
+
+                $response[] = [
+                    'contactEducationalBackgroundSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact family background table
+        # Description:
+        # Generates the contact family background table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact family background table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactFamilyBackgroundTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
+                $deleteEmployeeContactFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 49);
+
+                foreach ($options as $row) {
+                    $contactFamilyBackgroundID = $row['contact_family_background_id'];
+                    $familyName = $row['family_name'];
+                    $relationID = $row['relation_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+                    $birthday = $systemModel->checkDate('empty', $row['birthday'], '', 'm/d/Y', '');
+    
+                    $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactFamilyBackground['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-family-background" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Edit Family Background">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactFamilyBackground['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-family-background" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Delete Family Background">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'FAMILY_NAME' => $familyName,
+                        'RELATION' => $relationName,
+                        'BIRTHDAY' => $birthday,
+                        'EMAIL' => $email,
+                        'MOBILE' => $mobile,
+                        'TELEPHONE' => $telephone,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact family background summary
+        # Description:
+        # Generates the contact family background summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact family background summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactFamilyBackgroundTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactFamilyBackgroundID = $row['contact_family_background_id'];
+                    $familyName = $row['family_name'];
+                    $relationID = $row['relation_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+                    $birthday = $systemModel->checkDate('empty', $row['birthday'], '', 'm/d/Y', '');
+                    
+                    $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
+
+                    if(!empty($email)){
+                        $email = '<div class="col-md-3"><p class="mb-1">Email</p><p class="mb-1 text-muted">'. $email .'</p></div>';
+                    }
+
+                    if(!empty($mobile)){
+                        $mobile = '<div class="col-md-3"><p class="mb-1">Mobile</p><p class="mb-1 text-muted">'. $mobile .'</p></div>';
+                    }
+
+                    if(!empty($telephone)){
+                        $telephone = '<div class="col-md-3"><p class="mb-1">Telephone</p><p class="mb-1 text-muted">'. $telephone .'</p></div>';
+                    }
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <p class="mb-1">'. $familyName .'</p>
+                                            <p class="mb-1 text-muted">'. $relationName .'</p>
+                                        </div>
+                                        '. $email .'
+                                        '. $mobile .'
+                                        '. $telephone .'
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No family background found.';
+                }
+
+                $response[] = [
+                    'contactFamilyBackgroundSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact emergency contact table
+        # Description:
+        # Generates the contact emergency contact table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact emergency contact table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactEmergencyContactTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeContactEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 51);
+                $deleteEmployeeContactEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 52);
+
+                foreach ($options as $row) {
+                    $contactEmergencyContactID = $row['contact_emergency_contact_id'];
+                    $emergencyContactName = $row['emergency_contact_name'];
+                    $relationID = $row['relation_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+    
+                    $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactEmergencyContact['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-emergency-contact" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Edit Emergency Contact">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactEmergencyContact['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-emergency-contact" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Delete Emergency Contact">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'EMERGENCY_CONTACT_NAME' => $emergencyContactName,
+                        'RELATION' => $relationName,
+                        'EMAIL' => $email,
+                        'MOBILE' => $mobile,
+                        'TELEPHONE' => $telephone,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact emergency contact summary
+        # Description:
+        # Generates the contact emergency contact summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact emergency contact summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactEmergencyContactTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactEmergencyContactID = $row['contact_emergency_contact_id'];
+                    $emergencyContactName = $row['emergency_contact_name'];
+                    $relationID = $row['relation_id'];
+                    $mobile = $row['mobile'];
+                    $telephone = $row['telephone'];
+                    $email = $row['email'];
+    
+                    $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
+
+                    if(!empty($email)){
+                        $email = '<div class="col-md-3"><p class="mb-1">Email</p><p class="mb-1 text-muted">'. $email .'</p></div>';
+                    }
+
+                    if(!empty($mobile)){
+                        $mobile = '<div class="col-md-3"><p class="mb-1">Mobile</p><p class="mb-1 text-muted">'. $mobile .'</p></div>';
+                    }
+
+                    if(!empty($telephone)){
+                        $telephone = '<div class="col-md-3"><p class="mb-1">Telephone</p><p class="mb-1 text-muted">'. $telephone .'</p></div>';
+                    }
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <p class="mb-1">'. $emergencyContactName .'</p>
+                                            <p class="mb-1 text-muted">'. $relationName .'</p>
+                                        </div>
+                                        '. $email .'
+                                        '. $mobile .'
+                                        '. $telephone .'
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No emergency contact found.';
+                }
+
+                $response[] = [
+                    'contactEmergencyContactSummary' => $details
                 ];
     
                 echo json_encode($response);

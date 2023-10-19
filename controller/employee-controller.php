@@ -125,6 +125,15 @@ class EmployeeController {
                 case 'tag contact identification as primary':
                     $this->tagContactIdentificationAsPrimary();
                     break;
+                case 'save contact educational background':
+                    $this->saveContactEducationalBackground();
+                    break;
+                case 'save contact family background':
+                    $this->saveContactFamilyBackground();
+                    break;
+                case 'save contact emergency contact':
+                    $this->saveContactEmergencyContact();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
@@ -140,6 +149,15 @@ class EmployeeController {
                 case 'get contact identification details':
                     $this->getContactIdentification();
                     break;
+                case 'get contact educational background details':
+                    $this->getContactEducationalBackground();
+                    break;
+                case 'get contact family background details':
+                    $this->getContactFamilyBackground();
+                    break;
+                case 'get contact emergency contact details':
+                    $this->getContactEmergencyContact();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
@@ -154,6 +172,15 @@ class EmployeeController {
                     break;
                 case 'delete contact identification':
                     $this->deleteContactIdentification();
+                    break;
+                case 'delete contact educational background':
+                    $this->deleteContactEducationalBackground();
+                    break;
+                case 'delete contact family background':
+                    $this->deleteContactFamilyBackground();
+                    break;
+                case 'delete contact emergency contact':
+                    $this->deleteContactEmergencyContact();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -418,6 +445,158 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertContactIdentification($employeeID, $idTypeID, $idNumber, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactEducationalBackground
+    # Description: 
+    # Updates the existing contact educational background if it exists; otherwise, inserts a new contact educational background.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactEducationalBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEducationalBackgroundID = isset($_POST['contact_educational_background_id']) ? htmlspecialchars($_POST['contact_educational_background_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $educationalStageID = htmlspecialchars($_POST['educational_stage_id'], ENT_QUOTES, 'UTF-8');
+        $institutionName = htmlspecialchars($_POST['contact_institution_name'], ENT_QUOTES, 'UTF-8');
+        $degreeEarned = htmlspecialchars($_POST['contact_degree_earned'], ENT_QUOTES, 'UTF-8');
+        $fieldOfStudy = htmlspecialchars($_POST['contact_field_of_study'], ENT_QUOTES, 'UTF-8');
+        $startDate = $this->systemModel->checkDate('empty', $_POST['contact_start_date_attended'], '', 'Y-m-d', '');
+        $endDate = $this->systemModel->checkDate('empty', $_POST['contact_end_date_attended'], '', 'Y-m-d', '');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEducationalBackgroundExist = $this->employeeModel->checkContactEducationalBackgroundExist($contactEducationalBackgroundID);
+        $total = $checkContactEducationalBackgroundExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactEducationalBackground($contactEducationalBackgroundID, $employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startDate, $endDate, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactEducationalBackground($employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startDate, $endDate, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactFamilyBackground
+    # Description: 
+    # Updates the existing contact family background if it exists; otherwise, inserts a new contact family background.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactFamilyBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactFamilyBackgroundID = isset($_POST['contact_family_background_id']) ? htmlspecialchars($_POST['contact_family_background_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $familyName = htmlspecialchars($_POST['family_name'], ENT_QUOTES, 'UTF-8');
+        $relationID = htmlspecialchars($_POST['family_background_relation_id'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['family_background_email'], ENT_QUOTES, 'UTF-8');
+        $mobile = htmlspecialchars($_POST['family_background_mobile'], ENT_QUOTES, 'UTF-8');
+        $telephone = htmlspecialchars($_POST['family_background_telephone'], ENT_QUOTES, 'UTF-8');
+        $birthday = $this->systemModel->checkDate('empty', $_POST['family_background_birthday'], '', 'Y-m-d', '');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactFamilyBackgroundExist = $this->employeeModel->checkContactFamilyBackgroundExist($contactFamilyBackgroundID);
+        $total = $checkContactFamilyBackgroundExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactFamilyBackground($contactFamilyBackgroundID, $employeeID, $familyName, $relationID, $birthday, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactFamilyBackground($employeeID, $familyName, $relationID, $birthday, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactEmergencyContact
+    # Description: 
+    # Updates the existing contact emergency contact if it exists; otherwise, inserts a new contact emergency contact.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactEmergencyContact() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEmergencyContactID = isset($_POST['contact_emergency_contact_id']) ? htmlspecialchars($_POST['contact_emergency_contact_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $emergencyContactName = htmlspecialchars($_POST['emergency_contact_name'], ENT_QUOTES, 'UTF-8');
+        $relationID = htmlspecialchars($_POST['emergency_contact_relation_id'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['emergency_contact_email'], ENT_QUOTES, 'UTF-8');
+        $mobile = htmlspecialchars($_POST['emergency_contact_mobile'], ENT_QUOTES, 'UTF-8');
+        $telephone = htmlspecialchars($_POST['emergency_contact_telephone'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEmergencyContactExist = $this->employeeModel->checkContactEmergencyContactExist($contactEmergencyContactID);
+        $total = $checkContactEmergencyContactExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactEmergencyContact($contactEmergencyContactID, $employeeID, $emergencyContactName, $relationID, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactEmergencyContact($employeeID, $emergencyContactName, $relationID, $mobile, $telephone, $email, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -771,6 +950,129 @@ class EmployeeController {
         }
     
         $this->employeeModel->deleteContactIdentification($contactIdentificationID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEducationalBackground
+    # Description: 
+    # Delete the contact educational background if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEducationalBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEducationalBackgroundID = htmlspecialchars($_POST['contact_educational_background_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEducationalBackgroundExist = $this->employeeModel->checkContactEducationalBackgroundExist($contactEducationalBackgroundID);
+        $total = $checkContactEducationalBackgroundExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactEducationalBackground($contactEducationalBackgroundID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactFamilyBackground
+    # Description: 
+    # Delete the contact family background if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactFamilyBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactFamilyBackgroundID = htmlspecialchars($_POST['contact_family_background_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactFamilyBackgroundExist = $this->employeeModel->checkContactFamilyBackgroundExist($contactFamilyBackgroundID);
+        $total = $checkContactFamilyBackgroundExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactFamilyBackground($contactFamilyBackgroundID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEmergencyContact
+    # Description: 
+    # Delete the contact emergency contact if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEmergencyContact() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEmergencyContactID = htmlspecialchars($_POST['contact_emergency_contact_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEmergencyContactExist = $this->employeeModel->checkContactEmergencyContactExist($contactEmergencyContactID);
+        $total = $checkContactEmergencyContactExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactEmergencyContact($contactEmergencyContactID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -1178,6 +1480,140 @@ class EmployeeController {
                 'success' => true,
                 'idTypeID' => $contactIdentificationDetails['id_type_id'] ?? null,
                 'idNumber' => $contactIdentificationDetails['id_number'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEducationalBackground
+    # Description: 
+    # Handles the retrieval of contact educational background details such as institution name, field of study, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactEducationalBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_educational_background_id']) && !empty($_POST['contact_educational_background_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactEducationalBackgroundID = htmlspecialchars($_POST['contact_educational_background_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactIdentificationDetails = $this->employeeModel->getContactEducationalBackground($contactEducationalBackgroundID);
+
+            $response = [
+                'success' => true,
+                'educationalStageID' => $contactIdentificationDetails['educational_stage_id'] ?? null,
+                'institutionName' => $contactIdentificationDetails['institution_name'] ?? null,
+                'degreeEarned' => $contactIdentificationDetails['degree_earned'] ?? null,
+                'fieldOfStudy' => $contactIdentificationDetails['field_of_study'] ?? null,
+                'startDate' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['start_date'], '', 'm/d/Y', ''),
+                'endDate' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['end_date'], '', 'm/d/Y', '')
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactFamilyBackground
+    # Description: 
+    # Handles the retrieval of contact family background details such as institution name, field of study, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactFamilyBackground() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_family_background_id']) && !empty($_POST['contact_family_background_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactFamilyBackgroundID = htmlspecialchars($_POST['contact_family_background_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactIdentificationDetails = $this->employeeModel->getContactFamilyBackground($contactFamilyBackgroundID);
+
+            $response = [
+                'success' => true,
+                'familyName' => $contactIdentificationDetails['family_name'] ?? null,
+                'relationID' => $contactIdentificationDetails['relation_id'] ?? null,
+                'birthday' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['birthday'], '', 'm/d/Y', ''),
+                'mobile' => $contactIdentificationDetails['mobile'] ?? null,
+                'telephone' => $contactIdentificationDetails['telephone'] ?? null,
+                'email' => $contactIdentificationDetails['email'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEmergencyContact
+    # Description: 
+    # Handles the retrieval of contact emergency contact details such as institution name, field of study, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactEmergencyContact() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_emergency_contact_id']) && !empty($_POST['contact_emergency_contact_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactEmergencyContactID = htmlspecialchars($_POST['contact_emergency_contact_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactIdentificationDetails = $this->employeeModel->getContactEmergencyContact($contactEmergencyContactID);
+
+            $response = [
+                'success' => true,
+                'emergencyContactName' => $contactIdentificationDetails['emergency_contact_name'] ?? null,
+                'relationID' => $contactIdentificationDetails['relation_id'] ?? null,
+                'mobile' => $contactIdentificationDetails['mobile'] ?? null,
+                'telephone' => $contactIdentificationDetails['telephone'] ?? null,
+                'email' => $contactIdentificationDetails['email'] ?? null
             ];
 
             echo json_encode($response);

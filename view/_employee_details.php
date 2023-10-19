@@ -249,6 +249,33 @@
               </ul>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Educational Background</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-educational-background-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Family Background</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-family-background-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Emergency Contact</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -270,6 +297,21 @@
           $employeeIdentificationAdd = '<button type="button" class="btn btn-warning" id="add-contact-identification">Add</button>';
         }
 
+        $employeeEducationalBackgroundAdd = '';
+        if($addEmployeeEducationalBackground['total'] > 0){
+          $employeeEducationalBackgroundAdd = '<button type="button" class="btn btn-warning" id="add-contact-educational-background">Add</button>';
+        }
+
+        $employeeFamilyBackgroundAdd = '';
+        if($addEmployeeFamilyBackground['total'] > 0){
+          $employeeFamilyBackgroundAdd = '<button type="button" class="btn btn-warning" id="add-contact-family-background">Add</button>';
+        }
+
+        $employeeEmergencyContactAdd = '';
+        if($addEmployeeEmergencyContact['total'] > 0){
+          $employeeEmergencyContactAdd = '<button type="button" class="btn btn-warning" id="add-contact-emergency-contact">Add</button>';
+        }
+
         echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
                 <div class="row">
                   <div class="col-lg-3">
@@ -281,11 +323,13 @@
                           <li><a class="nav-link" id="v-address-tab" data-bs-toggle="pill" href="#v-address" role="tab" aria-controls="v-address" aria-selected="false">Address</a></li>
                           <li><a class="nav-link" id="v-employee-identification-tab" data-bs-toggle="pill" href="#v-employee-identification" role="tab" aria-controls="v-employee-identification" aria-selected="false">Employee Identification</a></li>
                           <li><a class="nav-link" id="v-educational-background-tab" data-bs-toggle="pill" href="#v-educational-background" role="tab" aria-controls="v-educational-background" aria-selected="false">Educational Background</a></li>
-                          <li><a class="nav-link" id="v-family-details-tab" data-bs-toggle="pill" href="#v-family-details" role="tab" aria-controls="v-family-details" aria-selected="false">Family Background</a></li>
+                          <li><a class="nav-link" id="v-family-background-tab" data-bs-toggle="pill" href="#v-family-background" role="tab" aria-controls="v-family-background" aria-selected="false">Family Background</a></li>
                           <li><a class="nav-link" id="v-emergency-contact-tab" data-bs-toggle="pill" href="#v-emergency-contact" role="tab" aria-controls="v-emergency-contact" aria-selected="false">Emergency Contact</a></li>
                           <li><a class="nav-link" id="v-trainings-and-seminars-tab" data-bs-toggle="pill" href="#v-trainings-and-seminars" role="tab" aria-controls="v-trainings-and-seminars" aria-selected="false">Trainings & Seminars</a></li>
                           <li><a class="nav-link" id="v-employment-history-tab" data-bs-toggle="pill" href="#v-employment-history" role="tab" aria-controls="v-employment-history" aria-selected="false">Employment History</a></li>
                           <li><a class="nav-link" id="v-employee-skills-tab" data-bs-toggle="pill" href="#v-employee-skills" role="tab" aria-controls="v-employee-skills" aria-selected="false">Skills</a></li>
+                          <li><a class="nav-link" id="v-employee-talents-tab" data-bs-toggle="pill" href="#v-employee-talents" role="tab" aria-controls="v-employee-talents" aria-selected="false">Talents</a></li>
+                          <li><a class="nav-link" id="v-employee-hobbies-tab" data-bs-toggle="pill" href="#v-employee-hobbies" role="tab" aria-controls="v-employee-hobbies" aria-selected="false">Hobbies</a></li>
                         </ul>
                       </div>
                     </div>
@@ -546,13 +590,13 @@
                                     <h5>Educational Background</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-educational-background">Add</button>
+                                    '. $employeeEducationalBackgroundAdd .'
                                   </div>
                                 </div>
                               </div>
                               <div class="card-body">
                                 <div class="dt-responsive table-responsive">
-                                  <table id="educational-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                  <table id="contact-educational-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
                                         <th>Educational Stage</th>
@@ -571,30 +615,28 @@
                           </div>
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="v-family-details" role="tabpanel" aria-labelledby="v-family-details-tab">
+                      <div class="tab-pane fade" id="v-family-background" role="tabpanel" aria-labelledby="v-family-background-tab">
                         <div class="row">
                           <div class="col-lg-12">
                             <div class="card">
                               <div class="card-header">
                                 <div class="row align-items-center">
                                   <div class="col-md-6">
-                                    <h5>Family Details</h5>
+                                    <h5>Family Background</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-family-details">Add</button>
+                                    '. $employeeFamilyBackgroundAdd .'
                                   </div>
                                 </div>
                               </div>
                               <div class="card-body">
                                 <div class="dt-responsive table-responsive">
-                                  <table id="family-details-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                  <table id="contact-family-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
                                         <th>Name</th>
                                         <th>Relationship</th>
                                         <th>Birthday</th>
-                                        <th>School</th>
-                                        <th>Employment</th>
                                         <th>Email</th>
                                         <th>Mobile</th>
                                         <th>Telephone</th>
@@ -607,8 +649,7 @@
                               </div>
                             </div>
                           </div>
-                        </div>
-                        
+                        </div>                        
                       </div>
                       <div class="tab-pane fade" id="v-emergency-contact" role="tabpanel" aria-labelledby="v-emergency-contact-tab">
                         <div class="row">
@@ -620,13 +661,13 @@
                                     <h5>Emergency Contact</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-emergency-contact">Add</button>
+                                    '. $employeeEmergencyContactAdd .'
                                   </div>
                                 </div>
                               </div>
                               <div class="card-body">
                                 <div class="dt-responsive table-responsive">
-                                  <table id="emergency-contact-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                  <table id="contact-emergency-contact-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
                                         <th>Name</th>
@@ -727,10 +768,10 @@
                               <div class="card-header">
                                 <div class="row align-items-center">
                                   <div class="col-md-6">
-                                    <h5>Employment History</h5>
+                                    <h5>Skills</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-employment-history">Add</button>
+                                    <button type="button" class="btn btn-warning" id="add-employee-skills">Add</button>
                                   </div>
                                 </div>
                               </div>
@@ -739,7 +780,69 @@
                                   <table id="contact-skills-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
-                                        <th>Company</th>
+                                        <th>Skills</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="v-employee-talents" role="tabpanel" aria-labelledby="v-employee-talents-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Talents</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-employee-talents">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-talents-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Talents</th>
+                                        <th>Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="v-employee-hobbies" role="tabpanel" aria-labelledby="v-employee-talents-tab">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="card">
+                              <div class="card-header">
+                                <div class="row align-items-center">
+                                  <div class="col-md-6">
+                                    <h5>Hobbies</h5>
+                                  </div>
+                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                    <button type="button" class="btn btn-warning" id="add-employee-hobbies">Add</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="card-body">
+                                <div class="dt-responsive table-responsive">
+                                  <table id="contact-talents-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                    <thead>
+                                      <tr>
+                                        <th>Hobbies</th>
                                         <th>Actions</th>
                                       </tr>
                                     </thead>
@@ -975,27 +1078,170 @@
                         </div>
                       </div>';
               }
+
+              if($addEmployeeEducationalBackground['total'] > 0 || $updateEmployeeEducationalBackground['total'] > 0){
+                echo '<div id="contact-educational-background-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-educational-background-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-educational-background-modal-title">Employe Identification</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-educational-background-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label">Educational Stage <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_educational_background_id" name="contact_educational_background_id">
+                                  <select class="form-control modal-select2" name="educational_stage_id" id="educational_stage_id">
+                                    <option value="">--</option>
+                                    '. $educationalStageModel->generateEducationalStageOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_institution_name">Institution Name <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="contact_institution_name" name="contact_institution_name" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_degree_earned">Degree Earned</label>
+                                  <input type="text" class="form-control" id="contact_degree_earned" name="contact_degree_earned" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_field_of_study">Field of Study</label>
+                                  <input type="text" class="form-control" id="contact_field_of_study" name="contact_field_of_study" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                                  <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="contact_start_date_attended" name="contact_start_date_attended">
+                                    <span class="input-group-text">
+                                      <i class="feather icon-calendar"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">End Date</label>
+                                  <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="contact_end_date_attended" name="contact_end_date_attended">
+                                    <span class="input-group-text">
+                                      <i class="feather icon-calendar"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-educational-background" form="contact-educational-background-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeFamilyBackground['total'] > 0 || $updateEmployeeFamilyBackground['total'] > 0){
+                echo '<div id="contact-family-background-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-family-background-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-family-background-modal-title">Family Background</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-family-background-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="family_name">Family Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_family_background_id" name="contact_family_background_id">
+                                  <input type="text" class="form-control" id="family_name" name="family_name" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">Relation <span class="text-danger">*</span></label>
+                                  <select class="form-control modal-select2" name="family_background_relation_id" id="family_background_relation_id">
+                                    <option value="">--</option>
+                                    '. $relationModel->generateRelationOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">Birthday <span class="text-danger">*</span></label>
+                                  <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="family_background_birthday" name="family_background_birthday">
+                                    <span class="input-group-text">
+                                      <i class="feather icon-calendar"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="family_background_email">Email</label>
+                                  <input type="email" class="form-control" id="family_background_email" name="family_background_email" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="family_background_mobile">Mobile</label>
+                                  <input type="text" class="form-control" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="family_background_telephone">Telephone</label>
+                                  <input type="text" class="form-control" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-family-background" form="contact-family-background-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeEmergencyContact['total'] > 0 || $updateEmployeeEmergencyContact['total'] > 0){
+                echo '<div id="contact-emergency-contact-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-emergency-contact-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-emergency-contact-modal-title">Energency Contact</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-emergency-contact-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="emergency_contact_name">Emergency Contact Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_emergency_contact_id" name="contact_emergency_contact_id">
+                                  <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">Relation <span class="text-danger">*</span></label>
+                                  <select class="form-control modal-select2" name="emergency_contact_relation_id" id="emergency_contact_relation_id">
+                                    <option value="">--</option>
+                                    '. $relationModel->generateRelationOptions() .'
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="emergency_contact_email">Email</label>
+                                  <input type="email" class="form-control" id="emergency_contact_email" name="emergency_contact_email" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="emergency_contact_mobile">Mobile</label>
+                                  <input type="text" class="form-control" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="20" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="emergency_contact_telephone">Telephone</label>
+                                  <input type="text" class="form-control" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="20" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-emergency-contact" form="contact-emergency-contact-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
        }
     ?>
   </div>
 </div>
 
-<?php
-  echo '<div class="col-lg-12">
-          <div class="card">
-            <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col-sm-6">
-                  <h5>Log Notes</h5>
-                </div>
-              </div>
-            </div>
-            <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
-              <div class="card-body p-b-0">
-                '. $userModel->generateLogNotes('contact', $employeeID) .'
-              </div>
-            </div>
-          </div>
-        </div>';
-?>
+
+
+
 </div>

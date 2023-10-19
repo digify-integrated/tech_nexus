@@ -18,6 +18,8 @@
     require('model/address-type-model.php');
     require('model/city-model.php');
     require('model/id-type-model.php');
+    require('model/educational-stage-model.php');
+    require('model/relation-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -44,6 +46,8 @@
     $addressTypeModel = new AddressTypeModel($databaseModel);
     $cityModel = new CityModel($databaseModel);
     $idTypeModel = new IDTypeModel($databaseModel);
+    $educationalStageModel = new EducationalStageModel($databaseModel);
+    $relationModel = new RelationModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -54,7 +58,7 @@
     $employeeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'read');
     $employeeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'create');
     $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-    $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
+    $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete'); 
     $employeeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'duplicate');
     $addEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 32);
     $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 33);
@@ -62,6 +66,12 @@
     $updateEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
     $addEmployeeIdentification = $userModel->checkSystemActionAccessRights($user_id, 40);
     $updateEmployeeIdentification = $userModel->checkSystemActionAccessRights($user_id, 41);
+    $addEmployeeEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 44);
+    $updateEmployeeEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 45);
+    $addEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 47);
+    $updateEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
+    $addEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 50);
+    $updateEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 51);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

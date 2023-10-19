@@ -348,11 +348,20 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employe
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Address', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Address', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Employee Address As Primary', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Identification', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Identification', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Identification', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Employee Identification As Primary', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Educational Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Educational Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Educational Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Family Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Family Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Family Background', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Emergency Contact', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Emergency Contact', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Emergency Contact', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -410,11 +419,20 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('37', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('38', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('39', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('40', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('41', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('42', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('43', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('44', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('45', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('46', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('47', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('48', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('49', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('50', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('51', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('52', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3244,10 +3262,13 @@ CREATE INDEX relation_index_relation_id ON relation(relation_id);
 
 INSERT INTO relation (relation_name, last_log_by)
 VALUES
-    ('Parent', '1'),
-    ('Child', '1'),
+    ('Father', '1'),
+    ('Mother', '1'),
+    ('Son', '1'),
+    ('Daughter', '1'),
     ('Spouse', '1'),
-    ('Sibling', '1'),
+    ('Brother', '1'),
+    ('Sister', '1'),
     ('Grandparent', '1'),
     ('Grandchild', '1'),
     ('Aunt', '1'),
@@ -3634,7 +3655,71 @@ CREATE TABLE contact_identification (
 CREATE INDEX contact_identification_index_contact_identification_id ON contact_identification(contact_identification_id);
 CREATE INDEX contact_identification_index_contact_id ON contact_information(contact_id);
 CREATE INDEX contact_identification_index_id_type_id ON id_type(id_type_id);
-CREATE INDEX contact_identification_index_city_id ON city(city_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Educational Background Table */
+
+CREATE TABLE contact_educational_background (
+    contact_educational_background_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    educational_stage_id INT UNSIGNED NOT NULL,
+    institution_name VARCHAR(500) NOT NULL,
+    degree_earned VARCHAR(500),
+    field_of_study VARCHAR(500),
+    start_date DATE NOT NULL,
+    end_date DATE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_educational_background_index_educational_background_id ON contact_educational_background(contact_educational_background_id);
+CREATE INDEX contact_educational_background_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_educational_background_index_educational_stage_id ON educational_stage(educational_stage_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Family Background Table */
+
+CREATE TABLE contact_family_background (
+    contact_family_background_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    family_name VARCHAR(500) NOT NULL,
+    relation_id INT UNSIGNED NOT NULL,
+    birthday DATE NOT NULL,
+    mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_family_background_index_family_background_id ON contact_family_background(contact_family_background_id);
+CREATE INDEX contact_family_background_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_family_background_index_relation_id ON relation(relation_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Emergency Contact Table */
+
+CREATE TABLE contact_emergency_contact (
+    contact_emergency_contact_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    emergency_contact_name VARCHAR(500) NOT NULL,
+    relation_id INT UNSIGNED NOT NULL,
+    mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_emergency_contact_index_emergency_contact_id ON contact_emergency_contact(contact_emergency_contact_id);
+CREATE INDEX contact_emergency_contact_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_emergency_contact_index_relation_id ON relation(relation_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -4218,6 +4218,155 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Educational Background Table Stored Procedures */
+
+CREATE PROCEDURE checkContactEducationalBackgroundExist (IN p_contact_educational_background_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_educational_background
+    WHERE contact_educational_background_id = p_contact_educational_background_id;
+END //
+
+CREATE PROCEDURE insertContactEducationalBackground(IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_date DATE, IN p_end_date DATE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_educational_background (contact_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_date, end_date, last_log_by) 
+	VALUES(p_contact_id, p_educational_stage_id, p_institution_name, p_degree_earned, p_field_of_study, p_start_date, p_end_date, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactEducationalBackground(IN p_contact_educational_background_id INT, IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_date DATE, IN p_end_date DATE, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_educational_background
+    SET contact_id = p_contact_id,
+    educational_stage_id = p_educational_stage_id,
+    institution_name = p_institution_name,
+    degree_earned = p_degree_earned,
+    field_of_study = p_field_of_study,
+    start_date = p_start_date,
+    end_date = p_end_date,
+    last_log_by = p_last_log_by
+    WHERE contact_educational_background_id = p_contact_educational_background_id;
+END //
+
+CREATE PROCEDURE deleteContactEducationalBackground(IN p_contact_educational_background_id INT)
+BEGIN
+    DELETE FROM contact_educational_background WHERE contact_educational_background_id = p_contact_educational_background_id;
+END //
+
+CREATE PROCEDURE getContactEducationalBackground(IN p_contact_educational_background_id INT)
+BEGIN
+	SELECT * FROM contact_educational_background
+    WHERE contact_educational_background_id = p_contact_educational_background_id;
+END //
+
+CREATE PROCEDURE generateContactEducationalBackgroundTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_educational_background_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_date, end_date
+    FROM contact_educational_background
+    WHERE contact_id = p_contact_id 
+    ORDER BY start_date DESC, end_date ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Family Background Table Stored Procedures */
+
+CREATE PROCEDURE checkContactFamilyBackgroundExist (IN p_contact_family_background_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_family_background
+    WHERE contact_family_background_id = p_contact_family_background_id;
+END //
+
+CREATE PROCEDURE insertContactFamilyBackground(IN p_contact_id INT, IN p_family_name VARCHAR(500), IN p_relation_id INT, IN p_birthday DATE, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_family_background (contact_id, family_name, relation_id, birthday, mobile, telephone, email, last_log_by) 
+	VALUES(p_contact_id, p_family_name, p_relation_id, p_birthday, p_mobile, p_telephone, p_email, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactFamilyBackground(IN p_contact_family_background_id INT, IN p_contact_id INT, IN p_family_name VARCHAR(500), IN p_relation_id INT, IN p_birthday DATE, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_family_background
+    SET contact_id = p_contact_id,
+    family_name = p_family_name,
+    relation_id = p_relation_id,
+    birthday = p_birthday,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    last_log_by = p_last_log_by
+    WHERE contact_family_background_id = p_contact_family_background_id;
+END //
+
+CREATE PROCEDURE deleteContactFamilyBackground(IN p_contact_family_background_id INT)
+BEGIN
+    DELETE FROM contact_family_background WHERE contact_family_background_id = p_contact_family_background_id;
+END //
+
+CREATE PROCEDURE getContactFamilyBackground(IN p_contact_family_background_id INT)
+BEGIN
+	SELECT * FROM contact_family_background
+    WHERE contact_family_background_id = p_contact_family_background_id;
+END //
+
+CREATE PROCEDURE generateContactFamilyBackgroundTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_family_background_id, family_name, relation_id, birthday, mobile, telephone, email
+    FROM contact_family_background
+    WHERE contact_id = p_contact_id 
+    ORDER BY family_name ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Emergency Contact Table Stored Procedures */
+
+CREATE PROCEDURE checkContactEmergencyContactExist (IN p_contact_emergency_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_emergency_contact
+    WHERE contact_emergency_contact_id = p_contact_emergency_contact_id;
+END //
+
+CREATE PROCEDURE insertContactEmergencyContact(IN p_contact_id INT, IN p_emergency_contact_name VARCHAR(500), IN p_relation_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_emergency_contact (contact_id, emergency_contact_name, relation_id, mobile, telephone, email, last_log_by) 
+	VALUES(p_contact_id, p_emergency_contact_name, p_relation_id, p_mobile, p_telephone, p_email, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactEmergencyContact(IN p_contact_emergency_contact_id INT, IN p_contact_id INT, IN p_emergency_contact_name VARCHAR(500), IN p_relation_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_emergency_contact
+    SET contact_id = p_contact_id,
+    emergency_contact_name = p_emergency_contact_name,
+    relation_id = p_relation_id,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    last_log_by = p_last_log_by
+    WHERE contact_emergency_contact_id = p_contact_emergency_contact_id;
+END //
+
+CREATE PROCEDURE deleteContactEmergencyContact(IN p_contact_emergency_contact_id INT)
+BEGIN
+    DELETE FROM contact_emergency_contact WHERE contact_emergency_contact_id = p_contact_emergency_contact_id;
+END //
+
+CREATE PROCEDURE getContactEmergencyContact(IN p_contact_emergency_contact_id INT)
+BEGIN
+	SELECT * FROM contact_emergency_contact
+    WHERE contact_emergency_contact_id = p_contact_emergency_contact_id;
+END //
+
+CREATE PROCEDURE generateContactEmergencyContactTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_emergency_contact_id, emergency_contact_name, relation_id, mobile, telephone, email
+    FROM contact_emergency_contact
+    WHERE contact_id = p_contact_id 
+    ORDER BY emergency_contact_name ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

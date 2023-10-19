@@ -2712,6 +2712,220 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Educational Background Table Triggers */
+
+CREATE TRIGGER contact_educational_background_trigger_update
+AFTER UPDATE ON contact_educational_background
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.educational_stage_id <> OLD.educational_stage_id THEN
+        SET audit_log = CONCAT(audit_log, "Educational Stage ID: ", OLD.educational_stage_id, " -> ", NEW.educational_stage_id, "<br/>");
+    END IF;
+
+    IF NEW.institution_name <> OLD.institution_name THEN
+        SET audit_log = CONCAT(audit_log, "Institution Name: ", OLD.institution_name, " -> ", NEW.institution_name, "<br/>");
+    END IF;
+
+    IF NEW.degree_earned <> OLD.degree_earned THEN
+        SET audit_log = CONCAT(audit_log, "Degree Earned: ", OLD.degree_earned, " -> ", NEW.degree_earned, "<br/>");
+    END IF;
+
+    IF NEW.field_of_study <> OLD.field_of_study THEN
+        SET audit_log = CONCAT(audit_log, "Field of Study: ", OLD.field_of_study, " -> ", NEW.field_of_study, "<br/>");
+    END IF;
+
+    IF NEW.start_date <> OLD.start_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.end_date <> OLD.end_date THEN
+        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_educational_background', NEW.contact_educational_background_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_educational_background_trigger_insert
+AFTER INSERT ON contact_educational_background
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact educational background created. <br/>';
+
+    IF NEW.educational_stage_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Educational Stage ID: ", NEW.educational_stage_id);
+    END IF;
+
+    IF NEW.institution_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Institition Name: ", NEW.institution_name);
+    END IF;
+
+    IF NEW.degree_earned <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Degree Earned: ", NEW.degree_earned);
+    END IF;
+
+    IF NEW.field_of_study <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Field of Study: ", NEW.field_of_study);
+    END IF;
+
+    IF NEW.start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
+    END IF;
+
+    IF NEW.end_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_educational_background', NEW.contact_educational_background_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Family Background Table Triggers */
+
+CREATE TRIGGER contact_family_background_trigger_update
+AFTER UPDATE ON contact_family_background
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.family_name <> OLD.family_name THEN
+        SET audit_log = CONCAT(audit_log, "Family Name: ", OLD.family_name, " -> ", NEW.family_name, "<br/>");
+    END IF;
+
+    IF NEW.relation_id <> OLD.relation_id THEN
+        SET audit_log = CONCAT(audit_log, "Relation ID: ", OLD.relation_id, " -> ", NEW.relation_id, "<br/>");
+    END IF;
+
+    IF NEW.birthday <> OLD.birthday THEN
+        SET audit_log = CONCAT(audit_log, "Birthday: ", OLD.birthday, " -> ", NEW.birthday, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_family_background', NEW.contact_family_background_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_family_background_trigger_insert
+AFTER INSERT ON contact_family_background
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact family background created. <br/>';
+
+    IF NEW.family_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Family Name: ", NEW.family_name);
+    END IF;
+
+    IF NEW.relation_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Relation ID: ", NEW.relation_id);
+    END IF;
+
+    IF NEW.birthday <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Birthday: ", NEW.birthday);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_family_background', NEW.contact_family_background_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Emergency Contact Table Triggers */
+
+CREATE TRIGGER contact_emergency_contact_trigger_update
+AFTER UPDATE ON contact_emergency_contact
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.emergency_contact_name <> OLD.emergency_contact_name THEN
+        SET audit_log = CONCAT(audit_log, "Emergency Contact Name: ", OLD.emergency_contact_name, " -> ", NEW.emergency_contact_name, "<br/>");
+    END IF;
+
+    IF NEW.relation_id <> OLD.relation_id THEN
+        SET audit_log = CONCAT(audit_log, "Relation ID: ", OLD.relation_id, " -> ", NEW.relation_id, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_emergency_contact', NEW.contact_emergency_contact_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_emergency_contact_trigger_insert
+AFTER INSERT ON contact_emergency_contact
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact family background created. <br/>';
+
+    IF NEW.emergency_contact_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Emergency Contact Name: ", NEW.emergency_contact_name);
+    END IF;
+
+    IF NEW.relation_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Relation ID: ", NEW.relation_id);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_emergency_contact', NEW.contact_emergency_contact_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

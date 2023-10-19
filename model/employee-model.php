@@ -228,10 +228,10 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: updateContactIdentification
-    # Description: Updates the contact identfication.
+    # Description: Updates the contact identification.
     #
     # Parameters:
-    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_identification_id (int): The contact identification ID.
     # - $p_contact_id (int): The contact ID.
     # - $p_id_type_id (int): The ID type ID.
     # - $p_id_number (string): The ID Number.
@@ -240,9 +240,9 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactIdentification($p_contact_identfication_id, $p_contact_id, $p_id_type_id, $p_id_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentification (:p_contact_identfication_id, :p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+    public function updateContactIdentification($p_contact_identification_id, $p_contact_id, $p_id_type_id, $p_id_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentification (:p_contact_identification_id, :p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_type_id', $p_id_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_number', $p_id_number, PDO::PARAM_STR);
@@ -254,20 +254,120 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: updateContactIdentificationStatus
-    # Description: Updates the contact identfication as primary.
+    # Description: Updates the contact identification as primary.
     #
     # Parameters:
-    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_identification_id (int): The contact identification ID.
     # - $p_contact_id (int): The contact ID.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactIdentificationStatus($p_contact_identfication_id, $p_contact_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentificationStatus (:p_contact_identfication_id, :p_contact_id, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+    public function updateContactIdentificationStatus($p_contact_identification_id, $p_contact_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentificationStatus (:p_contact_identification_id, :p_contact_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactEducationalBackground
+    # Description: Updates the contact educational background.
+    #
+    # Parameters:
+    # - $p_contact_educational_background_id (int): The educational background ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_educational_stage_id (int): The educational stage id.
+    # - $p_institution_name (string): The institution name.
+    # - $p_degree_earned (string): The degree earned.
+    # - $p_field_of_study (string): The field of study.
+    # - $start_date (date): The start date.
+    # - $end_date (date): The end date.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactEducationalBackground($p_contact_educational_background_id, $p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $start_date, $end_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactEducationalBackground (:p_contact_educational_background_id, :p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :start_date, :end_date, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_educational_background_id', $p_contact_educational_background_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_educational_stage_id', $p_educational_stage_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_institution_name', $p_institution_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_degree_earned', $p_degree_earned, PDO::PARAM_STR);
+        $stmt->bindValue(':p_field_of_study', $p_field_of_study, PDO::PARAM_STR);
+        $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactFamilyBackground
+    # Description: Updates the contact family background.
+    #
+    # Parameters:
+    # - $p_contact_family_background_id (int): The family background ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_family_name (string): The family name.
+    # - $p_relation_id (int): The relation ID.
+    # - $p_birthday (date): The birthday.
+    # - $p_mobile (string): The mobile.
+    # - $p_telephone (string): The telephone.
+    # - $p_email (string): The email.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactFamilyBackground($p_contact_family_background_id, $p_contact_id, $p_family_name, $p_relation_id, $p_birthday, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactFamilyBackground (:p_contact_family_background_id, :p_contact_id, :p_family_name, :p_relation_id, :p_birthday, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_family_background_id', $p_contact_family_background_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_family_name', $p_family_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_relation_id', $p_relation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_birthday', $p_birthday, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactEmergencyContact
+    # Description: Updates the contact emergency contact.
+    #
+    # Parameters:
+    # - $p_contact_emergency_contact_id (int): The emergency contact ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_emergency_contact_name (string): The emergency contact name.
+    # - $p_relation_id (int): The relation ID.
+    # - $p_mobile (string): The mobile.
+    # - $p_telephone (string): The telephone.
+    # - $p_email (string): The email.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactEmergencyContact($p_contact_emergency_contact_id, $p_contact_id, $p_emergency_contact_name, $p_relation_id, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmergencyContact (:p_contact_emergency_contact_id, :p_contact_id, :p_emergency_contact_name, :p_relation_id, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_emergency_contact_name', $p_emergency_contact_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_relation_id', $p_relation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -499,7 +599,7 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: insertContactIdentification
-    # Description: Inserts the contact identfication.
+    # Description: Inserts the contact identification.
     #
     # Parameters:
     # - $p_contact_id (int): The contact ID.
@@ -515,6 +615,100 @@ class EmployeeModel {
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_type_id', $p_id_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_number', $p_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactEducationalBackground
+    # Description: Inserts the contact educational background.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_educational_stage_id (int): The educational stage id.
+    # - $p_institution_name (string): The institution name.
+    # - $p_degree_earned (string): The degree earned.
+    # - $p_field_of_study (string): The field of study.
+    # - $start_date (date): The start date.
+    # - $end_date (date): The end date.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactEducationalBackground($p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $start_date, $end_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactEducationalBackground (:p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :start_date, :end_date, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_educational_stage_id', $p_educational_stage_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_institution_name', $p_institution_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_degree_earned', $p_degree_earned, PDO::PARAM_STR);
+        $stmt->bindValue(':p_field_of_study', $p_field_of_study, PDO::PARAM_STR);
+        $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactFamilyBackground
+    # Description: Inserts the contact family background.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_family_name (string): The family name.
+    # - $p_relation_id (int): The institution name.
+    # - $p_birthday (date): The birthday.
+    # - $p_mobile (string): The mobile.
+    # - $p_telephone (string): The telephone.
+    # - $p_email (string): The email.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactFamilyBackground($p_contact_id, $p_family_name, $p_relation_id, $p_birthday, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactFamilyBackground (:p_contact_id, :p_family_name, :p_relation_id, :p_birthday, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_family_name', $p_family_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_relation_id', $p_relation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_birthday', $p_birthday, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactEmergencyContact
+    # Description: Inserts the contact emergency contact.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_emergency_contact_name (string): The emergency contact name.
+    # - $p_relation_id (int): The relation ID.
+    # - $p_mobile (string): The mobile.
+    # - $p_telephone (string): The telephone.
+    # - $p_email (string): The email.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactEmergencyContact($p_contact_id, $p_emergency_contact_name, $p_relation_id, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactEmergencyContact (:p_contact_id, :p_emergency_contact_name, :p_relation_id, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_emergency_contact_name', $p_emergency_contact_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_relation_id', $p_relation_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -622,17 +816,74 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: checkContactIdentificationExist
-    # Description: Checks if a contact identfication exists.
+    # Description: Checks if a contact identification exists.
     #
     # Parameters:
-    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_identification_id (int): The contact identification ID.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkContactIdentificationExist($p_contact_identfication_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkContactIdentificationExist(:p_contact_identfication_id)');
-        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+    public function checkContactIdentificationExist($p_contact_identification_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactIdentificationExist(:p_contact_identification_id)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactEducationalBackgroundExist
+    # Description: Checks if a contact educational background exists.
+    #
+    # Parameters:
+    # - $p_contact_educational_background_id (int): The contact educational background ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactEducationalBackgroundExist($p_contact_educational_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactEducationalBackgroundExist(:p_contact_educational_background_id)');
+        $stmt->bindValue(':p_contact_educational_background_id', $p_contact_educational_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactFamilyBackgroundExist
+    # Description: Checks if a contact family background exists.
+    #
+    # Parameters:
+    # - $p_contact_family_background_id (int): The contact family background ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactFamilyBackgroundExist($p_contact_family_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactFamilyBackgroundExist(:p_contact_family_background_id)');
+        $stmt->bindValue(':p_contact_family_background_id', $p_contact_family_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactEmergencyContactExist
+    # Description: Checks if a contact emergency contact exists.
+    #
+    # Parameters:
+    # - $p_contact_emergency_contact_id (int): The contact emergency contact ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactEmergencyContactExist($p_contact_emergency_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactEmergencyContactExist(:p_contact_emergency_contact_id)');
+        $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -699,17 +950,71 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: deleteContactIdentification
-    # Description: Deletes the contact identfication.
+    # Description: Deletes the contact identification.
     #
     # Parameters:
-    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_identification_id (int): The contact identification ID.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteContactIdentification($p_contact_identfication_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteContactIdentification(:p_contact_identfication_id)');
-        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+    public function deleteContactIdentification($p_contact_identification_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactIdentification(:p_contact_identification_id)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEducationalBackground
+    # Description: Deletes the contact educational background.
+    #
+    # Parameters:
+    # - $p_contact_educational_background_id (int): The contact educational background ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEducationalBackground($p_contact_educational_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactEducationalBackground(:p_contact_educational_background_id)');
+        $stmt->bindValue(':p_contact_educational_background_id', $p_contact_educational_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactFamilyBackground
+    # Description: Deletes the contact family background.
+    #
+    # Parameters:
+    # - $p_contact_family_background_id (int): The contact family background ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactFamilyBackground($p_contact_family_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactFamilyBackground(:p_contact_family_background_id)');
+        $stmt->bindValue(':p_contact_family_background_id', $p_contact_family_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEmergencyContact
+    # Description: Deletes the contact emergency contact.
+    #
+    # Parameters:
+    # - $p_contact_emergency_contact_id (int): The contact emergency contact ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEmergencyContact($p_contact_emergency_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactEmergencyContact(:p_contact_emergency_contact_id)');
+        $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -801,18 +1106,78 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: getContactIdentification
-    # Description: Retrieves the details of a contact identfication.
+    # Description: Retrieves the details of a contact identification.
     #
     # Parameters:
-    # - $p_contact_identfication_id (int): The contact identfication ID.
+    # - $p_contact_identification_id (int): The contact identification ID.
     #
     # Returns:
-    # - An array containing the contact identfication.
+    # - An array containing the contact identification.
     #
     # -------------------------------------------------------------
-    public function getContactIdentification($p_contact_identfication_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL getContactIdentification(:p_contact_identfication_id)');
-        $stmt->bindValue(':p_contact_identfication_id', $p_contact_identfication_id, PDO::PARAM_INT);
+    public function getContactIdentification($p_contact_identification_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactIdentification(:p_contact_identification_id)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEducationalBackground
+    # Description: Retrieves the details of a contact educational background.
+    #
+    # Parameters:
+    # - $p_contact_educational_background_id (int): The educational background ID.
+    #
+    # Returns:
+    # - An array containing the educational background.
+    #
+    # -------------------------------------------------------------
+    public function getContactEducationalBackground($p_contact_educational_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactEducationalBackground(:p_contact_educational_background_id)');
+        $stmt->bindValue(':p_contact_educational_background_id', $p_contact_educational_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactFamilyBackground
+    # Description: Retrieves the details of a contact family background.
+    #
+    # Parameters:
+    # - $p_contact_family_background_id (int): The family background ID.
+    #
+    # Returns:
+    # - An array containing the family background.
+    #
+    # -------------------------------------------------------------
+    public function getContactFamilyBackground($p_contact_family_background_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactFamilyBackground(:p_contact_family_background_id)');
+        $stmt->bindValue(':p_contact_family_background_id', $p_contact_family_background_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEmergencyContact
+    # Description: Retrieves the details of a contact emergency contact.
+    #
+    # Parameters:
+    # - $p_contact_emergency_contact_id (int): The emergency contact ID.
+    #
+    # Returns:
+    # - An array containing the emergency contact.
+    #
+    # -------------------------------------------------------------
+    public function getContactEmergencyContact($p_contact_emergency_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactEmergencyContact(:p_contact_emergency_contact_id)');
+        $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
