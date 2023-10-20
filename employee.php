@@ -72,6 +72,14 @@
     $updateEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
     $addEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 50);
     $updateEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 51);
+    $addEmployeeTrainingsSeminars = $userModel->checkSystemActionAccessRights($user_id, 53);
+    $updateEmployeeTrainingsSeminars = $userModel->checkSystemActionAccessRights($user_id, 54);
+    $addEmployeeSkills = $userModel->checkSystemActionAccessRights($user_id, 56);
+    $updateEmployeeSkills = $userModel->checkSystemActionAccessRights($user_id, 57);
+    $addEmployeeTalents = $userModel->checkSystemActionAccessRights($user_id, 59);
+    $updateEmployeeTalents = $userModel->checkSystemActionAccessRights($user_id, 60);
+    $addEmployeeHobby = $userModel->checkSystemActionAccessRights($user_id, 62);
+    $updateEmployeeHobby = $userModel->checkSystemActionAccessRights($user_id, 63);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

@@ -318,9 +318,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
-                $deleteEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 38);
-                $tagEmployeeContactAddress = $userModel->checkSystemActionAccessRights($user_id, 39);
+                $updateEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
+                $deleteEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 38);
+                $tagEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 39);
 
                 foreach ($options as $row) {
                     $contactAddressID = $row['contact_address_id'];
@@ -346,21 +346,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $addressTypeName = $addressTypeModel->getAddressType($addressTypeID)['address_type_name'] ?? null;
 
                     $update = '';
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactAddress['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0){
                         $update = '<button type="button" class="btn btn-icon btn-info update-contact-address" data-contact-address-id="'. $contactAddressID .'" title="Edit Contact Address">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $tag = '';
-                    if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactAddress['total'] > 0 && !$isPrimary){
+                    if($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0 && !$isPrimary){
                         $tag = '<button type="button" class="btn btn-icon btn-warning tag-contact-address-as-primary" data-contact-address-id="'. $contactAddressID .'" title="Tag Contact Address As Primary">
                                             <i class="ti ti-check"></i>
                                         </button>';
                     }
 
                     $delete = '';
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactAddress['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeAddress['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-address" data-contact-address-id="'. $contactAddressID .'" title="Delete Contact Address">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -642,8 +642,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 44);
-                $deleteEmployeeContactEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 45);
+                $updateEmployeeEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 44);
+                $deleteEmployeeEducationalBackground = $userModel->checkSystemActionAccessRights($user_id, 45);
 
                 foreach ($options as $row) {
                     $contactEducationalBackgroundID = $row['contact_educational_background_id'];
@@ -661,14 +661,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $educationalStageName = $educationalStageModel->getEducationalStage($educationalStageID)['educational_stage_name'] ?? null;
 
                     $update = '';
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactEducationalBackground['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEducationalBackground['total'] > 0){
                         $update = '<button type="button" class="btn btn-icon btn-info update-contact-educational-background" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Edit Educational Background">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactEducationalBackground['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeEducationalBackground['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-educational-background" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Delete Educational Background">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -791,8 +791,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
-                $deleteEmployeeContactFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 49);
+                $updateEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
+                $deleteEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 49);
 
                 foreach ($options as $row) {
                     $contactFamilyBackgroundID = $row['contact_family_background_id'];
@@ -806,14 +806,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
 
                     $update = '';
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactFamilyBackground['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeFamilyBackground['total'] > 0){
                         $update = '<button type="button" class="btn btn-icon btn-info update-contact-family-background" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Edit Family Background">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactFamilyBackground['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeFamilyBackground['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-family-background" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Delete Family Background">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -946,8 +946,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
                 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 51);
-                $deleteEmployeeContactEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 52);
+                $updateEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 51);
+                $deleteEmployeeEmergencyContact = $userModel->checkSystemActionAccessRights($user_id, 52);
 
                 foreach ($options as $row) {
                     $contactEmergencyContactID = $row['contact_emergency_contact_id'];
@@ -960,14 +960,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
 
                     $update = '';
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactEmergencyContact['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEmergencyContact['total'] > 0){
                         $update = '<button type="button" class="btn btn-icon btn-info update-contact-emergency-contact" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Edit Emergency Contact">
                                             <i class="ti ti-pencil"></i>
                                         </button>';
                     }
 
                     $delete = '';
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactEmergencyContact['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeEmergencyContact['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-emergency-contact" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Delete Emergency Contact">
                                             <i class="ti ti-trash"></i>
                                         </button>';
@@ -1069,6 +1069,488 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactEmergencyContactSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact training table
+        # Description:
+        # Generates the contact training table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact training table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactTrainingTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeTraining = $userModel->checkSystemActionAccessRights($user_id, 54);
+                $deleteEmployeeTraining = $userModel->checkSystemActionAccessRights($user_id, 55);
+
+                foreach ($options as $row) {
+                    $contactTrainingID = $row['contact_training_id'];
+                    $trainingName = $row['training_name'];
+                    $trainingDate = $systemModel->checkDate('empty', $row['training_date'], '', 'm/d/Y', '');
+                    $trainingLocation = $row['training_location'];
+                    $trainingProvider = $row['training_provider'];
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeTraining['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-training" data-contact-training-id="'. $contactTrainingID .'" title="Edit Trainings & Seminars">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTraining['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-training" data-contact-training-id="'. $contactTrainingID .'" title="Delete Trainings & Seminars">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'TRAINING_NAME' => $trainingName,
+                        'TRAINING_DATE' => $trainingDate,
+                        'TRAINING_LOCATION' => $trainingLocation,
+                        'TRAINING_PROVIDER' => $trainingProvider,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact training summary
+        # Description:
+        # Generates the contact training summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact training summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactTrainingTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactTrainingID = $row['contact_training_id'];
+                    $trainingName = $row['training_name'];
+                    $trainingDate = $systemModel->checkDate('empty', $row['training_date'], '', 'm/d/Y', '');
+                    $trainingLocation = $row['training_location'];
+                    $trainingProvider = $row['training_provider'];
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1">'. $trainingName .'</p>
+                                            <p class="mb-1 text-muted">'. $trainingDate .'</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1">'. $trainingProvider .'</p>
+                                            <p class="mb-1 text-muted">'. $trainingProvider .'</p>
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No trainings & seminars found.';
+                }
+
+                $response[] = [
+                    'contactTrainingSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact skills table
+        # Description:
+        # Generates the contact skills table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact skills table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactSkillsTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeSkills = $userModel->checkSystemActionAccessRights($user_id, 57);
+                $deleteEmployeeSkills = $userModel->checkSystemActionAccessRights($user_id, 58);
+
+                foreach ($options as $row) {
+                    $contactSkillsID = $row['contact_skills_id'];
+                    $skillName = $row['skill_name'];
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeSkills['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-skills" data-contact-skills-id="'. $contactSkillsID .'" title="Edit Skills">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeSkills['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-skills" data-contact-skills-id="'. $contactSkillsID .'" title="Delete Skills">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'SKILL_NAME' => $skillName,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact skills summary
+        # Description:
+        # Generates the contact skills summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact skills summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactSkillsTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactSkillsID = $row['contact_skills_id'];
+                    $skillName = $row['skill_name'];
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<div class="col-sm-12 mb-2 mb-sm-0">
+                                    <p class="mb-0">'. $skillName .'</p>
+                                </div>';
+                }
+
+                if(empty($details)){
+                    $details = 'No skills found.';
+                }
+
+                $response[] = [
+                    'contactSkillsSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: contact talents table
+        # Description:
+        # Generates the contact talents table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact talents table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactTalentsTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeTalents = $userModel->checkSystemActionAccessRights($user_id, 60);
+                $deleteEmployeeTalents = $userModel->checkSystemActionAccessRights($user_id, 61);
+
+                foreach ($options as $row) {
+                    $contactTalentsID = $row['contact_talents_id'];
+                    $talentName = $row['talent_name'];
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeTalents['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-talents" data-contact-talents-id="'. $contactTalentsID .'" title="Edit Talents">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTalents['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-talents" data-contact-talents-id="'. $contactTalentsID .'" title="Delete Talents">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'TALENT_NAME' => $talentName,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact talents summary
+        # Description:
+        # Generates the contact talents summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact talents summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactTalentsTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactTalentsID = $row['contact_talents_id'];
+                    $talentName = $row['talent_name'];
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<div class="col-sm-12 mb-2 mb-sm-0">
+                                    <p class="mb-0">'. $talentName .'</p>
+                                </div>';
+                }
+
+                if(empty($details)){
+                    $details = 'No talents found.';
+                }
+
+                $response[] = [
+                    'contactTalentsSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: contact hobby table
+        # Description:
+        # Generates the contact hobby table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact hobby table':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactHobbyTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeHobby = $userModel->checkSystemActionAccessRights($user_id, 63);
+                $deleteEmployeeHobby = $userModel->checkSystemActionAccessRights($user_id, 64);
+
+                foreach ($options as $row) {
+                    $contactHobbyID = $row['contact_hobby_id'];
+                    $hobbyName = $row['hobby_name'];
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeHobby['total'] > 0){
+                        $update = '<button type="button" class="btn btn-icon btn-info update-contact-hobby" data-contact-hobby-id="'. $contactHobbyID .'" title="Edit Hobby">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeHobby['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-contact-hobby" data-contact-hobby-id="'. $contactHobbyID .'" title="Delete Hobby">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'HOBBY_NAME' => $hobbyName,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                    '. $update .'
+                                    '. $delete .'
+                                </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact hobby summary
+        # Description:
+        # Generates the contact hobby summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact hobby summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactHobbyTable(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $contactHobbyID = $row['contact_hobby_id'];
+                    $hobbyName = $row['hobby_name'];
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+    
+                    $details .= '<div class="col-sm-12 mb-2 mb-sm-0">
+                                    <p class="mb-0">'. $hobbyName .'</p>
+                                </div>';
+                }
+
+                if(empty($details)){
+                    $details = 'No hobby found.';
+                }
+
+                $response[] = [
+                    'contactHobbySummary' => $details
                 ];
     
                 echo json_encode($response);

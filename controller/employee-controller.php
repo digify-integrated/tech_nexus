@@ -134,6 +134,18 @@ class EmployeeController {
                 case 'save contact emergency contact':
                     $this->saveContactEmergencyContact();
                     break;
+                case 'save contact training':
+                    $this->saveContactTraining();
+                    break;
+                case 'save contact skills':
+                    $this->saveContactSkills();
+                    break;
+                case 'save contact talents':
+                    $this->saveContactTalents();
+                    break;
+                case 'save contact hobby':
+                    $this->saveContactHobby();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
@@ -158,6 +170,18 @@ class EmployeeController {
                 case 'get contact emergency contact details':
                     $this->getContactEmergencyContact();
                     break;
+                case 'get contact training details':
+                    $this->getContactTraining();
+                    break;
+                case 'get contact skills details':
+                    $this->getContactSkills();
+                    break;
+                case 'get contact talents details':
+                    $this->getContactTalents();
+                    break;
+                case 'get contact hobby details':
+                    $this->getContactHobby();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
@@ -181,6 +205,18 @@ class EmployeeController {
                     break;
                 case 'delete contact emergency contact':
                     $this->deleteContactEmergencyContact();
+                    break;
+                case 'delete contact training':
+                    $this->deleteContactTraining();
+                    break;
+                case 'delete contact skills':
+                    $this->deleteContactSkills();
+                    break;
+                case 'delete contact talents':
+                    $this->deleteContactTalents();
+                    break;
+                case 'delete contact hobby':
+                    $this->deleteContactHobby();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -597,6 +633,193 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertContactEmergencyContact($employeeID, $emergencyContactName, $relationID, $mobile, $telephone, $email, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactTraining
+    # Description: 
+    # Updates the existing contact training if it exists; otherwise, inserts a new contact training.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactTraining() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactTrainingID = isset($_POST['contact_training_id']) ? htmlspecialchars($_POST['contact_training_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $trainingName = htmlspecialchars($_POST['training_name'], ENT_QUOTES, 'UTF-8');
+        $trainingDate = $this->systemModel->checkDate('empty', $_POST['training_date'], '', 'Y-m-d', '');
+        $trainingLocation = htmlspecialchars($_POST['training_location'], ENT_QUOTES, 'UTF-8');
+        $trainingProvider = htmlspecialchars($_POST['training_provider'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactTrainingExist = $this->employeeModel->checkContactTrainingExist($contactTrainingID);
+        $total = $checkContactTrainingExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactTraining($contactTrainingID, $employeeID, $trainingName, $trainingDate, $trainingLocation, $trainingProvider, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactTraining($employeeID, $trainingName, $trainingDate, $trainingLocation, $trainingProvider, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactSkills
+    # Description: 
+    # Updates the existing contact skills if it exists; otherwise, inserts a new contact skills.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactSkills() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactSkillsID = isset($_POST['contact_skills_id']) ? htmlspecialchars($_POST['contact_skills_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $skillName = htmlspecialchars($_POST['skill_name'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactSkillsExist = $this->employeeModel->checkContactSkillsExist($contactSkillsID);
+        $total = $checkContactSkillsExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactSkills($contactSkillsID, $employeeID, $skillName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactSkills($employeeID, $skillName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactTalents
+    # Description: 
+    # Updates the existing contact talents if it exists; otherwise, inserts a new contact talents.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactTalents() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactTalentsID = isset($_POST['contact_talents_id']) ? htmlspecialchars($_POST['contact_talents_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $talentName = htmlspecialchars($_POST['talent_name'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactTalentsExist = $this->employeeModel->checkContactTalentsExist($contactTalentsID);
+        $total = $checkContactTalentsExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactTalents($contactTalentsID, $employeeID, $talentName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactTalents($employeeID, $talentName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactHobby
+    # Description: 
+    # Updates the existing contact hobby if it exists; otherwise, inserts a new contact hobby.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactHobby() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactHobbyID = isset($_POST['contact_hobby_id']) ? htmlspecialchars($_POST['contact_hobby_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $hobbyName = htmlspecialchars($_POST['hobby_name'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactHobbyExist = $this->employeeModel->checkContactHobbyExist($contactHobbyID);
+        $total = $checkContactHobbyExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactHobby($contactHobbyID, $employeeID, $hobbyName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactHobby($employeeID, $hobbyName, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -1078,6 +1301,170 @@ class EmployeeController {
         exit;
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactTraining
+    # Description: 
+    # Delete the contact training if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactTraining() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactTrainingID = htmlspecialchars($_POST['contact_training_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactTrainingExist = $this->employeeModel->checkContactTrainingExist($contactTrainingID);
+        $total = $checkContactTrainingExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactTraining($contactTrainingID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactSkills
+    # Description: 
+    # Delete the contact skills if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactSkills() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactSkillsID = htmlspecialchars($_POST['contact_skills_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactSkillsExist = $this->employeeModel->checkContactSkillsExist($contactSkillsID);
+        $total = $checkContactSkillsExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactSkills($contactSkillsID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactTalents
+    # Description: 
+    # Delete the contact talents if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactTalents() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactTalentsID = htmlspecialchars($_POST['contact_talents_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactTalentsExist = $this->employeeModel->checkContactTalentsExist($contactTalentsID);
+        $total = $checkContactTalentsExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactTalents($contactTalentsID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactHobby
+    # Description: 
+    # Delete the contact hobby if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactHobby() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactHobbyID = htmlspecialchars($_POST['contact_hobby_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactHobbyExist = $this->employeeModel->checkContactHobbyExist($contactHobbyID);
+        $total = $checkContactHobbyExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactHobby($contactHobbyID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Custom methods
@@ -1515,16 +1902,16 @@ class EmployeeController {
                 exit;
             }
     
-            $contactIdentificationDetails = $this->employeeModel->getContactEducationalBackground($contactEducationalBackgroundID);
+            $contactEducationalBackgroundDetails = $this->employeeModel->getContactEducationalBackground($contactEducationalBackgroundID);
 
             $response = [
                 'success' => true,
-                'educationalStageID' => $contactIdentificationDetails['educational_stage_id'] ?? null,
-                'institutionName' => $contactIdentificationDetails['institution_name'] ?? null,
-                'degreeEarned' => $contactIdentificationDetails['degree_earned'] ?? null,
-                'fieldOfStudy' => $contactIdentificationDetails['field_of_study'] ?? null,
-                'startDate' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['start_date'], '', 'm/d/Y', ''),
-                'endDate' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['end_date'], '', 'm/d/Y', '')
+                'educationalStageID' => $contactEducationalBackgroundDetails['educational_stage_id'] ?? null,
+                'institutionName' => $contactEducationalBackgroundDetails['institution_name'] ?? null,
+                'degreeEarned' => $contactEducationalBackgroundDetails['degree_earned'] ?? null,
+                'fieldOfStudy' => $contactEducationalBackgroundDetails['field_of_study'] ?? null,
+                'startDate' =>  $this->systemModel->checkDate('empty', $contactEducationalBackgroundDetails['start_date'], '', 'm/d/Y', ''),
+                'endDate' =>  $this->systemModel->checkDate('empty', $contactEducationalBackgroundDetails['end_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);
@@ -1560,16 +1947,16 @@ class EmployeeController {
                 exit;
             }
     
-            $contactIdentificationDetails = $this->employeeModel->getContactFamilyBackground($contactFamilyBackgroundID);
+            $contactFamilyBackgroundDetails = $this->employeeModel->getContactFamilyBackground($contactFamilyBackgroundID);
 
             $response = [
                 'success' => true,
-                'familyName' => $contactIdentificationDetails['family_name'] ?? null,
-                'relationID' => $contactIdentificationDetails['relation_id'] ?? null,
-                'birthday' =>  $this->systemModel->checkDate('empty', $contactIdentificationDetails['birthday'], '', 'm/d/Y', ''),
-                'mobile' => $contactIdentificationDetails['mobile'] ?? null,
-                'telephone' => $contactIdentificationDetails['telephone'] ?? null,
-                'email' => $contactIdentificationDetails['email'] ?? null
+                'familyName' => $contactFamilyBackgroundDetails['family_name'] ?? null,
+                'relationID' => $contactFamilyBackgroundDetails['relation_id'] ?? null,
+                'birthday' =>  $this->systemModel->checkDate('empty', $contactFamilyBackgroundDetails['birthday'], '', 'm/d/Y', ''),
+                'mobile' => $contactFamilyBackgroundDetails['mobile'] ?? null,
+                'telephone' => $contactFamilyBackgroundDetails['telephone'] ?? null,
+                'email' => $contactFamilyBackgroundDetails['email'] ?? null
             ];
 
             echo json_encode($response);
@@ -1605,15 +1992,178 @@ class EmployeeController {
                 exit;
             }
     
-            $contactIdentificationDetails = $this->employeeModel->getContactEmergencyContact($contactEmergencyContactID);
+            $contactEmergencyContactDetails = $this->employeeModel->getContactEmergencyContact($contactEmergencyContactID);
 
             $response = [
                 'success' => true,
-                'emergencyContactName' => $contactIdentificationDetails['emergency_contact_name'] ?? null,
-                'relationID' => $contactIdentificationDetails['relation_id'] ?? null,
-                'mobile' => $contactIdentificationDetails['mobile'] ?? null,
-                'telephone' => $contactIdentificationDetails['telephone'] ?? null,
-                'email' => $contactIdentificationDetails['email'] ?? null
+                'emergencyContactName' => $contactEmergencyContactDetails['emergency_contact_name'] ?? null,
+                'relationID' => $contactEmergencyContactDetails['relation_id'] ?? null,
+                'mobile' => $contactEmergencyContactDetails['mobile'] ?? null,
+                'telephone' => $contactEmergencyContactDetails['telephone'] ?? null,
+                'email' => $contactEmergencyContactDetails['email'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactTraining
+    # Description: 
+    # Handles the retrieval of contact training details such as traning name, traning date, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactTraining() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_training_id']) && !empty($_POST['contact_training_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactTrainingID = htmlspecialchars($_POST['contact_training_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactTrainingDetails = $this->employeeModel->getContactTraining($contactTrainingID);
+
+            $response = [
+                'success' => true,
+                'trainingName' => $contactTrainingDetails['training_name'] ?? null,
+                'trainingDate' =>  $this->systemModel->checkDate('empty', $contactTrainingDetails['training_date'], '', 'm/d/Y', ''),
+                'trainingLocation' => $contactTrainingDetails['training_location'] ?? null,
+                'trainingProvider' => $contactTrainingDetails['training_provider'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactSkills
+    # Description: 
+    # Handles the retrieval of contact skills details such as skill name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactSkills() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_skills_id']) && !empty($_POST['contact_skills_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactSkillsID = htmlspecialchars($_POST['contact_skills_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactSkillsDetails = $this->employeeModel->getContactSkills($contactSkillsID);
+
+            $response = [
+                'success' => true,
+                'skillName' => $contactSkillsDetails['skill_name'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactTalents
+    # Description: 
+    # Handles the retrieval of contact talents details such as talent name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactTalents() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_talents_id']) && !empty($_POST['contact_talents_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactTalentsID = htmlspecialchars($_POST['contact_talents_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactTalentsDetails = $this->employeeModel->getContactTalents($contactTalentsID);
+
+            $response = [
+                'success' => true,
+                'talentName' => $contactTalentsDetails['talent_name'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactHobby
+    # Description: 
+    # Handles the retrieval of contact hobby details such as talent name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactHobby() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_hobby_id']) && !empty($_POST['contact_hobby_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactHobbyID = htmlspecialchars($_POST['contact_hobby_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactHobbyDetails = $this->employeeModel->getContactHobby($contactHobbyID);
+
+            $response = [
+                'success' => true,
+                'hobbyName' => $contactHobbyDetails['hobby_name'] ?? null
             ];
 
             echo json_encode($response);

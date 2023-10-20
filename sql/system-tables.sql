@@ -358,10 +358,24 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Family Background', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Family Background', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Family Background', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Emergency Contact', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Emergency Contact', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Emergency Contact', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Trainings & Seminars', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Trainings & Seminars', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Trainings & Seminars', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Skills', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Skills', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Skills', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Talents', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Talents', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Talents', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Hobbies', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Hobbies', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Hobbies', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -429,10 +443,24 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('47', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('48', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('49', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('50', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('51', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('52', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('53', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('54', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('55', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('56', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('57', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('58', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('59', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('60', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('61', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('62', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('63', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('64', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3613,7 +3641,7 @@ CREATE TABLE contact_information (
 );
 
 CREATE INDEX contact_information_index_contact_information_id ON contact_information(contact_information_id);
-CREATE INDEX contact_information_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_information_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_information_index_contact_information_type_id ON contact_information_type(contact_information_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -3633,7 +3661,7 @@ CREATE TABLE contact_address (
 );
 
 CREATE INDEX contact_address_index_contact_address_id ON contact_address(contact_address_id);
-CREATE INDEX contact_address_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_address_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_address_index_address_type_id ON address_type(address_type_id);
 CREATE INDEX contact_address_index_city_id ON city(city_id);
 
@@ -3653,7 +3681,7 @@ CREATE TABLE contact_identification (
 );
 
 CREATE INDEX contact_identification_index_contact_identification_id ON contact_identification(contact_identification_id);
-CREATE INDEX contact_identification_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_identification_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_identification_index_id_type_id ON id_type(id_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -3675,7 +3703,7 @@ CREATE TABLE contact_educational_background (
 );
 
 CREATE INDEX contact_educational_background_index_educational_background_id ON contact_educational_background(contact_educational_background_id);
-CREATE INDEX contact_educational_background_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_educational_background_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_educational_background_index_educational_stage_id ON educational_stage(educational_stage_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -3697,7 +3725,7 @@ CREATE TABLE contact_family_background (
 );
 
 CREATE INDEX contact_family_background_index_family_background_id ON contact_family_background(contact_family_background_id);
-CREATE INDEX contact_family_background_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_family_background_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_family_background_index_relation_id ON relation(relation_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -3718,8 +3746,75 @@ CREATE TABLE contact_emergency_contact (
 );
 
 CREATE INDEX contact_emergency_contact_index_emergency_contact_id ON contact_emergency_contact(contact_emergency_contact_id);
-CREATE INDEX contact_emergency_contact_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_emergency_contact_index_contact_id ON contact(contact_id);
 CREATE INDEX contact_emergency_contact_index_relation_id ON relation(relation_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Training Table */
+
+CREATE TABLE contact_training (
+    contact_training_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    training_name VARCHAR(500) NOT NULL,
+    training_date DATE NOT NULL,
+    training_location VARCHAR(500),
+	training_provider VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_training_index_contact_training_id ON contact_training(contact_training_id);
+CREATE INDEX contact_training_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Skills Table */
+
+CREATE TABLE contact_skills (
+    contact_skills_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    skill_name VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_skills_index_contact_skills_id ON contact_skills(contact_skills_id);
+CREATE INDEX contact_skills_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Talents Table */
+
+CREATE TABLE contact_talents (
+    contact_talents_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    talent_name VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_talents_index_contact_talents_id ON contact_talents(contact_talents_id);
+CREATE INDEX contact_talents_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Hobby Table */
+
+CREATE TABLE contact_hobby (
+    contact_hobby_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    hobby_name VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_hobby_index_contact_hobby_id ON contact_hobby(contact_hobby_id);
+CREATE INDEX contact_hobby_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

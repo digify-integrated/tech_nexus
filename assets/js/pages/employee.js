@@ -46,6 +46,10 @@
                 employeeAddressForm();
             }
 
+            if($('#contact-identification-form').length){
+                employeeIdentificationForm();
+            }
+
             if($('#contact-identification-table').length){
                 employeeIdentificationTable('#contact-identification-table');
             }
@@ -66,10 +70,6 @@
                 employeeEducationalBackgroundSummary();
             }
 
-            if($('#contact-educational-background-form').length){
-                employeeEducationalBackgroundForm();
-            }
-
             if($('#contact-family-background-form').length){
                 employeeFamilyBackgroundForm();
             }
@@ -80,10 +80,6 @@
 
             if($('#contact-family-background-summary').length){
                 employeeFamilyBackgroundSummary();
-            }
-
-            if($('#contact-family-background-form').length){
-                employeeFamilyBackgroundForm();
             }
 
             if($('#contact-emergency-contact-form').length){
@@ -98,8 +94,52 @@
                 employeeEmergencyContactSummary();
             }
 
-            if($('#contact-emergency-contact-form').length){
-                employeeEmergencyContactForm();
+            if($('#contact-training-form').length){
+                employeeTrainingForm();
+            }
+
+            if($('#contact-training-table').length){
+                employeeTrainingTable('#contact-training-table');
+            }
+
+            if($('#contact-training-summary').length){
+                employeeTrainingSummary();
+            }
+
+            if($('#contact-skills-form').length){
+                employeeSkillsForm();
+            }
+
+            if($('#contact-skills-table').length){
+                employeeSkillsTable('#contact-skills-table');
+            }
+
+            if($('#contact-skills-summary').length){
+                employeeSkillsSummary();
+            }
+
+            if($('#contact-talents-form').length){
+                employeeTalentsForm();
+            }
+
+            if($('#contact-talents-table').length){
+                employeeTalentsTable('#contact-talents-table');
+            }
+
+            if($('#contact-talents-summary').length){
+                employeeTalentsSummary();
+            }
+
+            if($('#contact-hobby-form').length){
+                employeeHobbyForm();
+            }
+
+            if($('#contact-hobby-table').length){
+                employeeHobbyTable('#contact-hobby-table');
+            }
+
+            if($('#contact-hobby-summary').length){
+                employeeHobbySummary();
             }
 
             $(document).on('click','#add-contact-information',function() {
@@ -692,6 +732,294 @@
                                     }
                                     else {
                                         showNotification('Delete Emergency Contact Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-training',function() {
+                resetModalForm("contact-training-form");
+
+                $('#contact-training-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-training',function() {
+                const contact_training_id = $(this).data('contact-training-id');
+        
+                sessionStorage.setItem('contact_training_id', contact_training_id);
+                
+                displayDetails('get contact training details');
+        
+                $('#contact-training-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-contact-training',function() {
+                const contact_training_id = $(this).data('contact-training-id');
+                const transaction = 'delete contact training';
+        
+                Swal.fire({
+                    title: 'Confirm Training & Seminar Deletion',
+                    text: 'Are you sure you want to delete this training and seminar?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_training_id : contact_training_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Training & Seminar Success', 'The training & seminar has been deleted successfully.', 'success');
+                                    reloadDatatable('#contact-training-table');
+                                    employeeTrainingSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Training & Seminar Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-skills',function() {
+                resetModalForm("contact-skills-form");
+
+                $('#contact-skills-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-skills',function() {
+                const contact_skills_id = $(this).data('contact-skills-id');
+        
+                sessionStorage.setItem('contact_skills_id', contact_skills_id);
+                
+                displayDetails('get contact skills details');
+        
+                $('#contact-skills-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-contact-skills',function() {
+                const contact_skills_id = $(this).data('contact-skills-id');
+                const transaction = 'delete contact skills';
+        
+                Swal.fire({
+                    title: 'Confirm Skills Deletion',
+                    text: 'Are you sure you want to delete this skills?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_skills_id : contact_skills_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Skills Success', 'The skills has been deleted successfully.', 'success');
+                                    reloadDatatable('#contact-skills-table');
+                                    employeeSkillsSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Skills Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-talents',function() {
+                resetModalForm("contact-talents-form");
+
+                $('#contact-talents-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-talents',function() {
+                const contact_talents_id = $(this).data('contact-talents-id');
+        
+                sessionStorage.setItem('contact_talents_id', contact_talents_id);
+                
+                displayDetails('get contact talents details');
+        
+                $('#contact-talents-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-contact-talents',function() {
+                const contact_talents_id = $(this).data('contact-talents-id');
+                const transaction = 'delete contact talents';
+        
+                Swal.fire({
+                    title: 'Confirm Talents Deletion',
+                    text: 'Are you sure you want to delete this talents?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_talents_id : contact_talents_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Talents Success', 'The talents has been deleted successfully.', 'success');
+                                    reloadDatatable('#contact-talents-table');
+                                    employeeTalentsSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Talents Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-hobby',function() {
+                resetModalForm("contact-hobby-form");
+
+                $('#contact-hobby-modal').modal('show');
+            });
+
+            $(document).on('click','.update-contact-hobby',function() {
+                const contact_hobby_id = $(this).data('contact-hobby-id');
+        
+                sessionStorage.setItem('contact_hobby_id', contact_hobby_id);
+                
+                displayDetails('get contact hobby details');
+        
+                $('#contact-hobby-modal').modal('show');
+            });
+
+            $(document).on('click','.delete-contact-hobby',function() {
+                const contact_hobby_id = $(this).data('contact-hobby-id');
+                const transaction = 'delete contact hobby';
+        
+                Swal.fire({
+                    title: 'Confirm Hobby Deletion',
+                    text: 'Are you sure you want to delete this hobby?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_hobby_id : contact_hobby_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Hobby Success', 'The hobby has been deleted successfully.', 'success');
+                                    reloadDatatable('#contact-hobby-table');
+                                    employeeHobbySummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Hobby Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -1364,6 +1692,344 @@ function employeeEmergencyContactSummary(){
         },
         success: function(response) {
             document.getElementById('contact-emergency-contact-summary').innerHTML = response[0].contactEmergencyContactSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeTrainingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'contact training table';
+    const employee_id = $('#employee-id').text();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TRAINING_NAME' },
+        { 'data' : 'TRAINING_DATE' },
+        { 'data' : 'TRAINING_LOCATION' },
+        { 'data' : 'TRAINING_PROVIDER' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '20%', 'aTargets': 0 },
+        { 'width': '20%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '20%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_employee_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'employee_id' : employee_id,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function employeeTrainingSummary(){
+    const type = 'contact training summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-training-summary').innerHTML = response[0].contactTrainingSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeSkillsTable(datatable_name, buttons = false, show_all = false){
+    const type = 'contact skills table';
+    const employee_id = $('#employee-id').text();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SKILL_NAME' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': '20%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_employee_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'employee_id' : employee_id,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function employeeSkillsSummary(){
+    const type = 'contact skills summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-skills-summary').innerHTML = response[0].contactSkillsSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeTalentsTable(datatable_name, buttons = false, show_all = false){
+    const type = 'contact talents table';
+    const employee_id = $('#employee-id').text();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TALENT_NAME' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': '20%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_employee_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'employee_id' : employee_id,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function employeeTalentsSummary(){
+    const type = 'contact talents summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-talents-summary').innerHTML = response[0].contactTalentsSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeHobbyTable(datatable_name, buttons = false, show_all = false){
+    const type = 'contact hobby table';
+    const employee_id = $('#employee-id').text();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'HOBBY_NAME' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '80%', 'aTargets': 0 },
+        { 'width': '20%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_employee_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'employee_id' : employee_id,
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function employeeHobbySummary(){
+    const type = 'contact hobby summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-hobby-summary').innerHTML = response[0].contactHobbySummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -2332,6 +2998,372 @@ function employeeEmergencyContactForm(){
     });
 }
 
+function employeeTrainingForm(){
+    $('#contact-training-form').validate({
+        rules: {
+            training_name: {
+                required: true
+            },
+            training_date: {
+                required: true
+            }
+        },
+        messages: {
+            training_name: {
+                required: 'Please enter the training name'
+            },
+            training_date: {
+                required: 'Please choose the training date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact training';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-training');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Training & Seminar Success' : 'Update Training & Seminar Success';
+                        const notificationDescription = response.insertRecord ? 'The training & seminar has been inserted successfully.' : 'The training & seminar has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-training', 'Submit');
+                    $('#contact-training-modal').modal('hide');
+                    reloadDatatable('#contact-training-table');
+                    employeeTrainingSummary();
+                    resetModalForm('contact-training-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeSkillsForm(){
+    $('#contact-skills-form').validate({
+        rules: {
+            skill_name: {
+                required: true
+            }
+        },
+        messages: {
+            skill_name: {
+                required: 'Please enter the skill name'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact skills';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-skills');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Skills Success' : 'Update Skills Success';
+                        const notificationDescription = response.insertRecord ? 'The skills has been inserted successfully.' : 'The skills has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-skills', 'Submit');
+                    $('#contact-skills-modal').modal('hide');
+                    reloadDatatable('#contact-skills-table');
+                    employeeSkillsSummary();
+                    resetModalForm('contact-skills-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeTalentsForm(){
+    $('#contact-talents-form').validate({
+        rules: {
+            talent_name: {
+                required: true
+            }
+        },
+        messages: {
+            talent_name: {
+                required: 'Please enter the talent name'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact talents';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-talents');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Talents Success' : 'Update Talents Success';
+                        const notificationDescription = response.insertRecord ? 'The talents has been inserted successfully.' : 'The talents has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-talents', 'Submit');
+                    $('#contact-talents-modal').modal('hide');
+                    reloadDatatable('#contact-talents-table');
+                    employeeTalentsSummary();
+                    resetModalForm('contact-talents-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeHobbyForm(){
+    $('#contact-hobby-form').validate({
+        rules: {
+            hobby_name: {
+                required: true
+            }
+        },
+        messages: {
+            hobby_name: {
+                required: 'Please enter the hobby name'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact hobby';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-hobby');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Hobby Success' : 'Update Hobby Success';
+                        const notificationDescription = response.insertRecord ? 'The hobby has been inserted successfully.' : 'The hobby has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-hobby', 'Submit');
+                    $('#contact-hobby-modal').modal('hide');
+                    reloadDatatable('#contact-hobby-table');
+                    employeeHobbySummary();
+                    resetModalForm('contact-hobby-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get personal information details':
@@ -2694,6 +3726,157 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Emergency Contact Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact training details':
+            var contact_training_id = sessionStorage.getItem('contact_training_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_training_id : contact_training_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-training-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_training_id').val(contact_training_id);
+                        $('#training_name').val(response.trainingName);
+                        $('#training_date').val(response.trainingDate);
+                        $('#training_location').val(response.trainingLocation);
+                        $('#training_provider').val(response.trainingProvider);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Training & Seminar Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact skills details':
+            var contact_skills_id = sessionStorage.getItem('contact_skills_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_skills_id : contact_skills_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-skills-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_skills_id').val(contact_skills_id);
+                        $('#skill_name').val(response.skillName);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Skills Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact talents details':
+            var contact_talents_id = sessionStorage.getItem('contact_talents_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_talents_id : contact_talents_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-talents-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_talents_id').val(contact_talents_id);
+                        $('#talent_name').val(response.talentName);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Talents Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact hobby details':
+            var contact_hobby_id = sessionStorage.getItem('contact_hobby_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_hobby_id : contact_hobby_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-hobby-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_hobby_id').val(contact_hobby_id);
+                        $('#hobby_name').val(response.hobbyName);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Hobby Details Error', response.message, 'danger');
                         }
                     }
                 },

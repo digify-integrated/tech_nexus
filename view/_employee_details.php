@@ -143,6 +143,24 @@
               </div>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Skills</h5>
+            </div>
+            <div class="card-body" id="contact-skills-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Talents</h5>
+            </div>
+            <div class="card-body" id="contact-talents-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Hobbies</h5>
+            </div>
+            <div class="card-body" id="contact-hobby-summary"></div>
+          </div>
         </div>
         <div class="col-lg-7 col-xxl-8">
           <div class="card">
@@ -276,6 +294,15 @@
               </ul>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <h5>Trainings & Seminars</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-training-summary">
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -312,6 +339,26 @@
           $employeeEmergencyContactAdd = '<button type="button" class="btn btn-warning" id="add-contact-emergency-contact">Add</button>';
         }
 
+        $employeeTrainingsSeminarsAdd = '';
+        if($addEmployeeTrainingsSeminars['total'] > 0){
+          $employeeTrainingsSeminarsAdd = '<button type="button" class="btn btn-warning" id="add-contact-training">Add</button>';
+        }
+
+        $employeeSkillsAdd = '';
+        if($addEmployeeSkills['total'] > 0){
+          $employeeSkillsAdd = '<button type="button" class="btn btn-warning" id="add-contact-skills">Add</button>';
+        }
+
+        $employeeTalentsAdd = '';
+        if($addEmployeeTalents['total'] > 0){
+          $employeeTalentsAdd = '<button type="button" class="btn btn-warning" id="add-contact-talents">Add</button>';
+        }
+
+        $employeeHobbyAdd = '';
+        if($addEmployeeHobby['total'] > 0){
+          $employeeHobbyAdd = '<button type="button" class="btn btn-warning" id="add-contact-hobby">Add</button>';
+        }
+
         echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
                 <div class="row">
                   <div class="col-lg-3">
@@ -325,7 +372,7 @@
                           <li><a class="nav-link" id="v-educational-background-tab" data-bs-toggle="pill" href="#v-educational-background" role="tab" aria-controls="v-educational-background" aria-selected="false">Educational Background</a></li>
                           <li><a class="nav-link" id="v-family-background-tab" data-bs-toggle="pill" href="#v-family-background" role="tab" aria-controls="v-family-background" aria-selected="false">Family Background</a></li>
                           <li><a class="nav-link" id="v-emergency-contact-tab" data-bs-toggle="pill" href="#v-emergency-contact" role="tab" aria-controls="v-emergency-contact" aria-selected="false">Emergency Contact</a></li>
-                          <li><a class="nav-link" id="v-trainings-and-seminars-tab" data-bs-toggle="pill" href="#v-trainings-and-seminars" role="tab" aria-controls="v-trainings-and-seminars" aria-selected="false">Trainings & Seminars</a></li>
+                          <li><a class="nav-link" id="v-trainings-tab" data-bs-toggle="pill" href="#v-trainings" role="tab" aria-controls="v-trainings" aria-selected="false">Trainings & Seminars</a></li>
                           <li><a class="nav-link" id="v-employment-history-tab" data-bs-toggle="pill" href="#v-employment-history" role="tab" aria-controls="v-employment-history" aria-selected="false">Employment History</a></li>
                           <li><a class="nav-link" id="v-employee-skills-tab" data-bs-toggle="pill" href="#v-employee-skills" role="tab" aria-controls="v-employee-skills" aria-selected="false">Skills</a></li>
                           <li><a class="nav-link" id="v-employee-talents-tab" data-bs-toggle="pill" href="#v-employee-talents" role="tab" aria-controls="v-employee-talents" aria-selected="false">Talents</a></li>
@@ -346,7 +393,7 @@
                                     <h5>Personal Information</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                  <button type="submit" form="v-personal-information" class="btn btn-success" id="submit-personal-information-data">Save</button>
+                                  <button type="submit" form="personal-information-form" class="btn btn-success" id="submit-personal-information-data">Save</button>
                                   </div>
                                 </div>
                               </div>
@@ -363,7 +410,7 @@
                                     </form>
                                   </div>
                                 </div>
-                                <form id="v-personal-information" method="post" action="#">
+                                <form id="personal-information-form" method="post" action="#">
                                   <div class="row">
                                     <div class="col-sm-6">
                                       <div class="form-group">
@@ -686,7 +733,7 @@
                           </div>
                         </div>
                       </div>
-                      <div class="tab-pane fade" id="v-trainings-and-seminars" role="tabpanel" aria-labelledby="v-trainings-and-seminars-tab">
+                      <div class="tab-pane fade" id="v-trainings" role="tabpanel" aria-labelledby="v-trainings-tab">
                         <div class="row">
                           <div class="col-lg-12">
                             <div class="card">
@@ -696,13 +743,13 @@
                                     <h5>Trainings & Seminars</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-tranings-and-seminars">Add</button>
+                                    '. $employeeTrainingsSeminarsAdd .'
                                   </div>
                                 </div>
                               </div>
                               <div class="card-body">
                                 <div class="dt-responsive table-responsive">
-                                  <table id="tranings-and-seminars-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                  <table id="contact-training-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
                                         <th>Traning Name</th>
@@ -771,7 +818,7 @@
                                     <h5>Skills</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-employee-skills">Add</button>
+                                    '. $employeeSkillsAdd .'
                                   </div>
                                 </div>
                               </div>
@@ -802,7 +849,7 @@
                                     <h5>Talents</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-employee-talents">Add</button>
+                                    '. $employeeTalentsAdd .'
                                   </div>
                                 </div>
                               </div>
@@ -833,13 +880,13 @@
                                     <h5>Hobbies</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-employee-hobbies">Add</button>
+                                    '. $employeeHobbyAdd .'
                                   </div>
                                 </div>
                               </div>
                               <div class="card-body">
                                 <div class="dt-responsive table-responsive">
-                                  <table id="contact-talents-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                                  <table id="contact-hobby-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                     <thead>
                                       <tr>
                                         <th>Hobbies</th>
@@ -1197,7 +1244,7 @@
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title" id="contact-emergency-contact-modal-title">Energency Contact</h5>
+                              <h5 class="modal-title" id="contact-emergency-contact-modal-title">Emergency Contact</h5>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body" id="modal-body">
@@ -1231,6 +1278,127 @@
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               <button type="submit" class="btn btn-primary" id="submit-contact-emergency-contact" form="contact-emergency-contact-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeTrainingsSeminars['total'] > 0 || $updateEmployeeTrainingsSeminars['total'] > 0){
+                echo '<div id="contact-training-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-training-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-training-modal-title">Trainings & Seminars</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-training-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="training_name">Training Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_training_id" name="contact_training_id">
+                                  <input type="text" class="form-control" id="training_name" name="training_name" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label">Training Date <span class="text-danger">*</span></label>
+                                  <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="training_date" name="training_date">
+                                    <span class="input-group-text">
+                                      <i class="feather icon-calendar"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="training_location">Training Location</label>
+                                  <input type="text" class="form-control" id="training_location" name="training_location" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="training_provider">Training Provider</label>
+                                  <input type="text" class="form-control" id="training_provider" name="training_provider" maxlength="500" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-training" form="contact-training-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeSkills['total'] > 0 || $updateEmployeeSkills['total'] > 0){
+                echo '<div id="contact-skills-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-skills-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-skills-modal-title">Trainings & Seminars</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-skills-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="skills_name">Training Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_skills_id" name="contact_skills_id">
+                                  <input type="text" class="form-control" id="skill_name" name="skill_name" maxlength="500" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-skills" form="contact-skills-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeTalents['total'] > 0 || $updateEmployeeTalents['total'] > 0){
+                echo '<div id="contact-talents-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-talents-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-talents-modal-title">Trainings & Seminars</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-talents-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="talents_name">Training Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_talents_id" name="contact_talents_id">
+                                  <input type="text" class="form-control" id="talent_name" name="talent_name" maxlength="500" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-talents" form="contact-talents-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeHobby['total'] > 0 || $updateEmployeeHobby['total'] > 0){
+                echo '<div id="contact-hobby-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-hobby-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-hobby-modal-title">Trainings & Seminars</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-hobby-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="hobby_name">Training Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_hobby_id" name="contact_hobby_id">
+                                  <input type="text" class="form-control" id="hobby_name" name="hobby_name" maxlength="500" autocomplete="off">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-hobby" form="contact-hobby-form">Submit</button>
                             </div>
                           </div>
                         </div>

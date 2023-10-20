@@ -374,6 +374,105 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactTraining
+    # Description: Updates the contact training.
+    #
+    # Parameters:
+    # - $p_contact_training_id (int): The training ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_training_name (string): The training name.
+    # - $p_training_date (date): The training date.
+    # - $p_training_location (string): The training location.
+    # - $p_training_provider (string): The training provider.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactTraining($p_contact_training_id, $p_contact_id, $p_training_name, $p_training_date, $p_training_location, $p_training_provider, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactTraining (:p_contact_training_id, :p_contact_id, :p_training_name, :p_training_date, :p_training_location, :p_training_provider, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_training_id', $p_contact_training_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_training_name', $p_training_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_training_date', $p_training_date, PDO::PARAM_INT);
+        $stmt->bindValue(':p_training_location', $p_training_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_training_provider', $p_training_provider, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactSkills
+    # Description: Updates the contact skills.
+    #
+    # Parameters:
+    # - $p_contact_skills_id (int): The skills ID.
+    # - $p_skill_name (string): The skill name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactSkills($p_contact_skills_id, $p_contact_id, $p_skill_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactSkills (:p_contact_skills_id, :p_contact_id, :p_skill_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_skills_id', $p_contact_skills_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_skill_name', $p_skill_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactTalents
+    # Description: Updates the contact talents.
+    #
+    # Parameters:
+    # - $p_contact_talents_id (int): The talents ID.
+    # - $p_talent_name (string): The talent name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactTalents($p_contact_talents_id, $p_contact_id, $p_talent_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactTalents (:p_contact_talents_id, :p_contact_id, :p_talent_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_talents_id', $p_contact_talents_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_talent_name', $p_talent_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactHobby
+    # Description: Updates the contact hobby.
+    #
+    # Parameters:
+    # - $p_contact_hobby_id (int): The hobby ID.
+    # - $p_hobby_name (string): The hobby name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactHobby($p_contact_hobby_id, $p_contact_id, $p_hobby_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactHobby (:p_contact_hobby_id, :p_contact_id, :p_hobby_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_hobby_name', $p_hobby_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -715,6 +814,100 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertContactTraining
+    # Description: Inserts the contact training.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_training_name (string): The training name.
+    # - $p_training_date (date): The training date.
+    # - $p_training_location (string): The training location.
+    # - $p_training_provider (string): The training provider.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactTraining($p_contact_id, $p_training_name, $p_training_date, $p_training_location, $p_training_provider, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactTraining (:p_contact_id, :p_training_name, :p_training_date, :p_training_location, :p_training_provider, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_training_name', $p_training_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_training_date', $p_training_date, PDO::PARAM_INT);
+        $stmt->bindValue(':p_training_location', $p_training_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_training_provider', $p_training_provider, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactSkills
+    # Description: Inserts the contact skills.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_skill_name (string): The skill name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactSkills($p_contact_id, $p_skill_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactSkills (:p_contact_id, :p_skill_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_skill_name', $p_skill_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactTalents
+    # Description: Inserts the contact talents.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_talent_name (string): The talent name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactTalents($p_contact_id, $p_talent_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactTalents (:p_contact_id, :p_talent_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_talent_name', $p_talent_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactHobby
+    # Description: Inserts the contact hobby.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_hobby_name (string): The hobby name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactHobby($p_contact_id, $p_hobby_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactHobby (:p_contact_id, :p_hobby_name, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_hobby_name', $p_hobby_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -890,6 +1083,82 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactTrainingExist
+    # Description: Checks if a contact training exists.
+    #
+    # Parameters:
+    # - $p_contact_training_id (int): The contact training ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactTrainingExist($p_contact_training_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactTrainingExist(:p_contact_training_id)');
+        $stmt->bindValue(':p_contact_training_id', $p_contact_training_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactSkillsExist
+    # Description: Checks if a contact skills exists.
+    #
+    # Parameters:
+    # - $p_contact_skills_id (int): The contact skills ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactSkillsExist($p_contact_skills_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactSkillsExist(:p_contact_skills_id)');
+        $stmt->bindValue(':p_contact_skills_id', $p_contact_skills_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactTalentsExist
+    # Description: Checks if a contact talents exists.
+    #
+    # Parameters:
+    # - $p_contact_talents_id (int): The contact talents ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactTalentsExist($p_contact_talents_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactTalentsExist(:p_contact_talents_id)');
+        $stmt->bindValue(':p_contact_talents_id', $p_contact_talents_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactHobbyExist
+    # Description: Checks if a contact hobby exists.
+    #
+    # Parameters:
+    # - $p_contact_hobby_id (int): The contact hobby ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactHobbyExist($p_contact_hobby_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactHobbyExist(:p_contact_hobby_id)');
+        $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1015,6 +1284,78 @@ class EmployeeModel {
     public function deleteContactEmergencyContact($p_contact_emergency_contact_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactEmergencyContact(:p_contact_emergency_contact_id)');
         $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactTraining
+    # Description: Deletes the contact training.
+    #
+    # Parameters:
+    # - $p_contact_training_id (int): The contact training ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactTraining($p_contact_training_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactTraining(:p_contact_training_id)');
+        $stmt->bindValue(':p_contact_training_id', $p_contact_training_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactSkills
+    # Description: Deletes the contact skills.
+    #
+    # Parameters:
+    # - $p_contact_skills_id (int): The contact skills ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactSkills($p_contact_skills_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactSkills(:p_contact_skills_id)');
+        $stmt->bindValue(':p_contact_skills_id', $p_contact_skills_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactTalents
+    # Description: Deletes the contact talents.
+    #
+    # Parameters:
+    # - $p_contact_talents_id (int): The contact talents ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactTalents($p_contact_talents_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactTalents(:p_contact_talents_id)');
+        $stmt->bindValue(':p_contact_talents_id', $p_contact_talents_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactHobby
+    # Description: Deletes the contact hobby.
+    #
+    # Parameters:
+    # - $p_contact_hobby_id (int): The contact hobby ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactHobby($p_contact_hobby_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactHobby(:p_contact_hobby_id)');
+        $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1178,6 +1519,86 @@ class EmployeeModel {
     public function getContactEmergencyContact($p_contact_emergency_contact_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getContactEmergencyContact(:p_contact_emergency_contact_id)');
         $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactTraining
+    # Description: Retrieves the details of a contact training.
+    #
+    # Parameters:
+    # - $p_contact_training_id (int): The training ID.
+    #
+    # Returns:
+    # - An array containing the training.
+    #
+    # -------------------------------------------------------------
+    public function getContactTraining($p_contact_training_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactTraining(:p_contact_training_id)');
+        $stmt->bindValue(':p_contact_training_id', $p_contact_training_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactSkills
+    # Description: Retrieves the details of a contact skills.
+    #
+    # Parameters:
+    # - $p_contact_skills_id (int): The skills ID.
+    #
+    # Returns:
+    # - An array containing the skills.
+    #
+    # -------------------------------------------------------------
+    public function getContactSkills($p_contact_skills_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactSkills(:p_contact_skills_id)');
+        $stmt->bindValue(':p_contact_skills_id', $p_contact_skills_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactTalents
+    # Description: Retrieves the details of a contact talents.
+    #
+    # Parameters:
+    # - $p_contact_talents_id (int): The talents ID.
+    #
+    # Returns:
+    # - An array containing the talents.
+    #
+    # -------------------------------------------------------------
+    public function getContactTalents($p_contact_talents_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactTalents(:p_contact_talents_id)');
+        $stmt->bindValue(':p_contact_talents_id', $p_contact_talents_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactHobby
+    # Description: Retrieves the details of a contact hobby.
+    #
+    # Parameters:
+    # - $p_contact_hobby_id (int): The hobby ID.
+    #
+    # Returns:
+    # - An array containing the hobby.
+    #
+    # -------------------------------------------------------------
+    public function getContactHobby($p_contact_hobby_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactHobby(:p_contact_hobby_id)');
+        $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

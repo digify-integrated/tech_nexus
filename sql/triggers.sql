@@ -2898,7 +2898,7 @@ CREATE TRIGGER contact_emergency_contact_trigger_insert
 AFTER INSERT ON contact_emergency_contact
 FOR EACH ROW
 BEGIN
-    DECLARE audit_log TEXT DEFAULT 'Contact family background created. <br/>';
+    DECLARE audit_log TEXT DEFAULT 'Contact emergency contact created. <br/>';
 
     IF NEW.emergency_contact_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Emergency Contact Name: ", NEW.emergency_contact_name);
@@ -2922,6 +2922,166 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('contact_emergency_contact', NEW.contact_emergency_contact_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Training Table Triggers */
+
+CREATE TRIGGER contact_training_trigger_update
+AFTER UPDATE ON contact_training
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.training_name <> OLD.training_name THEN
+        SET audit_log = CONCAT(audit_log, "Training Name: ", OLD.training_name, " -> ", NEW.training_name, "<br/>");
+    END IF;
+
+    IF NEW.training_date <> OLD.training_date THEN
+        SET audit_log = CONCAT(audit_log, "Training Date: ", OLD.training_date, " -> ", NEW.training_date, "<br/>");
+    END IF;
+
+    IF NEW.training_location <> OLD.training_location THEN
+        SET audit_log = CONCAT(audit_log, "Training Location: ", OLD.training_location, " -> ", NEW.training_location, "<br/>");
+    END IF;
+
+    IF NEW.training_provider <> OLD.training_provider THEN
+        SET audit_log = CONCAT(audit_log, "Training Provider: ", OLD.training_provider, " -> ", NEW.training_provider, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_training', NEW.contact_training_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_training_trigger_insert
+AFTER INSERT ON contact_training
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact training created. <br/>';
+
+    IF NEW.training_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Training Name: ", NEW.training_date);
+    END IF;
+
+    IF NEW.training_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Training Date: ", NEW.training_date);
+    END IF;
+
+    IF NEW.training_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Training Location: ", NEW.training_location);
+    END IF;
+
+    IF NEW.training_provider <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Training Provider: ", NEW.training_provider);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_training', NEW.contact_training_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Skills Table Triggers */
+
+CREATE TRIGGER contact_skills_trigger_update
+AFTER UPDATE ON contact_skills
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.skill_name <> OLD.skill_name THEN
+        SET audit_log = CONCAT(audit_log, "Skill Name: ", OLD.skill_name, " -> ", NEW.skill_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_skills', NEW.contact_skills_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_skills_trigger_insert
+AFTER INSERT ON contact_skills
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact skill created. <br/>';
+
+    IF NEW.skill_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Skill Name: ", NEW.skill_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_skills', NEW.contact_skills_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Talents Table Triggers */
+
+CREATE TRIGGER contact_talents_trigger_update
+AFTER UPDATE ON contact_talents
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.talent_name <> OLD.talent_name THEN
+        SET audit_log = CONCAT(audit_log, "Talent Name: ", OLD.talent_name, " -> ", NEW.talent_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_talents', NEW.contact_talents_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_talents_trigger_insert
+AFTER INSERT ON contact_talents
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact talents created. <br/>';
+
+    IF NEW.talent_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Talent Name: ", NEW.talent_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_talents', NEW.contact_talents_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Hobby Table Triggers */
+
+CREATE TRIGGER contact_hobby_trigger_update
+AFTER UPDATE ON contact_hobby
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.hobby_name <> OLD.hobby_name THEN
+        SET audit_log = CONCAT(audit_log, "Hobby Name: ", OLD.hobby_name, " -> ", NEW.hobby_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_hobby', NEW.contact_hobby_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_hobby_trigger_insert
+AFTER INSERT ON contact_hobby
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact hobby created. <br/>';
+
+    IF NEW.hobby_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Hobby Name: ", NEW.hobby_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_hobby', NEW.contact_hobby_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

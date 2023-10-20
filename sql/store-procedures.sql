@@ -161,7 +161,7 @@ CREATE PROCEDURE updateUserPassword(IN p_user_id INT, IN p_email VARCHAR(255), I
 BEGIN
 	UPDATE users 
     SET password = p_password, password_expiry_date = p_password_expiry_date, last_password_change = p_last_password_change, is_locked = 0, failed_login_attempts = 0, account_lock_duration = 0
-    WHERE p_user_id = p_user_id OR email = BINARY p_email;
+    WHERE p_user_id = user_id OR email = BINARY p_email;
 END //
 
 CREATE PROCEDURE updateUserNotificationSetting(IN p_user_id INT, IN p_receive_notification TINYINT(1), IN p_last_log_by INT)
@@ -282,7 +282,7 @@ END //
 CREATE PROCEDURE getPasswordHistory(IN p_user_id INT, IN p_email VARCHAR(255))
 BEGIN
 	SELECT * FROM password_history
-	WHERE p_user_id = p_user_id OR email = BINARY p_email;
+	WHERE user_id = p_user_id OR email = BINARY p_email;
 END //
 
 CREATE PROCEDURE insertPasswordHistory(IN p_user_id INT, IN p_email VARCHAR(255), IN p_password VARCHAR(255), IN p_last_password_change DATETIME)
@@ -4363,6 +4363,189 @@ BEGIN
     FROM contact_emergency_contact
     WHERE contact_id = p_contact_id 
     ORDER BY emergency_contact_name ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Training Table Stored Procedures */
+
+CREATE PROCEDURE checkContactTrainingExist (IN p_contact_training_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_training
+    WHERE contact_training_id = p_contact_training_id;
+END //
+
+CREATE PROCEDURE insertContactTraining(IN p_contact_id INT, IN p_training_name VARCHAR(500), IN p_training_date DATE, IN p_training_location VARCHAR(500), IN p_training_provider VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_training (contact_id, training_name, training_date, training_location, training_provider, last_log_by) 
+	VALUES(p_contact_id, p_training_name, p_training_date, p_training_location, p_training_provider, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactTraining(IN p_contact_training_id INT, IN p_contact_id INT, IN p_training_name VARCHAR(500), IN p_training_date DATE, IN p_training_location VARCHAR(500), IN p_training_provider VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_training
+    SET contact_id = p_contact_id,
+    training_name = p_training_name,
+    training_date = p_training_date,
+    training_location = p_training_location,
+    training_provider = p_training_provider,
+    last_log_by = p_last_log_by
+    WHERE contact_training_id = p_contact_training_id;
+END //
+
+CREATE PROCEDURE deleteContactTraining(IN p_contact_training_id INT)
+BEGIN
+    DELETE FROM contact_training WHERE contact_training_id = p_contact_training_id;
+END //
+
+CREATE PROCEDURE getContactTraining(IN p_contact_training_id INT)
+BEGIN
+	SELECT * FROM contact_training
+    WHERE contact_training_id = p_contact_training_id;
+END //
+
+CREATE PROCEDURE generateContactTrainingTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_training_id, training_name, training_date, training_location, training_provider
+    FROM contact_training
+    WHERE contact_id = p_contact_id 
+    ORDER BY training_date ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Skills Table Stored Procedures */
+
+CREATE PROCEDURE checkContactSkillsExist (IN p_contact_skills_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_skills
+    WHERE contact_skills_id = p_contact_skills_id;
+END //
+
+CREATE PROCEDURE insertContactSkills(IN p_contact_id INT, IN p_skill_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_skills (contact_id, skill_name, last_log_by) 
+	VALUES(p_contact_id, p_skill_name, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactSkills(IN p_contact_skills_id INT, IN p_contact_id INT, IN p_skill_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_skills
+    SET contact_id = p_contact_id,
+    skill_name = p_skill_name,
+    last_log_by = p_last_log_by
+    WHERE contact_skills_id = p_contact_skills_id;
+END //
+
+CREATE PROCEDURE deleteContactSkills(IN p_contact_skills_id INT)
+BEGIN
+    DELETE FROM contact_skills WHERE contact_skills_id = p_contact_skills_id;
+END //
+
+CREATE PROCEDURE getContactSkills(IN p_contact_skills_id INT)
+BEGIN
+	SELECT * FROM contact_skills
+    WHERE contact_skills_id = p_contact_skills_id;
+END //
+
+CREATE PROCEDURE generateContactSkillsTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_skills_id, skill_name
+    FROM contact_skills
+    WHERE contact_id = p_contact_id 
+    ORDER BY skill_name ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Talents Table Stored Procedures */
+
+CREATE PROCEDURE checkContactTalentsExist (IN p_contact_talents_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_talents
+    WHERE contact_talents_id = p_contact_talents_id;
+END //
+
+CREATE PROCEDURE insertContactTalents(IN p_contact_id INT, IN p_talent_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_talents (contact_id, talent_name, last_log_by) 
+	VALUES(p_contact_id, p_talent_name, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactTalents(IN p_contact_talents_id INT, IN p_contact_id INT, IN p_talent_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_talents
+    SET contact_id = p_contact_id,
+    talent_name = p_talent_name,
+    last_log_by = p_last_log_by
+    WHERE contact_talents_id = p_contact_talents_id;
+END //
+
+CREATE PROCEDURE deleteContactTalents(IN p_contact_talents_id INT)
+BEGIN
+    DELETE FROM contact_talents WHERE contact_talents_id = p_contact_talents_id;
+END //
+
+CREATE PROCEDURE getContactTalents(IN p_contact_talents_id INT)
+BEGIN
+	SELECT * FROM contact_talents
+    WHERE contact_talents_id = p_contact_talents_id;
+END //
+
+CREATE PROCEDURE generateContactTalentsTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_talents_id, talent_name
+    FROM contact_talents
+    WHERE contact_id = p_contact_id 
+    ORDER BY talent_name ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Hobby Table Stored Procedures */
+
+CREATE PROCEDURE checkContactHobbyExist (IN p_contact_hobby_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_hobby
+    WHERE contact_hobby_id = p_contact_hobby_id;
+END //
+
+CREATE PROCEDURE insertContactHobby(IN p_contact_id INT, IN p_hobby_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_hobby (contact_id, hobby_name, last_log_by) 
+	VALUES(p_contact_id, p_hobby_name, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactHobby(IN p_contact_hobby_id INT, IN p_contact_id INT, IN p_hobby_name VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_hobby
+    SET contact_id = p_contact_id,
+    hobby_name = p_hobby_name,
+    last_log_by = p_last_log_by
+    WHERE contact_hobby_id = p_contact_hobby_id;
+END //
+
+CREATE PROCEDURE deleteContactHobby(IN p_contact_hobby_id INT)
+BEGIN
+    DELETE FROM contact_hobby WHERE contact_hobby_id = p_contact_hobby_id;
+END //
+
+CREATE PROCEDURE getContactHobby(IN p_contact_hobby_id INT)
+BEGIN
+	SELECT * FROM contact_hobby
+    WHERE contact_hobby_id = p_contact_hobby_id;
+END //
+
+CREATE PROCEDURE generateContactHobbyTable(IN p_contact_id INT)
+BEGIN
+	SELECT contact_hobby_id, hobby_name
+    FROM contact_hobby
+    WHERE contact_id = p_contact_id 
+    ORDER BY hobby_name ASC;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
