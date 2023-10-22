@@ -2,6 +2,19 @@
     'use strict';
 
     $(function() {
+        if($('#employee-card').length){
+            var page = 1;
+            var isLoading = false;
+
+            employeeCard(page, isLoading);
+
+            $(window).scroll(function () {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    employeeCard();
+                }
+            });
+        }
+
         if($('#employee-table').length){
             employeeTable('#employee-table');
         }
@@ -1161,6 +1174,36 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function employeeCard(){
+   
+
+    if (isLoading) return;
+
+    isLoading = true;
+
+
+    const type = 'employee card';
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-information-summary').innerHTML = response[0].contactInformationSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }
 
 function contactInformationTable(datatable_name, buttons = false, show_all = false){

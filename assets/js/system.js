@@ -10,6 +10,13 @@
             new SimpleBar(document.querySelector('.log-notes-scroll'));
         }
 
+        if($('.scroll-block').length){
+            var tc = document.querySelectorAll('.scroll-block');
+            for (var t = 0; t < tc.length; t++) {
+                new SimpleBar(tc[t]);
+            }
+        }
+
         if($('.select2').length){
             $('.select2').select2({}).on("change", function (e) {
                 $(this).valid()
