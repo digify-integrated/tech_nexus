@@ -3928,6 +3928,31 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateEmployeeCard(IN p_offset INT, IN p_employee_per_page INT)
+BEGIN
+     SELECT 
+        contact.contact_id AS contact_id, 
+        contact_image, 
+        first_name, 
+        middle_name, 
+        last_name, 
+        suffix, 
+        department_id, 
+        branch_id, 
+        job_position_id
+    FROM 
+        contact
+    LEFT JOIN 
+        personal_information ON personal_information.contact_id = contact.contact_id
+    LEFT JOIN 
+        employment_information ON employment_information.contact_id = contact.contact_id
+    WHERE 
+        is_employee = 1
+    ORDER BY 
+        personal_information.first_name
+    LIMIT p_offset, p_employee_per_page;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Personal Information Table Stored Procedures */

@@ -2,15 +2,19 @@
     'use strict';
 
     $(function() {
+        var page = 1;
+        var isLoading = false;
+
         if($('#employee-card').length){
-            var page = 1;
-            var isLoading = false;
 
             employeeCard(page, isLoading);
 
             $(window).scroll(function () {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                    employeeCard();
+                    if (!isLoading) {
+                        page++;
+                        employeeCard(page, isLoading);
+                    }
                 }
             });
         }
@@ -1176,13 +1180,10 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function employeeCard(){
-   
+function employeeCard(current_page, is_loading){
+    if (is_loading) return;
 
-    if (isLoading) return;
-
-    isLoading = true;
-
+    is_loading = true;
 
     const type = 'employee card';
             
@@ -1191,10 +1192,21 @@ function employeeCard(){
         method: 'POST',
         dataType: 'json',
         data: {
+            current_page : current_page,
             type : type
         },
         success: function(response) {
-            document.getElementById('contact-information-summary').innerHTML = response[0].contactInformationSummary;
+            if (response.length > 0) {
+                response.forEach(function(item) {
+                    $('#employee-card').append(item.employeeCard);
+                });
+
+                current_page++;
+                is_loading = false;
+            }
+            else {
+                is_loading = false;
+            }
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

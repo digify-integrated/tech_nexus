@@ -140,6 +140,105 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: employee card
+        # Description:
+        # Generates the employee card.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'employee card':
+            if(isset($_POST['current_page']) ){
+                $initialEmployeesPerPage = 9;
+                $loadMoreEmployeesPerPage = 3;
+                $employeePerPage = $initialEmployeesPerPage;
+                
+                $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
+                $offset = ($currentPage - 1) * $employeePerPage;
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage)');
+                $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
+                $sql->bindValue(':employeePerPage', $employeePerPage, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
+
+                foreach ($options as $row) {
+                    $employeeID = $row['contact_id'];
+                    $firstName = $row['first_name'];
+                    $middleName = $row['middle_name'];
+                    $lastName = $row['last_name'];
+                    $suffix = $row['suffix'];
+                    $departmentID = $row['department_id'];
+                    $jobPositionID = $row['job_position_id'];
+                    $branchID = $row['branch_id'];
+                    $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
+
+                    $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
+                    $employeeName = str_replace('{last_name}', $lastName, $employeeName);
+                    $employeeName = str_replace('{first_name}', $firstName, $employeeName);
+                    $employeeName = str_replace('{suffix}', $suffix, $employeeName);
+                    $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
+
+                    $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
+                    $jobPositionName = $jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
+                    $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? null;
+                   
+                    $employeeIDEncrypted = $securityModel->encryptData($employeeID);
+
+                    $delete = '';
+                    if($employeeDeleteAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-employee" data-employee-id="'. $employeeID .'" title="Delete Employee">
+                                            <i class="ti ti-trash"></i>
+                                        </button>';
+                    }
+    
+                    $response[] = [
+                        'employeeCard' => '<div class="col-sm-6 col-xl-4">
+                                                <div class="card product-card">
+                                                    <div class="card-img-top">
+                                                        <a href="employee.php?id='. $employeeIDEncrypted .'">
+                                                            <img src="'. $employeeImage .'" alt="image" class="img-prod img-fluid" />
+                                                        </a>
+                                                        <div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
+                                                            <div class="btn btn-danger">
+                                                                <i class="fa fa-trash"></i>
+                                                             </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <a href="employee.php?id='. $employeeIDEncrypted .'">
+                                                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                                                <h4 class="mb-0 text-truncate"><b>'. $employeeName .'</b></h4>
+                                                            </div>
+                                                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                                                <p class="prod-content mb-0 text-muted">'. $jobPositionName .'</p>
+                                                            </div>
+                                                            <div class="d-flex align-items-center justify-content-between ">
+                                                                <p class="prod-content mb-0 text-muted">'. $departmentName .'</p>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>'
+                    ];
+                }
+
+                if ($employeePerPage === $initialEmployeesPerPage) {
+                    $employeePerPage = $loadMoreEmployeesPerPage;
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: contact information table
         # Description:
         # Generates the contact information table.
