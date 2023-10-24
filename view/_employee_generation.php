@@ -48,98 +48,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: employee table
-        # Description:
-        # Generates the employee table.
-        #
-        # Parameters: None
-        #
-        # Returns: Array
-        #
-        # -------------------------------------------------------------
-        case 'employee table':
-            if(isset($_POST['filter_employment_status']) && isset($_POST['filter_company']) && isset($_POST['filter_department']) && isset($_POST['filter_job_position']) && isset($_POST['filter_job_level']) && isset($_POST['filter_branch']) && isset($_POST['filter_employee_type'])){
-                $filterEmployeeStatus = htmlspecialchars($_POST['filter_employment_status'], ENT_QUOTES, 'UTF-8');
-                $filterCompany = htmlspecialchars($_POST['filter_company'], ENT_QUOTES, 'UTF-8');
-                $filterDepartment = htmlspecialchars($_POST['filter_department'], ENT_QUOTES, 'UTF-8');
-                $filterJobPosition = htmlspecialchars($_POST['filter_job_position'], ENT_QUOTES, 'UTF-8');
-                $filterJobLevel = htmlspecialchars($_POST['filter_job_level'], ENT_QUOTES, 'UTF-8');
-                $filterBranch = htmlspecialchars($_POST['filter_branch'], ENT_QUOTES, 'UTF-8');
-                $filterEmployeeType = htmlspecialchars($_POST['filter_employee_type'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeTable(:filterEmployeeStatus, :filterCompany, :filterDepartment, :filterJobPosition, :filterJobLevel, :filterBranch, :filterEmployeeType)');
-                $sql->bindValue(':filterEmployeeStatus', $filterEmployeeStatus, PDO::PARAM_STR);
-                $sql->bindValue(':filterCompany', $filterCompany, PDO::PARAM_INT);
-                $sql->bindValue(':filterDepartment', $filterDepartment, PDO::PARAM_INT);
-                $sql->bindValue(':filterJobPosition', $filterJobPosition, PDO::PARAM_INT);
-                $sql->bindValue(':filterJobLevel', $filterJobLevel, PDO::PARAM_INT);
-                $sql->bindValue(':filterBranch', $filterBranch, PDO::PARAM_INT);
-                $sql->bindValue(':filterEmployeeType', $filterEmployeeType, PDO::PARAM_INT);
-                $sql->execute();
-                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-                $sql->closeCursor();
-                
-                $employeeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
-
-                foreach ($options as $row) {
-                    $employeeID = $row['contact_id'];
-                    $firstName = $row['first_name'];
-                    $middleName = $row['middle_name'];
-                    $lastName = $row['last_name'];
-                    $suffix = $row['suffix'];
-                    $departmentID = $row['department_id'];
-                    $jobPositionID = $row['job_position_id'];
-                    $branchID = $row['branch_id'];
-                    $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
-
-                    $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
-                    $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-                    $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-                    $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-                    $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
-
-                    $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
-                    $jobPositionName = $jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
-                    $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? null;
-                   
-                    $employeeIDEncrypted = $securityModel->encryptData($employeeID);
-
-                    $delete = '';
-                    if($employeeDeleteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-employee" data-employee-id="'. $employeeID .'" title="Delete Employee">
-                                            <i class="ti ti-trash"></i>
-                                        </button>';
-                    }
-    
-                    $response[] = [
-                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $employeeID .'">',
-                        'EMPLOYEE' => '<div class="row">
-                                        <div class="col-auto pe-0">
-                                        <img src="'. $employeeImage .'" alt="employee-image" class="wid-40 hei-40 rounded-circle">
-                                        </div>
-                                        <div class="col">
-                                        <h6 class="mb-0">'. $employeeName .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $jobPositionName .'</p>
-                                        </div>
-                                    </div>',
-                        'DEPARTMENT' => $departmentName,
-                        'BRANCH' => $branchName,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="employee.php?id='. $employeeIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-                                    '. $delete .'
-                                </div>'
-                    ];
-                }
-    
-                echo json_encode($response);
-            }
-        break;
-        # -------------------------------------------------------------
-
-        # -------------------------------------------------------------
-        #
         # Type: employee card
         # Description:
         # Generates the employee card.
@@ -150,17 +58,39 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'employee card':
-            if(isset($_POST['current_page']) ){
+            if(isset($_POST['current_page']) && isset($_POST['employee_search']) && isset($_POST['employment_status_filter']) && isset($_POST['department_filter']) && isset($_POST['job_position_filter']) && isset($_POST['branch_filter']) && isset($_POST['employee_type_filter']) && isset($_POST['job_level_filter']) && isset($_POST['gender_filter']) && isset($_POST['civil_status_filter']) && isset($_POST['blood_type_filter']) && isset($_POST['religion_filter'])){
                 $initialEmployeesPerPage = 9;
-                $loadMoreEmployeesPerPage = 3;
+                $loadMoreEmployeesPerPage = 6;
                 $employeePerPage = $initialEmployeesPerPage;
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
+                $employeeSearch = htmlspecialchars($_POST['employee_search'], ENT_QUOTES, 'UTF-8');
+                $employementStatusFilter = htmlspecialchars($_POST['employment_status_filter'], ENT_QUOTES, 'UTF-8');
+                $departmentFilter = htmlspecialchars($_POST['department_filter'], ENT_QUOTES, 'UTF-8');
+                $jobPositionFilter = htmlspecialchars($_POST['job_position_filter'], ENT_QUOTES, 'UTF-8');
+                $branchFilter = htmlspecialchars($_POST['branch_filter'], ENT_QUOTES, 'UTF-8');
+                $employeeTypeFilter = htmlspecialchars($_POST['employee_type_filter'], ENT_QUOTES, 'UTF-8');
+                $jobLevelFilter = htmlspecialchars($_POST['job_level_filter'], ENT_QUOTES, 'UTF-8');
+                $genderFilter = htmlspecialchars($_POST['gender_filter'], ENT_QUOTES, 'UTF-8');
+                $civilStatusFilter = htmlspecialchars($_POST['civil_status_filter'], ENT_QUOTES, 'UTF-8');
+                $bloodTypeFilter = htmlspecialchars($_POST['blood_type_filter'], ENT_QUOTES, 'UTF-8');
+                $religionFilter = htmlspecialchars($_POST['religion_filter'], ENT_QUOTES, 'UTF-8');
                 $offset = ($currentPage - 1) * $employeePerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage, :employeeSearch, :employementStatusFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :employeeTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':employeePerPage', $employeePerPage, PDO::PARAM_INT);
+                $sql->bindValue(':employeeSearch', $employeeSearch, PDO::PARAM_STR);
+                $sql->bindValue(':employementStatusFilter', $employementStatusFilter, PDO::PARAM_STR);
+                $sql->bindValue(':departmentFilter', $departmentFilter, PDO::PARAM_STR);
+                $sql->bindValue(':jobPositionFilter', $jobPositionFilter, PDO::PARAM_STR);
+                $sql->bindValue(':branchFilter', $branchFilter, PDO::PARAM_STR);
+                $sql->bindValue(':employeeTypeFilter', $employeeTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':jobLevelFilter', $jobLevelFilter, PDO::PARAM_STR);
+                $sql->bindValue(':genderFilter', $genderFilter, PDO::PARAM_STR);
+                $sql->bindValue(':civilStatusFilter', $civilStatusFilter, PDO::PARAM_STR);
+                $sql->bindValue(':bloodTypeFilter', $bloodTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':religionFilter', $religionFilter, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -176,7 +106,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $departmentID = $row['department_id'];
                     $jobPositionID = $row['job_position_id'];
                     $branchID = $row['branch_id'];
+                    $offboardDate = $systemModel->checkDate('empty', $row['offboard_date'], '', 'M Y', '');
                     $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
+
+                    $employmentStatus = empty($offboardDate) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
 
                     $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
                     $employeeName = str_replace('{last_name}', $lastName, $employeeName);
@@ -204,6 +137,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                         <a href="employee.php?id='. $employeeIDEncrypted .'">
                                                             <img src="'. $employeeImage .'" alt="image" class="img-prod img-fluid" />
                                                         </a>
+                                                        <div class="card-body position-absolute start-0 top-0">
+                                                           '. $employmentStatus .'
+                                                        </div>
                                                         <div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
                                                             <div class="btn btn-danger">
                                                                 <i class="fa fa-trash"></i>

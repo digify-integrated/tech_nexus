@@ -194,5 +194,35 @@ class BloodTypeModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateBloodTypeCheckBox
+    # Description: Generates the blood type check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateBloodTypeCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateBloodTypeOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $bloodTypeID = $row['blood_type_id'];
+            $bloodTypeName = $row['blood_type_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input blood-type-filter" type="checkbox" id="blood-type-' . htmlspecialchars($bloodTypeID, ENT_QUOTES) . '" value="' . htmlspecialchars($bloodTypeID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="blood-type-' . htmlspecialchars($bloodTypeID, ENT_QUOTES) . '">' . htmlspecialchars($bloodTypeName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

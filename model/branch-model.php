@@ -221,5 +221,35 @@ class BranchModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateBranchCheckBox
+    # Description: Generates the branch check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateBranchCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateBranchOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $branchID = $row['branch_id'];
+            $branchName = $row['branch_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input branch-filter" type="checkbox" id="branch-' . htmlspecialchars($branchID, ENT_QUOTES) . '" value="' . htmlspecialchars($branchID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="branch-' . htmlspecialchars($branchID, ENT_QUOTES) . '">' . htmlspecialchars($branchName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

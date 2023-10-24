@@ -203,5 +203,35 @@ class DepartmentModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateDepartmentCheckBox
+    # Description: Generates the department check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateDepartmentCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateDepartmentOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $departmentID = $row['department_id'];
+            $departmentName = $row['department_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input department-filter" type="checkbox" id="department-' . htmlspecialchars($departmentID, ENT_QUOTES) . '" value="' . htmlspecialchars($departmentID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="department-' . htmlspecialchars($departmentID, ENT_QUOTES) . '">' . htmlspecialchars($departmentName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

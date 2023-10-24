@@ -194,5 +194,35 @@ class GenderModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateGenderCheckBox
+    # Description: Generates the gender check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateGenderCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateGenderOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $genderID = $row['gender_id'];
+            $genderName = $row['gender_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input gender-filter" type="checkbox" id="gender-' . htmlspecialchars($genderID, ENT_QUOTES) . '" value="' . htmlspecialchars($genderID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="gender-' . htmlspecialchars($genderID, ENT_QUOTES) . '">' . htmlspecialchars($genderName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

@@ -589,5 +589,35 @@ class JobPositionModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateJobPositionCheckBox
+    # Description: Generates the job position check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateJobPositionCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateJobPositionOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $jobPositionID = $row['job_position_id'];
+            $jobPositionName = $row['job_position_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input job-position-filter" type="checkbox" id="job-position-' . htmlspecialchars($jobPositionID, ENT_QUOTES) . '" value="' . htmlspecialchars($jobPositionID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="job-position-' . htmlspecialchars($jobPositionID, ENT_QUOTES) . '">' . htmlspecialchars($jobPositionName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

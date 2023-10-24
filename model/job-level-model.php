@@ -203,5 +203,36 @@ class JobLevelModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateJobLevelCheckBox
+    # Description: Generates the job level check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateJobLevelCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateJobLevelOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $jobLevelID = $row['job_level_id'];
+            $currentLevel = $row['current_level'];
+            $rank = $row['rank'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                <input class="form-check-input job-level-filter" type="checkbox" id="job-level-' . htmlspecialchars($jobLevelID, ENT_QUOTES) . '" value="' . htmlspecialchars($jobLevelID, ENT_QUOTES) . '" />
+                <label class="form-check-label" for="job-level-' . htmlspecialchars($jobLevelID, ENT_QUOTES) . '">' . htmlspecialchars($currentLevel, ENT_QUOTES) .' - '. $rank .'</label>
+            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

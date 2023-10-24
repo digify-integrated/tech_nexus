@@ -194,5 +194,35 @@ class EmployeeTypeModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateEmployeeTypeCheckBox
+    # Description: Generates the employee type check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateEmployeeTypeCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeTypeOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $employeeTypeID = $row['employee_type_id'];
+            $employeeTypeName = $row['employee_type_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input employee-type-filter" type="checkbox" id="employee-type-' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '" value="' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="employee-type-' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '">' . htmlspecialchars($employeeTypeName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

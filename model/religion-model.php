@@ -194,5 +194,35 @@ class ReligionModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateReligionCheckBox
+    # Description: Generates the religion check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateReligionCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateReligionOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $religionID = $row['religion_id'];
+            $religionName = $row['religion_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input religion-filter" type="checkbox" id="religion-' . htmlspecialchars($religionID, ENT_QUOTES) . '" value="' . htmlspecialchars($religionID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="religion-' . htmlspecialchars($religionID, ENT_QUOTES) . '">' . htmlspecialchars($religionName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

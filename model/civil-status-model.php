@@ -194,5 +194,35 @@ class CivilStatusModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateCivilStatusCheckBox
+    # Description: Generates the civil status check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateCivilStatusCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCivilStatusOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $civilStatusID = $row['civil_status_id'];
+            $civilStatusName = $row['civil_status_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input civil-status-filter" type="checkbox" id="civil-status-' . htmlspecialchars($civilStatusID, ENT_QUOTES) . '" value="' . htmlspecialchars($civilStatusID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="civil-status-' . htmlspecialchars($civilStatusID, ENT_QUOTES) . '">' . htmlspecialchars($civilStatusName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

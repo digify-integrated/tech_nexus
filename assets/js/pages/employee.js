@@ -3,21 +3,188 @@
 
     $(function() {
         var page = 1;
-        var isLoading = false;
+        var is_loading = false;
+        var $employeeCard = $('#employee-card');
+        var $loadContent = $('#load-content');
+        var $employeeSearch = $('#employee_search');
+        var lastSearchValue = '';
 
-        if($('#employee-card').length){
+        var debounceTimeout;
 
-            employeeCard(page, isLoading);
+        function debounce(func, delay) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(func, delay);
+        }
+
+        function loadEmployeeCard(current_page, is_loading, clearExisting) {
+            if (is_loading) return;
+
+            var employee_search = $employeeSearch.val();
+            var employment_status_filter = $('.employment-status-filter:checked').val();
+            var department_filter_values = [];
+            var job_position_filter_values = [];
+            var branch_filter_values = [];
+            var employee_type_filter_values = [];
+            var job_level_filter_values = [];
+            var gender_filter_values = [];
+            var civil_status_filter_values = [];
+            var blood_type_filter_values = [];
+            var religion_filter_values = [];
+
+            $('.department-filter:checked').each(function() {
+                department_filter_values.push($(this).val());
+            });
+
+            $('.job-position-filter:checked').each(function() {
+                job_position_filter_values.push($(this).val());
+            });
+
+            $('.branch-filter:checked').each(function() {
+                branch_filter_values.push($(this).val());
+            });
+
+            $('.employee-type-filter:checked').each(function() {
+                employee_type_filter_values.push($(this).val());
+            });
+
+            $('.job-level-filter:checked').each(function() {
+                job_level_filter_values.push($(this).val());
+            });
+
+            $('.gender-filter:checked').each(function() {
+                gender_filter_values.push($(this).val());
+            });
+
+            $('.civil-status-filter:checked').each(function() {
+                civil_status_filter_values.push($(this).val());
+            });
+
+            $('.blood-type-filter:checked').each(function() {
+                blood_type_filter_values.push($(this).val());
+            });
+
+            $('.religion-filter:checked').each(function() {
+                religion_filter_values.push($(this).val());
+            });
+        
+            var department_filter = department_filter_values.join(', ');
+            var job_position_filter = job_position_filter_values.join(', ');
+            var branch_filter = branch_filter_values.join(', ');
+            var employee_type_filter = employee_type_filter_values.join(', ');
+            var job_level_filter = job_level_filter_values.join(', ');
+            var gender_filter = gender_filter_values.join(', ');
+            var civil_status_filter = civil_status_filter_values.join(', ');
+            var blood_type_filter = blood_type_filter_values.join(', ');
+            var religion_filter = religion_filter_values.join(', ');
+        
+            lastSearchValue = employee_search;
+
+            is_loading = true;
+            const type = 'employee card';
+
+            if (clearExisting) {
+                $employeeCard.empty();
+            }
+
+            $loadContent.removeClass('d-none');
+
+            $.ajax({
+                url: 'view/_employee_generation.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    current_page: current_page,
+                    employee_search: employee_search,
+                    employment_status_filter: employment_status_filter,
+                    department_filter: department_filter,
+                    job_position_filter: job_position_filter,
+                    branch_filter: branch_filter,
+                    employee_type_filter: employee_type_filter,
+                    job_level_filter: job_level_filter,
+                    gender_filter: gender_filter,
+                    civil_status_filter: civil_status_filter,
+                    blood_type_filter: blood_type_filter,
+                    religion_filter: religion_filter,
+                    type: type
+                },
+                success: function(response) {
+                    is_loading = false;
+
+                    $loadContent.addClass('d-none');
+
+                    if (response.length === 0) {
+                        if (current_page === 1) {
+                            $employeeCard.html('<div class="col-lg-12 text-center">No employee found.</div>');
+                        }
+                        return;
+                    }
+
+                    response.forEach(function(item) {
+                        $employeeCard.append(item.employeeCard);
+                    });
+
+                    $employeeCard.find('.no-search-result').remove();
+                },
+                error: function(xhr, status, error) {
+                    is_loading = false;
+
+                    $loadContent.addClass('d-none');
+
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+        }
+
+        function resetAndLoadEmployeeCard() {
+            page = 1;
+            loadEmployeeCard(page, false, true);
+        }
+
+        function debounceAndReset() {
+            debounce(function() {
+                resetAndLoadEmployeeCard();
+            }, 300);
+        }
+
+        if ($employeeCard.length) {
+            loadEmployeeCard(page, is_loading, true);
+
+            $employeeSearch.on('keyup', function() {
+                debounceAndReset();
+            });
+
+            const filterClasses = [
+                '.employment-status-filter',
+                '.department-filter',
+                '.job-position-filter',
+                '.branch-filter',
+                '.employee-type-filter',
+                '.job-level-filter',
+                '.gender-filter',
+                '.civil-status-filter',
+                '.blood-type-filter',
+                '.religion-filter'
+            ];
+            
+            filterClasses.forEach(filterClass => {
+                $(document).on('change', filterClass, debounceAndReset);
+            });
 
             $(window).scroll(function () {
-                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-                    if (!isLoading) {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                    if (!is_loading) {
                         page++;
-                        employeeCard(page, isLoading);
+                        loadEmployeeCard(page, is_loading, false);
                     }
                 }
             });
         }
+
+        $employeeSearch.val(lastSearchValue);
 
         if($('#employee-table').length){
             employeeTable('#employee-table');
@@ -1182,6 +1349,7 @@ function employeeTable(datatable_name, buttons = false, show_all = false){
 
 function employeeCard(current_page, is_loading){
     if (is_loading) return;
+    var employee_search = $('#employee_search').val();
 
     is_loading = true;
 
@@ -1193,20 +1361,34 @@ function employeeCard(current_page, is_loading){
         dataType: 'json',
         data: {
             current_page : current_page,
+            employee_search : employee_search,
             type : type
         },
+        beforeSend: function(){
+            $('#load-content').removeClass('d-none');
+            if(current_page == 1){
+                $('#employee-card').html('');
+            }
+        },
         success: function(response) {
-            if (response.length > 0) {
-                response.forEach(function(item) {
-                    $('#employee-card').append(item.employeeCard);
-                });
+            is_loading = false;
 
-                current_page++;
-                is_loading = false;
+            if (response.length == 0) {
+                if(current_page == 1){
+                    document.getElementById('employee-card').innerHTML = '<div class="col-lg-12 text-center">No employee found.</div>';
+                }
+                return;
             }
-            else {
-                is_loading = false;
-            }
+            
+            response.forEach(function(item) {
+                $('#employee-card').append(item.employeeCard);
+            });
+
+            current_page++;
+            $('#employee-card').find('.no-search-result').remove();
+        },
+        complete: function(){
+            $('#load-content').addClass('d-none');
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
