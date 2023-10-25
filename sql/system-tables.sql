@@ -364,18 +364,19 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Trainings & Seminars', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Trainings & Seminars', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Trainings & Seminars', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Skills', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Skills', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Skills', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Talents', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Talents', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Talents', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Hobbies', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Hobbies', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Hobbies', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employment History', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -449,18 +450,19 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('53', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('54', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('55', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('56', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('57', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('58', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('59', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('60', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('61', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('62', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('63', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('64', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('65', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('66', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('67', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3131,26 +3133,18 @@ CREATE INDEX religion_index_religion_id ON religion(religion_id);
 
 INSERT INTO religion (religion_name, last_log_by)
 VALUES
-    ('Christianity', '1'),
+    ('Roman Catholic', '1'),
     ('Islam', '1'),
-    ('Hinduism', '1'),
+    ('Iglesia ni Cristo', '1'),
+    ('Members Church of God International', '1'),
+    ('Aglipayan Church', '1'),
     ('Buddhism', '1'),
-    ('Sikhism', '1'),
-    ('Judaism', '1'),
-    ('Baháʼí Faith', '1'),
-    ('Jainism', '1'),
-    ('Shintoism', '1'),
-    ('Taoism', '1'),
-    ('Zoroastrianism', '1'),
-    ('African Traditional Religions', '1'),
-    ('Native American Spirituality', '1'),
-    ('Rastafarianism', '1'),
-    ('Scientology', '1'),
-    ('Atheism', '1'),
-    ('Agnosticism', '1'),
-    ('Wicca', '1'),
-    ('Druidry', '1'),
-    ('Confucianism', '1');
+    ('Hinduism', '1'),
+    ('Indigenous Beliefs', '1'),
+    ('Baptists', '1'),
+    ('Methodists', '1'),
+    ('Pentecostals', '1'),
+    ('Atheist', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3815,6 +3809,32 @@ CREATE TABLE contact_hobby (
 
 CREATE INDEX contact_hobby_index_contact_hobby_id ON contact_hobby(contact_hobby_id);
 CREATE INDEX contact_hobby_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Employment History Table */
+
+CREATE TABLE contact_employment_history (
+    contact_employment_history_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    company VARCHAR(500) NOT NULL,
+    address VARCHAR(500),
+    contact_numbers VARCHAR(500),
+    last_position_held VARCHAR(500) NOT NULL,
+    employment_start_date DATE NOT NULL,
+    employment_end_date DATE,
+    basic_function TEXT,
+    starting_salary DOUBLE,
+    final_salary DOUBLE,
+    immediate_supervisor VARCHAR(500),
+    immediate_supervisor_position VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_employment_history_index_contact_employment_history_id ON contact_employment_history(contact_employment_history_id);
+CREATE INDEX contact_employment_history_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

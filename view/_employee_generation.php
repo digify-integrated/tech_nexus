@@ -58,7 +58,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'employee card':
-            if(isset($_POST['current_page']) && isset($_POST['employee_search']) && isset($_POST['employment_status_filter']) && isset($_POST['department_filter']) && isset($_POST['job_position_filter']) && isset($_POST['branch_filter']) && isset($_POST['employee_type_filter']) && isset($_POST['job_level_filter']) && isset($_POST['gender_filter']) && isset($_POST['civil_status_filter']) && isset($_POST['blood_type_filter']) && isset($_POST['religion_filter'])){
+            if(isset($_POST['current_page']) && isset($_POST['employee_search']) && isset($_POST['employment_status_filter']) && isset($_POST['department_filter']) && isset($_POST['job_position_filter']) && isset($_POST['branch_filter']) && isset($_POST['employee_type_filter']) && isset($_POST['job_level_filter']) && isset($_POST['gender_filter']) && isset($_POST['civil_status_filter']) && isset($_POST['blood_type_filter']) && isset($_POST['religion_filter']) && isset($_POST['age_filter'])){
                 $initialEmployeesPerPage = 9;
                 $loadMoreEmployeesPerPage = 6;
                 $employeePerPage = $initialEmployeesPerPage;
@@ -75,9 +75,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $civilStatusFilter = htmlspecialchars($_POST['civil_status_filter'], ENT_QUOTES, 'UTF-8');
                 $bloodTypeFilter = htmlspecialchars($_POST['blood_type_filter'], ENT_QUOTES, 'UTF-8');
                 $religionFilter = htmlspecialchars($_POST['religion_filter'], ENT_QUOTES, 'UTF-8');
+                $ageFilter = htmlspecialchars($_POST['age_filter'], ENT_QUOTES, 'UTF-8');
+                $ageExplode = explode(',', $ageFilter);
+                $minAge = $ageExplode[0];
+                $maxAge = $ageExplode[1];
                 $offset = ($currentPage - 1) * $employeePerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage, :employeeSearch, :employementStatusFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :employeeTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage, :employeeSearch, :employementStatusFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :employeeTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter, :minAge, :maxAge)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':employeePerPage', $employeePerPage, PDO::PARAM_INT);
                 $sql->bindValue(':employeeSearch', $employeeSearch, PDO::PARAM_STR);
@@ -91,6 +95,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->bindValue(':civilStatusFilter', $civilStatusFilter, PDO::PARAM_STR);
                 $sql->bindValue(':bloodTypeFilter', $bloodTypeFilter, PDO::PARAM_STR);
                 $sql->bindValue(':religionFilter', $religionFilter, PDO::PARAM_STR);
+                $sql->bindValue(':minAge', $minAge, PDO::PARAM_INT);
+                $sql->bindValue(':maxAge', $maxAge, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -125,9 +131,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($employeeDeleteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-employee" data-employee-id="'. $employeeID .'" title="Delete Employee">
+                        $delete = '<div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
+                                        <button type="button" class="btn btn-danger delete-employee" data-employee-id="'. $employeeID .'" title="Delete Employee">
                                             <i class="ti ti-trash"></i>
-                                        </button>';
+                                        </button>
+                                    </div>';
                     }
     
                     $response[] = [
@@ -140,11 +148,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                         <div class="card-body position-absolute start-0 top-0">
                                                            '. $employmentStatus .'
                                                         </div>
-                                                        <div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
-                                                            <div class="btn btn-danger">
-                                                                <i class="fa fa-trash"></i>
-                                                             </div>
-                                                        </div>
+                                                        '. $delete .'
                                                     </div>
                                                     <div class="card-body">
                                                         <a href="employee.php?id='. $employeeIDEncrypted .'">

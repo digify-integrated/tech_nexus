@@ -8,6 +8,7 @@
         var $loadContent = $('#load-content');
         var $employeeSearch = $('#employee_search');
         var lastSearchValue = '';
+        var age_filter_slider = $('#age-filter').slider();
 
         var debounceTimeout;
 
@@ -21,6 +22,7 @@
 
             var employee_search = $employeeSearch.val();
             var employment_status_filter = $('.employment-status-filter:checked').val();
+            var age_filter = $('#age-filter').val();
             var department_filter_values = [];
             var job_position_filter_values = [];
             var branch_filter_values = [];
@@ -105,6 +107,7 @@
                     civil_status_filter: civil_status_filter,
                     blood_type_filter: blood_type_filter,
                     religion_filter: religion_filter,
+                    age_filter: age_filter,
                     type: type
                 },
                 success: function(response) {
@@ -153,6 +156,10 @@
         if ($employeeCard.length) {
             loadEmployeeCard(page, is_loading, true);
 
+            age_filter_slider.on('slideStop', function(slideEvt) {
+                debounceAndReset();
+            });
+
             $employeeSearch.on('keyup', function() {
                 debounceAndReset();
             });
@@ -174,6 +181,14 @@
                 $(document).on('change', filterClass, debounceAndReset);
             });
 
+            $('#filter_birthday_start_date').on('changeDate', function(e) {
+                debounceAndReset();
+            });
+
+            $('#filter_birthday_end_date').on('changeDate', function(e) {
+                debounceAndReset();
+            });
+
             $(window).scroll(function () {
                 if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
                     if (!is_loading) {
@@ -185,10 +200,6 @@
         }
 
         $employeeSearch.val(lastSearchValue);
-
-        if($('#employee-table').length){
-            employeeTable('#employee-table');
-        }
 
         if($('#add-employee-form').length){
             addEmployeeForm();
@@ -1264,88 +1275,8 @@
                 }
             });
         }
-
-        $(document).on('click','#filter-datatable',function() {
-            employeeTable('#employee-table');
-        });
     });
 })(jQuery);
-
-function employeeTable(datatable_name, buttons = false, show_all = false){
-    const type = 'employee table';
-    var filter_employment_status = $('#filter_employment_status').val();
-    var filter_company = $('#filter_company').val();
-    var filter_department = $('#filter_department').val();
-    var filter_job_position = $('#filter_job_position').val();
-    var filter_job_level = $('#filter_job_level').val();
-    var filter_branch = $('#filter_branch').val();
-    var filter_employee_type = $('#filter_employee_type').val();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'EMPLOYEE' },
-        { 'data' : 'DEPARTMENT' },
-        { 'data' : 'BRANCH' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '44%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
-        { 'width': '20%', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'filter_employment_status' : filter_employment_status,
-                'filter_company' : filter_company,
-                'filter_department' : filter_department,
-                'filter_job_position' : filter_job_position,
-                'filter_job_level' : filter_job_level,
-                'filter_branch' : filter_branch,
-                'filter_employee_type' : filter_employee_type,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 1, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
 
 function employeeCard(current_page, is_loading){
     if (is_loading) return;

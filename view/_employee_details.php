@@ -359,6 +359,11 @@
           $employeeHobbyAdd = '<button type="button" class="btn btn-warning" id="add-contact-hobby">Add</button>';
         }
 
+        $employmentHistoryAdd = '';
+        if($addEmploymentHistory['total'] > 0){
+          $employmentHistoryAdd = '<button type="button" class="btn btn-warning" id="add-employment-history">Add</button>';
+        }
+
         echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
                 <div class="row">
                   <div class="col-lg-3">
@@ -374,6 +379,8 @@
                           <li><a class="nav-link" id="v-emergency-contact-tab" data-bs-toggle="pill" href="#v-emergency-contact" role="tab" aria-controls="v-emergency-contact" aria-selected="false">Emergency Contact</a></li>
                           <li><a class="nav-link" id="v-trainings-tab" data-bs-toggle="pill" href="#v-trainings" role="tab" aria-controls="v-trainings" aria-selected="false">Trainings & Seminars</a></li>
                           <li><a class="nav-link" id="v-employment-history-tab" data-bs-toggle="pill" href="#v-employment-history" role="tab" aria-controls="v-employment-history" aria-selected="false">Employment History</a></li>
+                          <li><a class="nav-link" id="v-licenses-tab" data-bs-toggle="pill" href="#v-licenses" role="tab" aria-controls="v-licenses" aria-selected="false">Licenses</a></li>
+                          <li><a class="nav-link" id="v-certifications-tab" data-bs-toggle="pill" href="#v-certifications" role="tab" aria-controls="v-certifications" aria-selected="false">Certifications</a></li>
                           <li><a class="nav-link" id="v-employee-skills-tab" data-bs-toggle="pill" href="#v-employee-skills" role="tab" aria-controls="v-employee-skills" aria-selected="false">Skills</a></li>
                           <li><a class="nav-link" id="v-employee-talents-tab" data-bs-toggle="pill" href="#v-employee-talents" role="tab" aria-controls="v-employee-talents" aria-selected="false">Talents</a></li>
                           <li><a class="nav-link" id="v-employee-hobbies-tab" data-bs-toggle="pill" href="#v-employee-hobbies" role="tab" aria-controls="v-employee-hobbies" aria-selected="false">Hobbies</a></li>
@@ -777,7 +784,7 @@
                                     <h5>Employment History</h5>
                                   </div>
                                   <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    <button type="button" class="btn btn-warning" id="add-employment-history">Add</button>
+                                    '. $employmentHistoryAdd .'
                                   </div>
                                 </div>
                               </div>
@@ -1399,6 +1406,52 @@
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               <button type="submit" class="btn btn-primary" id="submit-contact-hobby" form="contact-hobby-form">Submit</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmploymentHistory['total'] > 0 || $updateEmploymentHistory['total'] > 0){
+                echo '<div id="contact-employment-history-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-employment-history-modal-title" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="contact-employment-history-modal-title">Trainings & Seminars</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modal-body">
+                              <form id="contact-employment-history-form" method="post" action="#">
+                                <div class="form-group">
+                                  <label class="form-label" for="employment_history_company">Company Name <span class="text-danger">*</span></label>
+                                  <input type="hidden" id="contact_employment_history_id" name="contact_employment_history_id">
+                                  <input type="text" class="form-control" id="employment_history_company" name="employment_history_company" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="employment_history_address">Addess</label>
+                                  <input type="text" class="form-control" id="employment_history_address" name="employment_history_address" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="contact_numbers">Contact Numbers</label>
+                                  <input type="text" class="form-control" id="contact_numbers" name="contact_numbers" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="last_position_held">Last Position Held <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control" id="last_position_held" name="last_position_held" maxlength="500" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="last_position_held">Starting Salary</label>
+                                  <input type="number" min="0" step="0.01" class="form-control" id="starting_salary" name="starting_salary">
+                                </div>
+                                <div class="form-group">
+                                  <label class="form-label" for="last_position_held">Final Salary</label>
+                                  <input type="number" min="0" step="0.01" class="form-control" id="final_salary" name="final_salary">
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-primary" id="submit-contact-employment-history" form="contact-employment-history-form">Submit</button>
                             </div>
                           </div>
                         </div>
