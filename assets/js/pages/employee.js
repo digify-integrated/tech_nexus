@@ -339,8 +339,6 @@
 
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
-
-                $('#contact-information-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-information',function() {
@@ -349,8 +347,6 @@
                 sessionStorage.setItem('contact_information_id', contact_information_id);
                 
                 displayDetails('get contact information details');
-        
-                $('#contact-information-modal').modal('show');
             });
 
             $(document).on('click','.tag-contact-information-as-primary',function() {
@@ -469,8 +465,6 @@
 
             $(document).on('click','#add-contact-address',function() {
                 resetModalForm("contact-address-form");
-
-                $('#contact-address-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-address',function() {
@@ -479,8 +473,6 @@
                 sessionStorage.setItem('contact_address_id', contact_address_id);
                 
                 displayDetails('get contact address details');
-        
-                $('#contact-address-modal').modal('show');
             });
 
             $(document).on('click','.tag-contact-address-as-primary',function() {
@@ -599,8 +591,6 @@
 
             $(document).on('click','#add-contact-identification',function() {
                 resetModalForm("contact-identification-form");
-
-                $('#contact-identification-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-identification',function() {
@@ -609,8 +599,6 @@
                 sessionStorage.setItem('contact_identification_id', contact_identification_id);
                 
                 displayDetails('get contact identification details');
-        
-                $('#contact-identification-modal').modal('show');
             });
 
             $(document).on('click','.tag-contact-identification-as-primary',function() {
@@ -729,8 +717,6 @@
 
             $(document).on('click','#add-contact-educational-background',function() {
                 resetModalForm("contact-educational-background-form");
-
-                $('#contact-educational-background-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-educational-background',function() {
@@ -739,8 +725,6 @@
                 sessionStorage.setItem('contact_educational_background_id', contact_educational_background_id);
                 
                 displayDetails('get contact educational background details');
-        
-                $('#contact-educational-background-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-educational-background',function() {
@@ -801,8 +785,6 @@
 
             $(document).on('click','#add-contact-family-background',function() {
                 resetModalForm("contact-family-background-form");
-
-                $('#contact-family-background-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-family-background',function() {
@@ -811,8 +793,6 @@
                 sessionStorage.setItem('contact_family_background_id', contact_family_background_id);
                 
                 displayDetails('get contact family background details');
-        
-                $('#contact-family-background-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-family-background',function() {
@@ -873,8 +853,6 @@
 
             $(document).on('click','#add-contact-emergency-contact',function() {
                 resetModalForm("contact-emergency-contact-form");
-
-                $('#contact-emergency-contact-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-emergency-contact',function() {
@@ -883,8 +861,6 @@
                 sessionStorage.setItem('contact_emergency_contact_id', contact_emergency_contact_id);
                 
                 displayDetails('get contact emergency contact details');
-        
-                $('#contact-emergency-contact-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-emergency-contact',function() {
@@ -945,8 +921,6 @@
 
             $(document).on('click','#add-contact-training',function() {
                 resetModalForm("contact-training-form");
-
-                $('#contact-training-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-training',function() {
@@ -955,8 +929,6 @@
                 sessionStorage.setItem('contact_training_id', contact_training_id);
                 
                 displayDetails('get contact training details');
-        
-                $('#contact-training-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-training',function() {
@@ -1017,8 +989,6 @@
 
             $(document).on('click','#add-contact-skills',function() {
                 resetModalForm("contact-skills-form");
-
-                $('#contact-skills-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-skills',function() {
@@ -1027,8 +997,6 @@
                 sessionStorage.setItem('contact_skills_id', contact_skills_id);
                 
                 displayDetails('get contact skills details');
-        
-                $('#contact-skills-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-skills',function() {
@@ -1089,8 +1057,6 @@
 
             $(document).on('click','#add-contact-talents',function() {
                 resetModalForm("contact-talents-form");
-
-                $('#contact-talents-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-talents',function() {
@@ -1099,8 +1065,6 @@
                 sessionStorage.setItem('contact_talents_id', contact_talents_id);
                 
                 displayDetails('get contact talents details');
-        
-                $('#contact-talents-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-talents',function() {
@@ -1161,8 +1125,6 @@
 
             $(document).on('click','#add-contact-hobby',function() {
                 resetModalForm("contact-hobby-form");
-
-                $('#contact-hobby-modal').modal('show');
             });
 
             $(document).on('click','.update-contact-hobby',function() {
@@ -1171,8 +1133,6 @@
                 sessionStorage.setItem('contact_hobby_id', contact_hobby_id);
                 
                 displayDetails('get contact hobby details');
-        
-                $('#contact-hobby-modal').modal('show');
             });
 
             $(document).on('click','.delete-contact-hobby',function() {
@@ -2252,7 +2212,7 @@ function addEmployeeForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2361,7 +2321,7 @@ function personalInformationForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2494,7 +2454,7 @@ function employmentInformationForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2591,7 +2551,7 @@ function contactInformationForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2656,7 +2616,7 @@ function contactInformationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-information', 'Submit');
-                    $('#contact-information-modal').modal('hide');
+                    $('#contact-information-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-information-table');
                     contactInformationSummary();
                     resetModalForm('contact-information-form');
@@ -2693,7 +2653,7 @@ function employeeAddressForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2758,7 +2718,7 @@ function employeeAddressForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-address', 'Submit');
-                    $('#contact-address-modal').modal('hide');
+                    $('#contact-address-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-address-table');
                     employeeAddressSummary();
                     resetModalForm('contact-address-form');
@@ -2776,7 +2736,7 @@ function employeeIdentificationForm(){
             id_type_id: {
                 required: true
             },
-            id_number: {
+            contact_id_number: {
                 required: true
             }
         },
@@ -2784,12 +2744,12 @@ function employeeIdentificationForm(){
             id_type_id: {
                 required: 'Please choose the ID type'
             },
-            id_number: {
+            contact_id_number: {
                 required: 'Please enter the ID number'
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2854,7 +2814,7 @@ function employeeIdentificationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-identification', 'Submit');
-                    $('#contact-identification-modal').modal('hide');
+                    $('#contact-identification-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-identification-table');
                     employeeIdentificationSummary();
                     resetModalForm('contact-identification-form');
@@ -2891,7 +2851,7 @@ function employeeEducationalBackgroundForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -2956,7 +2916,7 @@ function employeeEducationalBackgroundForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-educational-background', 'Submit');
-                    $('#contact-educational-background-modal').modal('hide');
+                    $('#contact-educational-background-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-educational-background-table');
                     employeeEducationalBackgroundSummary();
                     resetModalForm('contact-educational-background-form');
@@ -2993,7 +2953,7 @@ function employeeFamilyBackgroundForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3058,7 +3018,7 @@ function employeeFamilyBackgroundForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-family-background', 'Submit');
-                    $('#contact-family-background-modal').modal('hide');
+                    $('#contact-family-background-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-family-background-table');
                     employeeFamilyBackgroundSummary();
                     resetModalForm('contact-family-background-form');
@@ -3078,6 +3038,15 @@ function employeeEmergencyContactForm(){
             },
             emergency_contact_relation_id: {
                 required: true
+            },
+            emergency_contact_email: {
+                contactEmergencyContactRequired: true
+            },
+            emergency_contact_mobile: {
+                contactEmergencyContactRequired: true
+            },
+            emergency_contact_telephone: {
+                contactEmergencyContactRequired: true
             }
         },
         messages: {
@@ -3089,7 +3058,7 @@ function employeeEmergencyContactForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3154,7 +3123,7 @@ function employeeEmergencyContactForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-emergency-contact', 'Submit');
-                    $('#contact-emergency-contact-modal').modal('hide');
+                    $('#contact-emergency-contact-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-emergency-contact-table');
                     employeeEmergencyContactSummary();
                     resetModalForm('contact-emergency-contact-form');
@@ -3185,7 +3154,7 @@ function employeeTrainingForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3250,7 +3219,7 @@ function employeeTrainingForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-training', 'Submit');
-                    $('#contact-training-modal').modal('hide');
+                    $('#contact-training-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-training-table');
                     employeeTrainingSummary();
                     resetModalForm('contact-training-form');
@@ -3275,7 +3244,7 @@ function employeeSkillsForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3340,7 +3309,7 @@ function employeeSkillsForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-skills', 'Submit');
-                    $('#contact-skills-modal').modal('hide');
+                    $('#contact-skills-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-skills-table');
                     employeeSkillsSummary();
                     resetModalForm('contact-skills-form');
@@ -3365,7 +3334,7 @@ function employeeTalentsForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3430,7 +3399,7 @@ function employeeTalentsForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-talents', 'Submit');
-                    $('#contact-talents-modal').modal('hide');
+                    $('#contact-talents-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-talents-table');
                     employeeTalentsSummary();
                     resetModalForm('contact-talents-form');
@@ -3455,7 +3424,7 @@ function employeeHobbyForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -3520,7 +3489,7 @@ function employeeHobbyForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-contact-hobby', 'Submit');
-                    $('#contact-hobby-modal').modal('hide');
+                    $('#contact-hobby-offcanvas').offcanvas('hide');
                     reloadDatatable('#contact-hobby-table');
                     employeeHobbySummary();
                     resetModalForm('contact-hobby-form');

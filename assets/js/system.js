@@ -23,13 +23,6 @@
             });
         }
 
-        /*if($('.range-slider').length){
-            var range_sliders = document.querySelectorAll('.range-slider');
-            range_sliders.forEach(function(element) {
-                var slider = new Slider(element, {});
-            });
-        }*/
-
         if($('.filter-datepicker').length){
             var filter_date_pickers = document.querySelectorAll('.filter-datepicker');
             filter_date_pickers.forEach(function(element) {
@@ -47,6 +40,16 @@
             $('.modal-select2').each(function() {
                 $(this).select2({
                   dropdownParent: $(this).closest('.modal')
+                }).on("select2:close", function () {
+                    $(this).valid();
+                });
+            });
+        }
+
+        if($('.offcanvas-select2').length){
+            $('.offcanvas-select2').each(function() {
+                $(this).select2({
+                  dropdownParent: $(this).closest('.offcanvas')
                 }).on("select2:close", function () {
                     $(this).valid();
                 });

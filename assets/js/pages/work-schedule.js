@@ -31,8 +31,6 @@
 
             $(document).on('click','#add-fixed-working-hours',function() {
                 resetModalForm('fixed-working-hours-form');
-
-                $('#fixed-working-hours-modal').modal('show');
             });
 
             $(document).on('click','.update-fixed-working-hours',function() {
@@ -41,8 +39,6 @@
                 sessionStorage.setItem('work_hours_id', work_hours_id);
                 
                 displayDetails('get fixed work hours details');
-        
-                $('#fixed-working-hours-modal').modal('show');
             });
 
             $(document).on('click','.delete-fixed-working-hours',function() {
@@ -783,7 +779,7 @@ function fixedWorkingHoursForm(){
                         const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        $('#fixed-working-hours-modal').modal('hide');
+                        $('#fixed-working-hours-offcanvas').offcanvas('hide');
                         resetModalForm('fixed-working-hours-form');
                     }
                     else {
@@ -894,7 +890,7 @@ function flexibleWorkingHoursForm(){
                         const notificationDescription = response.insertRecord ? 'The working hours has been inserted successfully.' : 'The working hours has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        $('#flexible-working-hours-modal').modal('hide');
+                        $('#flexible-working-hours-offcanvas').offcanvas('hide');
                         resetModalForm('flexible-working-hours-form');
                     }
                     else {

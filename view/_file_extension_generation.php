@@ -53,14 +53,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         
                     $update = '';
                     if($fileExtensionWriteAccess['total'] > 0 && $fileTypeWriteAccess['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-file-extension form-edit" data-file-extension-id="'. $fileExtensionID .'" title="Edit File Extension">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-file-extension" type="button" data-bs-toggle="offcanvas" data-bs-target="#file-extension-offcanvas" aria-controls="file-extension-offcanvas" data-file-extension-id="'. $fileExtensionID .'" title="Edit File Extension">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>';
                     }
 
                     $delete = '';
                     if($fileExtensionDeleteAccess['total'] > 0 && $fileTypeWriteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-file-extension form-edit" data-file-extension-id="'. $fileExtensionID .'" title="Delete File Extension">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-file-extension" data-file-extension-id="'. $fileExtensionID .'" title="Delete File Extension">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

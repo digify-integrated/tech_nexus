@@ -41,10 +41,6 @@
                 jobPositionQualificationForm();
             }
 
-            $(document).on('click','#start-job-position-recruitment',function() {    
-                $('#start-job-position-recruitment-modal').modal('show');
-            });
-
             $(document).on('click','#stop-job-position-recruitment',function() {
                 const job_position_id = $('#job-position-id').text();
                 const transaction = 'stop job position recruitment';
@@ -102,8 +98,6 @@
 
             $(document).on('click','#add-job-position-responsibility',function() {
                 resetModalForm('job-position-responsibility-form');
-
-                $('#job-position-responsibility-modal').modal('show');
             });
 
             $(document).on('click','.update-job-position-responsibility',function() {
@@ -112,8 +106,6 @@
                 sessionStorage.setItem('job_position_responsibility_id', job_position_responsibility_id);
                 
                 displayDetails('get job position responsibility details');
-        
-                $('#job-position-responsibility-modal').modal('show');
             });
 
             $(document).on('click','.delete-job-position-responsibility',function() {
@@ -174,8 +166,6 @@
 
             $(document).on('click','#add-job-position-requirement',function() {
                 resetModalForm('job-position-requirement-form');
-
-                $('#job-position-requirement-modal').modal('show');
             });
 
             $(document).on('click','.update-job-position-requirement',function() {
@@ -184,8 +174,6 @@
                 sessionStorage.setItem('job_position_requirement_id', job_position_requirement_id);
                 
                 displayDetails('get job position requirement details');
-        
-                $('#job-position-requirement-modal').modal('show');
             });
 
             $(document).on('click','.delete-job-position-requirement',function() {
@@ -246,8 +234,6 @@
 
             $(document).on('click','#add-job-position-qualification',function() {
                 resetModalForm('job-position-qualification-form');
-
-                $('#job-position-qualification-modal').modal('show');
             });
 
             $(document).on('click','.update-job-position-qualification',function() {
@@ -256,8 +242,6 @@
                 sessionStorage.setItem('job_position_qualification_id', job_position_qualification_id);
                 
                 displayDetails('get job position qualification details');
-        
-                $('#job-position-qualification-modal').modal('show');
             });
 
             $(document).on('click','.delete-job-position-qualification',function() {
@@ -962,7 +946,7 @@ function jobPositionResponsibilityForm(){
                 },
                 complete: function() {
                    enableFormSubmitButton('submit-job-position-responsibility-form', 'Submit');
-                    $('#job-position-responsibility-modal').modal('hide');
+                    $('#job-position-responsibility-offcanvas').offcanvas('hide');
                     reloadDatatable('#job-position-responsibility-table');
                     resetModalForm('job-position-responsibility-form');
                 }
@@ -1051,7 +1035,7 @@ function jobPositionRequirementForm(){
                 },
                 complete: function() {
                    enableFormSubmitButton('submit-job-position-requirement-form', 'Submit');
-                    $('#job-position-requirement-modal').modal('hide');
+                    $('#job-position-requirement-offcanvas').offcanvas('hide');;
                     reloadDatatable('#job-position-requirement-table');
                     resetModalForm('job-position-requirement-form');
                 }
@@ -1140,7 +1124,7 @@ function jobPositionQualificationForm(){
                 },
                 complete: function() {
                    enableFormSubmitButton('submit-job-position-qualification-form', 'Submit');
-                    $('#job-position-qualification-modal').modal('hide');
+                    $('#job-position-qualification-offcanvas').offcanvas('hide');
                     reloadDatatable('#job-position-qualification-table');
                     resetModalForm('job-position-qualification-form');
                 }

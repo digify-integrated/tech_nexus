@@ -65,7 +65,7 @@
   </div>
 <?php
   if($fileExtensionCreateAccess['total'] > 0){
-    $file_extension_create = '<button type="button" class="btn btn-warning" id="add-file-extension">Add File Extension</button>';
+    $fileExtensionCreate = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#file-extension-offcanvas" aria-controls="file-extension-offcanvas" id="add-file-extension">Add File Extension</button>';
   }
             
   echo '<div class="col-lg-12">
@@ -76,7 +76,7 @@
                   <h5>File Extension</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                  '. $file_extension_create .'
+                  '. $fileExtensionCreate .'
                 </div>
               </div>
             </div>
@@ -113,14 +113,18 @@
         </div>';
 
   if($fileExtensionCreateAccess['total'] > 0 || $fileExtensionWriteAccess['total'] > 0){
-    echo '<div id="file-extension-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-file-extension-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="modal-file-extension-modal-title">File Extension</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="file-extension-offcanvas" aria-labelledby="file-extension-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="file-extension-offcanvas-label" style="margin-bottom:-0.5rem">File Extension</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This file extension is used to document and categorize various file extensions, aiding in the organization and management of digital files
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="file-extension-form" method="post" action="#">
                     <div class="form-group">
                       <label class="form-label" for="file_extension_name">File Extension Name <span class="text-danger">*</span></label>
@@ -128,14 +132,16 @@
                       <input type="text" class="form-control" id="file_extension_name" name="file_extension_name" maxlength="100" autocomplete="off">
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-file-extension-form" form="file-extension-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-file-extension-form" form="file-extension-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 ?>
 </div>

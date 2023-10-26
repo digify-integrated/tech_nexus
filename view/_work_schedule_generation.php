@@ -116,9 +116,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateWorkHours['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-fixed-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Fixed Work Hours">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-fixed-working-hours" type="button" data-bs-toggle="offcanvas" data-bs-target="#fixed-working-hours-offcanvas" aria-controls="fixed-working-hours-offcanvas" data-work-hours-id="'. $workHoursID .'">
+                            <i class="ti ti-pencil"></i>
+                        </button>';
                     }
 
                     $delete = '';
@@ -180,9 +180,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateWorkHours['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-flexible-working-hours" data-work-hours-id="'. $workHoursID .'" title="Edit Flexible Work Hours">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-flexible-working-hours" type="button" data-bs-toggle="offcanvas" data-bs-target="#flexible-working-hours-offcanvas" aria-controls="flexible-working-hours-offcanvas" data-work-hours-id="'. $workHoursID .'">
+                            <i class="ti ti-pencil"></i>
+                        </button>';
                     }
 
                     $delete = '';

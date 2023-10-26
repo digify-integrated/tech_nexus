@@ -15,7 +15,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end">';
                     
                 if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="start-job-position-recruitment">Start Recruitment</button></li>';
+                  $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#start-job-position-recruitment-offcanvas" aria-controls="start-job-position-recruitment-offcanvas" id="start-job-position-recruitment">Start Recruitment</button></li>';
                 }
                     
                 if ($stopJobPositionRecruitment['total'] > 0 && $recruitmentStatus) {
@@ -103,15 +103,15 @@
 <?php
   if(!empty($jobPositionID)){
     if($addJobPositionResponsibility['total'] > 0){
-      $job_position_responsibility_add = '<button type="button" class="btn btn-warning" id="add-job-position-responsibility">Add Responsibility</button>';
+      $jobPositionResponsibilityAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-responsibility-offcanvas" aria-controls="job-position-responsibility-offcanvas" id="add-job-position-responsibility">Add Responsibility</button>';
     }
 
     if($addJobPositionRequirement['total'] > 0){
-      $job_position_requirement_add = '<button type="button" class="btn btn-warning" id="add-job-position-requirement">Add Requirement</button>';
+      $jobPositionRequirementAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-requirement-offcanvas" aria-controls="job-position-requirement-offcanvas" id="add-job-position-requirement">Add Requirement</button>';
     }
 
     if($addJobPositionQualification['total'] > 0){
-      $job_position_qualification_add = '<button type="button" class="btn btn-warning" id="add-job-position-qualification">Add Qualification</button>';
+      $jobPositionQualificationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-qualification-offcanvas" aria-controls="job-position-qualification-offcanvas" id="add-job-position-qualification">Add Qualification</button>';
     }
 
     echo '<div class="col-lg-12">
@@ -122,7 +122,7 @@
                     <h5>Responsibility</h5>
                   </div>
                   <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    '. $job_position_responsibility_add .'
+                    '. $jobPositionResponsibilityAdd .'
                   </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@
                     <h5>Requirement</h5>
                   </div>
                   <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    '. $job_position_requirement_add .'
+                    '. $jobPositionRequirementAdd .'
                   </div>
                 </div>
               </div>
@@ -176,7 +176,7 @@
                     <h5>Qualification</h5>
                   </div>
                   <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    '. $job_position_qualification_add .'
+                    '. $jobPositionQualificationAdd .'
                   </div>
                 </div>
               </div>
@@ -215,14 +215,18 @@
         </div>';
 
   if($addJobPositionResponsibility['total'] > 0 && $updateJobPositionResponsibility['total'] > 0){
-    echo '<div id="job-position-responsibility-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-responsibility-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-position-responsibility-modal-title">Responsibility</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="job-position-responsibility-offcanvas" aria-labelledby="job-position-responsibility-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="job-position-responsibility-offcanvas-label" style="margin-bottom:-0.5rem">Responsibility</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                The responsibility records and communicates individual job responsibilities, ensuring clarity and alignment between employees and their roles within the organization.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="job-position-responsibility-form" method="post" action="#">
                     <div class="form-group">
                       <label class="form-label" for="responsibility">Responsibility <span class="text-danger">*</span></label>
@@ -230,25 +234,31 @@
                       <textarea class="form-control" id="responsibility" name="responsibility" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-job-position-responsibility-form" form="job-position-responsibility-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-job-position-responsibility-form" form="job-position-responsibility-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 
   if($addJobPositionRequirement['total'] > 0 && $updateJobPositionRequirement['total'] > 0){
-    echo '<div id="job-position-requirement-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-requirement-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-position-requirement-modal-title">Requirement</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="job-position-requirement-offcanvas" aria-labelledby="job-position-requirement-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="job-position-requirement-offcanvas-label" style="margin-bottom:-0.5rem">Requirement</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                The requirement records and communicates individual job requirements, ensuring clarity and alignment between employees and their roles within the organization.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="job-position-requirement-form" method="post" action="#">
                     <div class="form-group">
                       <label class="form-label" for="requirement">Requirement <span class="text-danger">*</span></label>
@@ -256,25 +266,31 @@
                       <textarea class="form-control" id="requirement" name="requirement" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-job-position-requirement-form" form="job-position-requirement-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-job-position-requirement-form" form="job-position-requirement-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 
   if($addJobPositionQualification['total'] > 0 && $updateJobPositionQualification['total'] > 0){
-    echo '<div id="job-position-qualification-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="job-position-qualification-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-position-qualification-modal-title">Qualification</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="job-position-qualification-offcanvas" aria-labelledby="job-position-qualification-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="job-position-qualification-offcanvas-label" style="margin-bottom:-0.5rem">Qualification</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                The requirement records and communicates individual job requirements, ensuring clarity and alignment between employees and their roles within the organization.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="job-position-qualification-form" method="post" action="#">
                     <div class="form-group">
                       <label class="form-label" for="qualification">Qualification <span class="text-danger">*</span></label>
@@ -282,39 +298,47 @@
                       <textarea class="form-control" id="qualification" name="qualification" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-job-position-qualification-form" form="job-position-qualification-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-job-position-qualification-form" form="job-position-qualification-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 
   if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
-    echo '<div id="start-job-position-recruitment-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="start-job-position-recruitment-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-s" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="start-job-position-recruitment-modal-title">Start Job Position Recruitment</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="start-job-position-recruitment-offcanvas" aria-labelledby="start-job-position-recruitment-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="start-job-position-recruitment-offcanvas-label" style="margin-bottom:-0.5rem">Start Job Position Recruitment</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                The requirement records and communicates individual job requirements, ensuring clarity and alignment between employees and their roles within the organization.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="start-job-position-recruitment-form" method="post" action="#">
                     <div class="form-group">
                       <label class="form-label" for="menu_item_name">Expected New Employees <span class="text-danger">*</span></label>
                       <input type="number" class="form-control" id="expected_new_employees" name="expected_new_employees" min="1">
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-start-job-position-recruitment-form" form="start-job-position-recruitment-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
-      }
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-start-job-position-recruitment-form" form="start-job-position-recruitment-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
+  }
 ?>
 </div>

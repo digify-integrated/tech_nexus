@@ -96,8 +96,8 @@
   if(!empty($workScheduleID)){
     if($addWorkingHours['total'] > 0){
       if($workScheduleTypeID == 1){
-        $working_hours_add = '<button type="button" class="btn btn-warning" id="add-fixed-working-hours">Add Working Hours</button>';
-        $working_hours_table = '<table id="fixed-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $workingHoursAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#fixed-working-hours-offcanvas" aria-controls="fixed-working-hours-offcanvas" id="add-fixed-working-hours">Add Working Hours</button>';
+        $workingHoursTable = '<table id="fixed-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Day of Week</th>
@@ -112,8 +112,8 @@
                                 </table>';
       }
       else{
-        $working_hours_add = '<button type="button" class="btn btn-warning" id="add-flexible-working-hours">Add Working Hours</button>';
-        $working_hours_table = '<table id="flexible-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $workingHoursAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#flexible-working-hours-offcanvas" aria-controls="flexible-working-hours-offcanvas" id="add-flexible-working-hours">Add Working Hours</button>';
+        $workingHoursTable = '<table id="flexible-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Work Date</th>
@@ -137,13 +137,13 @@
                     <h5>Working Hours</h5>
                   </div>
                   <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                    '. $working_hours_add .'
+                    '. $workingHoursAdd .'
                   </div>
                 </div>
               </div>
               <div class="card-body">
                 <div class="dt-responsive table-responsive">
-                  '. $working_hours_table .'
+                  '. $workingHoursTable .'
                 </div>
               </div>
             </div>
@@ -169,75 +169,85 @@
 
   if($addWorkingHours['total'] > 0){
     if($workScheduleTypeID == 1){
-      echo '<div id="fixed-working-hours-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="fixed-working-hours-modal" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-r" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="fixed-working-hours-modal-title">Work Hours</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="modal-body">
-                    <form id="fixed-working-hours-form" method="post" action="#">
-                      <div class="form-group row">
-                        <div class="col-lg-6">
-                          <label class="form-label">Day of Week <span class="text-danger">*</span></label>
-                          <input type="hidden" id="work_hours_id" name="work_hours_id">
-                          <select class="form-control modal-select2" name="day_of_week" id="day_of_week">
-                            <option value="">--</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                          </select>
-                        </div>
-                        <div class="col-lg-6">
-                          <label class="form-label">Day Period <span class="text-danger">*</span></label>
-                          <select class="form-control modal-select2" name="day_period" id="day_period">
-                            <option value="">--</option>
-                            <option value="Morning">Morning</option>
-                            <option value="Afternoon">Afternoon</option>
-                            <option value="Evening">Evening</option>
-                          </select>
-                        </div>
+      echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="fixed-working-hours-offcanvas" aria-labelledby="fixed-working-hours-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="fixed-working-hours-offcanvas-label" style="margin-bottom:-0.5rem">Work Hours</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  The employee work hours captures and records essential scheduling information for employees, including the day of the week, time period, start and end times of their work shift, and any relevant notes or comments.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <form id="fixed-working-hours-form" method="post" action="#">
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Day of Week <span class="text-danger">*</span></label>
+                        <input type="hidden" id="work_hours_id" name="work_hours_id">
+                        <select class="form-control modal-select2" name="day_of_week" id="day_of_week">
+                          <option value="">--</option>
+                          <option value="Monday">Monday</option>
+                          <option value="Tuesday">Tuesday</option>
+                          <option value="Wednesday">Wednesday</option>
+                          <option value="Thursday">Thursday</option>
+                          <option value="Friday">Friday</option>
+                          <option value="Saturday">Saturday</option>
+                          <option value="Sunday">Sunday</option>
+                        </select>
                       </div>
-                      <div class="form-group row">
-                        <div class="col-lg-6">
-                          <label class="form-label">Work From <span class="text-danger">*</span></label>
-                          <input class="form-control" id="work_from" name="work_from" type="time">
-                        </div>
-                        <div class="col-lg-6">
-                          <label class="form-label">Work To <span class="text-danger">*</span></label>
-                          <input class="form-control" id="work_to" name="work_to" type="time">
-                        </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Day Period <span class="text-danger">*</span></label>
+                        <select class="form-control modal-select2" name="day_period" id="day_period">
+                          <option value="">--</option>
+                          <option value="Morning">Morning</option>
+                          <option value="Afternoon">Afternoon</option>
+                          <option value="Evening">Evening</option>
+                        </select>
                       </div>
-                      <div class="form-group row">
-                        <div class="col-lg-12">
-                          <label class="form-label">Notes</label>
-                          <textarea class="form-control" id="notes" name="notes" maxlength="1000" rows="5"></textarea>
-                        </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Work From <span class="text-danger">*</span></label>
+                        <input class="form-control" id="work_from" name="work_from" type="time">
                       </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-fixed-working-hours-form" form="fixed-working-hours-form">Submit</button>
-                  </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Work To <span class="text-danger">*</span></label>
+                        <input class="form-control" id="work_to" name="work_to" type="time">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-12">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" maxlength="1000" rows="5"></textarea>
+                      </div>
+                    </div>
+                  </form>
                 </div>
               </div>
-            </div>';
+              <div class="row">
+                <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-fixed-working-hours-form" form="fixed-working-hours-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+              </div>
+            </div>
+          </div>';
     }
     else{
-      echo '<div id="flexible-working-hours-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="flexible-working-hours-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-r" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="flexible-working-hours-modal-title">Work Hours</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="flexible-working-hours-offcanvas" aria-labelledby="flexible-working-hours-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="flexible-working-hours-offcanvas-label" style="margin-bottom:-0.5rem">Work Hours</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  The employee work hours captures and records essential scheduling information for employees, including the day of the week, time period, start and end times of their work shift, and any relevant notes or comments.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="modal-body">
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="flexible-working-hours-form" method="post" action="#">
                     <div class="form-group row">
                       <div class="col-lg-6">
@@ -278,9 +288,11 @@
                     </div>
                   </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-flexible-working-hours-form" form="flexible-working-hours-form">Submit</button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-flexible-working-hours-form" form="flexible-working-hours-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>
             </div>

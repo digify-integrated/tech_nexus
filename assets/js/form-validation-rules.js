@@ -27,3 +27,13 @@ $.validator.addMethod('contactInformationRequired', function(value, element) {
     // The field is considered required only if all three fields are empty
     return !(emailIsEmpty && mobileIsEmpty && telephoneIsEmpty);
 }, 'Please enter either email, mobile, or telephone');
+
+// Rule for contact emergency contact
+$.validator.addMethod('contactEmergencyContactRequired', function(value, element) {
+    var emailIsEmpty = $("#emergency_contact_email").val() === "";
+    var mobileIsEmpty = $("#emergency_contact_mobile").val() === "";
+    var telephoneIsEmpty = $("#emergency_contact_telephone").val() === "";
+
+    // The field is considered required only if all three fields are empty
+    return !(emailIsEmpty && mobileIsEmpty && telephoneIsEmpty);
+}, 'Please enter either email, mobile, or telephone');

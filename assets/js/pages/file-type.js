@@ -23,8 +23,6 @@
 
             $(document).on('click','#add-file-extension',function() {
                 resetModalForm("file-extension-form");
-
-                $('#file-extension-modal').modal('show');
             });
 
             $(document).on('click','.update-file-extension',function() {
@@ -33,8 +31,6 @@
                 sessionStorage.setItem('file_extension_id', file_extension_id);
                 
                 displayDetails('get file extension details');
-        
-                $('#file-extension-modal').modal('show');
             });
 
             $(document).on('click','.delete-file-extension',function() {
@@ -614,7 +610,7 @@ function fileExtensionForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-file-extension-form', 'Submit');
-                    $('#file-extension-modal').modal('hide');
+                    $('#file-extension-offcanvas').offcanvas('hide');
                     reloadDatatable('#file-extension-table');
                     resetModalForm('file-extension-form');
                 }

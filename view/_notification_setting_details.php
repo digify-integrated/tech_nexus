@@ -15,10 +15,10 @@
                               <ul class="dropdown-menu dropdown-menu-end">';
                  
               if ($notificationSettingWriteAccess['total'] > 0) {
-                $dropdown .= '<li><button class="dropdown-item" type="button" id="update-notification-channel">Notification Channel</button></li>
-                              <li><button class="dropdown-item" type="button" id="update-system-notification-template">System Notification Template</button></li>
-                              <li><button class="dropdown-item" type="button" id="update-email-notification-template">Email Notification Template</button></li>
-                              <li><button class="dropdown-item" type="button" id="update-sms-notification-template">SMS Notification Template</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-notification-channel-offcanvas" aria-controls="update-notification-channel-offcanvas" id="update-notification-channel">Notification Channel</button></li>
+                <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-system-notification-template-offcanvas" aria-controls="update-system-notification-template-offcanvas" id="update-system-notification-template">System Notification Template</button></li>
+                <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-email-notification-template-offcanvas" aria-controls="update-email-notification-template-offcanvas" id="update-email-notification-template">Email Notification Template</button></li>
+                <li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-sms-notification-template-offcanvas" aria-controls="update-sms-notification-template-offcanvas" id="update-sms-notification-template">SMS Notification Template</button></li>';
               }
                  
               if ($notificationSettingDuplicateAccess['total'] > 0) {
@@ -100,106 +100,129 @@
         </div>';
     
     if($notificationSettingWriteAccess['total'] > 0){
-      echo '<div id="update-notification-channel-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-notification-channel-modal" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="update-notification-channel-modal-title">Notification Channel</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="update-notification-channel-offcanvas" aria-labelledby="update-notification-channel-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="update-notification-channel-offcanvas-label" style="margin-bottom:-0.5rem">Notification Channel</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  A notification channel table designed to select and document the preferred communication channels for sending notifications or messages within a system or organization.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <table id="update-notification-channel-table" class="table table-striped table-hover table-bordered nowrap w-100">
+                      <thead>
+                        <tr>
+                          <th>Notification Channel</th>
+                          <th>Assign</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
                   </div>
-                  <div class="modal-body" id="modal-body">
-                    <div class="table-responsive dt-responsive">
-                      <table id="update-notification-channel-table" class="table table-striped table-hover table-bordered nowrap w-100">
-                        <thead>
-                          <tr>
-                            <th>Notification Channel</th>
-                            <th>Assign</th>
-                          </tr>
-                        </thead>
-                        <tbody></tbody>
-                      </table>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="update-system-notification-template-offcanvas" aria-labelledby="update-system-notification-template-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="update-system-notification-template-offcanvas-label" style="margin-bottom:-0.5rem">System Notification Template</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This system notification template is used to modify and customize the content and format of system notifications sent to recipients for various purposes, ensuring effective communication and engagement.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <form id="update-system-notification-template-form" method="post" action="#">
+                    <div class="form-group">
+                      <label class="form-label" for="system_notification_title">Title <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" id="system_notification_title" name="system_notification_title" maxlength="200" autocomplete="off">
                     </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  </div>
-                </div>
+                    <div class="form-group">
+                      <label class="form-label" for="system_notification_message">Message <span class="text-danger">*</span></label>
+                      <textarea class="form-control" id="system_notification_message" name="system_notification_message" maxlength="200" rows="5"></textarea>
+                    </div>
+                  </form>
               </div>
             </div>
-            <div id="update-system-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-system-notification-template-modal" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="update-system-notification-template-modal-title">System Notification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="modal-body">
-                    <form id="update-system-notification-template-form" method="post" action="#">
-                      <div class="form-group">
-                        <label class="form-label" for="system_notification_title">Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="system_notification_title" name="system_notification_title" maxlength="200" autocomplete="off">
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label" for="system_notification_message">Message <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="system_notification_message" name="system_notification_message" maxlength="200" rows="5"></textarea>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-update-system-notification-template" form="update-system-notification-template-form">Submit</button>
-                  </div>
-                </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-update-system-notification-template" form="update-system-notification-template-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
               </div>
             </div>
-            <div id="update-email-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-email-notification-template-modal" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="update-email-notification-template-modal-title">Email Notification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body" id="modal-body">
-                    <form id="update-email-notification-template-form" method="post" action="#">
-                      <div class="form-group">
-                        <label class="form-label" for="email_notification_subject">Subject <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="email_notification_subject" name="email_notification_subject" maxlength="200" autocomplete="off">
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label" for="email_notification_body">Body <span class="text-danger">*</span></label>
-                        <textarea id="email_notification_body" name="email_notification_body" class="tox-target tiny-mce"></textarea>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-update-email-notification-template" form="update-email-notification-template-form">Submit</button>
-                  </div>
-                </div>
-              </div>
+          </div>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="update-email-notification-template-offcanvas" aria-labelledby="update-email-notification-template-offcanvas-label">
+          <div class="offcanvas-header">
+            <h2 id="update-email-notification-template-offcanvas-label" style="margin-bottom:-0.5rem">Email Notification Template</h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+            <div class="alert alert-success alert-dismissible mb-4" role="alert">
+              This email notification template is used to modify and customize the content and format of email notifications sent to recipients for various purposes, ensuring effective communication and engagement.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div id="update-sms-notification-template-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="update-sms-notification-template-modal" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="update-sms-notification-template-modal-title">SMS Notification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="row">
+              <div class="col-lg-12">
+                <form id="update-email-notification-template-form" method="post" action="#">
+                  <div class="form-group">
+                    <label class="form-label" for="email_notification_subject">Subject <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="email_notification_subject" name="email_notification_subject" maxlength="200" autocomplete="off">
                   </div>
-                  <div class="modal-body" id="modal-body">
-                    <form id="update-sms-notification-template-form" method="post" action="#">
-                      <div class="form-group">
-                        <label class="form-label" for="sms_notification_message">Message <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="sms_notification_message" name="sms_notification_message" maxlength="500" rows="5"></textarea>
-                      </div>
-                    </form>
+                  <div class="form-group">
+                    <label class="form-label" for="email_notification_body">Body <span class="text-danger">*</span></label>
+                    <textarea id="email_notification_body" name="email_notification_body" class="tox-target tiny-mce"></textarea>
                   </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="submit-update-sms-notification-template" form="update-sms-notification-template-form">Submit</button>
-                  </div>
+                </form>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <button type="submit" class="btn btn-primary" id="submit-update-email-notification-template" form="update-email-notification-template-form">Submit</button>
+              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="offcanvas offcanvas-end" tabindex="-1" id="update-sms-notification-template-offcanvas" aria-labelledby="update-sms-notification-template-offcanvas-label">
+        <div class="offcanvas-header">
+          <h2 id="update-sms-notification-template-offcanvas-label" style="margin-bottom:-0.5rem">SMS Notification Template</h2>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+            This SMS notification template is used to modify and customize the content and format of SMS notifications sent to recipients for various purposes, ensuring effective communication and engagement.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <form id="update-sms-notification-template-form" method="post" action="#">
+                <div class="form-group">
+                  <label class="form-label" for="sms_notification_message">Message <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="sms_notification_message" name="sms_notification_message" maxlength="500" rows="5"></textarea>
                 </div>
-              </div>
-            </div>';
+              </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <button type="submit" class="btn btn-primary" id="submit-update-sms-notification-template" form="update-sms-notification-template-form">Submit</button>
+            <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+          </div>
+        </div>
+      </div>
+    </div>';
     }
 
 ?>

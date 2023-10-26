@@ -109,100 +109,100 @@
                           </div>
                         </li>
                         <li class="list-group-item px-0 py-2">
-                                <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#gender-filter-collapse">
-                                  <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                  Gender
-                                </a>
-                                <div class="collapse show" id="gender-filter-collapse">
-                                  <div class="py-3">
-                                    <?php
-                                      echo $genderModel->generateGenderCheckBox();
-                                    ?>
-                                  </div>
-                                </div>
-                              </li>
-                              <li class="list-group-item px-0 py-2">
-                                <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#civil-status-filter-collapse">
-                                  <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                  Civil Status
-                                </a>
-                                <div class="collapse show" id="civil-status-filter-collapse">
-                                  <div class="py-3">
-                                    <?php
-                                      echo $civilStatusModel->generateCivilStatusCheckBox();
-                                    ?>
-                                  </div>
-                                </div>
-                              </li>
-                              <li class="list-group-item px-0 py-2">
-                                <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#blood-type-filter-collapse">
-                                  <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                  Blood Type
-                                </a>
-                                <div class="collapse show" id="blood-type-filter-collapse">
-                                  <div class="py-3">
-                                    <?php
-                                      echo $bloodTypeModel->generateBloodTypeCheckBox();
-                                    ?>
-                                  </div>
-                                </div>
-                              </li>
-                              <li class="list-group-item px-0 py-2">
-                                <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#religion-filter-collapse">
-                                  <div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                                  Religion
-                                </a>
-                                <div class="collapse show" id="religion-filter-collapse">
-                                  <div class="py-3">
-                                    <?php
-                                      echo $religionModel->generateReligionCheckBox();
-                                    ?>
-                                  </div>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="ecom-content w-100">
-                <div class="card">
-                  <div class="card-body p-3">
-                    <div class="d-sm-flex align-items-center">
-                      <ul class="list-inline me-auto my-1">
-                        <li class="list-inline-item">
-                          <div class="form-search">
-                            <i class="ti ti-search"></i>
-                            <input type="text" class="form-control" id="employee_search" placeholder="Search Employee" />
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#gender-filter-collapse">
+                            <div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            Gender
+                          </a>
+                          <div class="collapse show" id="gender-filter-collapse">
+                            <div class="py-3">
+                              <?php
+                                echo $genderModel->generateGenderCheckBox();
+                              ?>
+                            </div>
                           </div>
                         </li>
-                      </ul>
-                      <ul class="list-inline ms-auto my-1">
-                        <li class="list-inline-item align-bottom">
-                          <a href="#" class="d-xxl-none btn btn-link-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_employee_filter">
-                            <i class="ti ti-filter f-16"></i> Filter
+                        <li class="list-group-item px-0 py-2">
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#civil-status-filter-collapse">
+                            <div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            Civil Status
                           </a>
-                          <a href="#" class="d-none d-xxl-inline-flex btn btn-link-secondary" data-bs-toggle="collapse" data-bs-target="#ecom-filter">
-                            <i class="ti ti-filter f-16"></i> Filter
+                          <div class="collapse show" id="civil-status-filter-collapse">
+                            <div class="py-3">
+                              <?php
+                                echo $civilStatusModel->generateCivilStatusCheckBox();
+                              ?>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#blood-type-filter-collapse">
+                            <div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            Blood Type
                           </a>
+                          <div class="collapse show" id="blood-type-filter-collapse">
+                            <div class="py-3">
+                              <?php
+                                echo $bloodTypeModel->generateBloodTypeCheckBox();
+                              ?>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="list-group-item px-0 py-2">
+                          <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#religion-filter-collapse">
+                            <div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                            Religion
+                          </a>
+                          <div class="collapse show" id="religion-filter-collapse">
+                            <div class="py-3">
+                              <?php
+                                echo $religionModel->generateReligionCheckBox();
+                              ?>
+                            </div>
+                          </div>
                         </li>
                       </ul>
                     </div>
                   </div>
-                </div>
-                <div class="row" id="employee-card"></div>
-                <div class="row" class="d-none" id="load-content">
-                    <div class="col-lg-12 text-center">
-                      <div class="spinner-grow text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                      </div>
-                    </div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- [ sample-page ] end -->
+        </div>
+        <div class="ecom-content w-100">
+          <div class="card">
+            <div class="card-body p-3">
+              <div class="d-sm-flex align-items-center">
+                <ul class="list-inline me-auto my-1">
+                  <li class="list-inline-item">
+                    <div class="form-search">
+                      <i class="ti ti-search"></i>
+                      <input type="text" class="form-control" id="employee_search" placeholder="Search Employee" />
+                    </div>
+                  </li>
+                </ul>
+                <ul class="list-inline ms-auto my-1">
+                  <li class="list-inline-item align-bottom">
+                    <a href="#" class="d-xxl-none btn btn-link-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_employee_filter">
+                      <i class="ti ti-filter f-16"></i> Filter
+                    </a>
+                    <a href="#" class="d-none d-xxl-inline-flex btn btn-link-secondary" data-bs-toggle="collapse" data-bs-target="#ecom-filter">
+                      <i class="ti ti-filter f-16"></i> Filter
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="row" id="employee-card"></div>
+            <div class="row" class="d-none" id="load-content">
+              <div class="col-lg-12 text-center">
+                <div class="spinner-grow text-primary" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

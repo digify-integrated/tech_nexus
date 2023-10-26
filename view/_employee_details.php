@@ -311,52 +311,52 @@
 
         $contactInformationAdd = '';
         if($addEmployeeContactInformation['total'] > 0){
-          $contactInformationAdd = '<button type="button" class="btn btn-warning" id="add-contact-information">Add</button>';
+          $contactInformationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information">Add Contact Information</button>';
         }
 
         $employeeAddressAdd = '';
         if($addEmployeeAddress['total'] > 0){
-          $employeeAddressAdd = '<button type="button" class="btn btn-warning" id="add-contact-address">Add</button>';
+          $employeeAddressAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address">Add Address</button>';
         }
 
         $employeeIdentificationAdd = '';
         if($addEmployeeIdentification['total'] > 0){
-          $employeeIdentificationAdd = '<button type="button" class="btn btn-warning" id="add-contact-identification">Add</button>';
+          $employeeIdentificationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification">Add Employee Identification</button>';
         }
 
         $employeeEducationalBackgroundAdd = '';
         if($addEmployeeEducationalBackground['total'] > 0){
-          $employeeEducationalBackgroundAdd = '<button type="button" class="btn btn-warning" id="add-contact-educational-background">Add</button>';
+          $employeeEducationalBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background">Add Educational Background</button>';
         }
 
         $employeeFamilyBackgroundAdd = '';
         if($addEmployeeFamilyBackground['total'] > 0){
-          $employeeFamilyBackgroundAdd = '<button type="button" class="btn btn-warning" id="add-contact-family-background">Add</button>';
+          $employeeFamilyBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background">Add Family Background</button>';
         }
 
         $employeeEmergencyContactAdd = '';
         if($addEmployeeEmergencyContact['total'] > 0){
-          $employeeEmergencyContactAdd = '<button type="button" class="btn btn-warning" id="add-contact-emergency-contact">Add</button>';
+          $employeeEmergencyContactAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact">Add Emergency Contact</button>';
         }
 
         $employeeTrainingsSeminarsAdd = '';
         if($addEmployeeTrainingsSeminars['total'] > 0){
-          $employeeTrainingsSeminarsAdd = '<button type="button" class="btn btn-warning" id="add-contact-training">Add</button>';
+          $employeeTrainingsSeminarsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training">Add Trainings & Seminars</button>';
         }
 
         $employeeSkillsAdd = '';
         if($addEmployeeSkills['total'] > 0){
-          $employeeSkillsAdd = '<button type="button" class="btn btn-warning" id="add-contact-skills">Add</button>';
+          $employeeSkillsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills">Add Skill</button>';
         }
 
         $employeeTalentsAdd = '';
         if($addEmployeeTalents['total'] > 0){
-          $employeeTalentsAdd = '<button type="button" class="btn btn-warning" id="add-contact-talents">Add</button>';
+          $employeeTalentsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents">Add Talent</button>';
         }
 
         $employeeHobbyAdd = '';
         if($addEmployeeHobby['total'] > 0){
-          $employeeHobbyAdd = '<button type="button" class="btn btn-warning" id="add-contact-hobby">Add</button>';
+          $employeeHobbyAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby">Add Hobby</button>';
         }
 
         $employmentHistoryAdd = '';
@@ -1020,40 +1020,52 @@
               </div>';
 
               if($addEmployeeContactInformation['total'] > 0 || $updateEmployeeContactInformation ['total'] > 0){
-                echo '<div id="contact-information-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-information-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-information-modal-title">Contact Information</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-information-offcanvas" aria-labelledby="contact-information-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-information-offcanvas-label" style="margin-bottom:-0.5rem">Contact Information</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Employee Contact Information collects essential contact details, including Email, Mobile, and Telephone numbers, to maintain accurate and up-to-date communication records for employees.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-information-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label">Contact Information Type <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_information_id" name="contact_information_id">
-                                  <select class="form-control modal-select2" name="contact_information_type_id" id="contact_information_type_id">
-                                    <option value="">--</option>
-                                    '. $contactInformationTypeModel->generateContactInformationTypeOptions() .'
-                                  </select>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Contact Information Type <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_information_id" name="contact_information_id">
+                                    <select class="form-control offcanvas-select2" name="contact_information_type_id" id="contact_information_type_id">
+                                      <option value="">--</option>
+                                      '. $contactInformationTypeModel->generateContactInformationTypeOptions() .'
+                                    </select>
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_information_email">Email</label>
-                                  <input type="email" class="form-control" id="contact_information_email" name="contact_information_email" maxlength="100" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_information_email">Email</label>
+                                    <input type="email" class="form-control" id="contact_information_email" name="contact_information_email" maxlength="100" autocomplete="off">
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_information_mobile">Mobile</label>
-                                  <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_information_telephone">Telephone</label>
-                                  <input type="text" class="form-control" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="contact_information_mobile">Mobile</label>
+                                    <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="contact_information_telephone">Telephone</label>
+                                    <input type="text" class="form-control" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-information" form="contact-information-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1061,39 +1073,51 @@
               }
 
               if($addEmployeeAddress['total'] > 0 || $updateEmployeeAddress['total'] > 0){
-                echo '<div id="contact-address-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-address-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-address-modal-title">Address</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-address-offcanvas" aria-labelledby="contact-address-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-address-offcanvas-label" style="margin-bottom:-0.5rem">Address</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Employee Address collects essential address information, including Address Type (e.g., home or work), the Address itself, and the associated City, to maintain accurate records for employee address.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-address-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label">Address Type <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_address_id" name="contact_address_id">
-                                  <select class="form-control modal-select2" name="address_type_id" id="address_type_id">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Address Type <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_address_id" name="contact_address_id">
+                                    <select class="form-control offcanvas-select2" name="address_type_id" id="address_type_id">
+                                      <option value="">--</option>
+                                      '. $addressTypeModel->generateAddressTypeOptions() .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_address">Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contact_address" name="contact_address" maxlength="1000" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_information_email">City <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="contact_address_city_id" id="contact_address_city_id">
                                     <option value="">--</option>
-                                    '. $addressTypeModel->generateAddressTypeOptions() .'
-                                  </select>
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_address">Address <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="contact_address" name="contact_address" maxlength="1000" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_information_email">City <span class="text-danger">*</span></label>
-                                  <select class="form-control modal-select2" name="contact_address_city_id" id="contact_address_city_id">
-                                  <option value="">--</option>
-                                  '. $cityModel->generateCityOptions() .'
-                                  </select>
+                                    '. $cityModel->generateCityOptions() .'
+                                    </select>
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-address" form="contact-address-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1101,32 +1125,42 @@
               }
 
               if($addEmployeeIdentification['total'] > 0 || $updateEmployeeIdentification['total'] > 0){
-                echo '<div id="contact-identification-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-identification-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-identification-modal-title">Employe Identification</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-identification-offcanvas" aria-labelledby="contact-identification-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-identification-offcanvas-label" style="margin-bottom:-0.5rem">Employee Identification</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Employee Identification captures essential employee information by requesting their ID type and corresponding ID number, ensuring accurate record-keeping and identification within the organization.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-identification-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label">Address Type <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_identification_id" name="contact_identification_id">
-                                  <select class="form-control modal-select2" name="id_type_id" id="id_type_id">
-                                    <option value="">--</option>
-                                    '. $idTypeModel->generateIDTypeOptions() .'
-                                  </select>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">ID Type <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_identification_id" name="contact_identification_id">
+                                    <select class="form-control offcanvas-select2" name="id_type_id" id="id_type_id">
+                                      <option value="">--</option>
+                                      '. $idTypeModel->generateIDTypeOptions() .'
+                                    </select>
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_id_number">ID Number <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="contact_id_number" name="contact_id_number" maxlength="100" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_id_number">ID Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contact_id_number" name="contact_id_number" maxlength="100" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-identification" form="contact-identification-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1134,58 +1168,74 @@
               }
 
               if($addEmployeeEducationalBackground['total'] > 0 || $updateEmployeeEducationalBackground['total'] > 0){
-                echo '<div id="contact-educational-background-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-educational-background-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-educational-background-modal-title">Employe Identification</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-educational-background-offcanvas" aria-labelledby="contact-educational-background-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-educational-background-offcanvas-label" style="margin-bottom:-0.5rem">Educational Background</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Educational Background captures essential information about an individual\'s academic history. It includes fields for Educational Stage, Institution Name, Degree Earned, Field of Study, Start Date, and End Date, providing a concise summary of their educational qualifications and achievements.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-educational-background-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label">Educational Stage <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_educational_background_id" name="contact_educational_background_id">
-                                  <select class="form-control modal-select2" name="educational_stage_id" id="educational_stage_id">
-                                    <option value="">--</option>
-                                    '. $educationalStageModel->generateEducationalStageOptions() .'
-                                  </select>
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_institution_name">Institution Name <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="contact_institution_name" name="contact_institution_name" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_degree_earned">Degree Earned</label>
-                                  <input type="text" class="form-control" id="contact_degree_earned" name="contact_degree_earned" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_field_of_study">Field of Study</label>
-                                  <input type="text" class="form-control" id="contact_field_of_study" name="contact_field_of_study" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label">Start Date <span class="text-danger">*</span></label>
-                                  <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="contact_start_date_attended" name="contact_start_date_attended">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Educational Stage <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_educational_background_id" name="contact_educational_background_id">
+                                    <select class="form-control offcanvas-select2" name="educational_stage_id" id="educational_stage_id">
+                                      <option value="">--</option>
+                                      '. $educationalStageModel->generateEducationalStageOptions() .'
+                                    </select>
                                   </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label">End Date</label>
-                                  <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="contact_end_date_attended" name="contact_end_date_attended">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_institution_name">Institution Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contact_institution_name" name="contact_institution_name" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_degree_earned">Degree Earned</label>
+                                    <input type="text" class="form-control" id="contact_degree_earned" name="contact_degree_earned" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_field_of_study">Field of Study</label>
+                                    <input type="text" class="form-control" id="contact_field_of_study" name="contact_field_of_study" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="contact_start_date_attended" name="contact_start_date_attended" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label">End Date</label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="contact_end_date_attended" name="contact_end_date_attended" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-educational-background" form="contact-educational-background-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1193,53 +1243,67 @@
               }
 
               if($addEmployeeFamilyBackground['total'] > 0 || $updateEmployeeFamilyBackground['total'] > 0){
-                echo '<div id="contact-family-background-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-family-background-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-family-background-modal-title">Family Background</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-family-background-offcanvas" aria-labelledby="contact-family-background-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-family-background-offcanvas-label" style="margin-bottom:-0.5rem">Family Background</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Family Background collects essential information about an individual\'s family members, including their names, relationships, birthdays, and contact details. This helps organizations and institutions better understand an employee or individual\'s personal background and enables efficient communication and emergency contact.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-family-background-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="family_name">Family Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_family_background_id" name="contact_family_background_id">
-                                  <input type="text" class="form-control" id="family_name" name="family_name" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label">Relation <span class="text-danger">*</span></label>
-                                  <select class="form-control modal-select2" name="family_background_relation_id" id="family_background_relation_id">
-                                    <option value="">--</option>
-                                    '. $relationModel->generateRelationOptions() .'
-                                  </select>
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label">Birthday <span class="text-danger">*</span></label>
-                                  <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="family_background_birthday" name="family_background_birthday">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="family_name">Family Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_family_background_id" name="contact_family_background_id">
+                                    <input type="text" class="form-control" id="family_name" name="family_name" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="family_background_email">Email</label>
-                                  <input type="email" class="form-control" id="family_background_email" name="family_background_email" maxlength="100" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Relation <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="family_background_relation_id" id="family_background_relation_id">
+                                      <option value="">--</option>
+                                      '. $relationModel->generateRelationOptions() .'
+                                    </select>
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Birthday <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="family_background_birthday" name="family_background_birthday" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="family_background_mobile">Mobile</label>
-                                  <input type="text" class="form-control" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="family_background_email">Email</label>
+                                    <input type="email" class="form-control" id="family_background_email" name="family_background_email" maxlength="100" autocomplete="off">
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="family_background_telephone">Telephone</label>
-                                  <input type="text" class="form-control" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="family_background_mobile">Mobile</label>
+                                    <input type="text" class="form-control" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="family_background_telephone">Telephone</label>
+                                    <input type="text" class="form-control" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-family-background" form="contact-family-background-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1247,44 +1311,58 @@
               }
 
               if($addEmployeeEmergencyContact['total'] > 0 || $updateEmployeeEmergencyContact['total'] > 0){
-                echo '<div id="contact-emergency-contact-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-emergency-contact-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-emergency-contact-modal-title">Emergency Contact</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-emergency-contact-offcanvas" aria-labelledby="contact-emergency-contact-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-emergency-contact-offcanvas-label" style="margin-bottom:-0.5rem">Emergency Contact</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Emergency Contact is used to collect essential information about an employee\'s designated emergency contact, including their name, relation to the employee, contact email, mobile number, and telephone number. This information ensures quick and effective communication in case of an emergency situation involving the employee.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-emergency-contact-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="emergency_contact_name">Emergency Contact Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_emergency_contact_id" name="contact_emergency_contact_id">
-                                  <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name" maxlength="500" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="emergency_contact_name">Emergency Contact Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_emergency_contact_id" name="contact_emergency_contact_id">
+                                    <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name" maxlength="500" autocomplete="off">
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label">Relation <span class="text-danger">*</span></label>
-                                  <select class="form-control modal-select2" name="emergency_contact_relation_id" id="emergency_contact_relation_id">
-                                    <option value="">--</option>
-                                    '. $relationModel->generateRelationOptions() .'
-                                  </select>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Relation <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="emergency_contact_relation_id" id="emergency_contact_relation_id">
+                                      <option value="">--</option>
+                                      '. $relationModel->generateRelationOptions() .'
+                                    </select>
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="emergency_contact_email">Email</label>
-                                  <input type="email" class="form-control" id="emergency_contact_email" name="emergency_contact_email" maxlength="100" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="emergency_contact_email">Email</label>
+                                    <input type="email" class="form-control" id="emergency_contact_email" name="emergency_contact_email" maxlength="100" autocomplete="off">
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="emergency_contact_mobile">Mobile</label>
-                                  <input type="text" class="form-control" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="20" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="emergency_contact_telephone">Telephone</label>
-                                  <input type="text" class="form-control" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="20" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="emergency_contact_mobile">Mobile</label>
+                                    <input type="text" class="form-control" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="20" autocomplete="off">
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label" for="emergency_contact_telephone">Telephone</label>
+                                    <input type="text" class="form-control" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="20" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-emergency-contact" form="contact-emergency-contact-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1292,42 +1370,56 @@
               }
 
               if($addEmployeeTrainingsSeminars['total'] > 0 || $updateEmployeeTrainingsSeminars['total'] > 0){
-                echo '<div id="contact-training-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-training-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-training-modal-title">Trainings & Seminars</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-training-offcanvas" aria-labelledby="contact-training-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-training-offcanvas-label" style="margin-bottom:-0.5rem">Trainings & Seminars</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Trainings & Seminars captures essential details of training events, including the Training Name, Training Date, Training Location, and Training Provider. This information is used for record-keeping, tracking employee development, and ensuring compliance with organizational training requirements.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-training-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="training_name">Training Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_training_id" name="contact_training_id">
-                                  <input type="text" class="form-control" id="training_name" name="training_name" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label">Training Date <span class="text-danger">*</span></label>
-                                  <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="training_date" name="training_date">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="training_name">Training Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_training_id" name="contact_training_id">
+                                    <input type="text" class="form-control" id="training_name" name="training_name" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="training_location">Training Location</label>
-                                  <input type="text" class="form-control" id="training_location" name="training_location" maxlength="500" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Training Date <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="training_date" name="training_date" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="training_provider">Training Provider</label>
-                                  <input type="text" class="form-control" id="training_provider" name="training_provider" maxlength="500" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="training_location">Training Location</label>
+                                    <input type="text" class="form-control" id="training_location" name="training_location" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="training_provider">Training Provider</label>
+                                    <input type="text" class="form-control" id="training_provider" name="training_provider" maxlength="500" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-training" form="contact-training-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1335,25 +1427,33 @@
               }
 
               if($addEmployeeSkills['total'] > 0 || $updateEmployeeSkills['total'] > 0){
-                echo '<div id="contact-skills-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-skills-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-skills-modal-title">Trainings & Seminars</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-skills-offcanvas" aria-labelledby="contact-skills-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-skills-offcanvas-label" style="margin-bottom:-0.5rem">Skills</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Skills is used to record and manage the skills of an employee within an organization. It includes fields for documenting the name of the skill possessed by the employee.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-skills-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="skills_name">Training Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_skills_id" name="contact_skills_id">
-                                  <input type="text" class="form-control" id="skill_name" name="skill_name" maxlength="500" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="skills_name">Skill Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_skills_id" name="contact_skills_id">
+                                    <input type="text" class="form-control" id="skill_name" name="skill_name" maxlength="500" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-skills" form="contact-skills-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1361,25 +1461,33 @@
               }
 
               if($addEmployeeTalents['total'] > 0 || $updateEmployeeTalents['total'] > 0){
-                echo '<div id="contact-talents-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-talents-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-talents-modal-title">Trainings & Seminars</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-talents-offcanvas" aria-labelledby="contact-talents-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-talents-offcanvas-label" style="margin-bottom:-0.5rem">Talents</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Talents is used to record and track the unique talents of each employee within an organization. It includes fields for Talent Name, allowing the company to identify and leverage individual talents effectively for team and project assignments.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-talents-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="talents_name">Training Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_talents_id" name="contact_talents_id">
-                                  <input type="text" class="form-control" id="talent_name" name="talent_name" maxlength="500" autocomplete="off">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="talents_name">Talent Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_talents_id" name="contact_talents_id">
+                                    <input type="text" class="form-control" id="talent_name" name="talent_name" maxlength="500" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
                             </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-talents" form="contact-talents-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>
@@ -1387,71 +1495,32 @@
               }
 
               if($addEmployeeHobby['total'] > 0 || $updateEmployeeHobby['total'] > 0){
-                echo '<div id="contact-hobby-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-hobby-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-hobby-modal-title">Trainings & Seminars</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-hobby-offcanvas" aria-labelledby="contact-hobby-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-hobby-offcanvas-label" style="margin-bottom:-0.5rem">Hobby</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            The Hobby is used to collect and record an employee\'s hobbies and interests, with a primary field for "Hobby Name" to identify and document their recreational activities.
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
                               <form id="contact-hobby-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="hobby_name">Training Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_hobby_id" name="contact_hobby_id">
-                                  <input type="text" class="form-control" id="hobby_name" name="hobby_name" maxlength="500" autocomplete="off">
+                                <div class="form-group ">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="hobby_name">Hobby Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_hobby_id" name="contact_hobby_id">
+                                    <input type="text" class="form-control" id="hobby_name" name="hobby_name" maxlength="500" autocomplete="off">
+                                  </div>
                                 </div>
                               </form>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                              <button type="submit" class="btn btn-primary" id="submit-contact-hobby" form="contact-hobby-form">Submit</button>
                             </div>
                           </div>
-                        </div>
-                      </div>';
-              }
-
-              if($addEmploymentHistory['total'] > 0 || $updateEmploymentHistory['total'] > 0){
-                echo '<div id="contact-employment-history-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="contact-employment-history-modal-title" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="contact-employment-history-modal-title">Trainings & Seminars</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" id="modal-body">
-                              <form id="contact-employment-history-form" method="post" action="#">
-                                <div class="form-group">
-                                  <label class="form-label" for="employment_history_company">Company Name <span class="text-danger">*</span></label>
-                                  <input type="hidden" id="contact_employment_history_id" name="contact_employment_history_id">
-                                  <input type="text" class="form-control" id="employment_history_company" name="employment_history_company" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="employment_history_address">Addess</label>
-                                  <input type="text" class="form-control" id="employment_history_address" name="employment_history_address" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="contact_numbers">Contact Numbers</label>
-                                  <input type="text" class="form-control" id="contact_numbers" name="contact_numbers" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="last_position_held">Last Position Held <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="last_position_held" name="last_position_held" maxlength="500" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="last_position_held">Starting Salary</label>
-                                  <input type="number" min="0" step="0.01" class="form-control" id="starting_salary" name="starting_salary">
-                                </div>
-                                <div class="form-group">
-                                  <label class="form-label" for="last_position_held">Final Salary</label>
-                                  <input type="number" min="0" step="0.01" class="form-control" id="final_salary" name="final_salary">
-                                </div>
-                              </form>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                              <button type="submit" class="btn btn-primary" id="submit-contact-employment-history" form="contact-employment-history-form">Submit</button>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <button type="submit" class="btn btn-primary" id="submit-contact-hobby" form="contact-hobby-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>
                         </div>

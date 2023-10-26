@@ -118,9 +118,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateJobPositionResponsibility['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-responsibility" data-job-position-responsibility-id="'. $jobPositionResponsibilityID .'" title="Edit Responsibility">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-job-position-responsibility" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-responsibility-offcanvas" aria-controls="job-position-responsibility-offcanvas" data-job-position-responsibility-id="'. $jobPositionResponsibilityID .'" title="Edit Responsibility">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>';
                     }
 
                     $delete = '';
@@ -174,9 +174,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateJobPositionRequirement['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-requirement" data-job-position-requirement-id="'. $jobPositionRequirementID .'" title="Edit Requirement">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-job-position-requirement" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-requirement-offcanvas" aria-controls="job-position-requirement-offcanvas" data-job-position-requirement-id="'. $jobPositionRequirementID .'" title="Edit Requirement">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>';
                     }
 
                     $delete = '';
@@ -230,9 +230,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($updateJobPositionQualification['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-job-position-qualification" data-job-position-qualification-id="'. $jobPositionQualificationID .'" title="Edit Qualification">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-job-position-qualification" type="button" data-bs-toggle="offcanvas" data-bs-target="#job-position-qualification-offcanvas" aria-controls="job-position-qualification-offcanvas" data-job-position-qualification-id="'. $jobPositionQualificationID .'" title="Edit Qualification">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>';
                     }
 
                     $delete = '';

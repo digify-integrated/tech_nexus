@@ -26,7 +26,6 @@
             }
 
             $(document).on('click','#update-notification-channel',function() {   
-                $('#update-notification-channel-modal').modal('show');
                 updateNotificationChannel('#update-notification-channel-table');
             });
 
@@ -77,20 +76,17 @@
                 });
             });
 
-            $(document).on('click','#update-system-notification-template',function() {   
-                $('#update-system-notification-template-modal').modal('show');
+            $(document).on('click','#update-system-notification-template',function() {
                 resetModalForm("update-system-notification-template-form");
                 displayDetails('get system notification template details');
             });
 
-            $(document).on('click','#update-email-notification-template',function() {   
-                $('#update-email-notification-template-modal').modal('show');
+            $(document).on('click','#update-email-notification-template',function() {
                 resetModalForm("update-email-notification-template-form");
                 displayDetails('get email notification template details');
             });
 
-            $(document).on('click','#update-sms-notification-template',function() {   
-                $('#update-sms-notification-template-modal').modal('show');
+            $(document).on('click','#update-sms-notification-template',function() {
                 resetModalForm("update-sms-notification-template-form");
                 displayDetails('get sms notification template details');
             });
@@ -629,7 +625,7 @@ function systemNotificationTemplateForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-update-email-notification-template', 'Submit');
-                    $('#update-system-notification-template-modal').modal('hide');
+                    $('#update-system-notification-template-offcanvas').offcanvas('hide');
                     resetModalForm('update-system-notification-template-form');
                 }
             });
@@ -644,17 +640,11 @@ function emailNotificationTemplateForm(){
         rules: {
             email_notification_subject: {
                 required: true
-            },
-            email_notification_body: {
-                required: true
             }
         },
         messages: {
-            system_notification_title: {
+            email_notification_subject: {
                 required: 'Please enter the subject'
-            },
-            email_notification_body: {
-                required: 'Please enter the body'
             }
         },
         errorPlacement: function (error, element) {
@@ -721,7 +711,7 @@ function emailNotificationTemplateForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-update-email-notification-template', 'Submit');
-                    $('#update-email-notification-template-modal').modal('hide');
+                    $('#update-email-notification-template-offcanvas').offcanvas('hide');
                     resetModalForm('update-email-notification-template-form');
                 }
             });
@@ -807,7 +797,7 @@ function smsNotificationTemplateForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-update-sms-notification-template', 'Submit');
-                    $('#update-sms-notification-template-modal').modal('hide');
+                    $('#update-sms-notification-template-offcanvas').offcanvas('hide');
                     resetModalForm('update-sms-notification-template-form');
                 }
             });
