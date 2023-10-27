@@ -130,7 +130,7 @@
   </div>
 <?php
   if($updateMenuItemRoleAccess['total'] > 0){
-    $menu_item_button = '<button type="button" class="btn btn-warning" id="add-menu-item-role-access">Add Role</button>';
+    $menuItemButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-menu-item-role-access-offcanvas" aria-controls="add-menu-item-role-access-offcanvas" id="add-menu-item-role-access">Assign Role</button>';
   }
 
   echo '<div class="col-lg-12">
@@ -165,7 +165,7 @@
                   <h5>Role Access</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $menu_item_button .'
+                  '. $menuItemButton .'
                 </div>
               </div>
             </div>
@@ -206,34 +206,41 @@
           </div>
         </div>';
 
+  
   if($updateMenuItemRoleAccess['total'] > 0){
-    echo '<div id="add-menu-item-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-menu-item-role-access-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="add-menu-item-role-access-modal-title">Assign Role Access</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-menu-item-role-access-offcanvas" aria-labelledby="add-menu-item-role-access-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="add-menu-item-role-access-offcanvas-label" style="margin-bottom:-0.5rem">Assign Role</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  This table is used to specify and assign authorized roles for various system actions, ensuring controlled access and permissions within the system.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="modal-body">
-                  <form id="add-menu-item-role-access-form" method="post" action="#">
-                    <div class="row">
-                      <div class="col-md-12">
-                        <table id="add-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                          <thead>
-                            <tr>
-                              <th class="all">Role</th>
-                              <th class="all">Assign</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form id="add-menu-item-role-access-form" method="post" action="#">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <table id="add-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                            <thead>
+                              <tr>
+                                <th class="all">Role</th>
+                                <th class="all">Assign</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                  </form>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
                   <button type="submit" class="btn btn-primary" id="submit-add-menu-item-role-access" form="add-menu-item-role-access-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>
             </div>

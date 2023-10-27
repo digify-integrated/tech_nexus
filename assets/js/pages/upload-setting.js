@@ -21,9 +21,7 @@
                 addFileExtensionForm();
             }
 
-            $(document).on('click','#add-file-extension',function() {
-                $('#add-file-extension-modal').modal('show');
-                
+            $(document).on('click','#add-file-extension',function() {                
                 addFileExtensionTable('#add-file-extension-table');
             });
 
@@ -459,7 +457,7 @@ function addFileExtensionTable(datatable_name, buttons = false, show_all = false
         { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -618,7 +616,7 @@ function addFileExtensionForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&upload_setting_id=' + upload_setting_id + '&file_extension_id=' + file_extension_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-add-upload-setting-role-access');
+                    disableFormSubmitButton('submit-add-file-extension');
                 },
                 success: function(response) {
                     if (response.success) {
@@ -641,7 +639,7 @@ function addFileExtensionForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-file-extension', 'Submit');
-                    $('#add-file-extension-modal').modal('hide');
+                    $('#add-file-extension-offcanvas').offcanvas('hide');
                     reloadDatatable('#file-extension-table');
                 }
             });

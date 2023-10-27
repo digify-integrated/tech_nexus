@@ -217,7 +217,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-information" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="'. $contactInformationID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-information" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="'. $contactInformationID .'" title="Edit Contact Information">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -386,7 +386,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-address" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-information-offcanvas" data-contact-address-id="'. $contactAddressID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-address" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-information-offcanvas" data-contact-address-id="'. $contactAddressID .'" title="Edit Contact Address">
                                         <i class="ti ti-pencil"></i>
                                     </button>';
                     }
@@ -548,7 +548,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactIdentification['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-identification" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" data-contact-identification-id="'. $contactIdentificationID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-identification" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Employee Identification">
                                         <i class="ti ti-pencil"></i>
                                     </button>';
                     }
@@ -701,7 +701,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeEducationalBackground['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-educational-background" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-educational-background" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Edit Educational Background">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -846,7 +846,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeFamilyBackground['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-family-background" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" data-contact-family-background-id="'. $contactFamilyBackgroundID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-family-background" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Edit Family Background">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -1000,7 +1000,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeEmergencyContact['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-emergency-contact" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-emergency-contact" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Edit Emergency Contact">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -1149,7 +1149,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeTraining['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-training" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" data-contact-training-id="'. $contactTrainingID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-training" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" data-contact-training-id="'. $contactTrainingID .'" title="Edit Trainings & Seminars">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -1280,7 +1280,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeSkills['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-skills" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" data-contact-skills-id="'. $contactSkillsID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-skills" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" data-contact-skills-id="'. $contactSkillsID .'" title="Edit Skills">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -1396,7 +1396,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeTalents['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-talents" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" data-contact-talents-id="'. $contactTalentsID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-talents" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" data-contact-talents-id="'. $contactTalentsID .'" title="Edit Talents">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }
@@ -1512,7 +1512,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $update = '';
                     if($employeeWriteAccess['total'] > 0 && $updateEmployeeHobby['total'] > 0){
-                        $update = '<button class="btn btn-icon btn-success update-contact-hobby" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" data-contact-hobby-id="'. $contactHobbyID .'">
+                        $update = '<button class="btn btn-icon btn-success update-contact-hobby" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" data-contact-hobby-id="'. $contactHobbyID .'" title="Delete Hobby">
                             <i class="ti ti-pencil"></i>
                         </button>';
                     }

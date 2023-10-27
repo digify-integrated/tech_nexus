@@ -234,16 +234,16 @@
                       <textarea class="form-control" id="responsibility" name="responsibility" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-responsibility-form" form="job-position-responsibility-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-job-position-responsibility-form" form="job-position-responsibility-form">Submit</button>
-                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-              </div>
-            </div>
-          </div>
-        </div>';
+          </div>';
   }
 
   if($addJobPositionRequirement['total'] > 0 && $updateJobPositionRequirement['total'] > 0){
@@ -266,16 +266,16 @@
                       <textarea class="form-control" id="requirement" name="requirement" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-requirement-form" form="job-position-requirement-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-job-position-requirement-form" form="job-position-requirement-form">Submit</button>
-                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-              </div>
-            </div>
-          </div>
-        </div>';
+          </div>';
   }
 
   if($addJobPositionQualification['total'] > 0 && $updateJobPositionQualification['total'] > 0){
@@ -286,7 +286,7 @@
             </div>
             <div class="offcanvas-body">
               <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                The requirement records and communicates individual job requirements, ensuring clarity and alignment between employees and their roles within the organization.
+                The qualification records and communicates individual job qualifications, ensuring clarity and alignment between employees and their roles within the organization.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <div class="row">
@@ -298,16 +298,16 @@
                       <textarea class="form-control" id="qualification" name="qualification" maxlength="1000" rows="5"></textarea>
                     </div>
                   </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <button type="submit" class="btn btn-primary" id="submit-job-position-qualification-form" form="job-position-qualification-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-job-position-qualification-form" form="job-position-qualification-form">Submit</button>
-                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-              </div>
-            </div>
-          </div>
-        </div>';
+          </div>';
   }
 
   if ($startJobPositionRecruitment['total'] > 0 && !$recruitmentStatus) {
@@ -318,7 +318,7 @@
             </div>
             <div class="offcanvas-body">
               <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                The requirement records and communicates individual job requirements, ensuring clarity and alignment between employees and their roles within the organization.
+                The start job position recruitment designed to initiate the hiring process by specifying the number of new employees needed for a particular job position within the organization.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <div class="row">
@@ -329,16 +329,16 @@
                       <input type="number" class="form-control" id="expected_new_employees" name="expected_new_employees" min="1">
                     </div>
                   </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <button type="submit" class="btn btn-primary" id="submit-start-job-position-recruitment-form" form="start-job-position-recruitment-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
               </div>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-start-job-position-recruitment-form" form="start-job-position-recruitment-form">Submit</button>
-                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-              </div>
-            </div>
-          </div>
-        </div>';
+          </div>';
   }
 ?>
 </div>

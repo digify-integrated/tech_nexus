@@ -22,12 +22,7 @@
             }
 
             $(document).on('click','#add-user-account-role',function() {    
-                $('#add-user-account-role-modal').modal('show');
                 addUserAccountRoleTable('#add-user-account-role-table');
-            });
-
-            $(document).on('click','#change-user-account-profile-picture',function() {    
-                $('#change-user-account-profile-picture-modal').modal('show');
             });
 
             $(document).on('click','.delete-user-account-role',function() {
@@ -1229,7 +1224,7 @@ function addUserAccountRoleForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-user-account-role', 'Submit');
-                    $('#add-user-account-role-modal').modal('hide');
+                    $('#add-user-account-role-offcanvas').offcanvas('hide');
                     reloadDatatable('#user-account-role-access-table');
                 }
             });
@@ -1252,10 +1247,10 @@ function changePasswordForm(){
         },
         messages: {
             new_password: {
-              required: 'Please enter your new password'
+              required: 'Please enter the new password'
             },
             confirm_password: {
-              required: 'Please re-enter your password for confirmation',
+              required: 'Please re-enter the password for confirmation',
               equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
             }
         },
@@ -1301,7 +1296,7 @@ function changePasswordForm(){
             success: function(response) {
                 if (response.success) {
                     showNotification('Password Change Success', 'The password has been successfully updated.', 'success');
-                    $('#change-user-account-password-modal').modal('hide');
+                    $('#change-user-account-password-offcanvas').offcanvas('hide');
                     resetModalForm('change-user-account-password-form');
                 }
                 else{

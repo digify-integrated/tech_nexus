@@ -21,8 +21,7 @@
                 addMenuItemRoleAccessForm();
             }
 
-            $(document).on('click','#add-menu-item-role-access',function() {    
-                $('#add-menu-item-role-access-modal').modal('show');
+            $(document).on('click','#add-menu-item-role-access',function() {
                 addMenuItemRoleAccessTable('#add-menu-item-role-access-table');
             });
 
@@ -142,8 +141,7 @@
                 addRoleUserAccountForm();
             }
 
-            $(document).on('click','#add-role-user-account',function() {    
-                $('#add-role-user-account-modal').modal('show');
+            $(document).on('click','#add-role-user-account',function() {
                 addRoleUserAccountTable('#add-role-user-account-table');
             });
 
@@ -214,8 +212,7 @@
                 addSystemActionRoleAccessForm();
             }
 
-            $(document).on('click','#add-system-action-role-access',function() {    
-                $('#add-system-action-role-access-modal').modal('show');
+            $(document).on('click','#add-system-action-role-access',function() {
                 addSystemActionRoleAccessTable('#add-system-action-role-access-table');
             });
 
@@ -569,22 +566,6 @@
                 }
             });
         });
-
-        $(document).on('click','#create-role',function() {
-            resetModalForm("role-configuration-form");
-
-            $('#role-modal').modal('show');
-        });
-
-        $(document).on('click','.update-role',function() {
-            const role_id = $(this).data('role-id');
-    
-            sessionStorage.setItem('role_id', role_id);
-            
-            displayDetails('get role details');
-    
-            $('#role-modal').modal('show');
-        });
     });
 })(jQuery);
 
@@ -840,7 +821,7 @@ function addRoleUserAccountTable(datatable_name, buttons = false, show_all = fal
         { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -894,7 +875,7 @@ function addMenuItemRoleAccessTable(datatable_name, buttons = false, show_all = 
         { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -948,7 +929,7 @@ function addSystemActionRoleAccessTable(datatable_name, buttons = false, show_al
         { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -1124,7 +1105,7 @@ function addRoleUserAccountForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-role-user-account', 'Submit');
-                    $('#add-role-user-account-modal').modal('hide');
+                    $('#add-role-user-account-offcanvas').offcanvas('hide');
                     reloadDatatable('#role-user-account-access-table');
                 }
             });
@@ -1176,7 +1157,7 @@ function addMenuItemRoleAccessForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-menu-item-role-access', 'Submit');
-                    $('#add-menu-item-role-access-modal').modal('hide');
+                    $('#add-menu-item-role-access-offcanvas').offcanvas('hide');
                     reloadDatatable('#update-menu-item-role-access-table');
                 }
             });
@@ -1228,7 +1209,7 @@ function addSystemActionRoleAccessForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-system-action-role-access', 'Submit');
-                    $('#add-system-action-role-access-modal').modal('hide');
+                    $('#add-system-action-role-access-offcanvas').offcanvas('hide');
                     reloadDatatable('#update-system-action-role-access-table');
                 }
             });

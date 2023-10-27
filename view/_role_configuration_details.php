@@ -94,15 +94,15 @@
   </div>
 <?php
   if($assignUserAccountToRole['total'] > 0){
-    $user_account_button = '<button type="button" class="btn btn-warning" id="add-role-user-account">Add User Account</button>';
+    $userAccountButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-role-user-account-offcanvas" aria-controls="add-role-user-account-offcanvas" id="add-role-user-account">Assign User Account</button>';
   }
 
   if($updateMenuItemRoleAccess['total'] > 0){
-    $menu_item_button = '<button type="button" class="btn btn-warning" id="add-menu-item-role-access">Add Menu Item</button>';
+    $menuItemButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-menu-item-role-access-offcanvas" aria-controls="add-menu-item-role-access-offcanvas" id="add-menu-item-role-access">Assign Menu Item Access</button>';
   }
 
   if($updateSystemActionRoleAccess['total'] > 0){
-    $system_action_button = '<button type="button" class="btn btn-warning" id="add-system-action-role-access">Add System Action</button>';
+    $systemActionButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-system-action-role-access-offcanvas" aria-controls="add-system-action-role-access-offcanvas" id="add-system-action-role-access">Assign System Action Access</button>';
   }
 
   echo '<div class="col-lg-12">
@@ -113,7 +113,7 @@
                   <h5>User Account</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $user_account_button .'
+                  '. $userAccountButton .'
                 </div>
               </div>
             </div>
@@ -142,7 +142,7 @@
                   <h5>Menu Item Access</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $menu_item_button .'
+                  '. $menuItemButton .'
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@
                   <h5>System Action Access</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $system_action_button .'
+                  '. $systemActionButton .'
                 </div>
               </div>
             </div>
@@ -212,14 +212,18 @@
         </div>';
 
   if($assignUserAccountToRole['total'] > 0){
-    echo '<div id="add-role-user-account-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-role-user-account-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="add-role-user-account-modal-title">Assign User Account</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-role-user-account-offcanvas" aria-labelledby="add-role-user-account-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="add-role-user-account-offcanvas-label" style="margin-bottom:-0.5rem">Assign User Account</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This table serves as a central repository for assigning user accounts to specific roles, ensuring controlled access and permissions within an organization\'s systems and applications.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="add-role-user-account-form" method="post" action="#">
                     <div class="row">
                       <div class="col-md-12">
@@ -236,25 +240,31 @@
                       </div>
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-add-role-user-account" form="add-role-user-account-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row mt-4">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-add-role-user-account" form="add-role-user-account-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 
   if($updateMenuItemRoleAccess['total'] > 0){
-    echo '<div id="add-menu-item-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-menu-item-role-access-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="add-menu-item-role-access-modal-title">Assign Menu Item Access</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-menu-item-role-access-offcanvas" aria-labelledby="add-menu-item-role-access-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="add-menu-item-role-access-offcanvas-label" style="margin-bottom:-0.5rem">Assign Menu Item Role Access</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This table serves as a central repository for assigning user accounts to specific roles, ensuring controlled access and permissions within an organization\'s systems and applications.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="add-menu-item-role-access-form" method="post" action="#">
                     <div class="row">
                       <div class="col-md-12">
@@ -270,25 +280,31 @@
                       </div>
                     </div>
                   </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-add-menu-item-role-access" form="add-menu-item-role-access-form">Submit</button>
-                </div>
               </div>
             </div>
-          </div>';
+            <div class="row mt-4">
+              <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-add-menu-item-role-access" form="add-menu-item-role-access-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+              </div>
+            </div>
+          </div>
+        </div>';
   }
 
   if($updateSystemActionRoleAccess['total'] > 0){
-    echo '<div id="add-system-action-role-access-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-system-action-role-access-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="add-system-action-role-access-modal-title">Assign System Action Access</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-system-action-role-access-offcanvas" aria-labelledby="add-system-action-role-access-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="add-system-action-role-access-offcanvas-label" style="margin-bottom:-0.5rem">Assign System Action Role Access</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This table serves as a central repository for assigning user accounts to specific roles, ensuring controlled access and permissions within an organization\'s systems and applications.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="add-system-action-role-access-form" method="post" action="#">
                     <div class="row">
                       <div class="col-md-12">
@@ -304,10 +320,12 @@
                       </div>
                     </div>
                   </form>
-                </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col-lg-12">
                 <button type="submit" class="btn btn-primary" id="submit-add-system-action-role-access" form="add-system-action-role-access-form">Submit</button>
+                <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
               </div>
             </div>
           </div>

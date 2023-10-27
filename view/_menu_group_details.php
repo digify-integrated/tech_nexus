@@ -76,7 +76,7 @@
   </div>
 <?php
   if($menuItemCreateAccess['total'] > 0){
-    $menu_item_create = '<button type="button" class="btn btn-warning" id="add-menu-item">Add Menu Item</button>';
+    $menuItemCreate = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu-item-offcanvas" aria-controls="menu-item-offcanvas" id="add-menu-item">Add Menu Item</button>';
   }
 
   echo '<div class="col-lg-12">
@@ -87,7 +87,7 @@
                   <h5>Menu Item</h5>
                 </div>
                 <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
-                  '. $menu_item_create .'
+                  '. $menuItemCreate .'
                 </div>
               </div>
             </div>
@@ -125,44 +125,50 @@
         </div>';
 
   if($menuItemCreateAccess['total'] > 0 || $menuItemWriteAccess['total'] > 0){
-    echo '<div id="menu-item-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="modal-menu-item-modal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="modal-menu-item-modal-title">Menu Item</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="menu-item-offcanvas" aria-labelledby="menu-item-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="menu-item-offcanvas-label" style="margin-bottom:-0.5rem">Menu Item</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  The menu item is a navigational element used to add options or links within a menu group, facilitating easy navigation and access to specific content or features.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="modal-body">
-                  <form id="menu-item-form" method="post" action="#">
-                    <div class="form-group">
-                      <label class="form-label" for="menu_item_name">Name <span class="text-danger">*</span></label>
-                      <input type="hidden" id="menu_item_id" name="menu_item_id">
-                      <input type="text" class="form-control" id="menu_item_name" name="menu_item_name" maxlength="100" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="menu_item_order_sequence">Order Sequence <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" id="menu_item_order_sequence" name="menu_item_order_sequence" min="0">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="menu_item_url">URL</label>
-                      <input type="text" class="form-control" id="menu_item_url" name="menu_item_url" maxlength="50" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label" for="menu_item_icon">Icon</label>
-                      <input type="text" class="form-control" id="menu_item_icon" name="menu_item_icon" maxlength="150" autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Parent Menu Item</label>
-                      <select class="form-control modal-select2" name="parent_id" id="parent_id">
-                        <option value="">--</option>
-                        '. $menuItemModel->generateMenuItemOptions() .'
-                      </select>
-                    </div>
-                  </form>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form id="menu-item-form" method="post" action="#">
+                      <div class="form-group">
+                        <label class="form-label" for="menu_item_name">Name <span class="text-danger">*</span></label>
+                        <input type="hidden" id="menu_item_id" name="menu_item_id">
+                        <input type="text" class="form-control" id="menu_item_name" name="menu_item_name" maxlength="100" autocomplete="off">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="menu_item_order_sequence">Order Sequence <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="menu_item_order_sequence" name="menu_item_order_sequence" min="0">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="menu_item_url">URL</label>
+                        <input type="text" class="form-control" id="menu_item_url" name="menu_item_url" maxlength="50" autocomplete="off">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="menu_item_icon">Icon</label>
+                        <input type="text" class="form-control" id="menu_item_icon" name="menu_item_icon" maxlength="150" autocomplete="off">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Parent Menu Item</label>
+                        <select class="form-control offcanvas-select2" name="parent_id" id="parent_id">
+                          <option value="">--</option>
+                          '. $menuItemModel->generateMenuItemOptions() .'
+                        </select>
+                      </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
                   <button type="submit" class="btn btn-primary" id="submit-menu-item-form" form="menu-item-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>
             </div>

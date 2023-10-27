@@ -18,7 +18,6 @@
             }
 
             $(document).on('click','#change-mail-password',function() {    
-                $('#change-mail-password-modal').modal('show');
                 resetModalForm('change-mail-password-form');
             });
         }
@@ -529,7 +528,7 @@ function changePasswordForm(){
             success: function(response) {
                 if (response.success) {
                     showNotification('Password Change Success', 'The password has been successfully updated.', 'success');
-                    $('#change-mail-password-modal').modal('hide');
+                    $('#change-mail-password-offcanvas').offcanvas('hide');
                     resetModalForm('change-mail-password-form');
                 }
                 else{

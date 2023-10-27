@@ -121,10 +121,9 @@
                       </thead>
                       <tbody></tbody>
                     </table>
-                  </div>
                 </div>
               </div>
-              <div class="row">
+              <div class="row mt-4">
                 <div class="col-lg-12">
                   <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>

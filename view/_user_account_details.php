@@ -15,7 +15,7 @@
                           <ul class="dropdown-menu dropdown-menu-end">';
       
               if ($changeUserAccountPassword['total'] > 0) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="change-user-account-password">Change Password</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#change-user-account-password-offcanvas" aria-controls="change-user-account-password-offcanvas" id="change-user-account-password">Change Password</button></li>';
               }
               
               if ($sendResetPasswordInstructions['total'] > 0) {
@@ -100,11 +100,11 @@
   </div>
 <?php
   if($assignRoleToUserAccount['total'] > 0){
-    $role_button = '<button type="button" class="btn btn-warning" id="add-user-account-role">Add Role</button>';
+    $roleButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-user-account-role-offcanvas" aria-controls="add-user-account-role-offcanvas" id="add-user-account-role">Assign Role</button>';
   }
 
   if($changeUserAccountProfilePicture['total'] > 0){
-    $image_update = '<form class="user-upload mb-4">
+    $imageUpdate = '<form class="user-upload mb-4">
                         <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="User Image" id="user_image" class="rounded-circle img-fluid wid-70 hei-70">
                         <label for="profile_picture" class="img-avtar-upload">
                           <i class="ti ti-camera f-24 mb-1"></i>
@@ -114,7 +114,7 @@
                       </form>';
   }
   else{
-    $image_update = ' <div class="chat-avtar d-inline-flex mx-auto mb-4">
+    $imageUpdate = ' <div class="chat-avtar d-inline-flex mx-auto mb-4">
                         <img class="rounded-circle img-fluid wid-70 hei-70" id="user_image" src="'. DEFAULT_AVATAR_IMAGE .'" alt="User image">
                       </div>';
   }
@@ -126,7 +126,7 @@
             </div>
             <div class="card-body">
               <div class="text-center mb-4">
-                '. $image_update .'
+                '. $imageUpdate .'
                 <div class="row g-3">
                   <div class="col-4">
                     <h6 class="mb-0" id="password_expiry_date_label"></h6>
@@ -185,7 +185,7 @@
                   <h5>Role</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                '. $role_button .'
+                '. $roleButton .'
                 </div>
               </div>
             </div>
@@ -222,51 +222,61 @@
       </div>';
 
   if($assignRoleToUserAccount['total'] > 0){
-      echo '<div id="add-user-account-role-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-user-account-role-modal-title" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="add-user-account-role-modal-title">Assign User Account</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-user-account-role-offcanvas" aria-labelledby="add-user-account-role-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="add-user-account-role-offcanvas-label" style="margin-bottom:-0.5rem">Assign Role</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This table serves as a record of roles not assigned to user account, ensuring proper access and permissions management within an organization\'s system.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <form id="add-user-account-role-form" method="post" action="#">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <table id="add-user-account-role-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                          <thead>
+                            <tr>
+                              <th>Role</th>
+                              <th class="all">Assign</th>
+                            </tr>
+                          </thead>
+                          <tbody></tbody>
+                        </table>
+                      </div>
                     </div>
-                    <div class="modal-body" id="modal-body">
-                      <form id="add-user-account-role-form" method="post" action="#">
-                        <div class="row">
-                          <div class="col-md-12">
-                            <table id="add-user-account-role-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                              <thead>
-                                <tr>
-                                  <th>Role</th>
-                                  <th class="all">Assign</th>
-                                </tr>
-                              </thead>
-                              <tbody></tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-primary" id="submit-add-user-account-role" form="add-user-account-role-form">Submit</button>
-                    </div>
-                  </div>
+                  </form>
                 </div>
-              </div>';
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-add-user-account-role" form="add-user-account-role-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+              </div>
+            </div>
+          </div>';
   }
 
   if($changeUserAccountPassword['total'] > 0){
-    echo '<div id="change-user-account-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="change-user-account-password-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="change-user-account-password-title">Change Password</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="change-user-account-password-offcanvas" aria-labelledby="change-user-account-password-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="change-user-account-password-offcanvas-label" style="margin-bottom:-0.5rem">Change Password</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This form allows users to change their account password, ensuring it meets security requirements, including a minimum length and a combination of lowercase, uppercase letters, numbers, and special characters.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
                   <form id="change-user-account-password-form" method="post" action="#">
                     <div class="row">
-                      <div class="col-sm-6">
+                      <div class="col-sm-12">
                         <div class="form-group">
                           <label class="form-label">New Password <span class="text-danger">*</span></label>
                           <input type="password" class="form-control" id="new_password" name="new_password">
@@ -276,26 +286,18 @@
                           <input type="password" class="form-control" id="confirm_password" name="confirm_password">
                         </div>
                       </div>
-                      <div class="col-sm-6">
-                        <h5>New password must contain:</h5>
-                        <ul class="list-group list-group-flush">
-                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 8 characters</li>
-                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 lower letter (a-z)</li>
-                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 uppercase letter(A-Z)</li>
-                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 number (0-9)</li>
-                          <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 special characters</li>
-                        </ul>
-                      </div>
                     </div>
                   </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary" id="submit-change-user-account-password-form" form="change-user-account-password-form">Update Password</button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-change-user-account-password-form" form="change-user-account-password-form">Update Password</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
+              </div>
             </div>
-          </div>
-        </div>';
+          </div>';
   }
 ?>
 </div>

@@ -60,9 +60,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         
                     $update = '';
                     if($menuItemWriteAccess['total'] > 0 && $menuGroupWriteAccess['total'] > 0){
-                        $update = '<button type="button" class="btn btn-icon btn-info update-menu-item" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
-                                            <i class="ti ti-pencil"></i>
-                                        </button>';
+                        $update = '<button class="btn btn-icon btn-success update-menu-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu-item-offcanvas" aria-controls="menu-item-offcanvas" data-menu-item-id="'. $menuItemID .'" title="Edit Menu Item">
+                                        <i class="ti ti-pencil"></i>
+                                    </button>';
                     }
 
                     $delete = '';

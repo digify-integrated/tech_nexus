@@ -6453,7 +6453,7 @@ textarea.is-invalid.dataTable-input {
 }
 .offcanvas, .offcanvas-xxl, .offcanvas-xl, .offcanvas-lg, .offcanvas-md, .offcanvas-sm {
   --bs-offcanvas-zindex: 1045;
-  --bs-offcanvas-width: 600px;
+  --bs-offcanvas-width: 700px;
   --bs-offcanvas-height: 33vh;
   --bs-offcanvas-padding-x: 1.25rem;
   --bs-offcanvas-padding-y: 1.25rem;

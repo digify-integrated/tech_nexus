@@ -24,6 +24,59 @@
       </ul>
     </div>
   </div>
+  <?php
+    if($employeeWriteAccess['total'] > 0){
+      $contactInformationAdd = '';
+      if($addEmployeeContactInformation['total'] > 0){
+        $contactInformationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information">Add Contact Information</button>';
+      }
+
+      $employeeAddressAdd = '';
+      if($addEmployeeAddress['total'] > 0){
+        $employeeAddressAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address">Add Address</button>';
+      }
+
+      $employeeIdentificationAdd = '';
+      if($addEmployeeIdentification['total'] > 0){
+        $employeeIdentificationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification">Add Employee Identification</button>';
+      }
+
+      $employeeEducationalBackgroundAdd = '';
+      if($addEmployeeEducationalBackground['total'] > 0){
+        $employeeEducationalBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background">Add Educational Background</button>';
+      }
+
+      $employeeFamilyBackgroundAdd = '';
+      if($addEmployeeFamilyBackground['total'] > 0){
+        $employeeFamilyBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background">Add Family Background</button>';
+      }
+
+      $employeeEmergencyContactAdd = '';
+      if($addEmployeeEmergencyContact['total'] > 0){
+        $employeeEmergencyContactAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact">Add Emergency Contact</button>';
+      }
+
+      $employeeTrainingsSeminarsAdd = '';
+      if($addEmployeeTrainingsSeminars['total'] > 0){
+        $employeeTrainingsSeminarsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training">Add Trainings & Seminars</button>';
+      }
+
+      $employeeSkillsAdd = '';
+      if($addEmployeeSkills['total'] > 0){
+        $employeeSkillsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills">Add Skill</button>';
+      }
+
+      $employeeTalentsAdd = '';
+      if($addEmployeeTalents['total'] > 0){
+        $employeeTalentsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents">Add Talent</button>';
+      }
+
+      $employeeHobbyAdd = '';
+      if($addEmployeeHobby['total'] > 0){
+        $employeeHobbyAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby">Add Hobby</button>';
+      }
+    }
+  ?>
   <div class="tab-content">
     <div class="tab-pane show active" id="profile-tab-content" role="tabpanel" aria-labelledby="profile-tab">
       <div class="row">
@@ -242,7 +295,14 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Contact Information</h5>
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Contact Information</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <?php echo $contactInformationAdd; ?>
+                </div>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-information-summary">
@@ -251,7 +311,14 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Address</h5>
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h5>Address</h5>
+                </div>
+                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                  <?php echo $employeeAddressAdd; ?>
+                </div>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-address-summary">
@@ -309,55 +376,8 @@
     <?php 
        if($employeeWriteAccess['total'] > 0){
 
-        $contactInformationAdd = '';
-        if($addEmployeeContactInformation['total'] > 0){
-          $contactInformationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information">Add Contact Information</button>';
-        }
-
-        $employeeAddressAdd = '';
-        if($addEmployeeAddress['total'] > 0){
-          $employeeAddressAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address">Add Address</button>';
-        }
-
-        $employeeIdentificationAdd = '';
-        if($addEmployeeIdentification['total'] > 0){
-          $employeeIdentificationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification">Add Employee Identification</button>';
-        }
-
-        $employeeEducationalBackgroundAdd = '';
-        if($addEmployeeEducationalBackground['total'] > 0){
-          $employeeEducationalBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background">Add Educational Background</button>';
-        }
-
-        $employeeFamilyBackgroundAdd = '';
-        if($addEmployeeFamilyBackground['total'] > 0){
-          $employeeFamilyBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background">Add Family Background</button>';
-        }
-
-        $employeeEmergencyContactAdd = '';
-        if($addEmployeeEmergencyContact['total'] > 0){
-          $employeeEmergencyContactAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact">Add Emergency Contact</button>';
-        }
-
-        $employeeTrainingsSeminarsAdd = '';
-        if($addEmployeeTrainingsSeminars['total'] > 0){
-          $employeeTrainingsSeminarsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training">Add Trainings & Seminars</button>';
-        }
-
-        $employeeSkillsAdd = '';
-        if($addEmployeeSkills['total'] > 0){
-          $employeeSkillsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills">Add Skill</button>';
-        }
-
-        $employeeTalentsAdd = '';
-        if($addEmployeeTalents['total'] > 0){
-          $employeeTalentsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents">Add Talent</button>';
-        }
-
-        $employeeHobbyAdd = '';
-        if($addEmployeeHobby['total'] > 0){
-          $employeeHobbyAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby">Add Hobby</button>';
-        }
+       
+        
 
         $employmentHistoryAdd = '';
         if($addEmploymentHistory['total'] > 0){

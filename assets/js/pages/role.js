@@ -133,8 +133,7 @@
                 addRoleUserAccountForm();
             }
 
-            $(document).on('click','#add-role-user-account',function() {    
-                $('#add-role-user-account-modal').modal('show');
+            $(document).on('click','#add-role-user-account',function() {
                 addRoleUserAccountTable('#add-role-user-account-table');
             });
 
@@ -491,16 +490,6 @@
 
             enableForm();
         });
-
-        $(document).on('click','.update-role',function() {
-            const role_id = $(this).data('role-id');
-    
-            sessionStorage.setItem('role_id', role_id);
-            
-            displayDetails('get role details');
-    
-            $('#role-modal').modal('show');
-        });
     });
 })(jQuery);
 
@@ -752,7 +741,7 @@ function addRoleUserAccountTable(datatable_name, buttons = false, show_all = fal
         { 'width': '10%', 'bSortable': false, 'aTargets': 2 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -877,7 +866,6 @@ function roleForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
-                    $('#role-modal').modal('hide');
                     reloadDatatable('#role-table');
                     resetModalForm('role-form');
                 }
@@ -931,7 +919,7 @@ function addRoleUserAccountForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-role-user-account', 'Submit');
-                    $('#add-role-user-account-modal').modal('hide');
+                    $('#add-role-user-account-offcanvas').offcanvas('hide');
                     reloadDatatable('#role-user-account-access-table');
                 }
             });

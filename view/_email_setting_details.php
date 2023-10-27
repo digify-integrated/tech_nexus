@@ -15,7 +15,7 @@
                               <ul class="dropdown-menu dropdown-menu-end">';
 
                 if ($emailSettingWriteAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="change-mail-password">Change Password</button></li>';
+                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#change-mail-password-offcanvas" aria-controls="change-mail-password-offcanvas" id="change-mail-password">Change Password</button></li>';
                 }
                     
                 if ($emailSettingDuplicateAccess['total'] > 0) {
@@ -202,46 +202,42 @@
         </div>';
     
     if($emailSettingWriteAccess['total'] > 0){
-        echo '<div id="change-mail-password-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="change-mail-password-title" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="change-mail-password-title">Change Password</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="change-mail-password-form" method="post" action="#">
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label class="form-label">New Password <span class="text-danger">*</span></label>
-                                                <input type="password" class="form-control" id="new_password" name="new_password">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <h5>New password must contain:</h5>
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 8 characters</li>
-                                                <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 lower letter (a-z)</li>
-                                                <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 uppercase letter(A-Z)</li>
-                                                <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 number (0-9)</li>
-                                                <li class="list-group-item"><i class="ti ti-circle-check text-success f-16 me-2"></i> At least 1 special characters</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" id="submit-change-mail-password-form" form="change-mail-password-form">Update Password</button>
-                            </div>
+      echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="change-mail-password-offcanvas" aria-labelledby="change-mail-password-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="change-mail-password-offcanvas-label" style="margin-bottom:-0.5rem">Change Password</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  This form allows users to change the email setting password, ensuring it meets security requirements, including a minimum length and a combination of lowercase, uppercase letters, numbers, and special characters.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form id="change-mail-password-form" method="post" action="#">
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <div class="form-group">
+                            <label class="form-label">New Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                          </div>
+                          <div class="form-group">
+                            <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                          </div>
                         </div>
-                    </div>
-                </div>';
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-change-mail-password-form" form="change-mail-password-form">Update Password</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                  </div>
+                </div>
+              </div>
+            </div>';
     }
 ?>
 </div>

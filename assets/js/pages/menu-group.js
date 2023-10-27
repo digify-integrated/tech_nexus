@@ -23,8 +23,6 @@
 
             $(document).on('click','#add-menu-item',function() {
                 resetModalForm("menu-item-form");
-
-                $('#menu-item-modal').modal('show');
             });
 
             $(document).on('click','.update-menu-item',function() {
@@ -33,8 +31,6 @@
                 sessionStorage.setItem('menu_item_id', menu_item_id);
                 
                 displayDetails('get menu item details');
-        
-                $('#menu-item-modal').modal('show');
             });
 
             $(document).on('click','.delete-menu-item',function() {
@@ -700,7 +696,7 @@ function menuItemForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-menu-item-form', 'Submit');
-                    $('#menu-item-modal').modal('hide');
+                    $('#menu-item-offcanvas').offcanvas('hide');
                     reloadDatatable('#menu-item-table');
                     resetModalForm('menu-item-form');
                 }

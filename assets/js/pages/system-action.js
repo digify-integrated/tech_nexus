@@ -22,7 +22,6 @@
             }
 
             $(document).on('click','#add-system-action-role-access',function() {    
-                $('#add-system-action-role-access-modal').modal('show');
                 addSystemActionRoleAccessTable('#add-system-action-role-access-table');
             });
 
@@ -530,7 +529,7 @@ function addSystemActionRoleAccessTable(datatable_name, buttons = false, show_al
         { 'width': '10%', 'bSortable': false, 'aTargets': 1 }
     ];
 
-    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
@@ -700,7 +699,7 @@ function addSystemActionRoleAccessForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-add-system-action-role-access', 'Submit');
-                    $('#add-system-action-role-access-modal').modal('hide');
+                    $('#add-system-action-role-access-offcanvas').offcanvas('hide');
                     reloadDatatable('#update-system-action-role-access-table');
                 }
             });

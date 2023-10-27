@@ -6,6 +6,12 @@
         checkNotification();
         maxLength();
 
+        if($('#change-password').length){
+            $(document).on('click','#change-password',function() {    
+                resetModalForm('change-password-shortcut-form');
+            });
+        }
+
         if($('.log-notes-scroll').length){
             new SimpleBar(document.querySelector('.log-notes-scroll'));
         }
@@ -105,7 +111,7 @@
             });
         }
         
-        if($('#change-password-modal').length){
+        if($('#change-password-offcanvas').length){
             $('#change-password-shortcut-form').validate({
                 rules: {
                     shortcut_old_password: {

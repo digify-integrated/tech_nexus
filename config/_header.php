@@ -94,12 +94,12 @@
                                         <span>Settings</span>
                                     </span>
                                 </a>
-                                <a href="javascript:void(0);" id="change-user-password" class="dropdown-item">
+                                <button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#change-password-offcanvas" aria-controls="change-password-offcanvas" id="change-password">
                                     <span>
                                         <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-lock-outline"></use></svg>
                                         <span>Change Password</span>
                                     </span>
-                                </a>
+                                </button>
                                 <hr class="border-secondary border-opacity-50" />
                                 <div class="d-grid mb-3">
                                     <a href="logout.php?logout" class="btn btn-primary"><svg class="pc-icon me-2"><use xlink:href="#custom-logout-1-outline"></use></svg>Logout</a>

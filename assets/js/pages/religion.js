@@ -328,7 +328,7 @@ function religionForm(){
             },
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {

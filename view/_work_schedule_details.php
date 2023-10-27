@@ -186,7 +186,7 @@
                       <div class="col-lg-6">
                         <label class="form-label">Day of Week <span class="text-danger">*</span></label>
                         <input type="hidden" id="work_hours_id" name="work_hours_id">
-                        <select class="form-control modal-select2" name="day_of_week" id="day_of_week">
+                        <select class="form-control offcanvas-select2" name="day_of_week" id="day_of_week">
                           <option value="">--</option>
                           <option value="Monday">Monday</option>
                           <option value="Tuesday">Tuesday</option>
@@ -199,7 +199,7 @@
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Day Period <span class="text-danger">*</span></label>
-                        <select class="form-control modal-select2" name="day_period" id="day_period">
+                        <select class="form-control offcanvas-select2" name="day_period" id="day_period">
                           <option value="">--</option>
                           <option value="Morning">Morning</option>
                           <option value="Afternoon">Afternoon</option>
@@ -262,7 +262,7 @@
                       </div>
                       <div class="col-lg-6">
                         <label class="form-label">Day Period <span class="text-danger">*</span></label>
-                        <select class="form-control modal-select2" name="day_period" id="day_period">
+                        <select class="form-control offcanvas-select2" name="day_period" id="day_period">
                           <option value="">--</option>
                           <option value="Morning">Morning</option>
                           <option value="Afternoon">Afternoon</option>

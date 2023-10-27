@@ -53,7 +53,7 @@
   </div>
 <?php
   if($assignUserAccountToRole['total'] > 0){
-    $user_account_button = '<button type="button" class="btn btn-warning" id="add-role-user-account">Add User Account</button>';
+    $userAccountButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-role-user-account-offcanvas" aria-controls="add-role-user-account-offcanvas" id="add-role-user-account">Assign User Account</button>';
   }
 
   echo '<div class="col-lg-12">
@@ -64,7 +64,7 @@
                   <h5>User Account</h5>
                 </div>
                 <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  '. $user_account_button .'
+                  '. $userAccountButton .'
                 </div>
               </div>
             </div>
@@ -96,7 +96,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="update-menu-item-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                <table id="update-add-role-user-account-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Menu Item</th>
@@ -157,34 +157,40 @@
           </div>';
 
   if($assignUserAccountToRole['total'] > 0){
-    echo '<div id="add-role-user-account-modal" class="modal fade modal-animate anim-fade-in-scale" tabindex="-1" role="dialog" aria-labelledby="add-role-user-account-modal-title" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="add-role-user-account-modal-title">Assign User Account</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-role-user-account-offcanvas" aria-labelledby="add-role-user-account-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="add-role-user-account-offcanvas-label" style="margin-bottom:-0.5rem">Assign User Account</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                  This table serves as a central repository for assigning user accounts to specific roles, ensuring controlled access and permissions within an organization\'s systems and applications.
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="modal-body">
-                  <form id="add-role-user-account-form" method="post" action="#">
-                    <div class="row">
-                      <div class="col-md-12">
-                        <table id="add-role-user-account-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
-                          <thead>
-                            <tr>
-                              <th>User Account</th>
-                              <th class="all">Login</th>
-                              <th class="all">Assign</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form id="add-role-user-account-form" method="post" action="#">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <table id="add-role-user-account-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                            <thead>
+                              <tr>
+                                <th>User Account</th>
+                                <th class="all">Login</th>
+                                <th class="all">Assign</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                  </form>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+              <div class="row mt-4">
+                <div class="col-lg-12">
                   <button type="submit" class="btn btn-primary" id="submit-add-role-user-account" form="add-role-user-account-form">Submit</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>
             </div>
