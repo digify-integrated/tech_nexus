@@ -3598,7 +3598,6 @@ CREATE TABLE employment_information(
 	job_level_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
 	employment_status TINYINT(1) NOT NULL DEFAULT 1,
-    permanency_date DATE,
     onboard_date DATE,
     offboard_date DATE,
     departure_reason_id INT UNSIGNED,

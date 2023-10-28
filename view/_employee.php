@@ -181,6 +181,11 @@
                   </li>
                 </ul>
                 <ul class="list-inline ms-auto my-1">
+                  <?php
+                    if($employeeCreateAccess['total'] > 0){
+                     echo '  <li class="list-inline-item align-bottom"><a href="employee.php?new" class="btn btn-success">Create</a></li>';
+                    }
+                  ?>
                   <li class="list-inline-item align-bottom">
                     <a href="#" class="d-xxl-none btn btn-link-secondary" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_employee_filter">
                       <i class="ti ti-filter f-16"></i> Filter

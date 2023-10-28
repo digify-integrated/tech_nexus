@@ -217,20 +217,12 @@
             displayDetails('get personal information details');
             displayDetails('get employment information details');
 
-            if($('#contact-information-table').length){
-                contactInformationTable('#contact-information-table');
-            }
-
             if($('#contact-information-summary').length){
                 contactInformationSummary();
             }
 
             if($('#contact-information-form').length){
                 contactInformationForm();
-            }
-
-            if($('#contact-address-table').length){
-                employeeAddressTable('#contact-address-table');
             }
 
             if($('#contact-address-summary').length){
@@ -245,20 +237,12 @@
                 employeeIdentificationForm();
             }
 
-            if($('#contact-identification-table').length){
-                employeeIdentificationTable('#contact-identification-table');
-            }
-
             if($('#contact-identification-summary').length){
                 employeeIdentificationSummary();
             }
 
             if($('#contact-educational-background-form').length){
                 employeeEducationalBackgroundForm();
-            }
-
-            if($('#contact-educational-background-table').length){
-                employeeEducationalBackgroundTable('#contact-educational-background-table');
             }
 
             if($('#contact-educational-background-summary').length){
@@ -269,20 +253,12 @@
                 employeeFamilyBackgroundForm();
             }
 
-            if($('#contact-family-background-table').length){
-                employeeFamilyBackgroundTable('#contact-family-background-table');
-            }
-
             if($('#contact-family-background-summary').length){
                 employeeFamilyBackgroundSummary();
             }
 
             if($('#contact-emergency-contact-form').length){
                 employeeEmergencyContactForm();
-            }
-
-            if($('#contact-emergency-contact-table').length){
-                employeeEmergencyContactTable('#contact-emergency-contact-table');
             }
 
             if($('#contact-emergency-contact-summary').length){
@@ -293,20 +269,12 @@
                 employeeTrainingForm();
             }
 
-            if($('#contact-training-table').length){
-                employeeTrainingTable('#contact-training-table');
-            }
-
             if($('#contact-training-summary').length){
                 employeeTrainingSummary();
             }
 
             if($('#contact-skills-form').length){
                 employeeSkillsForm();
-            }
-
-            if($('#contact-skills-table').length){
-                employeeSkillsTable('#contact-skills-table');
             }
 
             if($('#contact-skills-summary').length){
@@ -317,20 +285,12 @@
                 employeeTalentsForm();
             }
 
-            if($('#contact-talents-table').length){
-                employeeTalentsTable('#contact-talents-table');
-            }
-
             if($('#contact-talents-summary').length){
                 employeeTalentsSummary();
             }
 
             if($('#contact-hobby-form').length){
                 employeeHobbyForm();
-            }
-
-            if($('#contact-hobby-table').length){
-                employeeHobbyTable('#contact-hobby-table');
             }
 
             if($('#contact-hobby-summary').length){
@@ -2388,6 +2348,7 @@ function personalInformationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-personal-information-data', 'Save');
+                    $('#personal-information-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2521,6 +2482,7 @@ function employmentInformationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-employment-information-data', 'Save');
+                    $('#employment-information-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -3587,7 +3549,6 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#badge_id').val(response.badgeID);
                         $('#onboard_date').val(response.onboardDate);
-                        $('#permanency_date').val(response.permanencyDate);
 
                         document.getElementById('employee-status-badge').innerHTML = response.isActiveBadge;
 
@@ -3598,7 +3559,6 @@ function displayDetails(transaction){
                         $('#employee_job_level').text(response.jobLevelName);
                         $('#employee_branch').text(response.branchName);
                         $('#employee_onboard_date').text(response.onboardDate);
-                        $('#employee_permanency_date').text(response.permanencyDate);
 
                         $('#job_position').text(response.jobPositionName);
 

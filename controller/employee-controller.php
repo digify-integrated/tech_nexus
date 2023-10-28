@@ -317,7 +317,6 @@ class EmployeeController {
         $employeeTypeID = htmlspecialchars($_POST['employee_type_id'], ENT_QUOTES, 'UTF-8');
         $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
         $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
-        $permanencyDate = $this->systemModel->checkDate('empty', $_POST['permanency_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -330,13 +329,13 @@ class EmployeeController {
         $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $permanencyDate, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -1739,7 +1738,6 @@ class EmployeeController {
                 'branchID' => $branchID,
                 'branchName' => $branchName,
                 'isActiveBadge' => $isActiveBadge,
-                'permanencyDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['permanency_date'] ?? null, '', 'm/d/Y', ''),
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
             ];
 

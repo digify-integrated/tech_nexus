@@ -7,73 +7,62 @@
             <i class="ti ti-user me-2"></i>Employee Profile
           </a>
         </li>
-        <?php
-          if($employeeWriteAccess['total'] > 0){
-            echo '<li class="nav-item">
-                    <a class="nav-link" id="personal-information-tab" data-bs-toggle="tab" href="#personal-information" role="tab" aria-selected="true">
-                      <i class="ti ti-file-text me-2"></i>Personal Details
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" id="employement-details-tab" data-bs-toggle="tab" href="#employement-details" role="tab" aria-selected="true">
-                      <i class="ti ti-id me-2"></i>Employment Details
-                    </a>
-                  </li>';
-          }
-        ?>
       </ul>
     </div>
   </div>
   <?php
     if($employeeWriteAccess['total'] > 0){
+      $employeePersonalInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
+      $employeeEmploymentInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#employment-information-offcanvas" aria-controls="employment-information-offcanvas" id="update-employment-information"><i class="ti ti-pencil"></i></button>';
+
       $contactInformationAdd = '';
       if($addEmployeeContactInformation['total'] > 0){
-        $contactInformationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information">Add Contact Information</button>';
+        $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeAddressAdd = '';
       if($addEmployeeAddress['total'] > 0){
-        $employeeAddressAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address">Add Address</button>';
+        $employeeAddressAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeIdentificationAdd = '';
       if($addEmployeeIdentification['total'] > 0){
-        $employeeIdentificationAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification">Add Employee Identification</button>';
+        $employeeIdentificationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeEducationalBackgroundAdd = '';
       if($addEmployeeEducationalBackground['total'] > 0){
-        $employeeEducationalBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background">Add Educational Background</button>';
+        $employeeEducationalBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeFamilyBackgroundAdd = '';
       if($addEmployeeFamilyBackground['total'] > 0){
-        $employeeFamilyBackgroundAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background">Add Family Background</button>';
+        $employeeFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeEmergencyContactAdd = '';
       if($addEmployeeEmergencyContact['total'] > 0){
-        $employeeEmergencyContactAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact">Add Emergency Contact</button>';
+        $employeeEmergencyContactAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeTrainingsSeminarsAdd = '';
       if($addEmployeeTrainingsSeminars['total'] > 0){
-        $employeeTrainingsSeminarsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training">Add Trainings & Seminars</button>';
+        $employeeTrainingsSeminarsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeSkillsAdd = '';
       if($addEmployeeSkills['total'] > 0){
-        $employeeSkillsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills">Add Skill</button>';
+        $employeeSkillsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeTalentsAdd = '';
       if($addEmployeeTalents['total'] > 0){
-        $employeeTalentsAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents">Add Talent</button>';
+        $employeeTalentsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents"><i class="ti ti-plus"></i></button>';
       }
 
       $employeeHobbyAdd = '';
       if($addEmployeeHobby['total'] > 0){
-        $employeeHobbyAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby">Add Hobby</button>';
+        $employeeHobbyAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby"><i class="ti ti-plus"></i></button>';
       }
     }
   ?>
@@ -86,21 +75,32 @@
               <div class="position-absolute end-0 top-0 p-3" id="employee-status-badge"></div>
               <div class="text-center mt-3">
                 <div class="chat-avtar d-inline-flex mx-auto">
-                  <img class="rounded-circle img-fluid wid-70 hei-70" id="employee_summary_image" src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="Employee image">
+                  <form class="user-upload mb-4">
+                    <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
+                    <label for="employee_image" class="img-avtar-upload">
+                      <i class="ti ti-camera f-24 mb-1"></i>
+                      <span>Upload</span>
+                    </label>
+                    <input type="file" id="employee_image" name="employee_image" class="d-none">
+                  </form>
                 </div>
                 <h5 class="mb-0" id="employee_name"></h5>
                 <p class="text-muted text-sm" id="job_position"></p>
+                <p class="mb-0" id="employee_bio"></p>
               </div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Employment Details</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Employment Information</h5>
+                <?php echo $employeeEmploymentInformationUpdate; ?>
+              </div>
             </div>
             <div class="card-body">
               <div class="row align-items-center mb-3">
                 <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Badge ID</p>
+                  <p class="mb-0">ID Number</p>
                 </div>
                 <div class="col-sm-6">
                   <div class="d-flex align-items-center">
@@ -182,35 +182,32 @@
                   </div>
                 </div>
               </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Permanency Date</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_permanency_date"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Skills</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Skills</h5>
+                <?php echo $employeeSkillsAdd; ?>
+              </div>
             </div>
             <div class="card-body" id="contact-skills-summary"></div>
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Talents</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Talents</h5>
+                <?php echo $employeeTalentsAdd; ?>
+              </div>
             </div>
             <div class="card-body" id="contact-talents-summary"></div>
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Hobbies</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Hobbies</h5>
+                <?php echo $employeeHobbyAdd; ?>
+              </div>
             </div>
             <div class="card-body" id="contact-hobby-summary"></div>
           </div>
@@ -218,15 +215,10 @@
         <div class="col-lg-7 col-xxl-8">
           <div class="card">
             <div class="card-header">
-              <h5>Employee Bio</h5>
-            </div>
-            <div class="card-body">
-              <p class="mb-0" id="employee_bio"></p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h5>Personal Details</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Personal Details</h5>
+                <?php echo $employeePersonalInformationUpdate; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush">
@@ -295,13 +287,9 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col-md-6">
-                  <h5>Contact Information</h5>
-                </div>
-                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  <?php echo $contactInformationAdd; ?>
-                </div>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Contact Information</h5>
+                <?php echo $contactInformationAdd; ?>
               </div>
             </div>
             <div class="card-body">
@@ -311,13 +299,9 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col-md-6">
-                  <h5>Address</h5>
-                </div>
-                <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                  <?php echo $employeeAddressAdd; ?>
-                </div>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Address</h5>
+                <?php echo $employeeAddressAdd; ?>
               </div>
             </div>
             <div class="card-body">
@@ -327,7 +311,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Employee Identification</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Employee Identification</h5>
+                <?php echo $employeeIdentificationAdd; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-identification-summary">
@@ -336,7 +323,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Educational Background</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Educational Background</h5>
+                <?php echo $employeeEducationalBackgroundAdd; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-educational-background-summary">
@@ -345,7 +335,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Family Background</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Family Background Background</h5>
+                <?php echo $employeeFamilyBackgroundAdd; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-family-background-summary">
@@ -354,7 +347,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Emergency Contact</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Emergency Contact</h5>
+                <?php echo $employeeEmergencyContactAdd; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
@@ -363,7 +359,10 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h5>Trainings & Seminars</h5>
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Trainings & Seminars</h5>
+                <?php echo $employeeTrainingsSeminarsAdd; ?>
+              </div>
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-training-summary">
@@ -375,665 +374,207 @@
     </div>
     <?php 
        if($employeeWriteAccess['total'] > 0){
-
-       
-        
-
-        $employmentHistoryAdd = '';
-        if($addEmploymentHistory['total'] > 0){
-          $employmentHistoryAdd = '<button type="button" class="btn btn-warning" id="add-employment-history">Add</button>';
-        }
-
-        echo '<div class="tab-pane" id="personal-information" role="tabpanel" aria-labelledby="personal-information-tab">
-                <div class="row">
-                  <div class="col-lg-3">
-                    <div class="card">
-                      <div class="card-body">
-                        <ul class="nav flex-column nav-pills" id="v-personal-information-edit-tab" role="tablist" aria-orientation="vertical">
-                          <li><a class="nav-link active" id="v-personal-information-tab" data-bs-toggle="pill" href="#v-personal-information" role="tab" aria-controls="v-personal-information" aria-selected="true">Personal Information</a></li>
-                          <li><a class="nav-link" id="v-contact-information-tab" data-bs-toggle="pill" href="#v-contact-information" role="tab" aria-controls="v-contact-information" aria-selected="false">Contact Information</a></li>
-                          <li><a class="nav-link" id="v-address-tab" data-bs-toggle="pill" href="#v-address" role="tab" aria-controls="v-address" aria-selected="false">Address</a></li>
-                          <li><a class="nav-link" id="v-employee-identification-tab" data-bs-toggle="pill" href="#v-employee-identification" role="tab" aria-controls="v-employee-identification" aria-selected="false">Employee Identification</a></li>
-                          <li><a class="nav-link" id="v-educational-background-tab" data-bs-toggle="pill" href="#v-educational-background" role="tab" aria-controls="v-educational-background" aria-selected="false">Educational Background</a></li>
-                          <li><a class="nav-link" id="v-family-background-tab" data-bs-toggle="pill" href="#v-family-background" role="tab" aria-controls="v-family-background" aria-selected="false">Family Background</a></li>
-                          <li><a class="nav-link" id="v-emergency-contact-tab" data-bs-toggle="pill" href="#v-emergency-contact" role="tab" aria-controls="v-emergency-contact" aria-selected="false">Emergency Contact</a></li>
-                          <li><a class="nav-link" id="v-trainings-tab" data-bs-toggle="pill" href="#v-trainings" role="tab" aria-controls="v-trainings" aria-selected="false">Trainings & Seminars</a></li>
-                          <li><a class="nav-link" id="v-employment-history-tab" data-bs-toggle="pill" href="#v-employment-history" role="tab" aria-controls="v-employment-history" aria-selected="false">Employment History</a></li>
-                          <li><a class="nav-link" id="v-licenses-tab" data-bs-toggle="pill" href="#v-licenses" role="tab" aria-controls="v-licenses" aria-selected="false">Licenses</a></li>
-                          <li><a class="nav-link" id="v-certifications-tab" data-bs-toggle="pill" href="#v-certifications" role="tab" aria-controls="v-certifications" aria-selected="false">Certifications</a></li>
-                          <li><a class="nav-link" id="v-employee-skills-tab" data-bs-toggle="pill" href="#v-employee-skills" role="tab" aria-controls="v-employee-skills" aria-selected="false">Skills</a></li>
-                          <li><a class="nav-link" id="v-employee-talents-tab" data-bs-toggle="pill" href="#v-employee-talents" role="tab" aria-controls="v-employee-talents" aria-selected="false">Talents</a></li>
-                          <li><a class="nav-link" id="v-employee-hobbies-tab" data-bs-toggle="pill" href="#v-employee-hobbies" role="tab" aria-controls="v-employee-hobbies" aria-selected="false">Hobbies</a></li>
-                        </ul>
-                      </div>
+        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="personal-information-offcanvas" aria-labelledby="personal-information-offcanvas-label">
+                <div class="offcanvas-header">
+                  <h2 id="personal-information-offcanvas-label" style="margin-bottom:-0.5rem">Personal Information</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                    This form is used to collect and record essential personal details, ensuring accuracy and completeness in an individual\'s profile within an organization or database. Users can update information such as name, date of birth, and physical attributes.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <form id="personal-information-form" method="post" action="#">
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Middle Name</label>
+                            <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Suffix</label>
+                            <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Nickname</label>
+                            <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Birthday <span class="text-danger">*</span></label>
+                            <div class="input-group date">
+                              <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
+                              <span class="input-group-text">
+                                <i class="feather icon-calendar"></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Birth Place</label>
+                            <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Gender <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="gender" id="gender">
+                              <option value="">--</option>
+                              '. $genderModel->generateGenderOptions() .'
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="civil_status" id="civil_status">
+                              <option value="">--</option>
+                              '. $civilStatusModel->generateCivilStatusOptions() .'
+                            </select>
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Religion</label>
+                            <select class="form-control offcanvas-select2" name="religion" id="religion">
+                              <option value="">--</option>
+                              '. $religionModel->generateReligionOptions() .'
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-4">
+                            <label class="form-label">Blood Type</label>
+                            <select class="form-control offcanvas-select2" name="blood_type" id="blood_type">
+                              <option value="">--</option>
+                              '. $bloodTypeModel->generateBloodTypeOptions() .'
+                            </select>
+                          </div>
+                          <div class="col-lg-4 mt-3 mt-lg-0">
+                            <label class="form-label">Height</label>
+                            <div class="input-group">
+                              <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
+                              <span class="input-group-text">cm</span>
+                            </div>
+                          </div>
+                          <div class="col-lg-4 mt-3 mt-lg-0">
+                            <label class="form-label">Weight</label>
+                            <div class="input-group">
+                              <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
+                              <span class="input-group-text">kg</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-12">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
+                          </div>
+                        </div>
+                      </form>
                     </div>
                   </div>
-                  <div class="col-lg-9">
-                    <div class="tab-content" id="v-personal-information-edit-tab-content">
-                      <div class="tab-pane fade show active" id="v-personal-information" role="tabpanel" aria-labelledby="v-personal-information-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Personal Information</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                  <button type="submit" form="personal-information-form" class="btn btn-success" id="submit-personal-information-data">Save</button>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="row">
-                                  <div class="col-sm-12 text-center mb-3">
-                                    <form class="user-upload mb-4">
-                                      <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
-                                      <label for="employee_image" class="img-avtar-upload">
-                                        <i class="ti ti-camera f-24 mb-1"></i>
-                                        <span>Upload</span>
-                                      </label>
-                                      <input type="file" id="employee_image" name="employee_image" class="d-none">
-                                    </form>
-                                  </div>
-                                </div>
-                                <form id="personal-information-form" method="post" action="#">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="last_name" name="last_name" maxlength="300" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="middle_name" name="middle_name" maxlength="300" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Suffix</label>
-                                        <input type="text" class="form-control" id="suffix" name="suffix" maxlength="10" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Nickname</label>
-                                        <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Birthday <span class="text-danger">*</span></label>
-                                        <div class="input-group date">
-                                            <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
-                                            <span class="input-group-text">
-                                              <i class="feather icon-calendar"></i>
-                                            </span>
-                                          </div>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Birth Place</label>
-                                        <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Gender <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" name="gender" id="gender">
-                                          <option value="">--</option>
-                                          '. $genderModel->generateGenderOptions() .'
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
-                                        <select class="form-control select2" name="civil_status" id="civil_status">
-                                          <option value="">--</option>
-                                          '. $civilStatusModel->generateCivilStatusOptions() .'
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <div class="form-group">
-                                        <label class="form-label">Religion</label>
-                                        <select class="form-control select2" name="religion" id="religion">
-                                          <option value="">--</option>
-                                          '. $religionModel->generateReligionOptions() .'
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-4">
-                                      <div class="form-group">
-                                        <label class="form-label">Blood Type</label>
-                                        <select class="form-control select2" name="blood_type" id="blood_type">
-                                          <option value="">--</option>
-                                          '. $bloodTypeModel->generateBloodTypeOptions() .'
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-4">
-                                      <div class="form-group">
-                                        <label class="form-label">Height</label>
-                                        <div class="input-group">
-                                          <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
-                                          <span class="input-group-text">cm</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-4">
-                                      <div class="form-group">
-                                        <label class="form-label">Weight</label>
-                                        <div class="input-group">
-                                          <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
-                                          <span class="input-group-text">kg</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                      <div class="form-group">
-                                        <label class="form-label">Bio</label>
-                                        <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-contact-information" role="tabpanel" aria-labelledby="v-contact-information-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Contact Information</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $contactInformationAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-information-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Contact Information</th>
-                                        <th>Email</th>
-                                        <th>Mobile</th>
-                                        <th>Telephone</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-address" role="tabpanel" aria-labelledby="v-address-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Address</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeAddressAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-address-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Address Type</th>
-                                        <th>Address</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-employee-identification" role="tabpanel" aria-labelledby="v-employee-identification-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Employee Identification</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeIdentificationAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-identification-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>ID Type</th>
-                                        <th>ID Number</th>
-                                        <th>ID Classification</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-educational-background" role="tabpanel" aria-labelledby="v-educational-background-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Educational Background</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeEducationalBackgroundAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-educational-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Educational Stage</th>
-                                        <th>Institution Name</th>
-                                        <th>Degree Earned</th>
-                                        <th>Field of Study</th>
-                                        <th>Year Attended</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-family-background" role="tabpanel" aria-labelledby="v-family-background-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Family Background</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeFamilyBackgroundAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-family-background-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Name</th>
-                                        <th>Relationship</th>
-                                        <th>Birthday</th>
-                                        <th>Email</th>
-                                        <th>Mobile</th>
-                                        <th>Telephone</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>                        
-                      </div>
-                      <div class="tab-pane fade" id="v-emergency-contact" role="tabpanel" aria-labelledby="v-emergency-contact-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Emergency Contact</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeEmergencyContactAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-emergency-contact-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Name</th>
-                                        <th>Relationship</th>
-                                        <th>Email</th>
-                                        <th>Mobile</th>
-                                        <th>Telephone</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-trainings" role="tabpanel" aria-labelledby="v-trainings-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Trainings & Seminars</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeTrainingsSeminarsAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-training-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Traning Name</th>
-                                        <th>Training Date</th>
-                                        <th>Training Location</th>
-                                        <th>Training Provider</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-employment-history" role="tabpanel" aria-labelledby="v-employment-history-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Employment History</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employmentHistoryAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="employment-history-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Company</th>
-                                        <th>Address</th>
-                                        <th>Contact Numbers</th>
-                                        <th>Last Position Held</th>
-                                        <th>Period of Employment</th>
-                                        <th>Basic Function</th>
-                                        <th>Starting Salary</th>
-                                        <th>Final Salary</th>
-                                        <th>Reason for Separation</th>
-                                        <th>Immediate Supervisor</th>
-                                        <th>Position of Immediate Supervisor</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-employee-skills" role="tabpanel" aria-labelledby="v-employee-skills-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Skills</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeSkillsAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-skills-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Skills</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-employee-talents" role="tabpanel" aria-labelledby="v-employee-talents-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Talents</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeTalentsAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-talents-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Talents</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="tab-pane fade" id="v-employee-hobbies" role="tabpanel" aria-labelledby="v-employee-talents-tab">
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <div class="row align-items-center">
-                                  <div class="col-md-6">
-                                    <h5>Hobbies</h5>
-                                  </div>
-                                  <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                                    '. $employeeHobbyAdd .'
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="card-body">
-                                <div class="dt-responsive table-responsive">
-                                  <table id="contact-hobby-table" class="table table-hover table-bordered nowrap w-100 dataTable">
-                                    <thead>
-                                      <tr>
-                                        <th>Hobbies</th>
-                                        <th>Actions</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <button type="submit" class="btn btn-primary" id="submit-personal-information-data" form="personal-information-form">Submit</button>
+                      <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="tab-pane" id="employement-details" role="tabpanel" aria-labelledby="employement-details-tab">
-                <div class="row">
-                  <div class="col-lg-12"> 
-                    <div class="card">
-                      <div class="card-header">
-                        <div class="row align-items-center">
-                          <div class="col-md-6">
-                            <h5>Employment Details</h5>
+              </div>';
+
+        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="employment-information-offcanvas" aria-labelledby="employment-information-offcanvas-label">
+                <div class="offcanvas-header">
+                  <h2 id="employment-information-offcanvas-label" style="margin-bottom:-0.5rem">Employment Information</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                    This form is used to collect and update essential employee details, such as ID number, company, department, job position, employee type, job level, branch, and on-board date, to ensure accurate and current records within the organization.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <form id="employment-information-form" method="post" action="#">
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">ID Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="badge_id" name="badge_id" maxlength="300" autocomplete="off">
                           </div>
-                          <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                          <button type="submit" form="employment-information-form" class="btn btn-success" id="submit-employment-information-data">Save</button>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Company <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="company_id" id="company_id">
+                              <option value="">--</option>
+                              '. $companyModel->generateCompanyOptions() .'
+                            </select>
                           </div>
                         </div>
-                      </div>
-                      <div class="card-body">
-                        <form id="employment-information-form" method="post" action="#">
-                          <div class="row">
-                            <div class="col-sm-3">
-                              <div class="form-group">
-                                <label class="form-label">Badge ID <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="badge_id" name="badge_id" maxlength="300" autocomplete="off">
-                              </div>
-                            </div>
-                            <div class="col-sm-3">
-                              <div class="form-group">
-                                <label class="form-label">Company <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="company_id" id="company_id">
-                                  <option value="">--</option>
-                                  '. $companyModel->generateCompanyOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-3">
-                              <div class="form-group">
-                                <label class="form-label">Department <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="department_id" id="department_id">
-                                  <option value="">--</option>
-                                  '. $departmentModel->generateDepartmentOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-3">
-                              <div class="form-group">
-                                <label class="form-label">Job Position <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="job_position_id" id="job_position_id">
-                                  <option value="">--</option>
-                                  '. $jobPositionModel->generateJobPositionOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Employee Type <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="employee_type_id" id="employee_type_id">
-                                  <option value="">--</option>
-                                  '. $employeeTypeModel->generateEmployeeTypeOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Job Level <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="job_level_id" id="job_level_id">
-                                  <option value="">--</option>
-                                  '. $jobLevelModel->generateJobLevelOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-4">
-                              <div class="form-group">
-                                <label class="form-label">Branch <span class="text-danger">*</span></label>
-                                <select class="form-control select2" name="branch_id" id="branch_id">
-                                  <option value="">--</option>
-                                  '. $branchModel->generateBranchOptions() .'
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">On-Board Date <span class="text-danger">*</span></label>
-                                <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="onboard_date" name="onboard_date" autocomplete="off">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
-                                  </div>
-                              </div>
-                            </div>
-                            <div class="col-sm-6">
-                              <div class="form-group">
-                                <label class="form-label">Permanency Date</label>
-                                <div class="input-group date">
-                                    <input type="text" class="form-control regular-datepicker" id="permanency_date" name="permanency_date" autocomplete="off">
-                                    <span class="input-group-text">
-                                      <i class="feather icon-calendar"></i>
-                                    </span>
-                                  </div>
-                              </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Department <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="department_id" id="department_id">
+                              <option value="">--</option>
+                              '. $departmentModel->generateDepartmentOptions() .'
+                            </select>
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Job Position <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="job_position_id" id="job_position_id">
+                              <option value="">--</option>
+                              '. $jobPositionModel->generateJobPositionOptions() .'
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Employee Type <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="employee_type_id" id="employee_type_id">
+                              <option value="">--</option>
+                              '. $employeeTypeModel->generateEmployeeTypeOptions() .'
+                            </select>
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">Job Level <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="job_level_id" id="job_level_id">
+                              <option value="">--</option>
+                              '. $jobLevelModel->generateJobLevelOptions() .'
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-6">
+                            <label class="form-label">Branch <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="branch_id" id="branch_id">
+                              <option value="">--</option>
+                              '. $branchModel->generateBranchOptions() .'
+                            </select>
+                          </div>
+                          <div class="col-lg-6 mt-3 mt-lg-0">
+                            <label class="form-label">On-Board Date <span class="text-danger">*</span></label>
+                            <div class="input-group date">
+                              <input type="text" class="form-control regular-datepicker" id="onboard_date" name="onboard_date" autocomplete="off">
+                              <span class="input-group-text">
+                                <i class="feather icon-calendar"></i>
+                              </span>
                             </div>
                           </div>
-                        </form>
-                      </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <button type="submit" class="btn btn-primary" id="submit-employment-information-data" form="employment-information-form">Submit</button>
+                      <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                     </div>
                   </div>
                 </div>
@@ -1074,7 +615,7 @@
                                     <label class="form-label" for="contact_information_mobile">Mobile</label>
                                     <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
                                   </div>
-                                  <div class="col-lg-6">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
                                     <label class="form-label" for="contact_information_telephone">Telephone</label>
                                     <input type="text" class="form-control" id="contact_information_telephone" name="contact_information_telephone" maxlength="20" autocomplete="off">
                                   </div>
@@ -1239,7 +780,7 @@
                                       </span>
                                     </div>
                                   </div>
-                                  <div class="col-lg-6">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
                                     <label class="form-label">End Date</label>
                                     <div class="input-group date">
                                       <input type="text" class="form-control regular-datepicker" id="contact_end_date_attended" name="contact_end_date_attended" autocomplete="off">
@@ -1291,7 +832,7 @@
                                       '. $relationModel->generateRelationOptions() .'
                                     </select>
                                   </div>
-                                  <div class="col-lg-6">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
                                     <label class="form-label">Birthday <span class="text-danger">*</span></label>
                                     <div class="input-group date">
                                       <input type="text" class="form-control regular-datepicker" id="family_background_birthday" name="family_background_birthday" autocomplete="off">
@@ -1312,7 +853,7 @@
                                     <label class="form-label" for="family_background_mobile">Mobile</label>
                                     <input type="text" class="form-control" id="family_background_mobile" name="family_background_mobile" maxlength="20" autocomplete="off">
                                   </div>
-                                  <div class="col-lg-6">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
                                     <label class="form-label" for="family_background_telephone">Telephone</label>
                                     <input type="text" class="form-control" id="family_background_telephone" name="family_background_telephone" maxlength="20" autocomplete="off">
                                   </div>
@@ -1371,7 +912,7 @@
                                     <label class="form-label" for="emergency_contact_mobile">Mobile</label>
                                     <input type="text" class="form-control" id="emergency_contact_mobile" name="emergency_contact_mobile" maxlength="20" autocomplete="off">
                                   </div>
-                                  <div class="col-lg-6">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
                                     <label class="form-label" for="emergency_contact_telephone">Telephone</label>
                                     <input type="text" class="form-control" id="emergency_contact_telephone" name="emergency_contact_telephone" maxlength="20" autocomplete="off">
                                   </div>

@@ -28357,6 +28357,7 @@ File: style.css
 .select2-container {
   font-family: inherit !important;
   margin-bottom: 0.60rem;
+  width: 100% !important;
 }
 
 .select2-container .select2-selection--single {
