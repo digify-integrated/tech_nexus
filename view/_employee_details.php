@@ -102,18 +102,6 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
-                <h5>Contact Information</h5>
-                <?php echo $contactInformationAdd; ?>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-information-summary">
-              </ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
                 <h5>Skills</h5>
                 <?php echo $employeeSkillsAdd; ?>
               </div>
@@ -154,6 +142,17 @@
               </div>
             </div>
             <div class="card-body" id="personal-information-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Contact Information</h5>
+                <?php echo $contactInformationAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
+            </div>
           </div>
           <div class="card">
             <div class="card-header">
