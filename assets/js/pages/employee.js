@@ -217,6 +217,14 @@
             displayDetails('get personal information details');
             displayDetails('get employment information details');
 
+            if($('#personal-information-summary').length){
+                personalInformationSummary();
+            }
+
+            if($('#employment-information-summary').length){
+                employmentInformationSummary();
+            }
+
             if($('#contact-information-summary').length){
                 contactInformationSummary();
             }
@@ -338,7 +346,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Tag Contact Information As Primary Success', 'The contact information has been tagged as primary successfully.', 'success');
-                                    reloadDatatable('#contact-information-table');
                                     contactInformationSummary();
                                 }
                                 else {
@@ -394,7 +401,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Contact Information Success', 'The contact information has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-information-table');
                                     contactInformationSummary();
                                 }
                                 else {
@@ -464,7 +470,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Tag Address As Primary Success', 'The address has been tagged as primary successfully.', 'success');
-                                    reloadDatatable('#contact-address-table');
                                     employeeAddressSummary();
                                 }
                                 else {
@@ -520,7 +525,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Address Success', 'The address has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-address-table');
                                     employeeAddressSummary();
                                 }
                                 else {
@@ -590,7 +594,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Tag Employee Address As Primary Success', 'The employee identification has been tagged as primary successfully.', 'success');
-                                    reloadDatatable('#contact-identification-table');
                                     employeeIdentificationSummary();
                                 }
                                 else {
@@ -646,7 +649,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Employee Identification Success', 'The employee identification has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-identification-table');
                                     employeeIdentificationSummary();
                                 }
                                 else {
@@ -675,7 +677,7 @@
                 });
             });
 
-            $(document).on('click','#add-contact-educational-background',function() {
+            $(document).on('click','#add-educational-background',function() {
                 resetModalForm("contact-educational-background-form");
             });
 
@@ -714,7 +716,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Educational Background Success', 'The educational background has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-educational-background-table');
                                     employeeEducationalBackgroundSummary();
                                 }
                                 else {
@@ -782,7 +783,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Family Background Success', 'The family background has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-family-background-table');
                                     employeeFamilyBackgroundSummary();
                                 }
                                 else {
@@ -850,7 +850,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Emergency Contact Success', 'The emergency contact has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-emergency-contact-table');
                                     employeeEmergencyContactSummary();
                                 }
                                 else {
@@ -918,7 +917,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Training & Seminar Success', 'The training & seminar has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-training-table');
                                     employeeTrainingSummary();
                                 }
                                 else {
@@ -986,7 +984,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Skills Success', 'The skills has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-skills-table');
                                     employeeSkillsSummary();
                                 }
                                 else {
@@ -1054,7 +1051,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Talents Success', 'The talents has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-talents-table');
                                     employeeTalentsSummary();
                                 }
                                 else {
@@ -1122,7 +1118,6 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Delete Hobby Success', 'The hobby has been deleted successfully.', 'success');
-                                    reloadDatatable('#contact-hobby-table');
                                     employeeHobbySummary();
                                 }
                                 else {
@@ -1251,70 +1246,54 @@ function employeeCard(current_page, is_loading){
     });
 }
 
-function contactInformationTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact information table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CONTACT_INFORMATION_TYPE' },
-        { 'data' : 'EMAIL' },
-        { 'data' : 'MOBILE' },
-        { 'data' : 'TELEPHONE' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '15%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '10%','bSortable': false, 'aTargets': 5 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
+function personalInformationSummary(){
+    const type = 'personal information summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
         },
-        'order': [[ 4, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
+        success: function(response) {
+            document.getElementById('personal-information-summary').innerHTML = response[0].personalInformationSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
         }
-    };
+    });
+}
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+function employmentInformationSummary(){
+    const type = 'employment information summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('employment-information-summary').innerHTML = response[0].employmentInformationSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
 }
 
 function contactInformationSummary(){
@@ -1342,68 +1321,6 @@ function contactInformationSummary(){
     });
 }
 
-function employeeAddressTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact address table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'ADDRESS_TYPE' },
-        { 'data' : 'ADDRESS' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '25%', 'aTargets': 0 },
-        { 'width': '25%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
-        { 'width': '25%','bSortable': false, 'aTargets': 3 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 2, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
 function employeeAddressSummary(){
     const type = 'contact address summary';
     var employee_id = $('#employee-id').text();
@@ -1427,68 +1344,6 @@ function employeeAddressSummary(){
             showErrorDialog(fullErrorMessage);
         }
     });
-}
-
-function employeeIdentificationTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact identification table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'ID_TYPE' },
-        { 'data' : 'ID_NUMBER' },
-        { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '25%', 'aTargets': 0 },
-        { 'width': '25%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
-        { 'width': '25%','bSortable': false, 'aTargets': 3 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 2, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
 }
 
 function employeeIdentificationSummary(){
@@ -1516,72 +1371,6 @@ function employeeIdentificationSummary(){
     });
 }
 
-function employeeEducationalBackgroundTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact educational background table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'EDUCATIONAL_STAGE' },
-        { 'data' : 'INSTITUTION_NAME' },
-        { 'data' : 'DEGREE_EARNED' },
-        { 'data' : 'FIELD_OF_STUDY' },
-        { 'data' : 'YEAR_ATTENDED' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '16%', 'aTargets': 0 },
-        { 'width': '16%', 'aTargets': 1 },
-        { 'width': '16%', 'aTargets': 2 },
-        { 'width': '16%', 'aTargets': 3 },
-        { 'width': '16%', 'aTargets': 4 },
-        { 'width': '16%','bSortable': false, 'aTargets': 5 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
 function employeeEducationalBackgroundSummary(){
     const type = 'contact educational background summary';
     var employee_id = $('#employee-id').text();
@@ -1605,74 +1394,6 @@ function employeeEducationalBackgroundSummary(){
             showErrorDialog(fullErrorMessage);
         }
     });
-}
-
-function employeeFamilyBackgroundTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact family background table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'FAMILY_NAME' },
-        { 'data' : 'RELATION' },
-        { 'data' : 'BIRTHDAY' },
-        { 'data' : 'EMAIL' },
-        { 'data' : 'MOBILE' },
-        { 'data' : 'TELEPHONE' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '14%', 'aTargets': 0 },
-        { 'width': '14%', 'aTargets': 1 },
-        { 'width': '14%', 'aTargets': 2 },
-        { 'width': '14%', 'aTargets': 3 },
-        { 'width': '14%', 'aTargets': 4 },
-        { 'width': '14%', 'aTargets': 5 },
-        { 'width': '14%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
 }
 
 function employeeFamilyBackgroundSummary(){
@@ -1700,72 +1421,6 @@ function employeeFamilyBackgroundSummary(){
     });
 }
 
-function employeeEmergencyContactTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact emergency contact table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'EMERGENCY_CONTACT_NAME' },
-        { 'data' : 'RELATION' },
-        { 'data' : 'EMAIL' },
-        { 'data' : 'MOBILE' },
-        { 'data' : 'TELEPHONE' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '16%', 'aTargets': 0 },
-        { 'width': '16%', 'aTargets': 1 },
-        { 'width': '16%', 'aTargets': 2 },
-        { 'width': '16%', 'aTargets': 3 },
-        { 'width': '16%', 'aTargets': 4 },
-        { 'width': '16%','bSortable': false, 'aTargets': 5 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
 function employeeEmergencyContactSummary(){
     const type = 'contact emergency contact summary';
     var employee_id = $('#employee-id').text();
@@ -1789,70 +1444,6 @@ function employeeEmergencyContactSummary(){
             showErrorDialog(fullErrorMessage);
         }
     });
-}
-
-function employeeTrainingTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact training table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'TRAINING_NAME' },
-        { 'data' : 'TRAINING_DATE' },
-        { 'data' : 'TRAINING_LOCATION' },
-        { 'data' : 'TRAINING_PROVIDER' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '20%', 'aTargets': 0 },
-        { 'width': '20%', 'aTargets': 1 },
-        { 'width': '20%', 'aTargets': 2 },
-        { 'width': '20%', 'aTargets': 3 },
-        { 'width': '20%','bSortable': false, 'aTargets': 4 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
 }
 
 function employeeTrainingSummary(){
@@ -1880,64 +1471,6 @@ function employeeTrainingSummary(){
     });
 }
 
-function employeeSkillsTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact skills table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'SKILL_NAME' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '80%', 'aTargets': 0 },
-        { 'width': '20%','bSortable': false, 'aTargets': 1 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
 function employeeSkillsSummary(){
     const type = 'contact skills summary';
     var employee_id = $('#employee-id').text();
@@ -1963,64 +1496,6 @@ function employeeSkillsSummary(){
     });
 }
 
-function employeeTalentsTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact talents table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'TALENT_NAME' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '80%', 'aTargets': 0 },
-        { 'width': '20%','bSortable': false, 'aTargets': 1 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
 function employeeTalentsSummary(){
     const type = 'contact talents summary';
     var employee_id = $('#employee-id').text();
@@ -2044,64 +1519,6 @@ function employeeTalentsSummary(){
             showErrorDialog(fullErrorMessage);
         }
     });
-}
-
-function employeeHobbyTable(datatable_name, buttons = false, show_all = false){
-    const type = 'contact hobby table';
-    const employee_id = $('#employee-id').text();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'HOBBY_NAME' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '80%', 'aTargets': 0 },
-        { 'width': '20%','bSortable': false, 'aTargets': 1 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_employee_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {
-                'type' : type,
-                'employee_id' : employee_id,
-            },
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
-            }
-        },
-        'order': [[ 0, 'asc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
 }
 
 function employeeHobbySummary(){
@@ -2327,7 +1744,6 @@ function personalInformationForm(){
                         const notificationDescription = 'The personal information has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        displayDetails('get personal information details');
                     }
                     else {
                         if (response.isInactive) {
@@ -2348,6 +1764,8 @@ function personalInformationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-personal-information-data', 'Save');
+                    personalInformationSummary();
+                    displayDetails('get personal information details');
                     $('#personal-information-offcanvas').offcanvas('hide');
                 }
             });
@@ -2461,7 +1879,6 @@ function employmentInformationForm(){
                         const notificationDescription = 'The employment information has been updated successfully.';
                         
                         showNotification(notificationMessage, notificationDescription, 'success');
-                        displayDetails('get employment information details');
                     }
                     else {
                         if (response.isInactive) {
@@ -2482,6 +1899,8 @@ function employmentInformationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-employment-information-data', 'Save');
+                    employmentInformationSummary();
+                    displayDetails('get employment information details');
                     $('#employment-information-offcanvas').offcanvas('hide');
                 }
             });
@@ -2579,7 +1998,6 @@ function contactInformationForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-information', 'Submit');
                     $('#contact-information-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-information-table');
                     contactInformationSummary();
                     resetModalForm('contact-information-form');
                 }
@@ -2681,7 +2099,6 @@ function employeeAddressForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-address', 'Submit');
                     $('#contact-address-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-address-table');
                     employeeAddressSummary();
                     resetModalForm('contact-address-form');
                 }
@@ -2777,7 +2194,6 @@ function employeeIdentificationForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-identification', 'Submit');
                     $('#contact-identification-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-identification-table');
                     employeeIdentificationSummary();
                     resetModalForm('contact-identification-form');
                 }
@@ -2879,7 +2295,6 @@ function employeeEducationalBackgroundForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-educational-background', 'Submit');
                     $('#contact-educational-background-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-educational-background-table');
                     employeeEducationalBackgroundSummary();
                     resetModalForm('contact-educational-background-form');
                 }
@@ -2981,7 +2396,6 @@ function employeeFamilyBackgroundForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-family-background', 'Submit');
                     $('#contact-family-background-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-family-background-table');
                     employeeFamilyBackgroundSummary();
                     resetModalForm('contact-family-background-form');
                 }
@@ -3086,7 +2500,6 @@ function employeeEmergencyContactForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-emergency-contact', 'Submit');
                     $('#contact-emergency-contact-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-emergency-contact-table');
                     employeeEmergencyContactSummary();
                     resetModalForm('contact-emergency-contact-form');
                 }
@@ -3182,7 +2595,6 @@ function employeeTrainingForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-training', 'Submit');
                     $('#contact-training-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-training-table');
                     employeeTrainingSummary();
                     resetModalForm('contact-training-form');
                 }
@@ -3272,7 +2684,6 @@ function employeeSkillsForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-skills', 'Submit');
                     $('#contact-skills-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-skills-table');
                     employeeSkillsSummary();
                     resetModalForm('contact-skills-form');
                 }
@@ -3362,7 +2773,6 @@ function employeeTalentsForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-talents', 'Submit');
                     $('#contact-talents-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-talents-table');
                     employeeTalentsSummary();
                     resetModalForm('contact-talents-form');
                 }
@@ -3452,7 +2862,6 @@ function employeeHobbyForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-hobby', 'Submit');
                     $('#contact-hobby-offcanvas').offcanvas('hide');
-                    reloadDatatable('#contact-hobby-table');
                     employeeHobbySummary();
                     resetModalForm('contact-hobby-form');
                 }
@@ -3494,16 +2903,6 @@ function displayDetails(transaction){
 
                         $('#employee_bio').text(response.bio);
                         $('#employee_name').text(response.employeeName);
-                        $('#full_name').text(response.employeeName);
-                        $('#employee_nickname').text(response.nickname);
-                        $('#employee_birthday').text(response.birthday);
-                        $('#employee_birth_place').text(response.birthPlace);
-                        $('#employee_gender').text(response.genderName);
-                        $('#employee_religion').text(response.religionName);
-                        $('#employee_blood_type').text(response.bloodTypeName);
-                        $('#employee_civil_status').text(response.civilStatusName);
-                        $('#employee_height').text(response.height + ' cm');
-                        $('#employee_weight').text(response.weight + ' kg');
 
                         $('#emp_image').attr('src', response.employeeImage);
                         $('#employee_summary_image').attr('src', response.employeeImage);
@@ -3551,14 +2950,6 @@ function displayDetails(transaction){
                         $('#onboard_date').val(response.onboardDate);
 
                         document.getElementById('employee-status-badge').innerHTML = response.isActiveBadge;
-
-                        $('#employee_badge_id').text(response.badgeID);
-                        $('#employee_company').text(response.companyName);
-                        $('#employee_department').text(response.departmentName);
-                        $('#employee_type').text(response.employeeTypeName);
-                        $('#employee_job_level').text(response.jobLevelName);
-                        $('#employee_branch').text(response.branchName);
-                        $('#employee_onboard_date').text(response.onboardDate);
 
                         $('#job_position').text(response.jobPositionName);
 

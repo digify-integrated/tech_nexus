@@ -2521,10 +2521,6 @@ BEGIN
     IF NEW.employment_status <> OLD.employment_status THEN
         SET audit_log = CONCAT(audit_log, "Employment Status ID: ", OLD.employment_status, " -> ", NEW.employment_status, "<br/>");
     END IF;
-
-    IF NEW.permanency_date <> OLD.permanency_date THEN
-        SET audit_log = CONCAT(audit_log, "Permanency Date: ", OLD.permanency_date, " -> ", NEW.permanency_date, "<br/>");
-    END IF;
     
     IF NEW.onboard_date <> OLD.onboard_date THEN
         SET audit_log = CONCAT(audit_log, "On Board Date: ", OLD.onboard_date, " -> ", NEW.onboard_date, "<br/>");
@@ -2584,10 +2580,6 @@ BEGIN
 
     IF NEW.employment_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Employement Status: ", NEW.employment_status);
-    END IF;
-
-    IF NEW.permanency_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Permanency Date: ", NEW.permanency_date);
     END IF;
 
     IF NEW.onboard_date <> '' THEN

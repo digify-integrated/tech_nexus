@@ -97,193 +97,7 @@
                 <?php echo $employeeEmploymentInformationUpdate; ?>
               </div>
             </div>
-            <div class="card-body">
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">ID Number</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_badge_id"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Company</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_company"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Department</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_department"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Employee Type</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_type"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Job Level</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_job_level"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">Branch</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_branch"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row align-items-center mb-3">
-                <div class="col-sm-6 mb-2 mb-sm-0">
-                  <p class="mb-0">On-Board Date</p>
-                </div>
-                <div class="col-sm-6">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 w-100">
-                      <p class="mb-0 text-muted text-truncate" id="employee_onboard_date"></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Skills</h5>
-                <?php echo $employeeSkillsAdd; ?>
-              </div>
-            </div>
-            <div class="card-body" id="contact-skills-summary"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Talents</h5>
-                <?php echo $employeeTalentsAdd; ?>
-              </div>
-            </div>
-            <div class="card-body" id="contact-talents-summary"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Hobbies</h5>
-                <?php echo $employeeHobbyAdd; ?>
-              </div>
-            </div>
-            <div class="card-body" id="contact-hobby-summary"></div>
-          </div>
-        </div>
-        <div class="col-lg-7 col-xxl-8">
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Personal Details</h5>
-                <?php echo $employeePersonalInformationUpdate; ?>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item px-0 pt-0">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Full Name</p>
-                      <p class="mb-0" id="full_name"></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Nickname</p>
-                      <p class="mb-0" id="employee_nickname"></p>
-                    </div>
-                  </div>
-                </li>
-                <li class="list-group-item px-0">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Birthday</p>
-                      <p class="mb-0" id="employee_birthday"></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Birth Place</p>
-                      <p class="mb-0" id="employee_birth_place"></p>
-                    </div>
-                  </div>
-                </li>
-                <li class="list-group-item px-0">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Gender</p>
-                      <p class="mb-0" id="employee_gender"></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Civil Status</p>
-                      <p class="mb-0" id="employee_civil_status"></p>
-                    </div>
-                  </div>
-                </li>
-                <li class="list-group-item px-0">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Religion</p>
-                      <p class="mb-0" id="employee_religion"></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Blood type</p>
-                      <p class="mb-0" id="employee_blood_type"></p>
-                    </div>
-                  </div>
-                </li>
-                <li class="list-group-item px-0">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Height</p>
-                      <p class="mb-0" id="employee_height"></p>
-                    </div>
-                    <div class="col-md-6">
-                      <p class="mb-1 text-muted">Weight</p>
-                      <p class="mb-0" id="employee_weight"></p>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
+            <div class="card-body" id="employment-information-summary"></div>
           </div>
           <div class="card">
             <div class="card-header">
@@ -296,6 +110,50 @@
               <ul class="list-group list-group-flush" id="contact-information-summary">
               </ul>
             </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Skills</h5>
+                <?php echo $employeeSkillsAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-skills-summary"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Talents</h5>
+                <?php echo $employeeTalentsAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-talents-summary"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Hobbies</h5>
+                <?php echo $employeeHobbyAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-hobby-summary"></ul>              
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-7 col-xxl-8">
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Personal Details</h5>
+                <?php echo $employeePersonalInformationUpdate; ?>
+              </div>
+            </div>
+            <div class="card-body" id="personal-information-summary"></div>
           </div>
           <div class="card">
             <div class="card-header">
@@ -336,7 +194,7 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
-                <h5>Family Background Background</h5>
+                <h5>Family Background</h5>
                 <?php echo $employeeFamilyBackgroundAdd; ?>
               </div>
             </div>

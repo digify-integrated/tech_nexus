@@ -4062,6 +4062,13 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE generatePersonalInformationSummary(IN p_contact_id INT)
+BEGIN
+	SELECT first_name, middle_name, last_name, suffix, nickname, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight
+    FROM personal_information
+    WHERE contact_id = p_contact_id;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /*  Employment Information Table Stored Procedures */
@@ -4103,6 +4110,13 @@ END //
 CREATE PROCEDURE getEmploymentInformation(IN p_contact_id INT)
 BEGIN
 	SELECT * FROM employment_information
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE generateEmploymentInformationSummary(IN p_contact_id INT)
+BEGIN
+	SELECT badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, onboard_date
+    FROM employment_information
     WHERE contact_id = p_contact_id;
 END //
 
@@ -4161,7 +4175,7 @@ BEGIN
     COMMIT;
 END //
 
-CREATE PROCEDURE generateContactInformationTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactInformationSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_information_id, contact_information_type_id, mobile, telephone, email, is_primary
     FROM contact_information
@@ -4223,7 +4237,7 @@ BEGIN
     COMMIT;
 END //
 
-CREATE PROCEDURE generateContactAddressTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactAddressSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_address_id, address_type_id, address, city_id, is_primary
     FROM contact_address
@@ -4284,7 +4298,7 @@ BEGIN
     COMMIT;
 END //
 
-CREATE PROCEDURE generateContactIdentificationTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactIdentificationSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_identification_id, id_type_id, id_number, is_primary
     FROM contact_identification
@@ -4334,7 +4348,7 @@ BEGIN
     WHERE contact_educational_background_id = p_contact_educational_background_id;
 END //
 
-CREATE PROCEDURE generateContactEducationalBackgroundTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactEducationalBackgroundSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_educational_background_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_date, end_date
     FROM contact_educational_background
@@ -4384,7 +4398,7 @@ BEGIN
     WHERE contact_family_background_id = p_contact_family_background_id;
 END //
 
-CREATE PROCEDURE generateContactFamilyBackgroundTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactFamilyBackgroundSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_family_background_id, family_name, relation_id, birthday, mobile, telephone, email
     FROM contact_family_background
@@ -4433,7 +4447,7 @@ BEGIN
     WHERE contact_emergency_contact_id = p_contact_emergency_contact_id;
 END //
 
-CREATE PROCEDURE generateContactEmergencyContactTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactEmergencyContactSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_emergency_contact_id, emergency_contact_name, relation_id, mobile, telephone, email
     FROM contact_emergency_contact
@@ -4481,7 +4495,7 @@ BEGIN
     WHERE contact_training_id = p_contact_training_id;
 END //
 
-CREATE PROCEDURE generateContactTrainingTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactTrainingSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_training_id, training_name, training_date, training_location, training_provider
     FROM contact_training
@@ -4526,7 +4540,7 @@ BEGIN
     WHERE contact_skills_id = p_contact_skills_id;
 END //
 
-CREATE PROCEDURE generateContactSkillsTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactSkillsSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_skills_id, skill_name
     FROM contact_skills
@@ -4571,7 +4585,7 @@ BEGIN
     WHERE contact_talents_id = p_contact_talents_id;
 END //
 
-CREATE PROCEDURE generateContactTalentsTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactTalentsSummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_talents_id, talent_name
     FROM contact_talents
@@ -4616,7 +4630,7 @@ BEGIN
     WHERE contact_hobby_id = p_contact_hobby_id;
 END //
 
-CREATE PROCEDURE generateContactHobbyTable(IN p_contact_id INT)
+CREATE PROCEDURE generateContactHobbySummary(IN p_contact_id INT)
 BEGIN
 	SELECT contact_hobby_id, hobby_name
     FROM contact_hobby
