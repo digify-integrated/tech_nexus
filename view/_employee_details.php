@@ -102,6 +102,27 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
+                <h5>Licenses & Certifications</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-license-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Languages</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-languages-summary"></ul>              
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
                 <h5>Skills</h5>
                 <?php echo $employeeSkillsAdd; ?>
               </div>
@@ -142,6 +163,16 @@
               </div>
             </div>
             <div class="card-body" id="personal-information-summary"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Employment History</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-employment-history-summary"></ul>
+            </div>
           </div>
           <div class="card">
             <div class="card-header">
@@ -226,11 +257,22 @@
               </ul>
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>References</h5>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-references-summary">
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <?php 
-       if($employeeWriteAccess['total'] > 0){
+      if($employeeWriteAccess['total'] > 0){
         echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="personal-information-offcanvas" aria-labelledby="personal-information-offcanvas-label">
                 <div class="offcanvas-header">
                   <h2 id="personal-information-offcanvas-label" style="margin-bottom:-0.5rem">Personal Information</h2>
@@ -333,7 +375,7 @@
                         </div>
                         <div class="form-group row">
                           <div class="col-lg-12">
-                            <label class="form-label">Bio</label>
+                            <label class="form-label">Personal Summary</label>
                             <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>
                           </div>
                         </div>
@@ -347,9 +389,8 @@
                     </div>
                   </div>
                 </div>
-              </div>';
-
-        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="employment-information-offcanvas" aria-labelledby="employment-information-offcanvas-label">
+              </div>
+              <div class="offcanvas offcanvas-end" tabindex="-1" id="employment-information-offcanvas" aria-labelledby="employment-information-offcanvas-label">
                 <div class="offcanvas-header">
                   <h2 id="employment-information-offcanvas-label" style="margin-bottom:-0.5rem">Employment Information</h2>
                   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>

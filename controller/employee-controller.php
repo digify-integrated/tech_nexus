@@ -1657,7 +1657,7 @@ class EmployeeController {
                 'lastName' => $lastName,
                 'suffix' => $suffix,
                 'nickname' => $employeeDetails['nickname'],
-                'bio' => $employeeDetails['bio'] ?? 'No employee bio.',
+                'bio' => $employeeDetails['bio'] ?? 'No personal summary.',
                 'civilStatusID' => $civilStatusID,
                 'genderID' => $genderID,
                 'religionID' => $religionID,
