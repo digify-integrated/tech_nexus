@@ -55,7 +55,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $emailSettingID .'">',
                     'EMAIL_SETTING_NAME' => ' <div class="col">
                                         <h6 class="mb-0">'. $emailSettingName .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $emailSettingDescription .'</p>
+                                            <p class="text-muted f-12 mb-0">'. $emailSettingDescription .'</p>
                                         </div>',
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="email-setting.php?id='. $emailSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

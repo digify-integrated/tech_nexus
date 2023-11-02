@@ -4640,6 +4640,58 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/*  Employment History Table Stored Procedures */
+
+CREATE PROCEDURE checkContactEmploymentHistoryExist (IN p_contact_employment_history_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_employment_history
+    WHERE contact_employment_history_id = p_contact_employment_history_id;
+END //
+
+CREATE PROCEDURE insertContactEmploymentHistory(IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_employment_start_date DATE, IN p_employment_end_date DATE, IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_employment_history (contact_id, company, address, last_position_held, employment_start_date, employment_end_date, basic_function, starting_salary, final_salary, last_log_by) 
+	VALUES(p_contact_id, p_company, p_address, p_last_position_held, p_employment_start_date, p_employment_end_date, p_basic_function, p_starting_salary, p_final_salary, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactEmploymentHistory(IN p_contact_employment_history_id INT, IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_employment_start_date DATE, IN p_employment_end_date DATE, IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_employment_history
+    SET contact_id = p_contact_id,
+    company = p_company,
+    address = p_address,
+    last_position_held = p_last_position_held,
+    employment_start_date = p_employment_start_date,
+    employment_end_date = p_employment_end_date,
+    basic_function = p_basic_function,
+    starting_salary = p_starting_salary,
+    final_salary = p_final_salary,
+    last_log_by = p_last_log_by
+    WHERE contact_employment_history_id = p_contact_employment_history_id;
+END //
+
+CREATE PROCEDURE deleteContactEmploymentHistory(IN p_contact_employment_history_id INT)
+BEGIN
+    DELETE FROM contact_employment_history WHERE contact_employment_history_id = p_contact_employment_history_id;
+END //
+
+CREATE PROCEDURE getContactEmploymentHistory(IN p_contact_employment_history_id INT)
+BEGIN
+	SELECT * FROM contact_employment_history
+    WHERE contact_employment_history_id = p_contact_employment_history_id;
+END //
+
+CREATE PROCEDURE generateContactEmploymentHistorySummary(IN p_contact_id INT)
+BEGIN
+	SELECT contact_employment_history_id, company, address, last_position_held, employment_start_date, employment_end_date, basic_function, starting_salary, final_salary
+    FROM contact_employment_history
+    WHERE contact_id = p_contact_id 
+    ORDER BY employment_start_date DESC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

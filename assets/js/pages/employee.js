@@ -305,6 +305,14 @@
                 employeeHobbySummary();
             }
 
+            if($('#contact-employment-history-form').length){
+                employeeEmploymentHistoryForm();
+            }
+
+            if($('#contact-employment-history-summary').length){
+                employeeEmploymentHistorySummary();
+            }
+
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
             });
@@ -1535,6 +1543,31 @@ function employeeHobbySummary(){
         },
         success: function(response) {
             document.getElementById('contact-hobby-summary').innerHTML = response[0].contactHobbySummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeEmploymentHistorySummary(){
+    const type = 'contact employment history summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-employment-history-summary').innerHTML = response[0].contactEmploymentHistorySummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -2864,6 +2897,113 @@ function employeeHobbyForm(){
                     $('#contact-hobby-offcanvas').offcanvas('hide');
                     employeeHobbySummary();
                     resetModalForm('contact-hobby-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeEmploymentHistoryForm(){
+    $('#contact-employment-history-form').validate({
+        rules: {
+            employment_history_last_position_held: {
+                required: true
+            },
+            employment_history_company: {
+                required: true
+            },
+            employment_history_address: {
+                required: true
+            },
+            employment_start_date: {
+                required: true
+            }
+        },
+        messages: {
+            employment_history_last_position_held: {
+                required: 'Please enter the last position held'
+            },
+            employment_history_company: {
+                required: 'Please enter the company name'
+            },
+            employment_history_address: {
+                required: 'Please enter the company address'
+            },
+            employment_start_date: {
+                required: 'Please choose the employment start date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact employment history';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-employment-history');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Employment History Success' : 'Update Employment History Success';
+                        const notificationDescription = response.insertRecord ? 'The employment history has been inserted successfully.' : 'The employment history has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-employment-history', 'Submit');
+                    $('#contact-employment-history-offcanvas').offcanvas('hide');
+                    employeeEmploymentHistorySummary();
+                    resetModalForm('contact-employment-history-form');
                 }
             });
         

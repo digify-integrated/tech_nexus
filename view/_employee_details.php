@@ -64,6 +64,11 @@
       if($addEmployeeHobby['total'] > 0){
         $employeeHobbyAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby"><i class="ti ti-plus"></i></button>';
       }
+
+      $employeeEmploymentHistoryAdd = '';
+      if($addEmploymentHistory['total'] > 0){
+        $employeeEmploymentHistoryAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employment-history-offcanvas" aria-controls="contact-employment-history-offcanvas" id="add-contact-employment-history"><i class="ti ti-plus"></i></button>';
+      }
     }
   ?>
   <div class="tab-content">
@@ -75,16 +80,23 @@
               <div class="position-absolute end-0 top-0 p-3" id="employee-status-badge"></div>
               <div class="text-center mt-3">
                 <div class="chat-avtar d-inline-flex mx-auto">
-                  <form class="user-upload mb-4">
-                    <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
-                    <label for="employee_image" class="img-avtar-upload">
-                      <i class="ti ti-camera f-24 mb-1"></i>
-                      <span>Upload</span>
-                    </label>
-                    <input type="file" id="employee_image" name="employee_image" class="d-none">
-                  </form>
+                  <?php
+                    if($employeeWriteAccess['total'] > 0){
+                      echo '<form class="user-upload mb-4">
+                              <img src="'. DEFAULT_AVATAR_IMAGE .'" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">
+                              <label for="employee_image" class="img-avtar-upload">
+                                <i class="ti ti-camera f-24 mb-1"></i>
+                                <span>Upload</span>
+                              </label>
+                              <input type="file" id="employee_image" name="employee_image" class="d-none">
+                            </form>';
+                    }
+                    else{
+                      echo '<img src="'. DEFAULT_AVATAR_IMAGE .'" alt="Employee Image" id="emp_image" class="rounded-circle img-fluid wid-70 hei-70">';
+                    }
+                  ?>
                 </div>
-                <h5 class="mb-0" id="employee_name"></h5>
+                <h5 class="mb-0 text-primary" id="employee_name"></h5>
                 <p class="text-muted text-sm" id="job_position"></p>
                 <p class="mb-0" id="employee_bio"></p>
               </div>
@@ -168,6 +180,7 @@
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
                 <h5>Employment History</h5>
+                <?php echo $employeeEmploymentHistoryAdd; ?>
               </div>
             </div>
             <div class="card-body">
@@ -961,7 +974,7 @@
                         </div>
                         <div class="offcanvas-body">
                           <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                            The Hobby is used to collect and record an employee\'s hobbies and interests, with a primary field for "Hobby Name" to identify and document their recreational activities.
+                            This form is used to collect and record an employee\'s hobbies and interests, with a primary field for "Hobby Name" to identify and document their recreational activities.
                           </div>
                           <div class="row">
                             <div class="col-lg-12">
@@ -979,6 +992,93 @@
                           <div class="row">
                             <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-hobby" form="contact-hobby-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmploymentHistory['total'] > 0 || $updateEmploymentHistory['total'] > 0){
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employment-history-offcanvas" aria-labelledby="contact-employment-history-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-employment-history-offcanvas-label" style="margin-bottom:-0.5rem">Employment History</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            This form is used to collect and record an employee\'s employment history.
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <form id="contact-employment-history-form" method="post" action="#">
+                                <div class="form-group ">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="employment_history_last_position_held">Last Position Held <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_employment_history_id" name="contact_employment_history_id">
+                                    <input type="text" class="form-control" id="employment_history_last_position_held" name="employment_history_last_position_held" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group ">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="employment_history_company">Company Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="employment_history_company" name="employment_history_company" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group ">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="employment_history_address">Company Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="employment_history_address" name="employment_history_address" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Started <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="employment_start_date" name="employment_start_date" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Ended</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="employment_end_date" name="employment_end_date" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <label class="form-label">Starting Salary</label>
+                                    <div class="input-group">
+                                      <input type="number" min="0" step="0.01" class="form-control" id="starting_salary" name="starting_salary">
+                                      <span class="input-group-text">Php</span>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <label class="form-label">Final Salary</label>
+                                    <div class="input-group">
+                                      <input type="number" min="0" step="0.01" class="form-control" id="final_salary" name="final_salary">
+                                      <span class="input-group-text">Php</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Basic Function</label>
+                                    <textarea class="form-control" id="basic_function" name="basic_function" maxlength="5000" rows="5"></textarea>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <button type="submit" class="btn btn-primary" id="submit-contact-employment-history" form="contact-employment-history-form">Submit</button>
                               <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>

@@ -162,10 +162,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     </div>
                                                     <div class="card-body">
                                                         <a href="employee.php?id='. $employeeIDEncrypted .'">
-                                                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                                            <div class="d-flex align-items-center justify-content-between mt-3">
                                                                 <h4 class="mb-0 text-truncate"><b>'. $employeeName .'</b></h4>
                                                             </div>
-                                                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                                            <div class="d-flex align-items-center justify-content-between mt-3">
                                                                 <p class="prod-content mb-0 text-muted">'. $jobPositionName .'</p>
                                                             </div>
                                                             <div class="d-flex align-items-center justify-content-between ">
@@ -239,11 +239,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0 pt-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Full Name</b></p>
+                                                <p class="mb-1 text-primary"><b>Full Name</b></p>
                                                 <p class="mb-0">'. $employeeName .'</p>
                                             </div> 
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Nickname</b></p>
+                                                <p class="mb-1 text-primary"><b>Nickname</b></p>
                                                 <p class="mb-0">'. $nickname .'</p>
                                             </div>
                                         </div>
@@ -251,11 +251,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Birthday</b></p>
+                                                <p class="mb-1 text-primary"><b>Birthday</b></p>
                                                 <p class="mb-0">'. $birthday .'</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Birth Place</b></p>
+                                                <p class="mb-1 text-primary"><b>Birth Place</b></p>
                                                 <p class="mb-0">'. $birthPlace .'</p>
                                             </div>
                                         </div>
@@ -263,11 +263,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Gender</b></p>
+                                                <p class="mb-1 text-primary"><b>Gender</b></p>
                                                 <p class="mb-0">'. $genderName .'</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Civil Status</b></p>
+                                                <p class="mb-1 text-primary"><b>Civil Status</b></p>
                                                 <p class="mb-0">'. $civilStatusName .'</p>
                                             </div>
                                         </div>
@@ -275,11 +275,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Blood type</b></p>
+                                                <p class="mb-1 text-primary"><b>Blood type</b></p>
                                                 <p class="mb-0">'. $bloodTypeName .'</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Religion</b></p>
+                                                <p class="mb-1 text-primary"><b>Religion</b></p>
                                                 <p class="mb-0">'. $religionName .'</p>
                                             </div>
                                         </div>
@@ -287,11 +287,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Height</b></p>
+                                                <p class="mb-1 text-primary"><b>Height</b></p>
                                                 <p class="mb-0">'. $height .'</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-1"><b>Weight</b></p>
+                                                <p class="mb-1 text-primary"><b>Weight</b></p>
                                                 <p class="mb-0">'. $weight .'</p>
                                             </div>
                                         </div>
@@ -352,7 +352,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= '<div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>ID Number</b></p>
+                                        <p class="mb-0 text-primary"><b>ID Number</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -364,7 +364,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>Company</b></p>
+                                        <p class="mb-0 text-primary"><b>Company</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -376,7 +376,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>Department</b></p>
+                                        <p class="mb-0 text-primary"><b>Department</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -388,7 +388,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>Employee Type</b></p>
+                                        <p class="mb-0 text-primary"><b>Employee Type</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -400,7 +400,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>Job Level</b></p>
+                                        <p class="mb-0 text-primary"><b>Job Level</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -412,7 +412,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>Branch</b></p>
+                                        <p class="mb-0 text-primary"><b>Branch</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -424,7 +424,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                 </div>
                                 <div class="row align-items-center mb-3">
                                     <div class="col-sm-6 mb-2 mb-sm-0">
-                                        <p class="mb-0"><b>On-Board Date</b></p>
+                                        <p class="mb-0 text-primary"><b>On-Board Date</b></p>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
@@ -486,7 +486,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $email = $row['email'];
                     $isPrimary = $row['is_primary'];
 
-                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success mt-2">Primary</span>' : '<span class="badge bg-light-info mt-2">Alternate</span>';
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success mt-3">Primary</span>' : '<span class="badge bg-light-info mt-3">Alternate</span>';
 
                     $contactInformationTypeName = $contactInformationTypeModel->getContactInformationType($contactInformationTypeID)['contact_information_type_name'] ?? null;
 
@@ -507,56 +507,45 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
                     
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-information mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="'. $contactInformationID .'" title="Edit Contact Information">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+                    
                     $tag = '';
                     if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactInformation['total'] > 0 && !$isPrimary){
-                        $tag = '<button type="button" class="btn btn-link-warning tag-contact-information-as-primary mt-2" data-contact-information-id="'. $contactInformationID .'" title="Tag Contact Information As Primary">
-                                    Tag As Primary
+                        $tag = '<button type="button" class="btn btn-icon btn-outline-warning tag-contact-information-as-primary mt-3" data-contact-information-id="'. $contactInformationID .'" title="Tag Contact Information As Primary">
+                        <i class="ti ti-check"></i>
                                 </button>';
                     }
 
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactInformation['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-information mt-2" data-contact-information-id="'. $contactInformationID .'" title="Delete Contact Information">
-                                            Delete
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-information mt-3" data-contact-information-id="'. $contactInformationID .'" title="Delete Contact Information">
+                        <i class="ti ti-trash"></i>
                                         </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0);" class="update-contact-information" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="'. $contactInformationID .'" title="Edit Contact Information">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $contactInformationTypeName .'</b></p>
-                                                    '. $email .'
-                                                    '. $mobile .'
-                                                    '. $telephone .'
-                                                </div>
-                                                <div class="me-2">
-                                                    '. $isPrimaryBadge .'
-                                                </div>
-                                            </div>
-                                        </a>
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="me-2">
+                                    <p class="mb-1 text-primary"><b>'. $contactInformationTypeName .'</b></p>
+                                    '. $email .'
+                                    '. $mobile .'
+                                    '. $telephone .'
+                                    <div class="d-flex gap-2">
+                                        '. $update .'
                                         '. $tag .'
                                         '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="me-2">
-                                                <p class="mb-1"><b>'. $contactInformationTypeName .'</b></p>
-                                                '. $email .'
-                                                '. $mobile .'
-                                                '. $telephone .'
-                                                '. $tag .'
-                                                '. $delete .'
-                                            </div>
-                                            <div class="me-2">
-                                                '. $isPrimaryBadge .'
-                                            </div>
-                                        </div>
-                                    </li>';
-                    }
+                                    </div>
+                                </div>
+                                <div class="me-2">
+                                    '. $isPrimaryBadge .'
+                                </div>
+                            </div>
+                        </li>';
                 }
 
                 if(empty($details)){
@@ -637,52 +626,43 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-address mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" data-contact-address-id="'. $contactAddressID .'" title="Edit Contact Address">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $tag = '';
                     if($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0 && !$isPrimary){
-                        $tag = '<button type="button" class="btn btn-link-warning tag-contact-address-as-primary mt-2" data-contact-address-id="'. $contactAddressID .'" title="Tag Contact Address As Primary">
-                                    Tag As Primary
+                        $tag = '<button type="button" class="btn btn-icon btn-outline-warning tag-contact-address-as-primary mt-3" data-contact-address-id="'. $contactAddressID .'" title="Tag Contact Address As Primary">
+                                    <i class="ti ti-check"></i>
                                 </button>';
                     }
 
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-address mt-2" data-contact-address-id="'. $contactAddressID .'" title="Delete Contact Address">
-                                            Delete
-                                        </button>';
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-address mt-3" data-contact-address-id="'. $contactAddressID .'" title="Delete Contact Address">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                    <a href="javascript:void(0);" class="update-contact-address" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" data-contact-address-id="'. $contactAddressID .'" title="Edit Contact Address">
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="me-2">
-                                                <p class="mb-2"><b>'. $addressTypeName .'</b></p>
-                                                <p class="mb-0 text-muted">' . $contactAddress . '</p>
-                                            </div>
-                                            <div class="me-2">
-                                                '. $isPrimaryBadge .'
-                                            </div>
-                                        </div>
-                                    </a>
-                                    '. $tag .'
-                                    '. $delete .'
-                                </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="me-2">
-                                                <p class="mb-2"><b>'. $addressTypeName .'</b></p>
+                                                <p class="mb-2 text-primary"><b>'. $addressTypeName .'</b></p>
                                                 <p class="mb-2 text-muted">' . $contactAddress . '</p>
-                                                '. $tag .'
-                                                '. $delete .'
+                                                <div class="d-flex gap-2">
+                                                    '. $update .'
+                                                    '. $tag .'
+                                                    '. $delete .'
+                                                </div>
                                             </div>
                                             <div class="me-2">
                                                 '. $isPrimaryBadge .'
                                             </div>
                                         </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -750,52 +730,43 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactIdentification['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-identification mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Employee Identification">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $tag = '';
                     if($employeeWriteAccess['total'] > 0 && $tagEmployeeContactIdentification['total'] > 0 && !$isPrimary){
-                        $tag = '<button type="button" class="btn btn-link-warning tag-contact-identification-as-primary mt-2" data-contact-identification-id="'. $contactIdentificationID .'" title="Tag Employee Identification As Primary">
-                                    Tag As Primary
+                        $tag = '<button type="button" class="btn btn-icon btn-outline-warning tag-contact-identification-as-primary mt-3" data-contact-identification-id="'. $contactIdentificationID .'" title="Tag Employee Identification As Primary">
+                                    <i class="ti ti-check"></i>
                                 </button>';
                     }
 
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactIdentification['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-identification mt-2" data-contact-identification-id="'. $contactIdentificationID .'" title="Delete Employee Identification">
-                                        Delete
-                                    </button>';
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-identification mt-3" data-contact-identification-id="'. $contactIdentificationID .'" title="Delete Employee Identification">
+                                    <i class="ti ti-trash"></i>
+                                </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeContactIdentification['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0);" class="update-contact-identification" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" data-contact-identification-id="'. $contactIdentificationID .'" title="Edit Employee Identification">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-2"><b>'. $idTypeName .'</b></p>
-                                                    <p class="mb-0 text-muted">' . $idNumber . '</p>
-                                                </div>
-                                                <div class="me-2">
-                                                    '. $isPrimaryBadge .'
-                                                </div>
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="me-2">
+                                            <p class="mb-2 text-primary"><b>'. $idTypeName .'</b></p>
+                                            <p class="mb-2 text-muted">' . $idNumber . '</p>
+                                            <div class="d-flex gap-2">
+                                                '. $update .'
+                                                '. $tag .'
+                                                '. $delete .'
                                             </div>
-                                        </a>
-                                        '. $tag .'
-                                        '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-2"><b>'. $idTypeName .'</b></p>
-                                                    <p class="mb-2 text-muted">' . $idNumber . '</p>
-                                                    '. $tag .'
-                                                    '. $delete .'
-                                                </div>
-                                                <div class="me-2">
-                                                    '. $isPrimaryBadge .'
-                                                </div>
-                                            </div>
-                                    </li>';
-                    }
+                                        </div>
+                                        <div class="me-2">
+                                            '. $isPrimaryBadge .'
+                                        </div>
+                                    </div>
+                                </li>';
                 }
 
                 if(empty($details)){
@@ -867,45 +838,36 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEducationalBackground['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-educational-background mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Edit Educational Background">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeEducationalBackground['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-educational-background mt-2" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Delete Educational Background">
-                            Delete
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-educational-background mt-3" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Delete Educational Background">
+                            <i class="ti ti-trash"></i>
                         </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEducationalBackground['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0)" class="update-contact-educational-background" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" data-contact-educational-background-id="'. $contactEducationalBackgroundID .'" title="Edit Educational Background">
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
-                                                    <p class="mb-1"><b>'. $institutionName .'</b></p>
+                                                    <p class="mb-1 text-primary"><b>'. $institutionName .'</b></p>
                                                     <p class="mb-1 text-muted">' . $degreeEarned . '</p>
                                                     <p class="mb-0 text-muted">' . $fieldOfStudy . '</p>
-                                                </div>
-                                                <div class="me-2">
-                                                    <p class="mb-0 text-muted">'. $startDate .' - '. $endDate .'</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $institutionName .'</b></p>
-                                                    <p class="mb-1 text-muted">' . $degreeEarned . '</p>
-                                                    <p class="mb-0 text-muted">' . $fieldOfStudy . '</p>
-                                                    '. $delete .'
+                                                    <div class="d-flex gap-2">
+                                                        '. $update .'
+                                                        '. $delete .'
+                                                    </div>
                                                 </div>
                                                 <div class="me-2">
                                                     <p class="mb-0 text-muted">'. $startDate .' - '. $endDate .'</p>
                                                 </div>
                                             </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -977,40 +939,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeFamilyBackground['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-family-background mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Edit Family Background">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeFamilyBackground['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-family-background mt-2" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Delete Family Background">
-                                        Delete
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-family-background mt-3" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Delete Family Background">
+                        <i class="ti ti-trash"></i>
                                     </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeFamilyBackground['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0)" class="update-contact-family-background" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" data-contact-family-background-id="'. $contactFamilyBackgroundID .'" title="Edit Family Background">
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
-                                                    <p class="mb-1"><b>'. $familyName .'</b></p>
+                                                    <p class="mb-1 text-primary"><b>'. $familyName .'</b></p>
                                                     <p class="mb-3 text-muted">' . $relationName . '</p>
                                                     <p class="mb-0 text-muted"><i class="ti ti-calendar-event"></i> ' . $birthday . '</p>
-                                                </div>
-                                                <div class="me-2 text-end">                                            
-                                                    '. $email .'
-                                                    '. $mobile .'
-                                                    '. $telephone .'
-                                                </div>
-                                            </div>
-                                        </a>
-                                        '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $familyName .'</b></p>
-                                                    <p class="mb-3 text-muted">' . $relationName . '</p>
-                                                    <p class="mb-0 text-muted"><i class="ti ti-calendar-event"></i> ' . $birthday . '</p>
-                                                    '. $delete .'
+                                                    <div class="d-flex gap-2">
+                                                        '. $update .'
+                                                        '. $delete .'
+                                                    </div>
                                                 </div>
                                                 <div class="me-2 text-end">                                            
                                                     '. $email .'
@@ -1019,7 +971,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                 </div>
                                             </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -1090,47 +1041,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEmergencyContact['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-emergency-contact mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Edit Emergency Contact">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeEmergencyContact['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-emergency-contact mt-2" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Delete Emergency Contact">
-                                        Delete
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-emergency-contact mt-3" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Delete Emergency Contact">
+                                    <i class="ti ti-trash"></i>
                                     </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEmergencyContact['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0);" class="update-contact-emergency-contact" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" data-contact-emergency-contact-id="'. $contactEmergencyContactID .'" title="Edit Emergency Contact">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $emergencyContactName .'</b></p>
-                                                    <p class="mb-0 text-muted">' . $relationName . '</p>
-                                                </div>
-                                                <div class="me-2 text-end">
-                                                    '. $email .'
-                                                    '. $mobile .'
-                                                    '. $telephone .'
-                                                </div>
-                                            </div>
-                                        </a>
-                                        '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $emergencyContactName .'</b></p>
-                                                    <p class="mb-0 text-muted">' . $relationName . '</p>
-                                                </div>
-                                                <div class="me-2 text-end">
-                                                    '. $email .'
-                                                    '. $mobile .'
-                                                    '. $telephone .'
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="me-2">
+                                                <p class="mb-1 text-primary"><b>'. $emergencyContactName .'</b></p>
+                                                <p class="mb-0 text-muted">' . $relationName . '</p>
+                                                <div class="d-flex gap-2">
+                                                    '. $update .'
                                                     '. $delete .'
                                                 </div>
                                             </div>
+                                            <div class="me-2 text-end">
+                                                '. $email .'
+                                                '. $mobile .'
+                                                '. $telephone .'
+                                            </div>
+                                        </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -1194,45 +1135,36 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeTraining['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-training mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" data-contact-training-id="'. $contactTrainingID .'" title="Edit Trainings & Seminars">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTraining['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-link-danger delete-contact-training mt-2" data-contact-training-id="'. $contactTrainingID .'" title="Delete Trainings & Seminars">
-                                        Delete
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-training mt-3" data-contact-training-id="'. $contactTrainingID .'" title="Delete Trainings & Seminars">
+                                    <i class="ti ti-trash"></i>
                                     </button>';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTraining['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0)" class="update-contact-training" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" data-contact-training-id="'. $contactTrainingID .'" title="Edit Trainings & Seminars">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $trainingName .'</b></p>
-                                                    <p class="mb-1 text-muted">' . $trainingProvider . '</p>
-                                                    <p class="mb-0 text-muted">' . $trainingLocation . '</p>
-                                                </div>
-                                                <div class="me-2">
-                                                    <p class="mb-0 text-muted">' . $trainingDate . '</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        '. $delete .'
-                                    </li>';
-                    }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="me-2">
-                                                <p class="mb-1"><b>'. $trainingName .'</b></p>
+                                                <p class="mb-1 text-primary"><b>'. $trainingName .'</b></p>
                                                 <p class="mb-1 text-muted">' . $trainingProvider . '</p>
                                                 <p class="mb-0 text-muted">' . $trainingLocation . '</p>
-                                                '. $delete .'
+                                                <div class="d-flex gap-2">
+                                                    '. $update .'
+                                                    '. $delete .'
+                                                </div>
                                             </div>
                                             <div class="me-2">
                                                 <p class="mb-0 text-muted">' . $trainingDate . '</p>
                                             </div>
                                         </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -1293,33 +1225,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $listMargin = '';
                     }
 
-                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTraining['total'] > 0){
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                        <a href="javascript:void(0)" class="update-contact-training" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" data-contact-training-id="'. $contactTrainingID .'" title="Edit Trainings & Seminars">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="me-2">
-                                                    <p class="mb-1"><b>'. $trainingName .'</b></p>
-                                                    <p class="mb-1 text-muted">' . $trainingProvider . '</p>
-                                                    <p class="mb-0 text-muted">' . $trainingLocation . '</p>
-                                                </div>
-                                                <div class="me-2">
-                                                    <p class="mb-0 text-muted">' . $trainingDate . '</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                        '. $delete .'
-                                    </li>';
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeSkills['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-skills" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" data-contact-skills-id="'. $contactSkillsID .'" title="Edit Skills">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
                     }
-                    else{
-                        $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeSkills['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-skills" data-contact-skills-id="'. $contactSkillsID .'" title="Delete Skills">
+                                            <i class="ti ti-pencil"></i>
+                                        </button>';
+                    }
+
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <p class="mb-0">'. $skillName .'</p>
+                                            <p class="mb-0 text-primary">'. $skillName .'</p>
+                                            <div class="d-flex gap-2">
+                                                '. $update .'
                                                 '. $delete .'
                                             </div>
                                         </div>
                                     </li>';
-                    }
                 }
 
                 if(empty($details)){
@@ -1379,16 +1307,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     else {
                         $listMargin = '';
                     }
-    
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeTalents['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-talents" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" data-contact-talents-id="'. $contactTalentsID .'" title="Edit Talents">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeTalents['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-talents" data-contact-talents-id="'. $contactTalentsID .'" title="Delete Talents">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                    }
+
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                    <a href="javascript:void(0);" class="update-contact-talents" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" data-contact-talents-id="'. $contactTalentsID .'" title="Edit Talents">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <p class="mb-0">'. $talentName .'</p>
+                                            <p class="mb-0 text-primary">'. $talentName .'</p>
+                                            <div class="d-flex gap-2">
+                                                '. $update .'
+                                                '. $delete .'
                                             </div>
                                         </div>
-                                    </a>
-                                </li>';
+                                    </li>';
                 }
 
                 if(empty($details)){
@@ -1448,16 +1390,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     else {
                         $listMargin = '';
                     }
-    
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeHobby['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-hobby" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" data-contact-hobby-id="'. $contactHobbyID .'" title="Edit Hobby">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeHobby['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-hobby" data-contact-hobby-id="'. $contactHobbyID .'" title="Delete Hobby">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                    }
+
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
-                                    <a href="javascript:void(0);" class="update-contact-hobby" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" data-contact-hobby-id="'. $contactHobbyID .'" title="Edit Hobby">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <p class="mb-0">'. $hobbyName .'</p>
+                                            <p class="mb-0 text-primary">'. $hobbyName .'</p>
+                                            <div class="d-flex gap-2">
+                                                 '. $update .'
+                                                '. $delete .'
                                             </div>
                                         </div>
-                                    </a>
-                                </li>';
+                                    </li>';
                 }
 
                 if(empty($details)){

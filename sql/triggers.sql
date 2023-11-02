@@ -3078,6 +3078,96 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Employment History Table Triggers */
+
+CREATE TRIGGER contact_employment_history_trigger_update
+AFTER UPDATE ON contact_employment_history
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.hobby_name <> OLD.hobby_name THEN
+        SET audit_log = CONCAT(audit_log, "Company: ", OLD.company, " -> ", NEW.company, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.last_position_held <> OLD.last_position_held THEN
+        SET audit_log = CONCAT(audit_log, "Last Position Held: ", OLD.last_position_held, " -> ", NEW.last_position_held, "<br/>");
+    END IF;
+
+    IF NEW.employment_start_date <> OLD.employment_start_date THEN
+        SET audit_log = CONCAT(audit_log, "Employment Start Date: ", OLD.employment_start_date, " -> ", NEW.employment_start_date, "<br/>");
+    END IF;
+
+    IF NEW.employment_end_date <> OLD.employment_end_date THEN
+        SET audit_log = CONCAT(audit_log, "Employment End Date: ", OLD.employment_end_date, " -> ", NEW.employment_end_date, "<br/>");
+    END IF;
+
+    IF NEW.basic_function <> OLD.basic_function THEN
+        SET audit_log = CONCAT(audit_log, "Basic Function: ", OLD.basic_function, " -> ", NEW.basic_function, "<br/>");
+    END IF;
+
+    IF NEW.starting_salary <> OLD.starting_salary THEN
+        SET audit_log = CONCAT(audit_log, "Starting Salary: ", OLD.starting_salary, " -> ", NEW.starting_salary, "<br/>");
+    END IF;
+
+    IF NEW.final_salary <> OLD.final_salary THEN
+        SET audit_log = CONCAT(audit_log, "Final Salary: ", OLD.final_salary, " -> ", NEW.final_salary, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_employment_history', NEW.contact_employment_history_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_employment_history_trigger_insert
+AFTER INSERT ON contact_employment_history
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact employment history created. <br/>';
+
+    IF NEW.company <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company: ", NEW.company);
+    END IF;
+
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    IF NEW.last_position_held <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Last Position Held: ", NEW.last_position_held);
+    END IF;
+
+    IF NEW.employment_start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employment Start Date: ", NEW.employment_start_date);
+    END IF;
+
+    IF NEW.employment_end_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Employment End Date: ", NEW.employment_end_date);
+    END IF;
+
+    IF NEW.basic_function <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Basic Function: ", NEW.basic_function);
+    END IF;
+
+    IF NEW.starting_salary <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Starting Salary: ", NEW.starting_salary);
+    END IF;
+
+    IF NEW.final_salary <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Final Salary: ", NEW.final_salary);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_employment_history', NEW.contact_employment_history_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 
