@@ -114,6 +114,17 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
+                <h5>Contact Information</h5>
+                <?php echo $contactInformationAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
                 <h5>Licenses & Certifications</h5>
               </div>
             </div>
@@ -165,6 +176,18 @@
               <ul class="list-group list-group-flush" id="contact-hobby-summary"></ul>              
             </div>
           </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Emergency Contact</h5>
+                <?php echo $employeeEmergencyContactAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
+              </ul>
+            </div>
+          </div>
         </div>
         <div class="col-lg-7 col-xxl-8">
           <div class="card">
@@ -185,17 +208,6 @@
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-employment-history-summary"></ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Contact Information</h5>
-                <?php echo $contactInformationAdd; ?>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
             </div>
           </div>
           <div class="card">
@@ -243,18 +255,6 @@
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-family-background-summary">
-              </ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Emergency Contact</h5>
-                <?php echo $employeeEmergencyContactAdd; ?>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
               </ul>
             </div>
           </div>
@@ -1053,7 +1053,7 @@
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-6 mt-3 mt-lg-0">
-                                    <label class="form-label">Starting Salary</label>
+                                    <label class="form-label">Starting Salary <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                       <input type="number" min="0" step="0.01" class="form-control" id="starting_salary" name="starting_salary">
                                       <span class="input-group-text">Php</span>

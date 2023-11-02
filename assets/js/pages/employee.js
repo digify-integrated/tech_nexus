@@ -1154,6 +1154,73 @@
                 });
             });
 
+            $(document).on('click','#add-contact-employment-history',function() {
+                resetModalForm("contact-employment-history-form");
+            });
+
+            $(document).on('click','.update-contact-employment-history',function() {
+                const contact_employment_history_id = $(this).data('contact-employment-history-id');
+        
+                sessionStorage.setItem('contact_employment_history_id', contact_employment_history_id);
+                
+                displayDetails('get contact employment history details');
+            });
+
+            $(document).on('click','.delete-contact-employment-history',function() {
+                const contact_employment_history_id = $(this).data('contact-employment-history-id');
+                const transaction = 'delete contact employment history';
+        
+                Swal.fire({
+                    title: 'Confirm Employment History Deletion',
+                    text: 'Are you sure you want to delete this employmetn history?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_employment_history_id : contact_employment_history_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Employment History Success', 'The employment history has been deleted successfully.', 'success');
+                                    employeeEmploymentHistorySummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Employment History Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $('#employee_image').change(function() {
                 var selectedFile = $(this)[0].files[0];
 
@@ -2919,6 +2986,9 @@ function employeeEmploymentHistoryForm(){
             },
             employment_start_date: {
                 required: true
+            },
+            starting_salary: {
+                required: true
             }
         },
         messages: {
@@ -2933,6 +3003,9 @@ function employeeEmploymentHistoryForm(){
             },
             employment_start_date: {
                 required: 'Please choose the employment start date'
+            },
+            starting_salary: {
+                required: 'Please enter the starting salary'
             }
         },
         errorPlacement: function (error, element) {
@@ -3505,6 +3578,50 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Hobby Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact employment history details':
+            var contact_employment_history_id = sessionStorage.getItem('contact_employment_history_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_employment_history_id : contact_employment_history_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-hobby-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_employment_history_id').val(contact_employment_history_id);
+                        $('#employment_history_last_position_held').val(response.lastPositionHeld);
+                        $('#employment_history_company').val(response.company);
+                        $('#employment_history_address').val(response.address);
+                        $('#employment_start_date').val(response.employmentStartDate);
+                        $('#employment_end_date').val(response.employmentEndDate);
+                        $('#starting_salary').val(response.startingSalary);
+                        $('#final_salary').val(response.finalSalary);
+                        $('#basic_function').val(response.basicFunction);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Employment History Details Error', response.message, 'danger');
                         }
                     }
                 },

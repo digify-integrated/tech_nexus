@@ -146,6 +146,9 @@ class EmployeeController {
                 case 'save contact hobby':
                     $this->saveContactHobby();
                     break;
+                case 'save contact employment history':
+                    $this->saveContactEmploymentHistory();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
@@ -182,6 +185,9 @@ class EmployeeController {
                 case 'get contact hobby details':
                     $this->getContactHobby();
                     break;
+                case 'get contact employment history details':
+                    $this->getContactEmploymentHistory();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
@@ -217,6 +223,9 @@ class EmployeeController {
                     break;
                 case 'delete contact hobby':
                     $this->deleteContactHobby();
+                    break;
+                case 'delete contact employment history':
+                    $this->deleteContactEmploymentHistory();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -819,6 +828,59 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertContactHobby($employeeID, $hobbyName, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactEmploymentHistory
+    # Description: 
+    # Updates the existing contact employment history if it exists; otherwise, inserts a new contact employment history.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactEmploymentHistory() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEmploymentHistoryID = isset($_POST['contact_employment_history_id']) ? htmlspecialchars($_POST['contact_employment_history_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $lastPositionHeld = htmlspecialchars($_POST['employment_history_last_position_held'], ENT_QUOTES, 'UTF-8');
+        $company = htmlspecialchars($_POST['employment_history_company'], ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($_POST['employment_history_address'], ENT_QUOTES, 'UTF-8');
+        $employmentStartDate = $this->systemModel->checkDate('empty', $_POST['employment_start_date'], '', 'Y-m-d', '');
+        $employmentEndDate = $this->systemModel->checkDate('empty', $_POST['employment_end_date'], '', 'Y-m-d', '');
+        $startingSalary = htmlspecialchars($_POST['starting_salary'], ENT_QUOTES, 'UTF-8');
+        $finalSalary = htmlspecialchars($_POST['final_salary'], ENT_QUOTES, 'UTF-8');
+        $basicFunction = htmlspecialchars($_POST['basic_function'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEmploymentHistoryExist = $this->employeeModel->checkContactEmploymentHistoryExist($contactEmploymentHistoryID);
+        $total = $checkContactEmploymentHistoryExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactEmploymentHistory($contactEmploymentHistoryID, $employeeID, $company, $address, $lastPositionHeld, $employmentStartDate, $employmentEndDate, $basicFunction, $startingSalary, $finalSalary, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactEmploymentHistory($employeeID, $company, $address, $lastPositionHeld, $employmentStartDate, $employmentEndDate, $basicFunction, $startingSalary, $finalSalary, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -1459,6 +1521,47 @@ class EmployeeController {
         }
     
         $this->employeeModel->deleteContactHobby($contactHobbyID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEmploymentHistory
+    # Description: 
+    # Delete the contact employment history if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEmploymentHistory() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactEmploymentHistoryID = htmlspecialchars($_POST['contact_employment_history_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactEmploymentHistoryExist = $this->employeeModel->checkContactEmploymentHistoryExist($contactEmploymentHistoryID);
+        $total = $checkContactEmploymentHistoryExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactEmploymentHistory($contactEmploymentHistoryID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -2158,6 +2261,54 @@ class EmployeeController {
             $response = [
                 'success' => true,
                 'hobbyName' => $contactHobbyDetails['hobby_name'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEmploymentHistory
+    # Description: 
+    # Handles the retrieval of employment history details such as badge ID, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactEmploymentHistory() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_employment_history_id']) && !empty($_POST['contact_employment_history_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactEmploymentHistoryID = $_POST['contact_employment_history_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactEmploymentHistoryDetails = $this->employeeModel->getContactEmploymentHistory($contactEmploymentHistoryID);
+            $lastPositionHeld = $contactEmploymentHistoryDetails['last_position_held'] ?? null;
+
+            $response = [
+                'success' => true,
+                'company' => $contactEmploymentHistoryDetails['company'] ?? null,
+                'address' => $contactEmploymentHistoryDetails['address'] ?? null,
+                'lastPositionHeld' => $contactEmploymentHistoryDetails['last_position_held'] ?? null,
+                'basicFunction' => $contactEmploymentHistoryDetails['basic_function'] ?? null,
+                'startingSalary' => $contactEmploymentHistoryDetails['starting_salary'] ?? null,
+                'finalSalary' => $contactEmploymentHistoryDetails['final_salary'] ?? null,
+                'employmentStartDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_start_date'] ?? null, '', 'm/d/Y', ''),
+                'employmentEndDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_end_date'] ?? null, '', 'm/d/Y', ''),
             ];
 
             echo json_encode($response);

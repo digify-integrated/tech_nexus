@@ -1235,7 +1235,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $delete = '';
                     if($employeeWriteAccess['total'] > 0 && $deleteEmployeeSkills['total'] > 0){
                         $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-skills" data-contact-skills-id="'. $contactSkillsID .'" title="Delete Skills">
-                                            <i class="ti ti-pencil"></i>
+                                            <i class="ti ti-trash"></i>
                                         </button>';
                     }
 
@@ -1422,6 +1422,140 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactHobbySummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact employment history summary
+        # Description:
+        # Generates the contact employment history summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact employment history summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactEmploymentHistorySummary(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeEmploymentHistory = $userModel->checkSystemActionAccessRights($user_id, 66);
+                $deleteEmployeeEmploymentHistory = $userModel->checkSystemActionAccessRights($user_id, 67);
+
+                foreach ($options as $index => $row) {
+                    $contactEmploymentHistoryID = $row['contact_employment_history_id'];
+                    $company = $row['company'];
+                    $address = $row['address'];
+                    $lastPositionHeld = $row['last_position_held'];
+                    $basicFunction = $row['basic_function'];
+                    $startingSalary = $row['starting_salary'];
+                    $finalSalary = $row['final_salary'];
+                    $employmentStartDate = $systemModel->checkDate('empty', $row['employment_start_date'], '', 'M Y', '');
+                    $employmentEndDate = $systemModel->checkDate('empty', $row['employment_end_date'], '', 'M Y', '');
+                    $durationParts = [];
+
+                    if (empty($employmentEndDate)) {
+                        $employmentEndDate = 'Present';
+                        $endDateTime = new DateTime(date('M Y'));
+                    } else {
+                        $endDateTime = new DateTime($employmentEndDate);
+                    }
+
+                    $startDateTime = new DateTime($employmentStartDate);
+
+                    $interval = $startDateTime->diff($endDateTime);
+
+                    if ($interval->y > 0) {
+                        $yearLabel = ($interval->y === 1) ? 'year' : 'years';
+                        $durationParts[] = $interval->format('%y ' . $yearLabel);
+                    }
+
+                    if ($interval->m > 0) {
+                        $monthLabel = ($interval->m === 1) ? 'month' : 'months';
+                        $durationParts[] = $interval->format('%m ' . $monthLabel);
+                    }
+
+                    $employmentDuration = implode(' and ', $durationParts);
+
+                    if (empty($employmentDuration)) {
+                        $employmentDuration = 'Less than a month';
+                    }
+
+                    if ($startingSalary > 0 || $finalSalary > 0) {
+                        $salary = number_format($startingSalary, 2) . ' Php';
+                        if ($finalSalary > 0) {
+                            $salary .= ' - ' . number_format($finalSalary, 2) . ' Php';
+                        }
+                    } else {
+                        $salary = '';
+                    }
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeEmploymentHistory['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-employment-history mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employment-history-offcanvas" aria-controls="contact-employment-history-offcanvas" data-contact-employment-history-id="'. $contactEmploymentHistoryID .'" title="Edit Employment History">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeEmploymentHistory['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-employment-history mt-3" data-contact-employment-history-id="'. $contactEmploymentHistoryID .'" title="Delete Employment History">
+                            <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="me-2">
+                                                    <p class="mb-1 text-primary"><b>'. $lastPositionHeld .'</b></p>
+                                                    <p class="mb-1 text-muted">'. $company .'</p>
+                                                    <p class="mb-3 text-muted">'. $address  .'</p>
+                                                    <p class="mb-3 text-muted">'. $basicFunction .'</p>
+                                                    <p class="mb-0 text-muted">'. $employmentStartDate .' - '. $employmentEndDate .' ('. $employmentDuration .')</p>
+                                                    <p class="mb-0 text-muted">'. $salary .'</p>
+                                                    <div class="d-flex gap-2">
+                                                        '. $update .'
+                                                        '. $delete .'
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No employment history found.';
+                }
+
+                $response[] = [
+                    'contactEmploymentHistorySummary' => $details
                 ];
     
                 echo json_encode($response);

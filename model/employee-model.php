@@ -408,6 +408,7 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_contact_skills_id (int): The skills ID.
+    # - $p_contact_id (int): The contact ID.
     # - $p_skill_name (string): The skill name.
     # - $p_last_log_by (int): The last logged user.
     #
@@ -432,6 +433,7 @@ class EmployeeModel {
     # Parameters:
     # - $p_contact_talents_id (int): The talents ID.
     # - $p_talent_name (string): The talent name.
+    # - $p_contact_id (int): The contact ID.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
@@ -454,6 +456,7 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_contact_hobby_id (int): The hobby ID.
+    # - $p_contact_id (int): The contact ID.
     # - $p_hobby_name (string): The hobby name.
     # - $p_last_log_by (int): The last logged user.
     #
@@ -465,6 +468,44 @@ class EmployeeModel {
         $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_hobby_name', $p_hobby_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactEmploymentHistory
+    # Description: Updates the contact employment history.
+    #
+    # Parameters:
+    # - $p_contact_employment_history_id (int): The employment history ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_company (string): The company name.
+    # - $p_address (string): The company address.
+    # - $p_last_position_held (string): The last position held.
+    # - $p_employment_start_date (date): The employment start date.
+    # - $p_employment_end_date (date): The employment end date.
+    # - $p_basic_function (date): The basic function.
+    # - $p_starting_salary (double): The starting salary.
+    # - $p_final_salary (double): The final salary.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactEmploymentHistory($p_contact_employment_history_id, $p_contact_id, $p_company, $p_address, $p_last_position_held, $p_employment_start_date, $p_employment_end_date, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmploymentHistory (:p_contact_employment_history_id, :p_contact_id, :p_company, :p_address, :p_last_position_held, :p_employment_start_date, :p_employment_end_date, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company', $p_company, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_position_held', $p_last_position_held, PDO::PARAM_STR);
+        $stmt->bindValue(':p_employment_start_date', $p_employment_start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_employment_end_date', $p_employment_end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_basic_function', $p_basic_function, PDO::PARAM_STR);
+        $stmt->bindValue(':p_starting_salary', $p_starting_salary, PDO::PARAM_STR);
+        $stmt->bindValue(':p_final_salary', $p_final_salary, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -902,6 +943,42 @@ class EmployeeModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactEmploymentHistory
+    # Description: Inserts the contact employment history.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_company (string): The company name.
+    # - $p_address (string): The company address.
+    # - $p_last_position_held (string): The last position held.
+    # - $p_employment_start_date (date): The employment start date.
+    # - $p_employment_end_date (date): The employment end date.
+    # - $p_basic_function (date): The basic function.
+    # - $p_starting_salary (double): The starting salary.
+    # - $p_final_salary (double): The final salary.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactEmploymentHistory($p_contact_id, $p_company, $p_address, $p_last_position_held, $p_employment_start_date, $p_employment_end_date, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactEmploymentHistory (:p_contact_id, :p_company, :p_address, :p_last_position_held, :p_employment_start_date, :p_employment_end_date, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company', $p_company, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_position_held', $p_last_position_held, PDO::PARAM_STR);
+        $stmt->bindValue(':p_employment_start_date', $p_employment_start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_employment_end_date', $p_employment_end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_basic_function', $p_basic_function, PDO::PARAM_STR);
+        $stmt->bindValue(':p_starting_salary', $p_starting_salary, PDO::PARAM_STR);
+        $stmt->bindValue(':p_final_salary', $p_final_salary, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Check exist methods
@@ -1155,6 +1232,25 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactEmploymentHistoryExist
+    # Description: Checks if a contact employment history exists.
+    #
+    # Parameters:
+    # - $p_contact_employment_history_id (int): The contact employment history ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactEmploymentHistoryExist($p_contact_employment_history_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactEmploymentHistoryExist(:p_contact_employment_history_id)');
+        $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1352,6 +1448,24 @@ class EmployeeModel {
     public function deleteContactHobby($p_contact_hobby_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactHobby(:p_contact_hobby_id)');
         $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactEmploymentHistory
+    # Description: Deletes the contact employment history.
+    #
+    # Parameters:
+    # - $p_contact_employment_history_id (int): The contact employment history ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactEmploymentHistory($p_contact_employment_history_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactEmploymentHistory(:p_contact_employment_history_id)');
+        $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1595,6 +1709,26 @@ class EmployeeModel {
     public function getContactHobby($p_contact_hobby_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getContactHobby(:p_contact_hobby_id)');
         $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactEmploymentHistory
+    # Description: Retrieves the details of a contact employment history.
+    #
+    # Parameters:
+    # - $p_contact_employment_history_id (int): The employment history ID.
+    #
+    # Returns:
+    # - An array containing the employment history.
+    #
+    # -------------------------------------------------------------
+    public function getContactEmploymentHistory($p_contact_employment_history_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactEmploymentHistory(:p_contact_employment_history_id)');
+        $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
