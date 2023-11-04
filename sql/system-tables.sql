@@ -219,6 +219,9 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '1');
 
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language', '3', 'language.php', '11', '', '12', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language Proficiency', '3', 'language-proficiency.php', '11', '', '12', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Menu Item Access Right Table */
@@ -295,6 +298,9 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('47', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('48', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('49', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('50', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -373,10 +379,16 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Hobbies', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Hobbies', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Hobbies', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee License', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee License', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee License', '1');
 
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employment History', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employment History', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employment History', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Language', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Language', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Language', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -459,10 +471,16 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('62', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('63', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('64', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('65', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('66', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('67', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('68', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('69', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('70', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('71', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('72', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('73', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3688,8 +3706,11 @@ CREATE TABLE contact_educational_background (
     institution_name VARCHAR(500) NOT NULL,
     degree_earned VARCHAR(500),
     field_of_study VARCHAR(500),
-    start_date DATE NOT NULL,
-    end_date DATE,
+    start_month VARCHAR(10) NOT NULL,
+    start_year VARCHAR(10) NOT NULL,
+    end_month VARCHAR(10),
+    end_year VARCHAR(10),
+    course_highlights TEXT,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -3811,7 +3832,7 @@ CREATE INDEX contact_hobby_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Employment History Table */
+/* Contact Employment History Table */
 
 CREATE TABLE contact_employment_history (
     contact_employment_history_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -3831,6 +3852,232 @@ CREATE TABLE contact_employment_history (
 
 CREATE INDEX contact_employment_history_index_contact_employment_history_id ON contact_employment_history(contact_employment_history_id);
 CREATE INDEX contact_employment_history_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact License Table */
+
+CREATE TABLE contact_license (
+    contact_license_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    license_name VARCHAR(500) NOT NULL,
+    issuing_organization VARCHAR(500),
+    issue_date DATE NOT NULL,
+    expiry_date DATE,
+    description VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_license_index_contact_license_id ON contact_license(contact_license_id);
+CREATE INDEX contact_license_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Language Table */
+
+CREATE TABLE contact_language (
+    contact_language_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    language_id INT UNSIGNED NOT NULL,
+    language_proficiency_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_language_index_contact_language_id ON contact_language(contact_language_id);
+CREATE INDEX contact_language_index_language_id ON language(language_id);
+CREATE INDEX contact_language_index_language_proficiency_id ON language_proficiency(language_proficiency_id);
+CREATE INDEX contact_language_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Table */
+
+CREATE TABLE language (
+    language_id INT AUTO_INCREMENT PRIMARY KEY,
+    language_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX language_index_language_id ON language(language_id);
+
+INSERT INTO language (language_name, last_log_by)
+VALUES
+    ('Afrikaans', '1'),
+    ('Amharic', '1'),
+    ('Arabic', '1'),
+    ('Assamese', '1'),
+    ('Azerbaijani', '1'),
+    ('Belarusian', '1'),
+    ('Bulgarian', '1'),
+    ('Bhojpuri', '1'),
+    ('Bengali', '1'),
+    ('Bosnian', '1'),
+    ('Catalan, Valencian', '1'),
+    ('Cebuano', '1'),
+    ('Czech', '1'),
+    ('Danish', '1'),
+    ('German', '1'),
+    ('Ewe', '1'),
+    ('Greek, Modern', '1'),
+    ('Spanish', '1'),
+    ('Estonian', '1'),
+    ('Basque', '1'),
+    ('Persian', '1'),
+    ('Fula', '1'),
+    ('Finnish', '1'),
+    ('French', '1'),
+    ('Irish', '1'),
+    ('Galician', '1'),
+    ('Guarani', '1'),
+    ('Gujarati', '1'),
+    ('Hausa', '1'),
+    ('Haitian Creole', '1'),
+    ('Hebrew (modern)', '1'),
+    ('Hindi', '1'),
+    ('Chhattisgarhi', '1'),
+    ('Croatian', '1'),
+    ('Hungarian', '1'),
+    ('Armenian', '1'),
+    ('Indonesian', '1'),
+    ('Igbo', '1'),
+    ('Icelandic', '1'),
+    ('Italian', '1'),
+    ('Japanese', '1'),
+    ('Syro-Palestinian Sign Language', '1'),
+    ('Javanese', '1'),
+    ('Georgian', '1'),
+    ('Kikuyu', '1'),
+    ('Kyrgyz', '1'),
+    ('Kuanyama', '1'),
+    ('Kazakh', '1'),
+    ('Khmer', '1'),
+    ('Kannada', '1'),
+    ('Korean', '1'),
+    ('Krio', '1'),
+    ('Kashmiri', '1'),
+    ('Kurdish', '1'),
+    ('Latin', '1'),
+    ('Lithuanian', '1'),
+    ('Luxembourgish', '1'),
+    ('Latvian', '1'),
+    ('Magahi', '1'),
+    ('Maithili', '1'),
+    ('Malagasy', '1'),
+    ('Macedonian', '1'),
+    ('Malayalam', '1'),
+    ('Mongolian', '1'),
+    ('Marathi (Marāṭhī)', '1'),
+    ('Malay', '1'),
+    ('Maltese', '1'),
+    ('Burmese', '1'),
+    ('Nepali', '1'),
+    ('Dutch', '1'),
+    ('Norwegian', '1'),
+    ('Oromo', '1'),
+    ('Odia', '1'),
+    ('Oromo', '1'),
+    ('Panjabi, Punjabi', '1'),
+    ('Polish', '1'),
+    ('Pashto', '1'),
+    ('Portuguese', '1'),
+    ('Rundi', '1'),
+    ('Romanian, Moldavian, Moldovan', '1'),
+    ('Russian', '1'),
+    ('Kinyarwanda', '1'),
+    ('Sindhi', '1'),
+    ('Argentine Sign Language', '1'),
+    ('Brazilian Sign Language', '1'),
+    ('Chinese Sign Language', '1'),
+    ('Colombian Sign Language', '1'),
+    ('German Sign Language', '1'),
+    ('Algerian Sign Language', '1'),
+    ('Ecuadorian Sign Language', '1'),
+    ('Spanish Sign Language', '1'),
+    ('Ethiopian Sign Language', '1'),
+    ('French Sign Language', '1'),
+    ('British Sign Language', '1'),
+    ('Ghanaian Sign Language', '1'),
+    ('Irish Sign Language', '1'),
+    ('Indopakistani Sign Language', '1'),
+    ('Persian Sign Language', '1'),
+    ('Italian Sign Language', '1'),
+    ('Japanese Sign Language', '1'),
+    ('Kenyan Sign Language', '1'),
+    ('Korean Sign Language', '1'),
+    ('Moroccan Sign Language', '1'),
+    ('Mexican Sign Language', '1'),
+    ('Malaysian Sign Language', '1'),
+    ('Philippine Sign Language', '1'),
+    ('Polish Sign Language', '1'),
+    ('Portuguese Sign Language', '1'),
+    ('Russian Sign Language', '1'),
+    ('Saudi Arabian Sign Language', '1'),
+    ('El Salvadoran Sign Language', '1'),
+    ('Turkish Sign Language', '1'),
+    ('Tanzanian Sign Language', '1'),
+    ('Ukrainian Sign Language', '1'),
+    ('American Sign Language', '1'),
+    ('South African Sign Language', '1'),
+    ('Zimbabwe Sign Language', '1'),
+    ('Sinhala, Sinhalese', '1'),
+    ('Slovak', '1'),
+    ('Saraiki', '1'),
+    ('Slovene', '1'),
+    ('Shona', '1'),
+    ('Somali', '1'),
+    ('Albanian', '1'),
+    ('Serbian', '1'),
+    ('Swati', '1'),
+    ('Sunda', '1'),
+    ('Swedish', '1'),
+    ('Swahili', '1'),
+    ('Sylheti', '1'),
+    ('Tamil', '1'),
+    ('Telugu', '1'),
+    ('Thai', '1'),
+    ('Tibetan', '1'),
+    ('Tigrinya', '1'),
+    ('Turkmen', '1'),
+    ('Tswana', '1'),
+    ('Turkish', '1'),
+    ('Uyghur', '1'),
+    ('Ukrainian', '1'),
+    ('Urdu', '1'),
+    ('Uzbek', '1'),
+    ('Vietnamese', '1'),
+    ('Xhosa', '1'),
+    ('Yiddish', '1'),
+    ('Yoruba', '1'),
+    ('Cantonese', '1'),
+    ('Chinese', '1'),
+    ('Zulu', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Proficiency Table */
+
+CREATE TABLE language_proficiency (
+    language_proficiency_id INT AUTO_INCREMENT PRIMARY KEY,
+    language_proficiency_name VARCHAR(100) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX language_proficiency_index_language_proficiency_id ON language_proficiency(language_proficiency_id);
+
+INSERT INTO language_proficiency (language_proficiency_name, description, last_log_by)
+VALUES
+    ('Basic', 'Only able to communicate in this language through written communication.', '1'),
+    ('Conversational', 'Know this language well enough to verbally discuss basic topics.', '1'),
+    ('Intermediate', 'Can comfortably converse in this language on a variety of topics.', '1'),
+    ('Advanced', 'Proficient in this language, can handle complex discussions and tasks.', '1'),
+    ('Fluent', 'Mastery level, can speak and understand this language at a native level.', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

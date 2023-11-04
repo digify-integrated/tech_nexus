@@ -512,6 +512,64 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactLicense
+    # Description: Updates the contact license.
+    #
+    # Parameters:
+    # - $p_contact_license_id (int): The license ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_license_name (string): The license name.
+    # - $issuing_organization (string): The issuing organization.
+    # - $p_issue_date (date): The issue date.
+    # - $p_expiry_date (date): The expiry date.
+    # - $p_description (string): The description.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactLicense($p_contact_license_id, $p_contact_id, $p_license_name, $issuing_organization, $p_issue_date, $p_expiry_date, $p_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactLicense (:p_contact_license_id, :p_contact_id, :p_license_name, :issuing_organization, :p_issue_date, :p_expiry_date, :p_description, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_license_name', $p_license_name, PDO::PARAM_STR);
+        $stmt->bindValue(':issuing_organization', $issuing_organization, PDO::PARAM_STR);
+        $stmt->bindValue(':p_issue_date', $p_issue_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expiry_date', $p_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactLanguage
+    # Description: Updates the contact language.
+    #
+    # Parameters:
+    # - $p_contact_language_id (int): The language ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_language_id (int): The language ID.
+    # - $p_language_proficiency_id (int): The language proficiency ID.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactLanguage($p_contact_language_id, $p_contact_id, $p_language_id, $p_language_proficiency_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactLanguage (:p_contact_language_id, :p_contact_id, :p_language_id, :p_language_proficiency_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_language_id', $p_language_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_language_proficiency_id', $p_language_proficiency_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -981,6 +1039,60 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertContactLicense
+    # Description: Inserts the contact license.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_license_name (string): The license name.
+    # - $issuing_organization (string): The issuing organization.
+    # - $p_issue_date (date): The issue date.
+    # - $p_expiry_date (date): The expiry date.
+    # - $p_description (string): The description.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactLicense($p_contact_id, $p_license_name, $issuing_organization, $p_issue_date, $p_expiry_date, $p_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactLicense (:p_contact_id, :p_license_name, :issuing_organization, :p_issue_date, :p_expiry_date, :p_description, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_license_name', $p_license_name, PDO::PARAM_STR);
+        $stmt->bindValue(':issuing_organization', $issuing_organization, PDO::PARAM_STR);
+        $stmt->bindValue(':p_issue_date', $p_issue_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_expiry_date', $p_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactLanguage
+    # Description: Inserts the contact language.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_language_id (int): The language ID.
+    # - $p_language_proficiency_id (int): The language proficiency ID.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactLanguage($p_contact_id, $p_language_id, $p_language_proficiency_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactLanguage (:p_contact_id, :p_language_id, :p_language_proficiency_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_language_id', $p_language_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_language_proficiency_id', $p_language_proficiency_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -1251,6 +1363,44 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactLicenseExist
+    # Description: Checks if a contact license exists.
+    #
+    # Parameters:
+    # - $p_contact_license_id (int): The contact license ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactLicenseExist($p_contact_license_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactLicenseExist(:p_contact_license_id)');
+        $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkContactLanguageExist
+    # Description: Checks if a contact language exists.
+    #
+    # Parameters:
+    # - $p_contact_language_id (int): The contact language ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactLanguageExist($p_contact_language_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactLanguageExist(:p_contact_language_id)');
+        $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1466,6 +1616,42 @@ class EmployeeModel {
     public function deleteContactEmploymentHistory($p_contact_employment_history_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactEmploymentHistory(:p_contact_employment_history_id)');
         $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactLicense
+    # Description: Deletes the contact license.
+    #
+    # Parameters:
+    # - $p_contact_license_id (int): The contact license ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactLicense($p_contact_license_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactLicense(:p_contact_license_id)');
+        $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactLanguage
+    # Description: Deletes the contact language.
+    #
+    # Parameters:
+    # - $p_contact_language_id (int): The contact language ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactLanguage($p_contact_language_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactLanguage(:p_contact_language_id)');
+        $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1729,6 +1915,46 @@ class EmployeeModel {
     public function getContactEmploymentHistory($p_contact_employment_history_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getContactEmploymentHistory(:p_contact_employment_history_id)');
         $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactLicense
+    # Description: Retrieves the details of a contact license.
+    #
+    # Parameters:
+    # - $p_contact_license_id (int): The license ID.
+    #
+    # Returns:
+    # - An array containing the license.
+    #
+    # -------------------------------------------------------------
+    public function getContactLicense($p_contact_license_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactLicense(:p_contact_license_id)');
+        $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactLanguage
+    # Description: Retrieves the details of a contact language.
+    #
+    # Parameters:
+    # - $p_contact_language_id (int): The language ID.
+    #
+    # Returns:
+    # - An array containing the license.
+    #
+    # -------------------------------------------------------------
+    public function getContactLanguage($p_contact_language_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactLanguage(:p_contact_language_id)');
+        $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

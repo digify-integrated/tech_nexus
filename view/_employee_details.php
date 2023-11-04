@@ -69,6 +69,16 @@
       if($addEmploymentHistory['total'] > 0){
         $employeeEmploymentHistoryAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employment-history-offcanvas" aria-controls="contact-employment-history-offcanvas" id="add-contact-employment-history"><i class="ti ti-plus"></i></button>';
       }
+
+      $employeeLicenseAdd = '';
+      if($addEmployeeLicense['total'] > 0){
+        $employeeLicenseAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-license-offcanvas" aria-controls="contact-employee-license-offcanvas" id="add-contact-employee-license"><i class="ti ti-plus"></i></button>';
+      }
+
+      $employeeLanguageAdd = '';
+      if($addEmployeeLanguage['total'] > 0){
+        $employeeLanguageAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" id="add-contact-employee-language"><i class="ti ti-plus"></i></button>';
+      }
     }
   ?>
   <div class="tab-content">
@@ -126,10 +136,11 @@
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
                 <h5>Licenses & Certifications</h5>
+                <?php echo $employeeLicenseAdd; ?>
               </div>
             </div>
             <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-license-summary">
+              <ul class="list-group list-group-flush" id="contact-employee-license-summary">
               </ul>
             </div>
           </div>
@@ -137,10 +148,11 @@
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
                 <h5>Languages</h5>
+                <?php echo $employeeLanguageAdd; ?>
               </div>
             </div>
             <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-languages-summary"></ul>              
+              <ul class="list-group list-group-flush" id="contact-employee-language-summary"></ul>              
             </div>
           </div>
           <div class="card">
@@ -267,17 +279,6 @@
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-training-summary">
-              </ul>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>References</h5>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-references-summary">
               </ul>
             </div>
           </div>
@@ -682,23 +683,47 @@
                                   </div>
                                 </div>
                                 <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Started <span class="text-danger">*</span></label>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <label class="form-label">Start Date <span class="text-danger">*</span></label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="contact_start_date_attended" name="contact_start_date_attended" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="educational_stage_start_month" id="educational_stage_start_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
                                   </div>
                                   <div class="col-lg-6 mt-3 mt-lg-0">
-                                    <label class="form-label">End Date</label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="contact_end_date_attended" name="contact_end_date_attended" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="educational_stage_start_year" id="educational_stage_start_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Ended</label>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <select class="form-control offcanvas-select2" name="educational_stage_end_month" id="educational_stage_end_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
+                                  </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <select class="form-control offcanvas-select2" name="educational_stage_end_year" id="educational_stage_end_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Course Highlights</label>
+                                    <textarea class="form-control" id="educational_stage_course_highlights" name="educational_stage_course_highlights" maxlength="5000" rows="5"></textarea>
                                   </div>
                                 </div>
                               </form>
@@ -979,7 +1004,7 @@
                           <div class="row">
                             <div class="col-lg-12">
                               <form id="contact-hobby-form" method="post" action="#">
-                                <div class="form-group ">
+                                <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label" for="hobby_name">Hobby Name <span class="text-danger">*</span></label>
                                     <input type="hidden" id="contact_hobby_id" name="contact_hobby_id">
@@ -1012,20 +1037,20 @@
                           <div class="row">
                             <div class="col-lg-12">
                               <form id="contact-employment-history-form" method="post" action="#">
-                                <div class="form-group ">
+                                <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label" for="employment_history_last_position_held">Last Position Held <span class="text-danger">*</span></label>
                                     <input type="hidden" id="contact_employment_history_id" name="contact_employment_history_id">
                                     <input type="text" class="form-control" id="employment_history_last_position_held" name="employment_history_last_position_held" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label" for="employment_history_company">Company Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="employment_history_company" name="employment_history_company" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label" for="employment_history_address">Company Address <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="employment_history_address" name="employment_history_address" maxlength="500" autocomplete="off">
@@ -1079,6 +1104,116 @@
                           <div class="row">
                             <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-employment-history" form="contact-employment-history-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeLicense['total'] > 0 || $updateEmployeeLicense['total'] > 0){
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employee-license-offcanvas" aria-labelledby="contact-employee-license-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-employee-license-offcanvas-label" style="margin-bottom:-0.5rem">Licenses & Certifications</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            This form is used to collect and record an employee\'s licenses and certifications.
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <form id="contact-employee-license-form" method="post" action="#">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_license_name">License Name <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_license_id" name="contact_license_id">
+                                    <input type="text" class="form-control" id="contact_license_name" name="contact_license_name" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="contact_issuing_organization">Issuing Orgranization <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contact_license_issuing_organization" name="contact_license_issuing_organization" maxlength="500" autocomplete="off">
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Issue Date <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="contact_license_issue_date" name="contact_license_issue_date" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-6">
+                                    <label class="form-label">Expiry Date</span></label>
+                                    <div class="input-group date">
+                                      <input type="text" class="form-control regular-datepicker" id="contact_license_expiry_date" name="contact_license_expiry_date" autocomplete="off">
+                                      <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="contact_license_description" name="contact_license_description" maxlength="500" rows="5"></textarea>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <button type="submit" class="btn btn-primary" id="submit-contact-employee-license" form="contact-employee-license-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeLanguage['total'] > 0 || $updateEmployeeLanguage['total'] > 0){
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employee-language-offcanvas" aria-labelledby="contact-employee-language-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-employee-language-offcanvas-label" style="margin-bottom:-0.5rem">Language</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                            This form is used to collect and record an employee\'s language and proficiency.
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <form id="contact-employee-language-form" method="post" action="#">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Language <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_language_id" name="contact_language_id">
+                                    <select class="form-control offcanvas-select2" name="language_id" id="language_id">
+                                      <option value="">--</option>
+                                      '. $languageModel->generateLanguageOptions() .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Language Proficiency <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="language_proficiency_id" id="language_proficiency_id">
+                                      <option value="">--</option>
+                                      '. $languageProficiencyModel->generateLanguageProficiencyOptions() .'
+                                    </select>
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <button type="submit" class="btn btn-primary" id="submit-contact-employee-language" form="contact-employee-language-form">Submit</button>
                               <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>

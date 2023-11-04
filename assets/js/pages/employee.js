@@ -313,6 +313,22 @@
                 employeeEmploymentHistorySummary();
             }
 
+            if($('#contact-employee-license-form').length){
+                employeeLicenseForm();
+            }
+
+            if($('#contact-employee-license-summary').length){
+                employeeLicenseSummary();
+            }
+
+            if($('#contact-employee-language-form').length){
+                employeeLanguageForm();
+            }
+
+            if($('#contact-employee-language-summary').length){
+                employeeLanguageSummary();
+            }
+
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
             });
@@ -1172,7 +1188,7 @@
         
                 Swal.fire({
                     title: 'Confirm Employment History Deletion',
-                    text: 'Are you sure you want to delete this employmetn history?',
+                    text: 'Are you sure you want to delete this employment history?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -1205,6 +1221,140 @@
                                     }
                                     else {
                                         showNotification('Delete Employment History Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-employee-license',function() {
+                resetModalForm("contact-employee-license-form");
+            });
+
+            $(document).on('click','.update-contact-employee-license',function() {
+                const contact_license_id = $(this).data('contact-employee-license-id');
+        
+                sessionStorage.setItem('contact_license_id', contact_license_id);
+                
+                displayDetails('get contact license details');
+            });
+
+            $(document).on('click','.delete-contact-employee-license',function() {
+                const contact_license_id = $(this).data('contact-employee-license-id');
+                const transaction = 'delete contact license';
+        
+                Swal.fire({
+                    title: 'Confirm License & Certification Deletion',
+                    text: 'Are you sure you want to delete this license & certification?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_license_id : contact_license_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete License & Certification Success', 'The license & certification has been deleted successfully.', 'success');
+                                    employeeLicenseSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete License & Certification Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-contact-employee-language',function() {
+                resetModalForm("contact-employee-language-form");
+            });
+
+            $(document).on('click','.update-contact-employee-language',function() {
+                const contact_language_id = $(this).data('contact-employee-language-id');
+        
+                sessionStorage.setItem('contact_language_id', contact_language_id);
+                
+                displayDetails('get contact language details');
+            });
+
+            $(document).on('click','.delete-contact-employee-language',function() {
+                const contact_language_id = $(this).data('contact-employee-language-id');
+                const transaction = 'delete contact language';
+        
+                Swal.fire({
+                    title: 'Confirm Language Deletion',
+                    text: 'Are you sure you want to delete this language?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_language_id : contact_language_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Language Success', 'The language has been deleted successfully.', 'success');
+                                    employeeLanguageSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Language Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -1635,6 +1785,56 @@ function employeeEmploymentHistorySummary(){
         },
         success: function(response) {
             document.getElementById('contact-employment-history-summary').innerHTML = response[0].contactEmploymentHistorySummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeLicenseSummary(){
+    const type = 'contact license summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-employee-license-summary').innerHTML = response[0].contactLicenseSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeLanguageSummary(){
+    const type = 'contact language summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-employee-language-summary').innerHTML = response[0].contactLanguageSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -3085,6 +3285,202 @@ function employeeEmploymentHistoryForm(){
     });
 }
 
+function employeeLicenseForm(){
+    $('#contact-employee-license-form').validate({
+        rules: {
+            contact_license_name: {
+                required: true
+            },
+            contact_license_issuing_organization: {
+                required: true
+            },
+            contact_license_issue_date: {
+                required: true
+            }
+        },
+        messages: {
+            contact_license_name: {
+                required: 'Please enter the license name'
+            },
+            contact_license_issuing_organization: {
+                required: 'Please enter the issuing organization'
+            },
+            contact_license_issue_date: {
+                required: 'Please choose the issue date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact license';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-employee-license');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert License & Certification Success' : 'Update License & Certification Success';
+                        const notificationDescription = response.insertRecord ? 'The license & certification has been inserted successfully.' : 'The license & certification has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        $('#contact-employee-license-offcanvas').offcanvas('hide');
+                        employeeLicenseSummary();
+                        resetModalForm('contact-employee-license-form');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-employee-license', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function employeeLanguageForm(){
+    $('#contact-employee-language-form').validate({
+        rules: {
+            language_id: {
+                required: true
+            },
+            language_proficiency_id: {
+                required: true
+            }
+        },
+        messages: {
+            language_id: {
+                required: 'Please choose the language'
+            },
+            language_proficiency_id: {
+                required: 'Please choose the language proficiency'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact language';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-employee-language');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Language Success' : 'Update Language Success';
+                        const notificationDescription = response.insertRecord ? 'The language has been inserted successfully.' : 'The language has been updated successfully.';
+
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    $('#contact-employee-language-offcanvas').offcanvas('hide');
+                    employeeLanguageSummary();
+                    resetModalForm('contact-employee-language-form');
+                    enableFormSubmitButton('submit-contact-employee-language', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get personal information details':
@@ -3622,6 +4018,86 @@ function displayDetails(transaction){
                         }
                         else{
                             showNotification('Get Employment History Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact license details':
+            var contact_license_id = sessionStorage.getItem('contact_license_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_license_id : contact_license_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-hobby-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_license_id').val(contact_license_id);
+                        $('#contact_license_name').val(response.licenseName);
+                        $('#contact_license_issuing_organization').val(response.issuingOrganization);
+                        $('#contact_license_issue_date').val(response.issueDate);
+                        $('#contact_license_expiry_date').val(response.expiryDate);
+                        $('#contact_license_description').val(response.description);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get License Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact language details':
+            var contact_language_id = sessionStorage.getItem('contact_language_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_language_id : contact_language_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-hobby-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_language_id').val(contact_language_id);
+
+                        checkOptionExist('#language_id', response.languageID, '');
+                        checkOptionExist('#language_proficiency_id', response.languageProficiencyID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get License Details Error', response.message, 'danger');
                         }
                     }
                 },

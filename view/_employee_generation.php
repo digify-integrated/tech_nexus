@@ -23,6 +23,8 @@ require_once '../model/country-model.php';
 require_once '../model/id-type-model.php';
 require_once '../model/educational-stage-model.php';
 require_once '../model/relation-model.php';
+require_once '../model/language-model.php';
+require_once '../model/language-proficiency-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
 
@@ -48,6 +50,8 @@ $idTypeModel = new IDTypeModel($databaseModel);
 $countryModel = new CountryModel($databaseModel);
 $educationalStageModel = new EducationalStageModel($databaseModel);
 $relationModel = new RelationModel($databaseModel);
+$languageModel = new LanguageModel($databaseModel);
+$languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -816,10 +820,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $institutionName = $row['institution_name'];
                     $degreeEarned = $row['degree_earned'];
                     $fieldOfStudy = $row['field_of_study'];
-                    $startDate = $systemModel->checkDate('empty', $row['start_date'], '', 'M Y', '');
-                    $endDate = $systemModel->checkDate('empty', $row['end_date'], '', 'M Y', '');
+                    $startMonth = $systemModel->checkDate('empty', $row['start_month'], '', 'M', '');
+                    $startYear = $row['start_year'];
+                    $startDate = $startMonth . ' ' . $startYear;
+                    $endMonth = $systemModel->checkDate('empty', $row['end_month'], '', 'M', '');
+                    $endYear = $row['end_year'];
+                    $courseHighlight = $row['course_highlights'];
 
-                    if(empty($endDate)){
+                    if(empty($endMonth) && empty($endYear)){
                        $endDate = 'Present'; 
                     }
     
@@ -857,14 +865,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $institutionName .'</b></p>
                                                     <p class="mb-1 text-muted">' . $degreeEarned . '</p>
-                                                    <p class="mb-0 text-muted">' . $fieldOfStudy . '</p>
+                                                    <p class="mb-1 text-muted">' . $fieldOfStudy . '</p>
+                                                    <p class="mb-3 text-muted">'. $startDate .' - '. $endDate .'</p>
+                                                    <p class="mb-2 text-muted">' . $courseHighlight . '</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
                                                     </div>
                                                 </div>
                                                 <div class="me-2">
-                                                    <p class="mb-0 text-muted">'. $startDate .' - '. $endDate .'</p>
+                                                   
                                                 </div>
                                             </div>
                                     </li>';
@@ -1537,10 +1547,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $lastPositionHeld .'</b></p>
                                                     <p class="mb-1 text-muted">'. $company .'</p>
-                                                    <p class="mb-3 text-muted">'. $address  .'</p>
-                                                    <p class="mb-3 text-muted">'. $basicFunction .'</p>
-                                                    <p class="mb-0 text-muted">'. $employmentStartDate .' - '. $employmentEndDate .' ('. $employmentDuration .')</p>
-                                                    <p class="mb-0 text-muted">'. $salary .'</p>
+                                                    <p class="mb-1 text-muted">'. $address  .'</p>
+                                                    <p class="mb-1 text-muted">'. $employmentStartDate .' - '. $employmentEndDate .' ('. $employmentDuration .')</p>
+                                                    <p class="mb-3 text-muted">'. $salary .'</p>                                                                      
+                                                    <p class="mb-2 text-muted">'. $basicFunction .'</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
@@ -1556,6 +1566,202 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactEmploymentHistorySummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact license summary
+        # Description:
+        # Generates the contact license summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact license summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactLicenseSummary(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateupdateEmployeeLicense = $userModel->checkSystemActionAccessRights($user_id, 69);
+                $deleteEmployeeLicense = $userModel->checkSystemActionAccessRights($user_id, 70);
+
+                foreach ($options as $index => $row) {
+                    $contactLicenseID = $row['contact_license_id'];
+                    $licenseName = $row['license_name'];
+                    $issuingOrganization = $row['issuing_organization'];
+                    $description = $row['description'];
+                    $issueDate = $systemModel->checkDate('empty', $row['issue_date'], '', 'M Y', '');
+                    $expiryDate = $systemModel->checkDate('empty', $row['expiry_date'], '', 'M Y', '');
+
+                    $expiryDateTime = DateTime::createFromFormat('M Y', $expiryDate);
+
+                    $currentDateTime = new DateTime();
+
+                    $expiryStatus = '';
+
+                    if(!empty($expiryDate)){
+                        if ($expiryDateTime < $currentDateTime) {
+                            $expiryStatus = '(Expired)';
+                        }
+                    }
+                    else{
+                        $expiryDate = 'Current';
+                    }
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateupdateEmployeeLicense['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-employee-license mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-license-offcanvas" aria-controls="contact-employee-license-offcanvas" data-contact-employee-license-id="'. $contactLicenseID .'" title="Edit License">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeLicense['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-employee-license mt-3" data-contact-employee-license-id="'. $contactLicenseID .'" title="Delete License">
+                            <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="me-2">
+                                                    <p class="mb-1 text-primary"><b>'. $licenseName .'</b></p>
+                                                    <p class="mb-1 text-muted">'. $issuingOrganization .'</p>
+                                                    <p class="mb-3 text-muted">'. $description .'</p>
+                                                    <p class="mb-0 text-muted">'. $issueDate .' - '. $expiryDate .' ' . $expiryStatus .'</p>
+                                                    <div class="d-flex gap-2">
+                                                        '. $update .'
+                                                        '. $delete .'
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No license & certification found.';
+                }
+
+                $response[] = [
+                    'contactLicenseSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact language summary
+        # Description:
+        # Generates the contact language summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact language summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactLanguageSummary(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateupdateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
+                $deleteEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 73);
+
+                foreach ($options as $index => $row) {
+                    $contactLanguageID = $row['contact_language_id'];
+                    $languageID = $row['language_id'];
+                    $languageProficiencyID = $row['language_proficiency_id'];
+
+                    $languageName = $languageModel->getLanguage($languageID)['language_name'] ?? null;
+                    $languageProficiencyName = $languageProficiencyModel->getLanguageProficiency($languageProficiencyID)['language_proficiency_name'] ?? null;
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateupdateEmployeeLanguage['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-employee-language mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" data-contact-employee-language-id="'. $contactLanguageID .'" title="Edit Language">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeLanguage['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-employee-language mt-3" data-contact-employee-language-id="'. $contactLanguageID .'" title="Delete Language">
+                            <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <p class="mb-0 text-primary">'. $languageName .': <span class="text-muted">'. $languageProficiencyName .'</span></p>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                 '. $update .'
+                                                '. $delete .'
+                                            </div>
+                                        </div>
+                                    </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No languages found.';
+                }
+
+                $response[] = [
+                    'contactLanguageSummary' => $details
                 ];
     
                 echo json_encode($response);

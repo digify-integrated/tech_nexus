@@ -149,6 +149,12 @@ class EmployeeController {
                 case 'save contact employment history':
                     $this->saveContactEmploymentHistory();
                     break;
+                case 'save contact license':
+                    $this->saveContactLicense();
+                    break;
+                case 'save contact language':
+                    $this->saveContactLanguage();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
@@ -188,6 +194,9 @@ class EmployeeController {
                 case 'get contact employment history details':
                     $this->getContactEmploymentHistory();
                     break;
+                case 'get contact language details':
+                    $this->getContactLanguage();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
@@ -226,6 +235,12 @@ class EmployeeController {
                     break;
                 case 'delete contact employment history':
                     $this->deleteContactEmploymentHistory();
+                    break;
+                case 'delete contact license':
+                    $this->deleteContactLicense();
+                    break;
+                case 'delete contact language':
+                    $this->deleteContactLanguage();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -881,6 +896,108 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertContactEmploymentHistory($employeeID, $company, $address, $lastPositionHeld, $employmentStartDate, $employmentEndDate, $basicFunction, $startingSalary, $finalSalary, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactLicense
+    # Description: 
+    # Updates the existing contact license if it exists; otherwise, inserts a new contact license.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactLicense() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactLicenseID = isset($_POST['contact_license_id']) ? htmlspecialchars($_POST['contact_license_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $licenseName = htmlspecialchars($_POST['contact_license_name'], ENT_QUOTES, 'UTF-8');
+        $issuingOrganization = htmlspecialchars($_POST['contact_license_issuing_organization'], ENT_QUOTES, 'UTF-8');
+        $issueDate = $this->systemModel->checkDate('empty', $_POST['contact_license_issue_date'], '', 'Y-m-d', '');
+        $expiryDate = $this->systemModel->checkDate('empty', $_POST['contact_license_expiry_date'], '', 'Y-m-d', '');
+        $description = htmlspecialchars($_POST['contact_license_description'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactLicenseExist = $this->employeeModel->checkContactLicenseExist($contactLicenseID);
+        $total = $checkContactLicenseExist['total'] ?? 0;
+
+        if (!empty($expiryDate) && (new DateTime($expiryDate) < new DateTime($issueDate))) {
+            echo json_encode(['success' => false, 'message' => 'Expiry date cannot be earlier than issue date.']);
+            exit;
+        }        
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactLicense($contactLicenseID, $employeeID, $licenseName, $issuingOrganization, $issueDate, $expiryDate, $description, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactLicense($employeeID, $licenseName, $issuingOrganization, $issueDate, $expiryDate, $description, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactLanguage
+    # Description: 
+    # Updates the existing contact language if it exists; otherwise, inserts a new contact language.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactLanguage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactLanguageID = isset($_POST['contact_language_id']) ? htmlspecialchars($_POST['contact_language_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $languageID = htmlspecialchars($_POST['language_id'], ENT_QUOTES, 'UTF-8');
+        $languageProficiencyID = htmlspecialchars($_POST['language_proficiency_id'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactLanguageExist = $this->employeeModel->checkContactLanguageExist($contactLanguageID);
+        $total = $checkContactLanguageExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactLanguage($contactLanguageID, $employeeID, $languageID, $languageProficiencyID, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactLanguage($employeeID, $languageID, $languageProficiencyID, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -1562,6 +1679,88 @@ class EmployeeController {
         }
     
         $this->employeeModel->deleteContactEmploymentHistory($contactEmploymentHistoryID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactLicense
+    # Description: 
+    # Delete the contact license if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactLicense() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactLicenseID = htmlspecialchars($_POST['contact_license_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactLicenseExist = $this->employeeModel->checkContactLicenseExist($contactLicenseID);
+        $total = $checkContactLicenseExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactLicense($contactLicenseID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactLanguage
+    # Description: 
+    # Delete the contact language if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactLanguage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactLanguageID = htmlspecialchars($_POST['contact_language_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactLanguageExist = $this->employeeModel->checkContactLanguageExist($contactLanguageID);
+        $total = $checkContactLanguageExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactLanguage($contactLanguageID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -2273,7 +2472,7 @@ class EmployeeController {
     #
     # Function: getContactEmploymentHistory
     # Description: 
-    # Handles the retrieval of employment history details such as badge ID, etc.
+    # Handles the retrieval of employment history details such as company, address, etc.
     #
     # Parameters: None
     #
@@ -2297,7 +2496,6 @@ class EmployeeController {
             }
     
             $contactEmploymentHistoryDetails = $this->employeeModel->getContactEmploymentHistory($contactEmploymentHistoryID);
-            $lastPositionHeld = $contactEmploymentHistoryDetails['last_position_held'] ?? null;
 
             $response = [
                 'success' => true,
@@ -2309,6 +2507,91 @@ class EmployeeController {
                 'finalSalary' => $contactEmploymentHistoryDetails['final_salary'] ?? null,
                 'employmentStartDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_start_date'] ?? null, '', 'm/d/Y', ''),
                 'employmentEndDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_end_date'] ?? null, '', 'm/d/Y', ''),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: getContactLicense
+    # Description: 
+    # Handles the retrieval of license details such as license name, issuing organization, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactLicense() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_license_id']) && !empty($_POST['contact_license_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactLicenseID = $_POST['contact_license_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactLicenseDetails = $this->employeeModel->getContactLicense($contactLicenseID);
+
+            $response = [
+                'success' => true,
+                'licenseName' => $contactLicenseDetails['license_name'] ?? null,
+                'issuingOrganization' => $contactLicenseDetails['issuing_organization'] ?? null,
+                'description' => $contactLicenseDetails['description'] ?? null,
+                'issueDate' =>  $this->systemModel->checkDate('empty', $contactLicenseDetails['issue_date'] ?? null, '', 'm/d/Y', ''),
+                'expiryDate' =>  $this->systemModel->checkDate('empty', $contactLicenseDetails['expiry_date'] ?? null, '', 'm/d/Y', ''),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: getContactLanguage
+    # Description: 
+    # Handles the retrieval of language details such as language, language proficiency, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactLanguage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_language_id']) && !empty($_POST['contact_language_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactLanguageID = $_POST['contact_language_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactLanguageDetails = $this->employeeModel->getContactLanguage($contactLanguageID);
+
+            $response = [
+                'success' => true,
+                'languageID' => $contactLanguageDetails['language_id'] ?? null,
+                'languageProficiencyID' => $contactLanguageDetails['language_proficiency_id'] ?? null
             ];
 
             echo json_encode($response);

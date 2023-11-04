@@ -4317,13 +4317,13 @@ BEGIN
     WHERE contact_educational_background_id = p_contact_educational_background_id;
 END //
 
-CREATE PROCEDURE insertContactEducationalBackground(IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_date DATE, IN p_end_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertContactEducationalBackground(IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_course_highlights TEXT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO contact_educational_background (contact_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_date, end_date, last_log_by) 
-	VALUES(p_contact_id, p_educational_stage_id, p_institution_name, p_degree_earned, p_field_of_study, p_start_date, p_end_date, p_last_log_by);
+    INSERT INTO contact_educational_background (contact_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_month, start_year, end_month, end_year, last_log_by) 
+	VALUES(p_contact_id, p_educational_stage_id, p_institution_name, p_degree_earned, p_field_of_study, p_start_month, p_start_year, p_end_month, p_end_year, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateContactEducationalBackground(IN p_contact_educational_background_id INT, IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_date DATE, IN p_end_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateContactEducationalBackground(IN p_contact_educational_background_id INT, IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_course_highlights TEXT, IN p_last_log_by INT)
 BEGIN
 	UPDATE contact_educational_background
     SET contact_id = p_contact_id,
@@ -4331,8 +4331,11 @@ BEGIN
     institution_name = p_institution_name,
     degree_earned = p_degree_earned,
     field_of_study = p_field_of_study,
-    start_date = p_start_date,
-    end_date = p_end_date,
+    start_month = p_start_month,
+    start_year = p_start_year,
+    end_month = p_end_month,
+    end_year = p_end_year,
+    course_highlights = p_course_highlights,
     last_log_by = p_last_log_by
     WHERE contact_educational_background_id = p_contact_educational_background_id;
 END //
@@ -4350,10 +4353,10 @@ END //
 
 CREATE PROCEDURE generateContactEducationalBackgroundSummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_educational_background_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_date, end_date
+	SELECT contact_educational_background_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_month, start_year, end_month, end_year, course_highlights
     FROM contact_educational_background
     WHERE contact_id = p_contact_id 
-    ORDER BY start_date DESC, end_date ASC;
+    ORDER BY start_year DESC, start_year DESC, end_month ASC, end_year ASC;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -4640,7 +4643,7 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/*  Employment History Table Stored Procedures */
+/*  Contact Employment History Table Stored Procedures */
 
 CREATE PROCEDURE checkContactEmploymentHistoryExist (IN p_contact_employment_history_id INT)
 BEGIN
@@ -4688,6 +4691,235 @@ BEGIN
     FROM contact_employment_history
     WHERE contact_id = p_contact_id 
     ORDER BY employment_start_date DESC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Contact License Table Stored Procedures */
+
+CREATE PROCEDURE checkContactLicenseExist (IN p_contact_license_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_license
+    WHERE contact_license_id = p_contact_license_id;
+END //
+
+CREATE PROCEDURE insertContactLicense(IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_issue_date DATE, IN p_expiry_date DATE, IN p_description VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_license (contact_id, license_name, issuing_organization, issue_date, expiry_date, description, last_log_by) 
+	VALUES(p_contact_id, p_license_name, p_issuing_organization, p_issue_date, p_expiry_date, p_description, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactLicense(IN p_contact_license_id INT, IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_issue_date DATE, IN p_expiry_date DATE, IN p_description VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_license
+    SET contact_id = p_contact_id,
+    license_name = p_license_name,
+    issuing_organization = p_issuing_organization,
+    issue_date = p_issue_date,
+    expiry_date = p_expiry_date,
+    description = p_description,
+    last_log_by = p_last_log_by
+    WHERE contact_license_id = p_contact_license_id;
+END //
+
+CREATE PROCEDURE deleteContactLicense(IN p_contact_license_id INT)
+BEGIN
+    DELETE FROM contact_license WHERE contact_license_id = p_contact_license_id;
+END //
+
+CREATE PROCEDURE getContactLicense(IN p_contact_license_id INT)
+BEGIN
+	SELECT * FROM contact_license
+    WHERE contact_license_id = p_contact_license_id;
+END //
+
+CREATE PROCEDURE generateContactLicenseSummary(IN p_contact_id INT)
+BEGIN
+	SELECT contact_license_id, license_name, issuing_organization, issue_date, expiry_date, description
+    FROM contact_license
+    WHERE contact_id = p_contact_id 
+    ORDER BY issue_date DESC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Contact Language Table Stored Procedures */
+
+CREATE PROCEDURE checkContactLanguageExist (IN p_contact_language_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_language
+    WHERE contact_language_id = p_contact_language_id;
+END //
+
+CREATE PROCEDURE insertContactLanguage(IN p_contact_id INT, IN p_language_id INT, IN p_language_proficiency_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_language (contact_id, language_id, language_proficiency_id, last_log_by) 
+	VALUES(p_contact_id, p_language_id, p_language_proficiency_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactLanguage(IN p_contact_language_id INT, IN p_contact_id INT, IN p_language_id INT, IN p_language_proficiency_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_language
+    SET contact_id = p_contact_id,
+    language_id = p_language_id,
+    language_proficiency_id = p_language_proficiency_id,
+    last_log_by = p_last_log_by
+    WHERE contact_language_id = p_contact_language_id;
+END //
+
+CREATE PROCEDURE deleteContactLanguage(IN p_contact_language_id INT)
+BEGIN
+    DELETE FROM contact_language WHERE contact_language_id = p_contact_language_id;
+END //
+
+CREATE PROCEDURE getContactLanguage(IN p_contact_language_id INT)
+BEGIN
+	SELECT * FROM contact_language
+    WHERE contact_language_id = p_contact_language_id;
+END //
+
+CREATE PROCEDURE generateContactLanguageSummary(IN p_contact_id INT)
+BEGIN
+	SELECT contact_language_id, language_id, language_proficiency_id
+    FROM contact_language
+    WHERE contact_id = p_contact_id 
+    ORDER BY language_id ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Stored Procedures */
+
+CREATE PROCEDURE checkLanguageExist (IN p_language_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM language
+    WHERE language_id = p_language_id;
+END //
+
+CREATE PROCEDURE insertLanguage(IN p_language_name VARCHAR(100), IN p_last_log_by INT, OUT p_language_id INT)
+BEGIN
+    INSERT INTO language (language_name, last_log_by) 
+	VALUES(p_language_name, p_last_log_by);
+	
+    SET p_language_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLanguage(IN p_language_id INT, IN p_language_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE language
+    SET language_name = p_language_name,
+    last_log_by = p_last_log_by
+    WHERE language_id = p_language_id;
+END //
+
+CREATE PROCEDURE deleteLanguage(IN p_language_id INT)
+BEGIN
+    DELETE FROM language WHERE language_id = p_language_id;
+END //
+
+CREATE PROCEDURE getLanguage(IN p_language_id INT)
+BEGIN
+	SELECT * FROM language
+    WHERE language_id = p_language_id;
+END //
+
+CREATE PROCEDURE duplicateLanguage(IN p_language_id INT, IN p_last_log_by INT, OUT p_new_language_id INT)
+BEGIN
+    DECLARE p_language_name VARCHAR(100);
+    
+    SELECT language_name
+    INTO p_language_name
+    FROM language 
+    WHERE language_id = p_language_id;
+    
+    INSERT INTO language (language_name, last_log_by) 
+    VALUES(p_language_name, p_last_log_by);
+    
+    SET p_new_language_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateLanguageTable()
+BEGIN
+    SELECT language_id, language_name
+    FROM language
+    ORDER BY language_id;
+END //
+
+CREATE PROCEDURE generateLanguageOptions()
+BEGIN
+	SELECT language_id, language_name FROM language
+	ORDER BY language_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Proficiency Table Stored Procedures */
+
+CREATE PROCEDURE checkLanguageProficiencyExist (IN p_language_proficiency_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM language_proficiency
+    WHERE language_proficiency_id = p_language_proficiency_id;
+END //
+
+CREATE PROCEDURE insertLanguageProficiency(IN p_language_proficiency_name VARCHAR(100), IN p_description VARCHAR(100), IN p_last_log_by INT, OUT p_language_proficiency_id INT)
+BEGIN
+    INSERT INTO language_proficiency (language_proficiency_name, description, last_log_by) 
+	VALUES(p_language_proficiency_name, p_description, p_last_log_by);
+	
+    SET p_language_proficiency_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLanguageProficiency(IN p_language_proficiency_id INT, IN p_language_proficiency_name VARCHAR(100), IN p_description VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE language_proficiency
+    SET language_proficiency_name = p_language_proficiency_name,
+    description = p_description,
+    last_log_by = p_last_log_by
+    WHERE language_proficiency_id = p_language_proficiency_id;
+END //
+
+CREATE PROCEDURE deleteLanguageProficiency(IN p_language_proficiency_id INT)
+BEGIN
+    DELETE FROM language_proficiency WHERE language_proficiency_id = p_language_proficiency_id;
+END //
+
+CREATE PROCEDURE getLanguageProficiency(IN p_language_proficiency_id INT)
+BEGIN
+	SELECT * FROM language_proficiency
+    WHERE language_proficiency_id = p_language_proficiency_id;
+END //
+
+CREATE PROCEDURE duplicateLanguageProficiency(IN p_language_proficiency_id INT, IN p_last_log_by INT, OUT p_new_language_proficiency_id INT)
+BEGIN
+    DECLARE p_language_proficiency_name VARCHAR(100);
+    DECLARE p_description VARCHAR(100);
+    
+    SELECT language_proficiency_name, description
+    INTO p_language_proficiency_name, p_description
+    FROM language_proficiency 
+    WHERE language_proficiency_id = p_language_proficiency_id;
+    
+    INSERT INTO language_proficiency (language_proficiency_name, description, last_log_by) 
+    VALUES(p_language_proficiency_name, p_description, p_last_log_by);
+    
+    SET p_new_language_proficiency_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateLanguageProficiencyTable()
+BEGIN
+    SELECT language_proficiency_id, language_proficiency_name, description
+    FROM language_proficiency
+    ORDER BY language_proficiency_id;
+END //
+
+CREATE PROCEDURE generateLanguageProficiencyOptions()
+BEGIN
+	SELECT language_proficiency_id, language_proficiency_name, description FROM language_proficiency
+	ORDER BY language_proficiency_name;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

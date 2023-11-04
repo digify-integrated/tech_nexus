@@ -3,7 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
-    require('model/blood-type-model.php');
+    require('model/language-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -15,21 +15,21 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $bloodTypeModel = new BloodTypeModel($databaseModel);
+    $languageModel = new LanguageModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Blood Type';
+    $page_title = 'Language';
     
-    $bloodTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
-    $bloodTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
-    $bloodTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'write');
-    $bloodTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
-    $bloodTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'duplicate');
+    $languageReadAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'read');
+    $languageCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'create');
+    $languageWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'write');
+    $languageDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'delete');
+    $languageDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'duplicate');
 
-    if ($bloodTypeReadAccess['total'] == 0) {
+    if ($languageReadAccess['total'] == 0) {
         header('location: 404.php');
         exit;
     }
@@ -41,14 +41,14 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: blood-type.php');
+            header('location: language.php');
             exit;
         }
 
-        $bloodTypeID = $securityModel->decryptData($_GET['id']);
+        $languageID = $securityModel->decryptData($_GET['id']);
 
-        $checkBloodTypeExist = $bloodTypeModel->checkBloodTypeExist($bloodTypeID);
-        $total = $checkBloodTypeExist['total'] ?? 0;
+        $checkLanguageExist = $languageModel->checkLanguageExist($languageID);
+        $total = $checkLanguageExist['total'] ?? 0;
 
         if($total == 0){
             header('location: 404.php');
@@ -56,7 +56,7 @@
         }
     }
     else{
-        $bloodTypeID = null;
+        $languageID = null;
     }
 
     $newRecord = isset($_GET['new']);
@@ -90,10 +90,10 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Technical</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="blood-type.php">Blood Type</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="language.php">Language</a></li>
                     <?php
-                        if(!$newRecord && !empty($bloodTypeID)){
-                            echo '<li class="breadcrumb-item" id="blood-type-id">'. $bloodTypeID .'</li>';
+                        if(!$newRecord && !empty($languageID)){
+                            echo '<li class="breadcrumb-item" id="language-id">'. $languageID .'</li>';
                         }
 
                         if($newRecord){
@@ -104,21 +104,21 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Blood Type</h2>
+                  <h2 class="mb-0">Language</h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <?php
-          if($newRecord && $bloodTypeCreateAccess['total'] > 0){
-            require_once('view/_blood_type_new.php');
+          if($newRecord && $languageCreateAccess['total'] > 0){
+            require_once('view/_language_new.php');
           }
-          else if(!empty($bloodTypeID) && $bloodTypeWriteAccess['total'] > 0){
-            require_once('view/_blood_type_details.php');
+          else if(!empty($languageID) && $languageWriteAccess['total'] > 0){
+            require_once('view/_language_details.php');
           }
           else{
-            require_once('view/_blood_type.php');
+            require_once('view/_language.php');
           }
         ?>
       </div>
@@ -135,7 +135,7 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/pages/blood-type.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/language.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

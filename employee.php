@@ -20,6 +20,8 @@
     require('model/id-type-model.php');
     require('model/educational-stage-model.php');
     require('model/relation-model.php');
+    require('model/language-model.php');
+    require('model/language-proficiency-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -48,6 +50,8 @@
     $idTypeModel = new IDTypeModel($databaseModel);
     $educationalStageModel = new EducationalStageModel($databaseModel);
     $relationModel = new RelationModel($databaseModel);
+    $languageModel = new LanguageModel($databaseModel);
+    $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -82,6 +86,10 @@
     $updateEmployeeHobby = $userModel->checkSystemActionAccessRights($user_id, 63);
     $addEmploymentHistory = $userModel->checkSystemActionAccessRights($user_id, 65);
     $updateEmploymentHistory = $userModel->checkSystemActionAccessRights($user_id, 66);
+    $addEmployeeLicense = $userModel->checkSystemActionAccessRights($user_id, 68);
+    $updateEmployeeLicense = $userModel->checkSystemActionAccessRights($user_id, 69);
+    $addEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 71);
+    $updateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

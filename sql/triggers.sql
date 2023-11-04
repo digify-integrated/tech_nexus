@@ -3168,6 +3168,190 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact License Table Triggers */
+
+CREATE TRIGGER contact_license_trigger_update
+AFTER UPDATE ON contact_license
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.license_name <> OLD.license_name THEN
+        SET audit_log = CONCAT(audit_log, "License Name: ", OLD.license_name, " -> ", NEW.license_name, "<br/>");
+    END IF;
+
+    IF NEW.issuing_organization <> OLD.issuing_organization THEN
+        SET audit_log = CONCAT(audit_log, "Issuing Organization: ", OLD.issuing_organization, " -> ", NEW.issuing_organization, "<br/>");
+    END IF;
+
+    IF NEW.issue_date <> OLD.issue_date THEN
+        SET audit_log = CONCAT(audit_log, "Issue Date: ", OLD.issue_date, " -> ", NEW.issue_date, "<br/>");
+    END IF;
+
+    IF NEW.expiry_date <> OLD.expiry_date THEN
+        SET audit_log = CONCAT(audit_log, "Expiry Date: ", OLD.expiry_date, " -> ", NEW.expiry_date, "<br/>");
+    END IF;
+
+    IF NEW.description <> OLD.description THEN
+        SET audit_log = CONCAT(audit_log, "Description: ", OLD.description, " -> ", NEW.description, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_license', NEW.contact_license_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_license_trigger_insert
+AFTER INSERT ON contact_license
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact license created. <br/>';
+
+    IF NEW.license_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>License Name: ", NEW.license_name);
+    END IF;
+
+    IF NEW.issuing_organization <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Issuing Organization: ", NEW.issuing_organization);
+    END IF;
+
+    IF NEW.issue_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Issue Date: ", NEW.issue_date);
+    END IF;
+
+    IF NEW.expiry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Expiry Date: ", NEW.expiry_date);
+    END IF;
+
+    IF NEW.description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Description: ", NEW.description);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_license', NEW.contact_license_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Language Table Triggers */
+
+CREATE TRIGGER contact_language_trigger_update
+AFTER UPDATE ON contact_language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.language_id <> OLD.language_id THEN
+        SET audit_log = CONCAT(audit_log, "Language ID: ", OLD.language_id, " -> ", NEW.language_id, "<br/>");
+    END IF;
+
+    IF NEW.language_proficiency_id <> OLD.language_proficiency_id THEN
+        SET audit_log = CONCAT(audit_log, "Language Proficiency ID: ", OLD.language_proficiency_id, " -> ", NEW.language_proficiency_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_language', NEW.contact_language_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_language_trigger_insert
+AFTER INSERT ON contact_language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact language created. <br/>';
+
+    IF NEW.language_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Language ID: ", NEW.language_id);
+    END IF;
+
+    IF NEW.language_proficiency_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Language Proficiency ID: ", NEW.language_proficiency_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_language', NEW.contact_language_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Table Triggers */
+
+CREATE TRIGGER language_trigger_update
+AFTER UPDATE ON language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.language_name <> OLD.language_name THEN
+        SET audit_log = CONCAT(audit_log, "Language Name: ", OLD.language_name, " -> ", NEW.language_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('language', NEW.language_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER language_trigger_insert
+AFTER INSERT ON language
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language created. <br/>';
+
+    IF NEW.language_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Language Name: ", NEW.language_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('language', NEW.language_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Language Proficiency Table Triggers */
+
+CREATE TRIGGER language_proficiency_trigger_update
+AFTER UPDATE ON language_proficiency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.language_proficiency_name <> OLD.language_proficiency_name THEN
+        SET audit_log = CONCAT(audit_log, "Language Proficiency Name: ", OLD.language_proficiency_name, " -> ", NEW.language_proficiency_name, "<br/>");
+    END IF;
+
+    IF NEW.description <> OLD.description THEN
+        SET audit_log = CONCAT(audit_log, "Description: ", OLD.description, " -> ", NEW.description, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('language_proficiency', NEW.language_proficiency_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER language_proficiency_trigger_insert
+AFTER INSERT ON language_proficiency
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Language proficiency created. <br/>';
+
+    IF NEW.language_proficiency_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Language Proficiency Name: ", NEW.language_proficiency_name);
+    END IF;
+
+    IF NEW.description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Description: ", NEW.description);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('language_proficiency', NEW.language_proficiency_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

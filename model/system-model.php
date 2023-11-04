@@ -220,5 +220,60 @@ class SystemModel {
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: generateMonthOptions
+    # Description: Generates the month options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateMonthOptions() {
+        $months = [
+            'January', 'February', 'March', 'April',
+            'May', 'June', 'July', 'August',
+            'September', 'October', 'November', 'December'
+        ];
+    
+        $htmlOptions = '';
+        foreach ($months as $index => $month) {
+            $monthValue = $index + 1; 
+            $htmlOptions .= '<option value="' . htmlspecialchars($monthValue, ENT_QUOTES) . '">' . htmlspecialchars($month, ENT_QUOTES) . '</option>';
+        }
+    
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: generateYearOptions
+    # Description: Generates the year options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateYearOptions($minYear, $maxYear = null) {
+        if ($maxYear === null) {
+            $maxYear = date('Y');
+        }
+    
+        $htmlOptions = '';
+        for ($year = $maxYear; $year >= $minYear; $year--) {
+            $htmlOptions .= '<option value="' . htmlspecialchars($year, ENT_QUOTES) . '">' . htmlspecialchars($year, ENT_QUOTES) . '</option>';
+        }
+    
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
 }
 ?>
