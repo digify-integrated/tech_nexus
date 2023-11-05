@@ -2513,8 +2513,19 @@ function employeeEducationalBackgroundForm(){
             contact_institution_name: {
                 required: true
             },
-            contact_start_date_attended: {
+            educational_background_start_month: {
                 required: true
+            },
+            educational_background_start_year: {
+                required: true
+            },
+            educational_background_end_month: {
+                educationalStageDateGreaterOrEqual: true,
+                educationalStageEndMonthYearRequired: true
+            },
+            educational_background_end_year: {
+                educationalStageDateGreaterOrEqual: true,
+                educationalStageEndMonthYearRequired: true
             }
         },
         messages: {
@@ -2524,8 +2535,11 @@ function employeeEducationalBackgroundForm(){
             contact_institution_name: {
                 required: 'Please enter the institution name'
             },
-            contact_start_date_attended: {
-                required: 'Please choose the start date'
+            educational_background_start_month: {
+                required: 'Please choose the start month'
+            },
+            educational_background_start_year: {
+                required: 'Please choose the start year'
             }
         },
         errorPlacement: function (error, element) {
@@ -3184,8 +3198,19 @@ function employeeEmploymentHistoryForm(){
             employment_history_address: {
                 required: true
             },
-            employment_start_date: {
+            employment_history_start_month: {
                 required: true
+            },
+            employment_history_start_year: {
+                required: true
+            },
+            employment_history_end_month: {
+                employmentHistoryDateGreaterOrEqual: true,
+                employmentHistoryEndMonthYearRequired: true
+            },
+            employment_history_end_year: {
+                employmentHistoryDateGreaterOrEqual: true,
+                employmentHistoryEndMonthYearRequired: true
             },
             starting_salary: {
                 required: true
@@ -3201,8 +3226,11 @@ function employeeEmploymentHistoryForm(){
             employment_history_address: {
                 required: 'Please enter the company address'
             },
-            employment_start_date: {
-                required: 'Please choose the employment start date'
+            employment_history_start_month: {
+                required: 'Please choose the start month'
+            },
+            employment_history_start_year: {
+                required: 'Please choose the start year'
             },
             starting_salary: {
                 required: 'Please enter the starting salary'
@@ -3294,8 +3322,19 @@ function employeeLicenseForm(){
             contact_license_issuing_organization: {
                 required: true
             },
-            contact_license_issue_date: {
+            license_start_month: {
                 required: true
+            },
+            license_start_year: {
+                required: true
+            },
+            license_end_month: {
+                employeeLicenseDateGreaterOrEqual: true,
+                employeeLicenseEndMonthYearRequired: true
+            },
+            license_end_year: {
+                employeeLicenseDateGreaterOrEqual: true,
+                employeeLicenseEndMonthYearRequired: true
             }
         },
         messages: {
@@ -3305,8 +3344,11 @@ function employeeLicenseForm(){
             contact_license_issuing_organization: {
                 required: 'Please enter the issuing organization'
             },
-            contact_license_issue_date: {
-                required: 'Please choose the issue date'
+            license_start_month: {
+                required: 'Please choose the start month'
+            },
+            license_start_year: {
+                required: 'Please choose the start year'
             }
         },
         errorPlacement: function (error, element) {
@@ -3727,9 +3769,12 @@ function displayDetails(transaction){
                         $('#contact_institution_name').val(response.institutionName);
                         $('#contact_degree_earned').val(response.degreeEarned);
                         $('#contact_field_of_study').val(response.fieldOfStudy);
-                        $('#contact_start_date_attended').val(response.startDate);
-                        $('#contact_end_date_attended').val(response.endDate);
+                        $('#educational_background_course_highlights').val(response.courseHighlights);
                         
+                        checkOptionExist('#educational_background_start_month', response.startMonth, '');
+                        checkOptionExist('#educational_background_start_year', response.startYear, '');
+                        checkOptionExist('#educational_background_end_month', response.endMonth, '');
+                        checkOptionExist('#educational_background_end_year', response.endYear, '');
                         checkOptionExist('#educational_stage_id', response.educationalStageID, '');
                     } 
                     else {
@@ -4006,11 +4051,14 @@ function displayDetails(transaction){
                         $('#employment_history_last_position_held').val(response.lastPositionHeld);
                         $('#employment_history_company').val(response.company);
                         $('#employment_history_address').val(response.address);
-                        $('#employment_start_date').val(response.employmentStartDate);
-                        $('#employment_end_date').val(response.employmentEndDate);
                         $('#starting_salary').val(response.startingSalary);
                         $('#final_salary').val(response.finalSalary);
                         $('#basic_function').val(response.basicFunction);
+
+                        checkOptionExist('#employment_history_start_month', response.startMonth, '');
+                        checkOptionExist('#employment_history_start_year', response.startYear, '');
+                        checkOptionExist('#employment_history_end_month', response.endMonth, '');
+                        checkOptionExist('#employment_history_end_year', response.endYear, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -4049,9 +4097,12 @@ function displayDetails(transaction){
                         $('#contact_license_id').val(contact_license_id);
                         $('#contact_license_name').val(response.licenseName);
                         $('#contact_license_issuing_organization').val(response.issuingOrganization);
-                        $('#contact_license_issue_date').val(response.issueDate);
-                        $('#contact_license_expiry_date').val(response.expiryDate);
                         $('#contact_license_description').val(response.description);
+
+                        checkOptionExist('#license_start_month', response.startMonth, '');
+                        checkOptionExist('#license_start_year', response.startYear, '');
+                        checkOptionExist('#license_end_month', response.endMonth, '');
+                        checkOptionExist('#license_end_year', response.endYear, '');
                     } 
                     else {
                         if(response.isInactive){

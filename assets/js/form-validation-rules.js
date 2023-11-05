@@ -24,7 +24,6 @@ $.validator.addMethod('contactInformationRequired', function(value, element) {
     var mobileIsEmpty = $("#contact_information_mobile").val() === "";
     var telephoneIsEmpty = $("#contact_information_telephone").val() === "";
 
-    // The field is considered required only if all three fields are empty
     return !(emailIsEmpty && mobileIsEmpty && telephoneIsEmpty);
 }, 'Please enter either email, mobile, or telephone');
 
@@ -34,6 +33,96 @@ $.validator.addMethod('contactEmergencyContactRequired', function(value, element
     var mobileIsEmpty = $("#emergency_contact_mobile").val() === "";
     var telephoneIsEmpty = $("#emergency_contact_telephone").val() === "";
 
-    // The field is considered required only if all three fields are empty
     return !(emailIsEmpty && mobileIsEmpty && telephoneIsEmpty);
 }, 'Please enter either email, mobile, or telephone');
+
+$.validator.addMethod("educationalStageDateGreaterOrEqual", function (value, element, param) {
+    var startMonth = parseInt($('#educational_background_start_month').val(), 10);
+    var startYear = parseInt($('#educational_background_start_year').val(), 10);
+    var endMonth = parseInt($('#educational_background_end_month').val(), 10);
+    var endYear = parseInt($('#educational_background_end_year').val(), 10);
+
+    if (isNaN(endYear) || isNaN(endMonth)) {
+        return true;
+    }
+
+    if (endYear > startYear) {
+        return true;
+    } else if (endYear === startYear && endMonth >= startMonth) {
+        return true;
+    }
+
+    return false;
+}, "End date cannot be earlier than the start date");
+
+$.validator.addMethod("educationalStageEndMonthYearRequired", function(value, element) {
+    var endMonth = $('#educational_background_end_month').val();
+    var endYear = $('#educational_background_end_year').val();
+
+    if ((endMonth || endYear) && !(endMonth && endYear)) {
+        return false;
+    }
+
+    return true;
+}, "End month and year cannot be empty if either has a value.");
+
+$.validator.addMethod("employmentHistoryDateGreaterOrEqual", function (value, element, param) {
+    var startMonth = parseInt($('#employment_history_start_month').val(), 10);
+    var startYear = parseInt($('#employment_history_start_year').val(), 10);
+    var endMonth = parseInt($('#employment_history_end_month').val(), 10);
+    var endYear = parseInt($('#employment_history_end_year').val(), 10);
+
+    if (isNaN(endYear) || isNaN(endMonth)) {
+        return true;
+    }
+
+    if (endYear > startYear) {
+        return true;
+    } else if (endYear === startYear && endMonth >= startMonth) {
+        return true;
+    }
+
+    return false;
+}, "End date cannot be earlier than the start date");
+
+$.validator.addMethod("employmentHistoryEndMonthYearRequired", function(value, element) {
+    var endMonth = $('#employment_history_end_month').val();
+    var endYear = $('#employment_history_end_year').val();
+
+    if ((endMonth || endYear) && !(endMonth && endYear)) {
+        return false;
+    }
+
+    return true;
+}, "End month and year cannot be empty if either has a value.");
+
+$.validator.addMethod("employeeLicenseDateGreaterOrEqual", function (value, element, param) {
+    var startMonth = parseInt($('#license_start_month').val(), 10);
+    var startYear = parseInt($('#license_start_year').val(), 10);
+    var endMonth = parseInt($('#license_end_month').val(), 10);
+    var endYear = parseInt($('#license_end_year').val(), 10);
+
+    if (isNaN(endYear) || isNaN(endMonth)) {
+        return true;
+    }
+
+    if (endYear > startYear) {
+        return true;
+    } else if (endYear === startYear && endMonth >= startMonth) {
+        return true;
+    }
+
+    return false;
+}, "End date cannot be earlier than the start date");
+
+$.validator.addMethod("employeeLicenseEndMonthYearRequired", function(value, element) {
+    var endMonth = $('#license_end_month').val();
+    var endYear = $('#license_end_year').val();
+
+    if ((endMonth || endYear) && !(endMonth && endYear)) {
+        return false;
+    }
+
+    return true;
+}, "End month and year cannot be empty if either has a value.");
+

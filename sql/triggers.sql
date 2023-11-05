@@ -2728,12 +2728,24 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Field of Study: ", OLD.field_of_study, " -> ", NEW.field_of_study, "<br/>");
     END IF;
 
-    IF NEW.start_date <> OLD.start_date THEN
-        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    IF NEW.start_month <> OLD.start_month THEN
+        SET audit_log = CONCAT(audit_log, "Start Month: ", OLD.start_month, " -> ", NEW.start_month, "<br/>");
     END IF;
 
-    IF NEW.end_date <> OLD.end_date THEN
-        SET audit_log = CONCAT(audit_log, "End Date: ", OLD.end_date, " -> ", NEW.end_date, "<br/>");
+    IF NEW.start_year <> OLD.start_year THEN
+        SET audit_log = CONCAT(audit_log, "Start Year: ", OLD.start_year, " -> ", NEW.start_year, "<br/>");
+    END IF;
+
+    IF NEW.end_month <> OLD.end_month THEN
+        SET audit_log = CONCAT(audit_log, "End Month: ", OLD.end_month, " -> ", NEW.end_month, "<br/>");
+    END IF;
+
+    IF NEW.end_year <> OLD.end_year THEN
+        SET audit_log = CONCAT(audit_log, "End Year: ", OLD.end_year, " -> ", NEW.end_year, "<br/>");
+    END IF;
+
+    IF NEW.course_highlights <> OLD.course_highlights THEN
+        SET audit_log = CONCAT(audit_log, "Course Highlights: ", OLD.course_highlights, " -> ", NEW.course_highlights, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -2764,12 +2776,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Field of Study: ", NEW.field_of_study);
     END IF;
 
-    IF NEW.start_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
+    IF NEW.start_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Mont: ", NEW.start_month);
     END IF;
 
-    IF NEW.end_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>End Date: ", NEW.end_date);
+    IF NEW.start_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Year: ", NEW.start_year);
+    END IF;
+
+    IF NEW.end_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Month: ", NEW.end_month);
+    END IF;
+
+    IF NEW.end_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Year: ", NEW.end_year);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -3098,12 +3118,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Last Position Held: ", OLD.last_position_held, " -> ", NEW.last_position_held, "<br/>");
     END IF;
 
-    IF NEW.employment_start_date <> OLD.employment_start_date THEN
-        SET audit_log = CONCAT(audit_log, "Employment Start Date: ", OLD.employment_start_date, " -> ", NEW.employment_start_date, "<br/>");
+    IF NEW.start_month <> OLD.start_month THEN
+        SET audit_log = CONCAT(audit_log, "Start Month: ", OLD.start_month, " -> ", NEW.start_month, "<br/>");
     END IF;
 
-    IF NEW.employment_end_date <> OLD.employment_end_date THEN
-        SET audit_log = CONCAT(audit_log, "Employment End Date: ", OLD.employment_end_date, " -> ", NEW.employment_end_date, "<br/>");
+    IF NEW.start_year <> OLD.start_year THEN
+        SET audit_log = CONCAT(audit_log, "Start Year: ", OLD.start_year, " -> ", NEW.start_year, "<br/>");
+    END IF;
+
+    IF NEW.end_month <> OLD.end_month THEN
+        SET audit_log = CONCAT(audit_log, "End Month: ", OLD.end_month, " -> ", NEW.end_month, "<br/>");
+    END IF;
+
+    IF NEW.end_year <> OLD.end_year THEN
+        SET audit_log = CONCAT(audit_log, "End Year: ", OLD.end_year, " -> ", NEW.end_year, "<br/>");
     END IF;
 
     IF NEW.basic_function <> OLD.basic_function THEN
@@ -3142,12 +3170,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Last Position Held: ", NEW.last_position_held);
     END IF;
 
-    IF NEW.employment_start_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Employment Start Date: ", NEW.employment_start_date);
+    IF NEW.start_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Mont: ", NEW.start_month);
     END IF;
 
-    IF NEW.employment_end_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Employment End Date: ", NEW.employment_end_date);
+    IF NEW.start_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Year: ", NEW.start_year);
+    END IF;
+
+    IF NEW.end_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Month: ", NEW.end_month);
+    END IF;
+
+    IF NEW.end_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Year: ", NEW.end_year);
     END IF;
 
     IF NEW.basic_function <> '' THEN
@@ -3184,12 +3220,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Issuing Organization: ", OLD.issuing_organization, " -> ", NEW.issuing_organization, "<br/>");
     END IF;
 
-    IF NEW.issue_date <> OLD.issue_date THEN
-        SET audit_log = CONCAT(audit_log, "Issue Date: ", OLD.issue_date, " -> ", NEW.issue_date, "<br/>");
+    IF NEW.start_month <> OLD.start_month THEN
+        SET audit_log = CONCAT(audit_log, "Start Month: ", OLD.start_month, " -> ", NEW.start_month, "<br/>");
     END IF;
 
-    IF NEW.expiry_date <> OLD.expiry_date THEN
-        SET audit_log = CONCAT(audit_log, "Expiry Date: ", OLD.expiry_date, " -> ", NEW.expiry_date, "<br/>");
+    IF NEW.start_year <> OLD.start_year THEN
+        SET audit_log = CONCAT(audit_log, "Start Year: ", OLD.start_year, " -> ", NEW.start_year, "<br/>");
+    END IF;
+
+    IF NEW.end_month <> OLD.end_month THEN
+        SET audit_log = CONCAT(audit_log, "End Month: ", OLD.end_month, " -> ", NEW.end_month, "<br/>");
+    END IF;
+
+    IF NEW.end_year <> OLD.end_year THEN
+        SET audit_log = CONCAT(audit_log, "End Year: ", OLD.end_year, " -> ", NEW.end_year, "<br/>");
     END IF;
 
     IF NEW.description <> OLD.description THEN
@@ -3216,12 +3260,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Issuing Organization: ", NEW.issuing_organization);
     END IF;
 
-    IF NEW.issue_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Issue Date: ", NEW.issue_date);
+    IF NEW.start_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Mont: ", NEW.start_month);
     END IF;
 
-    IF NEW.expiry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Expiry Date: ", NEW.expiry_date);
+    IF NEW.start_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Year: ", NEW.start_year);
+    END IF;
+
+    IF NEW.end_month <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Month: ", NEW.end_month);
+    END IF;
+
+    IF NEW.end_year <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Year: ", NEW.end_year);
     END IF;
 
     IF NEW.description <> '' THEN

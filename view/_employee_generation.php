@@ -820,15 +820,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $institutionName = $row['institution_name'];
                     $degreeEarned = $row['degree_earned'];
                     $fieldOfStudy = $row['field_of_study'];
-                    $startMonth = $systemModel->checkDate('empty', $row['start_month'], '', 'M', '');
+                    $startMonth = $systemModel->getMonthNameFromNumber($row['start_month']);
                     $startYear = $row['start_year'];
                     $startDate = $startMonth . ' ' . $startYear;
-                    $endMonth = $systemModel->checkDate('empty', $row['end_month'], '', 'M', '');
+                    $endMonth = $systemModel->getMonthNameFromNumber($row['end_month']);
                     $endYear = $row['end_year'];
                     $courseHighlight = $row['course_highlights'];
 
-                    if(empty($endMonth) && empty($endYear)){
-                       $endDate = 'Present'; 
+                    if(!empty($endMonth) && !empty($endYear)){
+                        $endDate = $endMonth . ' ' . $endYear;
+                    }
+                    else{
+                        $endDate = 'Present'; 
                     }
     
                     $educationalStageName = $educationalStageModel->getEducationalStage($educationalStageID)['educational_stage_name'] ?? null;
@@ -1475,15 +1478,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $basicFunction = $row['basic_function'];
                     $startingSalary = $row['starting_salary'];
                     $finalSalary = $row['final_salary'];
-                    $employmentStartDate = $systemModel->checkDate('empty', $row['employment_start_date'], '', 'M Y', '');
-                    $employmentEndDate = $systemModel->checkDate('empty', $row['employment_end_date'], '', 'M Y', '');
                     $durationParts = [];
 
-                    if (empty($employmentEndDate)) {
+                    $startMonth = $row['start_month'];
+                    $startYear = $row['start_year'];
+                    $endMonth = $row['end_month'];
+                    $endYear = $row['end_year'];
+                    $employmentStartDate = $systemModel->checkDate('empty', $startMonth . ' ' . $startYear, '', 'M Y', '');
+                    $employmentEndDate = $systemModel->checkDate('empty', $endMonth . ' ' . $endYear, '', 'M Y', '');
+                    $courseHighlight = $row['course_highlights'];
+
+                    if(!empty($endMonth) && !empty($endYear)){
+                        $endDateTime = new DateTime($employmentEndDate);
+                    }
+                    else{                        
                         $employmentEndDate = 'Present';
                         $endDateTime = new DateTime(date('M Y'));
-                    } else {
-                        $endDateTime = new DateTime($employmentEndDate);
                     }
 
                     $startDateTime = new DateTime($employmentStartDate);
@@ -1606,8 +1616,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $licenseName = $row['license_name'];
                     $issuingOrganization = $row['issuing_organization'];
                     $description = $row['description'];
-                    $issueDate = $systemModel->checkDate('empty', $row['issue_date'], '', 'M Y', '');
-                    $expiryDate = $systemModel->checkDate('empty', $row['expiry_date'], '', 'M Y', '');
+                    $startMonth = $row['start_month'];
+                    $startYear = $row['start_year'];
+                    $endMonth = $row['end_month'];
+                    $endYear = $row['end_year'];
+                    $issueDate = $systemModel->checkDate('empty', $startMonth . ' ' . $startYear, '', 'M Y', '');
+                    $expiryDate = $systemModel->checkDate('empty', $endMonth . ' ' . $endYear, '', 'M Y', '');
 
                     $expiryDateTime = DateTime::createFromFormat('M Y', $expiryDate);
 

@@ -534,8 +534,11 @@ class EmployeeController {
         $institutionName = htmlspecialchars($_POST['contact_institution_name'], ENT_QUOTES, 'UTF-8');
         $degreeEarned = htmlspecialchars($_POST['contact_degree_earned'], ENT_QUOTES, 'UTF-8');
         $fieldOfStudy = htmlspecialchars($_POST['contact_field_of_study'], ENT_QUOTES, 'UTF-8');
-        $startDate = $this->systemModel->checkDate('empty', $_POST['contact_start_date_attended'], '', 'Y-m-d', '');
-        $endDate = $this->systemModel->checkDate('empty', $_POST['contact_end_date_attended'], '', 'Y-m-d', '');
+        $startMonth = htmlspecialchars($_POST['educational_background_start_month'], ENT_QUOTES, 'UTF-8');
+        $startYear = htmlspecialchars($_POST['educational_background_start_year'], ENT_QUOTES, 'UTF-8');
+        $endMonth = htmlspecialchars($_POST['educational_background_end_month'], ENT_QUOTES, 'UTF-8');
+        $endYear = htmlspecialchars($_POST['educational_background_end_year'], ENT_QUOTES, 'UTF-8');
+        $courseHighlights = htmlspecialchars($_POST['educational_background_course_highlights'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -548,13 +551,13 @@ class EmployeeController {
         $total = $checkContactEducationalBackgroundExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactEducationalBackground($contactEducationalBackgroundID, $employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startDate, $endDate, $userID);
+            $this->employeeModel->updateContactEducationalBackground($contactEducationalBackgroundID, $employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startMonth, $startYear, $endMonth, $endYear, $courseHighlights, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertContactEducationalBackground($employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startDate, $endDate, $userID);
+            $this->employeeModel->insertContactEducationalBackground($employeeID, $educationalStageID, $institutionName, $degreeEarned, $fieldOfStudy, $startMonth, $startYear, $endMonth, $endYear, $courseHighlights, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -872,8 +875,10 @@ class EmployeeController {
         $lastPositionHeld = htmlspecialchars($_POST['employment_history_last_position_held'], ENT_QUOTES, 'UTF-8');
         $company = htmlspecialchars($_POST['employment_history_company'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['employment_history_address'], ENT_QUOTES, 'UTF-8');
-        $employmentStartDate = $this->systemModel->checkDate('empty', $_POST['employment_start_date'], '', 'Y-m-d', '');
-        $employmentEndDate = $this->systemModel->checkDate('empty', $_POST['employment_end_date'], '', 'Y-m-d', '');
+        $startMonth = htmlspecialchars($_POST['employment_history_start_month'], ENT_QUOTES, 'UTF-8');
+        $startYear = htmlspecialchars($_POST['employment_history_start_year'], ENT_QUOTES, 'UTF-8');
+        $endMonth = htmlspecialchars($_POST['employment_history_end_month'], ENT_QUOTES, 'UTF-8');
+        $endYear = htmlspecialchars($_POST['employment_history_end_year'], ENT_QUOTES, 'UTF-8');
         $startingSalary = htmlspecialchars($_POST['starting_salary'], ENT_QUOTES, 'UTF-8');
         $finalSalary = htmlspecialchars($_POST['final_salary'], ENT_QUOTES, 'UTF-8');
         $basicFunction = htmlspecialchars($_POST['basic_function'], ENT_QUOTES, 'UTF-8');
@@ -889,13 +894,13 @@ class EmployeeController {
         $total = $checkContactEmploymentHistoryExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactEmploymentHistory($contactEmploymentHistoryID, $employeeID, $company, $address, $lastPositionHeld, $employmentStartDate, $employmentEndDate, $basicFunction, $startingSalary, $finalSalary, $userID);
+            $this->employeeModel->updateContactEmploymentHistory($contactEmploymentHistoryID, $employeeID, $company, $address, $lastPositionHeld, $startMonth, $startYear, $endMonth, $endYear, $basicFunction, $startingSalary, $finalSalary, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertContactEmploymentHistory($employeeID, $company, $address, $lastPositionHeld, $employmentStartDate, $employmentEndDate, $basicFunction, $startingSalary, $finalSalary, $userID);
+            $this->employeeModel->insertContactEmploymentHistory($employeeID, $company, $address, $lastPositionHeld, $startMonth, $startYear, $endMonth, $endYear, $basicFunction, $startingSalary, $finalSalary, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -924,8 +929,10 @@ class EmployeeController {
         $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $licenseName = htmlspecialchars($_POST['contact_license_name'], ENT_QUOTES, 'UTF-8');
         $issuingOrganization = htmlspecialchars($_POST['contact_license_issuing_organization'], ENT_QUOTES, 'UTF-8');
-        $issueDate = $this->systemModel->checkDate('empty', $_POST['contact_license_issue_date'], '', 'Y-m-d', '');
-        $expiryDate = $this->systemModel->checkDate('empty', $_POST['contact_license_expiry_date'], '', 'Y-m-d', '');
+        $startMonth = htmlspecialchars($_POST['license_start_month'], ENT_QUOTES, 'UTF-8');
+        $startYear = htmlspecialchars($_POST['license_start_year'], ENT_QUOTES, 'UTF-8');
+        $endMonth = htmlspecialchars($_POST['license_end_month'], ENT_QUOTES, 'UTF-8');
+        $endYear = htmlspecialchars($_POST['license_end_year'], ENT_QUOTES, 'UTF-8');
         $description = htmlspecialchars($_POST['contact_license_description'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
@@ -937,20 +944,15 @@ class EmployeeController {
     
         $checkContactLicenseExist = $this->employeeModel->checkContactLicenseExist($contactLicenseID);
         $total = $checkContactLicenseExist['total'] ?? 0;
-
-        if (!empty($expiryDate) && (new DateTime($expiryDate) < new DateTime($issueDate))) {
-            echo json_encode(['success' => false, 'message' => 'Expiry date cannot be earlier than issue date.']);
-            exit;
-        }        
     
         if ($total > 0) {
-            $this->employeeModel->updateContactLicense($contactLicenseID, $employeeID, $licenseName, $issuingOrganization, $issueDate, $expiryDate, $description, $userID);
+            $this->employeeModel->updateContactLicense($contactLicenseID, $employeeID, $licenseName, $issuingOrganization, $startMonth, $startYear, $endMonth, $endYear, $description, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertContactLicense($employeeID, $licenseName, $issuingOrganization, $issueDate, $expiryDate, $description, $userID);
+            $this->employeeModel->insertContactLicense($employeeID, $licenseName, $issuingOrganization, $startMonth, $startYear, $endMonth, $endYear, $description, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -2206,8 +2208,11 @@ class EmployeeController {
                 'institutionName' => $contactEducationalBackgroundDetails['institution_name'] ?? null,
                 'degreeEarned' => $contactEducationalBackgroundDetails['degree_earned'] ?? null,
                 'fieldOfStudy' => $contactEducationalBackgroundDetails['field_of_study'] ?? null,
-                'startDate' =>  $this->systemModel->checkDate('empty', $contactEducationalBackgroundDetails['start_date'], '', 'm/d/Y', ''),
-                'endDate' =>  $this->systemModel->checkDate('empty', $contactEducationalBackgroundDetails['end_date'], '', 'm/d/Y', '')
+                'startMonth' => $contactEducationalBackgroundDetails['start_month'] ?? null,
+                'startYear' => $contactEducationalBackgroundDetails['start_year'] ?? null,
+                'endMonth' => $contactEducationalBackgroundDetails['end_month'] ?? null,
+                'endYear' => $contactEducationalBackgroundDetails['end_year'] ?? null,
+                'courseHighlights' => $contactEducationalBackgroundDetails['course_highlights'] ?? null
             ];
 
             echo json_encode($response);

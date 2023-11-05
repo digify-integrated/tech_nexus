@@ -283,23 +283,29 @@ class EmployeeModel {
     # - $p_institution_name (string): The institution name.
     # - $p_degree_earned (string): The degree earned.
     # - $p_field_of_study (string): The field of study.
-    # - $start_date (date): The start date.
-    # - $end_date (date): The end date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
+    # - $p_course_highlights (string): The course highlights.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactEducationalBackground($p_contact_educational_background_id, $p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $start_date, $end_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactEducationalBackground (:p_contact_educational_background_id, :p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :start_date, :end_date, :p_last_log_by)');
+    public function updateContactEducationalBackground($p_contact_educational_background_id, $p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_course_highlights, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactEducationalBackground (:p_contact_educational_background_id, :p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_course_highlights, :p_last_log_by)');
         $stmt->bindValue(':p_contact_educational_background_id', $p_contact_educational_background_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_educational_stage_id', $p_educational_stage_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_institution_name', $p_institution_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_degree_earned', $p_degree_earned, PDO::PARAM_STR);
         $stmt->bindValue(':p_field_of_study', $p_field_of_study, PDO::PARAM_STR);
-        $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
-        $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_course_highlights', $p_course_highlights, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -484,8 +490,10 @@ class EmployeeModel {
     # - $p_company (string): The company name.
     # - $p_address (string): The company address.
     # - $p_last_position_held (string): The last position held.
-    # - $p_employment_start_date (date): The employment start date.
-    # - $p_employment_end_date (date): The employment end date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
     # - $p_basic_function (date): The basic function.
     # - $p_starting_salary (double): The starting salary.
     # - $p_final_salary (double): The final salary.
@@ -494,15 +502,17 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactEmploymentHistory($p_contact_employment_history_id, $p_contact_id, $p_company, $p_address, $p_last_position_held, $p_employment_start_date, $p_employment_end_date, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmploymentHistory (:p_contact_employment_history_id, :p_contact_id, :p_company, :p_address, :p_last_position_held, :p_employment_start_date, :p_employment_end_date, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
+    public function updateContactEmploymentHistory($p_contact_employment_history_id, $p_contact_id, $p_company, $p_address, $p_last_position_held, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmploymentHistory (:p_contact_employment_history_id, :p_contact_id, :p_company, :p_address, :p_last_position_held, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
         $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company', $p_company, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_position_held', $p_last_position_held, PDO::PARAM_STR);
-        $stmt->bindValue(':p_employment_start_date', $p_employment_start_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_employment_end_date', $p_employment_end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
         $stmt->bindValue(':p_basic_function', $p_basic_function, PDO::PARAM_STR);
         $stmt->bindValue(':p_starting_salary', $p_starting_salary, PDO::PARAM_STR);
         $stmt->bindValue(':p_final_salary', $p_final_salary, PDO::PARAM_STR);
@@ -521,22 +531,26 @@ class EmployeeModel {
     # - $p_contact_id (int): The contact ID.
     # - $p_license_name (string): The license name.
     # - $issuing_organization (string): The issuing organization.
-    # - $p_issue_date (date): The issue date.
-    # - $p_expiry_date (date): The expiry date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
     # - $p_description (string): The description.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactLicense($p_contact_license_id, $p_contact_id, $p_license_name, $issuing_organization, $p_issue_date, $p_expiry_date, $p_description, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactLicense (:p_contact_license_id, :p_contact_id, :p_license_name, :issuing_organization, :p_issue_date, :p_expiry_date, :p_description, :p_last_log_by)');
+    public function updateContactLicense($p_contact_license_id, $p_contact_id, $p_license_name, $issuing_organization, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactLicense (:p_contact_license_id, :p_contact_id, :p_license_name, :issuing_organization, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_description, :p_last_log_by)');
         $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_license_name', $p_license_name, PDO::PARAM_STR);
         $stmt->bindValue(':issuing_organization', $issuing_organization, PDO::PARAM_STR);
-        $stmt->bindValue(':p_issue_date', $p_issue_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_expiry_date', $p_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -825,22 +839,28 @@ class EmployeeModel {
     # - $p_institution_name (string): The institution name.
     # - $p_degree_earned (string): The degree earned.
     # - $p_field_of_study (string): The field of study.
-    # - $start_date (date): The start date.
-    # - $end_date (date): The end date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
+    # - $p_course_highlights (string): The course highlights.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertContactEducationalBackground($p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $start_date, $end_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertContactEducationalBackground (:p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :start_date, :end_date, :p_last_log_by)');
+    public function insertContactEducationalBackground($p_contact_id, $p_educational_stage_id, $p_institution_name, $p_degree_earned, $p_field_of_study, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_course_highlights, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactEducationalBackground (:p_contact_id, :p_educational_stage_id, :p_institution_name, :p_degree_earned, :p_field_of_study, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_course_highlights, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_educational_stage_id', $p_educational_stage_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_institution_name', $p_institution_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_degree_earned', $p_degree_earned, PDO::PARAM_STR);
         $stmt->bindValue(':p_field_of_study', $p_field_of_study, PDO::PARAM_STR);
-        $stmt->bindValue(':start_date', $start_date, PDO::PARAM_STR);
-        $stmt->bindValue(':end_date', $end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_course_highlights', $p_course_highlights, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1012,8 +1032,10 @@ class EmployeeModel {
     # - $p_company (string): The company name.
     # - $p_address (string): The company address.
     # - $p_last_position_held (string): The last position held.
-    # - $p_employment_start_date (date): The employment start date.
-    # - $p_employment_end_date (date): The employment end date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
     # - $p_basic_function (date): The basic function.
     # - $p_starting_salary (double): The starting salary.
     # - $p_final_salary (double): The final salary.
@@ -1022,14 +1044,16 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertContactEmploymentHistory($p_contact_id, $p_company, $p_address, $p_last_position_held, $p_employment_start_date, $p_employment_end_date, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertContactEmploymentHistory (:p_contact_id, :p_company, :p_address, :p_last_position_held, :p_employment_start_date, :p_employment_end_date, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
+    public function insertContactEmploymentHistory($p_contact_id, $p_company, $p_address, $p_last_position_held, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactEmploymentHistory (:p_contact_id, :p_company, :p_address, :p_last_position_held, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company', $p_company, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_position_held', $p_last_position_held, PDO::PARAM_STR);
-        $stmt->bindValue(':p_employment_start_date', $p_employment_start_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_employment_end_date', $p_employment_end_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
         $stmt->bindValue(':p_basic_function', $p_basic_function, PDO::PARAM_STR);
         $stmt->bindValue(':p_starting_salary', $p_starting_salary, PDO::PARAM_STR);
         $stmt->bindValue(':p_final_salary', $p_final_salary, PDO::PARAM_STR);
@@ -1046,8 +1070,10 @@ class EmployeeModel {
     # Parameters:
     # - $p_contact_id (int): The contact ID.
     # - $p_license_name (string): The license name.
-    # - $issuing_organization (string): The issuing organization.
-    # - $p_issue_date (date): The issue date.
+    # - $p_start_month (string): The start month.
+    # - $p_start_year (string): The start year.
+    # - $p_end_month (string): The end month.
+    # - $p_end_year (string): The end year.
     # - $p_expiry_date (date): The expiry date.
     # - $p_description (string): The description.
     # - $p_last_log_by (int): The last logged user.
@@ -1055,13 +1081,16 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertContactLicense($p_contact_id, $p_license_name, $issuing_organization, $p_issue_date, $p_expiry_date, $p_description, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertContactLicense (:p_contact_id, :p_license_name, :issuing_organization, :p_issue_date, :p_expiry_date, :p_description, :p_last_log_by)');
+    public function insertContactLicense($p_contact_id, $p_license_name, $issuing_organization, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactLicense (:p_contact_id, :p_license_name, :issuing_organization, :p_start_month, :p_start_year, :p_end_month, :p_end_year
+        , :p_description, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_license_name', $p_license_name, PDO::PARAM_STR);
         $stmt->bindValue(':issuing_organization', $issuing_organization, PDO::PARAM_STR);
-        $stmt->bindValue(':p_issue_date', $p_issue_date, PDO::PARAM_STR);
-        $stmt->bindValue(':p_expiry_date', $p_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
+        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();

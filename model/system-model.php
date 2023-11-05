@@ -203,6 +203,33 @@ class SystemModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getDefaultImage
+    # Description: Checks the date with different format
+    #
+    # Parameters:
+    # - $type (string): The type of default image.
+    #
+    # Returns:
+    # - A the default image on each type.
+    #
+    # -------------------------------------------------------------
+    public function getMonthNameFromNumber($monthNumber) {
+        $months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+    
+        if ($monthNumber >= 1 && $monthNumber <= 12) {
+            return $months[$monthNumber - 1];
+        }
+        else {
+            return 'Invalid Month';
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: checkImage
     # Description: Checks if the image exist; if not return default image.
     #

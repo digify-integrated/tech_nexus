@@ -4652,21 +4652,23 @@ BEGIN
     WHERE contact_employment_history_id = p_contact_employment_history_id;
 END //
 
-CREATE PROCEDURE insertContactEmploymentHistory(IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_employment_start_date DATE, IN p_employment_end_date DATE, IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertContactEmploymentHistory(IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO contact_employment_history (contact_id, company, address, last_position_held, employment_start_date, employment_end_date, basic_function, starting_salary, final_salary, last_log_by) 
-	VALUES(p_contact_id, p_company, p_address, p_last_position_held, p_employment_start_date, p_employment_end_date, p_basic_function, p_starting_salary, p_final_salary, p_last_log_by);
+    INSERT INTO contact_employment_history (contact_id, company, address, last_position_held, start_month, start_year, end_month, end_year, basic_function, starting_salary, final_salary, last_log_by) 
+	VALUES(p_contact_id, p_company, p_address, p_last_position_held, p_start_month, p_start_year, p_end_month, p_end_year, p_basic_function, p_starting_salary, p_final_salary, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateContactEmploymentHistory(IN p_contact_employment_history_id INT, IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_employment_start_date DATE, IN p_employment_end_date DATE, IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateContactEmploymentHistory(IN p_contact_employment_history_id INT, IN p_contact_id INT, IN p_company VARCHAR(500), IN p_address VARCHAR(500), IN p_last_position_held VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_basic_function TEXT, IN p_starting_salary DOUBLE, IN p_final_salary DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE contact_employment_history
     SET contact_id = p_contact_id,
     company = p_company,
     address = p_address,
     last_position_held = p_last_position_held,
-    employment_start_date = p_employment_start_date,
-    employment_end_date = p_employment_end_date,
+    start_month = p_start_month,
+    start_year = p_start_year,
+    end_month = p_end_month,
+    end_year = p_end_year,
     basic_function = p_basic_function,
     starting_salary = p_starting_salary,
     final_salary = p_final_salary,
@@ -4687,10 +4689,10 @@ END //
 
 CREATE PROCEDURE generateContactEmploymentHistorySummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_employment_history_id, company, address, last_position_held, employment_start_date, employment_end_date, basic_function, starting_salary, final_salary
+	SELECT contact_employment_history_id, company, address, last_position_held, start_month, start_year, end_month, $end_year, basic_function, starting_salary, final_salary
     FROM contact_employment_history
     WHERE contact_id = p_contact_id 
-    ORDER BY employment_start_date DESC;
+    ORDER BY start_year DESC, start_year DESC, end_month ASC, end_year ASC;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -4704,20 +4706,22 @@ BEGIN
     WHERE contact_license_id = p_contact_license_id;
 END //
 
-CREATE PROCEDURE insertContactLicense(IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_issue_date DATE, IN p_expiry_date DATE, IN p_description VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertContactLicense(IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_description VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO contact_license (contact_id, license_name, issuing_organization, issue_date, expiry_date, description, last_log_by) 
-	VALUES(p_contact_id, p_license_name, p_issuing_organization, p_issue_date, p_expiry_date, p_description, p_last_log_by);
+    INSERT INTO contact_license (contact_id, license_name, issuing_organization, start_month, start_year, end_month, end_year, description, last_log_by) 
+	VALUES(p_contact_id, p_license_name, p_issuing_organization, p_start_month, p_start_year, p_end_month, p_end_year, p_description, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateContactLicense(IN p_contact_license_id INT, IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_issue_date DATE, IN p_expiry_date DATE, IN p_description VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateContactLicense(IN p_contact_license_id INT, IN p_contact_id INT, IN p_license_name VARCHAR(500), IN p_issuing_organization VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_description VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE contact_license
     SET contact_id = p_contact_id,
     license_name = p_license_name,
     issuing_organization = p_issuing_organization,
-    issue_date = p_issue_date,
-    expiry_date = p_expiry_date,
+    start_month = p_start_month,
+    start_year = p_start_year,
+    end_month = p_end_month,
+    end_year = p_end_year,
     description = p_description,
     last_log_by = p_last_log_by
     WHERE contact_license_id = p_contact_license_id;
@@ -4736,10 +4740,10 @@ END //
 
 CREATE PROCEDURE generateContactLicenseSummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_license_id, license_name, issuing_organization, issue_date, expiry_date, description
+	SELECT contact_license_id, license_name, issuing_organization, start_month, start_year, end_month, end_year, description
     FROM contact_license
     WHERE contact_id = p_contact_id 
-    ORDER BY issue_date DESC;
+    ORDER BY start_year DESC, start_year DESC, end_month ASC, end_year ASC;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -135,6 +135,18 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
+                <h5>Emergency Contact</h5>
+                <?php echo $employeeEmergencyContactAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
                 <h5>Licenses & Certifications</h5>
                 <?php echo $employeeLicenseAdd; ?>
               </div>
@@ -186,18 +198,6 @@
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-hobby-summary"></ul>              
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="d-flex align-items-center justify-content-between">
-                <h5>Emergency Contact</h5>
-                <?php echo $employeeEmergencyContactAdd; ?>
-              </div>
-            </div>
-            <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
-              </ul>
             </div>
           </div>
         </div>
@@ -682,39 +682,39 @@
                                     <input type="text" class="form-control" id="contact_field_of_study" name="contact_field_of_study" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
-                                <div class="form-group row">
+                                <div class="form-group row mb-0">
                                   <div class="col-lg-12">
                                     <label class="form-label">Started <span class="text-danger">*</span></label>
                                   </div>
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <select class="form-control offcanvas-select2" name="educational_stage_start_month" id="educational_stage_start_month">
+                                    <select class="form-control offcanvas-select2" name="educational_background_start_month" id="educational_background_start_month">
                                       <option value="">--</option>
                                       '. $systemModel->generateMonthOptions() .'
                                     </select>
                                   </div>
                                   <div class="col-lg-6 mt-3 mt-lg-0">
-                                    <select class="form-control offcanvas-select2" name="educational_stage_start_year" id="educational_stage_start_year">
+                                    <select class="form-control offcanvas-select2" name="educational_background_start_year" id="educational_background_start_year">
                                       <option value="">--</option>
                                       '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
                                     </select>
                                   </div>
                                 </div>
-                                <div class="form-group row">
+                                <div class="form-group row mb-0">
                                   <div class="col-lg-12">
                                     <label class="form-label">Ended</label>
                                   </div>
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <select class="form-control offcanvas-select2" name="educational_stage_end_month" id="educational_stage_end_month">
+                                    <select class="form-control offcanvas-select2" name="educational_background_end_month" id="educational_background_end_month">
                                       <option value="">--</option>
                                       '. $systemModel->generateMonthOptions() .'
                                     </select>
                                   </div>
                                   <div class="col-lg-6 mt-3 mt-lg-0">
-                                    <select class="form-control offcanvas-select2" name="educational_stage_end_year" id="educational_stage_end_year">
+                                    <select class="form-control offcanvas-select2" name="educational_background_end_year" id="educational_background_end_year">
                                       <option value="">--</option>
                                       '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
                                     </select>
@@ -723,7 +723,7 @@
                                 <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label">Course Highlights</label>
-                                    <textarea class="form-control" id="educational_stage_course_highlights" name="educational_stage_course_highlights" maxlength="5000" rows="5"></textarea>
+                                    <textarea class="form-control" id="educational_background_course_highlights" name="educational_background_course_highlights" maxlength="5000" rows="5"></textarea>
                                   </div>
                                 </div>
                               </form>
@@ -1056,24 +1056,42 @@
                                     <input type="text" class="form-control" id="employment_history_address" name="employment_history_address" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
+                                <div class="form-group row mb-0">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Started <span class="text-danger">*</span></label>
+                                  </div>
+                                </div>
                                 <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <label class="form-label">Started <span class="text-danger">*</span></label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="employment_start_date" name="employment_start_date" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="employment_history_start_month" id="employment_history_start_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
                                   </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <select class="form-control offcanvas-select2" name="employment_history_start_year" id="employment_history_start_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row mb-0">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Ended</label>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <label class="form-label">Ended</span></label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="employment_end_date" name="employment_end_date" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="employment_history_end_month" id="employment_history_end_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
+                                  </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <select class="form-control offcanvas-select2" name="employment_history_end_year" id="employment_history_end_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
                                   </div>
                                 </div>
                                 <div class="form-group row">
@@ -1137,24 +1155,42 @@
                                     <input type="text" class="form-control" id="contact_license_issuing_organization" name="contact_license_issuing_organization" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
+                                <div class="form-group row mb-0">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Issue Date <span class="text-danger">*</span></label>
+                                  </div>
+                                </div>
                                 <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <label class="form-label">Issue Date <span class="text-danger">*</span></label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="contact_license_issue_date" name="contact_license_issue_date" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="license_start_month" id="license_start_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
                                   </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <select class="form-control offcanvas-select2" name="license_start_year" id="license_start_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row mb-0">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Expiry Date</label>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
                                   <div class="col-lg-6">
-                                    <label class="form-label">Expiry Date</span></label>
-                                    <div class="input-group date">
-                                      <input type="text" class="form-control regular-datepicker" id="contact_license_expiry_date" name="contact_license_expiry_date" autocomplete="off">
-                                      <span class="input-group-text">
-                                        <i class="feather icon-calendar"></i>
-                                      </span>
-                                    </div>
+                                    <select class="form-control offcanvas-select2" name="license_end_month" id="license_end_month">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateMonthOptions() .'
+                                    </select>
+                                  </div>
+                                  <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <select class="form-control offcanvas-select2" name="license_end_year" id="license_end_year">
+                                      <option value="">--</option>
+                                      '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                    </select>
                                   </div>
                                 </div>
                                 <div class="form-group row">
