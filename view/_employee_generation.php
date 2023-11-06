@@ -1484,9 +1484,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $startYear = $row['start_year'];
                     $endMonth = $row['end_month'];
                     $endYear = $row['end_year'];
-                    $employmentStartDate = $systemModel->checkDate('empty', $startMonth . ' ' . $startYear, '', 'M Y', '');
-                    $employmentEndDate = $systemModel->checkDate('empty', $endMonth . ' ' . $endYear, '', 'M Y', '');
-                    $courseHighlight = $row['course_highlights'];
+                    $employmentStartDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'M Y', '');
+                    $employmentEndDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'M Y', '');
 
                     if(!empty($endMonth) && !empty($endYear)){
                         $endDateTime = new DateTime($employmentEndDate);
@@ -1620,16 +1619,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $startYear = $row['start_year'];
                     $endMonth = $row['end_month'];
                     $endYear = $row['end_year'];
-                    $issueDate = $systemModel->checkDate('empty', $startMonth . ' ' . $startYear, '', 'M Y', '');
-                    $expiryDate = $systemModel->checkDate('empty', $endMonth . ' ' . $endYear, '', 'M Y', '');
-
-                    $expiryDateTime = DateTime::createFromFormat('M Y', $expiryDate);
+                    $issueDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'M Y', '');
 
                     $currentDateTime = new DateTime();
 
                     $expiryStatus = '';
 
-                    if(!empty($expiryDate)){
+                    if(!empty($endMonth) && !empty($endYear)){
+                        $expiryDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'M Y', '');
+
+                        $expiryDateTime = DateTime::createFromFormat('M Y', $expiryDate);
+
                         if ($expiryDateTime < $currentDateTime) {
                             $expiryStatus = '(Expired)';
                         }

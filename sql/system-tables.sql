@@ -3879,25 +3879,6 @@ CREATE INDEX contact_license_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Contact Language Table */
-
-CREATE TABLE contact_language (
-    contact_language_id INT AUTO_INCREMENT PRIMARY KEY,
-    contact_id INT UNSIGNED NOT NULL,
-    language_id INT UNSIGNED NOT NULL,
-    language_proficiency_id INT UNSIGNED NOT NULL,
-    last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
-);
-
-CREATE INDEX contact_language_index_contact_language_id ON contact_language(contact_language_id);
-CREATE INDEX contact_language_index_language_id ON language(language_id);
-CREATE INDEX contact_language_index_language_proficiency_id ON language_proficiency(language_proficiency_id);
-CREATE INDEX contact_language_index_contact_id ON contact(contact_id);
-
-/* ----------------------------------------------------------------------------------------------------------------------------- */
-
 /* Language Table */
 
 CREATE TABLE language (
@@ -4082,6 +4063,25 @@ VALUES
     ('Intermediate', 'Can comfortably converse in this language on a variety of topics.', '1'),
     ('Advanced', 'Proficient in this language, can handle complex discussions and tasks.', '1'),
     ('Fluent', 'Mastery level, can speak and understand this language at a native level.', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Language Table */
+
+CREATE TABLE contact_language (
+    contact_language_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    language_id INT UNSIGNED NOT NULL,
+    language_proficiency_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_language_index_contact_language_id ON contact_language(contact_language_id);
+CREATE INDEX contact_language_index_language_id ON language(language_id);
+CREATE INDEX contact_language_index_language_proficiency_id ON language_proficiency(language_proficiency_id);
+CREATE INDEX contact_language_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -4689,7 +4689,7 @@ END //
 
 CREATE PROCEDURE generateContactEmploymentHistorySummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_employment_history_id, company, address, last_position_held, start_month, start_year, end_month, $end_year, basic_function, starting_salary, final_salary
+	SELECT contact_employment_history_id, company, address, last_position_held, start_month, start_year, end_month, end_year, basic_function, starting_salary, final_salary
     FROM contact_employment_history
     WHERE contact_id = p_contact_id 
     ORDER BY start_year DESC, start_year DESC, end_month ASC, end_year ASC;

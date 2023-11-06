@@ -3106,7 +3106,7 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.hobby_name <> OLD.hobby_name THEN
+    IF NEW.company <> OLD.company THEN
         SET audit_log = CONCAT(audit_log, "Company: ", OLD.company, " -> ", NEW.company, "<br/>");
     END IF;
 

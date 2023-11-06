@@ -194,6 +194,9 @@ class EmployeeController {
                 case 'get contact employment history details':
                     $this->getContactEmploymentHistory();
                     break;
+                case 'get contact license details':
+                    $this->getContactLicense();
+                    break;
                 case 'get contact language details':
                     $this->getContactLanguage();
                     break;
@@ -2510,8 +2513,10 @@ class EmployeeController {
                 'basicFunction' => $contactEmploymentHistoryDetails['basic_function'] ?? null,
                 'startingSalary' => $contactEmploymentHistoryDetails['starting_salary'] ?? null,
                 'finalSalary' => $contactEmploymentHistoryDetails['final_salary'] ?? null,
-                'employmentStartDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_start_date'] ?? null, '', 'm/d/Y', ''),
-                'employmentEndDate' =>  $this->systemModel->checkDate('empty', $contactEmploymentHistoryDetails['employment_end_date'] ?? null, '', 'm/d/Y', ''),
+                'startMonth' => $contactEmploymentHistoryDetails['start_month'] ?? null,
+                'startYear' => $contactEmploymentHistoryDetails['start_year'] ?? null,
+                'endMonth' => $contactEmploymentHistoryDetails['end_month'] ?? null,
+                'endYear' => $contactEmploymentHistoryDetails['end_year'] ?? null
             ];
 
             echo json_encode($response);
@@ -2554,8 +2559,10 @@ class EmployeeController {
                 'licenseName' => $contactLicenseDetails['license_name'] ?? null,
                 'issuingOrganization' => $contactLicenseDetails['issuing_organization'] ?? null,
                 'description' => $contactLicenseDetails['description'] ?? null,
-                'issueDate' =>  $this->systemModel->checkDate('empty', $contactLicenseDetails['issue_date'] ?? null, '', 'm/d/Y', ''),
-                'expiryDate' =>  $this->systemModel->checkDate('empty', $contactLicenseDetails['expiry_date'] ?? null, '', 'm/d/Y', ''),
+                'startMonth' => $contactLicenseDetails['start_month'] ?? null,
+                'startYear' => $contactLicenseDetails['start_year'] ?? null,
+                'endMonth' => $contactLicenseDetails['end_month'] ?? null,
+                'endYear' => $contactLicenseDetails['end_year'] ?? null
             ];
 
             echo json_encode($response);
