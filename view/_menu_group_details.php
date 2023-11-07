@@ -93,7 +93,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="menu-item-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                <table id="menu-item-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Menu Item</th>

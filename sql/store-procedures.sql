@@ -4928,6 +4928,53 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/*  Contact Bank Table Stored Procedures */
+
+CREATE PROCEDURE checkContactBankExist (IN p_contact_bank_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_bank
+    WHERE contact_bank_id = p_contact_bank_id;
+END //
+
+CREATE PROCEDURE insertContactBank(IN p_contact_id INT, IN p_bank_id INT, IN p_bank_account_type_id INT, IN p_account_number VARCHAR(30), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_bank (contact_id, bank_id, bank_account_type_id, account_number, last_log_by) 
+	VALUES(p_contact_id, p_bank_id, p_bank_account_type_id, p_account_number, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateContactBank(IN p_contact_bank_id INT, IN p_contact_id INT, IN p_bank_id INT, IN bank_account_type_id INT, IN p_account_number VARCHAR(30), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_bank
+    SET contact_id = p_contact_id,
+    bank_id = p_bank_id,
+    bank_account_type_id = p_bank_account_type_id,
+    account_number = p_account_number,
+    last_log_by = p_last_log_by
+    WHERE contact_bank_id = p_contact_bank_id;
+END //
+
+CREATE PROCEDURE deleteContactBank(IN p_contact_bank_id INT)
+BEGIN
+    DELETE FROM contact_bank WHERE contact_bank_id = p_contact_bank_id;
+END //
+
+CREATE PROCEDURE getContactBank(IN p_contact_bank_id INT)
+BEGIN
+	SELECT * FROM contact_bank
+    WHERE contact_bank_id = p_contact_bank_id;
+END //
+
+CREATE PROCEDURE generateContactBankSummary(IN p_contact_id INT)
+BEGIN
+	SELECT contact_bank_id, bank_id, bank_account_type_id, account_number
+    FROM contact_bank
+    WHERE contact_id = p_contact_id 
+    ORDER BY bank_id ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

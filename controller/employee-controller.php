@@ -155,6 +155,9 @@ class EmployeeController {
                 case 'save contact language':
                     $this->saveContactLanguage();
                     break;
+                case 'save contact bank':
+                    $this->saveContactBank();
+                    break;
                 case 'get personal information details':
                     $this->getPersonalInformation();
                     break;
@@ -200,6 +203,9 @@ class EmployeeController {
                 case 'get contact language details':
                     $this->getContactLanguage();
                     break;
+                case 'get contact bank details':
+                    $this->getContactBank();
+                    break;
                 case 'delete employee':
                     $this->deleteEmployee();
                     break;
@@ -244,6 +250,9 @@ class EmployeeController {
                     break;
                 case 'delete contact language':
                     $this->deleteContactLanguage();
+                    break;
+                case 'delete contact bank':
+                    $this->deleteContactBank();
                     break;
                 case 'change employee image':
                     $this->updateEmployeeImage();
@@ -440,7 +449,7 @@ class EmployeeController {
         $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $addressTypeID = htmlspecialchars($_POST['address_type_id'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['contact_address'], ENT_QUOTES, 'UTF-8');
-        $cityID = htmlspecialchars($_POST['contact_address_city_id'], ENT_QUOTES, 'UTF-8');
+        $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -487,7 +496,7 @@ class EmployeeController {
         $contactIdentificationID = isset($_POST['contact_identification_id']) ? htmlspecialchars($_POST['contact_identification_id'], ENT_QUOTES, 'UTF-8') : null;
         $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $idTypeID = htmlspecialchars($_POST['id_type_id'], ENT_QUOTES, 'UTF-8');
-        $idNumber = htmlspecialchars($_POST['contact_id_number'], ENT_QUOTES, 'UTF-8');
+        $idNumber = htmlspecialchars($_POST['id_number'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -534,14 +543,14 @@ class EmployeeController {
         $contactEducationalBackgroundID = isset($_POST['contact_educational_background_id']) ? htmlspecialchars($_POST['contact_educational_background_id'], ENT_QUOTES, 'UTF-8') : null;
         $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $educationalStageID = htmlspecialchars($_POST['educational_stage_id'], ENT_QUOTES, 'UTF-8');
-        $institutionName = htmlspecialchars($_POST['contact_institution_name'], ENT_QUOTES, 'UTF-8');
-        $degreeEarned = htmlspecialchars($_POST['contact_degree_earned'], ENT_QUOTES, 'UTF-8');
-        $fieldOfStudy = htmlspecialchars($_POST['contact_field_of_study'], ENT_QUOTES, 'UTF-8');
+        $institutionName = htmlspecialchars($_POST['institution_name'], ENT_QUOTES, 'UTF-8');
+        $degreeEarned = htmlspecialchars($_POST['degree_earned'], ENT_QUOTES, 'UTF-8');
+        $fieldOfStudy = htmlspecialchars($_POST['field_of_study'], ENT_QUOTES, 'UTF-8');
         $startMonth = htmlspecialchars($_POST['educational_background_start_month'], ENT_QUOTES, 'UTF-8');
         $startYear = htmlspecialchars($_POST['educational_background_start_year'], ENT_QUOTES, 'UTF-8');
         $endMonth = htmlspecialchars($_POST['educational_background_end_month'], ENT_QUOTES, 'UTF-8');
         $endYear = htmlspecialchars($_POST['educational_background_end_year'], ENT_QUOTES, 'UTF-8');
-        $courseHighlights = htmlspecialchars($_POST['educational_background_course_highlights'], ENT_QUOTES, 'UTF-8');
+        $courseHighlights = htmlspecialchars($_POST['course_highlights'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -930,8 +939,8 @@ class EmployeeController {
         $userID = $_SESSION['user_id'];
         $contactLicenseID = isset($_POST['contact_license_id']) ? htmlspecialchars($_POST['contact_license_id'], ENT_QUOTES, 'UTF-8') : null;
         $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
-        $licenseName = htmlspecialchars($_POST['contact_license_name'], ENT_QUOTES, 'UTF-8');
-        $issuingOrganization = htmlspecialchars($_POST['contact_license_issuing_organization'], ENT_QUOTES, 'UTF-8');
+        $licenseName = htmlspecialchars($_POST['license_name'], ENT_QUOTES, 'UTF-8');
+        $issuingOrganization = htmlspecialchars($_POST['issuing_organization'], ENT_QUOTES, 'UTF-8');
         $startMonth = htmlspecialchars($_POST['license_start_month'], ENT_QUOTES, 'UTF-8');
         $startYear = htmlspecialchars($_POST['license_start_year'], ENT_QUOTES, 'UTF-8');
         $endMonth = htmlspecialchars($_POST['license_end_month'], ENT_QUOTES, 'UTF-8');
@@ -1003,6 +1012,54 @@ class EmployeeController {
         } 
         else {
             $this->employeeModel->insertContactLanguage($employeeID, $languageID, $languageProficiencyID, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactBank
+    # Description: 
+    # Updates the existing contact bank if it exists; otherwise, inserts a new contact bank.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactBank() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactBankID = isset($_POST['contact_bank_id']) ? htmlspecialchars($_POST['contact_bank_id'], ENT_QUOTES, 'UTF-8') : null;
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $bankID = htmlspecialchars($_POST['bank_id'], ENT_QUOTES, 'UTF-8');
+        $bankAccountTypeID = htmlspecialchars($_POST['bank_account_type_id'], ENT_QUOTES, 'UTF-8');
+        $accountNumber = htmlspecialchars($_POST['account_number'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactBankExist = $this->employeeModel->checkContactBankExist($contactLanguageID);
+        $total = $checkContactBankExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->employeeModel->updateContactBank($contactLanguageID, $employeeID, $bankID, $bankAccountTypeID, $accountNumber, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->employeeModel->insertContactBank($employeeID, $bankID, $bankAccountTypeID, $accountNumber, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -1766,6 +1823,47 @@ class EmployeeController {
         }
     
         $this->employeeModel->deleteContactLanguage($contactLanguageID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactBank
+    # Description: 
+    # Delete the contact bank if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactBank() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactBankID = htmlspecialchars($_POST['contact_bank_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactBankExist = $this->employeeModel->checkContactBankExist($contactBankID);
+        $total = $checkContactBankExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactBank($contactBankID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -2604,6 +2702,48 @@ class EmployeeController {
                 'success' => true,
                 'languageID' => $contactLanguageDetails['language_id'] ?? null,
                 'languageProficiencyID' => $contactLanguageDetails['language_proficiency_id'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: getContactBank
+    # Description: 
+    # Handles the retrieval of language details such as language, language proficiency, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getContactBank() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['contact_bank_id']) && !empty($_POST['contact_bank_id'])) {
+            $userID = $_SESSION['user_id'];
+            $contactBankID = $_POST['contact_bank_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $contactLanguageDetails = $this->employeeModel->getContactBank($contactBankID);
+
+            $response = [
+                'success' => true,
+                'bankID' => $contactLanguageDetails['bank_id'] ?? null,
+                'bankAccountTypeID' => $contactLanguageDetails['bank_account_type_id'] ?? null,
+                'accountNumber' => $contactLanguageDetails['account_number'] ?? null
             ];
 
             echo json_encode($response);

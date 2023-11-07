@@ -25,6 +25,8 @@ require_once '../model/educational-stage-model.php';
 require_once '../model/relation-model.php';
 require_once '../model/language-model.php';
 require_once '../model/language-proficiency-model.php';
+require_once '../model/bank-model.php';
+require_once '../model/bank-account-type-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
 
@@ -52,6 +54,8 @@ $educationalStageModel = new EducationalStageModel($databaseModel);
 $relationModel = new RelationModel($databaseModel);
 $languageModel = new LanguageModel($databaseModel);
 $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
+$bankModel = new BankModel($databaseModel);
+$bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -126,7 +130,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $departmentID = $row['department_id'];
                     $jobPositionID = $row['job_position_id'];
                     $branchID = $row['branch_id'];
-                    $offboardDate = $systemModel->checkDate('empty', $row['offboard_date'], '', 'M Y', '');
+                    $offboardDate = $systemModel->checkDate('empty', $row['offboard_date'], '', 'F Y', '');
                     $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
 
                     $employmentStatus = empty($offboardDate) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
@@ -170,10 +174,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                                 <h4 class="mb-0 text-truncate"><b>'. $employeeName .'</b></h4>
                                                             </div>
                                                             <div class="d-flex align-items-center justify-content-between mt-3">
-                                                                <p class="prod-content mb-0 text-muted">'. $jobPositionName .'</p>
+                                                                <p class="prod-content mb-0">'. $jobPositionName .'</p>
                                                             </div>
                                                             <div class="d-flex align-items-center justify-content-between ">
-                                                                <p class="prod-content mb-0 text-muted">'. $departmentName .'</p>
+                                                                <p class="prod-content mb-0">'. $departmentName .'</p>
                                                             </div>
                                                         </a>
                                                     </div>
@@ -223,7 +227,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $genderID = $row['gender_id'];
                     $religionID = $row['religion_id'];
                     $bloodTypeID = $row['blood_type_id'];
-                    $birthday = $systemModel->checkDate('summary', $row['birthday'], '', 'm/d/Y', '');
+                    $birthday = $systemModel->checkDate('summary', $row['birthday'], '', 'F d, Y', '');
                     $birthPlace = $row['birth_place'] ?? '--';
                     $height = !empty($row['height']) ? $row['height'] . ' cm' : '--';
                     $weight = !empty($row['weight']) ? $row['weight'] . ' kg' : '--';
@@ -346,7 +350,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobPositionID = $row['job_position_id'];
                     $jobLevelID = $row['job_level_id'];
                     $branchID = $row['branch_id'];
-                    $onboardDate = $systemModel->checkDate('summary', $row['onboard_date'], '', 'm/d/Y', '');
+                    $onboardDate = $systemModel->checkDate('summary', $row['onboard_date'], '', 'F d, Y', '');
 
                     $companyName = $companyModel->getCompany($companyID)['company_name'] ?? '--';
                     $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? '--';
@@ -361,7 +365,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $badgeID .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $badgeID .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -373,7 +377,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $companyName .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $companyName .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -385,7 +389,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $departmentName .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $departmentName .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -397,7 +401,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $employeeTypeName .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $employeeTypeName .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -409,7 +413,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $jobLevelName .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $jobLevelName .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -421,7 +425,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $branchName .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $branchName .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -433,7 +437,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="col-sm-6">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0 w-100">
-                                                <p class="mb-0 text-muted text-truncate text-end">'. $onboardDate .'</p>
+                                                <p class="mb-0 text-truncate text-end">'. $onboardDate .'</p>
                                             </div>
                                         </div>
                                     </div>
@@ -494,9 +498,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $contactInformationTypeName = $contactInformationTypeModel->getContactInformationType($contactInformationTypeID)['contact_information_type_name'] ?? null;
 
-                    $mobile = !empty($mobile) ? '<p class="mb-1 text-muted"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
-                    $email = !empty($email) ? '<p class="mb-1 text-muted"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
-                    $telephone = !empty($telephone) ? '<p class="mb-1 text-muted"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
+                    $mobile = !empty($mobile) ? '<p class="mb-0"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
+                    $email = !empty($email) ? '<p class="mb-0"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
+                    $telephone = !empty($telephone) ? '<p class="mb-0"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
 
                     if ($count === 1) {
                         $listMargin = 'pt-0';
@@ -539,7 +543,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     '. $email .'
                                     '. $mobile .'
                                     '. $telephone .'
-                                    <div class="d-flex gap-2">
+                                    <div class="mt-2 d-flex gap-2">
                                         '. $update .'
                                         '. $tag .'
                                         '. $delete .'
@@ -655,7 +659,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="me-2">
                                                 <p class="mb-2 text-primary"><b>'. $addressTypeName .'</b></p>
-                                                <p class="mb-2 text-muted">' . $contactAddress . '</p>
+                                                <p class="mb-2">' . $contactAddress . '</p>
                                                 <div class="d-flex gap-2">
                                                     '. $update .'
                                                     '. $tag .'
@@ -759,7 +763,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="me-2">
                                             <p class="mb-2 text-primary"><b>'. $idTypeName .'</b></p>
-                                            <p class="mb-2 text-muted">' . $idNumber . '</p>
+                                            <p class="mb-2">' . $idNumber . '</p>
                                             <div class="d-flex gap-2">
                                                 '. $update .'
                                                 '. $tag .'
@@ -867,10 +871,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $institutionName .'</b></p>
-                                                    <p class="mb-1 text-muted">' . $degreeEarned . '</p>
-                                                    <p class="mb-1 text-muted">' . $fieldOfStudy . '</p>
-                                                    <p class="mb-3 text-muted">'. $startDate .' - '. $endDate .'</p>
-                                                    <p class="mb-2 text-muted">' . $courseHighlight . '</p>
+                                                    <p class="mb-1">' . $degreeEarned . '</p>
+                                                    <p class="mb-1">' . $fieldOfStudy . '</p>
+                                                    <p class="mb-3">'. $startDate .' - '. $endDate .'</p>
+                                                    <p class="mb-2">' . $courseHighlight . '</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
@@ -931,13 +935,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $mobile = $row['mobile'];
                     $telephone = $row['telephone'];
                     $email = $row['email'];
-                    $birthday = $systemModel->checkDate('empty', $row['birthday'], '', 'm/d/Y', '');
+                    $birthday = $systemModel->checkDate('empty', $row['birthday'], '', 'F d, Y', '');
                     
                     $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
 
-                    $mobile = !empty($mobile) ? '<p class="mb-1 text-muted"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
-                    $email = !empty($email) ? '<p class="mb-1 text-muted"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
-                    $telephone = !empty($telephone) ? '<p class="mb-1 text-muted"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
+                    $mobile = !empty($mobile) ? '<p class="mb-1"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
+                    $email = !empty($email) ? '<p class="mb-1"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
+                    $telephone = !empty($telephone) ? '<p class="mb-1"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
 
                     if ($count === 1) {
                         $listMargin = 'pt-0';
@@ -970,8 +974,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $familyName .'</b></p>
-                                                    <p class="mb-3 text-muted">' . $relationName . '</p>
-                                                    <p class="mb-0 text-muted"><i class="ti ti-calendar-event"></i> ' . $birthday . '</p>
+                                                    <p class="mb-3">' . $relationName . '</p>
+                                                    <p class="mb-2"><i class="ti ti-calendar-event"></i> ' . $birthday . '</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
@@ -1037,9 +1041,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $relationName = $relationModel->getRelation($relationID)['relation_name'] ?? null;
 
-                    $mobile = !empty($mobile) ? '<p class="mb-1 text-muted"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
-                    $email = !empty($email) ? '<p class="mb-1 text-muted"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
-                    $telephone = !empty($telephone) ? '<p class="mb-1 text-muted"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
+                    $mobile = !empty($mobile) ? '<p class="mb-1"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
+                    $email = !empty($email) ? '<p class="mb-1"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
+                    $telephone = !empty($telephone) ? '<p class="mb-1"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
 
                     if ($count === 1) {
                         $listMargin = 'pt-0';
@@ -1072,7 +1076,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="me-2">
                                                 <p class="mb-1 text-primary"><b>'. $emergencyContactName .'</b></p>
-                                                <p class="mb-0 text-muted">' . $relationName . '</p>
+                                                <p class="mb-2">' . $relationName . '</p>
                                                 <div class="d-flex gap-2">
                                                     '. $update .'
                                                     '. $delete .'
@@ -1131,7 +1135,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $index => $row) {
                     $contactTrainingID = $row['contact_training_id'];
                     $trainingName = $row['training_name'];
-                    $trainingDate = $systemModel->checkDate('empty', $row['training_date'], '', 'm/d/Y', '');
+                    $trainingDate = $systemModel->checkDate('empty', $row['training_date'], '', 'F d, Y', '');
                     $trainingLocation = $row['training_location'];
                     $trainingProvider = $row['training_provider'];
 
@@ -1166,15 +1170,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="me-2">
                                                 <p class="mb-1 text-primary"><b>'. $trainingName .'</b></p>
-                                                <p class="mb-1 text-muted">' . $trainingProvider . '</p>
-                                                <p class="mb-0 text-muted">' . $trainingLocation . '</p>
+                                                <p class="mb-1">' . $trainingProvider . '</p>
+                                                <p class="mb-2">' . $trainingLocation . '</p>
                                                 <div class="d-flex gap-2">
                                                     '. $update .'
                                                     '. $delete .'
                                                 </div>
                                             </div>
                                             <div class="me-2">
-                                                <p class="mb-0 text-muted">' . $trainingDate . '</p>
+                                                <p class="mb-0">' . $trainingDate . '</p>
                                             </div>
                                         </div>
                                     </li>';
@@ -1254,7 +1258,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <p class="mb-0 text-primary">'. $skillName .'</p>
+                                            <p class="mb-0 text-primary"><b>'. $skillName .'</b></p>
                                             <div class="d-flex gap-2">
                                                 '. $update .'
                                                 '. $delete .'
@@ -1337,7 +1341,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <p class="mb-0 text-primary">'. $talentName .'</p>
+                                            <p class="mb-0 text-primary"><b>'. $talentName .'</b></p>
                                             <div class="d-flex gap-2">
                                                 '. $update .'
                                                 '. $delete .'
@@ -1420,7 +1424,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <p class="mb-0 text-primary">'. $hobbyName .'</p>
+                                            <p class="mb-0 text-primary"><b>'. $hobbyName .'</b></p>
                                             <div class="d-flex gap-2">
                                                  '. $update .'
                                                 '. $delete .'
@@ -1484,15 +1488,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $startYear = $row['start_year'];
                     $endMonth = $row['end_month'];
                     $endYear = $row['end_year'];
-                    $employmentStartDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'M Y', '');
-                    $employmentEndDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'M Y', '');
+                    $employmentStartDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'F Y', '');
+                    $employmentEndDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'F Y', '');
 
                     if(!empty($endMonth) && !empty($endYear)){
                         $endDateTime = new DateTime($employmentEndDate);
                     }
                     else{                        
                         $employmentEndDate = 'Present';
-                        $endDateTime = new DateTime(date('M Y'));
+                        $endDateTime = new DateTime(date('F Y'));
                     }
 
                     $startDateTime = new DateTime($employmentStartDate);
@@ -1555,11 +1559,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $lastPositionHeld .'</b></p>
-                                                    <p class="mb-1 text-muted">'. $company .'</p>
-                                                    <p class="mb-1 text-muted">'. $address  .'</p>
-                                                    <p class="mb-1 text-muted">'. $employmentStartDate .' - '. $employmentEndDate .' ('. $employmentDuration .')</p>
-                                                    <p class="mb-3 text-muted">'. $salary .'</p>                                                                      
-                                                    <p class="mb-2 text-muted">'. $basicFunction .'</p>
+                                                    <p class="mb-1">'. $company .'</p>
+                                                    <p class="mb-1">'. $address  .'</p>
+                                                    <p class="mb-1">'. $employmentStartDate .' - '. $employmentEndDate .' ('. $employmentDuration .')</p>
+                                                    <p class="mb-3">'. $salary .'</p>                                                                      
+                                                    <p class="mb-2">'. $basicFunction .'</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
@@ -1619,16 +1623,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $startYear = $row['start_year'];
                     $endMonth = $row['end_month'];
                     $endYear = $row['end_year'];
-                    $issueDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'M Y', '');
+                    $issueDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($startYear . '-' . $startMonth . '-01')), '', 'F Y', '');
 
                     $currentDateTime = new DateTime();
 
                     $expiryStatus = '';
 
                     if(!empty($endMonth) && !empty($endYear)){
-                        $expiryDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'M Y', '');
+                        $expiryDate = $systemModel->checkDate('empty', date('Y-m-d', strtotime($endYear . '-' . $endMonth . '-01')), '', 'F Y', '');
 
-                        $expiryDateTime = DateTime::createFromFormat('M Y', $expiryDate);
+                        $expiryDateTime = DateTime::createFromFormat('F Y', $expiryDate);
 
                         if ($expiryDateTime < $currentDateTime) {
                             $expiryStatus = '(Expired)';
@@ -1669,9 +1673,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="me-2">
                                                     <p class="mb-1 text-primary"><b>'. $licenseName .'</b></p>
-                                                    <p class="mb-1 text-muted">'. $issuingOrganization .'</p>
-                                                    <p class="mb-3 text-muted">'. $description .'</p>
-                                                    <p class="mb-0 text-muted">'. $issueDate .' - '. $expiryDate .' ' . $expiryStatus .'</p>
+                                                    <p class="mb-1">'. $issuingOrganization .'</p>
+                                                    <p class="mb-2">'. $issueDate .' - '. $expiryDate .' ' . $expiryStatus .'</p>
+                                                    <p class="mb-2">'. $description .'</p>
                                                     <div class="d-flex gap-2">
                                                         '. $update .'
                                                         '. $delete .'
@@ -1719,7 +1723,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $count = count($options);
 
                 $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateupdateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
+                $updateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
                 $deleteEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 73);
 
                 foreach ($options as $index => $row) {
@@ -1728,7 +1732,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $languageProficiencyID = $row['language_proficiency_id'];
 
                     $languageName = $languageModel->getLanguage($languageID)['language_name'] ?? null;
-                    $languageProficiencyName = $languageProficiencyModel->getLanguageProficiency($languageProficiencyID)['language_proficiency_name'] ?? null;
+                    $languageProficiencyDetails = $languageProficiencyModel->getLanguageProficiency($languageProficiencyID);
+                    $languageProficiencyName = $languageProficiencyDetails['language_proficiency_name'];
+                    $languageProficiencyDescription = $languageProficiencyDetails['description'];
 
                     if ($count === 1) {
                         $listMargin = 'pt-0';
@@ -1744,7 +1750,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $update = '';
-                    if($employeeWriteAccess['total'] > 0 && $updateupdateEmployeeLanguage['total'] > 0){
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeLanguage['total'] > 0){
                         $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-employee-language mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" data-contact-employee-language-id="'. $contactLanguageID .'" title="Edit Language">
                                     <i class="ti ti-pencil"></i>
                                 </a>';
@@ -1759,12 +1765,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= '<li class="list-group-item px-0 '. $listMargin .'">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <p class="mb-0 text-primary">'. $languageName .': <span class="text-muted">'. $languageProficiencyName .'</span></p>
-                                            </div>
-                                            <div class="d-flex gap-2">
-                                                 '. $update .'
-                                                '. $delete .'
+                                            <div class="mb-0">
+                                                <p class="mb-2 text-primary"><b>'. $languageName .'</b></p>
+                                                <p class="mb-2">'. $languageProficiencyName .' - '. $languageProficiencyDescription .'</p>
+                                                <div class="d-flex gap-2">
+                                                    '. $update .'
+                                                    '. $delete .'
+                                                </div>
                                             </div>
                                         </div>
                                     </li>';
@@ -1776,6 +1783,98 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactLanguageSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: contact bank summary
+        # Description:
+        # Generates the contact bank summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact bank summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactBankSummary(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $updateEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 75);
+                $deleteEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 76);
+
+                foreach ($options as $index => $row) {
+                    $contactBankID = $row['contact_bank_id'];
+                    $bankID = $row['bank_id'];
+                    $bankAccountTypeID = $row['bank_account_type_id'];
+                    $accountNumber = $row['account_number'];
+
+                    $bankName = $bankModel->getBank($bankID)['bank_name'] ?? null;
+                    $bankAccountTypeName = $bankAccountTypeModel->getBankAccountType($bankID)['bank_account_type_name'] ?? null;
+
+                    if ($count === 1) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else if ($index === $count - 1) {
+                        $listMargin = 'pb-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+
+                    $update = '';
+                    if($employeeWriteAccess['total'] > 0 && $updateEmployeeBank['total'] > 0){
+                        $update = '<a href="javascript:void(0);" class="btn btn-icon btn-outline-primary update-contact-employee-bank mt-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-bank-offcanvas" aria-controls="contact-employee-bank-offcanvas" data-contact-employee-bank-id="'. $contactBankID .'" title="Edit Bank">
+                                    <i class="ti ti-pencil"></i>
+                                </a>';
+                    }
+
+                    $delete = '';
+                    if($employeeWriteAccess['total'] > 0 && $deleteEmployeeBank['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-outline-danger delete-contact-employee-bank mt-3" data-contact-employee-bank-id="'. $contactBankID .'" title="Delete Bank">
+                            <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $details .= '<li class="list-group-item px-0 '. $listMargin .'">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="mb-0">
+                                                <p class="mb-1 text-primary"><b>'. $bankName .'</b></p>
+                                                <p class="mb-2">'. $bankAccountTypeName .'</p>
+                                                <p class="mb-2">'. $accountNumber .'</p>
+                                                <div class="d-flex gap-2">
+                                                    '. $update .'
+                                                    '. $delete .'
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No bank account found.';
+                }
+
+                $response[] = [
+                    'contactBankSummary' => $details
                 ];
     
                 echo json_encode($response);

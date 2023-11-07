@@ -385,10 +385,13 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee License', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee License', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee License', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Language', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Language', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Language', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Bank', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Bank', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Bank', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -477,10 +480,13 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('68', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('69', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('70', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('71', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('72', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('73', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('74', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('75', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('76', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3548,6 +3554,7 @@ INSERT INTO bank_account_type (bank_account_type_name, last_log_by)
 VALUES
     ('Savings Account', '1'),
     ('Checking Account', '1'),
+    ('Payroll Account', '1'),
     ('Time Deposit Account', '1'),
     ('Salary Account', '1'),
     ('Business Account', '1');
@@ -3907,6 +3914,7 @@ VALUES
     ('Czech', '1'),
     ('Danish', '1'),
     ('German', '1'),
+    ('English', '1'),
     ('Ewe', '1'),
     ('Greek, Modern', '1'),
     ('Spanish', '1'),
@@ -4022,6 +4030,7 @@ VALUES
     ('Swedish', '1'),
     ('Swahili', '1'),
     ('Sylheti', '1'),
+    ('Tagalog', '1'),
     ('Tamil', '1'),
     ('Telugu', '1'),
     ('Thai', '1'),
@@ -4082,6 +4091,26 @@ CREATE INDEX contact_language_index_contact_language_id ON contact_language(cont
 CREATE INDEX contact_language_index_language_id ON language(language_id);
 CREATE INDEX contact_language_index_language_proficiency_id ON language_proficiency(language_proficiency_id);
 CREATE INDEX contact_language_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Bank Table */
+
+CREATE TABLE contact_bank (
+    contact_bank_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    bank_id INT UNSIGNED NOT NULL,
+    bank_account_type_id INT UNSIGNED NOT NULL,
+    account_number VARCHAR(30) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_bank_index_contact_bank_id ON contact_bank(contact_bank_id);
+CREATE INDEX contact_bank_index_bank_id ON bank(bank_id);
+CREATE INDEX contact_bank_account_type_index_bank_account_type_id ON bank_account_type(bank_account_type_id);
+CREATE INDEX contact_bank_index_contact_id ON contact(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

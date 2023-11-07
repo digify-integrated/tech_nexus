@@ -112,7 +112,7 @@
                 </div>
                 <div class="row">
                   <div class="col-lg-12">
-                    <table id="update-notification-channel-table" class="table table-striped table-hover table-bordered nowrap w-100">
+                    <table id="update-notification-channel-table" class="table table-hover table-bordered nowrap w-100">
                       <thead>
                         <tr>
                           <th>Notification Channel</th>

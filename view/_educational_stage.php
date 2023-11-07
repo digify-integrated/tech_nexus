@@ -34,7 +34,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="educational-stage-table" class="table table-striped table-hover table-bordered nowrap w-100">
+          <table id="educational-stage-table" class="table table-hover table-bordered nowrap w-100">
             <thead>
               <tr>
                 <th class="all">

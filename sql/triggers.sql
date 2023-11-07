@@ -3404,6 +3404,56 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Bank Table Triggers */
+
+CREATE TRIGGER contact_bank_trigger_update
+AFTER UPDATE ON contact_bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.bank_id <> OLD.bank_id THEN
+        SET audit_log = CONCAT(audit_log, "Bank ID: ", OLD.bank_id, " -> ", NEW.bank_id, "<br/>");
+    END IF;
+
+    IF NEW.bank_account_type_id <> OLD.bank_account_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Bank Account Type ID: ", OLD.bank_account_type_id, " -> ", NEW.bank_account_type_id, "<br/>");
+    END IF;
+
+    IF NEW.account_number <> OLD.account_number THEN
+        SET audit_log = CONCAT(audit_log, "Account Number: ", OLD.account_number, " -> ", NEW.account_number, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_bank', NEW.contact_bank_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_bank_trigger_insert
+AFTER INSERT ON contact_bank
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact bank created. <br/>';
+
+    IF NEW.bank_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank ID: ", NEW.bank_id);
+    END IF;
+
+    IF NEW.bank_account_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Account Type ID: ", NEW.bank_account_type_id);
+    END IF;
+
+    IF NEW.account_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Account Number: ", NEW.account_number);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_bank', NEW.contact_bank_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

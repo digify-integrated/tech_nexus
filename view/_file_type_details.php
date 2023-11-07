@@ -82,7 +82,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="file-extension-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                <table id="file-extension-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>File Extension</th>

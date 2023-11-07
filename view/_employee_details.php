@@ -79,6 +79,11 @@
       if($addEmployeeLanguage['total'] > 0){
         $employeeLanguageAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" id="add-contact-employee-language"><i class="ti ti-plus"></i></button>';
       }
+
+      $employeeBankAdd = '';
+      if($addEmployeeBank['total'] > 0){
+        $employeeBankAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-bank-offcanvas" aria-controls="contact-employee-bank-offcanvas" id="add-contact-employee-bank"><i class="ti ti-plus"></i></button>';
+      }
     }
   ?>
   <div class="tab-content">
@@ -106,7 +111,7 @@
                     }
                   ?>
                 </div>
-                <h5 class="mb-0 text-primary" id="employee_name"></h5>
+                <h5 class="mb-1 text-primary" id="employee_name"></h5>
                 <p class="text-muted text-sm" id="job_position"></p>
                 <p class="mb-0" id="employee_bio"></p>
               </div>
@@ -135,13 +140,12 @@
           <div class="card">
             <div class="card-header">
               <div class="d-flex align-items-center justify-content-between">
-                <h5>Emergency Contact</h5>
-                <?php echo $employeeEmergencyContactAdd; ?>
+                <h5>Bank Account</h5>
+                <?php echo $employeeBankAdd; ?>
               </div>
             </div>
             <div class="card-body">
-              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
-              </ul>
+              <ul class="list-group list-group-flush" id="contact-employee-bank-summary"></ul>
             </div>
           </div>
           <div class="card">
@@ -267,6 +271,18 @@
             </div>
             <div class="card-body">
               <ul class="list-group list-group-flush" id="contact-family-background-summary">
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="d-flex align-items-center justify-content-between">
+                <h5>Emergency Contact</h5>
+                <?php echo $employeeEmergencyContactAdd; ?>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
               </ul>
             </div>
           </div>
@@ -577,8 +593,8 @@
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_information_email">City <span class="text-danger">*</span></label>
-                                    <select class="form-control offcanvas-select2" name="contact_address_city_id" id="contact_address_city_id">
+                                    <label class="form-label" for="city_id">City <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="city_id" id="city_id">
                                     <option value="">--</option>
                                     '. $cityModel->generateCityOptions() .'
                                     </select>
@@ -623,8 +639,8 @@
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_id_number">ID Number <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="contact_id_number" name="contact_id_number" maxlength="100" autocomplete="off">
+                                    <label class="form-label" for="id_number">ID Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="id_number" name="id_number" maxlength="100" autocomplete="off">
                                   </div>
                                 </div>
                               </form>
@@ -666,20 +682,20 @@
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_institution_name">Institution Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="contact_institution_name" name="contact_institution_name" maxlength="500" autocomplete="off">
+                                    <label class="form-label" for="institution_name">Institution Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="institution_name" name="institution_name" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_degree_earned">Degree Earned</label>
-                                    <input type="text" class="form-control" id="contact_degree_earned" name="contact_degree_earned" maxlength="500" autocomplete="off">
+                                    <label class="form-label" for="degree_earned">Degree Earned</label>
+                                    <input type="text" class="form-control" id="degree_earned" name="degree_earned" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_field_of_study">Field of Study</label>
-                                    <input type="text" class="form-control" id="contact_field_of_study" name="contact_field_of_study" maxlength="500" autocomplete="off">
+                                    <label class="form-label" for="field_of_study">Field of Study</label>
+                                    <input type="text" class="form-control" id="field_of_study" name="field_of_study" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
                                 <div class="form-group row mb-0">
@@ -723,7 +739,7 @@
                                 <div class="form-group row">
                                   <div class="col-lg-12">
                                     <label class="form-label">Course Highlights</label>
-                                    <textarea class="form-control" id="educational_background_course_highlights" name="educational_background_course_highlights" maxlength="5000" rows="5"></textarea>
+                                    <textarea class="form-control" id="course_highlights" name="course_highlights" maxlength="5000" rows="5"></textarea>
                                   </div>
                                 </div>
                               </form>
@@ -1032,7 +1048,7 @@
                         </div>
                         <div class="offcanvas-body">
                           <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                            This form is used to collect and record an employee\'s employment history.
+                            This form serves as a vital tool for gathering and meticulously documenting an employee\'s complete employment history. It captures essential information such as previous job positions, company names, dates of employment, responsibilities, and achievements, enabling employers to gain valuable insights into the individual\'s professional journey.
                           </div>
                           <div class="row">
                             <div class="col-lg-12">
@@ -1137,22 +1153,22 @@
                         </div>
                         <div class="offcanvas-body">
                           <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                            This form is used to collect and record an employee\'s licenses and certifications.
+                            This form is utilized to gather and document an employee\'s licenses and certifications, ensuring a comprehensive overview of their qualifications and credentials.
                           </div>
                           <div class="row">
                             <div class="col-lg-12">
                               <form id="contact-employee-license-form" method="post" action="#">
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_license_name">License Name <span class="text-danger">*</span></label>
+                                    <label class="form-label" for="license_name">License Name <span class="text-danger">*</span></label>
                                     <input type="hidden" id="contact_license_id" name="contact_license_id">
-                                    <input type="text" class="form-control" id="contact_license_name" name="contact_license_name" maxlength="500" autocomplete="off">
+                                    <input type="text" class="form-control" id="license_name" name="license_name" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
                                 <div class="form-group row">
                                   <div class="col-lg-12">
-                                    <label class="form-label" for="contact_issuing_organization">Issuing Orgranization <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="contact_license_issuing_organization" name="contact_license_issuing_organization" maxlength="500" autocomplete="off">
+                                    <label class="form-label" for="issuing_organization">Issuing Orgranization <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="issuing_organization" name="issuing_organization" maxlength="500" autocomplete="off">
                                   </div>
                                 </div>
                                 <div class="form-group row mb-0">
@@ -1220,7 +1236,7 @@
                         </div>
                         <div class="offcanvas-body">
                           <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                            This form is used to collect and record an employee\'s language and proficiency.
+                            This form is employed to gather and document an employee\'s linguistic skills and proficiency, providing valuable insights into their language capabilities.
                           </div>
                           <div class="row">
                             <div class="col-lg-12">
@@ -1250,6 +1266,57 @@
                           <div class="row">
                             <div class="col-lg-12">
                               <button type="submit" class="btn btn-primary" id="submit-contact-employee-language" form="contact-employee-language-form">Submit</button>
+                              <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>';
+              }
+
+              if($addEmployeeBank['total'] > 0 || $updateEmployeeBank['total'] > 0){
+                echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employee-bank-offcanvas" aria-labelledby="contact-employee-bank-offcanvas-label">
+                        <div class="offcanvas-header">
+                          <h2 id="contact-employee-bank-offcanvas-label" style="margin-bottom:-0.5rem">Bank Account</h2>
+                          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                          <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                          This form plays a crucial role in securely collecting and recording an employee\'s banking information, including account numbers, bank account types. These details are essential for facilitating payroll processing, direct deposit, and other financial transactions, ensuring efficient and accurate financial interactions between the employer and the employee.
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <form id="contact-employee-bank-form" method="post" action="#">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Bank <span class="text-danger">*</span></label>
+                                    <input type="hidden" id="contact_bank_id" name="contact_bank_id">
+                                    <select class="form-control offcanvas-select2" name="bank_id" id="bank_id">
+                                      <option value="">--</option>
+                                      '. $bankModel->generateBankOptions() .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Bank Account Type <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="bank_account_type_id" id="bank_account_type_id">
+                                      <option value="">--</option>
+                                      '. $bankAccountTypeModel->generateBankAccountTypeOptions() .'
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label" for="account_number">Account Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="account_number" name="account_number" maxlength="30" autocomplete="off">
+                                  </div>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <button type="submit" class="btn btn-primary" id="submit-contact-employee-bank" form="contact-employee-bank-form">Submit</button>
                               <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                             </div>
                           </div>

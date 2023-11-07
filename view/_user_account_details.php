@@ -129,22 +129,22 @@
                 '. $imageUpdate .'
                 <div class="row g-3">
                   <div class="col-4">
-                    <h6 class="mb-0" id="password_expiry_date_label"></h6>
-                    <small class="text-muted">Password Expiry Date</small>
+                    <h6 class="mb-0 text-primary" id="password_expiry_date_label"></h6>
+                    <small>Password Expiry Date</small>
                   </div>
                   <div class="col-4 border border-top-0 border-bottom-0">
-                    <h6 class="mb-0" id="last_connection_date_label"></h6>
-                    <small class="text-muted">Last Connection Date</small>
+                    <h6 class="mb-0 text-primary" id="last_connection_date_label"></h6>
+                    <small>Last Connection Date</small>
                   </div>
                   <div class="col-4">
-                    <h6 class="mb-0" id="last_password_reset_label"></h6>
-                    <small class="text-muted">Last Password Reset</small>
+                    <h6 class="mb-0 text-primary" id="last_password_reset_label"></h6>
+                    <small>Last Password Reset</small>
                   </div>
                 </div>
               </div>
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <div>
-                  <p class="text-muted mb-0">Status</p>
+                  <p class="text-primary mb-0"><b>Status</b></p>
                 </div>
                 <div class="p-0">
                   <label class="col-form-label fw-normal" id="status_label"></label>
@@ -152,7 +152,7 @@
               </div>
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <div>
-                  <p class="text-muted mb-0">Locked</p>
+                  <p class="text-primary mb-0"><b>Locked</b></p>
                 </div>
                 <div class="p-0">
                   <label class="col-form-label fw-normal" id="locked_label"></label>
@@ -160,7 +160,7 @@
               </div>                                    
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <div>
-                  <p class="text-muted mb-0">Account Lock Duration</p>
+                  <p class="text-primary mb-0"><b>Account Lock Duration</b></p>
                 </div>
                 <div class="p-0">
                   <label class="col-form-label fw-normal" id="account_lock_duration_label"></label>
@@ -168,7 +168,7 @@
               </div>
               <div class="d-flex align-items-center justify-content-between mb-1">
                 <div>
-                  <p class="text-muted mb-0">Last Failed Login Attempt</p>
+                  <p class="text-primary mb-0"><b>Last Failed Login Attempt</b></p>
                 </div>
                 <div class="p-0">
                   <label class="col-form-label fw-normal" id="last_failed_login_attempt_label"></label>
@@ -191,7 +191,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="user-account-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                <table id="user-account-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Role</th>
@@ -237,7 +237,7 @@
                   <form id="add-user-account-role-form" method="post" action="#">
                     <div class="row">
                       <div class="col-md-12">
-                        <table id="add-user-account-role-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                        <table id="add-user-account-role-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                           <thead>
                             <tr>
                               <th>Role</th>

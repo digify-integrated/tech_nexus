@@ -84,7 +84,7 @@
               </div>
               <div class="card-body">
                 <div class="dt-responsive table-responsive">
-                  <table id="update-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                  <table id="update-system-action-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                     <thead>
                       <tr>
                         <th>Role</th>
@@ -131,7 +131,7 @@
                     <form id="add-system-action-role-access-form" method="post" action="#">
                       <div class="row">
                         <div class="col-md-12">
-                          <table id="add-system-action-role-access-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+                          <table id="add-system-action-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                             <thead>
                               <tr>
                                 <th class="all">Role</th>

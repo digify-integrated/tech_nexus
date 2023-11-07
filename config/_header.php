@@ -54,7 +54,7 @@
                                         <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40" />
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-1 text-truncate"><?php echo $fileAs; ?></h6>
+                                        <h6 class="mb-1 text-truncate text-primary"><?php echo $fileAs; ?></h6>
                                         <span class="text-truncate" id="email_account"><?php echo $email; ?></span>
                                     </div>
                                 </div>
@@ -63,7 +63,7 @@
                                     <div class="card-body py-3">
                                         <div class="d-flex align-items-center justify-content-between">
                                         <h6 class="mb-0 d-inline-flex align-items-center">
-                                            <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-notification-outline"></use></svg> Notification</h6>
+                                            <svg class="pc-icon me-2"><use xlink:href="#custom-notification-outline"></use></svg> Notification</h6>
                                             <div class="form-check form-switch form-check-reverse m-0">
                                                 <?php
                                                     $checked = $receiveNotification ? 'checked' : '';
@@ -77,7 +77,7 @@
                                     <div class="card-body py-3">
                                         <div class="d-flex align-items-center justify-content-between">
                                         <h6 class="mb-0 d-inline-flex align-items-center">
-                                            <svg class="pc-icon text-muted me-2"><use xlink:href="#custom-lock-outline"></use></svg> 2-Factor Authentication</h6>
+                                            <svg class="pc-icon me-2"><use xlink:href="#custom-lock-outline"></use></svg> 2-Factor Authentication</h6>
                                             <div class="form-check form-switch form-check-reverse m-0">
                                                 <?php
                                                     $checked = $twoFactorAuthentication ? 'checked' : '';

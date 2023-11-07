@@ -22,6 +22,8 @@
     require('model/relation-model.php');
     require('model/language-model.php');
     require('model/language-proficiency-model.php');
+    require('model/bank-model.php');
+    require('model/bank-account-type-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -52,6 +54,8 @@
     $relationModel = new RelationModel($databaseModel);
     $languageModel = new LanguageModel($databaseModel);
     $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
+    $bankModel = new BankModel($databaseModel);
+    $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();
 
@@ -90,6 +94,8 @@
     $updateEmployeeLicense = $userModel->checkSystemActionAccessRights($user_id, 69);
     $addEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 71);
     $updateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
+    $addEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 74);
+    $updateEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 75);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

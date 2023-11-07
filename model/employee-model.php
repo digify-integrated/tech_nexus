@@ -584,6 +584,34 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactBank
+    # Description: Updates the contact bank.
+    #
+    # Parameters:
+    # - $p_contact_bank_id (int): The bank ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_bank_id (int): The bank ID.
+    # - $bank_account_type_id (int): The bank account type ID.
+    # - $p_account_number (string): The account number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactBank($p_contact_bank_id, $p_contact_id, $p_bank_id, $bank_account_type_id, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactBank (:p_contact_bank_id, :p_contact_id, :p_bank_id, :bank_account_type_id, :p_account_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_bank_id', $p_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -1122,6 +1150,32 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertContactBank
+    # Description: Inserts the contact bank.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_bank_id (int): The bank ID.
+    # - $bank_account_type_id (int): The bank account type ID.
+    # - $p_account_number (string): The account number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactBank($p_contact_id, $p_bank_id, $bank_account_type_id, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactBank (:p_contact_id, :p_bank_id, :bank_account_type_id, :p_account_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_bank_id', $p_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -1430,6 +1484,25 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactBankExist
+    # Description: Checks if a contact bank exists.
+    #
+    # Parameters:
+    # - $p_contact_bank_id (int): The contact bank ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactBankExist($p_contact_bank_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactBankExist(:p_contact_bank_id)');
+        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1681,6 +1754,24 @@ class EmployeeModel {
     public function deleteContactLanguage($p_contact_language_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactLanguage(:p_contact_language_id)');
         $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactBank
+    # Description: Deletes the contact bank.
+    #
+    # Parameters:
+    # - $p_contact_bank_id (int): The contact bank ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactBank($p_contact_bank_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactBank(:p_contact_bank_id)');
+        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1984,6 +2075,26 @@ class EmployeeModel {
     public function getContactLanguage($p_contact_language_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getContactLanguage(:p_contact_language_id)');
         $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getContactBank
+    # Description: Retrieves the details of a contact bank.
+    #
+    # Parameters:
+    # - $p_contact_bank_id (int): The bank ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getContactBank($p_contact_bank_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactBank(:p_contact_bank_id)');
+        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

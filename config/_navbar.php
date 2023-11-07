@@ -11,7 +11,7 @@
                             <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
-                            <h6 class="mb-0"><?php echo $fileAs; ?></h6>
+                            <h6 class="mb-0 text-primary"><?php echo $fileAs; ?></h6>
                         </div>
                         <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse" href="#pc_sidebar_userlink">
                         <svg class="pc-icon">
@@ -36,7 +36,7 @@
 
                 <ul class="pc-navbar">
                     <li class="pc-item pc-caption">
-                        <label>Navigation</label>
+                        <label class="text-primary"><b>Navigation</b></label>
                         <i class="ti ti-dashboard"></i>
                     </li>
                     <li class="pc-item">
@@ -60,7 +60,7 @@
                             $_menuGroupName = $row['menu_group_name'];
             
                             $menu .= '<li class="pc-item pc-caption">
-                                        <label>'. $_menuGroupName .'</label>
+                                        <label class="text-primary"><b>'. $_menuGroupName .'</b></label>
                                     </li>';
             
                             $menu .= $menuItemModel->buildMenuItem($user_id, $_menuGroupID);

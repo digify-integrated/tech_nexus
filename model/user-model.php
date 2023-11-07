@@ -846,8 +846,8 @@ class UserModel {
                                                 <img class="rounded-circle img-fluid wid-40 hei-40" src="'. $profilePicture .'" alt="User image" />
                                             </div>
                                             <div class="media-body ms-3">
-                                                <h5 class="mb-0">'. $fileAs .'</h5>
-                                                <span class="text-sm text-muted">'. $timeElapsed .'</span>
+                                                <h5 class="mb-0 text-primary">'. $fileAs .'</h5>
+                                                <span class="text-sm">'. $timeElapsed .'</span>
                                             </div>
                                         </div>
                                         <div class="comment-content">

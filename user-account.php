@@ -113,7 +113,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">User Account</h2>
+                  <h2 class="mb-0 text-primary">User Account</h2>
                 </div>
               </div>
             </div>

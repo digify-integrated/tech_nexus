@@ -329,6 +329,14 @@
                 employeeLanguageSummary();
             }
 
+            if($('#contact-employee-bank-form').length){
+                employeeBankForm();
+            }
+
+            if($('#contact-employee-bank-summary').length){
+                employeeBankSummary();
+            }
+
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
             });
@@ -1371,6 +1379,73 @@
                 });
             });
 
+            $(document).on('click','#add-contact-employee-bank',function() {
+                resetModalForm("contact-employee-bank-form");
+            });
+
+            $(document).on('click','.update-contact-employee-bank',function() {
+                const contact_bank_id = $(this).data('contact-employee-bank-id');
+        
+                sessionStorage.setItem('contact_bank_id', contact_bank_id);
+                
+                displayDetails('get contact bank details');
+            });
+
+            $(document).on('click','.delete-contact-employee-bank',function() {
+                const contact_bank_id = $(this).data('contact-employee-bank-id');
+                const transaction = 'delete contact bank';
+        
+                Swal.fire({
+                    title: 'Confirm Bank Deletion',
+                    text: 'Are you sure you want to delete this bank?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_bank_id : contact_bank_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Bank Success', 'The bank has been deleted successfully.', 'success');
+                                    employeeBankSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Bank Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $('#employee_image').change(function() {
                 var selectedFile = $(this)[0].files[0];
 
@@ -1835,6 +1910,31 @@ function employeeLanguageSummary(){
         },
         success: function(response) {
             document.getElementById('contact-employee-language-summary').innerHTML = response[0].contactLanguageSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function employeeBankSummary(){
+    const type = 'contact bank summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-employee-bank-summary').innerHTML = response[0].contactBankSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -2317,7 +2417,7 @@ function employeeAddressForm(){
             contact_address: {
                 required: true
             },
-            contact_address_city_id: {
+            city_id: {
                 required: true
             },
         },
@@ -2328,7 +2428,7 @@ function employeeAddressForm(){
             contact_address: {
                 required: 'Please enter the address'
             },
-            contact_address_city_id: {
+            city_id: {
                 required: 'Please choose the city'
             },
         },
@@ -2415,7 +2515,7 @@ function employeeIdentificationForm(){
             id_type_id: {
                 required: true
             },
-            contact_id_number: {
+            id_number: {
                 required: true
             }
         },
@@ -2423,7 +2523,7 @@ function employeeIdentificationForm(){
             id_type_id: {
                 required: 'Please choose the ID type'
             },
-            contact_id_number: {
+            id_number: {
                 required: 'Please enter the ID number'
             }
         },
@@ -2510,7 +2610,7 @@ function employeeEducationalBackgroundForm(){
             educational_stage_id: {
                 required: true
             },
-            contact_institution_name: {
+            institution_name: {
                 required: true
             },
             educational_background_start_month: {
@@ -2532,7 +2632,7 @@ function employeeEducationalBackgroundForm(){
             educational_stage_id: {
                 required: 'Please choose the educational stage'
             },
-            contact_institution_name: {
+            institution_name: {
                 required: 'Please enter the institution name'
             },
             educational_background_start_month: {
@@ -3316,10 +3416,10 @@ function employeeEmploymentHistoryForm(){
 function employeeLicenseForm(){
     $('#contact-employee-license-form').validate({
         rules: {
-            contact_license_name: {
+            license_name: {
                 required: true
             },
-            contact_license_issuing_organization: {
+            issuing_organization: {
                 required: true
             },
             license_start_month: {
@@ -3338,10 +3438,10 @@ function employeeLicenseForm(){
             }
         },
         messages: {
-            contact_license_name: {
+            license_name: {
                 required: 'Please enter the license name'
             },
-            contact_license_issuing_organization: {
+            issuing_organization: {
                 required: 'Please enter the issuing organization'
             },
             license_start_month: {
@@ -3523,6 +3623,107 @@ function employeeLanguageForm(){
     });
 }
 
+function employeeBankForm(){
+    $('#contact-employee-bank-form').validate({
+        rules: {
+            bank_id: {
+                required: true
+            },
+            bank_account_type_id: {
+                required: true
+            },
+            account_number: {
+                required: true
+            }
+        },
+        messages: {
+            bank_id: {
+                required: 'Please choose the bank'
+            },
+            bank_account_type_id: {
+                required: 'Please choose the bank account type'
+            },
+            account_number: {
+                required: 'Please enter the account number'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact bank';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-employee-bank');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Bank Success' : 'Update Bank Success';
+                        const notificationDescription = response.insertRecord ? 'The bank has been inserted successfully.' : 'The bank has been updated successfully.';
+
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    $('#contact-employee-bank-offcanvas').offcanvas('hide');
+                    employeeBankSummary();
+                    resetModalForm('contact-employee-bank-form');
+                    enableFormSubmitButton('submit-contact-employee-bank', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get personal information details':
@@ -3690,7 +3891,7 @@ function displayDetails(transaction){
                         $('#contact_address').val(response.address);
                         
                         checkOptionExist('#address_type_id', response.addressTypeID, '');
-                        checkOptionExist('#contact_address_city_id', response.cityID, '');
+                        checkOptionExist('#city_id', response.cityID, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -3727,7 +3928,7 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#contact_identification_id').val(contact_identification_id);
-                        $('#contact_id_number').val(response.idNumber);
+                        $('#id_number').val(response.idNumber);
                         
                         checkOptionExist('#id_type_id', response.idTypeID, '');
                     } 
@@ -3766,10 +3967,10 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#contact_educational_background_id').val(contact_educational_background_id);
-                        $('#contact_institution_name').val(response.institutionName);
-                        $('#contact_degree_earned').val(response.degreeEarned);
-                        $('#contact_field_of_study').val(response.fieldOfStudy);
-                        $('#educational_background_course_highlights').val(response.courseHighlights);
+                        $('#institution_name').val(response.institutionName);
+                        $('#degree_earned').val(response.degreeEarned);
+                        $('#field_of_study').val(response.fieldOfStudy);
+                        $('#course_highlights').val(response.courseHighlights);
                         
                         checkOptionExist('#educational_background_start_month', response.startMonth, '');
                         checkOptionExist('#educational_background_start_year', response.startYear, '');
@@ -4095,8 +4296,8 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#contact_license_id').val(contact_license_id);
-                        $('#contact_license_name').val(response.licenseName);
-                        $('#contact_license_issuing_organization').val(response.issuingOrganization);
+                        $('#license_name').val(response.licenseName);
+                        $('#issuing_organization').val(response.issuingOrganization);
                         $('#contact_license_description').val(response.description);
 
                         checkOptionExist('#license_start_month', response.startMonth, '');
@@ -4148,7 +4349,47 @@ function displayDetails(transaction){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get License Details Error', response.message, 'danger');
+                            showNotification('Get Language Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get contact bank details':
+            var contact_bank_id = sessionStorage.getItem('contact_bank_id');
+
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    contact_bank_id : contact_bank_id, 
+                    transaction : transaction
+                },
+                beforeSend: function() {
+                    resetModalForm('contact-hobby-form');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#contact_bank_id').val(contact_bank_id);
+                        $('#account_number').val(response.accountNumber);
+
+                        checkOptionExist('#bank_id', response.bankID, '');
+                        checkOptionExist('#bank_account_type_id', response.bankAccountTypeID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Bank Details Error', response.message, 'danger');
                         }
                     }
                 },

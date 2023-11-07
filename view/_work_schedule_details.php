@@ -97,7 +97,7 @@
     if($addWorkingHours['total'] > 0){
       if($workScheduleTypeID == 1){
         $workingHoursAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#fixed-working-hours-offcanvas" aria-controls="fixed-working-hours-offcanvas" id="add-fixed-working-hours">Add Working Hours</button>';
-        $workingHoursTable = '<table id="fixed-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $workingHoursTable = '<table id="fixed-working-hours-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Day of Week</th>
@@ -113,7 +113,7 @@
       }
       else{
         $workingHoursAdd = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#flexible-working-hours-offcanvas" aria-controls="flexible-working-hours-offcanvas" id="add-flexible-working-hours">Add Working Hours</button>';
-        $workingHoursTable = '<table id="flexible-working-hours-table" class="table table-striped table-hover table-bordered nowrap w-100 dataTable">
+        $workingHoursTable = '<table id="flexible-working-hours-table" class="table table-hover table-bordered nowrap w-100 dataTable">
                                   <thead>
                                     <tr>
                                       <th>Work Date</th>
