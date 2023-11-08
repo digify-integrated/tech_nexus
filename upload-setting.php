@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Upload Setting';
+    $pageTitle = 'Upload Setting';
     
     $uploadSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
     $uploadSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="upload-setting.php">Upload Setting</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="upload-setting.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($uploadSettingID)){
                       echo '<li class="breadcrumb-item" id="upload-setting-id">'. $uploadSettingID .'</li>';
@@ -105,7 +105,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Upload Setting</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

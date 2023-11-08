@@ -75,7 +75,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'BRANCH_NAME' => '<div class="row">
                                         <div class="col">
                                             <h6 class="mb-0">'. $branchName .'</h6>
-                                            <p class="text-muted f-12 mb-0">'. $branchAddress .'</p>
+                                            <p class="f-12 mb-0">'. $branchAddress .'</p>
                                         </div>
                                     </div>',
                     'ACTION' => '<div class="d-flex gap-2">

@@ -325,7 +325,7 @@ function branchForm(){
                 required: true
             },
             city_id: {
-                required: true
+                choice_has_value: true
             }
         },
         messages: {
@@ -336,37 +336,19 @@ function branchForm(){
                 required: 'Please enter the address'
             },
             city_id: {
-                required: 'Please choose the city'
+                choice_has_value: 'Please choose an option with a value'
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
+            error.insertAfter(element);
         },
         highlight: function(element) {
             var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
+            inputElement.addClass('is-invalid');
         },
         unhighlight: function(element) {
             var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
+            inputElement.removeClass('is-invalid');
         },
         submitHandler: function(form) {
             const branch_id = $('#branch-id').text();

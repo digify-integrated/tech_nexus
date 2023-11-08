@@ -128,7 +128,7 @@
               </div>
               <div class="card-body">
                 <div class="dt-responsive table-responsive">
-                  <table id="job-position-responsibility-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                  <table id="job-position-responsibility-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                       <tr>
                         <th>Responsibility</th>
@@ -155,7 +155,7 @@
               </div>
               <div class="card-body">
                 <div class="dt-responsive table-responsive">
-                  <table id="job-position-requirement-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                  <table id="job-position-requirement-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                       <tr>
                         <th>Requirement</th>
@@ -182,7 +182,7 @@
               </div>
               <div class="card-body">
                 <div class="dt-responsive table-responsive">
-                  <table id="job-position-qualification-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                  <table id="job-position-qualification-table" class="table table-hover nowrap w-100 dataTable">
                     <thead>
                       <tr>
                         <th>Qualification</th>

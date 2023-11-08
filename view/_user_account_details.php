@@ -178,7 +178,7 @@
           </div>
         </div>
         <div class="col-lg-7">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -191,7 +191,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="user-account-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="user-account-role-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Role</th>
@@ -237,7 +237,7 @@
                   <form id="add-user-account-role-form" method="post" action="#">
                     <div class="row">
                       <div class="col-md-12">
-                        <table id="add-user-account-role-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                        <table id="add-user-account-role-table" class="table table-hover nowrap w-100 dataTable">
                           <thead>
                             <tr>
                               <th>Role</th>

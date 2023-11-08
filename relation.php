@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Relation';
+    $pageTitle = 'Relation';
     
     $relationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'read');
     $relationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="relation.php">Relation</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="relation.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($relationID)){
                             echo '<li class="breadcrumb-item" id="relation-id">'. $relationID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Relation</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

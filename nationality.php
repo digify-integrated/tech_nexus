@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Nationality';
+    $pageTitle = 'Nationality';
     
     $nationalityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 35, 'read');
     $nationalityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 35, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="nationality.php">Nationality</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="nationality.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($nationalityID)){
                             echo '<li class="breadcrumb-item" id="nationality-id">'. $nationalityID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Nationality</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -78,8 +78,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <img src="'. $companyLogo .'" alt="user-image" class="wid-40 hei-40 rounded-circle">
                                         </div>
                                         <div class="col">
-                                            <h6 class="mb-0 text-primary">'. $companyName .'</h6>
-                                            <p class="text-muted f-12 mb-0">'. $companyAddress .'</p>
+                                            <h6 class="mb-0">'. $companyName .'</h6>
+                                            <p class="f-12 mb-0">'. $companyAddress .'</p>
                                         </div>
                                     </div>',
                     'ACTION' => '<div class="d-flex gap-2">

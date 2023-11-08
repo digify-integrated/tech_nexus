@@ -10,7 +10,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
-    $page_title = 'Nexus Integrated Solutions';
+    $pageTitle = 'Nexus Integrated Solutions';
     require('config/_interface_settings.php');
     require('session-check.php');
 ?>

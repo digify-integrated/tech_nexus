@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Employee Type';
+    $pageTitle = 'Employee Type';
     
     $employeeTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'read');
     $employeeTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="employee-type.php">Employee Type</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="employee-type.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($employeeTypeID)){
                             echo '<li class="breadcrumb-item" id="employee-type-id">'. $employeeTypeID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Employee Type</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

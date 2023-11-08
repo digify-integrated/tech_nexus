@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Branch';
+    $pageTitle = 'Branch';
     
     $branchReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
     $branchCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
@@ -93,7 +93,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Human Resources</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="branch.php">Branch</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="branch.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($branchID)){
                       echo '<li class="breadcrumb-item" id="branch-id">'. $branchID .'</li>';
@@ -107,7 +107,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Branch</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>
@@ -139,6 +139,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/plugins/choices.min.js"></script>
     <script src="./assets/js/pages/branch.js?v=<?php echo rand(); ?>"></script>
 </body>
 

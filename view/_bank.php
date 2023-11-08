@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-lg-12">
-    <div class="card">
+    <div class="card table-card">
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
@@ -34,7 +34,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive dt-responsive">
-          <table id="bank-table" class="table table-hover table-bordered nowrap w-100">
+          <table id="bank-table" class="table table-hover nowrap w-100">
             <thead>
               <tr>
                 <th class="all">

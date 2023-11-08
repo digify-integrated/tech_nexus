@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Contact Information Type';
+    $pageTitle = 'Contact Information Type';
     
     $contactInformationTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 44, 'read');
     $contactInformationTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 44, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Technical</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="contact-information-type.php">Contact Information Type</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="contact-information-type.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($contactInformationTypeID)){
                             echo '<li class="breadcrumb-item" id="contact-information-type-id">'. $contactInformationTypeID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Contact Information Type</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

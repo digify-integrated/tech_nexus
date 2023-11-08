@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Blood Type';
+    $pageTitle = 'Blood Type';
     
     $bloodTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
     $bloodTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Technical</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="blood-type.php">Blood Type</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="blood-type.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($bloodTypeID)){
                             echo '<li class="breadcrumb-item" id="blood-type-id">'. $bloodTypeID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Blood Type</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

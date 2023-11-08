@@ -25,7 +25,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'City';
+    $pageTitle = 'City';
     
     $cityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'read');
     $cityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'create');
@@ -95,7 +95,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Localization</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="city.php">City</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="city.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($cityID)){
                       echo '<li class="breadcrumb-item" id="city-id">'. $cityID .'</li>';
@@ -109,7 +109,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">City</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

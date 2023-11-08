@@ -92,8 +92,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <img src="'. $profilePicture .'" alt="user-image" class="wid-40 hei-40 rounded-circle">
                                         </div>
                                         <div class="col">
-                                        <h6 class="mb-0 text-primary">'. $fileAs .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $email .'</p>
+                                        <h6 class="mb-0">'. $fileAs .'</h6>
+                                        <p class="f-12 mb-0">'. $email .'</p>
                                         </div>
                                     </div>',
                         'IS_ACTIVE' => $isActiveBadge,

@@ -1,5 +1,5 @@
 <?php
-    $page_title = '404';
+    $pageTitle = '404';
 ?>
 <!DOCTYPE html>
 <html lang="en">

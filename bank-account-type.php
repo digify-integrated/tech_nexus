@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Bank Account Type';
+    $pageTitle = 'Bank Account Type';
     
     $bankAccountTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'read');
     $bankAccountTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Technical</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="bank-account-type.php">Bank Account Type</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="bank-account-type.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($bankAccountTypeID)){
                             echo '<li class="breadcrumb-item" id="bank-account-type-id">'. $bankAccountTypeID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Bank Account Type</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -171,13 +171,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     <div class="card-body">
                                                         <a href="employee.php?id='. $employeeIDEncrypted .'">
                                                             <div class="d-flex align-items-center justify-content-between mt-3">
-                                                                <h4 class="mb-0 text-truncate"><b>'. $employeeName .'</b></h4>
+                                                                <h4 class="mb-0 text-truncate text-primary"><b>'. $employeeName .'</b></h4>
                                                             </div>
-                                                            <div class="d-flex align-items-center justify-content-between mt-3">
-                                                                <p class="prod-content mb-0">'. $jobPositionName .'</p>
+                                                            <div class="mt-3">
+                                                                <p class="prod-content mb-0 text-dark">'. $jobPositionName .'</p>
                                                             </div>
-                                                            <div class="d-flex align-items-center justify-content-between ">
-                                                                <p class="prod-content mb-0">'. $departmentName .'</p>
+                                                            <div>
+                                                                <p class="prod-content mb-0 text-dark">'. $departmentName .'</p>
                                                             </div>
                                                         </a>
                                                     </div>

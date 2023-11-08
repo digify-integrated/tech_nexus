@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Job Level';
+    $pageTitle = 'Job Level';
     
     $jobLevelReadAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'read');
     $jobLevelCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="job-level.php">Job Level</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="job-level.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($jobLevelID)){
                             echo '<li class="breadcrumb-item" id="job-level-id">'. $jobLevelID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Job Level</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

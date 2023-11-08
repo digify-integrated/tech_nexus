@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Civil Status';
+    $pageTitle = 'Civil Status';
     
     $civilStatusReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
     $civilStatusCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="civil-status.php">Civil Status</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="civil-status.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($civilStatusID)){
                             echo '<li class="breadcrumb-item" id="civil-status-id">'. $civilStatusID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Civil Status</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

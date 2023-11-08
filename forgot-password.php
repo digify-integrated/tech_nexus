@@ -9,7 +9,7 @@
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $page_title = 'Forgot Password';
+    $pageTitle = 'Forgot Password';
     
     require('config/_interface_settings.php');
     require('session-check.php');

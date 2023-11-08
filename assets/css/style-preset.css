@@ -3507,8 +3507,8 @@ $btn-border-radius-lg: 14px; */
   border-top-color: var(--bs-body-color);
 }
 [data-pc-theme=dark] .choices__inner {
-  border-color: rgba(255, 255, 255, 0.15);
-  background: transparent;
+  border-color: #303f50;
+  background: #263240;
 }
 [data-pc-theme=dark] .choices__inner .choices__input {
   background: transparent;
@@ -3520,6 +3520,7 @@ $btn-border-radius-lg: 14px; */
 [data-pc-theme=dark] .choices[data-type*=select-one] .choices__input {
   background-color: transparent;
   border-bottom: none;
+  color: var(--bs-body-color);
 }
 [data-pc-theme=dark] .choices.is-disabled .choices__inner,
 [data-pc-theme=dark] .choices.is-disabled .choices__input {

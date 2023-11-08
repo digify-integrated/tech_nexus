@@ -13,7 +13,7 @@
     $menuItemModel = new MenuItemModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
-    $page_title = 'Dashboard';
+    $pageTitle = 'Dashboard';
 
     $user = $userModel->getUserByID($user_id);
 

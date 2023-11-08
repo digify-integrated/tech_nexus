@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Department';
+    $pageTitle = 'Department';
     
     $departmentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
     $departmentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
@@ -93,7 +93,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Human Resources</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="department.php">Department</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="department.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($departmentID)){
                       echo '<li class="breadcrumb-item" id="department-id">'. $departmentID .'</li>';
@@ -107,7 +107,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Department</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Currency';
+    $pageTitle = 'Currency';
     
     $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'read');
     $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'create');
@@ -90,7 +90,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Localization</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="currency.php">Currency</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="currency.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($currencyID)){
                       echo '<li class="breadcrumb-item" id="currency-id">'. $currencyID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Currency</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

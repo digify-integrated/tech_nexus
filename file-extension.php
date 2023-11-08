@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'File Extension';
+    $pageTitle = 'File Extension';
     
     $fileExtensionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
     $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
@@ -93,7 +93,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="file-extension.php">File Extension</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="file-extension.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($fileExtensionID)){
                       echo '<li class="breadcrumb-item" id="file-extension-id">'. $fileExtensionID .'</li>';
@@ -107,7 +107,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">File Extension</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'State';
+    $pageTitle = 'State';
     
     $stateReadAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'read');
     $stateCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'create');
@@ -92,7 +92,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Localization</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="state.php">State</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="state.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($stateID)){
                       echo '<li class="breadcrumb-item" id="state-id">'. $stateID .'</li>';
@@ -106,7 +106,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">State</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

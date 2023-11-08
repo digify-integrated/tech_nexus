@@ -11,7 +11,7 @@
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $page_title = 'Password Reset';
+    $pageTitle = 'Password Reset';
 
     if(isset($_GET['id']) && !empty($_GET['id']) && isset($_GET['token']) && !empty($_GET['token'])){
         $id = $_GET['id'];

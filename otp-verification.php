@@ -11,7 +11,7 @@
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $page_title = 'OTP Verification';
+    $pageTitle = 'OTP Verification';
 
     if(isset($_GET['id']) && !empty($_GET['id'])){
         $id = $_GET['id'];

@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'System Setting';
+    $pageTitle = 'System Setting';
     
     $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
     $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
@@ -90,7 +90,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="system-setting.php">System Setting</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="system-setting.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($systemSettingID)){
                       echo '<li class="breadcrumb-item" id="system-setting-id">'. $systemSettingID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">System Setting</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

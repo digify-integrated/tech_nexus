@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Work Schedule';
+    $pageTitle = 'Work Schedule';
     
     $workScheduleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 42, 'read');
     $workScheduleCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 42, 'create');
@@ -99,7 +99,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="work-schedule.php">Work Schedule</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="work-schedule.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($workScheduleID)){
                             echo '<li class="breadcrumb-item" id="work-schedule-id">'. $workScheduleID .'</li>';
@@ -113,7 +113,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Work Schedule</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

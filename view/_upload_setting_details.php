@@ -109,7 +109,7 @@ echo '<div class="col-lg-12">
           </div>
           <div class="card-body">
             <div class="dt-responsive table-responsive">
-              <table id="file-extension-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+              <table id="file-extension-table" class="table table-hover nowrap w-100 dataTable">
                 <thead>
                   <tr>
                     <th>File Extension</th>
@@ -155,7 +155,7 @@ echo '<div class="col-lg-12">
                     <form id="add-file-extension-form" method="post" action="#">
                       <div class="row">
                           <div class="col-md-12">
-                              <table id="add-file-extension-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                              <table id="add-file-extension-table" class="table table-hover nowrap w-100 dataTable">
                                   <thead>
                                   <tr>
                                       <th class="all">File Extension</th>

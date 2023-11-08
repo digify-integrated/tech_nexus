@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'File Type';
+    $pageTitle = 'File Type';
     
     $fileTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'read');
     $fileTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'create');
@@ -93,7 +93,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="file-type.php">File Type</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="file-type.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($fileTypeID)){
                       echo '<li class="breadcrumb-item" id="file-type-id">'. $fileTypeID .'</li>';
@@ -107,7 +107,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">File Type</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

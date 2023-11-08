@@ -31,10 +31,14 @@
             <div class="form-group row">
                 <label class="col-lg-2 col-form-label">City <span class="text-danger">*</span></label>
                 <div class="col-lg-4">
-                    <select class="form-control select2" name="city_id" id="city_id">
-                        <option value="">--</option>
-                        <?php echo $cityModel->generateCityOptions(); ?>
-                    </select>
+                  <select
+                        class="form-control choice-js"
+                        name="city_id"
+                        id="city_id"
+                      >
+                      <option value="">--</option>
+                      <?php echo $cityModel->generateCityOptions(); ?>
+                      </select>
                 </div>
                 <label class="col-lg-2 col-form-label">Phone</label>
                 <div class="col-lg-4">

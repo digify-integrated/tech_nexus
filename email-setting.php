@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Email Setting';
+    $pageTitle = 'Email Setting';
     
     $emailSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'read');
     $emailSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 12, 'create');
@@ -91,7 +91,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">Configurations</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="email-setting.php">Email Setting</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="email-setting.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($emailSettingID)){
                       echo '<li class="breadcrumb-item" id="email-setting-id">'. $emailSettingID .'</li>';
@@ -105,7 +105,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Email Setting</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

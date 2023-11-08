@@ -21,7 +21,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Departure Reason';
+    $pageTitle = 'Departure Reason';
     
     $departureReasonReadAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'read');
     $departureReasonCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'create');
@@ -90,7 +90,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="departure-reason.php">Departure Reason</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="departure-reason.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($departureReasonID)){
                             echo '<li class="breadcrumb-item" id="departure-reason-id">'. $departureReasonID .'</li>';
@@ -104,7 +104,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Departure Reason</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -19,7 +19,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Role Configuration';
+    $pageTitle = 'Role Configuration';
     
     $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'read');
     $roleCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'create');
@@ -92,7 +92,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item">Roles</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="role-configuration.php">Role Configuration</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="role-configuration.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($roleID)){
                       echo '<li class="breadcrumb-item" id="role-id">'. $roleID .'</li>';
@@ -106,7 +106,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Role Configuration</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

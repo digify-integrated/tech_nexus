@@ -3,6 +3,13 @@ $.validator.addMethod('password_strength', function(value) {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
 }, 'Password must contain at least one lowercase and uppercase letter, one number, one special character, and be 8 characters or longer.');
 
+// Form validation rules
+$.validator.addMethod('choice_has_value', function(value, element) {
+    // Check if at least one option is selected and it has a non-empty value
+    return $(element).find(':selected').val() !== '';
+}, 'Please choose an option with a value.');
+
+
 // Rule for legal age
 $.validator.addMethod('employee_age', function(value, element, min) {
     var today = new Date();

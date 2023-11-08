@@ -4,7 +4,7 @@
 
   $securityModel = new SecurityModel();
 
-  $page_title = 'Error';    
+  $pageTitle = 'Error';    
 
   if(isset($_GET['type']) && !empty($_GET['type'])){
     $type = $securityModel->decryptData($_GET['type']);

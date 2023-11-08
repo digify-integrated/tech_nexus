@@ -19,7 +19,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Interface Setting';
+    $pageTitle = 'Interface Setting';
     
     $interfaceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
     $interfaceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
@@ -88,7 +88,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Technical</li>
                   <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="interface-setting.php">Interface Setting</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="interface-setting.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($interfaceSettingID)){
                       echo '<li class="breadcrumb-item" id="interface-setting-id">'. $interfaceSettingID .'</li>';
@@ -102,7 +102,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Interface Setting</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

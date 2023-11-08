@@ -19,7 +19,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'System Action';
+    $pageTitle = 'System Action';
     
     $systemActionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'read');
     $systemActionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'create');
@@ -89,7 +89,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="system-action.php">System Action</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="system-action.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($systemActionID)){
                       echo '<li class="breadcrumb-item" id="system-action-id">'. $systemActionID .'</li>';
@@ -103,7 +103,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">System Action</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

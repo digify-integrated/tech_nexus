@@ -19,7 +19,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Menu Item';
+    $pageTitle = 'Menu Item';
     
     $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'read');
     $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'create');
@@ -89,7 +89,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">User Interface</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="menu-item.php">Menu Item</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="menu-item.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($menuItemID)){
                       echo '<li class="breadcrumb-item" id="menu-item-id">'. $menuItemID .'</li>';
@@ -103,7 +103,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Menu Item</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

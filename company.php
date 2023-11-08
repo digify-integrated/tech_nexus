@@ -25,7 +25,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Company';
+    $pageTitle = 'Company';
     
     $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
     $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
@@ -95,7 +95,7 @@
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Administration</li>
                   <li class="breadcrumb-item">Users & Companies</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="company.php">Company</a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="company.php"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($companyID)){
                       echo '<li class="breadcrumb-item" id="company-id">'. $companyID .'</li>';
@@ -109,7 +109,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Company</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

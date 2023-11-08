@@ -70,7 +70,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="role-user-account-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="role-user-account-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>User Account</th>
@@ -96,7 +96,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="update-add-role-user-account-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="update-add-role-user-account-role-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Menu Item</th>
@@ -125,7 +125,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="update-system-action-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="update-system-action-role-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>System Action</th>
@@ -172,7 +172,7 @@
                     <form id="add-role-user-account-form" method="post" action="#">
                       <div class="row">
                         <div class="col-md-12">
-                          <table id="add-role-user-account-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                          <table id="add-role-user-account-table" class="table table-hover nowrap w-100 dataTable">
                             <thead>
                               <tr>
                                 <th>User Account</th>

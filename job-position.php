@@ -23,7 +23,7 @@
 
     $user = $userModel->getUserByID($user_id);
 
-    $page_title = 'Job Position';
+    $pageTitle = 'Job Position';
     
     $jobPositionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'read');
     $jobPositionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'create');
@@ -104,7 +104,7 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Configurations</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="job-position.php">Job Position</a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="job-position.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($jobPositionID)){
                             echo '<li class="breadcrumb-item" id="job-position-id">'. $jobPositionID .'</li>';
@@ -118,7 +118,7 @@
               </div>
               <div class="col-md-12">
                 <div class="page-header-title">
-                  <h2 class="mb-0">Job Position</h2>
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
                 </div>
               </div>
             </div>

@@ -144,7 +144,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="sub-menu-item-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="sub-menu-item-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Sub Menu Item</th>
@@ -171,7 +171,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="update-menu-item-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                <table id="update-menu-item-role-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Role</th>
@@ -223,7 +223,7 @@
                     <form id="add-menu-item-role-access-form" method="post" action="#">
                       <div class="row">
                         <div class="col-md-12">
-                          <table id="add-menu-item-role-access-table" class="table table-hover table-bordered nowrap w-100 dataTable">
+                          <table id="add-menu-item-role-access-table" class="table table-hover nowrap w-100 dataTable">
                             <thead>
                               <tr>
                                 <th class="all">Role</th>
