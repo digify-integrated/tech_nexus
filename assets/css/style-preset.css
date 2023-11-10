@@ -3510,6 +3510,15 @@ $btn-border-radius-lg: 14px; */
   border-color: #303f50;
   background: #263240;
 }
+[data-pc-theme=dark] .select2-selection__rendered:not(.is-invalid) {
+  border: 1px solid #303f50;
+  color: #bfbfbf !important;
+  background: #263240 !important;
+}
+[data-pc-theme=dark] .select2-selection__rendered.is-invalid {
+  color: #bfbfbf !important;
+  background: #263240 !important;
+}
 [data-pc-theme=dark] .choices__inner .choices__input {
   background: transparent;
   color: var(--bs-body-color);

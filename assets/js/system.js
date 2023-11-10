@@ -42,16 +42,6 @@
             });
         }
 
-        if($('.choice-js').length){
-            $('.choice-js').each(function(index, element) {
-                new Choices(element, {
-                    delimiter: ',',
-                    editItems: true,
-                    maxItemCount: 5
-                });
-            });
-        }
-
         if($('.modal-select2').length){
             $('.modal-select2').each(function() {
                 $(this).select2({

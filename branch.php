@@ -139,7 +139,6 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/plugins/choices.min.js"></script>
     <script src="./assets/js/pages/branch.js?v=<?php echo rand(); ?>"></script>
 </body>
 
