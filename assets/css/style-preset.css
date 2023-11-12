@@ -3515,6 +3515,12 @@ $btn-border-radius-lg: 14px; */
   color: #bfbfbf !important;
   background: #263240 !important;
 }
+[data-pc-theme=dark] .form-label {
+  color: #bfbfbf !important;
+}
+[data-pc-theme=dark] .loader-bg {
+  background-color: #263240 !important;
+}
 [data-pc-theme=dark] .select2-selection__rendered.is-invalid {
   color: #bfbfbf !important;
   background: #263240 !important;

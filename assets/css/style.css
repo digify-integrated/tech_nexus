@@ -28574,8 +28574,8 @@ File: style.css
   background-color: #131920 !important;
 }
 
-[data-pc-theme="light"] .loader-bg {
-  background-color: #fff !important;
+.loader-bg {
+  background-color: #fff;
 }
 
 .loader-bg{

@@ -17,7 +17,7 @@
           <li class="list-group-item">
             <div class="pc-dark">
               <h6 class="mb-1">Theme Mode</h6>
-              <p class="text-muted text-sm">Choose light or dark mode or Auto</p>
+              <p class="text-sm">Choose light or dark mode or Auto</p>
               <div class="row theme-layout">
                 <div class="col-6">
                   <div class="d-grid">
@@ -42,7 +42,7 @@
           </li>
           <li class="list-group-item">
             <h6 class="mb-1">Theme Contrast</h6>
-            <p class="text-muted text-sm">Choose theme contrast</p>
+            <p class="text-sm">Choose theme contrast</p>
             <div class="row theme-contrast">
               <div class="col-6">
                 <div class="d-grid">
@@ -66,7 +66,7 @@
           </li>
           <li class="list-group-item">
             <h6 class="mb-1">Custom Theme</h6>
-            <p class="text-muted text-sm">Choose your Primary color</p>
+            <p class="text-sm">Choose your Primary color</p>
             <div class="theme-color preset-color">
               <a href="#!" class="active ui-preset" data-value="preset-1"><i class="ti ti-check"></i></a>
               <a href="#!" class="ui-preset" data-value="preset-2"><i class="ti ti-check"></i></a>
@@ -82,7 +82,7 @@
           </li>
           <li class="list-group-item">
             <h6 class="mb-1">Sidebar Caption</h6>
-            <p class="text-muted text-sm">Sidebar Caption Hide/Show</p>
+            <p class="text-sm">Sidebar Caption Hide/Show</p>
             <div class="row theme-nav-caption">
               <div class="col-6">
                 <div class="d-grid">
@@ -103,7 +103,7 @@
           <li class="list-group-item">
             <div class="pc-container-width">
               <h6 class="mb-1">Layout Width</h6>
-              <p class="text-muted text-sm">Choose Full or Container Layout</p>
+              <p class="text-sm">Choose Full or Container Layout</p>
               <div class="row theme-container">
                 <div class="col-6">
                   <div class="d-grid">

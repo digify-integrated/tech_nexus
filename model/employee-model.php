@@ -2099,5 +2099,32 @@ class EmployeeModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: generateEmployeeOptions
+    # Description: Generates the employee options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateEmployeeOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $employeeTypeID = $row['employee_type_id'];
+            $employeeTypeName = $row['employee_type_name'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '">' . htmlspecialchars($employeeTypeName, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

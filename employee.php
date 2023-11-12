@@ -143,11 +143,11 @@
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
 
-<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
+<body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="<?php echo $darkLayout; ?>">
     <?php 
         include_once('config/_preloader.html'); 
         include_once('config/_navbar.php'); 
-        include_once('config/_header.php'); 
+        include_once('config/_header.php');
         include_once('config/_announcement.php'); 
     ?>   
 
