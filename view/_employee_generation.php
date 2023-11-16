@@ -33,7 +33,8 @@ require_once '../model/contact-information-type-model.php';
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$employeeModel = new EmployeeModel($databaseModel);
+$systemSettingModel = new SystemSettingModel($databaseModel);
+$employeeModel = new EmployeeModel($databaseModel, $systemSettingModel);
 $companyModel = new CompanyModel($databaseModel);
 $genderModel = new GenderModel($databaseModel);
 $civilStatusModel = new CivilStatusModel($databaseModel);
@@ -56,7 +57,6 @@ $languageModel = new LanguageModel($databaseModel);
 $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
 $bankModel = new BankModel($databaseModel);
 $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
-$systemSettingModel = new SystemSettingModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){

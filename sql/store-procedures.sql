@@ -4005,25 +4005,18 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateEmployeeOptions(IN p_generate_type VARCHAR(20), IN p_reference_id INT)
+CREATE PROCEDURE generateEmployeeOptions(IN p_generate_type VARCHAR(50), IN p_reference_id INT)
 BEGIN
-	IF p_type = 'all' THEN
+	IF p_generate_type = 'all' THEN
         SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information;
-    ELSEIF p_type = 'caption show' THEN
-        INSERT INTO ui_customization_setting (user_id, caption_show, last_log_by) 
-	    VALUES(p_user_id, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'preset theme' THEN
-        INSERT INTO ui_customization_setting (user_id, preset_theme, last_log_by) 
-	    VALUES(p_user_id, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'dark layout' THEN
-        INSERT INTO ui_customization_setting (user_id, dark_layout, last_log_by) 
-	    VALUES(p_user_id, p_customization_value, p_last_log_by);
-    ELSEIF p_type = 'rtl layout' THEN
-        INSERT INTO ui_customization_setting (user_id, rtl_layout, last_log_by) 
-	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+	ELSEIF p_generate_type = 'active employee' THEN
+        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1);
+	ELSEIF p_generate_type = 'inactive employee' THEN
+        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 0);
+    ELSEIF p_generate_type = 'department' THEN
+        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id);
     ELSE
-        INSERT INTO ui_customization_setting (user_id, box_container, last_log_by) 
-	    VALUES(p_user_id, p_customization_value, p_last_log_by);
+        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id);
     END IF;
 END //
 

@@ -28,14 +28,16 @@
     require('model/menu-item-model.php');
     require('model/security-model.php');
     require('model/system-model.php');
+    require('model/system-setting-model.php');
     require('model/interface-setting-model.php');
   
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
+    $systemSettingModel = new SystemSettingModel($databaseModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $employeeModel = new EmployeeModel($databaseModel);
+    $employeeModel = new EmployeeModel($databaseModel, $systemSettingModel);
     $companyModel = new CompanyModel($databaseModel);
     $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);

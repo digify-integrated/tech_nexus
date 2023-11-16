@@ -1,3 +1,4 @@
+
 <?php
 /**
 * Class EmployeeModel
@@ -6,9 +7,11 @@
 */
 class EmployeeModel {
     public $db;
+    public $systemSettingModel;
 
-    public function __construct(DatabaseModel $db) {
+    public function __construct(DatabaseModel $db, SystemSettingModel $systemSettingModel) {
         $this->db = $db;
+        $this->systemSettingModel = $systemSettingModel;
     }
 
     # -------------------------------------------------------------
@@ -2117,8 +2120,11 @@ class EmployeeModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $employeeTypeID = $row['employee_type_id'];
-            $employeeTypeName = $row['employee_type_name'];
+            $contactID = $row['contact_id'];
+            $firstName = $row['first_name'];
+            $middleName = $row['middle_name'];
+            $lastName = $row['last_name'];
+            $suffix = $row['suffix'];
 
             $htmlOptions .= '<option value="' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '">' . htmlspecialchars($employeeTypeName, ENT_QUOTES) .'</option>';
         }

@@ -3621,6 +3621,7 @@ CREATE TABLE employment_information(
 	department_id INT UNSIGNED,
 	job_position_id INT UNSIGNED,
 	job_level_id INT UNSIGNED,
+	immediate_supervisor_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
 	employment_status TINYINT(1) NOT NULL DEFAULT 1,
     onboard_date DATE,
@@ -3632,7 +3633,8 @@ CREATE TABLE employment_information(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX employment_information_index_id ON employment_information(contact_id);
+CREATE INDEX employment_information_index_contact_id ON employment_information(contact_id);
+CREATE INDEX employment_information_index_immediate_supervisor_id ON employment_information(immediate_supervisor_id);
 CREATE INDEX employment_information_index_company_id ON employment_information(company_id);
 CREATE INDEX employment_information_index_employee_type_id ON employment_information(employee_type_id);
 CREATE INDEX employment_information_index_department_id ON employment_information(department_id);
