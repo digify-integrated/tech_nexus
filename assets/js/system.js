@@ -642,3 +642,24 @@ function updateTwoFactorAuthentication(isChecked){
         }
     });
 }
+
+function createEmployeeQRCode(container, name, badgeID){
+    document.getElementById(container).innerHTML = '';
+
+    var card = 'BEGIN:VCARD\r\n';
+    card += 'VERSION:3.0\r\n';
+    card += 'FN:'+ name +'\r\n';
+    card += 'ID NO:[' + badgeID + ']\r\n';
+    
+    card += 'END:VCARD';
+
+    var qrcode = new QRCode(document.getElementById(container), {
+        width: 300,
+        height: 300,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H,
+    });
+
+    qrcode.makeCode(card);
+}

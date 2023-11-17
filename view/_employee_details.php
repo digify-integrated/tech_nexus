@@ -75,11 +75,11 @@
       }
     ?>
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-sm-3">
     <div class="card">
       <div class="card-body position-relative">
         <div class="position-absolute end-0 top-0 p-3" id="employee-status-badge"></div>
-        <div class="text-center mt-3">
+        <div class="mt-3">
           <div class="chat-avtar d-inline-flex mx-auto">
             <?php
               if($employeeWriteAccess['total'] > 0){
@@ -95,7 +95,8 @@
             ?>
           </div>
           <h5 class="mb-1 text-primary" id="employee_name"></h5>
-          <p class="text-muted text-sm" id="job_position"></p>
+          <p class="text-sm" id="job_position"></p>
+          <button type="button" class="btn btn-outline-primary w-100 text-center mb-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
           <p class="mb-0" id="employee_bio"></p>
         </div>
       </div>
@@ -103,20 +104,25 @@
     <div class="card">
       <div class="card-header">
         <div class="d-flex align-items-center justify-content-between">
-          <h5>Employment Information</h5>
+          <h5>Employment Info</h5>
           <?php echo $employeeEmploymentInformationUpdate; ?>
         </div>
       </div>
       <div class="card-body" id="employment-information-summary"></div>
     </div>
   </div>
-  <div class="col-sm-8">
+  <div class="col-sm-9">
     <div class="card">
-      <div class="card-body py-0">
-        <ul class="nav nav-tabs profile-tabs" id="myTab" role="tablist">
+      <div class="card-body">
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
           <li class="nav-item">
             <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-tab-content" role="tab" aria-selected="true">
-              <i class="ti ti-user me-2"></i>Employee Profile
+              Employee Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="attendance-list-tab" data-bs-toggle="tab" href="#attendance-list-content" role="tab" aria-selected="true">
+              Attendance List
             </a>
           </li>
         </ul>
@@ -125,177 +131,238 @@
     <div class="tab-content">
       <div class="tab-pane show active" id="profile-tab-content" role="tabpanel" aria-labelledby="profile-tab">
         <div class="row">
-          <div class="col-lg-5 col-xxl-4">
+          <div class="col-md-4 col-sm-12">
             <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Contact Information</h5>
-                  <?php echo $contactInformationAdd; ?>
-                </div>
-              </div>
               <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Bank Account</h5>
-                  <?php echo $employeeBankAdd; ?>
+                <div class="row">
+                  <div class="col-md-12">
+                    <ul class="nav flex-column nav-pills" id="v-employee-profile-tab" role="tablist" aria-orientation="vertical">
+                      <li><a class="nav-link active" id="v-employee-profile-basic-information-tab" data-bs-toggle="pill" href="#v-employee-profile-basic-information" role="tab" aria-controls="v-employee-profile-basic-information" aria-selected="true">Personal Information</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-address-tab" data-bs-toggle="pill" href="#v-employee-profile-address" role="tab" aria-controls="v-employee-profile-address" aria-selected="false">Address</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-contact-information-tab" data-bs-toggle="pill" href="#v-employee-profile-contact-information" role="tab" aria-controls="v-employee-profile-contact-information" aria-selected="false">Contact Information</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-employee-identification-tab" data-bs-toggle="pill" href="#v-employee-profile-employee-identification" role="tab" aria-controls="v-employee-profile-employee-identification" aria-selected="false">Employee Identification</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-bank-account-tab" data-bs-toggle="pill" href="#v-employee-profile-bank-account" role="tab" aria-controls="v-employee-profile-bank-account" aria-selected="false">Bank Account</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-emergency-contact-tab" data-bs-toggle="pill" href="#v-employee-profile-emergency-contact" role="tab" aria-controls="v-employee-profile-emergency-contact" aria-selected="false">Emergency Contact</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-family-background-tab" data-bs-toggle="pill" href="#v-employee-profile-family-background" role="tab" aria-controls="v-employee-profile-family-background" aria-selected="false">Family Background</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-educational-background-tab" data-bs-toggle="pill" href="#v-employee-profile-educational-background" role="tab" aria-controls="v-employee-profile-educational-background" aria-selected="false">Educational Background</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-employment-history-tab" data-bs-toggle="pill" href="#v-employee-profile-employment-history" role="tab" aria-controls="v-employee-profile-employment-history" aria-selected="false">Employment History</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-training-seminars-tab" data-bs-toggle="pill" href="#v-employee-profile-training-seminars" role="tab" aria-controls="v-employee-profile-training-seminars" aria-selected="false">Trainings & Seminars</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-licenses-certifications-tab" data-bs-toggle="pill" href="#v-employee-profile-licenses-certifications" role="tab" aria-controls="v-employee-profile-licenses-certifications" aria-selected="false">Licenses & Certifications</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-languages-tab" data-bs-toggle="pill" href="#v-employee-profile-languages" role="tab" aria-controls="v-employee-profile-languages" aria-selected="false">Languages</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-skills-tab" data-bs-toggle="pill" href="#v-employee-profile-skills" role="tab" aria-controls="v-employee-profile-skills" aria-selected="false">Skills</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-talents-tab" data-bs-toggle="pill" href="#v-employee-profile-talents" role="tab" aria-controls="v-employee-profile-talents" aria-selected="false">Talents</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-hobbies-tab" data-bs-toggle="pill" href="#v-employee-profile-hobbies" role="tab" aria-controls="v-employee-profile-hobbies" aria-selected="false">Hobbies</a></li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-employee-bank-summary"></ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Licenses & Certifications</h5>
-                  <?php echo $employeeLicenseAdd; ?>
-                </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-employee-license-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Languages</h5>
-                  <?php echo $employeeLanguageAdd; ?>
-                </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-employee-language-summary"></ul>              
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Skills</h5>
-                  <?php echo $employeeSkillsAdd; ?>
-                </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-skills-summary"></ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Talents</h5>
-                  <?php echo $employeeTalentsAdd; ?>
-                </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-talents-summary"></ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Hobbies</h5>
-                  <?php echo $employeeHobbyAdd; ?>
-                </div>
-              </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-hobby-summary"></ul>              
               </div>
             </div>
           </div>
-          <div class="col-lg-7 col-xxl-8">
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Personal Details</h5>
-                  <?php echo $employeePersonalInformationUpdate; ?>
+          <div class="col-md-8 col-sm-12">
+            <div class="tab-content" id="v-pills-employee-profile-basic-information">
+              <div class="tab-pane fade show active" id="v-employee-profile-basic-information" role="tabpanel" aria-labelledby="v-employee-profile-basic-information-tab">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                          <h5>Personal Details</h5>
+                          <?php echo $employeePersonalInformationUpdate; ?>
+                        </div>
+                      </div>
+                      <div class="card-body" id="personal-information-summary"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="card-body" id="personal-information-summary"></div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Employment History</h5>
-                  <?php echo $employeeEmploymentHistoryAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-address" role="tabpanel" aria-labelledby="v-employee-profile-address-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Address</h5>
+                      <?php echo $employeeAddressAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush border-top-0" id="contact-address-summary">
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-employment-history-summary"></ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Address</h5>
-                  <?php echo $employeeAddressAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-contact-information" role="tabpanel" aria-labelledby="v-employee-profile-contact-information-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Contact Information</h5>
+                      <?php echo $contactInformationAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-information-summary"></ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-address-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Employee Identification</h5>
-                  <?php echo $employeeIdentificationAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-employee-identification" role="tabpanel" aria-labelledby="v-employee-profile-employee-identification-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Employee Identification</h5>
+                      <?php echo $employeeIdentificationAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-identification-summary">
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-identification-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Educational Background</h5>
-                  <?php echo $employeeEducationalBackgroundAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-bank-account" role="tabpanel" aria-labelledby="v-employee-profile-bank-account-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Bank Account</h5>
+                      <?php echo $employeeBankAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-employee-bank-summary"></ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-educational-background-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Family Background</h5>
-                  <?php echo $employeeFamilyBackgroundAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-emergency-contact" role="tabpanel" aria-labelledby="v-employee-profile-emergency-contact-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Emergency Contact</h5>
+                      <?php echo $employeeEmergencyContactAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-family-background-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Emergency Contact</h5>
-                  <?php echo $employeeEmergencyContactAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-family-background" role="tabpanel" aria-labelledby="v-employee-profile-family-background-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Family Background</h5>
+                      <?php echo $employeeFamilyBackgroundAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-family-background-summary">
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-emergency-contact-summary">
-                </ul>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-header">
-                <div class="d-flex align-items-center justify-content-between">
-                  <h5>Trainings & Seminars</h5>
-                  <?php echo $employeeTrainingsSeminarsAdd; ?>
+              <div class="tab-pane fade" id="v-employee-profile-educational-background" role="tabpanel" aria-labelledby="v-employee-profile-educational-background-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Educational Background</h5>
+                      <?php echo $employeeEducationalBackgroundAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-educational-background-summary">
+                    </ul>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <ul class="list-group list-group-flush" id="contact-training-summary">
-                </ul>
+              <div class="tab-pane fade" id="v-employee-profile-employment-history" role="tabpanel" aria-labelledby="v-employee-profile-employment-history-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Employment History</h5>
+                      <?php echo $employeeEmploymentHistoryAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-employment-history-summary"></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-training-seminars" role="tabpanel" aria-labelledby="v-employee-profile-training-seminars-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Trainings & Seminars</h5>
+                      <?php echo $employeeTrainingsSeminarsAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-training-summary">
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-licenses-certifications" role="tabpanel" aria-labelledby="v-employee-profile-licenses-certifications-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Licenses & Certifications</h5>
+                      <?php echo $employeeLicenseAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-employee-license-summary">
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-languages" role="tabpanel" aria-labelledby="v-employee-profile-languages-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Languages</h5>
+                      <?php echo $employeeLanguageAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-employee-language-summary"></ul>              
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-skills" role="tabpanel" aria-labelledby="v-employee-profile-skills-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Skills</h5>
+                      <?php echo $employeeSkillsAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-skills-summary"></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-talents" role="tabpanel" aria-labelledby="v-employee-profile-talents-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Talents</h5>
+                      <?php echo $employeeTalentsAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-talents-summary"></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-hobbies" role="tabpanel" aria-labelledby="v-employee-profile-hobbies-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Hobbies</h5>
+                      <?php echo $employeeHobbyAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-hobby-summary"></ul>              
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -502,6 +569,26 @@
                     <div class="row">
                       <div class="col-lg-12">
                         <button type="submit" class="btn btn-primary" id="submit-employment-information-data" form="employment-information-form">Submit</button>
+                        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employee-qr-code-offcanvas" aria-labelledby="contact-employee-qr-code-offcanvas-label">
+                  <div class="offcanvas-header">
+                    <h2 id="contact-employee-qr-code-offcanvas-label" style="margin-bottom:-0.5rem">QR Code</h2>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  </div>
+                  <div class="offcanvas-body">
+                    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                      This QR code serves as a secure and efficient means of identity verification and access control within our organization. Its primary purpose is to enhance the overall security and streamline various operational processes.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div class="row mb-4 text-center">
+                      <div class="col-lg-12" id="employee-qr-code-container"></div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
                         <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                       </div>
                     </div>
@@ -1205,7 +1292,7 @@
                                     <div class="col-lg-6 mt-3 mt-lg-0">
                                       <select class="form-control offcanvas-select2" name="license_end_year" id="license_end_year">
                                         <option value="">--</option>
-                                        '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y')) .'
+                                        '. $systemModel->generateYearOptions(date('Y', strtotime('-100 years')), date('Y', strtotime('+20 years'))) .'
                                       </select>
                                     </div>
                                   </div>

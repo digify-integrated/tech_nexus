@@ -337,6 +337,10 @@
                 employeeBankSummary();
             }
 
+            $(document).on('click','#generate-employee-qr-code',function() {
+                displayDetails('get employee qr code details');
+            });
+
             $(document).on('click','#add-contact-information',function() {
                 resetModalForm("contact-information-form");
             });
@@ -3811,6 +3815,39 @@ function displayDetails(transaction){
                         checkOptionExist('#employee_type_id', response.employeeTypeID, '');
                         checkOptionExist('#job_level_id', response.jobLevelID, '');
                         checkOptionExist('#branch_id', response.branchID, '');
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Employment Information Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get employee qr code details':
+            var employee_id = $('#employee-id').text();
+            
+            $.ajax({
+                url: 'controller/employee-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    employee_id : employee_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {                        
+                        createEmployeeQRCode('employee-qr-code-container', response.employeeName, response.badgeID);
                     } 
                     else {
                         if(response.isInactive){

@@ -4334,8 +4334,8 @@ END //
 
 CREATE PROCEDURE insertContactEducationalBackground(IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_course_highlights TEXT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO contact_educational_background (contact_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_month, start_year, end_month, end_year, last_log_by) 
-	VALUES(p_contact_id, p_educational_stage_id, p_institution_name, p_degree_earned, p_field_of_study, p_start_month, p_start_year, p_end_month, p_end_year, p_last_log_by);
+    INSERT INTO contact_educational_background (contact_id, educational_stage_id, institution_name, degree_earned, field_of_study, start_month, start_year, end_month, end_year, course_highlights, last_log_by) 
+	VALUES(p_contact_id, p_educational_stage_id, p_institution_name, p_degree_earned, p_field_of_study, p_start_month, p_start_year, p_end_month, p_end_year, p_course_highlights, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateContactEducationalBackground(IN p_contact_educational_background_id INT, IN p_contact_id INT, IN p_educational_stage_id INT, IN p_institution_name VARCHAR(500), IN p_degree_earned VARCHAR(500), IN p_field_of_study VARCHAR(500), IN p_start_month VARCHAR(10), IN p_start_year VARCHAR(10), IN p_end_month VARCHAR(10), IN p_end_year VARCHAR(10), IN p_course_highlights TEXT, IN p_last_log_by INT)
@@ -4958,7 +4958,7 @@ BEGIN
 	VALUES(p_contact_id, p_bank_id, p_bank_account_type_id, p_account_number, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateContactBank(IN p_contact_bank_id INT, IN p_contact_id INT, IN p_bank_id INT, IN bank_account_type_id INT, IN p_account_number VARCHAR(30), IN p_last_log_by INT)
+CREATE PROCEDURE updateContactBank(IN p_contact_bank_id INT, IN p_contact_id INT, IN p_bank_id INT, IN p_bank_account_type_id INT, IN p_account_number VARCHAR(30), IN p_last_log_by INT)
 BEGIN
 	UPDATE contact_bank
     SET contact_id = p_contact_id,

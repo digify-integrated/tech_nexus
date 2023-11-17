@@ -164,6 +164,9 @@ class EmployeeController {
                 case 'get employment information details':
                     $this->getEmploymentInformation();
                     break;
+                case 'get employee qr code details':
+                    $this->getEmployeeQRCodeDetails();
+                    break;
                 case 'get contact information details':
                     $this->getContactInformation();
                     break;
@@ -1049,11 +1052,11 @@ class EmployeeController {
             exit;
         }
     
-        $checkContactBankExist = $this->employeeModel->checkContactBankExist($contactLanguageID);
+        $checkContactBankExist = $this->employeeModel->checkContactBankExist($contactBankID);
         $total = $checkContactBankExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactBank($contactLanguageID, $employeeID, $bankID, $bankAccountTypeID, $accountNumber, $userID);
+            $this->employeeModel->updateContactBank($contactBankID, $employeeID, $bankID, $bankAccountTypeID, $accountNumber, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -2141,6 +2144,59 @@ class EmployeeController {
                 'isActiveBadge' => $isActiveBadge,
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
             ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getEmployeeQRCodeDetails
+    # Description: 
+    # Handles the retrieval of employee QR code details such as badge ID, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getEmployeeQRCodeDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['employee_id']) && !empty($_POST['employee_id'])) {
+            $userID = $_SESSION['user_id'];
+            $employeeID = $_POST['employee_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $employmentDetails = $this->employeeModel->getEmploymentInformation($employeeID);
+            $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
+            $firstName = $employeeDetails['first_name'];
+            $middleName = $employeeDetails['middle_name'];
+            $lastName = $employeeDetails['last_name'];
+            $suffix = $employeeDetails['suffix'];
+
+            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
+            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
+            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
+            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
+            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
+
+            $response = [
+                'success' => true,
+                'badgeID' => $employmentDetails['badge_id'] ?? null,
+                'employeeName' => $employeeName
+            ];
+
 
             echo json_encode($response);
             exit;
