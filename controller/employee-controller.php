@@ -355,6 +355,8 @@ class EmployeeController {
         $jobLevelID = htmlspecialchars($_POST['job_level_id'], ENT_QUOTES, 'UTF-8');
         $employeeTypeID = htmlspecialchars($_POST['employee_type_id'], ENT_QUOTES, 'UTF-8');
         $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
+        $managerID = htmlspecialchars($_POST['manager_id'], ENT_QUOTES, 'UTF-8');
+        $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
         $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -368,13 +370,13 @@ class EmployeeController {
         $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -2116,6 +2118,8 @@ class EmployeeController {
             $employeeTypeID = $employeeDetails['employee_type_id'] ?? null;
             $jobLevelID = $employeeDetails['job_level_id'] ?? null;
             $branchID = $employeeDetails['branch_id'] ?? null;
+            $managerID = $employeeDetails['manager_id'] ?? null;
+            $workScheduleID = $employeeDetails['work_schedule_id'] ?? null;
             $employmentStatus = $employeeDetails['employment_status'] ?? null;
             $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
             $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? null;
@@ -2140,6 +2144,8 @@ class EmployeeController {
                 'jobLevelID' => $jobLevelID,
                 'jobLevelName' => $jobLevelName,
                 'branchID' => $branchID,
+                'managerID' => $managerID,
+                'workScheduleID' => $workScheduleID,
                 'branchName' => $branchName,
                 'isActiveBadge' => $isActiveBadge,
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),

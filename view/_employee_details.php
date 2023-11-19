@@ -563,6 +563,22 @@
                               </div>
                             </div>
                           </div>
+                          <div class="form-group row">
+                            <div class="col-lg-6">
+                              <label class="form-label">Manager</label>
+                              <select class="form-control offcanvas-select2" name="manager_id" id="manager_id">
+                                <option value="">--</option>
+                                '. $employeeModel->generateEmployeeOptions('all') .'
+                              </select>
+                            </div>
+                            <div class="col-lg-6">
+                              <label class="form-label">Work Schedule <span class="text-danger">*</span></label>
+                              <select class="form-control offcanvas-select2" name="work_schedule_id" id="work_schedule_id">
+                                <option value="">--</option>
+                                '. $workScheduleModel->generateWorkScheduleOptions() .'
+                              </select>
+                            </div>
+                          </div>
                         </form>
                       </div>
                     </div>

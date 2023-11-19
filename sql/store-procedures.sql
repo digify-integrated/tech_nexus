@@ -4101,13 +4101,13 @@ BEGIN
 	VALUES(p_contact_id, p_company_id, p_department_id, p_job_position_id, p_branch_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, p_manager_id INT, p_work_schedule_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, onboard_date, last_log_by) 
-	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_onboard_date, p_last_log_by);
+    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, onboard_date, last_log_by) 
+	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_onboard_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, p_manager_id INT, p_work_schedule_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE employment_information
     SET badge_id = p_badge_id,
@@ -4117,6 +4117,8 @@ BEGIN
     job_position_id = p_job_position_id,
     job_level_id = p_job_level_id,
     branch_id = p_branch_id,
+    manager_id = p_manager_id,
+    work_schedule_id = p_work_schedule_id,
     onboard_date = p_onboard_date,
     last_log_by = p_last_log_by
     WHERE contact_id = p_contact_id;
@@ -4130,7 +4132,7 @@ END //
 
 CREATE PROCEDURE generateEmploymentInformationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, onboard_date
+	SELECT badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, onboard_date
     FROM employment_information
     WHERE contact_id = p_contact_id;
 END //

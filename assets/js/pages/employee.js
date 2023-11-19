@@ -2206,6 +2206,9 @@ function employmentInformationForm(){
             branch_id: {
                 required: true
             },
+            work_schedule_id: {
+                required: true
+            },
             onboard_date: {
                 required: true
             },
@@ -2231,6 +2234,9 @@ function employmentInformationForm(){
             },
             branch_id: {
                 required: 'Please choose the job level'
+            },
+            work_schedule_id: {
+                required: 'Please choose the work schedule'
             },
             onboard_date: {
                 required: 'Please choose the on-board date'
@@ -3815,6 +3821,8 @@ function displayDetails(transaction){
                         checkOptionExist('#employee_type_id', response.employeeTypeID, '');
                         checkOptionExist('#job_level_id', response.jobLevelID, '');
                         checkOptionExist('#branch_id', response.branchID, '');
+                        checkOptionExist('#manager_id', response.managerID, '');
+                        checkOptionExist('#work_schedule_id', response.workScheduleID, '');
                     } 
                     else {
                         if(response.isInactive){

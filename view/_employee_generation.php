@@ -26,6 +26,7 @@ require_once '../model/relation-model.php';
 require_once '../model/language-model.php';
 require_once '../model/language-proficiency-model.php';
 require_once '../model/bank-model.php';
+require_once '../model/work-schedule-model.php';
 require_once '../model/bank-account-type-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
@@ -56,6 +57,7 @@ $relationModel = new RelationModel($databaseModel);
 $languageModel = new LanguageModel($databaseModel);
 $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
 $bankModel = new BankModel($databaseModel);
+$workScheduleModel = new WorkScheduleModel($databaseModel);
 $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -174,10 +176,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                                 <h4 class="mb-0 text-truncate text-primary"><b>'. $employeeName .'</b></h4>
                                                             </div>
                                                             <div class="mt-3">
-                                                                <p class="prod-content mb-0 text-dark">'. $jobPositionName .'</p>
+                                                                <h6 class="prod-content mb-0">'. $jobPositionName .'</h6>
                                                             </div>
                                                             <div>
-                                                                <p class="prod-content mb-0 text-dark">'. $departmentName .'</p>
+                                                                <h6 class="prod-content mb-0">'. $departmentName .'</h6>
                                                             </div>
                                                         </a>
                                                     </div>
@@ -360,6 +362,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobPositionID = $row['job_position_id'];
                     $jobLevelID = $row['job_level_id'];
                     $branchID = $row['branch_id'];
+                    $managerID = $row['manager_id'];
+                    $workScheduleID = $row['work_schedule_id'];
                     $onboardDate = $systemModel->checkDate('summary', $row['onboard_date'], '', 'F d, Y', '');
 
                     $companyName = $companyModel->getCompany($companyID)['company_name'] ?? '--';
@@ -367,6 +371,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $employeeTypeName = $employeeTypeModel->getEmployeeType($employeeTypeID)['employee_type_name'] ?? '--';
                     $jobLevelName = $jobLevelModel->getJobLevel($jobLevelID)['rank'] ?? '--';
                     $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? '--';
+                    $workScheduleName = $workScheduleModel->getWorkSchedule($workScheduleID)['work_schedule_name'] ?? '--';
+
+                    $managerName = '--';
+                    if(!empty($managerID)){
+                        $employeeDetails = $employeeModel->getPersonalInformation($managerID);
+                        $firstName = $employeeDetails['first_name'];
+                        $middleName = $employeeDetails['middle_name'];
+                        $lastName = $employeeDetails['last_name'];
+                        $suffix = $employeeDetails['suffix'];
+    
+                        $managerName = $systemSettingModel->getSystemSetting(4)['value'];
+                        $managerName = str_replace('{last_name}', $lastName, $managerName);
+                        $managerName = str_replace('{first_name}', $firstName, $managerName);
+                        $managerName = str_replace('{suffix}', $suffix, $managerName);
+                        $managerName = str_replace('{middle_name}', $middleName, $managerName);
+                    }
+                   
 
                     $details .= '<ul class="list-group list-group-flush">
                                     <li class="list-group-item px-0 pt-0">
@@ -396,6 +417,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-12">
+                                                <p class="mb-1 text-primary"><b>Manager</b></p>
+                                                <p class="mb-0">'. $managerName .'</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
+                                            <div class="col-md-12">
                                                 <p class="mb-1 text-primary"><b>Employee Type</b></p>
                                                 <p class="mb-0">'. $employeeTypeName .'</p>
                                             </div>
@@ -414,6 +443,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="col-md-12">
                                                 <p class="mb-1 text-primary"><b>Branch</b></p>
                                                 <p class="mb-0">'. $branchName .'</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p class="mb-1 text-primary"><b>Work Schedule</b></p>
+                                                <p class="mb-0">'. $workScheduleName .'</p>
                                             </div>
                                         </div>
                                     </li>

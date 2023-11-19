@@ -24,6 +24,7 @@
     require('model/language-proficiency-model.php');
     require('model/bank-model.php');
     require('model/bank-account-type-model.php');
+    require('model/work-schedule-model.php');
     require('model/menu-group-model.php');
     require('model/menu-item-model.php');
     require('model/security-model.php');
@@ -57,6 +58,7 @@
     $languageModel = new LanguageModel($databaseModel);
     $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
     $bankModel = new BankModel($databaseModel);
+    $workScheduleModel = new WorkScheduleModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $securityModel = new SecurityModel();

@@ -102,14 +102,16 @@ class EmployeeModel {
     # - $p_job_position_id (int): The job position ID.
     # - $p_job_level_id (int): The job level ID.
     # - $p_branch_id (int): The branch ID.
+    # - $p_manager_id (int): The manager ID.
+    # - $p_work_schedule_id (int): The work schedule ID.
     # - $p_onboard_date (date): The onboard date.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateEmploymentInformation (:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_onboard_date, :p_last_log_by)');
+    public function updateEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_work_schedule_id, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateEmploymentInformation (:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_work_schedule_id, :p_onboard_date, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -118,6 +120,8 @@ class EmployeeModel {
         $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_level_id', $p_job_level_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_manager_id', $p_manager_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_onboard_date', $p_onboard_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -759,14 +763,16 @@ class EmployeeModel {
     # - $p_job_position_id (int): The job position ID.
     # - $p_job_level_id (int): The job level ID.
     # - $p_branch_id (int): The branch ID.
+    # - $p_manager_id (int): The manager ID.
+    # - $p_work_schedule_id (int): The work schedule ID.
     # - $p_onboard_date (date): The onboard date.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_onboard_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertEmploymentInformation(:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_onboard_date, :p_last_log_by)');
+    public function insertEmploymentInformation($p_contact_id, $p_badge_id, $p_company_id, $p_employee_type_id, $p_department_id, $p_job_position_id, $p_job_level_id, $p_branch_id, $p_manager_id, $p_work_schedule_id, $p_onboard_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertEmploymentInformation(:p_contact_id, :p_badge_id, :p_company_id, :p_employee_type_id, :p_department_id, :p_job_position_id, :p_job_level_id, :p_branch_id, :p_manager_id, :p_work_schedule_id, :p_onboard_date, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_badge_id', $p_badge_id, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -775,6 +781,8 @@ class EmployeeModel {
         $stmt->bindValue(':p_job_position_id', $p_job_position_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_job_level_id', $p_job_level_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_manager_id', $p_manager_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_onboard_date', $p_onboard_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
@@ -2113,10 +2121,14 @@ class EmployeeModel {
     # Returns: String.
     #
     # -------------------------------------------------------------
-    public function generateEmployeeOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeOptions()');
+    public function generateEmployeeOptions($p_generate_type, $p_reference_id = null) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateEmployeeOptions(:p_generate_type, :p_reference_id)');
+        $stmt->bindValue(':p_generate_type', $p_generate_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_id', $p_reference_id, PDO::PARAM_STR);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt->closeCursor();
 
         $htmlOptions = '';
         foreach ($options as $row) {
@@ -2126,7 +2138,13 @@ class EmployeeModel {
             $lastName = $row['last_name'];
             $suffix = $row['suffix'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($employeeTypeID, ENT_QUOTES) . '">' . htmlspecialchars($employeeTypeName, ENT_QUOTES) .'</option>';
+            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
+            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
+            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
+            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
+            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($employeeName, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

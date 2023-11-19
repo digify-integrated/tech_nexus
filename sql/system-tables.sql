@@ -388,10 +388,12 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Language', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Language', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Language', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Bank', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Bank', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Bank', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Grant Portal Access', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Revoke Portal Access', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -483,10 +485,12 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('71', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('72', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('73', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('74', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('75', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('76', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('77', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('78', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3621,8 +3625,9 @@ CREATE TABLE employment_information(
 	department_id INT UNSIGNED,
 	job_position_id INT UNSIGNED,
 	job_level_id INT UNSIGNED,
-	immediate_supervisor_id INT UNSIGNED,
 	branch_id INT UNSIGNED,
+	manager_id INT UNSIGNED,
+	work_schedule_id INT UNSIGNED,
 	employment_status TINYINT(1) NOT NULL DEFAULT 1,
     onboard_date DATE,
     offboard_date DATE,
@@ -3630,17 +3635,19 @@ CREATE TABLE employment_information(
     detailed_departure_reason VARCHAR(5000),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (work_schedule_id) REFERENCES work_schedule(work_schedule_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
 CREATE INDEX employment_information_index_contact_id ON employment_information(contact_id);
-CREATE INDEX employment_information_index_immediate_supervisor_id ON employment_information(immediate_supervisor_id);
+CREATE INDEX employment_information_index_manager_id ON employment_information(manager_id);
 CREATE INDEX employment_information_index_company_id ON employment_information(company_id);
 CREATE INDEX employment_information_index_employee_type_id ON employment_information(employee_type_id);
 CREATE INDEX employment_information_index_department_id ON employment_information(department_id);
 CREATE INDEX employment_information_index_job_position_id ON employment_information(job_position_id);
 CREATE INDEX employment_information_index_job_level_id ON employment_information(job_level_id);
 CREATE INDEX employment_information_index_branch_id ON employment_information(branch_id);
+CREATE INDEX employment_information_index_work_schedule_id ON employment_information(work_schedule_id);
 CREATE INDEX employment_information_index_departure_reason_id ON employment_information(departure_reason_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

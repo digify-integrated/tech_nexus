@@ -654,8 +654,8 @@ function createEmployeeQRCode(container, name, badgeID){
     card += 'END:VCARD';
 
     var qrcode = new QRCode(document.getElementById(container), {
-        width: 300,
-        height: 300,
+        width: 400,
+        height: 400,
         colorDark : "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H,

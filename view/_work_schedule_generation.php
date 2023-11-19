@@ -65,7 +65,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $workScheduleID .'">',
                         'WORK_SCHEDULE_NAME' => '<div class="col">
                                                     <h6 class="mb-0">'. $workScheduleName .'</h6>
-                                                    <p class="text-muted f-12 mb-0">'. $workScheduleDescription .'</p>
+                                                    <p class="f-12 mb-0">'. $workScheduleDescription .'</p>
                                                 </div>',
                         'WORK_SCHEDULE_TYPE' => $workScheduleTypeName,
                         'ACTION' => '<div class="d-flex gap-2">
