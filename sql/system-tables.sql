@@ -394,6 +394,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Grant Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Revoke Portal Access', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User Account To Contact', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -491,6 +492,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('77', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('78', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('79', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3573,6 +3575,7 @@ CREATE TABLE contact(
 	is_employee TINYINT(1) DEFAULT 0,
 	is_applicant TINYINT(1) DEFAULT 0,
 	is_customer TINYINT(1) DEFAULT 0,
+	portal_access TINYINT(1) DEFAULT 0,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
