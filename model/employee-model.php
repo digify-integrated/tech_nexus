@@ -1793,6 +1793,26 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getEmployee
+    # Description: Retrieves the details of an employee.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns:
+    # - An array containing the employee information.
+    #
+    # -------------------------------------------------------------
+    public function getEmployee($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmployee(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getPersonalInformation
     # Description: Retrieves the details of a personal information.
     #
@@ -2148,6 +2168,54 @@ class EmployeeModel {
         }
 
         return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Grant methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: grantPortalAccess
+    # Description: Grants the portal access.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the contact.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function grantPortalAccess($p_contact_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL grantPortalAccess(:p_contact_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Revoke methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: revokePortalAccess
+    # Description: Revokes the portal access.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the contact.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function revokePortalAccess($p_contact_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL revokePortalAccess(:p_contact_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 }

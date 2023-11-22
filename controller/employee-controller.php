@@ -107,6 +107,12 @@ class EmployeeController {
                 case 'save employment information':
                     $this->saveEmploymentInformation();
                     break;
+                case 'grant portal access':
+                    $this->grantPortalAccess();
+                    break;
+                case 'revoke portal access':
+                    $this->revokePortalAccess();
+                    break;
                 case 'save contact information':
                     $this->saveContactInformation();
                     break;
@@ -1999,6 +2005,88 @@ class EmployeeController {
         }
     
         $this->employeeModel->updateContactIdentificationStatus($contactIdentificationID, $employeeID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: grantPortalAccess
+    # Description: 
+    # Updates the portal status to granted.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function grantPortalAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
+        $total = $checkEmployeeExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->grantPortalAccess($employeeID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: revokePortalAccess
+    # Description: 
+    # Updates the portal status to revoked.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function revokePortalAccess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkEmployeeExist = $this->employeeModel->checkEmployeeExist($employeeID);
+        $total = $checkEmployeeExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->revokePortalAccess($employeeID, $userID);
             
         echo json_encode(['success' => true]);
         exit;

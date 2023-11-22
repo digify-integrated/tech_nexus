@@ -100,6 +100,8 @@
     $updateEmployeeLanguage = $userModel->checkSystemActionAccessRights($user_id, 72);
     $addEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 74);
     $updateEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 75);
+    $grantPortalAccess = $userModel->checkSystemActionAccessRights($user_id, 77);
+    $revokePortalAccess = $userModel->checkSystemActionAccessRights($user_id, 78);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -121,6 +123,9 @@
 
         $checkEmployeeExist = $employeeModel->checkEmployeeExist($employeeID);
         $total = $checkEmployeeExist['total'] ?? 0;
+
+        $employeeDetails = $employeeModel->getEmployee($employeeID);
+        $portalAccess = $employeeDetails['portal_access'];
 
         if($total == 0){
             header('location: 404.php');

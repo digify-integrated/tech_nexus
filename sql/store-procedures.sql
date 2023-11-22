@@ -3870,6 +3870,26 @@ BEGIN
     SET p_contact_id = LAST_INSERT_ID();
 END //
 
+CREATE PROCEDURE getEmployee(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM contact
+    WHERE contact_id = p_contact_id AND is_employee = 1;
+END //
+
+CREATE PROCEDURE grantPortalAccess(IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact 
+    SET portal_access = 1, last_log_by = p_last_log_by 
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE revokePortalAccess(IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact 
+    SET portal_access = 0, last_log_by = p_last_log_by 
+    WHERE contact_id = p_contact_id;
+END //
+
 CREATE PROCEDURE generateEmployeeTable(IN p_employment_status ENUM('active', 'archived', 'all'), IN p_company_id INT, IN p_filter_department INT, IN p_filter_job_position INT, IN p_filter_job_level INT, IN p_filter_branch INT, IN p_filter_employee_type INT)
 BEGIN
     DECLARE query VARCHAR(1000);

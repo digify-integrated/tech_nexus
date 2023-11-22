@@ -1,4 +1,13 @@
 <?php
+  $portalAccessButton = '';
+  if($grantPortalAccess['total'] > 0 && !$portalAccess){
+    $portalAccessButton = '<button type="button" class="btn btn-outline-success w-100 text-center mb-3" id="grant-portal-access">Grant Portal Access</button>';
+  }
+
+  if($revokePortalAccess['total'] > 0 && $portalAccess){
+    $portalAccessButton = '<button type="button" class="btn btn-outline-danger w-100 text-center mb-3" id="revoke-portal-access">Revoke Portal Access</button>';
+  }
+
       if($employeeWriteAccess['total'] > 0){
         $employeePersonalInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
         $employeeEmploymentInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#employment-information-offcanvas" aria-controls="employment-information-offcanvas" id="update-employment-information"><i class="ti ti-pencil"></i></button>';
@@ -75,7 +84,7 @@
       }
     ?>
 <div class="row">
-  <div class="col-sm-3">
+  <div class="col-lg-3">
     <div class="card">
       <div class="card-body position-relative">
         <div class="position-absolute end-0 top-0 p-3" id="employee-status-badge"></div>
@@ -96,7 +105,8 @@
           </div>
           <h5 class="mb-1 text-primary" id="employee_name"></h5>
           <p class="text-sm" id="job_position"></p>
-          <button type="button" class="btn btn-outline-primary w-100 text-center mb-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
+          <?php echo $portalAccessButton; ?>
+          <button type="button" class="btn btn-outline-info w-100 text-center mb-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
           <p class="mb-0" id="employee_bio"></p>
         </div>
       </div>
@@ -111,7 +121,7 @@
       <div class="card-body" id="employment-information-summary"></div>
     </div>
   </div>
-  <div class="col-sm-9">
+  <div class="col-lg-9">
     <div class="card">
       <div class="card-body">
         <ul class="nav nav-pills" id="pills-tab" role="tablist">
@@ -571,7 +581,7 @@
                                 '. $employeeModel->generateEmployeeOptions('all') .'
                               </select>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-6 mt-3 mt-lg-0">
                               <label class="form-label">Work Schedule <span class="text-danger">*</span></label>
                               <select class="form-control offcanvas-select2" name="work_schedule_id" id="work_schedule_id">
                                 <option value="">--</option>

@@ -353,6 +353,116 @@
                 displayDetails('get contact information details');
             });
 
+            $(document).on('click','#grant-portal-access',function() {
+                const employee_id = $('#employee-id').text();
+                const transaction = 'grant portal access';
+        
+                Swal.fire({
+                    title: 'Confirm Grant Portal Access',
+                    text: 'Are you sure you want to grant portal access to this employee?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Grant',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                employee_id : employee_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Grant Portal Access Success', 'The employee portal access has been granted successfully.', 'success');
+                                    window.location.reload();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Grant Portal Access Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#revoke-portal-access',function() {
+                const employee_id = $('#employee-id').text();
+                const transaction = 'revoke portal access';
+        
+                Swal.fire({
+                    title: 'Confirm Revoke Portal Access',
+                    text: 'Are you sure you want to revoke portal access to this employee?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Revoke',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                employee_id : employee_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Revoke Portal Access Success', 'The employee portal access has been revoked successfully.', 'success');
+                                    window.location.reload();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Revoke Portal Access Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $(document).on('click','.tag-contact-information-as-primary',function() {
                 const contact_information_id = $(this).data('contact-information-id');
                 const employee_id = $('#employee-id').text();
@@ -381,7 +491,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Tag Contact Information As Primary Success', 'The contact information has been tagged as primary successfully.', 'success');
+                                    setNotification('Tag Contact Information As Primary Success', 'The contact information has been tagged as primary successfully.', 'success');
                                     contactInformationSummary();
                                 }
                                 else {
