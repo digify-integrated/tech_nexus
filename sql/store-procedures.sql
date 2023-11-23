@@ -89,6 +89,12 @@ BEGIN
 	WHERE email = BINARY p_email;
 END //
 
+CREATE PROCEDURE getContactByID(IN p_user_id INT)
+BEGIN
+	SELECT * FROM contact
+	WHERE user_id = p_user_id;
+END //
+
 CREATE PROCEDURE getUserByID(IN p_user_id INT)
 BEGIN
 	SELECT * FROM users

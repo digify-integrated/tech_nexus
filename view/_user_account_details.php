@@ -19,27 +19,35 @@
               }
               
               if ($sendResetPasswordInstructions['total'] > 0) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="send-reset-password-instructions">Send Reset Password Instructions</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="send-reset-password-instructions">Send Reset Password Instructions</button></li>';
+              }
+              
+              if ($linkUserAccountToContact['total'] > 0 && empty($contactID)) {
+                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#link-user-account-to-contact-offcanvas" aria-controls="link-user-account-to-contact-offcanvas" id="link-user-account-to-contact">Link User Account To Contact</button></li>';
+              }
+              
+              if ($unlinkUserAccountToContact['total'] > 0 && !empty($contactID)) {
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="unlink-user-account-to-contact">Unlink User Account To Contact</button></li>';
               }
               
               if ($activateUserAccount['total'] > 0 && !$isActive) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="activate-user-account-details">Activate User Account</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="activate-user-account-details">Activate User Account</button></li>';
               }
               
               if ($deactivateUserAccount['total'] > 0 && $isActive) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="deactivate-user-account-details">Deactivate User Account</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="deactivate-user-account-details">Deactivate User Account</button></li>';
               }
               
               if ($lockUserAccount['total'] > 0 && !$isLocked) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="lock-user-account-details">Lock User Account</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="lock-user-account-details">Lock User Account</button></li>';
               }
               
               if ($unlockUserAccount['total'] > 0 && $isLocked) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="unlock-user-account-details">Unlock User Account</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="unlock-user-account-details">Unlock User Account</button></li>';
               }
               
               if ($userAccountDeleteAccess['total'] > 0) {
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-user-account-details">Delete User Account</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-user-account-details">Delete User Account</button></li>';
               }
             
               $dropdown .= '</ul>
@@ -293,6 +301,41 @@
               <div class="row">
                 <div class="col-lg-12">
                 <button type="submit" class="btn btn-primary" id="submit-change-user-account-password-form" form="change-user-account-password-form">Update Password</button>
+                  <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+              </div>
+            </div>
+          </div>';
+  }
+
+  if($linkUserAccountToContact['total'] > 0 && empty($contactID)){
+    echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="link-user-account-to-contact-offcanvas" aria-labelledby="link-user-account-to-contact-offcanvas-label">
+            <div class="offcanvas-header">
+              <h2 id="link-user-account-to-contact-offcanvas-label" style="margin-bottom:-0.5rem">Link User Account To Contact</h2>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="alert alert-success alert-dismissible mb-4" role="alert">
+                This form allows users to change their account password, ensuring it meets security requirements, including a minimum length and a combination of lowercase, uppercase letters, numbers, and special characters.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <form id="link-user-account-to-contact-form" method="post" action="#">
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label class="form-label">New Password <span class="text-danger">*</span></label>
+                          <input type="password" class="form-control" id="new_password" name="new_password">
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                <button type="submit" class="btn btn-primary" id="submit-link-user-account-to-contact-form" form="link-user-account-to-contact-form">Update Password</button>
                   <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>

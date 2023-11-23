@@ -8,81 +8,81 @@
     $portalAccessButton = '<button type="button" class="btn btn-outline-danger w-100 text-center mb-3" id="revoke-portal-access">Revoke Portal Access</button>';
   }
 
-      if($employeeWriteAccess['total'] > 0){
-        $employeePersonalInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
-        $employeeEmploymentInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#employment-information-offcanvas" aria-controls="employment-information-offcanvas" id="update-employment-information"><i class="ti ti-pencil"></i></button>';
+  if($employeeWriteAccess['total'] > 0){
+    $employeePersonalInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
+    $employeeEmploymentInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#employment-information-offcanvas" aria-controls="employment-information-offcanvas" id="update-employment-information"><i class="ti ti-pencil"></i></button>';
 
-        $contactInformationAdd = '';
-        if($addEmployeeContactInformation['total'] > 0){
-          $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';
-        }
+    $contactInformationAdd = '';
+    if($addEmployeeContactInformation['total'] > 0){
+      $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeAddressAdd = '';
-        if($addEmployeeAddress['total'] > 0){
-          $employeeAddressAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeAddressAdd = '';
+    if($addEmployeeAddress['total'] > 0){
+      $employeeAddressAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeIdentificationAdd = '';
-        if($addEmployeeIdentification['total'] > 0){
-          $employeeIdentificationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeIdentificationAdd = '';
+    if($addEmployeeIdentification['total'] > 0){
+      $employeeIdentificationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeEducationalBackgroundAdd = '';
-        if($addEmployeeEducationalBackground['total'] > 0){
-          $employeeEducationalBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeEducationalBackgroundAdd = '';
+    if($addEmployeeEducationalBackground['total'] > 0){
+      $employeeEducationalBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-educational-background-offcanvas" aria-controls="contact-educational-background-offcanvas" id="add-educational-background"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeFamilyBackgroundAdd = '';
-        if($addEmployeeFamilyBackground['total'] > 0){
-          $employeeFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeFamilyBackgroundAdd = '';
+    if($addEmployeeFamilyBackground['total'] > 0){
+      $employeeFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeEmergencyContactAdd = '';
-        if($addEmployeeEmergencyContact['total'] > 0){
-          $employeeEmergencyContactAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeEmergencyContactAdd = '';
+    if($addEmployeeEmergencyContact['total'] > 0){
+      $employeeEmergencyContactAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-emergency-contact-offcanvas" aria-controls="contact-emergency-contact-offcanvas" id="add-contact-emergency-contact"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeTrainingsSeminarsAdd = '';
-        if($addEmployeeTrainingsSeminars['total'] > 0){
-          $employeeTrainingsSeminarsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeTrainingsSeminarsAdd = '';
+    if($addEmployeeTrainingsSeminars['total'] > 0){
+      $employeeTrainingsSeminarsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-training-offcanvas" aria-controls="contact-training-offcanvas" id="add-contact-training"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeSkillsAdd = '';
-        if($addEmployeeSkills['total'] > 0){
-          $employeeSkillsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeSkillsAdd = '';
+    if($addEmployeeSkills['total'] > 0){
+      $employeeSkillsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-skills-offcanvas" aria-controls="contact-skills-offcanvas" id="add-contact-skills"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeTalentsAdd = '';
-        if($addEmployeeTalents['total'] > 0){
-          $employeeTalentsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeTalentsAdd = '';
+    if($addEmployeeTalents['total'] > 0){
+      $employeeTalentsAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-talents-offcanvas" aria-controls="contact-talents-offcanvas" id="add-contact-talents"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeHobbyAdd = '';
-        if($addEmployeeHobby['total'] > 0){
-          $employeeHobbyAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeHobbyAdd = '';
+    if($addEmployeeHobby['total'] > 0){
+      $employeeHobbyAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-hobby-offcanvas" aria-controls="contact-hobby-offcanvas" id="add-contact-hobby"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeEmploymentHistoryAdd = '';
-        if($addEmploymentHistory['total'] > 0){
-          $employeeEmploymentHistoryAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employment-history-offcanvas" aria-controls="contact-employment-history-offcanvas" id="add-contact-employment-history"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeEmploymentHistoryAdd = '';
+    if($addEmploymentHistory['total'] > 0){
+      $employeeEmploymentHistoryAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employment-history-offcanvas" aria-controls="contact-employment-history-offcanvas" id="add-contact-employment-history"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeLicenseAdd = '';
-        if($addEmployeeLicense['total'] > 0){
-          $employeeLicenseAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-license-offcanvas" aria-controls="contact-employee-license-offcanvas" id="add-contact-employee-license"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeLicenseAdd = '';
+    if($addEmployeeLicense['total'] > 0){
+      $employeeLicenseAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-license-offcanvas" aria-controls="contact-employee-license-offcanvas" id="add-contact-employee-license"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeLanguageAdd = '';
-        if($addEmployeeLanguage['total'] > 0){
-          $employeeLanguageAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" id="add-contact-employee-language"><i class="ti ti-plus"></i></button>';
-        }
+    $employeeLanguageAdd = '';
+    if($addEmployeeLanguage['total'] > 0){
+      $employeeLanguageAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-language-offcanvas" aria-controls="contact-employee-language-offcanvas" id="add-contact-employee-language"><i class="ti ti-plus"></i></button>';
+    }
 
-        $employeeBankAdd = '';
-        if($addEmployeeBank['total'] > 0){
-          $employeeBankAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-bank-offcanvas" aria-controls="contact-employee-bank-offcanvas" id="add-contact-employee-bank"><i class="ti ti-plus"></i></button>';
-        }
-      }
-    ?>
+    $employeeBankAdd = '';
+    if($addEmployeeBank['total'] > 0){
+      $employeeBankAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-bank-offcanvas" aria-controls="contact-employee-bank-offcanvas" id="add-contact-employee-bank"><i class="ti ti-plus"></i></button>';
+    }
+  }
+?>
 <div class="row">
   <div class="col-lg-3">
     <div class="card">

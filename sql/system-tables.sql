@@ -395,6 +395,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Grant Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Revoke Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User Account To Contact', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlink User Account To Contact', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -493,6 +494,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('77', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('78', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('79', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('80', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -31,8 +31,8 @@
     $changeUserAccountPassword = $userModel->checkSystemActionAccessRights($user_id, 13);
     $changeUserAccountProfilePicture = $userModel->checkSystemActionAccessRights($user_id, 14);
     $sendResetPasswordInstructions = $userModel->checkSystemActionAccessRights($user_id, 17);
-    $grantPortalAccess = $userModel->checkSystemActionAccessRights($user_id, 77);
-    $revokePortalAccess = $userModel->checkSystemActionAccessRights($user_id, 78);
+    $linkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 79);
+    $unlinkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 80);
 
     if ($userAccountReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -63,6 +63,9 @@
         $userDetails = $userModel->getUserByID($userAccountID);
         $isActive = $userDetails['is_active'];
         $isLocked = $userDetails['is_locked'];
+
+        $contactDetails = $userModel->getContactByID($userAccountID);
+        $contactID = $contactDetails['contact_id'] ?? null;
     }
     else{
         $userAccountID = null;
