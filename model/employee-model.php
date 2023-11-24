@@ -7,11 +7,9 @@
 */
 class EmployeeModel {
     public $db;
-    public $systemSettingModel;
 
-    public function __construct(DatabaseModel $db, SystemSettingModel $systemSettingModel) {
+    public function __construct(DatabaseModel $db) {
         $this->db = $db;
-        $this->systemSettingModel = $systemSettingModel;
     }
 
     # -------------------------------------------------------------
@@ -25,6 +23,7 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_contact_id (int): The contact ID.
+    # - $p_file_as (string): The file as.
     # - $p_first_name (string): The first name.
     # - $p_middle_name (string): The middle name.
     # - $p_last_name (string): The last name.
@@ -44,9 +43,10 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+    public function updatePersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -652,6 +652,7 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_contact_id (int): The contact ID.
+    # - $p_file_as (string): The file as.
     # - $p_first_name (string): The first name.
     # - $p_middle_name (string): The middle name.
     # - $p_last_name (string): The last name.
@@ -661,9 +662,10 @@ class EmployeeModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPartialPersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPartialPersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_last_log_by)');
+    public function insertPartialPersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPartialPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -708,6 +710,7 @@ class EmployeeModel {
     #
     # Parameters:
     # - $p_contact_id (int): The contact ID.
+    # - $p_file_as (string): The file as.
     # - $p_first_name (string): The first name.
     # - $p_middle_name (string): The middle name.
     # - $p_last_name (string): The last name.
@@ -727,9 +730,10 @@ class EmployeeModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertPersonalInformation($p_contact_id, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+    public function insertPersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
@@ -2153,18 +2157,9 @@ class EmployeeModel {
         $htmlOptions = '';
         foreach ($options as $row) {
             $contactID = $row['contact_id'];
-            $firstName = $row['first_name'];
-            $middleName = $row['middle_name'];
-            $lastName = $row['last_name'];
-            $suffix = $row['suffix'];
+            $fileAs = $row['file_as'];
 
-            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
-            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
-
-            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($employeeName, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

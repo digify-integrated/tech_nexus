@@ -38,7 +38,7 @@
     $systemSettingModel = new SystemSettingModel($databaseModel);
     $menuGroupModel = new MenuGroupModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
-    $employeeModel = new EmployeeModel($databaseModel, $systemSettingModel);
+    $employeeModel = new EmployeeModel($databaseModel);
     $companyModel = new CompanyModel($databaseModel);
     $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);

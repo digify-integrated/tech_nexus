@@ -326,7 +326,10 @@
                       <div class="col-sm-12">
                         <div class="form-group">
                           <label class="form-label">New Password <span class="text-danger">*</span></label>
-                          <input type="password" class="form-control" id="new_password" name="new_password">
+                          <select class="form-control offcanvas-select2" name="gender" id="gender">
+                          <option value="">--</option>
+                            '. $userModel->generateUnlinkedContactOptions() .'
+                          </select>
                         </div>
                       </div>
                     </div>

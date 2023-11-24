@@ -3874,7 +3874,7 @@ function displayDetails(transaction){
                         $('#bio').val(response.bio);
 
                         $('#employee_bio').text(response.bio);
-                        $('#employee_name').text(response.employeeName);
+                        $('#employee_name').text(response.fileAs);
 
                         $('#emp_image').attr('src', response.employeeImage);
                         $('#employee_summary_image').attr('src', response.employeeImage);
@@ -3965,7 +3965,7 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {                        
-                        createEmployeeQRCode('employee-qr-code-container', response.employeeName, response.badgeID);
+                        createEmployeeQRCode('employee-qr-code-container', response.fileAs, response.badgeID);
                     } 
                     else {
                         if(response.isInactive){

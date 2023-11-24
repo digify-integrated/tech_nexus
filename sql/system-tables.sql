@@ -3594,6 +3594,7 @@ CREATE TABLE personal_information(
 	contact_id INT UNSIGNED PRIMARY KEY NOT NULL,
 	contact_image VARCHAR(500),
 	contact_signature VARCHAR(500),
+    file_as VARCHAR(1000) NOT NULL,
     first_name VARCHAR(300) NOT NULL,
 	middle_name VARCHAR(300),
 	last_name VARCHAR(300) NOT NULL,

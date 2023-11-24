@@ -310,6 +310,12 @@ class EmployeeController {
         $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
         $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
         $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
+
+        $fileAs = $this->systemSettingModel->getSystemSetting(4)['value'];
+        $fileAs = str_replace('{first_name}', $firstName, $fileAs);
+        $fileAs = str_replace('{middle_name}', $middleName, $fileAs);
+        $fileAs = str_replace('{last_name}', $lastName, $fileAs);
+        $fileAs = str_replace('{suffix}', $suffix, $fileAs);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -322,13 +328,13 @@ class EmployeeController {
         $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updatePersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertPersonalInformation($employeeID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -2126,6 +2132,7 @@ class EmployeeController {
     
             $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
             $employeeImage = $this->systemModel->checkImage($employeeDetails['contact_image'], 'profile');
+            $fileAs = $employeeDetails['file_as'];
             $firstName = $employeeDetails['first_name'];
             $middleName = $employeeDetails['middle_name'];
             $lastName = $employeeDetails['last_name'];
@@ -2140,16 +2147,10 @@ class EmployeeController {
             $religionName = $this->religionModel->getReligion($religionID)['religion_name'] ?? null;
             $bloodTypeName = $this->bloodTypeModel->getBloodType($bloodTypeID)['blood_type_name'] ?? null;
 
-            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
-            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
-
             $response = [
                 'success' => true,
                 'employeeImage' => $employeeImage,
-                'employeeName' => $employeeName,
+                'fileAs' => $fileAs,
                 'firstName' => $firstName,
                 'middleName' => $middleName,
                 'lastName' => $lastName,
@@ -2274,23 +2275,13 @@ class EmployeeController {
     
             $employmentDetails = $this->employeeModel->getEmploymentInformation($employeeID);
             $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
-            $firstName = $employeeDetails['first_name'];
-            $middleName = $employeeDetails['middle_name'];
-            $lastName = $employeeDetails['last_name'];
-            $suffix = $employeeDetails['suffix'];
-
-            $employeeName = $this->systemSettingModel->getSystemSetting(4)['value'];
-            $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-            $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-            $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-            $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
+            $fileAs = $employeeDetails['file_as'];
 
             $response = [
                 'success' => true,
                 'badgeID' => $employmentDetails['badge_id'] ?? null,
-                'employeeName' => $employeeName
+                'fileAs' => $fileAs
             ];
-
 
             echo json_encode($response);
             exit;
@@ -2924,6 +2915,6 @@ require_once '../model/blood-type-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new EmployeeController(new EmployeeModel(new DatabaseModel, new SystemSettingModel(new DatabaseModel)), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new EmployeeTypeModel(new DatabaseModel), new JobLevelModel(new DatabaseModel), new BranchModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new GenderModel(new DatabaseModel), new CivilStatusModel(new DatabaseModel), new ReligionModel(new DatabaseModel), new BloodTypeModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new EmployeeController(new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new JobPositionModel(new DatabaseModel), new EmployeeTypeModel(new DatabaseModel), new JobLevelModel(new DatabaseModel), new BranchModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new GenderModel(new DatabaseModel), new CivilStatusModel(new DatabaseModel), new ReligionModel(new DatabaseModel), new BloodTypeModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

@@ -281,6 +281,12 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateUnlinkedContactOptions()
+BEGIN
+	SELECT contact_id, file_as FROM personal_information 
+    WHERE contact_id IN (SELECT contact_id FROM contact WHERE portal_access = 1 AND user_id IS NOT NULL);
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Password History Stored Procedures */
@@ -2666,12 +2672,6 @@ BEGIN
     ORDER BY employee_type_id;
 END //
 
-CREATE PROCEDURE generateEmployeeTypeOptions()
-BEGIN
-	SELECT employee_type_id, employee_type_name FROM employee_type
-	ORDER BY employee_type_name;
-END //
-
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Departure Reason Table Stored Procedures */
@@ -3896,72 +3896,13 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE generateEmployeeTable(IN p_employment_status ENUM('active', 'archived', 'all'), IN p_company_id INT, IN p_filter_department INT, IN p_filter_job_position INT, IN p_filter_job_level INT, IN p_filter_branch INT, IN p_filter_employee_type INT)
-BEGIN
-    DECLARE query VARCHAR(1000);
-    DECLARE conditionList VARCHAR(500);
-
-    SET query = 'SELECT contact.contact_id AS contact_id, contact_image, first_name, middle_name, last_name, suffix, department_id, branch_id, job_position_id FROM contact 
-    LEFT OUTER JOIN personal_information ON personal_information.contact_id = contact.contact_id 
-    LEFT OUTER JOIN employment_information ON employment_information.contact_id = contact.contact_id';
-    
-    SET conditionList = ' WHERE is_employee = 1';
-
-    IF p_employment_status <> 'all' THEN
-        IF p_employment_status = 'active' THEN
-            SET conditionList = CONCAT(conditionList, ' AND employment_status = 1');
-        ELSEIF p_employment_status = 'archived' THEN
-            SET conditionList = CONCAT(conditionList, ' AND employment_status = 0');
-        END IF;
-    END IF;
-
-    IF p_company_id <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND company_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_company_id));
-    END IF;
-
-    IF p_filter_department <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND department_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_department));
-    END IF;
-
-    IF p_filter_job_position <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND job_position_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_position));
-    END IF;
-
-    IF p_filter_job_level <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND job_level_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_job_level));
-    END IF;
-
-    IF p_filter_branch <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND branch_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_branch));
-    END IF;
-
-    IF p_filter_employee_type <> 'all' THEN
-        SET conditionList = CONCAT(conditionList, ' AND employee_type_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_employee_type));
-    END IF;
-
-    SET query = CONCAT(query, conditionList);
-
-    SET query = CONCAT(query, ' ORDER BY personal_information.first_name;');
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END //
-
 CREATE PROCEDURE generateEmployeeCard(IN p_offset INT, IN p_employee_per_page INT, IN p_search VARCHAR(500), IN p_employment_status VARCHAR(10), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500), IN p_employee_type_filter VARCHAR(500), IN p_job_level_filter VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
 BEGIN
     DECLARE sql_query VARCHAR(5000);
 
     SET sql_query = 'SELECT 
         c.contact_id AS contact_id, contact_image, 
-        first_name, middle_name, last_name, suffix, 
-        department_id, branch_id, job_position_id, offboard_date 
+        file_as, department_id, branch_id, job_position_id, offboard_date 
     FROM contact c
     LEFT JOIN personal_information p ON p.contact_id = c.contact_id
     LEFT JOIN employment_information e ON e.contact_id = c.contact_id
@@ -4034,15 +3975,15 @@ END //
 CREATE PROCEDURE generateEmployeeOptions(IN p_generate_type VARCHAR(50), IN p_reference_id INT)
 BEGIN
 	IF p_generate_type = 'all' THEN
-        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information;
+        SELECT contact_id, file_as FROM personal_information;
 	ELSEIF p_generate_type = 'active employee' THEN
-        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1);
 	ELSEIF p_generate_type = 'inactive employee' THEN
-        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 0);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 0);
     ELSEIF p_generate_type = 'department' THEN
-        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id);
     ELSE
-        SELECT contact_id, first_name, middle_name, last_name, suffix FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id);
     END IF;
 END //
 
@@ -4057,22 +3998,23 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO personal_information (contact_id, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
-	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
+    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
+	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertPartialPersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
+CREATE PROCEDURE insertPartialPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO personal_information (contact_id, first_name, middle_name, last_name, suffix, last_log_by) 
-	VALUES(p_contact_id, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
+    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, last_log_by) 
+	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
 	UPDATE personal_information
-    SET first_name = p_first_name,
+    SET file_as = p_file_as,
+    first_name = p_first_name,
     middle_name = p_middle_name,
     last_name = p_last_name,
     suffix = p_suffix,
@@ -4105,7 +4047,7 @@ END //
 
 CREATE PROCEDURE generatePersonalInformationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT first_name, middle_name, last_name, suffix, nickname, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight
+	SELECT file_as, nickname, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight
     FROM personal_information
     WHERE contact_id = p_contact_id;
 END //
