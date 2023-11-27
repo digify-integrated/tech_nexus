@@ -3,6 +3,7 @@
     require('config/config.php');
     require('model/database-model.php');
     require('model/user-model.php');
+    require('model/employee-model.php');
     require('model/menu-item-model.php');
     require('model/system-model.php');
     require('model/interface-setting-model.php');
@@ -10,6 +11,7 @@
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
     $userModel = new UserModel($databaseModel, $systemModel);
+    $employeeModel = new EmployeeModel($databaseModel);
     $menuItemModel = new MenuItemModel($databaseModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
@@ -40,6 +42,30 @@
         include_once('config/_announcement.php'); 
     ?>   
     
+    <section class="pc-container">
+      <div class="pc-content">
+        <div class="page-header">
+          <div class="page-block">
+            <div class="row align-items-center">
+              <div class="col-md-12">
+                <ul class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                </ul>
+              </div>
+              <div class="col-md-12">
+                <div class="page-header-title">
+                  <h2 class="mb-0 text-primary"><?php echo $pageTitle; ?></h2>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <?php
+          require_once('view/_dashboard_attendance.php');
+        ?>
+      </div>
+    </section>
+
     <?php
         include_once('config/_change_password_modal.php');
         include_once('config/_error_modal.php');

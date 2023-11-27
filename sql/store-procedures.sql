@@ -284,7 +284,21 @@ END //
 CREATE PROCEDURE generateUnlinkedContactOptions()
 BEGIN
 	SELECT contact_id, file_as FROM personal_information 
-    WHERE contact_id IN (SELECT contact_id FROM contact WHERE portal_access = 1 AND user_id IS NOT NULL);
+    WHERE contact_id IN (SELECT contact_id FROM contact WHERE portal_access = 1 AND user_id IS NULL);
+END //
+
+CREATE PROCEDURE linkUserAccountToContact(IN p_contact_id INT, IN p_user_account_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact 
+    SET user_id = p_user_account_id, last_log_by = p_last_log_by 
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE unlinkUserAccountToContact(IN p_user_account_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE contact 
+    SET user_id = null, last_log_by = p_last_log_by 
+    WHERE user_id = p_user_account_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -2672,6 +2686,12 @@ BEGIN
     ORDER BY employee_type_id;
 END //
 
+CREATE PROCEDURE generateEmployeeTypeOptions()
+BEGIN
+	SELECT employee_type_id, employee_type_name FROM employee_type
+	ORDER BY employee_type_name;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Departure Reason Table Stored Procedures */
@@ -3902,7 +3922,7 @@ BEGIN
 
     SET sql_query = 'SELECT 
         c.contact_id AS contact_id, contact_image, 
-        file_as, department_id, branch_id, job_position_id, offboard_date 
+        file_as, department_id, branch_id, job_position_id, employment_status 
     FROM contact c
     LEFT JOIN personal_information p ON p.contact_id = c.contact_id
     LEFT JOIN employment_information e ON e.contact_id = c.contact_id
@@ -3918,9 +3938,9 @@ BEGIN
 
     IF p_employment_status <> 'all' THEN
         IF p_employment_status = 'active' THEN
-            SET sql_query = CONCAT(sql_query, ' AND offboard_date IS NULL');
+            SET sql_query = CONCAT(sql_query, ' AND employment_status = 1');
         ELSE
-           SET sql_query = CONCAT(sql_query, ' AND offboard_date IS NOT NULL');
+           SET sql_query = CONCAT(sql_query, ' AND employment_status = 0');
         END IF;
     END IF;
 
@@ -4956,6 +4976,71 @@ BEGIN
     FROM contact_bank
     WHERE contact_id = p_contact_id 
     ORDER BY bank_id ASC;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Attendance Setting Table Stored Procedures */
+
+CREATE PROCEDURE checkAttendanceSettingExist (IN p_attendance_setting_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM attendance_setting
+    WHERE attendance_setting_id = p_attendance_setting_id;
+END //
+
+CREATE PROCEDURE insertAttendanceSetting(IN p_attendance_setting_name VARCHAR(100), IN p_attendance_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT, OUT p_attendance_setting_id INT)
+BEGIN
+    INSERT INTO attendance_setting (attendance_setting_name, attendance_setting_description, value, last_log_by) 
+	VALUES(p_attendance_setting_name, p_attendance_setting_description, p_value, p_last_log_by);
+	
+    SET p_attendance_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateAttendanceSetting(IN p_attendance_setting_id INT, IN p_attendance_setting_name VARCHAR(100), IN p_attendance_setting_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE attendance_setting
+    SET attendance_setting_name = p_attendance_setting_name,
+    attendance_setting_description = p_attendance_setting_description,
+    value = p_value,
+    last_log_by = p_last_log_by
+    WHERE attendance_setting_id = p_attendance_setting_id;
+END //
+
+CREATE PROCEDURE deleteAttendanceSetting(IN p_attendance_setting_id INT)
+BEGIN
+	DELETE FROM attendance_setting
+    WHERE attendance_setting_id = p_attendance_setting_id;
+END //
+
+CREATE PROCEDURE getAttendanceSetting(IN p_attendance_setting_id INT)
+BEGIN
+	SELECT * FROM attendance_setting
+    WHERE attendance_setting_id = p_attendance_setting_id;
+END //
+
+CREATE PROCEDURE duplicateAttendanceSetting(IN p_attendance_setting_id INT, IN p_last_log_by INT, OUT p_new_attendance_setting_id INT)
+BEGIN
+    DECLARE p_attendance_setting_name VARCHAR(100);
+    DECLARE p_attendance_setting_description VARCHAR(200);
+    DECLARE p_value VARCHAR(1000);
+    
+    SELECT attendance_setting_name, attendance_setting_description, value
+    INTO p_attendance_setting_name, p_attendance_setting_description, p_value
+    FROM attendance_setting 
+    WHERE attendance_setting_id = p_attendance_setting_id;
+    
+    INSERT INTO attendance_setting (attendance_setting_name, attendance_setting_description, value, last_log_by) 
+    VALUES(p_attendance_setting_name, p_attendance_setting_description, p_value, p_last_log_by);
+    
+    SET p_new_attendance_setting_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateAttendanceSettingTable()
+BEGIN
+	SELECT attendance_setting_id, attendance_setting_name, attendance_setting_description, value
+    FROM attendance_setting
+    ORDER BY attendance_setting_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

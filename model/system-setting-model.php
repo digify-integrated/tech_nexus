@@ -166,9 +166,9 @@ class SystemSettingModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_system_setting_id AS system_setting_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['system_setting_id'];
+        $systemSettingID = $result->fetch(PDO::FETCH_ASSOC)['system_setting_id'];
 
-        return $systemActionID;
+        return $systemSettingID;
     }
     # -------------------------------------------------------------
 }

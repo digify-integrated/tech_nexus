@@ -359,7 +359,7 @@
         
                 Swal.fire({
                     title: 'Confirm Grant Portal Access',
-                    text: 'Are you sure you want to grant portal access to this employee?',
+                    text: 'Are you sure you want to grant portal access of this employee?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Grant',
@@ -414,7 +414,7 @@
         
                 Swal.fire({
                     title: 'Confirm Revoke Portal Access',
-                    text: 'Are you sure you want to revoke portal access to this employee?',
+                    text: 'Are you sure you want to revoke portal access of this employee?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Revoke',

@@ -823,6 +823,56 @@ class UserModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #   Link methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: linkUserAccountToContact
+    # Description: Links the user account to contact.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function linkUserAccountToContact($p_contact_id, $p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL linkUserAccountToContact(:p_contact_id, :p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Unlink methods
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: unlinkUserAccountToContact
+    # Description: Links the user account to contact.
+    #
+    # Parameters:
+    # - $p_user_account_id (int): The user account ID.
+    # - $p_last_log_by (int): The ID of the user who last modified the user account.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function unlinkUserAccountToContact($p_user_account_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL unlinkUserAccountToContact(:p_user_account_id, :p_last_log_by)');
+        $stmt->bindValue(':p_user_account_id', $p_user_account_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Generate methods
     # -------------------------------------------------------------
 

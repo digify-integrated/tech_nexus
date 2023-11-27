@@ -222,6 +222,9 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language', '3', 'language.php', '11', '', '12', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language Proficiency', '3', 'language-proficiency.php', '11', '', '12', '1');
 
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Attendance Setting', '1', 'attendance-setting.php', '25', '', '1', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Menu Item Access Right Table */
@@ -301,6 +304,8 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('49', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('50', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('51', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4126,6 +4131,21 @@ CREATE INDEX contact_bank_index_contact_bank_id ON contact_bank(contact_bank_id)
 CREATE INDEX contact_bank_index_bank_id ON bank(bank_id);
 CREATE INDEX contact_bank_account_type_index_bank_account_type_id ON bank_account_type(bank_account_type_id);
 CREATE INDEX contact_bank_index_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Attendance Setting Table */
+
+CREATE TABLE attendance_setting(
+	attendance_setting_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	attendance_setting_name VARCHAR(100) NOT NULL,
+	attendance_setting_description VARCHAR(200) NOT NULL,
+	value VARCHAR(1000) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX attendance_setting_index_attendance_setting_id ON attendance_setting(attendance_setting_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

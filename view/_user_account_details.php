@@ -23,11 +23,11 @@
               }
               
               if ($linkUserAccountToContact['total'] > 0 && empty($contactID)) {
-                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#link-user-account-to-contact-offcanvas" aria-controls="link-user-account-to-contact-offcanvas" id="link-user-account-to-contact">Link User Account To Contact</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#link-user-account-to-contact-offcanvas" aria-controls="link-user-account-to-contact-offcanvas" id="link-user-account-to-contact">Link User Account</button></li>';
               }
               
               if ($unlinkUserAccountToContact['total'] > 0 && !empty($contactID)) {
-                $dropdown .= '<li><button class="dropdown-item" type="button" id="unlink-user-account-to-contact">Unlink User Account To Contact</button></li>';
+                $dropdown .= '<li><button class="dropdown-item" type="button" id="unlink-user-account-to-contact">Unlink User Account</button></li>';
               }
               
               if ($activateUserAccount['total'] > 0 && !$isActive) {
@@ -148,6 +148,14 @@
                     <h6 class="mb-0 text-primary" id="last_password_reset_label"></h6>
                     <small>Last Password Reset</small>
                   </div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div>
+                  <p class="text-primary mb-0"><b>Linked Contact</b></p>
+                </div>
+                <div class="p-0">
+                  <label class="col-form-label fw-normal" id="contact_label"></label>
                 </div>
               </div>
               <div class="d-flex align-items-center justify-content-between mb-1">
@@ -311,12 +319,12 @@
   if($linkUserAccountToContact['total'] > 0 && empty($contactID)){
     echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="link-user-account-to-contact-offcanvas" aria-labelledby="link-user-account-to-contact-offcanvas-label">
             <div class="offcanvas-header">
-              <h2 id="link-user-account-to-contact-offcanvas-label" style="margin-bottom:-0.5rem">Link User Account To Contact</h2>
+              <h2 id="link-user-account-to-contact-offcanvas-label" style="margin-bottom:-0.5rem">Link User Account</h2>
               <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
               <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                This form allows users to change their account password, ensuring it meets security requirements, including a minimum length and a combination of lowercase, uppercase letters, numbers, and special characters.
+                Seamlessly connect user accounts with the contact form to personalize interactions, improve communication efficiency, and enhance the overall user experience.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <div class="row">
@@ -325,8 +333,8 @@
                     <div class="row">
                       <div class="col-sm-12">
                         <div class="form-group">
-                          <label class="form-label">New Password <span class="text-danger">*</span></label>
-                          <select class="form-control offcanvas-select2" name="gender" id="gender">
+                          <label class="form-label">Contact <span class="text-danger">*</span></label>
+                          <select class="form-control offcanvas-select2" name="contact_id" id="contact_id">
                           <option value="">--</option>
                             '. $userModel->generateUnlinkedContactOptions() .'
                           </select>
@@ -336,9 +344,9 @@
                   </form>
                 </div>
               </div>
-              <div class="row">
+              <div class="row mt-2">
                 <div class="col-lg-12">
-                <button type="submit" class="btn btn-primary" id="submit-link-user-account-to-contact-form" form="link-user-account-to-contact-form">Update Password</button>
+                <button type="submit" class="btn btn-primary" id="submit-link-user-account-to-contact-form" form="link-user-account-to-contact-form">Submit</button>
                   <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
               </div>

@@ -2352,6 +2352,10 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
+    IF NEW.file_as <> OLD.file_as THEN
+        SET audit_log = CONCAT(audit_log, "File As: ", OLD.file_as, " -> ", NEW.file_as, "<br/>");
+    END IF;
+
     IF NEW.first_name <> OLD.first_name THEN
         SET audit_log = CONCAT(audit_log, "First Name: ", OLD.first_name, " -> ", NEW.first_name, "<br/>");
     END IF;
@@ -2419,6 +2423,10 @@ AFTER INSERT ON personal_information
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Personal information created. <br/>';
+
+    IF NEW.file_as <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>First As: ", NEW.file_as);
+    END IF;
 
     IF NEW.first_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>First Name: ", NEW.first_name);
@@ -3450,6 +3458,56 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('contact_bank', NEW.contact_bank_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Attendance Setting Table Triggers */
+
+CREATE TRIGGER attendance_setting_trigger_update
+AFTER UPDATE ON attendance_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.attendance_setting_name <> OLD.attendance_setting_name THEN
+        SET audit_log = CONCAT(audit_log, "Attendance Setting Name: ", OLD.attendance_setting_name, " -> ", NEW.attendance_setting_name, "<br/>");
+    END IF;
+
+    IF NEW.attendance_setting_description <> OLD.attendance_setting_description THEN
+        SET audit_log = CONCAT(audit_log, "Attendance Setting Description: ", OLD.attendance_setting_description, " -> ", NEW.attendance_setting_description, "<br/>");
+    END IF;
+
+    IF NEW.value <> OLD.value THEN
+        SET audit_log = CONCAT(audit_log, "Value: ", OLD.value, " -> ", NEW.value, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('attendance_setting', NEW.attendance_setting_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER attendance_setting_trigger_insert
+AFTER INSERT ON attendance_setting
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Attendance setting created. <br/>';
+
+    IF NEW.attendance_setting_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Attendance Setting Name: ", NEW.attendance_setting_name);
+    END IF;
+
+    IF NEW.attendance_setting_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Attendance Setting Description: ", NEW.attendance_setting_description);
+    END IF;
+
+    IF NEW.value <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Value: ", NEW.value);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('attendance_setting', NEW.attendance_setting_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

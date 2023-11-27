@@ -21,6 +21,10 @@
                 addUserAccountRoleForm();
             }
 
+            if($('#link-user-account-to-contact-form').length){
+                linkUserAccountToContactForm();
+            }
+
             $(document).on('click','#add-user-account-role',function() {    
                 addUserAccountRoleTable('#add-user-account-role-table');
             });
@@ -799,6 +803,61 @@
             });
         });
 
+        $(document).on('click','#unlink-user-account-to-contact',function() {
+            const user_account_id = $('#user-account-id').text();
+            const transaction = 'unlink user account to contact';
+    
+            Swal.fire({
+                title: 'Confirm User Account UnlinK',
+                text: 'Are you sure you want to unlink this user account?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Unlink',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/user-controller.php',
+                        dataType: 'json',
+                        data: {
+                            user_account_id : user_account_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('User Account Unlink Success', 'The user account has been unlinked successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Unlink User Account Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#change-user-account-password',function() {
             $('#change-user-account-password-modal').modal('show');
             resetModalForm('change-user-account-password-form');
@@ -1106,7 +1165,7 @@ function userAccountForm(){
             }
         },
         errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
             }
             else if (element.parent('.input-group').length) {
@@ -1255,7 +1314,7 @@ function changePasswordForm(){
             }
         },
       errorPlacement: function (error, element) {
-        if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+        if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
           error.insertAfter(element.next('.select2-container'));
         }
         else if (element.parent('.input-group').length) {
@@ -1325,6 +1384,89 @@ function changePasswordForm(){
     });
 }
 
+function linkUserAccountToContactForm(){
+    $('#link-user-account-to-contact-form').validate({
+        rules: {
+            contact_id: {
+              required: true
+            }
+        },
+        messages: {
+            contact_id: {
+              required: 'Please choose the contact'
+            }
+        },
+      errorPlacement: function (error, element) {
+        if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+          error.insertAfter(element.next('.select2-container'));
+        }
+        else if (element.parent('.input-group').length) {
+          error.insertAfter(element.parent());
+        }
+        else {
+          error.insertAfter(element);
+        }
+      },
+      highlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        } 
+        else {
+          $(element).addClass('is-invalid');
+        }
+      },
+      unhighlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+        }
+        else {
+          $(element).removeClass('is-invalid');
+        }
+      },
+      submitHandler: function(form) {
+        const transaction = 'link user account to contact';
+        const user_account_id = $('#user-account-id').text();
+  
+        $.ajax({
+            type: 'POST',
+            url: 'controller/user-controller.php',
+            data: $(form).serialize() + '&transaction=' + transaction + '&user_account_id=' + user_account_id,
+            dataType: 'json',
+            beforeSend: function() {
+                disableFormSubmitButton('submit-link-user-account-to-contact-form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    setNotification('Link User Account Success', 'The user account has been linked successfully.', 'success');
+                    $('#link-user-account-to-contact-offcanvas').offcanvas('hide');
+                    window.location.reload();
+                }
+                else{
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else{
+                        showNotification('Link User Account Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+            complete: function() {
+                enableFormSubmitButton('submit-link-user-account-to-contact-form', 'Submit');
+            }
+        });
+  
+        return false;
+      }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get user account details':
@@ -1354,6 +1496,8 @@ function displayDetails(transaction){
                         $('#password_expiry_date_label').text(response.passwordExpiryDate);
                         $('#account_lock_duration_label').text(response.accountLockDuration);
                         $('#last_password_reset_label').text(response.lastPasswordReset);
+                        $('#contact_label').text(response.linkedContact);
+
                         document.getElementById('user_image').src = response.profilePicture;
 
                         document.getElementById('status_label').innerHTML = response.isActive;

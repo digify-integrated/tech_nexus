@@ -18,6 +18,7 @@ class UserController {
     private $fileExtensionModel;
     private $systemSettingModel;
     private $emailSettingModel;
+    private $employeeModel;
     private $notificationSettingModel;
     private $systemModel;
     private $securityModel;
@@ -36,18 +37,20 @@ class UserController {
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param EmailSettingModel $emailSettingModel     The EmailSettingModel instance for email setting related operations.
     # - @param NotificationSettingModel $notificationSettingModel     The NotificationSettingModel instance for notification setting related operations.
+    # - @param EmployeeModel $employeeModel     The EmployeeModel instance for employee related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, EmployeeModel $employeeModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->emailSettingModel = $emailSettingModel;
+        $this->employeeModel = $employeeModel;
         $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
@@ -107,6 +110,12 @@ class UserController {
                     break;
                 case 'get user account details':
                     $this->getUserByID();
+                    break;
+                case 'link user account to contact':
+                    $this->linkUserAccountToContact();
+                    break;
+                case 'unlink user account to contact':
+                    $this->unlinkUserAccountToContact();
                     break;
                 case 'authenticate':
                     $this->authenticate();
@@ -732,26 +741,25 @@ class UserController {
             $accountLockDuration = $userAccount['account_lock_duration'];
             $profilePicture = $this->systemModel->checkImage($userAccount['profile_picture'], 'profile');
             $passwordExpiryDate = date('m/d/Y', strtotime($userAccount['password_expiry_date']));
-            $lastPasswordReset = ($userAccount['last_password_reset'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_password_reset'])) : 'Never Reset';
-            $lastConnectionDate = ($userAccount['last_connection_date'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_connection_date'])) : 'Never Connected';
-            $lastFailedLoginAttempt = ($userAccount['last_failed_login_attempt'] !== null) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_failed_login_attempt'])) : 'Never Connected';
+            $lastPasswordReset = (!empty($userAccount['last_password_reset'])) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_password_reset'])) : 'Never Reset';
+            $lastConnectionDate = (!empty($userAccount['last_connection_date'])) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_connection_date'])) : 'Never Connected';
+            $lastFailedLoginAttempt = (!empty($userAccount['last_failed_login_attempt'])) ? date('m/d/Y h:i:s a', strtotime($userAccount['last_failed_login_attempt'])) : '--';
 
             $isActiveBadge = $isActive ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
             $isLockedBadge = $isLocked ? '<span class="badge bg-light-danger">Yes</span>' : '<span class="badge bg-light-success">No</span>';
 
-            if($accountLockDuration > 0){
-                $durationParts = $this->formatDuration($accountLockDuration);
+            $accountLockDuration = ($accountLockDuration > 0) ? 'Locked for ' . implode(", ", $this->formatDuration($accountLockDuration)) : '--';
 
-                $accountLockDuration = 'Locked for ' . implode(", ", $durationParts);
-            }
-            else{
-                $accountLockDuration = '--';
-            }
+            $contactDetails = $this->userModel->getContactByID($userAccountID);
+            $contactID = $contactDetails['contact_id'] ?? null;
+
+            $linkedContact = !empty($contactID) ? ($this->employeeModel->getPersonalInformation($contactID)['file_as'] ?? '--') : '--';
             
             $response = [
                 'success' => true,
                 'fileAs' => $userAccount['file_as'],
                 'email' => $userAccount['email'],
+                'linkedContact' => $linkedContact,
                 'isLocked' => $isLockedBadge,
                 'isActive' => $isActiveBadge,
                 'lastFailedLoginAttempt' => $lastFailedLoginAttempt,
@@ -1166,6 +1174,9 @@ class UserController {
         $userID = $user['user_id'];
         $userPassword = $this->securityModel->decryptData($user['password']);
         $encryptedUserID = $this->securityModel->encryptData($userID);
+
+        $contactDetails = $this->userModel->getContactByID($userID);
+        $contactID = $contactDetails['contact_id'] ?? null;
     
         if ($password !== $userPassword) {
             $this->handleInvalidCredentials($user);
@@ -1196,6 +1207,7 @@ class UserController {
     
         $this->updateConnectionAndRememberToken($user, $rememberMe);
         $_SESSION['user_id'] = $userID;
+        $_SESSION['contact_id'] = $contactID;
     
         echo json_encode(['success' => true, 'twoFactorAuth' => false]);
         exit;
@@ -1705,6 +1717,89 @@ class UserController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: linkUserAccountToContact
+    # Description:
+    # Link the selected user account to contact.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function linkUserAccountToContact() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+        $contactID = htmlspecialchars($_POST['contact_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->linkUserAccountToContact($contactID, $userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: unlinkUserAccountToContact
+    # Description:
+    # Unlink the selected user account to contact.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function unlinkUserAccountToContact() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $userAccountID = htmlspecialchars($_POST['user_account_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkUserIDExist = $this->userModel->checkUserIDExist($userAccountID);
+        $total = $checkUserIDExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->userModel->unlinkUserAccountToContact($userAccountID, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Generate methods
     # -------------------------------------------------------------
 
@@ -1922,12 +2017,13 @@ require_once '../model/system-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/email-setting-model.php';
+require_once '../model/employee-model.php';
 require_once '../model/notification-setting-model.php';
 require_once '../model/file-extension-model.php';
 require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new UserController(new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

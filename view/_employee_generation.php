@@ -125,23 +125,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $employeeID = $row['contact_id'];
-                    $firstName = $row['first_name'];
-                    $middleName = $row['middle_name'];
-                    $lastName = $row['last_name'];
-                    $suffix = $row['suffix'];
+                    $fileAs = $row['file_as'];
                     $departmentID = $row['department_id'];
                     $jobPositionID = $row['job_position_id'];
                     $branchID = $row['branch_id'];
-                    $offboardDate = $systemModel->checkDate('empty', $row['offboard_date'], '', 'F Y', '');
+                    $employmentStatus = $row['employment_status'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
                     $employeeImage = $systemModel->checkImage($row['contact_image'], 'profile');
-
-                    $employmentStatus = empty($offboardDate) ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
-
-                    $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
-                    $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-                    $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-                    $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-                    $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
 
                     $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
                     $jobPositionName = $jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
@@ -173,7 +162,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     <div class="card-body">
                                                         <a href="employee.php?id='. $employeeIDEncrypted .'">
                                                             <div class="d-flex align-items-center justify-content-between mt-3">
-                                                                <h4 class="mb-0 text-truncate text-primary"><b>'. $employeeName .'</b></h4>
+                                                                <h4 class="mb-0 text-truncate text-primary"><b>'. $fileAs .'</b></h4>
                                                             </div>
                                                             <div class="mt-3">
                                                                 <h6 class="prod-content mb-0">'. $jobPositionName .'</h6>
@@ -220,10 +209,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $sql->closeCursor();
 
                 foreach ($options as $index => $row) {
-                    $firstName = $row['first_name'];
-                    $middleName = $row['middle_name'];
-                    $lastName = $row['last_name'];
-                    $suffix = $row['suffix'];
+                    $fileAs = $row['file_as'];
                     $nickname = $row['nickname'] ?? '--';
                     $civilStatusID = $row['civil_status_id'];
                     $genderID = $row['gender_id'];
@@ -233,12 +219,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $birthPlace = $row['birth_place'] ?? '--';
                     $height = !empty($row['height']) ? $row['height'] . ' cm' : '--';
                     $weight = !empty($row['weight']) ? $row['weight'] . ' kg' : '--';
-
-                    $employeeName = $systemSettingModel->getSystemSetting(4)['value'];
-                    $employeeName = str_replace('{last_name}', $lastName, $employeeName);
-                    $employeeName = str_replace('{first_name}', $firstName, $employeeName);
-                    $employeeName = str_replace('{suffix}', $suffix, $employeeName);
-                    $employeeName = str_replace('{middle_name}', $middleName, $employeeName);
 
                     $civilStatusName = $civilStatusModel->getCivilStatus($civilStatusID)['civil_status_name'] ?? '--';
                     $religionName = $religionModel->getReligion($religionID)['religion_name'] ?? '--';
@@ -250,7 +230,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <p class="mb-1 text-primary"><b>Full Name</b></p>
-                                                <p class="mb-0">'. $employeeName .'</p>
+                                                <p class="mb-0">'. $fileAs .'</p>
                                             </div> 
                                         </div>
                                     </li>
