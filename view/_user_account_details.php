@@ -26,11 +26,11 @@
                 $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#link-user-account-to-contact-offcanvas" aria-controls="link-user-account-to-contact-offcanvas" id="link-user-account-to-contact">Link User Account</button></li>';
               }
               
-              if ($unlinkUserAccountToContact['total'] > 0 && !empty($contactID)) {
+              if ($unlinkUserAccountToContact['total'] > 0 && ((!empty($contactID) && $portalAccess) || empty($contactID)) && !empty($contactID)) {
                 $dropdown .= '<li><button class="dropdown-item" type="button" id="unlink-user-account-to-contact">Unlink User Account</button></li>';
               }
               
-              if ($activateUserAccount['total'] > 0 && !$isActive) {
+              if ($activateUserAccount['total'] > 0 && ((!empty($contactID) && $portalAccess) || empty($contactID)) && !$isActive) {
                 $dropdown .= '<li><button class="dropdown-item" type="button" id="activate-user-account-details">Activate User Account</button></li>';
               }
               

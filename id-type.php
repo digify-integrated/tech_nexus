@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/id-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/id-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $idTypeModel = new IDTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $idTypeModel = new IDTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'ID Type';
+  $pageTitle = 'ID Type';
     
-    $idTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'read');
-    $idTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'create');
-    $idTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'write');
-    $idTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'delete');
-    $idTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'duplicate');
+  $idTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'read');
+  $idTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'create');
+  $idTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'write');
+  $idTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'delete');
+  $idTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 32, 'duplicate');
 
-    if ($idTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($idTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: id-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $idTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkIDTypeExist = $idTypeModel->checkIDTypeExist($idTypeID);
+    $total = $checkIDTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $idTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: id-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $idTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkIDTypeExist = $idTypeModel->checkIDTypeExist($idTypeID);
-        $total = $checkIDTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $idTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

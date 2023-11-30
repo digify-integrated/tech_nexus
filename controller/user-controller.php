@@ -1177,13 +1177,16 @@ class UserController {
 
         $contactDetails = $this->userModel->getContactByID($userID);
         $contactID = $contactDetails['contact_id'] ?? null;
+
+        $contactDetails = $this->employeeModel->getEmployee($contactID);
+        $portalAccess = $contactDetails['portal_access'];
     
         if ($password !== $userPassword) {
             $this->handleInvalidCredentials($user);
             return;
         }
     
-        if (!$user || !$user['is_active']) {
+        if (!$user || !$user['is_active'] || (!empty($contactID) && !$portalAccess)) {
             echo json_encode(['success' => false, 'message' => 'Your account is currently inactive. Please contact the administrator for assistance.']);
             exit;
         }

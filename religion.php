@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/religion-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/religion-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $religionModel = new ReligionModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $religionModel = new ReligionModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Religion';
+  $pageTitle = 'Religion';
     
-    $religionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'read');
-    $religionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'create');
-    $religionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'write');
-    $religionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'delete');
-    $religionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'duplicate');
+  $religionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'read');
+  $religionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'create');
+  $religionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'write');
+  $religionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'delete');
+  $religionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 34, 'duplicate');
 
-    if ($religionReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($religionReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: religion.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $religionID = $securityModel->decryptData($_GET['id']);
+
+    $checkReligionExist = $religionModel->checkReligionExist($religionID);
+    $total = $checkReligionExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $religionID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: religion.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $religionID = $securityModel->decryptData($_GET['id']);
-
-        $checkReligionExist = $religionModel->checkReligionExist($religionID);
-        $total = $checkReligionExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $religionID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

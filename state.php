@@ -1,70 +1,55 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/state-model.php');
-    require('model/country-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/state-model.php');
+  require('model/country-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $stateModel = new StateModel($databaseModel);
-    $countryModel = new CountryModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $stateModel = new StateModel($databaseModel);
+  $countryModel = new CountryModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'State';
+  $pageTitle = 'State';
     
-    $stateReadAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'read');
-    $stateCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'create');
-    $stateWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'write');
-    $stateDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'delete');
-    $stateDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'duplicate');
+  $stateReadAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'read');
+  $stateCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'create');
+  $stateWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'write');
+  $stateDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'delete');
+  $stateDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 24, 'duplicate');
 
-    if ($stateReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($stateReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: state.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $stateID = $securityModel->decryptData($_GET['id']);
+
+    $checkStateExist = $stateModel->checkStateExist($stateID);
+    $total = $checkStateExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $stateID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: state.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $stateID = $securityModel->decryptData($_GET['id']);
-
-        $checkStateExist = $stateModel->checkStateExist($stateID);
-        $total = $checkStateExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $stateID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

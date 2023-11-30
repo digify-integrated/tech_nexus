@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/zoom-api-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/zoom-api-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $zoomAPIModel = new ZoomAPIModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $zoomAPIModel = new ZoomAPIModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Zoom API';
+  $pageTitle = 'Zoom API';
     
-    $zoomAPIReadAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'read');
-    $zoomAPICreateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'create');
-    $zoomAPIWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'write');
-    $zoomAPIDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'delete');
-    $zoomAPIDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'duplicate');
+  $zoomAPIReadAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'read');
+  $zoomAPICreateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'create');
+  $zoomAPIWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'write');
+  $zoomAPIDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'delete');
+  $zoomAPIDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 19, 'duplicate');
 
-    if ($zoomAPIReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($zoomAPIReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: zoom-api.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $zoomAPIID = $securityModel->decryptData($_GET['id']);
+
+    $checkZoomAPIExist = $zoomAPIModel->checkZoomAPIExist($zoomAPIID);
+    $total = $checkZoomAPIExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $zoomAPIID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: zoom-api.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $zoomAPIID = $securityModel->decryptData($_GET['id']);
-
-        $checkZoomAPIExist = $zoomAPIModel->checkZoomAPIExist($zoomAPIID);
-        $total = $checkZoomAPIExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $zoomAPIID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

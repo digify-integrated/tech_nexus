@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/gender-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/gender-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $genderModel = new GenderModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $genderModel = new GenderModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Gender';
+  $pageTitle = 'Gender';
     
-    $genderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'read');
-    $genderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'create');
-    $genderWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'write');
-    $genderDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'delete');
-    $genderDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'duplicate');
+  $genderReadAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'read');
+  $genderCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'create');
+  $genderWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'write');
+  $genderDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'delete');
+  $genderDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 33, 'duplicate');
 
-    if ($genderReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($genderReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: gender.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $genderID = $securityModel->decryptData($_GET['id']);
+
+    $checkGenderExist = $genderModel->checkGenderExist($genderID);
+    $total = $checkGenderExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $genderID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: gender.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $genderID = $securityModel->decryptData($_GET['id']);
-
-        $checkGenderExist = $genderModel->checkGenderExist($genderID);
-        $total = $checkGenderExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $genderID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

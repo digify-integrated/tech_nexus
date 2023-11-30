@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/blood-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
-  
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $bloodTypeModel = new BloodTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  require('config/_required_php_file.php');
+  require('model/blood-type-model.php');
 
-    $user = $userModel->getUserByID($user_id);
+  $bloodTypeModel = new BloodTypeModel($databaseModel);
 
-    $pageTitle = 'Blood Type';
+  $user = $userModel->getUserByID($user_id);
+
+  $pageTitle = 'Blood Type';
     
-    $bloodTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
-    $bloodTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
-    $bloodTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'write');
-    $bloodTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
-    $bloodTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'duplicate');
+  $bloodTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
+  $bloodTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
+  $bloodTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'write');
+  $bloodTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
+  $bloodTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'duplicate');
 
-    if ($bloodTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($bloodTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: blood-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $bloodTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkBloodTypeExist = $bloodTypeModel->checkBloodTypeExist($bloodTypeID);
+    $total = $checkBloodTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $bloodTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: blood-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $bloodTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkBloodTypeExist = $bloodTypeModel->checkBloodTypeExist($bloodTypeID);
-        $total = $checkBloodTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $bloodTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/language-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/language-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $languageModel = new LanguageModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $languageModel = new LanguageModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Language';
+  $pageTitle = 'Language';
     
-    $languageReadAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'read');
-    $languageCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'create');
-    $languageWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'write');
-    $languageDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'delete');
-    $languageDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'duplicate');
+  $languageReadAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'read');
+  $languageCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'create');
+  $languageWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'write');
+  $languageDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'delete');
+  $languageDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 49, 'duplicate');
 
-    if ($languageReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($languageReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: language.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $languageID = $securityModel->decryptData($_GET['id']);
+
+    $checkLanguageExist = $languageModel->checkLanguageExist($languageID);
+    $total = $checkLanguageExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $languageID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: language.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $languageID = $securityModel->decryptData($_GET['id']);
-
-        $checkLanguageExist = $languageModel->checkLanguageExist($languageID);
-        $total = $checkLanguageExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $languageID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

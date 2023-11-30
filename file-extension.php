@@ -1,70 +1,55 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/file-type-model.php');
-    require('model/file-extension-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/file-type-model.php');
+  require('model/file-extension-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $fileTypeModel = new FileTypeModel($databaseModel);
-    $fileExtensionModel = new FileExtensionModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $fileTypeModel = new FileTypeModel($databaseModel);
+  $fileExtensionModel = new FileExtensionModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'File Extension';
+  $pageTitle = 'File Extension';
     
-    $fileExtensionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
-    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
-    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
-    $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
-    $fileExtensionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'duplicate');
+  $fileExtensionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'read');
+  $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
+  $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
+  $fileExtensionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'delete');
+  $fileExtensionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'duplicate');
 
-    if ($fileExtensionReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($fileExtensionReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: file-extension.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $fileExtensionID = $securityModel->decryptData($_GET['id']);
+
+    $checkFileExtensionExist = $fileExtensionModel->checkFileExtensionExist($fileExtensionID);
+    $total = $checkFileExtensionExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $fileExtensionID = null;
+  }
 
-    if(isset($_GET['id'])){
-      if(empty($_GET['id'])){
-        header('location: file-extension.php');
-        exit;
-      }
+  $newRecord = isset($_GET['new']);
 
-      $fileExtensionID = $securityModel->decryptData($_GET['id']);
-
-      $checkFileExtensionExist = $fileExtensionModel->checkFileExtensionExist($fileExtensionID);
-      $total = $checkFileExtensionExist['total'] ?? 0;
-
-      if($total == 0){
-        header('location: 404.php');
-        exit;
-      }
-    }
-    else{
-      $fileExtensionID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

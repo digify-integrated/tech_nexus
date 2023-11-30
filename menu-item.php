@@ -1,67 +1,51 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
-  
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  require('config/_required_php_file.php');
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Menu Item';
+  $pageTitle = 'Menu Item';
     
-    $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'read');
-    $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'create');
-    $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'write');
-    $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'delete');
-    $menuItemDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'duplicate');
-    $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
+  $menuItemReadAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'read');
+  $menuItemCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'create');
+  $menuItemWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'write');
+  $menuItemDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'delete');
+  $menuItemDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 9, 'duplicate');
+  $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
 
-    if ($menuItemReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($menuItemReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: menu-item.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $menuItemID = $securityModel->decryptData($_GET['id']);
+
+    $checkMenuItemExist = $menuItemModel->checkMenuItemExist($menuItemID);
+    $total = $checkMenuItemExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $menuItemID = null;
+  }
 
-    if(isset($_GET['id'])){
-      if(empty($_GET['id'])){
-        header('location: menu-item.php');
-        exit;
-      }
+  $newRecord = isset($_GET['new']);
 
-      $menuItemID = $securityModel->decryptData($_GET['id']);
-
-      $checkMenuItemExist = $menuItemModel->checkMenuItemExist($menuItemID);
-      $total = $checkMenuItemExist['total'] ?? 0;
-
-      if($total == 0){
-        header('location: 404.php');
-        exit;
-      }
-    }
-    else{
-      $menuItemID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,70 +1,55 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/branch-model.php');
-    require('model/city-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/branch-model.php');
+  require('model/city-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $branchModel = new BranchModel($databaseModel);
-    $cityModel = new CityModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $branchModel = new BranchModel($databaseModel);
+  $cityModel = new CityModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Branch';
+  $pageTitle = 'Branch';
     
-    $branchReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
-    $branchCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
-    $branchWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'write');
-    $branchDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'delete');
-    $branchDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'duplicate');
+  $branchReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
+  $branchCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
+  $branchWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'write');
+  $branchDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'delete');
+  $branchDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'duplicate');
 
-    if ($branchReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($branchReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: branch.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $branchID = $securityModel->decryptData($_GET['id']);
+
+    $checkBranchExist = $branchModel->checkBranchExist($branchID);
+    $total = $checkBranchExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $branchID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: branch.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $branchID = $securityModel->decryptData($_GET['id']);
-
-        $checkBranchExist = $branchModel->checkBranchExist($branchID);
-        $total = $checkBranchExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $branchID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

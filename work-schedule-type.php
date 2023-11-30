@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/work-schedule-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/work-schedule-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $workScheduleTypeModel = new WorkScheduleTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $workScheduleTypeModel = new WorkScheduleTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Work Schedule Type';
+  $pageTitle = 'Work Schedule Type';
     
-    $workScheduleTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'read');
-    $workScheduleTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'create');
-    $workScheduleTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'write');
-    $workScheduleTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'delete');
-    $workScheduleTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'duplicate');
+  $workScheduleTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'read');
+  $workScheduleTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'create');
+  $workScheduleTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'write');
+  $workScheduleTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'delete');
+  $workScheduleTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 41, 'duplicate');
 
-    if ($workScheduleTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($workScheduleTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: work-schedule-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $workScheduleTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkWorkScheduleTypeExist = $workScheduleTypeModel->checkWorkScheduleTypeExist($workScheduleTypeID);
+    $total = $checkWorkScheduleTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $workScheduleTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: work-schedule-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $workScheduleTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkWorkScheduleTypeExist = $workScheduleTypeModel->checkWorkScheduleTypeExist($workScheduleTypeID);
-        $total = $checkWorkScheduleTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $workScheduleTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

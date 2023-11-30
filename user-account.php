@@ -1,80 +1,69 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+
+  $user = $userModel->getUserByID($user_id);
+
+  $pageTitle = 'User Account';
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $userAccountReadAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'read');
+  $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
+  $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
+  $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
+  $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
+  $activateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 9);
+  $deactivateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 10);
+  $lockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 11);
+  $unlockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 12);
+  $changeUserAccountPassword = $userModel->checkSystemActionAccessRights($user_id, 13);
+  $changeUserAccountProfilePicture = $userModel->checkSystemActionAccessRights($user_id, 14);
+  $sendResetPasswordInstructions = $userModel->checkSystemActionAccessRights($user_id, 17);
+  $linkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 79);
+  $unlinkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 80);
 
-    $user = $userModel->getUserByID($user_id);
+  if ($userAccountReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
 
-    $pageTitle = 'User Account';
-    
-    $userAccountReadAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'read');
-    $userAccountCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'create');
-    $userAccountWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'write');
-    $userAccountDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 3, 'delete');
-    $assignRoleToUserAccount = $userModel->checkSystemActionAccessRights($user_id, 7);
-    $activateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 9);
-    $deactivateUserAccount = $userModel->checkSystemActionAccessRights($user_id, 10);
-    $lockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 11);
-    $unlockUserAccount = $userModel->checkSystemActionAccessRights($user_id, 12);
-    $changeUserAccountPassword = $userModel->checkSystemActionAccessRights($user_id, 13);
-    $changeUserAccountProfilePicture = $userModel->checkSystemActionAccessRights($user_id, 14);
-    $sendResetPasswordInstructions = $userModel->checkSystemActionAccessRights($user_id, 17);
-    $linkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 79);
-    $unlinkUserAccountToContact = $userModel->checkSystemActionAccessRights($user_id, 80);
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
 
-    if ($userAccountReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: user-account.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $userAccountID = $securityModel->decryptData($_GET['id']);
+
+    $checkUserExist = $userModel->checkUserExist($userAccountID, null);
+    $total = $checkUserExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-          header('location: user-account.php');
-          exit;
-        }
+    $userDetails = $userModel->getUserByID($userAccountID);
+    $isActive = $userDetails['is_active'];
+    $isLocked = $userDetails['is_locked'];
 
-        $userAccountID = $securityModel->decryptData($_GET['id']);
+    $userContactDetails = $userModel->getContactByID($userAccountID);
+    $contactID = $userContactDetails['contact_id'] ?? null;
 
-        $checkUserExist = $userModel->checkUserExist($userAccountID, null);
-        $total = $checkUserExist['total'] ?? 0;
+    $contactDetails = $employeeModel->getEmployee($contactID);
+    $portalAccess = $contactDetails['portal_access'];
+  }
+  else{
+    $userAccountID = null;
+  }
 
-        if($total == 0){
-          header('location: 404.php');
-          exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $userDetails = $userModel->getUserByID($userAccountID);
-        $isActive = $userDetails['is_active'];
-        $isLocked = $userDetails['is_locked'];
-
-        $contactDetails = $userModel->getContactByID($userAccountID);
-        $contactID = $contactDetails['contact_id'] ?? null;
-    }
-    else{
-        $userAccountID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

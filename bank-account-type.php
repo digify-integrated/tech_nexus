@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/bank-account-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/bank-account-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Bank Account Type';
+  $pageTitle = 'Bank Account Type';
     
-    $bankAccountTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'read');
-    $bankAccountTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'create');
-    $bankAccountTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'write');
-    $bankAccountTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'delete');
-    $bankAccountTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'duplicate');
+  $bankAccountTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'read');
+  $bankAccountTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'create');
+  $bankAccountTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'write');
+  $bankAccountTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'delete');
+  $bankAccountTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 43, 'duplicate');
 
-    if ($bankAccountTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($bankAccountTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: bank-account-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $bankAccountTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkBankAccountTypeExist = $bankAccountTypeModel->checkBankAccountTypeExist($bankAccountTypeID);
+    $total = $checkBankAccountTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $bankAccountTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: bank-account-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $bankAccountTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkBankAccountTypeExist = $bankAccountTypeModel->checkBankAccountTypeExist($bankAccountTypeID);
-        $total = $checkBankAccountTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $bankAccountTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

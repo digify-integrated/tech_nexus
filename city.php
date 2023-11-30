@@ -1,72 +1,57 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/city-model.php');
-    require('model/state-model.php');
-    require('model/country-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/city-model.php');
+  require('model/state-model.php');
+  require('model/country-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $cityModel = new CityModel($databaseModel);
-    $stateModel = new StateModel($databaseModel);
-    $countryModel = new CountryModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $cityModel = new CityModel($databaseModel);
+  $stateModel = new StateModel($databaseModel);
+  $countryModel = new CountryModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'City';
+  $pageTitle = 'City';
     
-    $cityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'read');
-    $cityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'create');
-    $cityWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'write');
-    $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'delete');
-    $cityDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'duplicate');
+  $cityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'read');
+  $cityCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'create');
+  $cityWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'write');
+  $cityDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'delete');
+  $cityDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 21, 'duplicate');
 
-    if ($cityReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($cityReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: city.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $cityID = $securityModel->decryptData($_GET['id']);
+
+    $checkCityExist = $cityModel->checkCityExist($cityID);
+    $total = $checkCityExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $cityID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: city.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $cityID = $securityModel->decryptData($_GET['id']);
-
-        $checkCityExist = $cityModel->checkCityExist($cityID);
-        $total = $checkCityExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $cityID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

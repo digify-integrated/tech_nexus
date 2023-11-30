@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/relation-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/relation-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $relationModel = new RelationModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $relationModel = new RelationModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Relation';
+  $pageTitle = 'Relation';
     
-    $relationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'read');
-    $relationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'create');
-    $relationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'write');
-    $relationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'delete');
-    $relationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'duplicate');
+  $relationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'read');
+  $relationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'create');
+  $relationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'write');
+  $relationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'delete');
+  $relationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 36, 'duplicate');
 
-    if ($relationReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($relationReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: relation.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $relationID = $securityModel->decryptData($_GET['id']);
+
+    $checkRelationExist = $relationModel->checkRelationExist($relationID);
+    $total = $checkRelationExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $relationID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: relation.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $relationID = $securityModel->decryptData($_GET['id']);
-
-        $checkRelationExist = $relationModel->checkRelationExist($relationID);
-        $total = $checkRelationExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $relationID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

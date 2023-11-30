@@ -1,68 +1,60 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/civil-status-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/civil-status-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $civilStatusModel = new CivilStatusModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $databaseModel = new DatabaseModel();
+  $systemModel = new SystemModel();
+  $userModel = new UserModel($databaseModel, $systemModel);
+  $menuGroupModel = new MenuGroupModel($databaseModel);
+  $menuItemModel = new MenuItemModel($databaseModel);
+  $civilStatusModel = new CivilStatusModel($databaseModel);
+  $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
+  $securityModel = new SecurityModel();
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Civil Status';
+  $pageTitle = 'Civil Status';
     
-    $civilStatusReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
-    $civilStatusCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
-    $civilStatusWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'write');
-    $civilStatusDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
-    $civilStatusDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'duplicate');
+  $civilStatusReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
+  $civilStatusCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'create');
+  $civilStatusWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'write');
+  $civilStatusDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'delete');
+  $civilStatusDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'duplicate');
 
-    if ($civilStatusReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($civilStatusReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: civil-status.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $civilStatusID = $securityModel->decryptData($_GET['id']);
+
+    $checkCivilStatusExist = $civilStatusModel->checkCivilStatusExist($civilStatusID);
+    $total = $checkCivilStatusExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $civilStatusID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: civil-status.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $civilStatusID = $securityModel->decryptData($_GET['id']);
-
-        $checkCivilStatusExist = $civilStatusModel->checkCivilStatusExist($civilStatusID);
-        $total = $checkCivilStatusExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $civilStatusID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,9 +1,5 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/employee-model.php');
+    require('config/_required_php_file.php');
     require('model/company-model.php');
     require('model/department-model.php');
     require('model/job-position-model.php');
@@ -25,20 +21,9 @@
     require('model/bank-model.php');
     require('model/bank-account-type-model.php');
     require('model/work-schedule-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
     require('model/system-setting-model.php');
-    require('model/interface-setting-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
     $systemSettingModel = new SystemSettingModel($databaseModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $employeeModel = new EmployeeModel($databaseModel);
     $companyModel = new CompanyModel($databaseModel);
     $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);
@@ -60,8 +45,6 @@
     $bankModel = new BankModel($databaseModel);
     $workScheduleModel = new WorkScheduleModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
 
     $user = $userModel->getUserByID($user_id);
 

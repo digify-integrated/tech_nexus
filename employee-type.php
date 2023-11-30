@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/employee-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/employee-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $employeeTypeModel = new EmployeeTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $employeeTypeModel = new EmployeeTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Employee Type';
+  $pageTitle = 'Employee Type';
     
-    $employeeTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'read');
-    $employeeTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'create');
-    $employeeTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'write');
-    $employeeTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'delete');
-    $employeeTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'duplicate');
+  $employeeTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'read');
+  $employeeTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'create');
+  $employeeTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'write');
+  $employeeTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'delete');
+  $employeeTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 30, 'duplicate');
 
-    if ($employeeTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($employeeTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: employee-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $employeeTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkEmployeeTypeExist = $employeeTypeModel->checkEmployeeTypeExist($employeeTypeID);
+    $total = $checkEmployeeTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $employeeTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: employee-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $employeeTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkEmployeeTypeExist = $employeeTypeModel->checkEmployeeTypeExist($employeeTypeID);
-        $total = $checkEmployeeTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $employeeTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

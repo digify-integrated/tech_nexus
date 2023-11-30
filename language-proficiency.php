@@ -1,70 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/file-type-model.php');
-    require('model/language-proficiency-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
-  
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $fileTypeModel = new FileTypeModel($databaseModel);
-    $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
-
-    $user = $userModel->getUserByID($user_id);
-
-    $pageTitle = 'Language Proficiency';
+  require('config/_required_php_file.php');
+  require('model/language-proficiency-model.php');
     
-    $languageProficiencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'read');
-    $languageProficiencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'create');
-    $languageProficiencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'write');
-    $languageProficiencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'delete');
-    $languageProficiencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'duplicate');
+  $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
 
-    if ($languageProficiencyReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  $user = $userModel->getUserByID($user_id);
+
+  $pageTitle = 'Language Proficiency';
+    
+  $languageProficiencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'read');
+  $languageProficiencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'create');
+  $languageProficiencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'write');
+  $languageProficiencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'delete');
+  $languageProficiencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 50, 'duplicate');
+
+  if ($languageProficiencyReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: language-proficiency.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $languageProficiencyID = $securityModel->decryptData($_GET['id']);
+
+    $checkLanguageProficiencyExist = $languageProficiencyModel->checkLanguageProficiencyExist($languageProficiencyID);
+    $total = $checkLanguageProficiencyExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $languageProficiencyID = null;
+  }
 
-    if(isset($_GET['id'])){
-      if(empty($_GET['id'])){
-        header('location: language-proficiency.php');
-        exit;
-      }
+  $newRecord = isset($_GET['new']);
 
-      $languageProficiencyID = $securityModel->decryptData($_GET['id']);
-
-      $checkLanguageProficiencyExist = $languageProficiencyModel->checkLanguageProficiencyExist($languageProficiencyID);
-      $total = $checkLanguageProficiencyExist['total'] ?? 0;
-
-      if($total == 0){
-        header('location: 404.php');
-        exit;
-      }
-    }
-    else{
-      $languageProficiencyID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

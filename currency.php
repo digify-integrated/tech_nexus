@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/currency-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/currency-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $currencyModel = new CurrencyModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $currencyModel = new CurrencyModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Currency';
+  $pageTitle = 'Currency';
     
-    $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'read');
-    $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'create');
-    $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'write');
-    $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'delete');
-    $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'duplicate');
+  $currencyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'read');
+  $currencyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'create');
+  $currencyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'write');
+  $currencyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'delete');
+  $currencyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 23, 'duplicate');
 
-    if ($currencyReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($currencyReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: currency.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $currencyID = $securityModel->decryptData($_GET['id']);
+
+    $checkCurrencyExist = $currencyModel->checkCurrencyExist($currencyID);
+    $total = $checkCurrencyExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $currencyID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: currency.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $currencyID = $securityModel->decryptData($_GET['id']);
-
-        $checkCurrencyExist = $currencyModel->checkCurrencyExist($currencyID);
-        $total = $checkCurrencyExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $currencyID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

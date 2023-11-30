@@ -1,81 +1,66 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/job-position-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/department-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/job-position-model.php');
+  require('model/department-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $jobPositionModel = new JobPositionModel($databaseModel);
-    $departmentModel = new DepartmentModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $jobPositionModel = new JobPositionModel($databaseModel);
+  $departmentModel = new DepartmentModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Job Position';
+  $pageTitle = 'Job Position';
     
-    $jobPositionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'read');
-    $jobPositionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'create');
-    $jobPositionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'write');
-    $jobPositionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'delete');
-    $jobPositionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'duplicate');
-    $addJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 18);
-    $updateJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 19);
-    $addJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 21);
-    $updateJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 22);
-    $addJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 24);
-    $updateJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 25);
-    $startJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 27);
-    $stopJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 28);
+  $jobPositionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'read');
+  $jobPositionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'create');
+  $jobPositionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'write');
+  $jobPositionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'delete');
+  $jobPositionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 28, 'duplicate');
+  $addJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 18);
+  $updateJobPositionResponsibility = $userModel->checkSystemActionAccessRights($user_id, 19);
+  $addJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 21);
+  $updateJobPositionRequirement = $userModel->checkSystemActionAccessRights($user_id, 22);
+  $addJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 24);
+  $updateJobPositionQualification = $userModel->checkSystemActionAccessRights($user_id, 25);
+  $startJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 27);
+  $stopJobPositionRecruitment = $userModel->checkSystemActionAccessRights($user_id, 28);
 
-    if ($jobPositionReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($jobPositionReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: job-position.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $jobPositionID = $securityModel->decryptData($_GET['id']);
+
+    $checkJobPositionExist = $jobPositionModel->checkJobPositionExist($jobPositionID);
+    $total = $checkJobPositionExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: job-position.php');
-            exit;
-        }
+    $jobPositionDetails = $jobPositionModel->getJobPosition($jobPositionID);
+    $recruitmentStatus = $jobPositionDetails['recruitment_status'];
+  }
+  else{
+    $jobPositionID = null;
+  }
 
-        $jobPositionID = $securityModel->decryptData($_GET['id']);
+  $newRecord = isset($_GET['new']);
 
-        $checkJobPositionExist = $jobPositionModel->checkJobPositionExist($jobPositionID);
-        $total = $checkJobPositionExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-
-        $jobPositionDetails = $jobPositionModel->getJobPosition($jobPositionID);
-        $recruitmentStatus = $jobPositionDetails['recruitment_status'];
-    }
-    else{
-        $jobPositionID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

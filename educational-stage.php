@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/educational-stage-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/educational-stage-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $educationalStageModel = new EducationalStageModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $educationalStageModel = new EducationalStageModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Educational Stage';
+  $pageTitle = 'Educational Stage';
     
-    $educationalStageReadAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'read');
-    $educationalStageCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'create');
-    $educationalStageWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'write');
-    $educationalStageDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'delete');
-    $educationalStageDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'duplicate');
+  $educationalStageReadAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'read');
+  $educationalStageCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'create');
+  $educationalStageWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'write');
+  $educationalStageDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'delete');
+  $educationalStageDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 46, 'duplicate');
 
-    if ($educationalStageReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($educationalStageReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: educational-stage.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $educationalStageID = $securityModel->decryptData($_GET['id']);
+
+    $checkEducationalStageExist = $educationalStageModel->checkEducationalStageExist($educationalStageID);
+    $total = $checkEducationalStageExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $educationalStageID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: educational-stage.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $educationalStageID = $securityModel->decryptData($_GET['id']);
-
-        $checkEducationalStageExist = $educationalStageModel->checkEducationalStageExist($educationalStageID);
-        $total = $checkEducationalStageExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $educationalStageID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

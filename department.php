@@ -1,70 +1,55 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/department-model.php');
-    require('model/city-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/department-model.php');
+  require('model/city-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $departmentModel = new DepartmentModel($databaseModel);
-    $cityModel = new CityModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $departmentModel = new DepartmentModel($databaseModel);
+  $cityModel = new CityModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Department';
+  $pageTitle = 'Department';
     
-    $departmentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
-    $departmentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
-    $departmentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'write');
-    $departmentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'delete');
-    $departmentDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'duplicate');
+  $departmentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'read');
+  $departmentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'create');
+  $departmentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'write');
+  $departmentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'delete');
+  $departmentDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 26, 'duplicate');
 
-    if ($departmentReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($departmentReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: department.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $departmentID = $securityModel->decryptData($_GET['id']);
+
+    $checkDepartmentExist = $departmentModel->checkDepartmentExist($departmentID);
+    $total = $checkDepartmentExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $departmentID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: department.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $departmentID = $securityModel->decryptData($_GET['id']);
-
-        $checkDepartmentExist = $departmentModel->checkDepartmentExist($departmentID);
-        $total = $checkDepartmentExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $departmentID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

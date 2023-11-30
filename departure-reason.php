@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/departure-reason-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/departure-reason-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $departureReasonModel = new DepartureReasonModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $departureReasonModel = new DepartureReasonModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Departure Reason';
+  $pageTitle = 'Departure Reason';
     
-    $departureReasonReadAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'read');
-    $departureReasonCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'create');
-    $departureReasonWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'write');
-    $departureReasonDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'delete');
-    $departureReasonDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'duplicate');
+  $departureReasonReadAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'read');
+  $departureReasonCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'create');
+  $departureReasonWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'write');
+  $departureReasonDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'delete');
+  $departureReasonDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 31, 'duplicate');
 
-    if ($departureReasonReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($departureReasonReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: departure-reason.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $departureReasonID = $securityModel->decryptData($_GET['id']);
+
+    $checkDepartureReasonExist = $departureReasonModel->checkDepartureReasonExist($departureReasonID);
+    $total = $checkDepartureReasonExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $departureReasonID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: departure-reason.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $departureReasonID = $securityModel->decryptData($_GET['id']);
-
-        $checkDepartureReasonExist = $departureReasonModel->checkDepartureReasonExist($departureReasonID);
-        $total = $checkDepartureReasonExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $departureReasonID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

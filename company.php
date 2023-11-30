@@ -1,72 +1,57 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/company-model.php');
-    require('model/currency-model.php');
-    require('model/city-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/company-model.php');
+  require('model/currency-model.php');
+  require('model/city-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $companyModel = new CompanyModel($databaseModel);
-    $currencyModel = new CurrencyModel($databaseModel);
-    $cityModel = new CityModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $companyModel = new CompanyModel($databaseModel);
+  $currencyModel = new CurrencyModel($databaseModel);
+  $cityModel = new CityModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Company';
+  $pageTitle = 'Company';
     
-    $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
-    $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
-    $companyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
-    $companyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
-    $companyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
+  $companyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'read');
+  $companyCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'create');
+  $companyWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'write');
+  $companyDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'delete');
+  $companyDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 2, 'duplicate');
 
-    if ($companyReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($companyReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: company.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $companyID = $securityModel->decryptData($_GET['id']);
+
+    $checkCompanyExist = $companyModel->checkCompanyExist($companyID);
+    $total = $checkCompanyExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $companyID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: company.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $companyID = $securityModel->decryptData($_GET['id']);
-
-        $checkCompanyExist = $companyModel->checkCompanyExist($companyID);
-        $total = $checkCompanyExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $companyID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

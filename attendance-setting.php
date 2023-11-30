@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/attendance-setting-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
-  
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $attendanceSettingModel = new AttendanceSettingModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
-
-    $user = $userModel->getUserByID($user_id);
-
-    $pageTitle = 'Attendance Setting';
+  require('config/_required_php_file.php');
+  require('model/attendance-setting-model.php');
     
-    $attendanceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'read');
-    $attendanceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'create');
-    $attendanceSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'write');
-    $attendanceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'delete');
-    $attendanceSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'duplicate');
+  $attendanceSettingModel = new AttendanceSettingModel($databaseModel);
 
-    if ($attendanceSettingReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  $user = $userModel->getUserByID($user_id);
+
+  $pageTitle = 'Attendance Setting';
+  
+  $attendanceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'read');
+  $attendanceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'create');
+  $attendanceSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'write');
+  $attendanceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'delete');
+  $attendanceSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 51, 'duplicate');
+
+  if ($attendanceSettingReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: attendance-setting.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $attendanceSettingID = $securityModel->decryptData($_GET['id']);
+
+    $checkAttendanceSettingExist = $attendanceSettingModel->checkAttendanceSettingExist($attendanceSettingID);
+    $total = $checkAttendanceSettingExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $attendanceSettingID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: attendance-setting.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $attendanceSettingID = $securityModel->decryptData($_GET['id']);
-
-        $checkAttendanceSettingExist = $attendanceSettingModel->checkAttendanceSettingExist($attendanceSettingID);
-        $total = $checkAttendanceSettingExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $attendanceSettingID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

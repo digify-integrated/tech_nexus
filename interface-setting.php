@@ -1,66 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/interface-setting-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
+  require('config/_required_php_file.php');
+  require('model/interface-setting-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Interface Setting';
+  $pageTitle = 'Interface Setting';
     
-    $interfaceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
-    $interfaceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
-    $interfaceSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'write');
-    $interfaceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
-    $interfaceSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'duplicate');
+  $interfaceSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'read');
+  $interfaceSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'create');
+  $interfaceSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'write');
+  $interfaceSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'delete');
+  $interfaceSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 15, 'duplicate');
 
-    if ($interfaceSettingReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($interfaceSettingReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: interface-setting.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $interfaceSettingID = $securityModel->decryptData($_GET['id']);
+
+    $checkInterfaceSettingExist = $interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
+    $total = $checkInterfaceSettingExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $interfaceSettingID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: interface-setting.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $interfaceSettingID = $securityModel->decryptData($_GET['id']);
-
-        $checkInterfaceSettingExist = $interfaceSettingModel->checkInterfaceSettingExist($interfaceSettingID);
-        $total = $checkInterfaceSettingExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $interfaceSettingID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

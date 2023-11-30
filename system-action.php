@@ -1,67 +1,54 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/system-action-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/system-action-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $systemActionModel = new SystemActionModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $systemActionModel = new SystemActionModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'System Action';
+  $pageTitle = 'System Action';
     
-    $systemActionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'read');
-    $systemActionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'create');
-    $systemActionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'write');
-    $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
-    $systemActionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'duplicate');
-    $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
+  $systemActionReadAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'read');
+  $systemActionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'create');
+  $systemActionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'write');
+  $systemActionDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'delete');
+  $systemActionDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 10, 'duplicate');
+  $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
 
-    if ($systemActionReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($systemActionReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: system-action.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $systemActionID = $securityModel->decryptData($_GET['id']);
+
+    $checkSystemActionExist = $systemActionModel->checkSystemActionExist($systemActionID);
+    $total = $checkSystemActionExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $systemActionID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: system-action.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $systemActionID = $securityModel->decryptData($_GET['id']);
-
-        $checkSystemActionExist = $systemActionModel->checkSystemActionExist($systemActionID);
-        $total = $checkSystemActionExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $systemActionID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

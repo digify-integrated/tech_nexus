@@ -1,51 +1,21 @@
 <div class="row">
-  <div class="col-lg-12">
-    <div class="card table-card">
+  <div class="col-lg-4">
+    <div class="card">
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h5>Zoom API List</h5>
+            <h5>Attendance</h5>
           </div>
-          <?php
-            if($zoomAPICreateAccess['total'] > 0 || $zoomAPIDeleteAccess['total'] > 0){
-              $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
-                        
-              if($zoomAPIDeleteAccess['total'] > 0){
-                $action .= '<div class="btn-group m-r-10">
-                              <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                  <li><button class="dropdown-item" type="button" id="delete-zoom-api">Delete Zoom API</button></li>
-                                </ul>
-                                </div>';
-              }
-
-              if($zoomAPICreateAccess['total'] > 0){
-                $action .= '<a href="zoom-api.php?new" class="btn btn-success">Create</a>';
-              }
-
-              $action .= '</div>';
-                          
-              echo $action;
-            }
-          ?>
         </div>
       </div>
       <div class="card-body">
-        <div class="table-responsive dt-responsive">
-          <table id="zoom-api-table" class="table table-hover nowrap w-100">
-            <thead>
-              <tr>
-                <th class="all">
-                  <div class="form-check">
-                    <input class="form-check-input" id="datatable-checkbox" type="checkbox">
-                  </div>
-                </th>
-                <th>Zoom API</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+              <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
+            </div>
+            <div class="flex-grow-1 ms-3 me-2">
+              <h6 class="mb-0 text-primary"><?php echo $fileAs; ?></h6>
+            </div>
         </div>
       </div>
     </div>

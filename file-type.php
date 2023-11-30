@@ -1,70 +1,55 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/file-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/file-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $fileTypeModel = new FileTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $fileTypeModel = new FileTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'File Type';
+  $pageTitle = 'File Type';
     
-    $fileTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'read');
-    $fileTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'create');
-    $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'write');
-    $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'delete');
-    $fileTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'duplicate');
-    $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
-    $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
+  $fileTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'read');
+  $fileTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'create');
+  $fileTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'write');
+  $fileTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'delete');
+  $fileTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 13, 'duplicate');
+  $fileExtensionCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'create');
+  $fileExtensionWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 14, 'write');
 
-    if ($fileTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($fileTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: file-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $fileTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkFileTypeExist = $fileTypeModel->checkFileTypeExist($fileTypeID);
+    $total = $checkFileTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $fileTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: file-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $fileTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkFileTypeExist = $fileTypeModel->checkFileTypeExist($fileTypeID);
-        $total = $checkFileTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $fileTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

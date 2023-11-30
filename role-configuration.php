@@ -1,69 +1,56 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/role-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/role-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $roleModel = new RoleModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $roleModel = new RoleModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Role Configuration';
+  $pageTitle = 'Role Configuration';
     
-    $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'read');
-    $roleCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'create');
-    $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'write');
-    $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'delete');
-    $roleDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'duplicate');
-    $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
-    $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
-    $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
+  $roleReadAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'read');
+  $roleCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'create');
+  $roleWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'write');
+  $roleDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'delete');
+  $roleDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 6, 'duplicate');
+  $updateMenuItemRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 1);
+  $updateSystemActionRoleAccess = $userModel->checkSystemActionAccessRights($user_id, 3);
+  $assignUserAccountToRole = $userModel->checkSystemActionAccessRights($user_id, 5);
 
-    if ($roleReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($roleReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: role-configuration.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $roleID = $securityModel->decryptData($_GET['id']);
+
+    $checkRoleExist = $roleModel->checkRoleExist($roleID);
+    $total = $checkRoleExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $roleID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: role-configuration.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $roleID = $securityModel->decryptData($_GET['id']);
-
-        $checkRoleExist = $roleModel->checkRoleExist($roleID);
-        $total = $checkRoleExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $roleID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

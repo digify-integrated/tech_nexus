@@ -1,73 +1,58 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/notification-setting-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/notification-setting-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $notificationSettingModel = new NotificationSettingModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $notificationSettingModel = new NotificationSettingModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Notification Setting';
+  $pageTitle = 'Notification Setting';
     
-    $notificationSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'read');
-    $notificationSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'create');
-    $notificationSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'write');
-    $notificationSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'delete');
-    $notificationSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'duplicate');
+  $notificationSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'read');
+  $notificationSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'create');
+  $notificationSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'write');
+  $notificationSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'delete');
+  $notificationSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 16, 'duplicate');
 
-    if ($notificationSettingReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($notificationSettingReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: notification-setting.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $notificationSettingID = $securityModel->decryptData($_GET['id']);
+
+    $checkNotificationSettingExist = $notificationSettingModel->checkNotificationSettingExist($notificationSettingID);
+    $total = $checkNotificationSettingExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: notification-setting.php');
-            exit;
-        }
+    $getNotificationSetting = $notificationSettingModel->getNotificationSetting($notificationSettingID);
+    $systemNotification = $getNotificationSetting['system_notification'];
+    $emailNotification = $getNotificationSetting['email_notification'];
+    $smsNotification = $getNotificationSetting['sms_notification'];
+  }
+  else{
+    $notificationSettingID = null;
+  }
 
-        $notificationSettingID = $securityModel->decryptData($_GET['id']);
+  $newRecord = isset($_GET['new']);
 
-        $checkNotificationSettingExist = $notificationSettingModel->checkNotificationSettingExist($notificationSettingID);
-        $total = $checkNotificationSettingExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-
-        $getNotificationSetting = $notificationSettingModel->getNotificationSetting($notificationSettingID);
-        $systemNotification = $getNotificationSetting['system_notification'];
-        $emailNotification = $getNotificationSetting['email_notification'];
-        $smsNotification = $getNotificationSetting['sms_notification'];
-    }
-    else{
-        $notificationSettingID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

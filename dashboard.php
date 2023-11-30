@@ -1,31 +1,17 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/employee-model.php');
-    require('model/menu-item-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
 
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $employeeModel = new EmployeeModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
+  $pageTitle = 'Dashboard';
 
-    $pageTitle = 'Dashboard';
+  $user = $userModel->getUserByID($user_id);
 
-    $user = $userModel->getUserByID($user_id);
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
-    }
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/job-level-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/job-level-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $jobLevelModel = new JobLevelModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $jobLevelModel = new JobLevelModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Job Level';
+  $pageTitle = 'Job Level';
     
-    $jobLevelReadAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'read');
-    $jobLevelCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'create');
-    $jobLevelWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'write');
-    $jobLevelDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'delete');
-    $jobLevelDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'duplicate');
+  $jobLevelReadAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'read');
+  $jobLevelCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'create');
+  $jobLevelWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'write');
+  $jobLevelDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'delete');
+  $jobLevelDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 29, 'duplicate');
 
-    if ($jobLevelReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($jobLevelReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: job-level.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $jobLevelID = $securityModel->decryptData($_GET['id']);
+
+    $checkJobLevelExist = $jobLevelModel->checkJobLevelExist($jobLevelID);
+    $total = $checkJobLevelExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $jobLevelID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: job-level.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $jobLevelID = $securityModel->decryptData($_GET['id']);
-
-        $checkJobLevelExist = $jobLevelModel->checkJobLevelExist($jobLevelID);
-        $total = $checkJobLevelExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $jobLevelID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/address-type-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/address-type-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $addressTypeModel = new AddressTypeModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $addressTypeModel = new AddressTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Address Type';
+  $pageTitle = 'Address Type';
     
-    $addressTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'read');
-    $addressTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'create');
-    $addressTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'write');
-    $addressTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'delete');
-    $addressTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'duplicate');
+  $addressTypeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'read');
+  $addressTypeCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'create');
+  $addressTypeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'write');
+  $addressTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'delete');
+  $addressTypeDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 45, 'duplicate');
 
-    if ($addressTypeReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($addressTypeReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: address-type.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $addressTypeID = $securityModel->decryptData($_GET['id']);
+
+    $checkAddressTypeExist = $addressTypeModel->checkAddressTypeExist($addressTypeID);
+    $total = $checkAddressTypeExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $addressTypeID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: address-type.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $addressTypeID = $securityModel->decryptData($_GET['id']);
-
-        $checkAddressTypeExist = $addressTypeModel->checkAddressTypeExist($addressTypeID);
-        $total = $checkAddressTypeExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $addressTypeID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/bank-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
-  
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $bankModel = new BankModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  require('config/_required_php_file.php');
+  require('model/bank-model.php');
+   
+  $bankModel = new BankModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Bank';
+  $pageTitle = 'Bank';
     
-    $bankReadAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'read');
-    $bankCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'create');
-    $bankWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'write');
-    $bankDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'delete');
-    $bankDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'duplicate');
+  $bankReadAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'read');
+  $bankCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'create');
+  $bankWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'write');
+  $bankDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'delete');
+  $bankDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 39, 'duplicate');
 
-    if ($bankReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($bankReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: bank.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $bankID = $securityModel->decryptData($_GET['id']);
+
+    $checkBankExist = $bankModel->checkBankExist($bankID);
+    $total = $checkBankExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $bankID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: bank.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $bankID = $securityModel->decryptData($_GET['id']);
-
-        $checkBankExist = $bankModel->checkBankExist($bankID);
-        $total = $checkBankExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $bankID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

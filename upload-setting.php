@@ -1,69 +1,54 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/upload-setting-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/upload-setting-model.php');
     
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $uploadSettingModel = new UploadSettingModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $uploadSettingModel = new UploadSettingModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'Upload Setting';
-    
-    $uploadSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
-    $uploadSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
-    $uploadSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'write');
-    $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
-    $uploadSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'duplicate');
-    $addFileExtensionToUploadSetting = $userModel->checkSystemActionAccessRights($user_id, 15);
+  $pageTitle = 'Upload Setting';
+  
+  $uploadSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'read');
+  $uploadSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'create');
+  $uploadSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'write');
+  $uploadSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'delete');
+  $uploadSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 18, 'duplicate');
+  $addFileExtensionToUploadSetting = $userModel->checkSystemActionAccessRights($user_id, 15);
 
-    if ($uploadSettingReadAccess['total'] == 0) {
+  if ($uploadSettingReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: upload-setting.php');
+      exit;
+    }
+
+    $uploadSettingID = $securityModel->decryptData($_GET['id']);
+
+    $checkUploadSettingExist = $uploadSettingModel->checkUploadSettingExist($uploadSettingID);
+    $total = $checkUploadSettingExist['total'] ?? 0;
+
+    if($total == 0){
         header('location: 404.php');
         exit;
     }
+  }
+  else{
+    $uploadSettingID = null;
+  }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
-    }
+  $newRecord = isset($_GET['new']);
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: upload-setting.php');
-            exit;
-        }
-
-        $uploadSettingID = $securityModel->decryptData($_GET['id']);
-
-        $checkUploadSettingExist = $uploadSettingModel->checkUploadSettingExist($uploadSettingID);
-        $total = $checkUploadSettingExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $uploadSettingID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

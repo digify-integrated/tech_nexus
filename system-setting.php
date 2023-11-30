@@ -1,68 +1,53 @@
 <?php
-    require('session.php');
-    require('config/config.php');
-    require('model/database-model.php');
-    require('model/user-model.php');
-    require('model/system-setting-model.php');
-    require('model/menu-group-model.php');
-    require('model/menu-item-model.php');
-    require('model/security-model.php');
-    require('model/system-model.php');
-    require('model/interface-setting-model.php');
+  require('config/_required_php_file.php');
+  require('model/system-setting-model.php');
   
-    $databaseModel = new DatabaseModel();
-    $systemModel = new SystemModel();
-    $userModel = new UserModel($databaseModel, $systemModel);
-    $menuGroupModel = new MenuGroupModel($databaseModel);
-    $menuItemModel = new MenuItemModel($databaseModel);
-    $systemSettingModel = new SystemSettingModel($databaseModel);
-    $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-    $securityModel = new SecurityModel();
+  $systemSettingModel = new SystemSettingModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
+  $user = $userModel->getUserByID($user_id);
 
-    $pageTitle = 'System Setting';
+  $pageTitle = 'System Setting';
     
-    $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
-    $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
-    $systemSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'write');
-    $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
-    $systemSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'duplicate');
+  $systemSettingReadAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'read');
+  $systemSettingCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'create');
+  $systemSettingWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'write');
+  $systemSettingDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'delete');
+  $systemSettingDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 17, 'duplicate');
 
-    if ($systemSettingReadAccess['total'] == 0) {
-        header('location: 404.php');
-        exit;
+  if ($systemSettingReadAccess['total'] == 0) {
+    header('location: 404.php');
+    exit;
+  }
+
+  if (!$user || !$user['is_active']) {
+    header('location: logout.php?logout');
+    exit;
+  }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: system-setting.php');
+      exit;
     }
 
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
-        exit;
+    $systemSettingID = $securityModel->decryptData($_GET['id']);
+
+    $checkSystemSettingExist = $systemSettingModel->checkSystemSettingExist($systemSettingID);
+    $total = $checkSystemSettingExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
     }
+  }
+  else{
+    $systemSettingID = null;
+  }
 
-    if(isset($_GET['id'])){
-        if(empty($_GET['id'])){
-            header('location: system-setting.php');
-            exit;
-        }
+  $newRecord = isset($_GET['new']);
 
-        $systemSettingID = $securityModel->decryptData($_GET['id']);
-
-        $checkSystemSettingExist = $systemSettingModel->checkSystemSettingExist($systemSettingID);
-        $total = $checkSystemSettingExist['total'] ?? 0;
-
-        if($total == 0){
-            header('location: 404.php');
-            exit;
-        }
-    }
-    else{
-        $systemSettingID = null;
-    }
-
-    $newRecord = isset($_GET['new']);
-
-    require('config/_interface_settings.php');
-    require('config/_user_account_details.php');
+  require('config/_interface_settings.php');
+  require('config/_user_account_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
