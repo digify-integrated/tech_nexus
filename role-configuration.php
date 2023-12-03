@@ -1,10 +1,9 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/role-model.php');
   
   $roleModel = new RoleModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Role Configuration';
     
@@ -19,11 +18,6 @@
 
   if ($roleReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

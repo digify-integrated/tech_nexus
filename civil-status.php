@@ -1,5 +1,6 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/civil-status-model.php');
   
   $databaseModel = new DatabaseModel();
@@ -11,8 +12,6 @@
   $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
   $securityModel = new SecurityModel();
 
-  $user = $userModel->getUserByID($user_id);
-
   $pageTitle = 'Civil Status';
     
   $civilStatusReadAccess = $userModel->checkMenuItemAccessRights($user_id, 37, 'read');
@@ -23,11 +22,6 @@
 
   if ($civilStatusReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

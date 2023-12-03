@@ -1,5 +1,6 @@
 <?php
     require('config/_required_php_file.php');
+    require('config/_check_user_active.php');
     require('model/company-model.php');
     require('model/department-model.php');
     require('model/job-position-model.php');
@@ -46,8 +47,6 @@
     $workScheduleModel = new WorkScheduleModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
 
-    $user = $userModel->getUserByID($user_id);
-
     $pageTitle = 'Employee';
     
     $employeeReadAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'read');
@@ -88,11 +87,6 @@
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');
-        exit;
-    }
-
-    if (!$user || !$user['is_active']) {
-        header('location: logout.php?logout');
         exit;
     }
 

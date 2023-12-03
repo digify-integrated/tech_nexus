@@ -1178,8 +1178,13 @@ class UserController {
         $contactDetails = $this->userModel->getContactByID($userID);
         $contactID = $contactDetails['contact_id'] ?? null;
 
-        $contactDetails = $this->employeeModel->getEmployee($contactID);
-        $portalAccess = $contactDetails['portal_access'];
+        if(!empty($contactID)){
+            $contactDetails = $this->employeeModel->getEmployee($contactID);
+            $portalAccess = $contactDetails['portal_access'] ?? 0;
+        }
+        else{
+            $portalAccess = 0;
+        }        
     
         if ($password !== $userPassword) {
             $this->handleInvalidCredentials($user);

@@ -1,7 +1,6 @@
 <?php
   require('config/_required_php_file.php');
-
-  $user = $userModel->getUserByID($user_id);
+  require('config/_check_user_active.php');
 
   $pageTitle = 'User Account';
   
@@ -22,11 +21,6 @@
 
   if ($userAccountReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 
@@ -54,7 +48,7 @@
     $contactID = $userContactDetails['contact_id'] ?? null;
 
     $contactDetails = $employeeModel->getEmployee($contactID);
-    $portalAccess = $contactDetails['portal_access'];
+    $portalAccess = $contactDetails['portal_access'] ?? null;
   }
   else{
     $userAccountID = null;

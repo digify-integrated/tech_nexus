@@ -1,10 +1,9 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/interface-setting-model.php');
   
   $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Interface Setting';
     
@@ -16,11 +15,6 @@
 
   if ($interfaceSettingReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

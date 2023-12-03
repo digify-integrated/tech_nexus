@@ -6,28 +6,28 @@
           <div class="col-sm-6">
             <h5>Branch List</h5>
           </div>
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
           <?php
             if($branchCreateAccess['total'] > 0 || $branchDeleteAccess['total'] > 0){
-                $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
+              $action = ' ';
                             
-                if($branchDeleteAccess['total'] > 0){
-                    $action .= '<div class="btn-group m-r-10">
+              if($branchDeleteAccess['total'] > 0){
+                $action .= '<div class="btn-group m-r-10">
                                     <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><button class="dropdown-item" type="button" id="delete-branch">Delete Branch</button></li>
                                     </ul>
                                 </div>';
-                }
+              }
 
-                if($branchCreateAccess['total'] > 0){
-                    $action .= '<a href="branch.php?new" class="btn btn-success">Create</a>';
-                }
-
-                $action .= '</div>';
+              if($branchCreateAccess['total'] > 0){
+                $action .= '<a href="branch.php?new" class="btn btn-success">Create</a>';
+              }
                             
-                echo $action;
+              echo $action;
             }
           ?>
+          </div>
         </div>
       </div>
       <div class="card-body">

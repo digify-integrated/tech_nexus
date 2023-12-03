@@ -1,5 +1,6 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/city-model.php');
   require('model/state-model.php');
   require('model/country-model.php');
@@ -7,8 +8,6 @@
   $cityModel = new CityModel($databaseModel);
   $stateModel = new StateModel($databaseModel);
   $countryModel = new CountryModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'City';
     
@@ -20,11 +19,6 @@
 
   if ($cityReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

@@ -1,12 +1,11 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/department-model.php');
   require('model/city-model.php');
   
   $departmentModel = new DepartmentModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Department';
     
@@ -18,11 +17,6 @@
 
   if ($departmentReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

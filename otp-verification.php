@@ -13,15 +13,21 @@
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
     $pageTitle = 'OTP Verification';
 
-    if(isset($_GET['id']) && !empty($_GET['id'])){
+    if (isset($_GET['id']) && !empty($_GET['id'])) {
         $id = $_GET['id'];
         $userID = $securityModel->decryptData($id);
-        $user = $userModel->getUserByID($userID);
-        $otpExpiryDate = $user['otp_expiry_date'];
-        $emailObscure = $securityModel->formatEmail($user['email']);
-
-        if (strtotime(date('Y-m-d H:i:s')) > strtotime($otpExpiryDate)) {
-            header('location: error.php?type='. $securityModel->encryptData('otp expired'));
+        
+        if ($user = $userModel->getUserByID($userID)) {
+            $otpExpiryDate = $user['otp_expiry_date'];
+            $emailObscure = $securityModel->formatEmail($user['email']);
+    
+            if (strtotime(date('Y-m-d H:i:s')) > strtotime($otpExpiryDate)) {
+                header('location: error.php?type=' . $securityModel->encryptData('otp expired'));
+                exit;
+            }
+        }
+        else {
+            header('location: 404.php');
             exit;
         }
     }

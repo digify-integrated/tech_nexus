@@ -24,18 +24,18 @@
                         
                 $dropdown .= '</ul>
                             </div>';
-                    
-                echo $dropdown;
 
                 if ($addressTypeWriteAccess['total'] > 0) {
-                    echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
+                    $dropdown .= '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                         <button type="submit" form="address-type-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                         <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
                 }
 
                 if ($addressTypeCreateAccess['total'] > 0) {
-                    echo '<a class="btn btn-success m-r-5 form-details" href="address-type.php?new">Create</a>';
+                    $dropdown .= '<a class="btn btn-success m-r-5 form-details" href="address-type.php?new">Create</a>';
                 }
+
+                echo $dropdown;
             ?>
           </div>
         </div>

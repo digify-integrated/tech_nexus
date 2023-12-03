@@ -6,28 +6,28 @@
           <div class="col-sm-6">
             <h5>Company List</h5>
           </div>
-          <?php
-            if($companyCreateAccess['total'] > 0 || $companyDeleteAccess['total'] > 0){
-                $action = ' <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">';
-                            
+          <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+            <?php
+              if($companyCreateAccess['total'] > 0 || $companyDeleteAccess['total'] > 0){
+                $action = '';
+                              
                 if($companyDeleteAccess['total'] > 0){
-                    $action .= '<div class="btn-group m-r-10">
-                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><button class="dropdown-item" type="button" id="delete-company">Delete Company</button></li>
-                                    </ul>
-                                </div>';
+                  $action .= '<div class="btn-group m-r-10">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                  <li><button class="dropdown-item" type="button" id="delete-company">Delete Company</button></li>
+                                </ul>
+                              </div>';
                 }
 
                 if($companyCreateAccess['total'] > 0){
-                    $action .= '<a href="company.php?new" class="btn btn-success">Create</a>';
+                  $action .= '<a href="company.php?new" class="btn btn-success">Create</a>';
                 }
-
-                $action .= '</div>';
-                            
+                              
                 echo $action;
-            }
-          ?>
+              }
+            ?>
+          </div>
         </div>
       </div>
       <div class="card-body">

@@ -1,10 +1,9 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/gender-model.php');
   
   $genderModel = new GenderModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Gender';
     
@@ -17,12 +16,7 @@
   if ($genderReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
-    exit;
-  }
+  }=
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){

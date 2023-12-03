@@ -1,10 +1,9 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/work-schedule-type-model.php');
   
   $workScheduleTypeModel = new WorkScheduleTypeModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Work Schedule Type';
     
@@ -16,11 +15,6 @@
 
   if ($workScheduleTypeReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

@@ -4,8 +4,6 @@
   
   $nationalityModel = new NationalityModel($databaseModel);
 
-  $user = $userModel->getUserByID($user_id);
-
   $pageTitle = 'Nationality';
     
   $nationalityReadAccess = $userModel->checkMenuItemAccessRights($user_id, 35, 'read');
@@ -16,11 +14,6 @@
 
   if ($nationalityReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

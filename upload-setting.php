@@ -1,10 +1,9 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/upload-setting-model.php');
     
   $uploadSettingModel = new UploadSettingModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Upload Setting';
   
@@ -17,11 +16,6 @@
 
   if ($uploadSettingReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

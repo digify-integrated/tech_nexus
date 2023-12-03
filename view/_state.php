@@ -8,28 +8,26 @@
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-                if($stateCreateAccess['total'] > 0 || $stateDeleteAccess['total'] > 0){
-                $action = ' ';
+              if($stateCreateAccess['total'] > 0 || $stateDeleteAccess['total'] > 0){
+                $action = '';
                             
                 if($stateDeleteAccess['total'] > 0){
-                    $action .= '<div class="btn-group m-r-10">
+                  $action .= '<div class="btn-group m-r-10">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><button class="dropdown-item" type="button" id="delete-state">Delete State</button></li>
-                                    </ul>
-                                    </div>';
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                  <li><button class="dropdown-item" type="button" id="delete-state">Delete State</button></li>
+                                </ul>
+                              </div>';
                 }
 
                 if($stateCreateAccess['total'] > 0){
                     $action .= '<a href="state.php?new" class="btn btn-success">Create</a>';
                 }
-
-                $action .= '';
                             
                 echo $action;
-                }
+              }
             ?>
-           <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas" aria-controls="filter-canvas">Filters</button>
+            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas" aria-controls="filter-canvas">Filters</button>
            </div>
         </div>
       </div>

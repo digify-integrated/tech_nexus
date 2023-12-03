@@ -1,12 +1,11 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/file-type-model.php');
   require('model/file-extension-model.php');
   
   $fileTypeModel = new FileTypeModel($databaseModel);
   $fileExtensionModel = new FileExtensionModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'File Extension';
     
@@ -18,11 +17,6 @@
 
   if ($fileExtensionReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

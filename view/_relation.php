@@ -8,26 +8,24 @@
           </div>
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
-                if($relationCreateAccess['total'] > 0 || $relationDeleteAccess['total'] > 0){
-                  $action = ' ';
+              if($relationCreateAccess['total'] > 0 || $relationDeleteAccess['total'] > 0){
+                $action = '';
                               
-                  if($relationDeleteAccess['total'] > 0){
-                      $action .= '<div class="btn-group m-r-10">
-                                  <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                      <ul class="dropdown-menu dropdown-menu-end">
-                                      <li><button class="dropdown-item" type="button" id="delete-relation">Delete Relation</button></li>
-                                      </ul>
-                                      </div>';
-                  }
-
-                  if($relationCreateAccess['total'] > 0){
-                      $action .= '<a href="relation.php?new" class="btn btn-success">Create</a>';
-                  }
-
-                  $action .= '';
-                              
-                  echo $action;
+                if($relationDeleteAccess['total'] > 0){
+                  $action .= '<div class="btn-group m-r-10">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                  <li><button class="dropdown-item" type="button" id="delete-relation">Delete Relation</button></li>
+                                </ul>
+                              </div>';
                 }
+
+                if($relationCreateAccess['total'] > 0){
+                  $action .= '<a href="relation.php?new" class="btn btn-success">Create</a>';
+                }
+                              
+                echo $action;
+              }
             ?>
            </div>
         </div>

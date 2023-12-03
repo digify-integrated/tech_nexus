@@ -9,22 +9,20 @@
           <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
             <?php
                 if($holidayTypeCreateAccess['total'] > 0 || $holidayTypeDeleteAccess['total'] > 0){
-                  $action = ' ';
+                  $action = '';
                               
                   if($holidayTypeDeleteAccess['total'] > 0){
-                      $action .= '<div class="btn-group m-r-10">
+                     $action .= '<div class="btn-group m-r-10">
                                   <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
-                                      <ul class="dropdown-menu dropdown-menu-end">
-                                      <li><button class="dropdown-item" type="button" id="delete-holiday-type">Delete Holiday Type</button></li>
-                                      </ul>
-                                      </div>';
+                                  <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><button class="dropdown-item" type="button" id="delete-holiday-type">Delete Holiday Type</button></li>
+                                  </ul>
+                                </div>';
                   }
 
                   if($holidayTypeCreateAccess['total'] > 0){
-                      $action .= '<a href="holiday-type.php?new" class="btn btn-success">Create</a>';
+                    $action .= '<a href="holiday-type.php?new" class="btn btn-success">Create</a>';
                   }
-
-                  $action .= '';
                               
                   echo $action;
                 }

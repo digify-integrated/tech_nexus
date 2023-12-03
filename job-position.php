@@ -1,12 +1,11 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/job-position-model.php');
   require('model/department-model.php');
   
   $jobPositionModel = new JobPositionModel($databaseModel);
   $departmentModel = new DepartmentModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Job Position';
     
@@ -26,11 +25,6 @@
 
   if ($jobPositionReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

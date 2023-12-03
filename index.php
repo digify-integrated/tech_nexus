@@ -11,6 +11,7 @@
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
     $pageTitle = 'Nexus Integrated Solutions';
+    
     require('config/_interface_settings.php');
     require('session-check.php');
 ?>

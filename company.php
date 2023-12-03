@@ -1,5 +1,6 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
   require('model/company-model.php');
   require('model/currency-model.php');
   require('model/city-model.php');
@@ -7,8 +8,6 @@
   $companyModel = new CompanyModel($databaseModel);
   $currencyModel = new CurrencyModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
-
-  $user = $userModel->getUserByID($user_id);
 
   $pageTitle = 'Company';
     
@@ -20,11 +19,6 @@
 
   if ($companyReadAccess['total'] == 0) {
     header('location: 404.php');
-    exit;
-  }
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
     exit;
   }
 

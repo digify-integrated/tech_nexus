@@ -1,14 +1,8 @@
 <?php
   require('config/_required_php_file.php');
+  require('config/_check_user_active.php');
 
   $pageTitle = 'Dashboard';
-
-  $user = $userModel->getUserByID($user_id);
-
-  if (!$user || !$user['is_active']) {
-    header('location: logout.php?logout');
-    exit;
-  }
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
