@@ -2,10 +2,8 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/job-position-model.php');
-  require('model/department-model.php');
-  
+
   $jobPositionModel = new JobPositionModel($databaseModel);
-  $departmentModel = new DepartmentModel($databaseModel);
 
   $pageTitle = 'Job Position';
     

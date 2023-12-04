@@ -1,10 +1,8 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/department-model.php');
   require('model/city-model.php');
   
-  $departmentModel = new DepartmentModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
 
   $pageTitle = 'Department';

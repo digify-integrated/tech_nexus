@@ -3550,6 +3550,7 @@ CREATE TABLE work_hours (
 CREATE INDEX work_hours_index_work_hours_id ON work_hours(work_hours_id);
 CREATE INDEX work_hours_index_work_schedule_id ON work_hours(work_schedule_id);
 
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Bank Account Type Table */

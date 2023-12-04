@@ -4015,6 +4015,20 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE getEmployeeWorkingHoursDisplay(IN p_work_schedule_id INT, IN p_current_date DATE, IN p_day_of_week VARCHAR(15), IN p_current_time TIME)
+BEGIN
+	DECLARE v_work_schedule_type VARCHAR(15);
+    DECLARE v_day_of_week VARCHAR(15);
+    DECLARE v_day_period VARCHAR(15);
+    DECLARE v_start_time TIME;
+    DECLARE v_end_time TIME;
+
+    -- Get work_schedule_type_id from work_schedule table
+    SELECT work_schedule_type_id INTO v_work_schedule_type
+    FROM work_schedule
+    WHERE work_schedule_id = p_work_schedule_id;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Personal Information Table Stored Procedures */

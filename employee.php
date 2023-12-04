@@ -2,7 +2,6 @@
     require('config/_required_php_file.php');
     require('config/_check_user_active.php');
     require('model/company-model.php');
-    require('model/department-model.php');
     require('model/job-position-model.php');
     require('model/job-level-model.php');
     require('model/branch-model.php');
@@ -26,7 +25,6 @@
   
     $systemSettingModel = new SystemSettingModel($databaseModel);
     $companyModel = new CompanyModel($databaseModel);
-    $departmentModel = new DepartmentModel($databaseModel);
     $jobPositionModel = new JobPositionModel($databaseModel);
     $jobLevelModel = new JobLevelModel($databaseModel);
     $branchModel = new BranchModel($databaseModel);

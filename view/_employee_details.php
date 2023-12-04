@@ -1,11 +1,11 @@
 <?php
   $portalAccessButton = '';
   if($grantPortalAccess['total'] > 0 && !$portalAccess){
-    $portalAccessButton = '<button type="button" class="btn btn-outline-success w-100 text-center mb-3" id="grant-portal-access">Grant Portal Access</button>';
+    $portalAccessButton = '<button type="button" class="btn btn-outline-success w-100 text-center mb-2" id="grant-portal-access">Grant Portal Access</button>';
   }
 
   if($revokePortalAccess['total'] > 0 && $portalAccess){
-    $portalAccessButton = '<button type="button" class="btn btn-outline-danger w-100 text-center mb-3" id="revoke-portal-access">Revoke Portal Access</button>';
+    $portalAccessButton = '<button type="button" class="btn btn-outline-danger w-100 text-center mb-2" id="revoke-portal-access">Revoke Portal Access</button>';
   }
 
   if($employeeWriteAccess['total'] > 0){
@@ -105,9 +105,9 @@
           </div>
           <h5 class="mb-1 text-primary" id="employee_name"></h5>
           <p class="text-sm" id="job_position"></p>
+          <p class="mb-4" id="employee_bio"></p>
           <?php echo $portalAccessButton; ?>
-          <button type="button" class="btn btn-outline-info w-100 text-center mb-3" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
-          <p class="mb-0" id="employee_bio"></p>
+          <button type="button" class="btn btn-outline-info w-100 text-center mb-0" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-qr-code-offcanvas" aria-controls="contact-employee-qr-code-offcanvas" id="generate-employee-qr-code"><i class="ti ti-qrcode me-1"></i>QR Code</button>
         </div>
       </div>
     </div>

@@ -1604,6 +1604,10 @@
                 }
             });
         }
+
+        $(document).on('click','#discard-create',function() {
+            discardCreate('employee.php');
+        });
     });
 })(jQuery);
 
