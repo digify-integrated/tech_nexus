@@ -357,6 +357,54 @@ class WorkScheduleModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: getCurrentFixedWorkingHours
+    # Description: Retrieves the details of a fixed work hours.
+    #
+    # Parameters:
+    # - $p_work_schedule_id (int): The work schedule ID.
+    # - $p_day_of_week (string): The day of week.
+    # - $p_current_time (time): The current time.
+    #
+    # Returns:
+    # - An array containing the work hours details.
+    #
+    # -------------------------------------------------------------
+    public function getCurrentFixedWorkingHours($p_work_schedule_id, $p_day_of_week, $p_current_time) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCurrentFixedWorkingHours(:p_work_schedule_id, :p_day_of_week, :p_current_time)');
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_day_of_week', $p_day_of_week, PDO::PARAM_STR);
+        $stmt->bindValue(':p_current_time', $p_current_time, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getCurrentFlexibleWorkingHours
+    # Description: Retrieves the details of a flexible work hours.
+    #
+    # Parameters:
+    # - $p_work_schedule_id (int): The work schedule ID.
+    # - $p_work_date (string): The work date.
+    # - $p_current_time (time): The current time.
+    #
+    # Returns:
+    # - An array containing the work hours details.
+    #
+    # -------------------------------------------------------------
+    public function getCurrentFlexibleWorkingHours($p_work_schedule_id, $p_work_date, $p_current_time) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCurrentFlexibleWorkingHours(:p_work_schedule_id, :p_work_date, :p_current_time)');
+        $stmt->bindValue(':p_work_schedule_id', $p_work_schedule_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_work_date', $p_work_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_current_time', $p_current_time, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Duplicate methods
     # -------------------------------------------------------------
 

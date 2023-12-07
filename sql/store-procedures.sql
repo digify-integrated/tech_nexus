@@ -3811,6 +3811,24 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE getCurrentFixedWorkingHours(IN p_work_schedule_id INT, IN p_day_of_week VARCHAR(15), IN p_current_time TIME)
+BEGIN
+	SELECT start_time, end_time
+    FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id
+    AND day_of_week = p_day_of_week
+    AND start_time <= p_current_time AND end_time >= p_current_time;
+END //
+
+CREATE PROCEDURE getCurrentFlexibleWorkingHours(IN p_work_schedule_id INT, IN p_work_date DATE, IN p_current_time TIME)
+BEGIN
+	SELECT start_time, end_time
+    FROM work_hours
+    WHERE work_schedule_id = p_work_schedule_id
+    AND work_date = p_work_date
+    AND start_time <= p_current_time AND end_time >= p_current_time;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Bank Account Type Table Stored Procedures */
@@ -4013,20 +4031,6 @@ BEGIN
     ELSE
         SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id);
     END IF;
-END //
-
-CREATE PROCEDURE getEmployeeWorkingHoursDisplay(IN p_work_schedule_id INT, IN p_current_date DATE, IN p_day_of_week VARCHAR(15), IN p_current_time TIME)
-BEGIN
-	DECLARE v_work_schedule_type VARCHAR(15);
-    DECLARE v_day_of_week VARCHAR(15);
-    DECLARE v_day_period VARCHAR(15);
-    DECLARE v_start_time TIME;
-    DECLARE v_end_time TIME;
-
-    -- Get work_schedule_type_id from work_schedule table
-    SELECT work_schedule_type_id INTO v_work_schedule_type
-    FROM work_schedule
-    WHERE work_schedule_id = p_work_schedule_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -4,6 +4,8 @@
 
   $pageTitle = 'Dashboard';
 
+  $recordAttendance = $userModel->checkSystemActionAccessRights($user_id, 80);
+
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
 ?>
@@ -52,6 +54,7 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="./assets/js/pages/dashboard.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

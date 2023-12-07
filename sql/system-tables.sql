@@ -396,11 +396,12 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Empl
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Employee Bank', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Employee Bank', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Employee Bank', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Grant Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Revoke Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User Account To Contact', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlink User Account To Contact', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Record Attendance', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -495,11 +496,12 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('74', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('75', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('76', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('77', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('78', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('79', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('80', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('81', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

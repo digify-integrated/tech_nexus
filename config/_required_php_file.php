@@ -10,6 +10,7 @@ require('model/security-model.php');
 require('model/system-model.php');
 require('model/employee-model.php');
 require('model/department-model.php');
+require('model/work-schedule-model.php');
 require('model/interface-setting-model.php');
 
 $databaseModel = new DatabaseModel();
@@ -20,6 +21,7 @@ $menuItemModel = new MenuItemModel($databaseModel);
 $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 $employeeModel = new EmployeeModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
+$workScheduleModel = new WorkScheduleModel($databaseModel);
 $securityModel = new SecurityModel();
 
 ?>

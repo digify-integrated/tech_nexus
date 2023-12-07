@@ -20,7 +20,6 @@
     require('model/language-proficiency-model.php');
     require('model/bank-model.php');
     require('model/bank-account-type-model.php');
-    require('model/work-schedule-model.php');
     require('model/system-setting-model.php');
   
     $systemSettingModel = new SystemSettingModel($databaseModel);
@@ -42,7 +41,6 @@
     $languageModel = new LanguageModel($databaseModel);
     $languageProficiencyModel = new LanguageProficiencyModel($databaseModel);
     $bankModel = new BankModel($databaseModel);
-    $workScheduleModel = new WorkScheduleModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
 
     $pageTitle = 'Employee';

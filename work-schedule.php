@@ -1,10 +1,8 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/work-schedule-model.php');
   require('model/work-schedule-type-model.php');
   
-  $workScheduleModel = new WorkScheduleModel($databaseModel);
   $workScheduleTypeModel = new WorkScheduleTypeModel($databaseModel);
 
   $pageTitle = 'Work Schedule';
