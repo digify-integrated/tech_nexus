@@ -4152,6 +4152,30 @@ CREATE INDEX attendance_setting_index_attendance_setting_id ON attendance_settin
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Attendance Setting Table */
+
+CREATE TABLE attendance (
+    attendance_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    attendance_date DATE,
+    entry_time TIME,
+    entry_ip_address VARCHAR(20),
+    entry_location VARCHAR(20),
+    entry_by INT UNSIGNED,
+    exit_time TIME,
+    exit_ip_address VARCHAR(20),
+    eixt_location VARCHAR(20),
+    exit_by INT UNSIGNED,
+    notes VARCHAR(1000),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX attendance_index_attendance_id ON attendance(attendance_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table */
 
 

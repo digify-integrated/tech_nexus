@@ -663,3 +663,53 @@ function createEmployeeQRCode(container, name, badgeID){
 
     qrcode.makeCode(card);
 }
+
+function getLocation(containerID) {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by your browser'));
+      } else {
+        navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
+          if (permissionStatus.state === 'granted') {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const locationInput = document.getElementById(containerID);
+                const location = `${position.coords.latitude},${position.coords.longitude}`;
+                locationInput.value = location;
+                resolve({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  location: location
+                });
+              },
+              (error) => {
+                reject(new Error(`Failed to get user location: ${error.message}`));
+              },
+              { enableHighAccuracy: true }
+            );
+          } else if (permissionStatus.state === 'prompt') {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const locationInput = document.getElementById('location');
+                const location = `${position.coords.latitude},${position.coords.longitude}`;
+                locationInput.value = location;
+                resolve({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  location: location
+                });
+              },
+              (error) => {
+                reject(new Error(`Failed to get user location: ${error.message}`));
+              },
+              { enableHighAccuracy: true }
+            );
+          } else {
+            reject(new Error('Location permission is required to use this feature'));
+          }
+        });
+      }
+    });
+  }
+  
+  

@@ -3,6 +3,9 @@
 
     $(function() {
         document.querySelector('#record-attendance').addEventListener('click', async function() {
+            getLocation('location');
+
+            let attendance_video = document.getElementById('attendance-video');
             $('#attendance-video').removeClass('d-none');
             $('#capture-attendance').removeClass('d-none');
             $('#attendance-image').addClass('d-none');
@@ -10,7 +13,7 @@
             $('#record-attendance-modal').modal('show');
         
             let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            video.srcObject = stream;
+            attendance_video.srcObject = stream;
         
             $('#record-attendance-modal').on('hidden.bs.modal', function (e) {
                 stream.getTracks().forEach(track => track.stop());

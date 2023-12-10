@@ -49,11 +49,13 @@
     </section>
 
     <?php
+        include_once('config/_footer.php');
         include_once('config/_change_password_modal.php');
         include_once('config/_error_modal.php');
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/pages/dashboard.js?v=<?php echo rand(); ?>"></script>
 </body>
 

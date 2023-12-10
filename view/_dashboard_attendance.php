@@ -45,7 +45,7 @@
           </div>
         </div>
         <?php
-          if($recordAttendance['total'] > 0){
+          if($recordAttendance['total'] > 0 && !empty($userAccountContactID)){
             echo '<button type="button" class="btn btn-warning w-100 text-center mb-0" id="record-attendance">Record Time</button>';
           }
         ?>
@@ -60,21 +60,30 @@
 <?php
   if($recordAttendance['total'] > 0){
     echo '<div id="record-attendance-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="record-attendance-title" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="record-attendance-title">Record Attendance</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="record-attendance-form" method="post" action="#">
-                            <div class="row">
-                                <div id="video-container" style="width: 100%; position: relative;">
-                                    <video id="attendance-video" style="width: 100%; height: auto;" autoplay></video>
-                                    <canvas id="attendance-image" class="d-none" style="width: 100%; height: auto%;"></canvas>
-                                </div>
+                      <form id="record-attendance-form" method="post" action="#">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <input type="hidden" id="location" name="location">
+                            <div id="video-container" style="width: 100%; position: relative;">
+                              <video id="attendance-video" style="width: 100%; height: auto;" autoplay></video>
+                              <canvas id="attendance-image" class="d-none" style="width: 100%; height: auto%;"></canvas>
                             </div>
-                        </form>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <div class="col-lg-12">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" maxlength="1000" rows="5"></textarea>
+                          </div>
+                        </div>
+                      </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
