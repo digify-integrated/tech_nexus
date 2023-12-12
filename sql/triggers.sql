@@ -3512,6 +3512,96 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Attendance Setting Table Triggers */
+
+CREATE TRIGGER attendance_trigger_update
+AFTER UPDATE ON attendance
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.attendance_date <> OLD.attendance_date THEN
+        SET audit_log = CONCAT(audit_log, "Attendance Date: ", OLD.attendance_date, " -> ", NEW.attendance_date, "<br/>");
+    END IF;
+
+    IF NEW.entry_time <> OLD.entry_time THEN
+        SET audit_log = CONCAT(audit_log, "Entry Time: ", OLD.entry_time, " -> ", NEW.entry_time, "<br/>");
+    END IF;
+
+    IF NEW.entry_location <> OLD.entry_location THEN
+        SET audit_log = CONCAT(audit_log, "Entry Location: ", OLD.entry_location, " -> ", NEW.entry_location, "<br/>");
+    END IF;
+
+    IF NEW.entry_by <> OLD.entry_by THEN
+        SET audit_log = CONCAT(audit_log, "Entry By: ", OLD.entry_by, " -> ", NEW.entry_by, "<br/>");
+    END IF;
+
+    IF NEW.exit_time <> OLD.exit_time THEN
+        SET audit_log = CONCAT(audit_log, "Exit Time: ", OLD.exit_time, " -> ", NEW.exit_time, "<br/>");
+    END IF;
+
+    IF NEW.exit_location <> OLD.exit_location THEN
+        SET audit_log = CONCAT(audit_log, "Exit Location: ", OLD.exit_location, " -> ", NEW.exit_location, "<br/>");
+    END IF;
+
+    IF NEW.exit_by <> OLD.exit_by THEN
+        SET audit_log = CONCAT(audit_log, "Exit By: ", OLD.exit_by, " -> ", NEW.exit_by, "<br/>");
+    END IF;
+
+    IF NEW.notes <> OLD.notes THEN
+        SET audit_log = CONCAT(audit_log, "Notes: ", OLD.notes, " -> ", NEW.notes, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('attendance', NEW.attendance_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER attendance_trigger_insert
+AFTER INSERT ON attendance
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Attendance created. <br/>';
+
+    IF NEW.attendance_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Attendance Date: ", NEW.attendance_date);
+    END IF;
+
+    IF NEW.entry_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entry Time: ", NEW.entry_time);
+    END IF;
+
+    IF NEW.entry_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entry Location: ", NEW.entry_location);
+    END IF;
+
+    IF NEW.entry_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entry By: ", NEW.entry_by);
+    END IF;
+
+    IF NEW.exit_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Exit Time: ", NEW.exit_time);
+    END IF;
+
+    IF NEW.exit_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Exit Location: ", NEW.exit_location);
+    END IF;
+
+    IF NEW.exit_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Exit By: ", NEW.exit_by);
+    END IF;
+
+    IF NEW.notes <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Notes: ", NEW.notes);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('attendance', NEW.attendance_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

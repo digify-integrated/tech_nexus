@@ -667,7 +667,7 @@ function createEmployeeQRCode(container, name, badgeID){
 function getLocation(containerID) {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by your browser'));
+        showNotification('Get Location Error', 'Geolocation is not supported by your browser', 'danger');
       } else {
         navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
           if (permissionStatus.state === 'granted') {
@@ -683,14 +683,14 @@ function getLocation(containerID) {
                 });
               },
               (error) => {
-                reject(new Error(`Failed to get user location: ${error.message}`));
+                showNotification('Get Location Error',`Failed to get user location: ${error.message}`, 'danger');
               },
               { enableHighAccuracy: true }
             );
           } else if (permissionStatus.state === 'prompt') {
             navigator.geolocation.getCurrentPosition(
               (position) => {
-                const locationInput = document.getElementById('location');
+                const locationInput = document.getElementById(containerID);
                 const location = `${position.coords.latitude},${position.coords.longitude}`;
                 locationInput.value = location;
                 resolve({
@@ -700,16 +700,14 @@ function getLocation(containerID) {
                 });
               },
               (error) => {
-                reject(new Error(`Failed to get user location: ${error.message}`));
+                showNotification('Get Location Error',`Failed to get user location: ${error.message}`, 'danger');
               },
               { enableHighAccuracy: true }
             );
           } else {
-            reject(new Error('Location permission is required to use this feature'));
+            showNotification('Get Location Error','Location permission is required to use this feature', 'danger');
           }
         });
       }
     });
-  }
-  
-  
+}

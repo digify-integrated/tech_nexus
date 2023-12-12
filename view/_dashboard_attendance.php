@@ -68,12 +68,13 @@
                     </div>
                     <div class="modal-body">
                       <form id="record-attendance-form" method="post" action="#">
-                        <div class="row">
-                          <div class="col-lg-12">
+                        <div class="row d-flex justify-content-center">
+                          <div class="col-lg-6 d-flex justify-content-center">
                             <input type="hidden" id="location" name="location">
-                            <div id="video-container" style="width: 100%; position: relative;">
-                              <video id="attendance-video" style="width: 100%; height: auto;" autoplay></video>
-                              <canvas id="attendance-image" class="d-none" style="width: 100%; height: auto%;"></canvas>
+                            <input type="hidden" id="ip_address" name="ip_address">
+                            <div id="video-container" style="width: 225px; height: 225px; position: relative; overflow: hidden; border-radius: 50%;">
+                              <video id="attendance-video" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%);" autoplay></video>
+                              <canvas id="attendance-image" class="d-none" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%);"></canvas>
                             </div>
                           </div>
                         </div>
