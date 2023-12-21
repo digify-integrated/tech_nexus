@@ -55,7 +55,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $interfaceSettingID .'">',
                     'INTERFACE_SETTING_NAME' => ' <div class="col">
                                         <h6 class="mb-0">'. $interfaceSettingName .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $interfaceSettingDescription .'</p>
+                                        <p class="f-12 mb-0">'. $interfaceSettingDescription .'</p>
                                         </div>',
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="interface-setting.php?id='. $interfaceSettingIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">

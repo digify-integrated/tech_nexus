@@ -16,7 +16,7 @@
   if ($genderReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
-  }=
+  }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){

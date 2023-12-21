@@ -29,6 +29,9 @@
                 <div class="flex-grow-1 ms-3 me-2">
                   <p class="f-12 mb-0">Start Time</p>
                   <h6 class="mb-0 text-primary">12:59 am</h6>
+                  <div id="entry-state">
+                    <span  class="badge bg-danger">Undertime</span>
+                  </div>
                 </div>
             </div>
           </div>
@@ -40,6 +43,9 @@
                 <div class="flex-grow-1 ms-3 me-2">
                   <p class="f-12 mb-0">End Time</p>
                   <h6 class="mb-0 text-primary">12:59 am</h6>
+                  <div id="exit-state">
+                    <span  class="badge bg-danger">Undertime</span>
+                  </div>
                 </div>
             </div>
           </div>
@@ -70,9 +76,10 @@
                       <form id="record-attendance-form" method="post" action="#">
                         <div class="row d-flex justify-content-center">
                           <div class="col-lg-6 d-flex justify-content-center">
+                            <input type="hidden" id="attendance_id" name="attendance_id">
                             <input type="hidden" id="location" name="location">
                             <input type="hidden" id="ip_address" name="ip_address">
-                            <div id="video-container" style="width: 225px; height: 225px; position: relative; overflow: hidden; border-radius: 50%;">
+                            <div id="video-container" class="d-none" style="width: 225px; height: 225px; position: relative; overflow: hidden; border-radius: 50%;">
                               <video id="attendance-video" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%);" autoplay></video>
                               <canvas id="attendance-image" class="d-none" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%);"></canvas>
                             </div>
@@ -88,7 +95,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="capture-attendance">Take Photo</button>
+                        <button type="button" class="btn btn-primary d-none" id="capture-attendance">Take Photo</button>
+                        <button type="submit" class="btn btn-primary d-none" id="submit-attendance" form="record-attendance-form">Submit</button>
                     </div>
                 </div>
             </div>

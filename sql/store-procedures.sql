@@ -5080,22 +5080,22 @@ BEGIN
     WHERE attendance_id = p_attendance_id;
 END //
 
-CREATE PROCEDURE insertAttendance(IN p_attendance_name VARCHAR(100), IN p_attendance_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT, OUT p_attendance_id INT)
+CREATE PROCEDURE insertAttendanceEntry(IN p_contact_id INT, IN p_entry_image VARCHAR(500), IN p_entry_date DATE, IN p_entry_time TIME, IN p_entry_location VARCHAR(100), IN p_entry_state VARCHAR(15), IN p_entry_by INT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO attendance (attendance_name, attendance_description, value, last_log_by) 
-	VALUES(p_attendance_name, p_attendance_description, p_value, p_last_log_by);
-	
-    SET p_attendance_id = LAST_INSERT_ID();
+    INSERT INTO attendance (contact_id, entry_image, entry_date, entry_time, entry_location, entry_state, entry_by, last_log_by) 
+	VALUES(p_contact_id, p_entry_image, p_entry_date, p_entry_time, p_entry_location, p_entry_state, p_entry_by, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateAttendance(IN p_attendance_id INT, IN p_attendance_name VARCHAR(100), IN p_attendance_description VARCHAR(200), IN p_value VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateAttendanceExit(IN p_attendance_id INT, IN p_contact_id INT, IN p_exit_image VARCHAR(500), IN p_exit_date DATE, IN p_exit_time TIME, IN p_exit_location VARCHAR(100), IN p_exit_state VARCHAR(15), IN p_exit_by INT, IN p_last_log_by INT)
 BEGIN
-	UPDATE attendance
-    SET attendance_name = p_attendance_name,
-    attendance_description = p_attendance_description,
-    value = p_value,
+    UPDATE attendance
+    SET exit_image = p_exit_image,
+    exit_date = p_exit_date,
+    exit_time = p_exit_time,
+    exit_location = p_exit_location,
+    exit_state = p_exit_state,
     last_log_by = p_last_log_by
-    WHERE attendance_id = p_attendance_id;
+    WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
 END //
 
 CREATE PROCEDURE deleteAttendance(IN p_attendance_id INT)
@@ -5108,13 +5108,6 @@ CREATE PROCEDURE getAttendance(IN p_attendance_id INT)
 BEGIN
 	SELECT * FROM attendance
     WHERE attendance_id = p_attendance_id;
-END //
-
-CREATE PROCEDURE generateAttendanceTable()
-BEGIN
-	SELECT attendance_id, attendance_name, attendance_description, value
-    FROM attendance
-    ORDER BY attendance_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

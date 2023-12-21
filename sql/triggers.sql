@@ -3520,8 +3520,8 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.attendance_date <> OLD.attendance_date THEN
-        SET audit_log = CONCAT(audit_log, "Attendance Date: ", OLD.attendance_date, " -> ", NEW.attendance_date, "<br/>");
+    IF NEW.entry_date <> OLD.entry_date THEN
+        SET audit_log = CONCAT(audit_log, "Entry Date: ", OLD.entry_date, " -> ", NEW.entry_date, "<br/>");
     END IF;
 
     IF NEW.entry_time <> OLD.entry_time THEN
@@ -3532,8 +3532,16 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Entry Location: ", OLD.entry_location, " -> ", NEW.entry_location, "<br/>");
     END IF;
 
+    IF NEW.entry_state <> OLD.entry_state THEN
+        SET audit_log = CONCAT(audit_log, "Entry State: ", OLD.entry_state, " -> ", NEW.entry_state, "<br/>");
+    END IF;
+
     IF NEW.entry_by <> OLD.entry_by THEN
         SET audit_log = CONCAT(audit_log, "Entry By: ", OLD.entry_by, " -> ", NEW.entry_by, "<br/>");
+    END IF;
+
+    IF NEW.exit_date <> OLD.exit_date THEN
+        SET audit_log = CONCAT(audit_log, "Exit Date: ", OLD.exit_date, " -> ", NEW.exit_date, "<br/>");
     END IF;
 
     IF NEW.exit_time <> OLD.exit_time THEN
@@ -3542,6 +3550,10 @@ BEGIN
 
     IF NEW.exit_location <> OLD.exit_location THEN
         SET audit_log = CONCAT(audit_log, "Exit Location: ", OLD.exit_location, " -> ", NEW.exit_location, "<br/>");
+    END IF;
+
+    IF NEW.exit_state <> OLD.exit_state THEN
+        SET audit_log = CONCAT(audit_log, "Exit State: ", OLD.exit_state, " -> ", NEW.exit_state, "<br/>");
     END IF;
 
     IF NEW.exit_by <> OLD.exit_by THEN
@@ -3564,8 +3576,8 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Attendance created. <br/>';
 
-    IF NEW.attendance_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Attendance Date: ", NEW.attendance_date);
+    IF NEW.entry_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entry Date: ", NEW.entry_date);
     END IF;
 
     IF NEW.entry_time <> '' THEN
@@ -3576,8 +3588,16 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Entry Location: ", NEW.entry_location);
     END IF;
 
+    IF NEW.entry_state <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entry State: ", NEW.entry_state);
+    END IF;
+
     IF NEW.entry_by <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Entry By: ", NEW.entry_by);
+    END IF;
+
+    IF NEW.exit_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Exit Date: ", NEW.exit_date);
     END IF;
 
     IF NEW.exit_time <> '' THEN
@@ -3586,6 +3606,10 @@ BEGIN
 
     IF NEW.exit_location <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Exit Location: ", NEW.exit_location);
+    END IF;
+
+    IF NEW.exit_state <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Exit State: ", NEW.exit_state);
     END IF;
 
     IF NEW.exit_by <> '' THEN

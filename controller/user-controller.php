@@ -1902,12 +1902,12 @@ class UserController {
     # -------------------------------------------------------------
     public function sendOTP($email, $otp) {
         $emailSetting = $this->emailSettingModel->getEmailSetting(1);
-        $mailFromName = $emailSetting['mail_from_name'];
-        $mailFromEmail = $emailSetting['mail_from_email'];
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
         $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(1);
-        $emailSubject = $notificationSettingDetails['email_notification_subject'];
-        $emailBody = $notificationSettingDetails['email_notification_body'];
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{OTP_CODE}', $otp, $emailBody);
 
         $message = file_get_contents('../email-template/default-email.html');
