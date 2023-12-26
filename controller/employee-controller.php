@@ -1104,46 +1104,42 @@ class EmployeeController {
         }
     
         $userID = $_SESSION['user_id'];
-        $employeeID = isset($_POST['employee_id']) ? htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8') : null;
-        $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
-        $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
-        $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
-        $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
-        $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
-        $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
-        $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
-        $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');
-        $religion = htmlspecialchars($_POST['religion'], ENT_QUOTES, 'UTF-8');
-        $bloodType = htmlspecialchars($_POST['blood_type'], ENT_QUOTES, 'UTF-8');
-        $birthday = $this->systemModel->checkDate('empty', $_POST['birthday'], '', 'Y-m-d', '');
-        $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
-        $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
-        $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
+        $contactID = $_SESSION['contact_id'];
+        $attendanceimageData = $_POST['attendance_image_data'];
+        $decodedAttendanceimageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $attendanceimageData));
+        $attendanceID = htmlspecialchars($_POST['attendance_id'], ENT_QUOTES, 'UTF-8');
+        $location = htmlspecialchars($_POST['location'], ENT_QUOTES, 'UTF-8');
+        $ipAddress = htmlspecialchars($_POST['ip_address'], ENT_QUOTES, 'UTF-8');
+        $notes = htmlspecialchars($_POST['notes'], ENT_QUOTES, 'UTF-8');
 
-        $fileAs = $this->systemSettingModel->getSystemSetting(4)['value'];
-        $fileAs = str_replace('{first_name}', $firstName, $fileAs);
-        $fileAs = str_replace('{middle_name}', $middleName, $fileAs);
-        $fileAs = str_replace('{last_name}', $lastName, $fileAs);
-        $fileAs = str_replace('{suffix}', $suffix, $fileAs);
-    
         $user = $this->userModel->getUserByID($userID);
     
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.png';
+
+        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee_attendance/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'interface_setting/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        file_put_contents($filePath, $decodedAttendanceimageData);
     
-        $checkPersonalInformationExist = $this->employeeModel->checkPersonalInformationExist($employeeID);
-        $total = $checkPersonalInformationExist['total'] ?? 0;
+        $checkAttendanceExist = $this->employeeModel->checkAttendanceExist($attendanceID);
+        $total = $checkAttendanceExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+           
+            $this->employeeModel->updateAttendanceExit($attendanceID, $contactID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertAttendanceEntry($contactID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
