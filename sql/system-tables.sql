@@ -2840,7 +2840,7 @@ CREATE INDEX company_index_company_id ON company(company_id);
 CREATE INDEX company_index_city_id ON company(city_id);
 CREATE INDEX company_index_currency_id ON company(currency_id);
 
-INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Encore Leasing and Finance Corp.', 'Km 114', '257', '1');
+INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Company Placeholder.', '237', '257', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4163,15 +4163,16 @@ CREATE TABLE attendance (
     entry_location VARCHAR(100),
     entry_state VARCHAR(15),
     entry_by INT UNSIGNED,
+    late_minutes INT,
     exit_image VARCHAR(500),
     exit_date DATE,
     exit_time TIME,
     exit_location VARCHAR(100),
     exit_state VARCHAR(15),
     exit_by INT UNSIGNED,
+    undertime_minutes INT,
+    overtime_minutes INT,
     notes VARCHAR(1000),
-    late DOUBLE,
-    undertime DOUBLE,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
@@ -4183,6 +4184,13 @@ CREATE INDEX attendance_index_attendance_id ON attendance(attendance_id);
 
 /*  Table */
 
-
+SELECT *
+FROM work_hours
+WHERE day_of_week = 'Wednesday'
+ORDER BY LEAST(
+    ABS(TIMESTAMPDIFF(SECOND, '2023-12-27 12:30:00', start_time)),
+    ABS(TIMESTAMPDIFF(SECOND, '2023-12-27 12:30:00', end_time))
+)
+LIMIT 1;
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

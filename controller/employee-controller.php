@@ -1123,25 +1123,39 @@ class EmployeeController {
         $fileNew = $fileName . '.png';
 
         $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee_attendance/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'interface_setting/' . $fileNew;
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee_attendance/' . $fileNew;
         $filePath = $directory . $fileNew;
 
-        file_put_contents($filePath, $decodedAttendanceimageData);
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
     
         $checkAttendanceExist = $this->employeeModel->checkAttendanceExist($attendanceID);
         $total = $checkAttendanceExist['total'] ?? 0;
     
         if ($total > 0) {
-           
+            if(!file_put_contents('.' . $filePath, $decodedAttendanceimageData)){
+                echo json_encode(['success' => true, 'insertRecord' => false, 'message' => 'Unable to save image.']);
+                exit;
+            }
+
             $this->employeeModel->updateAttendanceExit($attendanceID, $contactID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
+            if(!file_put_contents('.' . $filePath, $decodedAttendanceimageData)){
+                echo json_encode(['success' => true, 'insertRecord' => false, 'message' => 'Unable to save image.']);
+                exit;
+            }
+
             $this->employeeModel->insertAttendanceEntry($contactID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => false]);
+            echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
     }

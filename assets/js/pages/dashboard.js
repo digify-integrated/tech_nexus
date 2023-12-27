@@ -82,11 +82,17 @@ function recordAttendanceForm(){
             const attendance_image_data = sessionStorage.getItem('attendance_image_data');
 
             const transaction = 'save attendance record regular';
+
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+            formData.append('attendance_image_data', attendance_image_data);
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/employee-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&attendance_image_data=' + attendance_image_data,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-attendance');

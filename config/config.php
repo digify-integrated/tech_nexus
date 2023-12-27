@@ -49,7 +49,7 @@ define('MAIL_PORT', 465);
 
 define('DEFAULT_AVATAR_IMAGE', './assets/images/default/default-avatar.png');
 define('DEFAULT_BG_IMAGE', './assets/images/default/default-bg.jpg');
-define('DEFAULT_LOGIN_LOGO_IMAGE', './assets/images/default/default-login-logo.svg');
+define('DEFAULT_LOGIN_LOGO_IMAGE', './assets/images/default/default-logo-placeholder.png');
 define('DEFAULT_MENU_LOGO_IMAGE', './assets/images/default/default-menu-logo.png');
 define('DEFAULT_MODULE_ICON_IMAGE', './assets/images/default/default-module-icon.svg');
 define('DEFAULT_FAVICON_IMAGE', './assets/images/default/default-favicon.svg');

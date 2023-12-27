@@ -2,7 +2,7 @@
       <div class="footer-wrapper container-fluid">
         <div class="row">
           <div class="col my-1">
-            <p class="m-0">Nexus Integrated Solutions</p>
+            <p class="m-0">Company Placeholder</p>
           </div>
           <div class="col-auto my-1">
             <ul class="list-inline footer-link mb-0">
