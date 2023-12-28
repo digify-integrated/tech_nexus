@@ -3540,18 +3540,18 @@ CREATE TABLE work_hours (
     work_schedule_id INT UNSIGNED,
     work_date DATE,
     day_of_week VARCHAR(15),
-    day_period VARCHAR(15),
     start_time TIME,
     end_time TIME,
+    lunch_break_start_time TIME,
+    lunch_break_end_time TIME,
     notes TEXT,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (work_schedule_id) REFERENCES work_schedule(work_schedule_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
- 
+
 CREATE INDEX work_hours_index_work_hours_id ON work_hours(work_hours_id);
 CREATE INDEX work_hours_index_work_schedule_id ON work_hours(work_schedule_id);
-
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4184,13 +4184,5 @@ CREATE INDEX attendance_index_attendance_id ON attendance(attendance_id);
 
 /*  Table */
 
-SELECT *
-FROM work_hours
-WHERE day_of_week = 'Wednesday'
-ORDER BY LEAST(
-    ABS(TIMESTAMPDIFF(SECOND, '2023-12-27 12:30:00', start_time)),
-    ABS(TIMESTAMPDIFF(SECOND, '2023-12-27 12:30:00', end_time))
-)
-LIMIT 1;
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

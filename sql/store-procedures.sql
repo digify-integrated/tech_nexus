@@ -5112,7 +5112,6 @@ BEGIN
 	SELECT * FROM attendance
     WHERE attendance_id = p_attendance_id;
 END //
-
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /*  Table Stored Procedures */
