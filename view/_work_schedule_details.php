@@ -100,10 +100,10 @@
         $workingHoursTable = '<table id="fixed-working-hours-table" class="table table-hover nowrap w-100">
                                   <thead>
                                     <tr>
-                                      <th>Day of Week</th>
-                                      <th>Day Period</th>
                                       <th>Work From</th>
                                       <th>Work To</th>
+                                      <th>Lunch Start</th>
+                                      <th>Lunch End</th>
                                       <th>Notes</th>
                                       <th>Actions</th>
                                     </tr>
@@ -116,10 +116,10 @@
         $workingHoursTable = '<table id="flexible-working-hours-table" class="table table-hover nowrap w-100">
                                   <thead>
                                     <tr>
-                                      <th>Work Date</th>
-                                      <th>Day Period</th>
                                       <th>Work From</th>
                                       <th>Work To</th>
+                                      <th>Lunch Start</th>
+                                      <th>Lunch End</th>
                                       <th>Notes</th>
                                       <th>Actions</th>
                                     </tr>
@@ -184,26 +184,30 @@
                   <form id="fixed-working-hours-form" method="post" action="#">
                     <div class="form-group row">
                       <div class="col-lg-6">
-                        <label class="form-label">Day of Week <span class="text-danger">*</span></label>
+                        <label class="form-label">Work From Day of Week <span class="text-danger">*</span></label>
                         <input type="hidden" id="work_hours_id" name="work_hours_id">
-                        <select class="form-control offcanvas-select2" name="day_of_week" id="day_of_week">
+                        <select class="form-control offcanvas-select2" name="start_day_of_week" id="start_day_of_week">
                           <option value="">--</option>
-                          <option value="Monday">Monday</option>
-                          <option value="Tuesday">Tuesday</option>
-                          <option value="Wednesday">Wednesday</option>
-                          <option value="Thursday">Thursday</option>
-                          <option value="Friday">Friday</option>
-                          <option value="Saturday">Saturday</option>
-                          <option value="Sunday">Sunday</option>
+                          <option value="1">Monday</option>
+                          <option value="2">Tuesday</option>
+                          <option value="3">Wednesday</option>
+                          <option value="4">Thursday</option>
+                          <option value="5">Friday</option>
+                          <option value="6">Saturday</option>
+                          <option value="0">Sunday</option>
                         </select>
                       </div>
                       <div class="col-lg-6">
-                        <label class="form-label">Day Period <span class="text-danger">*</span></label>
-                        <select class="form-control offcanvas-select2" name="day_period" id="day_period">
+                        <label class="form-label">Work To Day of Week <span class="text-danger">*</span></label>
+                        <select class="form-control offcanvas-select2" name="end_day_of_week" id="end_day_of_week">
                           <option value="">--</option>
-                          <option value="Morning">Morning</option>
-                          <option value="Afternoon">Afternoon</option>
-                          <option value="Evening">Evening</option>
+                          <option value="1">Monday</option>
+                          <option value="2">Tuesday</option>
+                          <option value="3">Wednesday</option>
+                          <option value="4">Thursday</option>
+                          <option value="5">Friday</option>
+                          <option value="6">Saturday</option>
+                          <option value="0">Sunday</option>
                         </select>
                       </div>
                     </div>
@@ -215,6 +219,44 @@
                       <div class="col-lg-6">
                         <label class="form-label">Work To <span class="text-danger">*</span></label>
                         <input class="form-control" id="work_to" name="work_to" type="time">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch Start Day of Week <span class="text-danger">*</span></label>
+                        <select class="form-control offcanvas-select2" name="lunch_start_day_of_week" id="lunch_start_day_of_week">
+                          <option value="">--</option>
+                          <option value="1">Monday</option>
+                          <option value="2">Tuesday</option>
+                          <option value="3">Wednesday</option>
+                          <option value="4">Thursday</option>
+                          <option value="5">Friday</option>
+                          <option value="6">Saturday</option>
+                          <option value="0">Sunday</option>
+                        </select>
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch End Day of Week <span class="text-danger">*</span></label>
+                        <select class="form-control offcanvas-select2" name="lunch_end_day_of_week" id="lunch_end_day_of_week">
+                          <option value="">--</option>
+                          <option value="1">Monday</option>
+                          <option value="2">Tuesday</option>
+                          <option value="3">Wednesday</option>
+                          <option value="4">Thursday</option>
+                          <option value="5">Friday</option>
+                          <option value="6">Saturday</option>
+                          <option value="0">Sunday</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch Start <span class="text-danger">*</span></label>
+                        <input class="form-control" id="lunch_start" name="lunch_start" type="time">
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch End <span class="text-danger">*</span></label>
+                        <input class="form-control" id="lunch_end" name="lunch_end" type="time">
                       </div>
                     </div>
                     <div class="form-group row">
@@ -251,23 +293,23 @@
                   <form id="flexible-working-hours-form" method="post" action="#">
                     <div class="form-group row">
                       <div class="col-lg-6">
-                        <label class="form-label">Work Date <span class="text-danger">*</span></label>
+                        <label class="form-label">Work From Work Date <span class="text-danger">*</span></label>
                         <input type="hidden" id="work_hours_id" name="work_hours_id">
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="work_date" name="work_date">
+                          <input type="text" class="form-control regular-datepicker" id="start_work_date" name="start_work_date">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>
                         </div>
                       </div>
                       <div class="col-lg-6">
-                        <label class="form-label">Day Period <span class="text-danger">*</span></label>
-                        <select class="form-control offcanvas-select2" name="day_period" id="day_period">
-                          <option value="">--</option>
-                          <option value="Morning">Morning</option>
-                          <option value="Afternoon">Afternoon</option>
-                          <option value="Evening">Evening</option>
-                        </select>
+                        <label class="form-label">Work To Work Date <span class="text-danger">*</span></label>
+                        <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="end_work_date" name="end_work_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -278,6 +320,36 @@
                       <div class="col-lg-6">
                         <label class="form-label">Work To <span class="text-danger">*</span></label>
                         <input class="form-control" id="work_to" name="work_to" type="time">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch Start Work Date <span class="text-danger">*</span></label>
+                        <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="lunch_start_work_date" name="lunch_start_work_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch End Work Date <span class="text-danger">*</span></label>
+                        <div class="input-group date">
+                          <input type="text" class="form-control regular-datepicker" id="lunch_end_work_date" name="lunch_end_work_date">
+                          <span class="input-group-text">
+                            <i class="feather icon-calendar"></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch Start <span class="text-danger">*</span></label>
+                        <input class="form-control" id="lunch_start" name="lunch_start" type="time">
+                      </div>
+                      <div class="col-lg-6">
+                        <label class="form-label">Lunch End <span class="text-danger">*</span></label>
+                        <input class="form-control" id="lunch_end" name="lunch_end" type="time">
                       </div>
                     </div>
                     <div class="form-group row">

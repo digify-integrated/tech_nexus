@@ -24,9 +24,9 @@ if (!empty($userAccountContactID)) {
     $employeeWorkScheduleName = $employeeWorkScheduleDetails['work_schedule_name'] ?? null;
     $employeeWorkScheduleTypeID = $employeeWorkScheduleDetails['work_schedule_type_id'] ?? null;
 
-    $getCurrentWorkingHours = $employeeWorkScheduleTypeID == 1
+    /*$getCurrentWorkingHours = $employeeWorkScheduleTypeID == 1
         ? $workScheduleModel->getCurrentFixedWorkingHours($employeeWorkScheduleID, $currentDay, $currentTime)
-        : $workScheduleModel->getCurrentFlexibleWorkingHours($employeeWorkScheduleID, $currentDate, $currentTime);
+        : $workScheduleModel->getCurrentFlexibleWorkingHours($employeeWorkScheduleID, $currentDate, $currentTime);*/
 
     $startTime = $systemModel->checkDate('empty', $getCurrentWorkingHours[0]['start_time'] ?? null, '', 'h:i a', '');
     $endTime = $systemModel->checkDate('empty', $getCurrentWorkingHours[0]['end_time'] ?? null, '', 'h:i a', '');

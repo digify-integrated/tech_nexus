@@ -178,10 +178,14 @@ class WorkScheduleController {
         $userID = $_SESSION['user_id'];
         $workHoursID = isset($_POST['work_hours_id']) ? htmlspecialchars($_POST['work_hours_id'], ENT_QUOTES, 'UTF-8') : null;
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
-        $dayOfWeek = htmlspecialchars($_POST['day_of_week'], ENT_QUOTES, 'UTF-8');
-        $dayPeriod = htmlspecialchars($_POST['day_period'], ENT_QUOTES, 'UTF-8');
+        $startDayOfWeek = htmlspecialchars($_POST['start_day_of_week'], ENT_QUOTES, 'UTF-8');
+        $endDayOfWeek = htmlspecialchars($_POST['end_day_of_week'], ENT_QUOTES, 'UTF-8');
         $workFrom = $this->systemModel->checkDate('empty', $_POST['work_from'], '', 'H:i:s', '');
         $workTo = $this->systemModel->checkDate('empty', $_POST['work_to'], '', 'H:i:s', '');
+        $lunchStartDayOfWeek = htmlspecialchars($_POST['lunch_start_day_of_week'], ENT_QUOTES, 'UTF-8');
+        $lunchEndDayOfWeek = htmlspecialchars($_POST['lunch_end_day_of_week'], ENT_QUOTES, 'UTF-8');
+        $lunchStart = $this->systemModel->checkDate('empty', $_POST['lunch_start'], '', 'H:i:s', '');
+        $lunchEnd = $this->systemModel->checkDate('empty', $_POST['lunch_end'], '', 'H:i:s', '');
         $notes = htmlspecialchars($_POST['notes'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -191,25 +195,25 @@ class WorkScheduleController {
             exit;
         }
 
-        $checkFixedWorkHoursOverlap = $this->workScheduleModel->checkFixedWorkHoursOverlap($workHoursID, $workScheduleID, $dayOfWeek, $workFrom, $workTo);
+        /*$checkFixedWorkHoursOverlap = $this->workScheduleModel->checkFixedWorkHoursOverlap($workHoursID, $workScheduleID, $dayOfWeek, $workFrom, $workTo);
         $total = $checkFixedWorkHoursOverlap['total'] ?? 0;
     
         if ($total > 0) {
             echo json_encode(['success' => false, 'Overlap' => true]);
             exit;
-        } 
+        }*/
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, null, $dayOfWeek, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, null, $startDayOfWeek, $workFrom, null, $endDayOfWeek, $workTo, null, $lunchStartDayOfWeek, $lunchStart, null, $lunchEndDayOfWeek, $lunchEnd, $notes, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->workScheduleModel->insertWorkHours($workScheduleID, null, $dayOfWeek, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+            $this->workScheduleModel->insertWorkHours($workScheduleID, null, $startDayOfWeek, $workFrom, null, $endDayOfWeek, $workTo, null, $lunchStartDayOfWeek, $lunchStart, null, $lunchEndDayOfWeek, $lunchEnd, $notes, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -236,10 +240,14 @@ class WorkScheduleController {
         $userID = $_SESSION['user_id'];
         $workHoursID = isset($_POST['work_hours_id']) ? htmlspecialchars($_POST['work_hours_id'], ENT_QUOTES, 'UTF-8') : null;
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
-        $workDate = $this->systemModel->checkDate('empty', $_POST['work_date'], '', 'Y-m-d', '');
-        $dayPeriod = htmlspecialchars($_POST['day_period'], ENT_QUOTES, 'UTF-8');
+        $startWorkDate = $this->systemModel->checkDate('empty', $_POST['start_work_date'], '', 'Y-m-d', '');
+        $endWorkDate = $this->systemModel->checkDate('empty', $_POST['end_work_date'], '', 'Y-m-d', '');
         $workFrom = $this->systemModel->checkDate('empty', $_POST['work_from'], '', 'H:i:s', '');
         $workTo = $this->systemModel->checkDate('empty', $_POST['work_to'], '', 'H:i:s', '');
+        $lunchStartWorkDate = $this->systemModel->checkDate('empty', $_POST['lunch_start_work_date'], '', 'Y-m-d', '');
+        $lunchEndWorkDate = $this->systemModel->checkDate('empty', $_POST['lunch_end_work_date'], '', 'Y-m-d', '');
+        $lunchStart = $this->systemModel->checkDate('empty', $_POST['lunch_start'], '', 'H:i:s', '');
+        $lunchEnd = $this->systemModel->checkDate('empty', $_POST['lunch_end'], '', 'H:i:s', '');
         $notes = htmlspecialchars($_POST['notes'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -249,25 +257,25 @@ class WorkScheduleController {
             exit;
         }
 
-        $checkFlexibleWorkHoursOverlap = $this->workScheduleModel->checkFlexibleWorkHoursOverlap($workHoursID, $workScheduleID, $workDate, $workFrom, $workTo);
+        /*$checkFlexibleWorkHoursOverlap = $this->workScheduleModel->checkFlexibleWorkHoursOverlap($workHoursID, $workScheduleID, $workDate, $workFrom, $workTo);
         $total = $checkFlexibleWorkHoursOverlap['total'] ?? 0;
     
         if ($total > 0) {
             echo json_encode(['success' => false, 'Overlap' => true]);
             exit;
-        } 
+        }*/
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, $workDate, null, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+            $this->workScheduleModel->updateWorkHours($workHoursID, $workScheduleID, $startWorkDate, null, $workFrom, $endWorkDate, null, $workTo, $lunchStartWorkDate, null, $lunchStart, $lunchEndWorkDate, null, $lunchEnd, $notes, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->workScheduleModel->insertWorkHours($workScheduleID, $workDate, null, $dayPeriod, $workFrom, $workTo, $notes, $userID);
+            $this->workScheduleModel->insertWorkHours($workScheduleID, $startWorkDate, null, $workFrom, $endWorkDate, null, $workTo, $lunchStartWorkDate, null, $lunchStart, $lunchEndWorkDate, null, $lunchEnd, $notes, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -531,11 +539,18 @@ class WorkScheduleController {
 
             $response = [
                 'success' => true,
-                'workDate' => $this->systemModel->checkDate('empty', $workHoursDetails['work_date'], '', 'm/d/Y', ''),
-                'dayOfWeek' => $workHoursDetails['day_of_week'],
-                'dayPeriod' => $workHoursDetails['day_period'],
+                'startWorkDate' => $this->systemModel->checkDate('empty', $workHoursDetails['start_work_date'], '', 'm/d/Y', ''),
+                'startDayOfWeek' => $workHoursDetails['start_day_of_week'],
                 'startTime' => $this->systemModel->checkDate('empty', $workHoursDetails['start_time'], '', 'H:i', ''),
-                'endTIme' => $this->systemModel->checkDate('empty', $workHoursDetails['end_time'], '', 'H:i', ''),
+                'endWorkDate' => $this->systemModel->checkDate('empty', $workHoursDetails['end_work_date'], '', 'm/d/Y', ''),
+                'endDayOfWeek' => $workHoursDetails['end_day_of_week'],
+                'endTime' => $this->systemModel->checkDate('empty', $workHoursDetails['end_time'], '', 'H:i', ''),
+                'lunchBreakStartWorkDate' => $this->systemModel->checkDate('empty', $workHoursDetails['lunch_break_start_work_date'], '', 'm/d/Y', ''),
+                'lunchBreakStartDayOfWeek' => $workHoursDetails['lunch_break_start_day_of_week'],
+                'lunchBreakStartTime' => $this->systemModel->checkDate('empty', $workHoursDetails['lunch_break_start_time'], '', 'H:i', ''),
+                'lunchBreakEndWorkDate' => $this->systemModel->checkDate('empty', $workHoursDetails['lunch_break_end_work_date'], '', 'm/d/Y', ''),
+                'lunchBreakEndDayOfWeek' => $workHoursDetails['lunch_break_end_day_of_week'],
+                'lunchBreakEndTime' => $this->systemModel->checkDate('empty', $workHoursDetails['lunch_break_end_time'], '', 'H:i', ''),
                 'notes' => $workHoursDetails['notes']
             ];
 

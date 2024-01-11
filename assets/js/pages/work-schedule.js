@@ -484,10 +484,10 @@ function fixedWorkingHoursTable(datatable_name, buttons = false, show_all = fals
     var settings;
 
     const column = [ 
-        { 'data' : 'DAY_OF_WEEK' },
-        { 'data' : 'DAY_PERIOD' },
         { 'data' : 'WORK_FROM' },
         { 'data' : 'WORK_TO' },
+        { 'data' : 'LUNCH_START' },
+        { 'data' : 'LUNCH_END' },
         { 'data' : 'NOTES' },
         { 'data' : 'ACTION' }
     ];
@@ -546,10 +546,10 @@ function flexibleWorkingHoursTable(datatable_name, buttons = false, show_all = f
     var settings;
 
     const column = [ 
-        { 'data' : 'WORK_DATE' },
-        { 'data' : 'DAY_PERIOD' },
         { 'data' : 'WORK_FROM' },
         { 'data' : 'WORK_TO' },
+        { 'data' : 'LUNCH_START' },
+        { 'data' : 'LUNCH_END' },
         { 'data' : 'NOTES' },
         { 'data' : 'ACTION' }
     ];
@@ -705,10 +705,10 @@ function workScheduleForm(){
 function fixedWorkingHoursForm(){
     $('#fixed-working-hours-form').validate({
         rules: {
-            day_of_week: {
+            start_day_of_week: {
                 required: true
             },
-            day_period: {
+            end_day_of_week: {
                 required: true
             },
             work_from: {
@@ -716,21 +716,45 @@ function fixedWorkingHoursForm(){
             },
             work_to: {
                 required: true
-            }
+            },
+            lunch_start_day_of_week: {
+                required: true
+            },
+            lunch_end_day_of_week: {
+                required: true
+            },
+            lunch_start: {
+                required: true
+            },
+            lunch_end: {
+                required: true
+            },
         },
         messages: {
-            day_of_week: {
-                required: 'Please choose the day of week'
+            start_day_of_week: {
+                required: 'Please choose the work from day of week'
             },
-            day_period: {
-                required: 'Please choose the day period'
+            end_day_of_week: {
+                required: 'Please choose the work to day of week'
             },
             work_from: {
                 required: 'Please choose the work from'
             },
             work_to: {
                 required: 'Please choose the work to'
-            }
+            },
+            lunch_start_day_of_week: {
+                required: 'Please choose the lunch start day of week'
+            },
+            lunch_end_day_of_week: {
+                required: 'Please choose the lunch end day of week'
+            },
+            lunch_start: {
+                required: 'Please choose the lunch start'
+            },
+            lunch_end: {
+                required: 'Please choose the lunch end'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -816,10 +840,10 @@ function fixedWorkingHoursForm(){
 function flexibleWorkingHoursForm(){
     $('#flexible-working-hours-form').validate({
         rules: {
-            work_date: {
+            start_work_date: {
                 required: true
             },
-            day_period: {
+            end_work_date: {
                 required: true
             },
             work_from: {
@@ -827,21 +851,45 @@ function flexibleWorkingHoursForm(){
             },
             work_to: {
                 required: true
-            }
+            },
+            lunch_start_work_date: {
+                required: true
+            },
+            lunch_end_work_date: {
+                required: true
+            },
+            lunch_start: {
+                required: true
+            },
+            lunch_end: {
+                required: true
+            },
         },
         messages: {
-            work_date: {
-                required: 'Please choose the work day'
+            start_work_date: {
+                required: 'Please choose the work from work date'
             },
-            day_period: {
-                required: 'Please choose the day period'
+            end_work_date: {
+                required: 'Please choose the work to work date'
             },
             work_from: {
                 required: 'Please choose the work from'
             },
             work_to: {
                 required: 'Please choose the work to'
-            }
+            },
+            lunch_start_work_date: {
+                required: 'Please choose the lunch start work date'
+            },
+            lunch_end_work_date: {
+                required: 'Please choose the lunch end work date'
+            },
+            lunch_start: {
+                required: 'Please choose the lunch start'
+            },
+            lunch_end: {
+                required: 'Please choose the lunch end'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -988,11 +1036,15 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#work_hours_id').val(work_hours_id);
 
-                        checkOptionExist('#day_of_week', response.dayOfWeek, '');
-                        checkOptionExist('#day_period', response.dayPeriod, '');
+                        checkOptionExist('#start_day_of_week', response.startDayOfWeek, '');
+                        checkOptionExist('#end_day_of_week', response.endDayOfWeek, '');
+                        checkOptionExist('#lunch_start_day_of_week', response.lunchBreakStartDayOfWeek, '');
+                        checkOptionExist('#lunch_end_day_of_week', response.lunchBreakEndDayOfWeek, '');
 
                         $('#work_from').val(response.startTime);
-                        $('#work_to').val(response.endTIme);
+                        $('#work_to').val(response.endTime);
+                        $('#lunch_start').val(response.lunchBreakStartTime);
+                        $('#lunch_end').val(response.lunchBreakEndTime);
                         $('#notes').val(response.notes);
                     } 
                     else {
@@ -1030,12 +1082,15 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#work_hours_id').val(work_hours_id);
-                        $('#work_date').val(response.workDate);
-
-                        checkOptionExist('#day_period', response.dayPeriod, '');
+                        $('#start_work_date').val(response.startWorkDate);
+                        $('#end_work_date').val(response.endWorkDate);
+                        $('#lunch_start_work_date').val(response.lunchBreakStartWorkDate);
+                        $('#lunch_end_work_date').val(response.lunchBreakEndWorkDate);
 
                         $('#work_from').val(response.startTime);
-                        $('#work_to').val(response.endTIme);
+                        $('#work_to').val(response.endTime);
+                        $('#lunch_start').val(response.lunchBreakStartTime);
+                        $('#lunch_end').val(response.lunchBreakEndTime);
                         $('#notes').val(response.notes);
                     } 
                     else {
