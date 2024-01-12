@@ -11,7 +11,7 @@ $userAccountProfileImage = $systemModel->checkImage($user['profile_picture'], 'p
 if (!empty($userAccountContactID)) {
     $currentTime = date('H:i:00');
     $currentDate = date('Y-m-d');
-    $currentDay = date('l');
+    $currentDay = date('w');
 
     $employeePersonalInformationDetails = $employeeModel->getPersonalInformation($userAccountContactID);
     $employeeEmploymentInformationDetails = $employeeModel->getEmploymentInformation($userAccountContactID);
@@ -23,10 +23,10 @@ if (!empty($userAccountContactID)) {
     $employeeWorkScheduleDetails = $workScheduleModel->getWorkSchedule($employeeWorkScheduleID);
     $employeeWorkScheduleName = $employeeWorkScheduleDetails['work_schedule_name'] ?? null;
     $employeeWorkScheduleTypeID = $employeeWorkScheduleDetails['work_schedule_type_id'] ?? null;
-
-    /*$getCurrentWorkingHours = $employeeWorkScheduleTypeID == 1
-        ? $workScheduleModel->getCurrentFixedWorkingHours($employeeWorkScheduleID, $currentDay, $currentTime)
-        : $workScheduleModel->getCurrentFlexibleWorkingHours($employeeWorkScheduleID, $currentDate, $currentTime);*/
+    
+    $getCurrentWorkingHours = $employeeWorkScheduleTypeID == 1
+        ? $workScheduleModel->getCurrentFixedWorkingHours($employeeWorkScheduleID, $currentDay)
+        : $workScheduleModel->getCurrentFlexibleWorkingHours($employeeWorkScheduleID);
 
     $startTime = $systemModel->checkDate('empty', $getCurrentWorkingHours[0]['start_time'] ?? null, '', 'h:i a', '');
     $endTime = $systemModel->checkDate('empty', $getCurrentWorkingHours[0]['end_time'] ?? null, '', 'h:i a', '');

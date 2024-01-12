@@ -296,7 +296,7 @@
                         <label class="form-label">Work From Work Date <span class="text-danger">*</span></label>
                         <input type="hidden" id="work_hours_id" name="work_hours_id">
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="start_work_date" name="start_work_date">
+                          <input type="text" class="form-control regular-datepicker" id="start_work_date" name="start_work_date" autocomplete="off">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>
@@ -305,7 +305,7 @@
                       <div class="col-lg-6">
                         <label class="form-label">Work To Work Date <span class="text-danger">*</span></label>
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="end_work_date" name="end_work_date">
+                          <input type="text" class="form-control regular-datepicker" id="end_work_date" name="end_work_date" autocomplete="off">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>
@@ -326,7 +326,7 @@
                       <div class="col-lg-6">
                         <label class="form-label">Lunch Start Work Date <span class="text-danger">*</span></label>
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="lunch_start_work_date" name="lunch_start_work_date">
+                          <input type="text" class="form-control regular-datepicker" id="lunch_start_work_date" name="lunch_start_work_date" autocomplete="off">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>
@@ -335,7 +335,7 @@
                       <div class="col-lg-6">
                         <label class="form-label">Lunch End Work Date <span class="text-danger">*</span></label>
                         <div class="input-group date">
-                          <input type="text" class="form-control regular-datepicker" id="lunch_end_work_date" name="lunch_end_work_date">
+                          <input type="text" class="form-control regular-datepicker" id="lunch_end_work_date" name="lunch_end_work_date" autocomplete="off">
                           <span class="input-group-text">
                             <i class="feather icon-calendar"></i>
                           </span>

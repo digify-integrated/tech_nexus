@@ -219,7 +219,7 @@ BEGIN
     ORDER BY role_name;
 END //
 
-CREATE PROCEDURE generateUserAccountTable(IN p_is_active ENUM('active', 'inactive', 'all'),IN p_is_locked ENUM('yes', 'no', 'all'),IN p_password_expiry_date_start_date DATE,IN p_password_expiry_date_end_date DATE,IN p_filter_last_connection_date_start_date DATE,IN p_filter_last_connection_date_end_date DATE,IN p_filter_last_password_reset_start_date DATE,IN p_filter_last_password_reset_end_date DATE,IN p_filter_last_failed_login_attempt_start_date DATE,IN p_filter_last_failed_login_attempt_end_date DATE)
+CREATE PROCEDURE generateUserAccountTable(IN p_is_active ENUM('active', 'inactive', 'all'), IN p_is_locked ENUM('yes', 'no', 'all'), IN p_password_expiry_date_start_date DATE, IN p_password_expiry_date_end_date DATE, IN p_filter_last_connection_date_start_date DATE, IN p_filter_last_connection_date_end_date DATE, IN p_filter_last_password_reset_start_date DATE, IN p_filter_last_password_reset_end_date DATE, IN p_filter_last_failed_login_attempt_start_date DATE, IN p_filter_last_failed_login_attempt_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
@@ -3786,54 +3786,102 @@ CREATE PROCEDURE checkFixedWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_sc
 BEGIN
     IF p_work_hours_id IS NOT NULL THEN
         SELECT COUNT(*) AS total
-        FROM work_hours
-        WHERE work_hours_id != p_work_hours_id
-        AND work_schedule_id = p_work_schedule_id
-        AND ((start_day_of_week BETWEEN p_start_day_of_week AND p_end_day_of_week) OR (end_day_of_week BETWEEN p_start_day_of_week AND p_end_day_of_week))
-        AND ((start_time BETWEEN p_start_time AND p_end_time) OR (end_time BETWEEN p_start_time AND p_end_time));
+        FROM work_hours wh
+        WHERE wh.work_hours_id != p_work_hours_id
+        AND wh.work_schedule_id = p_work_schedule_id
+        AND (
+            (p_start_day_of_week = wh.start_day_of_week AND p_end_day_of_week = wh.end_day_of_week)
+            OR
+            (p_start_day_of_week < wh.start_day_of_week AND p_end_day_of_week > wh.end_day_of_week)
+            OR
+            (p_start_day_of_week > wh.start_day_of_week AND p_end_day_of_week < wh.end_day_of_week)
+        )
+        AND (
+            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
+            OR
+            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
+            OR
+            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
+        );
     ELSE
         SELECT COUNT(*) AS total
-        FROM work_hours
-        WHERE start_day_of_week = p_start_day_of_week
-        AND ((start_day_of_week BETWEEN p_start_day_of_week AND p_end_day_of_week) OR (end_day_of_week BETWEEN p_start_day_of_week AND p_end_day_of_week))
-        AND ((start_time BETWEEN p_start_time AND p_end_time) OR (end_time BETWEEN p_start_time AND p_end_time));
+        FROM work_hours wh
+        WHERE wh.work_schedule_id = p_work_schedule_id
+        AND (
+            (p_start_day_of_week = wh.start_day_of_week AND p_end_day_of_week = wh.end_day_of_week)
+            OR
+            (p_start_day_of_week < wh.start_day_of_week AND p_end_day_of_week > wh.end_day_of_week)
+            OR
+            (p_start_day_of_week > wh.start_day_of_week AND p_end_day_of_week < wh.end_day_of_week)
+        )
+        AND (
+            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
+            OR
+            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
+            OR
+            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
+        );
     END IF;
 END //
 
 CREATE PROCEDURE checkFlexibleWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_start_work_date DATE, IN p_end_work_date DATE, IN p_start_time TIME, IN p_end_time TIME)
 BEGIN
-    IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+    IF p_work_hours_id IS NOT NULL THEN
         SELECT COUNT(*) AS total
-        FROM work_hours
-        WHERE work_hours_id != p_work_hours_id
-        AND work_schedule_id = p_work_schedule_id
-        AND ((start_work_date BETWEEN p_start_work_date AND p_end_work_date) OR (end_work_date BETWEEN p_start_work_date AND p_end_work_date))
-        AND ((start_time BETWEEN p_start_time AND p_end_time) OR (end_time BETWEEN p_start_time AND p_end_time));
+        FROM work_hours wh
+        WHERE wh.work_hours_id != p_work_hours_id
+        AND wh.work_schedule_id = p_work_schedule_id
+        AND (
+            (p_start_work_date = wh.start_work_date AND p_end_work_date = wh.end_work_date)
+            OR
+            (p_start_work_date < wh.start_work_date AND p_end_work_date > wh.end_work_date)
+            OR
+            (p_start_work_date > wh.start_work_date AND p_end_work_date < wh.end_work_date)
+        )
+        AND (
+            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
+            OR
+            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
+            OR
+            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
+        );
     ELSE
         SELECT COUNT(*) AS total
-        FROM work_hours
-        WHERE work_hours_id != p_work_hours_id
-        AND ((start_work_date BETWEEN p_start_work_date AND p_end_work_date) OR (end_work_date BETWEEN p_start_work_date AND p_end_work_date))
-        AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+        FROM work_hours wh
+        WHERE wh.work_schedule_id = p_work_schedule_id
+        AND (
+            (p_start_work_date = wh.start_work_date AND p_end_work_date = wh.end_work_date)
+            OR
+            (p_start_work_date < wh.start_work_date AND p_end_work_date > wh.end_work_date)
+            OR
+            (p_start_work_date > wh.start_work_date AND p_end_work_date < wh.end_work_date)
+        )
+        AND (
+            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
+            OR
+            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
+            OR
+            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
+        );
     END IF;
 END //
 
-CREATE PROCEDURE getCurrentFixedWorkingHours(IN p_work_schedule_id INT, IN p_day_of_week VARCHAR(15), IN p_current_time TIME)
+CREATE PROCEDURE getCurrentFixedWorkingHours(IN p_work_schedule_id INT, IN p_day_of_week INT)
 BEGIN
 	SELECT start_time, end_time
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id
-    AND day_of_week = p_day_of_week
-    AND start_time <= p_current_time AND end_time >= p_current_time;
+    AND start_day_of_week = p_day_of_week
+    AND CURRENT_TIME() BETWEEN start_time AND end_time;
 END //
 
-CREATE PROCEDURE getCurrentFlexibleWorkingHours(IN p_work_schedule_id INT, IN p_work_date DATE, IN p_current_time TIME)
+CREATE PROCEDURE getCurrentFlexibleWorkingHours(IN p_work_schedule_id INT)
 BEGIN
 	SELECT start_time, end_time
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id
-    AND work_date = p_work_date
-    AND start_time <= p_current_time AND end_time >= p_current_time;
+    AND start_work_date = CURDATE()
+    AND CURRENT_TIME() BETWEEN start_time AND end_time;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

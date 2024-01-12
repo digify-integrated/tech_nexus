@@ -195,13 +195,13 @@ class WorkScheduleController {
             exit;
         }
 
-        /*$checkFixedWorkHoursOverlap = $this->workScheduleModel->checkFixedWorkHoursOverlap($workHoursID, $workScheduleID, $dayOfWeek, $workFrom, $workTo);
+        $checkFixedWorkHoursOverlap = $this->workScheduleModel->checkFixedWorkHoursOverlap($workHoursID, $workScheduleID, $startDayOfWeek, $endDayOfWeek, $workFrom, $workTo);
         $total = $checkFixedWorkHoursOverlap['total'] ?? 0;
     
         if ($total > 0) {
             echo json_encode(['success' => false, 'Overlap' => true]);
             exit;
-        }*/
+        }
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
@@ -257,13 +257,13 @@ class WorkScheduleController {
             exit;
         }
 
-        /*$checkFlexibleWorkHoursOverlap = $this->workScheduleModel->checkFlexibleWorkHoursOverlap($workHoursID, $workScheduleID, $workDate, $workFrom, $workTo);
+        $checkFlexibleWorkHoursOverlap = $this->workScheduleModel->checkFlexibleWorkHoursOverlap($workHoursID, $workScheduleID, $startWorkDate, $endWorkDate, $workFrom, $workTo);
         $total = $checkFlexibleWorkHoursOverlap['total'] ?? 0;
     
         if ($total > 0) {
             echo json_encode(['success' => false, 'Overlap' => true]);
             exit;
-        }*/
+        }
     
         $checkWorkHoursExist = $this->workScheduleModel->checkWorkHoursExist($workHoursID);
         $total = $checkWorkHoursExist['total'] ?? 0;
