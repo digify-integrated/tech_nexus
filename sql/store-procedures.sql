@@ -3725,28 +3725,21 @@ BEGIN
     WHERE work_hours_id = p_work_hours_id;
 END //
 
-CREATE PROCEDURE insertWorkHours(IN p_work_schedule_id INT, IN p_start_work_date DATE, IN p_start_day_of_week INT, IN p_start_time TIME, IN p_end_work_date DATE, IN p_end_day_of_week INT, IN p_end_time TIME, IN p_lunch_break_start_work_date DATE, IN p_lunch_break_start_day_of_week INT, IN p_lunch_break_start_time TIME, IN p_lunch_break_end_work_date DATE, IN p_lunch_break_end_day_of_week INT, IN p_lunch_break_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
+CREATE PROCEDURE insertWorkHours(IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO work_hours (work_schedule_id, start_work_date, start_day_of_week, start_time, end_work_date, end_day_of_week, end_time, lunch_break_start_work_date, lunch_break_start_day_of_week, lunch_break_start_time, lunch_break_end_work_date, lunch_break_end_day_of_week, lunch_break_end_time, notes, last_log_by) 
-	VALUES(p_work_schedule_id, p_start_work_date, p_start_day_of_week, p_start_time, p_end_work_date, p_end_day_of_week, p_end_time, p_lunch_break_start_work_date, p_lunch_break_start_day_of_week, p_lunch_break_start_time, p_lunch_break_end_work_date, p_lunch_break_end_day_of_week, p_lunch_break_end_time, p_notes, p_last_log_by);
+    INSERT INTO work_hours (work_schedule_id, work_date, day_of_week, day_period, start_time, end_time, notes, last_log_by) 
+	VALUES(p_work_schedule_id, p_work_date, p_day_of_week, p_day_period, p_start_time, p_end_time, p_notes, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateWorkHours(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_start_work_date DATE, IN p_start_day_of_week INT, IN p_start_time TIME, IN p_end_work_date DATE, IN p_end_day_of_week INT, IN p_end_time TIME, IN p_lunch_break_start_work_date DATE, IN p_lunch_break_start_day_of_week INT, IN p_lunch_break_start_time TIME, IN p_lunch_break_end_work_date DATE, IN p_lunch_break_end_day_of_week INT, IN p_lunch_break_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
+CREATE PROCEDURE updateWorkHours(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME, IN p_notes TEXT, IN p_last_log_by INT)
 BEGIN
 	UPDATE work_hours
     SET work_schedule_id = p_work_schedule_id,
-    start_work_date = p_start_work_date,
-    start_day_of_week = p_start_day_of_week,
+    work_date = p_work_date,
+    day_of_week = p_day_of_week,
+    day_period = p_day_period,
     start_time = p_start_time,
-    end_work_date = p_end_work_date,
-    end_day_of_week = p_end_day_of_week,
     end_time = p_end_time,
-    lunch_break_start_work_date = p_lunch_break_start_work_date,
-    lunch_break_start_day_of_week = p_lunch_break_start_day_of_week,
-    lunch_break_start_time = p_lunch_break_start_time,
-    lunch_break_end_work_date = p_lunch_break_end_work_date,
-    lunch_break_end_day_of_week = p_lunch_break_end_day_of_week,
-    lunch_break_end_time = p_lunch_break_end_time,
     notes = p_notes,
     last_log_by = p_last_log_by
     WHERE work_hours_id = p_work_hours_id;
@@ -3776,112 +3769,72 @@ END //
 
 CREATE PROCEDURE generateWorkHoursTable(IN p_work_schedule_id INT)
 BEGIN
-	SELECT *
+	SELECT work_hours_id, work_date, day_of_week, day_period, start_time, end_time, notes
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id 
     ORDER BY work_hours_id;
 END //
 
-CREATE PROCEDURE checkFixedWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_start_day_of_week INT, IN p_end_day_of_week INT, IN p_start_time TIME, IN p_end_time TIME)
+CREATE PROCEDURE checkFixedWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_day_of_week VARCHAR(15), IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME)
 BEGIN
-    IF p_work_hours_id IS NOT NULL THEN
-        SELECT COUNT(*) AS total
-        FROM work_hours wh
-        WHERE wh.work_hours_id != p_work_hours_id
-        AND wh.work_schedule_id = p_work_schedule_id
-        AND (
-            (p_start_day_of_week = wh.start_day_of_week AND p_end_day_of_week = wh.end_day_of_week)
-            OR
-            (p_start_day_of_week < wh.start_day_of_week AND p_end_day_of_week > wh.end_day_of_week)
-            OR
-            (p_start_day_of_week > wh.start_day_of_week AND p_end_day_of_week < wh.end_day_of_week)
-        )
-        AND (
-            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
-            OR
-            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
-            OR
-            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
-        );
-    ELSE
-        SELECT COUNT(*) AS total
-        FROM work_hours wh
-        WHERE wh.work_schedule_id = p_work_schedule_id
-        AND (
-            (p_start_day_of_week = wh.start_day_of_week AND p_end_day_of_week = wh.end_day_of_week)
-            OR
-            (p_start_day_of_week < wh.start_day_of_week AND p_end_day_of_week > wh.end_day_of_week)
-            OR
-            (p_start_day_of_week > wh.start_day_of_week AND p_end_day_of_week < wh.end_day_of_week)
-        )
-        AND (
-            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
-            OR
-            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
-            OR
-            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
-        );
+    IF p_day_period <> 'Break' THEN
+        IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+            SELECT COUNT(*) AS total
+            FROM work_hours
+            WHERE work_hours_id != p_work_hours_id
+            AND work_schedule_id = p_work_schedule_id
+            AND day_of_week = p_day_of_week
+            AND day_period != 'Break'
+            AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+        ELSE
+            SELECT COUNT(*) AS total
+            FROM work_hours
+            WHERE work_hours_id != p_work_hours_id
+            AND day_of_week = p_day_of_week
+            AND day_period != 'Break'
+            AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+        END IF;
     END IF;
 END //
 
-CREATE PROCEDURE checkFlexibleWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_start_work_date DATE, IN p_end_work_date DATE, IN p_start_time TIME, IN p_end_time TIME)
+CREATE PROCEDURE checkFlexibleWorkHoursOverlap(IN p_work_hours_id INT, IN p_work_schedule_id INT, IN p_work_date DATE, IN p_day_period VARCHAR(15), IN p_start_time TIME, IN p_end_time TIME)
 BEGIN
-    IF p_work_hours_id IS NOT NULL THEN
-        SELECT COUNT(*) AS total
-        FROM work_hours wh
-        WHERE wh.work_hours_id != p_work_hours_id
-        AND wh.work_schedule_id = p_work_schedule_id
-        AND (
-            (p_start_work_date = wh.start_work_date AND p_end_work_date = wh.end_work_date)
-            OR
-            (p_start_work_date < wh.start_work_date AND p_end_work_date > wh.end_work_date)
-            OR
-            (p_start_work_date > wh.start_work_date AND p_end_work_date < wh.end_work_date)
-        )
-        AND (
-            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
-            OR
-            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
-            OR
-            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
-        );
-    ELSE
-        SELECT COUNT(*) AS total
-        FROM work_hours wh
-        WHERE wh.work_schedule_id = p_work_schedule_id
-        AND (
-            (p_start_work_date = wh.start_work_date AND p_end_work_date = wh.end_work_date)
-            OR
-            (p_start_work_date < wh.start_work_date AND p_end_work_date > wh.end_work_date)
-            OR
-            (p_start_work_date > wh.start_work_date AND p_end_work_date < wh.end_work_date)
-        )
-        AND (
-            (p_start_time BETWEEN wh.start_time AND wh.end_time) OR (p_end_time BETWEEN wh.start_time AND wh.end_time)
-            OR
-            (wh.start_time BETWEEN p_start_time AND p_end_time) OR (wh.end_time BETWEEN p_start_time AND p_end_time)
-            OR
-            (p_start_time <= wh.start_time AND p_end_time >= wh.end_time)
-        );
+    IF p_day_period <> 'Break' THEN
+        IF p_work_hours_id IS NOT NULL OR p_work_hours_id <> '' THEN
+            SELECT COUNT(*) AS total
+            FROM work_hours
+            WHERE work_hours_id != p_work_hours_id
+            AND work_schedule_id = p_work_schedule_id
+            AND work_date = p_work_date
+            AND day_period != 'Break'
+            AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+        ELSE
+            SELECT COUNT(*) AS total
+            FROM work_hours
+            WHERE work_hours_id != p_work_hours_id
+            AND work_date = p_work_date
+            AND day_period != 'Break'
+            AND (start_time BETWEEN p_start_time AND p_end_time OR end_time BETWEEN p_start_time AND p_end_time);
+        END IF;
     END IF;
 END //
 
-CREATE PROCEDURE getCurrentFixedWorkingHours(IN p_work_schedule_id INT, IN p_day_of_week INT)
+CREATE PROCEDURE getCurrentFixedWorkingHours(IN p_work_schedule_id INT, IN p_day_of_week VARCHAR(15), IN p_current_time TIME)
 BEGIN
 	SELECT start_time, end_time
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id
-    AND start_day_of_week = p_day_of_week
-    AND CURRENT_TIME() BETWEEN start_time AND end_time;
+    AND day_of_week = p_day_of_week
+    AND start_time <= p_current_time AND end_time >= p_current_time;
 END //
 
-CREATE PROCEDURE getCurrentFlexibleWorkingHours(IN p_work_schedule_id INT)
+CREATE PROCEDURE getCurrentFlexibleWorkingHours(IN p_work_schedule_id INT, IN p_work_date DATE, IN p_current_time TIME)
 BEGIN
 	SELECT start_time, end_time
     FROM work_hours
     WHERE work_schedule_id = p_work_schedule_id
-    AND start_work_date = CURDATE()
-    AND CURRENT_TIME() BETWEEN start_time AND end_time;
+    AND work_date = p_work_date
+    AND start_time <= p_current_time AND end_time >= p_current_time;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

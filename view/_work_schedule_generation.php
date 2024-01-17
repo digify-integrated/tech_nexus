@@ -108,14 +108,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $workHoursID = $row['work_hours_id'];
-                    $startDayOfWeek = $row['start_day_of_week'];
-                    $endDayOfWeek = $row['end_day_of_week'];
-                    $lunchBreakStartDayOfWeek = $row['lunch_break_start_day_of_week'];
-                    $lunchBreakEndDayOfWeek = $row['lunch_break_end_day_of_week'];
+                    $dayOfWeek = $row['day_of_week'];
+                    $dayPeriod = $row['day_period'];
                     $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i a', '');
                     $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i a', '');
-                    $lunchBreakStartTime = $systemModel->checkDate('empty', $row['lunch_break_start_time'], '', 'h:i a', '');
-                    $lunchBreakEndTime = $systemModel->checkDate('empty', $row['lunch_break_end_time'], '', 'h:i a', '');
                     $notes = $row['notes'];
 
                     $update = '';
@@ -133,10 +129,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
-                        'WORK_FROM' => date('l', strtotime("Sunday +$startDayOfWeek days")) . '<br/>' . $startTime,
-                        'WORK_TO' => date('l', strtotime("Sunday +$endDayOfWeek days")) . '<br/>' . $endTime,
-                        'LUNCH_START' => date('l', strtotime("Sunday +$lunchBreakStartDayOfWeek days")) . '<br/>' . $lunchBreakStartTime,
-                        'LUNCH_END' => date('l', strtotime("Sunday +$lunchBreakEndDayOfWeek days")) . '<br/>' . $lunchBreakEndTime,
+                        'DAY_OF_WEEK' => $dayOfWeek,
+                        'DAY_PERIOD' => $dayPeriod,
+                        'WORK_FROM' => $startTime,
+                        'WORK_TO' => $endTime,
                         'NOTES' => $notes,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $update .'
@@ -176,14 +172,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $workHoursID = $row['work_hours_id'];
-                    $startWorkDate = $systemModel->checkDate('empty', $row['start_work_date'], '', 'm/d/Y', '');
-                    $endWorkDate = $systemModel->checkDate('empty', $row['end_work_date'], '', 'm/d/Y', '');
+                    $workDate = $systemModel->checkDate('empty', $row['work_date'], '', 'm/d/Y', '');
+                    $dayPeriod = $row['day_period'];
                     $startTime = $systemModel->checkDate('empty', $row['start_time'], '', 'h:i a', '');
                     $endTime = $systemModel->checkDate('empty', $row['end_time'], '', 'h:i a', '');
-                    $lunchBreakStartWorkDate = $systemModel->checkDate('empty', $row['lunch_break_start_work_date'], '', 'm/d/Y', '');
-                    $lunchBreakEndWorkDate = $systemModel->checkDate('empty', $row['lunch_break_end_work_date'], '', 'm/d/Y', '');
-                    $lunchBreakStartTime = $systemModel->checkDate('empty', $row['lunch_break_start_time'], '', 'h:i a', '');
-                    $lunchBreakEndTime = $systemModel->checkDate('empty', $row['lunch_break_end_time'], '', 'h:i a', '');
                     $notes = $row['notes'];
 
                     $update = '';
@@ -201,10 +193,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
-                        'WORK_FROM' => $startWorkDate . '<br/>' . $startTime,
-                        'WORK_TO' => $endWorkDate . '<br/>' . $endTime,
-                        'LUNCH_START' => $lunchBreakStartWorkDate . '<br/>' . $lunchBreakStartTime,
-                        'LUNCH_END' => $lunchBreakEndWorkDate . '<br/>' . $lunchBreakEndTime,
+                        'WORK_DATE' => $workDate,
+                        'DAY_PERIOD' => $dayPeriod,
+                        'WORK_FROM' => $startTime,
+                        'WORK_TO' => $endTime,
                         'NOTES' => $notes,
                         'ACTION' => '<div class="d-flex gap-2">
                                         '. $update .'

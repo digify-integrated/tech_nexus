@@ -3538,24 +3538,17 @@ CREATE INDEX work_schedule_index_work_schedule_type_id ON work_schedule(work_sch
 CREATE TABLE work_hours (
     work_hours_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     work_schedule_id INT UNSIGNED,
-    start_work_date DATE,
-    start_day_of_week INT,
+    work_date DATE,
+    day_of_week VARCHAR(15),
+    day_period VARCHAR(15),
     start_time TIME,
-    end_work_date DATE,
-    end_day_of_week INT,
     end_time TIME,
-    lunch_break_start_work_date DATE,
-    lunch_break_start_day_of_week INT,
-    lunch_break_start_time TIME,
-    lunch_break_end_work_date DATE,
-    lunch_break_end_day_of_week INT,
-    lunch_break_end_time TIME,
     notes TEXT,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (work_schedule_id) REFERENCES work_schedule(work_schedule_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
-
+ 
 CREATE INDEX work_hours_index_work_hours_id ON work_hours(work_hours_id);
 CREATE INDEX work_hours_index_work_schedule_id ON work_hours(work_schedule_id);
 
