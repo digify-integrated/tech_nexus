@@ -2244,24 +2244,52 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.work_date <> OLD.work_date THEN
-        SET audit_log = CONCAT(audit_log, "Work Date: ", OLD.work_date, " -> ", NEW.work_date, "<br/>");
+    IF NEW.start_work_date <> OLD.start_work_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Work Date: ", OLD.start_work_date, " -> ", NEW.start_work_date, "<br/>");
     END IF;
 
-    IF NEW.day_of_week <> OLD.day_of_week THEN
-        SET audit_log = CONCAT(audit_log, "Day of Week: ", OLD.day_of_week, " -> ", NEW.day_of_week, "<br/>");
-    END IF;
-
-    IF NEW.day_period <> OLD.day_period THEN
-        SET audit_log = CONCAT(audit_log, "Day of Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
+    IF NEW.start_day_of_week <> OLD.start_day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Start Day of Week: ", OLD.start_day_of_week, " -> ", NEW.start_day_of_week, "<br/>");
     END IF;
 
     IF NEW.start_time <> OLD.start_time THEN
         SET audit_log = CONCAT(audit_log, "Start Time: ", OLD.start_time, " -> ", NEW.start_time, "<br/>");
     END IF;
 
+    IF NEW.end_work_date <> OLD.end_work_date THEN
+        SET audit_log = CONCAT(audit_log, "End Work Date: ", OLD.end_work_date, " -> ", NEW.end_work_date, "<br/>");
+    END IF;
+
+    IF NEW.end_day_of_week <> OLD.end_day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "End Day of Week: ", OLD.end_day_of_week, " -> ", NEW.end_day_of_week, "<br/>");
+    END IF;
+
     IF NEW.end_time <> OLD.end_time THEN
         SET audit_log = CONCAT(audit_log, "End Time: ", OLD.end_time, " -> ", NEW.end_time, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_start_work_date <> OLD.lunch_break_start_work_date THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break Start Work Date: ", OLD.lunch_break_start_work_date, " -> ", NEW.lunch_break_start_work_date, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_start_day_of_week <> OLD.lunch_break_start_day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break Start Day of Week: ", OLD.lunch_break_start_day_of_week, " -> ", NEW.lunch_break_start_day_of_week, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_start_time <> OLD.lunch_break_start_time THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break Start Time: ", OLD.lunch_break_start_time, " -> ", NEW.lunch_break_start_time, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_end_work_date <> OLD.lunch_break_end_work_date THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break End Work Date: ", OLD.lunch_break_end_work_date, " -> ", NEW.lunch_break_end_work_date, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_end_day_of_week <> OLD.lunch_break_end_day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break End Day of Week: ", OLD.lunch_break_end_day_of_week, " -> ", NEW.lunch_break_end_day_of_week, "<br/>");
+    END IF;
+
+    IF NEW.lunch_break_end_time <> OLD.lunch_break_end_time THEN
+        SET audit_log = CONCAT(audit_log, "Lunch Break End Time: ", OLD.lunch_break_end_time, " -> ", NEW.lunch_break_end_time, "<br/>");
     END IF;
 
     IF NEW.notes <> OLD.notes THEN
@@ -2280,24 +2308,52 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
 
-    IF NEW.work_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Work Date: ", NEW.work_date);
+    IF NEW.start_work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Work Date: ", NEW.start_work_date);
     END IF;
 
-    IF NEW.day_of_week <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Day of Week: ", NEW.day_of_week);
-    END IF;
-
-    IF NEW.day_period <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Day Period: ", NEW.day_period);
+    IF NEW.start_day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Day of Week: ", NEW.start_day_of_week);
     END IF;
 
     IF NEW.start_time <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Start Time: ", NEW.start_time);
     END IF;
 
+    IF NEW.end_work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Work Date: ", NEW.end_work_date);
+    END IF;
+
+    IF NEW.end_day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>End Day of Week: ", NEW.end_day_of_week);
+    END IF;
+
     IF NEW.end_time <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>End Time: ", NEW.end_time);
+    END IF;
+
+    IF NEW.lunch_break_start_work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Work Date: ", NEW.lunch_break_start_work_date);
+    END IF;
+
+    IF NEW.lunch_break_start_day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Day of Week: ", NEW.lunch_break_start_day_of_week);
+    END IF;
+
+    IF NEW.lunch_break_start_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Time: ", NEW.lunch_break_start_time);
+    END IF;
+
+    IF NEW.lunch_break_end_work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Work Date: ", NEW.lunch_break_end_work_date);
+    END IF;
+
+    IF NEW.lunch_break_end_day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break End Day of Week: ", NEW.lunch_break_end_day_of_week);
+    END IF;
+
+    IF NEW.lunch_break_end_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break End Time: ", NEW.lunch_break_end_time);
     END IF;
 
     IF NEW.notes <> '' THEN
