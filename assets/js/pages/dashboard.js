@@ -99,7 +99,7 @@ function recordAttendanceForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Attendance Clock-In Success' : 'Attendance Clock-Out Success';
+                        const notificationMessage = response.insertRecord ? 'Attendance Check-In Success' : 'Attendance Check-Out Success';
                         const notificationDescription = response.insertRecord ? 'The attendance record has been inserted successfully.' : 'The attendance record has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');

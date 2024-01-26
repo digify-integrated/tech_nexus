@@ -1122,8 +1122,8 @@ class EmployeeController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.png';
 
-        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee_attendance/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee_attendance/' . $fileNew;
+        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee_attendance/'. $contactID .'/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee_attendance/'. $contactID .'/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);

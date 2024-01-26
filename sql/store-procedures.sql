@@ -5088,23 +5088,21 @@ BEGIN
     WHERE attendance_id = p_attendance_id;
 END //
 
-CREATE PROCEDURE insertAttendanceEntry(IN p_contact_id INT, IN p_entry_image VARCHAR(500), IN p_entry_date DATE, IN p_entry_time TIME, IN p_entry_location VARCHAR(100), IN p_entry_state VARCHAR(15), IN p_entry_by INT, IN p_late_minutes INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertRegularAttendanceEntry(IN p_contact_id INT, IN p_check_in_image VARCHAR(500), IN p_check_in DATETIME, IN p_check_in_location VARCHAR(100), IN p_check_in_by INT, IN p_check_in_notes VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO attendance (contact_id, entry_image, entry_date, entry_time, entry_location, entry_state, entry_by, late_minutes, last_log_by) 
-	VALUES(p_contact_id, p_entry_image, p_entry_date, p_entry_time, p_entry_location, p_entry_state, p_entry_by, p_late_minutes, p_last_log_by);
+    INSERT INTO attendance (contact_id, check_in_image, check_in, check_in_location, check_in_by, check_in_mode, check_in_notes, last_log_by) 
+	VALUES(p_contact_id, p_check_in_image, p_check_in, p_check_in_location, p_check_in_by, 'Regular', p_check_in_notes, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateAttendanceExit(IN p_attendance_id INT, IN p_contact_id INT, IN p_exit_image VARCHAR(500), IN p_exit_date DATE, IN p_exit_time TIME, IN p_exit_location VARCHAR(100), IN p_exit_state VARCHAR(15), IN p_exit_by INT, IN p_undertime_minutes INT, IN p_overtime_minutes INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateRegularAttendanceExit(IN p_attendance_id INT, IN p_contact_id INT, IN p_check_out_image VARCHAR(500), IN p_check_out DATETIME, IN p_check_out_location VARCHAR(100), IN p_check_out_by INT, IN p_check_out_notes VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     UPDATE attendance
-    SET exit_image = p_exit_image,
-    exit_date = p_exit_date,
-    exit_time = p_exit_time,
-    exit_location = p_exit_location,
-    exit_state = p_exit_state,
-    exit_by = p_exit_by,
-    undertime_minutes = p_undertime_minutes,
-    overtime_minutes = p_overtime_minutes,
+    SET check_out_image = p_check_out_image,
+    check_out = p_check_out,
+    check_out_location = p_check_out_location,
+    check_out_by = p_check_out_by,
+    check_out_mode = 'Regular',
+    check_out_notes = p_check_out_notes,
     last_log_by = p_last_log_by
     WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
 END //

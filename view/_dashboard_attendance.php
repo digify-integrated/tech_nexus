@@ -27,11 +27,8 @@
                   <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                 </div>
                 <div class="flex-grow-1 ms-3 me-2">
-                  <p class="f-12 mb-0">Start Time</p>
+                  <p class="f-12 mb-0">Check-In Time</p>
                   <h6 class="mb-0 text-primary">12:59 am</h6>
-                  <div id="entry-state">
-                    <span  class="badge bg-danger">Undertime</span>
-                  </div>
                 </div>
             </div>
           </div>
@@ -41,11 +38,8 @@
                   <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                 </div>
                 <div class="flex-grow-1 ms-3 me-2">
-                  <p class="f-12 mb-0">End Time</p>
+                  <p class="f-12 mb-0">Check-Out Time</p>
                   <h6 class="mb-0 text-primary">12:59 am</h6>
-                  <div id="exit-state">
-                    <span  class="badge bg-danger">Undertime</span>
-                  </div>
                 </div>
             </div>
           </div>
