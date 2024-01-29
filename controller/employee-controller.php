@@ -1102,7 +1102,8 @@ class EmployeeController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
-    
+        
+        $attendanceDate = date('Y-m-d H:i:s');
         $userID = $_SESSION['user_id'];
         $contactID = $_SESSION['contact_id'];
         $attendanceimageData = $_POST['attendance_image_data'];
@@ -1142,7 +1143,7 @@ class EmployeeController {
                 exit;
             }
 
-            $this->employeeModel->updateAttendanceExit($attendanceID, $contactID, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updateRegularAttendanceExit($attendanceID, $contactID, $filePath, $attendanceDate, $location, $userID, $notes, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -1153,7 +1154,7 @@ class EmployeeController {
                 exit;
             }
 
-            $this->employeeModel->insertAttendanceEntry($contactID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertRegularAttendanceEntry($contactID, $filePath, $attendanceDate, $location, $userID, $notes, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;

@@ -619,6 +619,34 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateRegularAttendanceExit
+    # Description: Updates the regular attendance exit.
+    #
+    # Parameters:
+    # - $p_contact_bank_id (int): The bank ID.
+    # - $p_contact_id (int): The contact ID.
+    # - $p_bank_id (int): The bank ID.
+    # - $bank_account_type_id (int): The bank account type ID.
+    # - $p_account_number (string): The account number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateRegularAttendanceExit($p_contact_bank_id, $p_contact_id, $p_bank_id, $bank_account_type_id, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactBank (:p_contact_bank_id, :p_contact_id, :p_bank_id, :bank_account_type_id, :p_account_number, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_bank_id', $p_bank_id, PDO::PARAM_INT);
+        $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
