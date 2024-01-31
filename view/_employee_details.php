@@ -548,7 +548,7 @@
                               </select>
                             </div>
                             <div class="col-lg-6 mt-3 mt-lg-0">
-                              <label class="form-label">Job Level <span class="text-danger">*</span></label>
+                              <label class="form-label">Job Level</label>
                               <select class="form-control offcanvas-select2" name="job_level_id" id="job_level_id">
                                 <option value="">--</option>
                                 '. $jobLevelModel->generateJobLevelOptions() .'
@@ -587,6 +587,12 @@
                                 <option value="">--</option>
                                 '. $workScheduleModel->generateWorkScheduleOptions() .'
                               </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-lg-6">
+                              <label class="form-label">Kiosk Pin Code</label>
+                              <input type="text" class="form-control" id="kiosk_pin_code" name="kiosk_pin_code" maxlength="6" autocomplete="off">
                             </div>
                           </div>
                         </form>

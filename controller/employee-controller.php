@@ -372,6 +372,7 @@ class EmployeeController {
         $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
         $managerID = htmlspecialchars($_POST['manager_id'], ENT_QUOTES, 'UTF-8');
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+        $kioskPinCode = $this->securityModel->encryptData($_POST['kiosk_pin_code']);
         $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -385,13 +386,13 @@ class EmployeeController {
         $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -1123,8 +1124,8 @@ class EmployeeController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.png';
 
-        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee_attendance/'. $contactID .'/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee_attendance/'. $contactID .'/' . $fileNew;
+        $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_attendance/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_attendance/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -1288,8 +1289,8 @@ class EmployeeController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.' . $employeeImageActualFileExtension;
 
-        $directory = DEFAULT_IMAGES_RELATIVE_PATH_FILE . 'employee/employee_image/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_IMAGES_FULL_PATH_FILE . 'employee/employee_image/' . $fileNew;
+        $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_image/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_image/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -2297,6 +2298,7 @@ class EmployeeController {
             $branchID = $employeeDetails['branch_id'] ?? null;
             $managerID = $employeeDetails['manager_id'] ?? null;
             $workScheduleID = $employeeDetails['work_schedule_id'] ?? null;
+            $kioskPinCode = !empty($employeeDetails['kiosk_pin_code']) ? $this->securityModel->decryptData($employeeDetails['kiosk_pin_code']) : null;
             $employmentStatus = $employeeDetails['employment_status'] ?? null;
             $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
             $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? null;
@@ -2323,6 +2325,7 @@ class EmployeeController {
                 'branchID' => $branchID,
                 'managerID' => $managerID,
                 'workScheduleID' => $workScheduleID,
+                'kioskPinCode' => $kioskPinCode,
                 'branchName' => $branchName,
                 'isActiveBadge' => $isActiveBadge,
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),

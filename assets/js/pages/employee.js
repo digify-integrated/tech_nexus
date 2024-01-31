@@ -23,6 +23,7 @@
             var employee_search = $employeeSearch.val();
             var employment_status_filter = $('.employment-status-filter:checked').val();
             var age_filter = $('#age-filter').val();
+            var company_filter_values = [];
             var department_filter_values = [];
             var job_position_filter_values = [];
             var branch_filter_values = [];
@@ -32,6 +33,10 @@
             var civil_status_filter_values = [];
             var blood_type_filter_values = [];
             var religion_filter_values = [];
+
+            $('.company-filter:checked').each(function() {
+                company_filter_values.push($(this).val());
+            });
 
             $('.department-filter:checked').each(function() {
                 department_filter_values.push($(this).val());
@@ -69,6 +74,7 @@
                 religion_filter_values.push($(this).val());
             });
         
+            var company_filter = company_filter_values.join(', ');
             var department_filter = department_filter_values.join(', ');
             var job_position_filter = job_position_filter_values.join(', ');
             var branch_filter = branch_filter_values.join(', ');
@@ -98,6 +104,7 @@
                     current_page: current_page,
                     employee_search: employee_search,
                     employment_status_filter: employment_status_filter,
+                    company_filter: company_filter,
                     department_filter: department_filter,
                     job_position_filter: job_position_filter,
                     branch_filter: branch_filter,
@@ -166,6 +173,7 @@
 
             const filterClasses = [
                 '.employment-status-filter',
+                '.company-filter',
                 '.department-filter',
                 '.job-position-filter',
                 '.branch-filter',
@@ -2314,9 +2322,6 @@ function employmentInformationForm(){
             employee_type_id: {
                 required: true
             },
-            job_level_id: {
-                required: true
-            },
             branch_id: {
                 required: true
             },
@@ -2326,10 +2331,14 @@ function employmentInformationForm(){
             onboard_date: {
                 required: true
             },
+            kiosk_pin_code: {
+                minlength: 1,
+                maxlength: 6
+            },
         },
         messages: {
             badge_id: {
-                required: 'Please enter the badge ID'
+                required: 'Please enter the ID number'
             },
             company_id: {
                 required: 'Please choose the company'
@@ -2342,9 +2351,6 @@ function employmentInformationForm(){
             },
             employee_type_id: {
                 required: 'Please choose the employee type'
-            },
-            job_level_id: {
-                required: 'Please choose the job level'
             },
             branch_id: {
                 required: 'Please choose the job level'
@@ -3924,6 +3930,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#badge_id').val(response.badgeID);
                         $('#onboard_date').val(response.onboardDate);
+                        $('#kiosk_pin_code').val(response.kioskPinCode);
 
                         document.getElementById('employee-status-badge').innerHTML = response.isActiveBadge;
 

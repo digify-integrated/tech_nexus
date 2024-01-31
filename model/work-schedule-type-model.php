@@ -194,5 +194,35 @@ class WorkScheduleTypeModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateWorkScheduleTypeCheckBox
+    # Description: Generates the work schedule type options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateWorkScheduleTypeCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateWorkScheduleTypeOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $workScheduleTypeID = $row['work_schedule_type_id'];
+            $workScheduleTypeName = $row['work_schedule_type_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input work-schedule-type-filter" type="checkbox" id="work-schedule-type-' . htmlspecialchars($workScheduleTypeID, ENT_QUOTES) . '" value="' . htmlspecialchars($workScheduleTypeID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="work-schedule-type-' . htmlspecialchars($workScheduleTypeID, ENT_QUOTES) . '">' . htmlspecialchars($workScheduleTypeName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

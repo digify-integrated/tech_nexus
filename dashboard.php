@@ -1,6 +1,9 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
+  require('model/attendance-setting-model.php');
+
+  $attendanceSettingModel = new AttendanceSettingModel($databaseModel);
 
   $pageTitle = 'Dashboard';
 
@@ -8,6 +11,7 @@
 
   require('config/_interface_settings.php');
   require('config/_user_account_details.php');
+  require('config/_attendance_record_details.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">

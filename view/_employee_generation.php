@@ -86,6 +86,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
                 $employeeSearch = htmlspecialchars($_POST['employee_search'], ENT_QUOTES, 'UTF-8');
                 $employementStatusFilter = htmlspecialchars($_POST['employment_status_filter'], ENT_QUOTES, 'UTF-8');
+                $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
                 $departmentFilter = htmlspecialchars($_POST['department_filter'], ENT_QUOTES, 'UTF-8');
                 $jobPositionFilter = htmlspecialchars($_POST['job_position_filter'], ENT_QUOTES, 'UTF-8');
                 $branchFilter = htmlspecialchars($_POST['branch_filter'], ENT_QUOTES, 'UTF-8');
@@ -101,11 +102,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $maxAge = $ageExplode[1];
                 $offset = ($currentPage - 1) * $employeePerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage, :employeeSearch, :employementStatusFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :employeeTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter, :minAge, :maxAge)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :employeePerPage, :employeeSearch, :employementStatusFilter, :companyFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :employeeTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter, :minAge, :maxAge)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':employeePerPage', $employeePerPage, PDO::PARAM_INT);
                 $sql->bindValue(':employeeSearch', $employeeSearch, PDO::PARAM_STR);
                 $sql->bindValue(':employementStatusFilter', $employementStatusFilter, PDO::PARAM_STR);
+                $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
                 $sql->bindValue(':departmentFilter', $departmentFilter, PDO::PARAM_STR);
                 $sql->bindValue(':jobPositionFilter', $jobPositionFilter, PDO::PARAM_STR);
                 $sql->bindValue(':branchFilter', $branchFilter, PDO::PARAM_STR);

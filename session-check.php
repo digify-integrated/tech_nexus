@@ -8,6 +8,7 @@ if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
 
     if ($user) {
         $userID = $user['user_id'];
+        $contactDetails = $userModel->getContactByID($userID);
 
         if(empty($userID)){
             header('Location: index.php');
@@ -15,6 +16,7 @@ if (isset($_COOKIE['remember_token']) && !empty($_COOKIE['remember_token'])) {
         }
 
         $_SESSION['user_id'] = $userID;
+        $_SESSION['contact_id'] = $contactDetails['contact_id'] ?? null;
 
         $userModel->updateLastConnection($userID, $connectionDate);
 

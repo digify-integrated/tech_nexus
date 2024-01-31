@@ -414,7 +414,7 @@
             });
         });
 
-        $(document).on('click','#filter-datatable',function() {
+        $(document).on('change', '.work-schedule-type-filter', function(){
             workScheduleTable('#work-schedule-table');
         });
     });
@@ -422,7 +422,13 @@
 
 function workScheduleTable(datatable_name, buttons = false, show_all = false){
     const type = 'work schedule table';
-    var filter_work_schedule_type = $('#filter_work_schedule_type').val();
+    var work_schedule_type_filter_values = [];
+
+    $('.work-schedule-type-filter:checked').each(function() {
+        work_schedule_type_filter_values.push($(this).val());
+    });
+
+    var work_schedule_type_filter = work_schedule_type_filter_values.join(', ');
     var settings;
 
     const column = [ 
@@ -446,7 +452,7 @@ function workScheduleTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_work_schedule_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_work_schedule_type' : filter_work_schedule_type},
+            'data': {'type' : type, 'work_schedule_type_filter' : work_schedule_type_filter},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

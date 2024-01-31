@@ -2244,52 +2244,24 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.start_work_date <> OLD.start_work_date THEN
-        SET audit_log = CONCAT(audit_log, "Start Work Date: ", OLD.start_work_date, " -> ", NEW.start_work_date, "<br/>");
+    IF NEW.work_date <> OLD.work_date THEN
+        SET audit_log = CONCAT(audit_log, "Work Date: ", OLD.work_date, " -> ", NEW.work_date, "<br/>");
     END IF;
 
-    IF NEW.start_day_of_week <> OLD.start_day_of_week THEN
-        SET audit_log = CONCAT(audit_log, "Start Day of Week: ", OLD.start_day_of_week, " -> ", NEW.start_day_of_week, "<br/>");
+    IF NEW.day_of_week <> OLD.day_of_week THEN
+        SET audit_log = CONCAT(audit_log, "Day of Week: ", OLD.day_of_week, " -> ", NEW.day_of_week, "<br/>");
+    END IF;
+
+    IF NEW.day_period <> OLD.day_period THEN
+        SET audit_log = CONCAT(audit_log, "Day Period: ", OLD.day_period, " -> ", NEW.day_period, "<br/>");
     END IF;
 
     IF NEW.start_time <> OLD.start_time THEN
         SET audit_log = CONCAT(audit_log, "Start Time: ", OLD.start_time, " -> ", NEW.start_time, "<br/>");
     END IF;
 
-    IF NEW.end_work_date <> OLD.end_work_date THEN
-        SET audit_log = CONCAT(audit_log, "End Work Date: ", OLD.end_work_date, " -> ", NEW.end_work_date, "<br/>");
-    END IF;
-
-    IF NEW.end_day_of_week <> OLD.end_day_of_week THEN
-        SET audit_log = CONCAT(audit_log, "End Day of Week: ", OLD.end_day_of_week, " -> ", NEW.end_day_of_week, "<br/>");
-    END IF;
-
     IF NEW.end_time <> OLD.end_time THEN
         SET audit_log = CONCAT(audit_log, "End Time: ", OLD.end_time, " -> ", NEW.end_time, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_start_work_date <> OLD.lunch_break_start_work_date THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break Start Work Date: ", OLD.lunch_break_start_work_date, " -> ", NEW.lunch_break_start_work_date, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_start_day_of_week <> OLD.lunch_break_start_day_of_week THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break Start Day of Week: ", OLD.lunch_break_start_day_of_week, " -> ", NEW.lunch_break_start_day_of_week, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_start_time <> OLD.lunch_break_start_time THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break Start Time: ", OLD.lunch_break_start_time, " -> ", NEW.lunch_break_start_time, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_end_work_date <> OLD.lunch_break_end_work_date THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break End Work Date: ", OLD.lunch_break_end_work_date, " -> ", NEW.lunch_break_end_work_date, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_end_day_of_week <> OLD.lunch_break_end_day_of_week THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break End Day of Week: ", OLD.lunch_break_end_day_of_week, " -> ", NEW.lunch_break_end_day_of_week, "<br/>");
-    END IF;
-
-    IF NEW.lunch_break_end_time <> OLD.lunch_break_end_time THEN
-        SET audit_log = CONCAT(audit_log, "Lunch Break End Time: ", OLD.lunch_break_end_time, " -> ", NEW.lunch_break_end_time, "<br/>");
     END IF;
 
     IF NEW.notes <> OLD.notes THEN
@@ -2308,52 +2280,24 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Work hours created. <br/>';
 
-    IF NEW.start_work_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Start Work Date: ", NEW.start_work_date);
+    IF NEW.work_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Work Date: ", NEW.work_date);
     END IF;
 
-    IF NEW.start_day_of_week <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Start Day of Week: ", NEW.start_day_of_week);
+    IF NEW.day_of_week <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day of Week: ", NEW.day_of_week);
+    END IF;
+
+    IF NEW.day_period <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Day Period: ", NEW.day_period);
     END IF;
 
     IF NEW.start_time <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Start Time: ", NEW.start_time);
     END IF;
 
-    IF NEW.end_work_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>End Work Date: ", NEW.end_work_date);
-    END IF;
-
-    IF NEW.end_day_of_week <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>End Day of Week: ", NEW.end_day_of_week);
-    END IF;
-
     IF NEW.end_time <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>End Time: ", NEW.end_time);
-    END IF;
-
-    IF NEW.lunch_break_start_work_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Work Date: ", NEW.lunch_break_start_work_date);
-    END IF;
-
-    IF NEW.lunch_break_start_day_of_week <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Day of Week: ", NEW.lunch_break_start_day_of_week);
-    END IF;
-
-    IF NEW.lunch_break_start_time <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Start Time: ", NEW.lunch_break_start_time);
-    END IF;
-
-    IF NEW.lunch_break_end_work_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break Work Date: ", NEW.lunch_break_end_work_date);
-    END IF;
-
-    IF NEW.lunch_break_end_day_of_week <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break End Day of Week: ", NEW.lunch_break_end_day_of_week);
-    END IF;
-
-    IF NEW.lunch_break_end_time <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Lunch Break End Time: ", NEW.lunch_break_end_time);
     END IF;
 
     IF NEW.notes <> '' THEN
@@ -3576,48 +3520,44 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
-    IF NEW.entry_date <> OLD.entry_date THEN
-        SET audit_log = CONCAT(audit_log, "Entry Date: ", OLD.entry_date, " -> ", NEW.entry_date, "<br/>");
+    IF NEW.check_in <> OLD.check_in THEN
+        SET audit_log = CONCAT(audit_log, "Check In: ", OLD.check_in, " -> ", NEW.check_in, "<br/>");
     END IF;
 
-    IF NEW.entry_time <> OLD.entry_time THEN
-        SET audit_log = CONCAT(audit_log, "Entry Time: ", OLD.entry_time, " -> ", NEW.entry_time, "<br/>");
+    IF NEW.check_in_location <> OLD.check_in_location THEN
+        SET audit_log = CONCAT(audit_log, "Check In Location: ", OLD.check_in_location, " -> ", NEW.check_in_location, "<br/>");
     END IF;
 
-    IF NEW.entry_location <> OLD.entry_location THEN
-        SET audit_log = CONCAT(audit_log, "Entry Location: ", OLD.entry_location, " -> ", NEW.entry_location, "<br/>");
+    IF NEW.check_in_by <> OLD.check_in_by THEN
+        SET audit_log = CONCAT(audit_log, "Check In By: ", OLD.check_in_by, " -> ", NEW.check_in_by, "<br/>");
     END IF;
 
-    IF NEW.entry_state <> OLD.entry_state THEN
-        SET audit_log = CONCAT(audit_log, "Entry State: ", OLD.entry_state, " -> ", NEW.entry_state, "<br/>");
+    IF NEW.check_in_mode <> OLD.check_in_mode THEN
+        SET audit_log = CONCAT(audit_log, "Check In Mode: ", OLD.check_in_mode, " -> ", NEW.check_in_mode, "<br/>");
     END IF;
 
-    IF NEW.entry_by <> OLD.entry_by THEN
-        SET audit_log = CONCAT(audit_log, "Entry By: ", OLD.entry_by, " -> ", NEW.entry_by, "<br/>");
+    IF NEW.check_in_notes <> OLD.check_in_notes THEN
+        SET audit_log = CONCAT(audit_log, "Check In Notes: ", OLD.check_in_notes, " -> ", NEW.check_in_notes, "<br/>");
     END IF;
 
-    IF NEW.exit_date <> OLD.exit_date THEN
-        SET audit_log = CONCAT(audit_log, "Exit Date: ", OLD.exit_date, " -> ", NEW.exit_date, "<br/>");
+    IF NEW.check_out <> OLD.check_out THEN
+        SET audit_log = CONCAT(audit_log, "Check Out: ", OLD.check_out, " -> ", NEW.check_out, "<br/>");
     END IF;
 
-    IF NEW.exit_time <> OLD.exit_time THEN
-        SET audit_log = CONCAT(audit_log, "Exit Time: ", OLD.exit_time, " -> ", NEW.exit_time, "<br/>");
+    IF NEW.check_out_location <> OLD.check_out_location THEN
+        SET audit_log = CONCAT(audit_log, "Check Out Location: ", OLD.check_out_location, " -> ", NEW.check_out_location, "<br/>");
     END IF;
 
-    IF NEW.exit_location <> OLD.exit_location THEN
-        SET audit_log = CONCAT(audit_log, "Exit Location: ", OLD.exit_location, " -> ", NEW.exit_location, "<br/>");
+    IF NEW.check_out_by <> OLD.check_out_by THEN
+        SET audit_log = CONCAT(audit_log, "Check Out By: ", OLD.check_out_by, " -> ", NEW.check_out_by, "<br/>");
     END IF;
 
-    IF NEW.exit_state <> OLD.exit_state THEN
-        SET audit_log = CONCAT(audit_log, "Exit State: ", OLD.exit_state, " -> ", NEW.exit_state, "<br/>");
+    IF NEW.check_out_mode <> OLD.check_out_mode THEN
+        SET audit_log = CONCAT(audit_log, "Check Out Mode: ", OLD.check_out_mode, " -> ", NEW.check_out_mode, "<br/>");
     END IF;
 
-    IF NEW.exit_by <> OLD.exit_by THEN
-        SET audit_log = CONCAT(audit_log, "Exit By: ", OLD.exit_by, " -> ", NEW.exit_by, "<br/>");
-    END IF;
-
-    IF NEW.notes <> OLD.notes THEN
-        SET audit_log = CONCAT(audit_log, "Notes: ", OLD.notes, " -> ", NEW.notes, "<br/>");
+    IF NEW.check_out_notes <> OLD.check_out_notes THEN
+        SET audit_log = CONCAT(audit_log, "Check Out Notes: ", OLD.check_out_notes, " -> ", NEW.check_out_notes, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -3632,48 +3572,44 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Attendance created. <br/>';
 
-    IF NEW.entry_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Entry Date: ", NEW.entry_date);
+    IF NEW.check_in <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check In: ", NEW.check_in);
     END IF;
 
-    IF NEW.entry_time <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Entry Time: ", NEW.entry_time);
+    IF NEW.check_in_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check In Location: ", NEW.check_in_location);
     END IF;
 
-    IF NEW.entry_location <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Entry Location: ", NEW.entry_location);
+    IF NEW.check_in_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check In By: ", NEW.check_in_by);
     END IF;
 
-    IF NEW.entry_state <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Entry State: ", NEW.entry_state);
+    IF NEW.check_in_mode <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check In Mode: ", NEW.check_in_mode);
     END IF;
 
-    IF NEW.entry_by <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Entry By: ", NEW.entry_by);
+    IF NEW.check_in_notes <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check In Notes: ", NEW.check_in_notes);
     END IF;
 
-    IF NEW.exit_date <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Exit Date: ", NEW.exit_date);
+    IF NEW.check_out <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Out: ", NEW.check_out);
     END IF;
 
-    IF NEW.exit_time <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Exit Time: ", NEW.exit_time);
+    IF NEW.check_out_location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Out Location: ", NEW.check_out_location);
     END IF;
 
-    IF NEW.exit_location <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Exit Location: ", NEW.exit_location);
+    IF NEW.check_out_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Out By: ", NEW.check_out_by);
     END IF;
 
-    IF NEW.exit_state <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Exit State: ", NEW.exit_state);
+    IF NEW.check_out_mode <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Out Mode: ", NEW.check_out_mode);
     END IF;
 
-    IF NEW.exit_by <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Exit By: ", NEW.exit_by);
-    END IF;
-
-    IF NEW.notes <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Notes: ", NEW.notes);
+    IF NEW.check_out_notes <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Out Notes: ", NEW.check_out_notes);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 

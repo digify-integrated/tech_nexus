@@ -1,20 +1,17 @@
 <?php
-$contactDetails = $userModel->getContactByID($user_id);
-$userAccountContactID = $contactDetails['contact_id'] ?? null;
-
 $user = $userModel->getUserByID($user_id);
 $email = $user['email'];
 $receiveNotification = $user['receive_notification'];
 $twoFactorAuthentication = $user['two_factor_auth'];
 $userAccountProfileImage = $systemModel->checkImage($user['profile_picture'], 'profile');
 
-if (!empty($userAccountContactID)) {
+if (!empty($contact_id)) {
     $currentTime = date('H:i:00');
     $currentDate = date('Y-m-d');
     $currentDay = date('l');
 
-    $employeePersonalInformationDetails = $employeeModel->getPersonalInformation($userAccountContactID);
-    $employeeEmploymentInformationDetails = $employeeModel->getEmploymentInformation($userAccountContactID);
+    $employeePersonalInformationDetails = $employeeModel->getPersonalInformation($contact_id);
+    $employeeEmploymentInformationDetails = $employeeModel->getEmploymentInformation($contact_id);
 
     $fileAs = $employeePersonalInformationDetails['file_as'] ?? null;
     $employeeDepartmentID = $employeeEmploymentInformationDetails['department_id'] ?? null;
@@ -41,6 +38,4 @@ else {
     $employeeDepartmentName = null;
     $currentShift = null;
 }
-
-
 ?>

@@ -3685,7 +3685,7 @@ BEGIN
     SET p_new_work_schedule_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateWorkScheduleTable(IN p_work_schedule_type_id INT)
+CREATE PROCEDURE generateWorkScheduleTable(IN p_work_schedule_type_filter VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
@@ -3694,9 +3694,8 @@ BEGIN
     
     SET conditionList = ' WHERE 1';
 
-    IF p_work_schedule_type_id <> "" THEN
-        SET conditionList = CONCAT(conditionList, ' AND work_schedule_type_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_work_schedule_type_id));
+    IF p_work_schedule_type_filter IS NOT NULL AND p_work_schedule_type_filter <> '' THEN
+        SET query = CONCAT(query, ' AND work_schedule_type_id IN (', p_work_schedule_type_filter, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
@@ -3705,6 +3704,86 @@ BEGIN
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateWorkScheduleTable(IN p_offset INT, IN p_employee_per_page INT, IN p_search VARCHAR(500), IN p_employment_status VARCHAR(10), IN p_company_filter VARCHAR(500), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500), IN p_employee_type_filter VARCHAR(500), IN p_job_level_filter VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
+BEGIN
+    DECLARE sql_query VARCHAR(5000);
+
+    SET sql_query = 'SELECT 
+        c.contact_id AS contact_id, contact_image, 
+        file_as, department_id, branch_id, job_position_id, employment_status 
+    FROM contact c
+    LEFT JOIN personal_information p ON p.contact_id = c.contact_id
+    LEFT JOIN employment_information e ON e.contact_id = c.contact_id
+    WHERE c.is_employee = 1';
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (
+            p.first_name LIKE ?
+            OR p.middle_name LIKE ?
+            OR p.last_name LIKE ?
+        )');
+    END IF;
+
+    IF p_employment_status <> 'all' THEN
+        IF p_employment_status = 'active' THEN
+            SET sql_query = CONCAT(sql_query, ' AND employment_status = 1');
+        ELSE
+           SET sql_query = CONCAT(sql_query, ' AND employment_status = 0');
+        END IF;
+    END IF;
+
+    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company_filter, ')');
+    END IF;
+
+    IF p_department_filter IS NOT NULL AND p_department_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND department_id IN (', p_department_filter, ')');
+    END IF;
+
+    IF p_job_position_filter IS NOT NULL AND p_job_position_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND job_position_id IN (', p_job_position_filter, ')');
+    END IF;
+
+    IF p_branch_filter IS NOT NULL AND p_branch_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND branch_id IN (', p_branch_filter, ')');
+    END IF;
+
+    IF p_employee_type_filter IS NOT NULL AND p_employee_type_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND employee_type_id IN (', p_employee_type_filter, ')');
+    END IF;
+
+    IF p_job_level_filter IS NOT NULL AND p_job_level_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND job_level_id IN (', p_job_level_filter, ')');
+    END IF;
+
+    IF p_gender_filter IS NOT NULL AND p_gender_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND gender_id IN (', p_gender_filter, ')');
+    END IF;
+
+    IF p_civil_status_filter IS NOT NULL AND p_civil_status_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND civil_status_id IN (', p_civil_status_filter, ')');
+    END IF;
+
+    IF p_blood_type_filter IS NOT NULL AND p_blood_type_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND blood_type_id IN (', p_blood_type_filter, ')');
+    END IF;
+
+    IF p_religion_filter IS NOT NULL AND p_religion_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND religion_id IN (', p_religion_filter, ')');
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY p.last_name LIMIT ?, ?;');
+
+    PREPARE stmt FROM sql_query;
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_employee_per_page;
+    ELSE
+        EXECUTE stmt USING p_offset, p_employee_per_page;
+    END IF;
+
     DEALLOCATE PREPARE stmt;
 END //
 
@@ -3950,7 +4029,7 @@ BEGIN
     COMMIT;
 END //
 
-CREATE PROCEDURE generateEmployeeCard(IN p_offset INT, IN p_employee_per_page INT, IN p_search VARCHAR(500), IN p_employment_status VARCHAR(10), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500), IN p_employee_type_filter VARCHAR(500), IN p_job_level_filter VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
+CREATE PROCEDURE generateEmployeeCard(IN p_offset INT, IN p_employee_per_page INT, IN p_search VARCHAR(500), IN p_employment_status VARCHAR(10), IN p_company_filter VARCHAR(500), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500), IN p_employee_type_filter VARCHAR(500), IN p_job_level_filter VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
 BEGIN
     DECLARE sql_query VARCHAR(5000);
 
@@ -3976,6 +4055,10 @@ BEGIN
         ELSE
            SET sql_query = CONCAT(sql_query, ' AND employment_status = 0');
         END IF;
+    END IF;
+
+    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company_filter, ')');
     END IF;
 
     IF p_department_filter IS NOT NULL AND p_department_filter <> '' THEN
@@ -4123,13 +4206,13 @@ BEGIN
 	VALUES(p_contact_id, p_company_id, p_department_id, p_job_position_id, p_branch_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, p_manager_id INT, p_work_schedule_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, onboard_date, last_log_by) 
-	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_onboard_date, p_last_log_by);
+    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, kiosk_pin_code, onboard_date, last_log_by) 
+	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_kiosk_pin_code, p_onboard_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, p_manager_id INT, p_work_schedule_id INT, IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE employment_information
     SET badge_id = p_badge_id,
@@ -4141,6 +4224,7 @@ BEGIN
     branch_id = p_branch_id,
     manager_id = p_manager_id,
     work_schedule_id = p_work_schedule_id,
+    kiosk_pin_code = p_kiosk_pin_code,
     onboard_date = p_onboard_date,
     last_log_by = p_last_log_by
     WHERE contact_id = p_contact_id;
@@ -5117,6 +5201,25 @@ CREATE PROCEDURE getAttendance(IN p_attendance_id INT)
 BEGIN
 	SELECT * FROM attendance
     WHERE attendance_id = p_attendance_id;
+END //
+
+CREATE PROCEDURE getAttendanceRecordWithoutCheckOut(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM attendance
+    WHERE contact_id = p_contact_id AND (check_out IS NULL OR check_out = '') AND DATE(check_in) = CURRENT_DATE;
+END //
+
+CREATE PROCEDURE getLatestAttendanceRecord(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM attendance
+    WHERE contact_id = p_contact_id AND (check_out IS NOT NULL OR check_out != '') AND (check_out IS NOT NULL OR check_out != '') AND DATE(check_in) = CURRENT_DATE
+    ORDER BY attendance_id DESC LIMIT 1;
+END //
+
+CREATE PROCEDURE getAttendanceRecordCount(IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(attendance_id) AS total FROM attendance
+    WHERE contact_id = p_contact_id AND (check_out IS NOT NULL OR check_out != '') AND (check_out IS NOT NULL OR check_out != '') AND DATE(check_in) = CURRENT_DATE;
 END //
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

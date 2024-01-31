@@ -32,11 +32,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'work schedule table':
-            if(isset($_POST['filter_work_schedule_type'])){
-                $filterWorkScheduleType = htmlspecialchars($_POST['filter_work_schedule_type'], ENT_QUOTES, 'UTF-8');
+            if(isset($_POST['work_schedule_type_filter'])){
+                $filterWorkScheduleType = htmlspecialchars($_POST['work_schedule_type_filter'], ENT_QUOTES, 'UTF-8');
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateWorkScheduleTable(:filterWorkScheduleType)');
-                $sql->bindValue(':filterWorkScheduleType', $filterWorkScheduleType, PDO::PARAM_INT);
+                $sql->bindValue(':filterWorkScheduleType', $filterWorkScheduleType, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

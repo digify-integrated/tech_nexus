@@ -3,6 +3,7 @@ session_start();
 
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
+    $contact_id = $_SESSION['contact_id'];
 } 
 else {
     session_unset();

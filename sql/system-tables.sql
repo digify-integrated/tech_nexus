@@ -31,7 +31,7 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Nexus Bot', 'nexus@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('CGMIntraSys Bot', 'cgmintrasys@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '1');
 INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'lawrenceagulto.317@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2024-12-30', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -224,6 +224,8 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Attendance Setting', '1', 'attendance-setting.php', '25', '', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Attendance Record', '1', 'attendance-record.php', '47', '', '1', '1');
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -306,6 +308,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('50', '1', '1', '1', '1', '1', '1', '1');
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('51', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('52', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3642,6 +3645,7 @@ CREATE TABLE employment_information(
 	manager_id INT UNSIGNED,
 	work_schedule_id INT UNSIGNED,
 	employment_status TINYINT(1) NOT NULL DEFAULT 1,
+    kiosk_pin_code VARCHAR(255),
     onboard_date DATE,
     offboard_date DATE,
     departure_reason_id INT UNSIGNED,
@@ -4149,9 +4153,13 @@ CREATE TABLE attendance_setting(
 
 CREATE INDEX attendance_setting_index_attendance_setting_id ON attendance_setting(attendance_setting_id);
 
+INSERT INTO attendance_setting (attendance_setting_name, attendance_setting_description, value, last_log_by)
+VALUES
+    ('Max Attendance Per Day', 'This sets the maximum attendance records per day.', '2', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Attendance Setting Table */
+/* Attendance Table */
 
 CREATE TABLE attendance (
     attendance_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -4161,12 +4169,13 @@ CREATE TABLE attendance (
     check_in_location VARCHAR(100),
     check_in_by INT UNSIGNED,
     check_in_mode VARCHAR(50),
+    check_in_notes VARCHAR(1000),
     check_out_image VARCHAR(500),
-    check_out_date DATETIME,
+    check_out DATETIME,
     check_out_location VARCHAR(100),
     check_out_by INT UNSIGNED,
     check_out_mode VARCHAR(50),
-    notes VARCHAR(1000),
+    check_out_notes VARCHAR(1000),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)

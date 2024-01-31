@@ -18,7 +18,7 @@
               <p class="f-12 mb-0"><?php echo $employeeDepartmentName; ?></p>
             </div>
         </div>
-        <p class="mb-1"><b>Today (<?php echo date('D, d M Y'); ?>)</b></p>
+        <p class="mb-1 text-primary"><b>Today (<?php echo date('D, d M Y'); ?>)</b></p>
         <p class="f-12 mb-4">Shift: <?php echo $employeeWorkScheduleName . ' [' . $currentShift . ']'; ?></p>
         <div class="row g-3 mb-3">
           <div class="col-6">
@@ -27,8 +27,8 @@
                   <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                 </div>
                 <div class="flex-grow-1 ms-3 me-2">
-                  <p class="f-12 mb-0">Check-In Time</p>
-                  <h6 class="mb-0 text-primary">12:59 am</h6>
+                  <p class="f-12 mb-0">Check-In</p>
+                  <h6 class="mb-0 text-primary"><?php echo $userCheckIn; ?></h6>
                 </div>
             </div>
           </div>
@@ -38,14 +38,14 @@
                   <img src="<?php echo $userAccountProfileImage; ?>" alt="user-image" class="user-avtar wid-40 hei-40 rounded-circle" />
                 </div>
                 <div class="flex-grow-1 ms-3 me-2">
-                  <p class="f-12 mb-0">Check-Out Time</p>
-                  <h6 class="mb-0 text-primary">12:59 am</h6>
+                  <p class="f-12 mb-0">Check-Out</p>
+                  <h6 class="mb-0 text-primary"><?php echo $userCheckOut; ?></h6>
                 </div>
             </div>
           </div>
         </div>
         <?php
-          if($recordAttendance['total'] > 0 && !empty($userAccountContactID)){
+          if($recordAttendance['total'] > 0 && !empty($contact_id) && $userAttendanceRecordCount < $maxAttendanceRecord){
             echo '<button type="button" class="btn btn-warning w-100 text-center mb-0" id="record-attendance">Record Time</button>';
           }
         ?>
@@ -58,7 +58,7 @@
 </div>
 
 <?php
-  if($recordAttendance['total'] > 0){
+  if($recordAttendance['total'] > 0 && !empty($contact_id) && $userAttendanceRecordCount < $maxAttendanceRecord){
     echo '<div id="record-attendance-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="record-attendance-title" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -70,7 +70,7 @@
                       <form id="record-attendance-form" method="post" action="#">
                         <div class="row d-flex justify-content-center">
                           <div class="col-lg-6 d-flex justify-content-center">
-                            <input type="hidden" id="attendance_id" name="attendance_id">
+                            <input type="hidden" id="attendance_id" name="attendance_id" value="'. $currentAttendanceID .'">
                             <input type="hidden" id="location" name="location">
                             <input type="hidden" id="ip_address" name="ip_address">
                             <div id="video-container" class="d-none" style="width: 225px; height: 225px; position: relative; overflow: hidden; border-radius: 50%;">

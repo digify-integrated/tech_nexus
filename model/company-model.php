@@ -251,5 +251,35 @@ class CompanyModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateCompanyOptions
+    # Description: Generates the company options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateCompanyCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCompanyOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $companyID = $row['company_id'];
+            $companyName = $row['company_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input company-filter" type="checkbox" id="company-' . htmlspecialchars($companyID, ENT_QUOTES) . '" value="' . htmlspecialchars($companyID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="company-' . htmlspecialchars($companyID, ENT_QUOTES) . '">' . htmlspecialchars($companyName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>
