@@ -15,6 +15,7 @@ session_start();
 class BranchController {
     private $branchModel;
     private $userModel;
+    private $companyModel;
     private $cityModel;
     private $stateModel;
     private $countryModel;
@@ -31,6 +32,7 @@ class BranchController {
     # Parameters:
     # - @param BranchModel $branchModel     The BranchModel instance for branch related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param CityModel $cityModel     The CityModel instance for city related operations.
     # - @param StateModel $stateModel     The StateModel instance for state related operations.
     # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
@@ -40,9 +42,10 @@ class BranchController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(BranchModel $branchModel, UserModel $userModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(BranchModel $branchModel, UserModel $userModel, CompanyModel $companyModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->branchModel = $branchModel;
         $this->userModel = $userModel;
+        $this->companyModel = $companyModel;
         $this->cityModel = $cityModel;
         $this->stateModel = $stateModel;
         $this->countryModel = $countryModel;
@@ -117,6 +120,7 @@ class BranchController {
         $branchName = htmlspecialchars($_POST['branch_name'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
         $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $phone = htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8');
         $mobile = htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8');
         $telephone = htmlspecialchars($_POST['telephone'], ENT_QUOTES, 'UTF-8');
@@ -134,13 +138,13 @@ class BranchController {
         $total = $checkBranchExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->branchModel->updateBranch($branchID, $branchName, $address, $cityID, $phone, $mobile, $telephone, $email, $website, $userID);
+            $this->branchModel->updateBranch($branchID, $branchName, $address, $cityID, $companyID, $phone, $mobile, $telephone, $email, $website, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'branchID' => $this->securityModel->encryptData($branchID)]);
             exit;
         } 
         else {
-            $branchID = $this->branchModel->insertBranch($branchName, $address, $cityID, $phone, $mobile, $telephone, $email, $website, $userID);
+            $branchID = $this->branchModel->insertBranch($branchName, $address, $cityID, $companyID, $phone, $mobile, $telephone, $email, $website, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'branchID' => $this->securityModel->encryptData($branchID)]);
             exit;
@@ -305,18 +309,22 @@ class BranchController {
             }
     
             $branchDetails = $this->branchModel->getBranch($branchID);
-            $cityID = $branchDetails['city_id'];
+            $cityID = $branchDetails['city_id'] ?? null;
+            $companyID = $branchDetails['company_id'] ?? null;
+
+            $companyDetails = $this->companyModel->getCompany($companyID);
+            $companyName = $companyDetails['company_name'] ?? null;
 
             $cityDetails = $this->cityModel->getCity($cityID);
-            $cityName = $cityDetails['city_name'];
-            $stateID = $cityDetails['state_id'];
+            $cityName = $cityDetails['city_name'] ?? null;
+            $stateID = $cityDetails['state_id'] ?? null;
 
             $stateDetails = $this->stateModel->getState($stateID);
-            $stateName = $stateDetails['state_name'];
-            $countryID = $stateDetails['country_id'];
+            $stateName = $stateDetails['state_name'] ?? null;
+            $countryID = $stateDetails['country_id'] ?? null;
 
             $countryName = $this->countryModel->getCountry($countryID)['country_name'];
-            $cityName = $cityDetails['city_name'] . ', ' . $stateName . ', ' . $countryName;
+            $cityName = $cityName . ', ' . $stateName . ', ' . $countryName;
 
             $response = [
                 'success' => true,
@@ -324,6 +332,8 @@ class BranchController {
                 'address' => $branchDetails['address'],
                 'cityID' => $cityID,
                 'cityName' => $cityName,
+                'companyID' => $companyID,
+                'companyName' => $companyName,
                 'phone' => $branchDetails['phone'],
                 'mobile' => $branchDetails['mobile'],
                 'telephone' => $branchDetails['telephone'],
@@ -342,6 +352,7 @@ class BranchController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/branch-model.php';
+require_once '../model/company-model.php';
 require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
@@ -349,6 +360,6 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new BranchController(new BranchModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new BranchController(new BranchModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

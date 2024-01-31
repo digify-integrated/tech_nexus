@@ -2,25 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#branch-table').length){
-            branchTable('#branch-table');
+        if($('#attendance-record-table').length){
+            attendanceRecordTable('#attendance-record-table');
         }
 
-        if($('#branch-form').length){
-            branchForm();
+        if($('#attendance-record-form').length){
+            attendanceRecordForm();
         }
 
-        if($('#branch-id').length){
-            displayDetails('get branch details');
+        if($('#attendance-id').length){
+            displayDetails('get attendance record details');
         }
 
-        $(document).on('click','.delete-branch',function() {
-            const branch_id = $(this).data('branch-id');
-            const transaction = 'delete branch';
+        $(document).on('click','.delete-attendance-record',function() {
+            const attendance_id = $(this).data('attendance-id');
+            const transaction = 'delete attendance record';
     
             Swal.fire({
-                title: 'Confirm Branch Deletion',
-                text: 'Are you sure you want to delete this branch?',
+                title: 'Confirm Attendance Record Deletion',
+                text: 'Are you sure you want to delete this attendance record?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -32,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/branch-controller.php',
+                        url: 'controller/attendance-record-controller.php',
                         dataType: 'json',
                         data: {
-                            branch_id : branch_id, 
+                            attendance_id : attendance_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Branch Success', 'The branch has been deleted successfully.', 'success');
-                                reloadDatatable('#branch-table');
+                                showNotification('Delete Attendance Record Success', 'The attendance record has been deleted successfully.', 'success');
+                                reloadDatatable('#attendance-record-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -49,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Branch Error', 'The branch does not exist.', 'danger');
-                                    reloadDatatable('#branch-table');
+                                    showNotification('Delete Attendance Record Error', 'The attendance record does not exist.', 'danger');
+                                    reloadDatatable('#attendance-record-table');
                                 }
                                 else {
-                                    showNotification('Delete Branch Error', response.message, 'danger');
+                                    showNotification('Delete Attendance Record Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -70,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-branch',function() {
-            let branch_id = [];
-            const transaction = 'delete multiple branch';
+        $(document).on('click','#delete-attendance-record',function() {
+            let attendance_id = [];
+            const transaction = 'delete multiple attendance record';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    branch_id.push(element.value);
+                    attendance_id.push(element.value);
                 }
             });
     
-            if(branch_id.length > 0){
+            if(attendance_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Branches Deletion',
-                    text: 'Are you sure you want to delete these branches?',
+                    title: 'Confirm Multiple Attendance Records Deletion',
+                    text: 'Are you sure you want to delete these attendance records?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -95,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/branch-controller.php',
+                            url: 'controller/attendance-record-controller.php',
                             dataType: 'json',
                             data: {
-                                branch_id: branch_id,
+                                attendance_id: attendance_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Branch Success', 'The selected branches have been deleted successfully.', 'success');
-                                        reloadDatatable('#branch-table');
+                                    showNotification('Delete Attendance Record Success', 'The selected attendance records have been deleted successfully.', 'success');
+                                        reloadDatatable('#attendance-record-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -112,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Branch Error', response.message, 'danger');
+                                        showNotification('Delete Attendance Record Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -133,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Branch Error', 'Please select the branches you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Attendance Record Error', 'Please select the attendance records you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-branch-details',function() {
-            const branch_id = $('#branch-id').text();
-            const transaction = 'delete branch';
+        $(document).on('click','#delete-attendance-record-details',function() {
+            const attendance_id = $('#attendance-id').text();
+            const transaction = 'delete attendance record';
     
             Swal.fire({
-                title: 'Confirm Branch Deletion',
-                text: 'Are you sure you want to delete this branch?',
+                title: 'Confirm Attendance Record Deletion',
+                text: 'Are you sure you want to delete this attendance record?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -155,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/branch-controller.php',
+                        url: 'controller/attendance-record-controller.php',
                         dataType: 'json',
                         data: {
-                            branch_id : branch_id, 
+                            attendance_id : attendance_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Branch Success', 'The branch has been deleted successfully.', 'success');
-                                window.location = 'branch.php';
+                                setNotification('Deleted Attendance Record Success', 'The attendance record has been deleted successfully.', 'success');
+                                window.location = 'attendance-record.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -175,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Branch Error', response.message, 'danger');
+                                    showNotification('Delete Attendance Record Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -193,116 +193,92 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('branch.php');
+            discardCreate('attendance-record.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get branch details');
+            displayDetails('get attendance record details');
 
             enableForm();
         });
 
-        $(document).on('click','#duplicate-branch',function() {
-            const branch_id = $('#branch-id').text();
-            const transaction = 'duplicate branch';
-    
-            Swal.fire({
-                title: 'Confirm Branch Duplication',
-                text: 'Are you sure you want to duplicate this branch?',
-                icon: 'info',
-                showCancelButton: !0,
-                confirmButtonText: 'Duplicate',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-info mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/branch-controller.php',
-                        dataType: 'json',
-                        data: {
-                            branch_id : branch_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Duplicate Branch Success', 'The branch has been duplicated successfully.', 'success');
-                                window.location = 'branch.php?id=' + response.branchID;
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    showNotification('Duplicate Branch Error', 'The branch does not exist.', 'danger');
-                                    reloadDatatable('#branch-table');
-                                }
-                                else {
-                                    showNotification('Duplicate Branch Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
         $(document).on('click','#apply-filter',function() {
-            branchTable('#branch-table');
+            attendanceRecordTable('#attendance-record-table');
         });
     });
 })(jQuery);
 
-function branchTable(datatable_name, buttons = false, show_all = false){
-    const type = 'branch table';
-    var filter_company_values = [];
-    var filter_city_values = [];
+function attendanceRecordTable(datatable_name, buttons = false, show_all = false){
+    const type = 'attendance record table';
+    var filter_attendance_record_date_start_date = $('#filter_attendance_record_date_start_date').val();
+    var filter_attendance_record_date_end_date = $('#filter_attendance_record_date_end_date').val();
+    var employment_status_filter = $('.employment-status-filter:checked').val();
+    var check_in_mode_filter_values = [];
+    var check_out_mode_filter_values = [];
+    var company_filter_values = [];
+    var department_filter_values = [];
+    var job_position_filter_values = [];
+    var branch_filter_values = [];
+
+    $('.check-in-mode-filter:checked').each(function() {
+        check_in_mode_filter_values.push("'" + $(this).val() + "'");
+    });
+
+    $('.check-out-mode-filter:checked').each(function() {
+        check_out_mode_filter_values.push("'" + $(this).val() + "'");
+    });
 
     $('.company-filter:checked').each(function() {
-        filter_company_values.push($(this).val());
+        company_filter_values.push($(this).val());
     });
 
-    $('.city-filter:checked').each(function() {
-        filter_city_values.push($(this).val());
+    $('.department-filter:checked').each(function() {
+        department_filter_values.push($(this).val());
     });
 
-    var filter_company = filter_company_values.join(', ');
-    var filter_city = filter_city_values.join(', ');
+    $('.job-position-filter:checked').each(function() {
+        job_position_filter_values.push($(this).val());
+    });
+
+    $('.branch-filter:checked').each(function() {
+        branch_filter_values.push($(this).val());
+    });
+
+    var check_in_mode_filter = check_in_mode_filter_values.join(', ');
+    var check_out_mode_filter = check_out_mode_filter_values.join(', ');
+    var company_filter = company_filter_values.join(', ');
+    var department_filter = department_filter_values.join(', ');
+    var job_position_filter = job_position_filter_values.join(', ');
+    var branch_filter = branch_filter_values.join(', ');
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'BRANCH_NAME' },
-        { 'data' : 'COMPANY_NAME' },
+        { 'data' : 'EMPLOYEE_NAME' },
+        { 'data' : 'CHECK_IN' },
+        { 'data' : 'CHECK_IN_MODE' },
+        { 'data' : 'CHECK_OUT' },
+        { 'data' : 'CHECK_OUT_MODE' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '54%', 'aTargets': 1 },
-        { 'width': '30%', 'aTargets': 2 },
-        { 'width': '15%','bSortable': false, 'aTargets': 3 }
+        { 'width': '24%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_branch_generation.php',
+            'url' : 'view/_attendance_record_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_company' : filter_company, 'filter_city' : filter_city},
+            'data': {'type' : type, 'filter_attendance_record_date_start_date' : filter_attendance_record_date_start_date, 'filter_attendance_record_date_end_date' : filter_attendance_record_date_end_date, 'check_in_mode_filter' : check_in_mode_filter, 'check_out_mode_filter' : check_out_mode_filter, 'employment_status_filter' : employment_status_filter, 'company_filter' : company_filter, 'department_filter' : department_filter, 'job_position_filter' : job_position_filter, 'branch_filter' : branch_filter},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -312,7 +288,7 @@ function branchTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 2, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -334,34 +310,48 @@ function branchTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function branchForm(){
-    $('#branch-form').validate({
+function attendanceRecordForm(){
+    $('#attendance-record-form').validate({
         rules: {
-            branch_name: {
+            employee_id: {
                 required: true
             },
-            address: {
+            check_in_date: {
                 required: true
             },
-            company_id: {
+            check_in_time: {
                 required: true
             },
-            city_id: {
-                required: true
+            check_out_date: {
+                required: {
+                    depends: function(element) {
+                        return $('#check_out_time').val().trim().length > 0; 
+                    }
+                }
+            },
+            check_out_time: {
+                required: {
+                    depends: function(element) {
+                        return $('#check_out_date').val().trim().length > 0;
+                    }
+                }
             }
         },
         messages: {
-            branch_name: {
-                required: 'Please enter the branch name'
+            employee_id: {
+                required: 'Please choose the employee'
             },
-            address: {
-                required: 'Please enter the address'
+            check_in_date: {
+                required: 'Please choose the check in date'
             },
-            company_id: {
-                required: 'Please choose the company'
+            check_in_time: {
+                required: 'Please choose the check in time'
             },
-            city_id: {
-                required: 'Please choose the city'
+            check_out_date: {
+                required: 'Please choose the check out date'
+            },
+            check_out_time: {
+                required: 'Please choose the check out time'
             }
         },
         errorPlacement: function (error, element) {
@@ -394,24 +384,24 @@ function branchForm(){
             }
         },
         submitHandler: function(form) {
-            const branch_id = $('#branch-id').text();
-            const transaction = 'save branch';
+            const attendance_id = $('#attendance-id').text();
+            const transaction = 'save attendance record';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/branch-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&branch_id=' + branch_id,
+                url: 'controller/attendance-record-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&attendance_id=' + attendance_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Branch Success' : 'Update Branch Success';
-                        const notificationDescription = response.insertRecord ? 'The branch has been inserted successfully.' : 'The branch has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Attendance Record Success' : 'Update Attendance Record Success';
+                        const notificationDescription = response.insertRecord ? 'The attendance record has been inserted successfully.' : 'The attendance record has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'branch.php?id=' + response.branchID;
+                        window.location = 'attendance record.php?id=' + response.attendanceID;
                     }
                     else {
                         if (response.isInactive) {
@@ -442,50 +432,42 @@ function branchForm(){
 
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get branch details':
-            const branch_id = $('#branch-id').text();
+        case 'get attendance record details':
+            const attendance_id = $('#attendance-id').text();
             
             $.ajax({
-                url: 'controller/branch-controller.php',
+                url: 'controller/attendance-record-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    branch_id : branch_id, 
+                    attendance_id : attendance_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('branch-form');
+                    resetForm('attendance-record-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#branch_id').val(branch_id);
-                        $('#branch_name').val(response.branchName);
-                        $('#address').val(response.address);
-                        $('#phone').val(response.phone);
-                        $('#mobile').val(response.mobile);
-                        $('#telephone').val(response.telephone);
-                        $('#email').val(response.email);
-                        $('#website').val(response.website);
+                        $('#attendance_id').val(attendance_id);
+                        $('#check_in_date').val(response.checkInDate);
+                        $('#check_in_time').val(response.checkInTime);
+                        $('#check_out_date').val(response.checkOutDate);
+                        $('#check_out_time').val(response.checkOutTime);
 
-                        checkOptionExist('#city_id', response.cityID, '');
-                        checkOptionExist('#company_id', response.companyID, '');
+                        checkOptionExist('#employee_id', response.employeeID, '');
 
-                        $('#city_id_label').text(response.cityName);
-                        $('#company_id_label').text(response.companyName);
-                        $('#branch_name_label').text(response.branchName);
-                        $('#address_label').text(response.address);
-                        $('#phone_label').text(response.phone);
-                        $('#mobile_label').text(response.mobile);
-                        $('#telephone_label').text(response.telephone);
-                        $('#email_label').text(response.email);
-                        $('#website_label').text(response.website);
+                        $('#employee_id_label').text(response.employeeName);
+                        $('#check_in_date_label').text(response.checkInDate);
+                        $('#check_in_time_label').text(response.checkInTime);
+                        $('#check_out_date_label').text(response.checkOutDate);
+                        $('#check_out_time_label').text(response.checkOutTime);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Branch Details Error', response.message, 'danger');
+                            showNotification('Get Attendance Record Details Error', response.message, 'danger');
                         }
                     }
                 },

@@ -414,7 +414,7 @@
             });
         });
 
-        $(document).on('change', '.work-schedule-type-filter', function(){
+        $(document).on('click', '#apply-filter', function(){
             workScheduleTable('#work-schedule-table');
         });
     });

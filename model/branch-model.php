@@ -25,6 +25,7 @@ class BranchModel {
     # - $p_branch_name (string): The branch name.
     # - $p_address (string): The address of the branch.
     # - $p_city_id (int): The city ID.
+    # - $p_company_id (int): The company ID.
     # - $p_phone (string): The phone of the branch.
     # - $p_mobile (string): The mobile of the branch.
     # - $p_telephone (string): The telephone of the branch.
@@ -35,12 +36,13 @@ class BranchModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateBranch($p_branch_id, $p_branch_name, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateBranch(:p_branch_id, :p_branch_name, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_website, :p_last_log_by)');
+    public function updateBranch($p_branch_id, $p_branch_name, $p_address, $p_city_id, $p_company_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateBranch(:p_branch_id, :p_branch_name, :p_address, :p_city_id, :p_company_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_website, :p_last_log_by)');
         $stmt->bindValue(':p_branch_id', $p_branch_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_branch_name', $p_branch_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);
         $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
@@ -64,6 +66,7 @@ class BranchModel {
     # - $p_branch_name (string): The branch name.
     # - $p_address (string): The address of the branch.
     # - $p_city_id (int): The city ID.
+    # - $p_company_id (int): The company ID.
     # - $p_phone (string): The phone of the branch.
     # - $p_mobile (string): The mobile of the branch.
     # - $p_telephone (string): The telephone of the branch.
@@ -73,11 +76,12 @@ class BranchModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertBranch($p_branch_name, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertBranch(:p_branch_name, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_website, :p_last_log_by, @p_branch_id)');
+    public function insertBranch($p_branch_name, $p_address, $p_city_id, $p_company_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_website, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertBranch(:p_branch_name, :p_address, :p_city_id, :p_company_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_website, :p_last_log_by, @p_branch_id)');
         $stmt->bindValue(':p_branch_name', $p_branch_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);
         $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);

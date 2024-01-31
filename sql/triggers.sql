@@ -1330,6 +1330,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
     END IF;
 
+    IF NEW.branch_id <> OLD.branch_id THEN
+        SET audit_log = CONCAT(audit_log, "Branch ID: ", OLD.branch_id, " -> ", NEW.branch_id, "<br/>");
+    END IF;
+
     IF NEW.phone <> OLD.phone THEN
         SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
     END IF;
@@ -1372,6 +1376,10 @@ BEGIN
 
     IF NEW.city_id <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>City ID: ", NEW.city_id);
+    END IF;
+
+    IF NEW.branch_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Branch ID: ", NEW.branch_id);
     END IF;
 
     IF NEW.phone <> '' THEN

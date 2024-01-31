@@ -1555,26 +1555,23 @@ BEGIN
     SET p_new_state_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateStateTable(IN p_country_id INT)
+CREATE PROCEDURE generateStateTable(IN p_country_id VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
     SET query = 'SELECT state_id, state_name, country_id FROM state';
     
-    SET conditionList = ' WHERE 1';
+    SET conditionList = '';
 
-    IF p_country_id > 0 THEN
-        SET conditionList = CONCAT(conditionList, ' AND country_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_country_id));
+    IF p_country_id IS NOT NULL AND p_country_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' WHERE country_id IN (');
+        SET conditionList = CONCAT(conditionList, p_country_id);
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY state_id');
-    
-    IF p_country_id = 0 THEN
-        SET query = CONCAT(query, ' LIMIT 500');
-    END IF;
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -1648,26 +1645,23 @@ BEGIN
     SET p_new_city_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateCityTable(IN p_state_id INT)
+CREATE PROCEDURE generateCityTable(IN p_state_id VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
 
     SET query = 'SELECT city_id, city_name, state_id FROM city';
     
-    SET conditionList = ' WHERE 1';
+    SET conditionList = '';
 
-    IF p_state_id > 0 THEN
-        SET conditionList = CONCAT(conditionList, ' AND state_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_state_id));
+    IF p_state_id IS NOT NULL AND p_state_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' WHERE state_id IN (');
+        SET conditionList = CONCAT(conditionList, p_state_id);
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
-    SET query = CONCAT(query, ' ORDER BY city_id');
-    
-    IF p_state_id = 0 THEN
-        SET query = CONCAT(query, ' LIMIT 500');
-    END IF;
+    SET query = CONCAT(query, ' ORDER BY city_name');
     
     SET query = CONCAT(query, ';');
 
@@ -1687,6 +1681,43 @@ BEGIN
     INNER JOIN state s ON s.state_id = ct.state_id
     INNER JOIN country cy ON cy.country_id = s.country_id
 	ORDER BY city_name;
+END //
+
+CREATE PROCEDURE generateCityCheckbox(IN p_generation_type VARCHAR(50))
+BEGIN
+    IF p_generation_type = 'branch' THEN
+        SELECT 
+        ct.city_id AS city_id, 
+        ct.city_name AS city_name,
+        cy.country_name AS country_name,
+        s.state_name AS state_name
+        FROM city ct
+        INNER JOIN state s ON s.state_id = ct.state_id
+        INNER JOIN country cy ON cy.country_id = s.country_id
+        WHERE city_id IN (SELECT city_id FROM branch)
+        ORDER BY city_name;
+    ELSEIF p_generation_type = 'company' THEN
+        SELECT 
+        ct.city_id AS city_id, 
+        ct.city_name AS city_name,
+        cy.country_name AS country_name,
+        s.state_name AS state_name
+        FROM city ct
+        INNER JOIN state s ON s.state_id = ct.state_id
+        INNER JOIN country cy ON cy.country_id = s.country_id
+        WHERE city_id IN (SELECT city_id FROM company)
+        ORDER BY city_name;
+    ELSE
+        SELECT 
+        ct.city_id AS city_id, 
+        ct.city_name AS city_name,
+        cy.country_name AS country_name,
+        s.state_name AS state_name
+        FROM city ct
+        INNER JOIN state s ON s.state_id = ct.state_id
+        INNER JOIN country cy ON cy.country_id = s.country_id
+        ORDER BY city_name;
+    END IF;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -1842,11 +1873,27 @@ BEGIN
     SET p_new_company_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateCompanyTable()
+CREATE PROCEDURE generateCompanyTable(IN p_city_id VARCHAR(500))
 BEGIN
-    SELECT company_id, company_name, company_logo, address, city_id
-    FROM company
-    ORDER BY company_id;
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT company_id, company_name, company_logo, address, city_id FROM company';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_city_id IS NOT NULL AND p_city_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND city_id IN (');
+        SET conditionList = CONCAT(conditionList, p_city_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY company_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateCompanyOptions()
@@ -2143,21 +2190,22 @@ BEGIN
     WHERE branch_id = p_branch_id;
 END //
 
-CREATE PROCEDURE insertBranch(IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT, OUT p_branch_id INT)
+CREATE PROCEDURE insertBranch(IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_company_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT, OUT p_branch_id INT)
 BEGIN
-    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
-	VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+    INSERT INTO branch (branch_name, address, city_id, company_id, phone, mobile, telephone, email, website, last_log_by) 
+	VALUES(p_branch_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
 	
     SET p_branch_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateBranch(IN p_branch_id INT, IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateBranch(IN p_branch_id INT, IN p_branch_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_company_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE branch
     SET branch_name = p_branch_name,
     branch_name = p_branch_name,
     address = p_address,
     city_id = p_city_id,
+    company_id = p_company_id,
     phone = p_phone,
     mobile = p_mobile,
     telephone = p_telephone,
@@ -2184,28 +2232,51 @@ BEGIN
     DECLARE p_branch_name VARCHAR(100);
     DECLARE p_address VARCHAR(1000);
     DECLARE p_city_id INT;
+    DECLARE p_company_id INT;
     DECLARE p_phone VARCHAR(20);
     DECLARE p_mobile VARCHAR(20);
     DECLARE p_telephone VARCHAR(20);
     DECLARE p_email VARCHAR(100);
     DECLARE p_website VARCHAR(500);
     
-    SELECT branch_name, address, city_id, phone, mobile, telephone, email, website
-    INTO p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website
+    SELECT branch_name, address, city_id, company_id, phone, mobile, telephone, email, website
+    INTO p_branch_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email, p_website
     FROM branch 
     WHERE branch_id = p_branch_id;
     
-    INSERT INTO branch (branch_name, address, city_id, phone, mobile, telephone, email, website, last_log_by) 
-    VALUES(p_branch_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+    INSERT INTO branch (branch_name, address, city_id, company_id, phone, mobile, telephone, email, website, last_log_by) 
+    VALUES(p_branch_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
     
     SET p_new_branch_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateBranchTable()
+CREATE PROCEDURE generateBranchTable(IN p_company_id VARCHAR(500), IN p_city_id VARCHAR(500))
 BEGIN
-    SELECT branch_id, branch_name, address, city_id
-    FROM branch
-    ORDER BY branch_id;
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT branch_id, branch_name, address, city_id, company_id FROM branch';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_company_id IS NOT NULL AND p_company_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_city_id IS NOT NULL AND p_city_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND city_id IN (');
+        SET conditionList = CONCAT(conditionList, p_city_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY branch_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateBranchOptions()
@@ -2366,7 +2437,7 @@ BEGIN
     SET p_new_job_position_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateJobPositionTable(IN p_filter_recruitment_status ENUM('active', 'inactive', 'all'), IN p_department_id INT)
+CREATE PROCEDURE generateJobPositionTable(IN p_filter_recruitment_status ENUM('active', 'inactive', 'all'), IN p_department_id VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
@@ -2383,9 +2454,10 @@ BEGIN
         END IF;
     END IF;
 
-    IF p_department_id <> "" THEN
-        SET conditionList = CONCAT(conditionList, ' AND department_id = ');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_department_id));
+    IF p_department_id IS NOT NULL AND p_department_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND department_id IN (');
+        SET conditionList = CONCAT(conditionList, p_department_id);
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
@@ -3695,12 +3767,12 @@ BEGIN
     SET conditionList = ' WHERE 1';
 
     IF p_work_schedule_type_filter IS NOT NULL AND p_work_schedule_type_filter <> '' THEN
-        SET query = CONCAT(query, ' AND work_schedule_type_id IN (', p_work_schedule_type_filter, ')');
+        SET conditionList = CONCAT(conditionList, ' AND work_schedule_type_id IN (', p_work_schedule_type_filter, ')');
     END IF;
 
     SET query = CONCAT(query, conditionList);
 
-    SET query = CONCAT(query, ' ORDER BY work_schedule_name;');
+    SET query = CONCAT(query, ' ORDER BY work_schedule_name');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -5191,6 +5263,42 @@ BEGIN
     WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE insertManualAttendanceEntry(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_by INT, IN p_last_log_by INT)
+BEGIN
+    IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
+        INSERT INTO attendance (contact_id, check_in, check_in_by, check_in_mode, check_out, check_out_by, check_out_mode, last_log_by) 
+	    VALUES(p_contact_id, p_check_in, p_check_in_by, 'Manual', p_check_out, p_check_out_by, 'Manual', p_last_log_by);
+    ELSE
+        INSERT INTO attendance (contact_id, check_in, check_in_by, check_in_mode, last_log_by) 
+	    VALUES(p_contact_id, p_check_in, p_check_in_by, 'Manual', p_last_log_by);
+    END IF;
+END //
+
+CREATE PROCEDURE updateRegularAttendanceExit(IN p_attendance_id INT, IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_by INT, IN p_last_log_by INT)
+BEGIN
+    IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
+        UPDATE attendance
+        SET check_in = p_check_in,
+        check_in_by = p_check_in_by,
+        check_in_mode = 'Manual',
+        check_out = p_check_out,
+        check_out_by = p_check_out_by,
+        check_out_mode = 'Manual',
+        last_log_by = p_last_log_by
+        WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
+    ELSE
+        UPDATE attendance
+        SET check_in = p_check_in,
+        check_in_by = p_check_in_by,
+        check_in_mode = 'Manual',
+        check_out = null,
+        check_out_by = null,
+        check_out_mode = null,
+        last_log_by = p_last_log_by
+        WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
+    END IF;
+END //
+
 CREATE PROCEDURE deleteAttendance(IN p_attendance_id INT)
 BEGIN
 	DELETE FROM attendance
@@ -5220,6 +5328,75 @@ CREATE PROCEDURE getAttendanceRecordCount(IN p_contact_id INT)
 BEGIN
 	SELECT COUNT(attendance_id) AS total FROM attendance
     WHERE contact_id = p_contact_id AND (check_out IS NOT NULL OR check_out != '') AND (check_out IS NOT NULL OR check_out != '') AND DATE(check_in) = CURRENT_DATE;
+END //
+
+CREATE PROCEDURE generateAttendanceRecordTable(IN p_attendance_record_start_date DATE, IN p_attendance_record_end_date DATE, IN p_check_in_mode VARCHAR(50), IN p_check_out_mode VARCHAR(50), IN p_employment_status VARCHAR(10), IN p_company_filter VARCHAR(500), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT attendance_id, attendance.contact_id AS contact_id, check_in, check_in_mode, check_out, check_out_mode FROM attendance
+    INNER JOIN employment_information on employment_information.contact_id = attendance.contact_id';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_attendance_record_start_date IS NOT NULL AND p_attendance_record_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(check_in) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_attendance_record_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_attendance_record_end_date));
+    END IF;
+
+    IF p_check_in_mode IS NOT NULL AND p_check_in_mode <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND check_in_mode IN (');
+        SET conditionList = CONCAT(conditionList, p_check_in_mode);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_check_out_mode IS NOT NULL AND p_check_out_mode <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND check_out_mode IN (');
+        SET conditionList = CONCAT(conditionList, p_check_out_mode);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_employment_status <> 'all' THEN
+        IF p_employment_status = 'active' THEN
+            SET conditionList = CONCAT(conditionList, ' AND employment_status = 1');
+        ELSE
+            SET conditionList = CONCAT(conditionList, ' AND employment_status = 0');
+        END IF;
+    END IF;
+
+    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_filter);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_department_filter IS NOT NULL AND p_department_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND department_id IN (');
+        SET conditionList = CONCAT(conditionList, p_department_filter);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_job_position_filter IS NOT NULL AND p_job_position_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND job_position_id IN (');
+        SET conditionList = CONCAT(conditionList, p_job_position_filter);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_branch_filter IS NOT NULL AND p_branch_filter <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND branch_id IN (');
+        SET conditionList = CONCAT(conditionList, p_branch_filter);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY check_in DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

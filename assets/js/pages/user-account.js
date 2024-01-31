@@ -133,7 +133,7 @@
             });
         }
 
-        $(document).on('click','#filter-datatable',function() {
+        $(document).on('click','#apply-filter',function() {
             userAccountTable('#user-account-table');
         });
 
@@ -951,8 +951,8 @@
 
 function userAccountTable(datatable_name, buttons = false, show_all = false){
     const type = 'user account table';
-    var filter_status = $('#filter_status').val();
-    var filter_locked = $('#filter_locked').val();
+    var filter_status = $('.user-account-status-filter:checked').val();
+    var filter_locked = $('.user-account-status-lock-filter:checked').val();
     var filter_password_expiry_date_start_date = $('#filter_password_expiry_date_start_date').val();
     var filter_password_expiry_date_end_date = $('#filter_password_expiry_date_end_date').val();
     var filter_last_connection_date_start_date = $('#filter_last_connection_date_start_date').val();

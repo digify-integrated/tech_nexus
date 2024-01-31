@@ -301,11 +301,22 @@
                 }
             });
         });
+
+        $(document).on('click','#apply-filter',function() {
+            companyTable('#company-table');
+        });
     });
 })(jQuery);
 
 function companyTable(datatable_name, buttons = false, show_all = false){
     const type = 'company table';
+    var filter_city_values = [];
+
+    $('.city-filter:checked').each(function() {
+        filter_city_values.push($(this).val());
+    });
+
+    var filter_city = filter_city_values.join(', ');
     var settings;
 
     const column = [ 
@@ -327,7 +338,7 @@ function companyTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_company_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type},
+            'data': {'type' : type, 'filter_city' : filter_city},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;

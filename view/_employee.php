@@ -172,6 +172,9 @@
                           </div>
                         </div>
                       </li>
+                      <li class="list-group-item px-0 py-2">
+                        <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -195,15 +198,15 @@
               <ul class="list-inline ms-auto my-1">
                 <?php
                   if($employeeCreateAccess['total'] > 0){
-                   echo '<li class="list-inline-item align-bottom"><a href="employee.php?new" class="btn btn-success">Create</a></li>';
+                    echo '<li class="list-inline-item align-bottom"><a href="employee.php?new" class="btn btn-success">Create</a></li>';
                   }
                 ?>
                 <li class="list-inline-item align-bottom">
-                  <a href="#" class="d-xxl-none btn btn-link-secondary" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
-                    <i class="ti ti-filter f-16"></i> Filter
+                  <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+                    Filter
                   </a>
-                  <a href="#" class="d-none d-xxl-inline-flex btn btn-link-secondary" data-bs-toggle="collapse" data-bs-target="#filter-canvas">
-                    <i class="ti ti-filter f-16"></i> Filter
+                  <button type="button" class="d-none d-xxl-inline-flex btn btn-warning" data-bs-toggle="collapse" data-bs-target="#filter-canvas">
+                    Filter
                   </a>
                 </li>
               </ul>

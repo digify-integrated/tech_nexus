@@ -545,7 +545,7 @@
             });
         });
 
-        $(document).on('click','#filter-datatable',function() {
+        $(document).on('click','#apply-filter',function() {
             jobPositionTable('#job-position-table');
         });
     });
@@ -553,8 +553,14 @@
 
 function jobPositionTable(datatable_name, buttons = false, show_all = false){
     const type = 'job position table';
-    var filter_recruitment_status = $('#filter_recruitment_status').val();
-    var filter_department = $('#filter_department').val();
+    var filter_recruitment_status = $('.rencruitment-status-filter:checked').val();
+    var filter_department_values = [];
+
+    $('.department-filter:checked').each(function() {
+        filter_department_values.push($(this).val());
+    });
+
+    var filter_department = filter_department_values.join(', ');
     var settings;
 
     const column = [ 

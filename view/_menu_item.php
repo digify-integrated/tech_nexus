@@ -23,8 +23,6 @@
                 if($menuItemCreateAccess['total'] > 0){
                   $action .= '<a href="menu-item.php?new" class="btn btn-success">Create</a>';
                 }
-
-                $action .= '</div>';
                             
                 echo $action;
               }

@@ -189,12 +189,45 @@ class CityModel {
 
         $htmlOptions = '';
         foreach ($options as $row) {
-            $countryID = $row['city_id'];
+            $cityID = $row['city_id'];
             $cityName = $row['city_name'];
             $stateName = $row['state_name'];
             $countryName = $row['country_name'];
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($countryID, ENT_QUOTES) . '">' . htmlspecialchars($cityName, ENT_QUOTES) . ', '. htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($cityID, ENT_QUOTES) . '">' . htmlspecialchars($cityName, ENT_QUOTES) . ', '. htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateCityCheckbox
+    # Description: Generates the city check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateCityCheckbox($p_generation_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCityCheckbox(:p_generation_type)');
+        $stmt->bindValue(':p_generation_type', $p_generation_type, PDO::PARAM_STR);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $cityID = $row['city_id'];
+            $cityName = $row['city_name'];
+            $stateName = $row['state_name'];
+            $countryName = $row['country_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input city-filter" type="checkbox" id="city-' . htmlspecialchars($cityID, ENT_QUOTES) . '" value="' . htmlspecialchars($cityID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="city-' . htmlspecialchars($cityID, ENT_QUOTES) . '">' . htmlspecialchars($cityName, ENT_QUOTES) . ', '. htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES) .'</label>
+                            </div>';
         }
 
         return $htmlOptions;

@@ -36,7 +36,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterCountry = htmlspecialchars($_POST['filter_country'], ENT_QUOTES, 'UTF-8');
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateStateTable(:filterCountry)');
-                $sql->bindValue(':filterCountry', $filterCountry, PDO::PARAM_INT);
+                $sql->bindValue(':filterCountry', $filterCountry, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

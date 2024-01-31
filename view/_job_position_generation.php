@@ -38,7 +38,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateJobPositionTable(:filterRecruitmentStatus, :filterDepartment)');
                 $sql->bindValue(':filterRecruitmentStatus', $filterRecruitmentStatus, PDO::PARAM_STR);
-                $sql->bindValue(':filterDepartment', $filterDepartment, PDO::PARAM_INT);
+                $sql->bindValue(':filterDepartment', $filterDepartment, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

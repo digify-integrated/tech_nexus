@@ -221,5 +221,36 @@ class StateModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateStateCheckBox
+    # Description: Generates the state check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateStateCheckBox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateStateOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $stateID = $row['state_id'];
+            $stateName = $row['state_name'];
+            $countryName = $row['country_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input state-filter" type="checkbox" id="state-' . htmlspecialchars($stateID, ENT_QUOTES) . '" value="' . htmlspecialchars($stateID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="state-' . htmlspecialchars($stateID, ENT_QUOTES) . '">' . htmlspecialchars($stateName, ENT_QUOTES) . ', '. htmlspecialchars($countryName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

@@ -3,9 +3,11 @@
   require('config/_check_user_active.php');
   require('model/branch-model.php');
   require('model/city-model.php');
+  require('model/company-model.php');
   
   $branchModel = new BranchModel($databaseModel);
   $cityModel = new CityModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
 
   $pageTitle = 'Branch';
     

@@ -1,6 +1,17 @@
 <?php
     require('config/_required_php_file.php');
     require('config/_check_user_active.php');
+    require('model/company-model.php');
+    require('model/job-position-model.php');
+    require('model/job-level-model.php');
+    require('model/branch-model.php');
+    require('model/employee-type-model.php');
+
+    $companyModel = new CompanyModel($databaseModel);
+    $jobPositionModel = new JobPositionModel($databaseModel);
+    $jobLevelModel = new JobLevelModel($databaseModel);
+    $branchModel = new BranchModel($databaseModel);
+    $employeeTypeModel = new EmployeeTypeModel($databaseModel);
 
     $pageTitle = 'Attendance Record';
     
@@ -68,10 +79,10 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Human Resources</li>
                     <li class="breadcrumb-item">Employees</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="employee.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="attendance-record.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($employeeID)){
-                            echo '<li class="breadcrumb-item" id="employee-id">'. $employeeID .'</li>';
+                        if(!$newRecord && !empty($attendanceID)){
+                            echo '<li class="breadcrumb-item" id="attendance-id">'. $attendanceID .'</li>';
                         }
 
                         if($newRecord){
@@ -92,7 +103,7 @@
             if($newRecord && $attendanceRecordCreateAccess['total'] > 0){
                 require_once('view/_attendance_record_new.php');
             }
-            else if(!empty($employeeID) && $attendanceRecordWriteAccess['total'] > 0){
+            else if(!empty($attendanceID) && $attendanceRecordWriteAccess['total'] > 0){
                 require_once('view/_attendance_record_details.php');
             }
             else{
@@ -115,9 +126,8 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-slider.min.js"></script>
-    <script src="./assets/js/plugins/qr/qrcode.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/employee.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/attendance-record.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

@@ -198,7 +198,7 @@ class WorkScheduleTypeModel {
     # -------------------------------------------------------------
     #
     # Function: generateWorkScheduleTypeCheckBox
-    # Description: Generates the work schedule type options.
+    # Description: Generates the work schedule type check box.
     #
     # Parameters:None
     #

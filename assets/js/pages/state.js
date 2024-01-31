@@ -258,7 +258,7 @@
             });
         });
 
-        $(document).on('click','#filter-datatable',function() {
+        $(document).on('click','#apply-filter',function() {
             stateTable('#state-table');
         });
     });
@@ -266,7 +266,13 @@
 
 function stateTable(datatable_name, buttons = false, show_all = false){
     const type = 'state table';
-    var filter_country = $('#filter_country').val();
+    var filter_country_values = [];
+
+    $('.country-filter:checked').each(function() {
+        filter_country_values.push($(this).val());
+    });
+
+    var filter_country = filter_country_values.join(', ');
     var settings;
 
     const column = [ 

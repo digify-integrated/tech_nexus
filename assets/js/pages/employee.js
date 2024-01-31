@@ -162,48 +162,12 @@
 
         if ($employeeCard.length) {
             loadEmployeeCard(page, is_loading, true);
-
-            age_filter_slider.on('slideStop', function(slideEvt) {
-                debounceAndReset();
-            });
-
             $employeeSearch.on('keyup', function() {
                 debounceAndReset();
             });
 
-            const filterClasses = [
-                '.employment-status-filter',
-                '.company-filter',
-                '.department-filter',
-                '.job-position-filter',
-                '.branch-filter',
-                '.employee-type-filter',
-                '.job-level-filter',
-                '.gender-filter',
-                '.civil-status-filter',
-                '.blood-type-filter',
-                '.religion-filter'
-            ];
-            
-            filterClasses.forEach(filterClass => {
-                $(document).on('change', filterClass, debounceAndReset);
-            });
-
-            $('#filter_birthday_start_date').on('changeDate', function(e) {
+            $(document).on('click','#apply-filter',function() {
                 debounceAndReset();
-            });
-
-            $('#filter_birthday_end_date').on('changeDate', function(e) {
-                debounceAndReset();
-            });
-
-            $(window).scroll(function () {
-                if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
-                    if (!is_loading) {
-                        page++;
-                        loadEmployeeCard(page, is_loading, false);
-                    }
-                }
             });
         }
 

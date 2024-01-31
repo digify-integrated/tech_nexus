@@ -38,7 +38,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterState = htmlspecialchars($_POST['filter_state'], ENT_QUOTES, 'UTF-8');
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateCityTable(:filterState)');
-                $sql->bindValue(':filterState', $filterState, PDO::PARAM_INT);
+                $sql->bindValue(':filterState', $filterState, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();

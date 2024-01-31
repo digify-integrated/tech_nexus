@@ -202,5 +202,35 @@ class CountryModel {
         return $htmlOptions;
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateCountryCheckbox
+    # Description: Generates the country check box.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateCountryCheckbox() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCountryOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $countryID = $row['country_id'];
+            $countryName = $row['country_name'];
+
+            $htmlOptions .= '<div class="form-check my-2">
+                                <input class="form-check-input country-filter" type="checkbox" id="country-' . htmlspecialchars($countryID, ENT_QUOTES) . '" value="' . htmlspecialchars($countryID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="country-' . htmlspecialchars($countryID, ENT_QUOTES) . '">' . htmlspecialchars($countryName, ENT_QUOTES) .'</label>
+                            </div>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
 }
 ?>

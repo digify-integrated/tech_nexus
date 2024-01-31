@@ -2922,6 +2922,7 @@ CREATE TABLE branch(
 	branch_name VARCHAR(100) NOT NULL,
 	address VARCHAR(1000) NOT NULL,
 	city_id INT NOT NULL,
+	company_id INT NOT NULL,
     phone VARCHAR(20),
 	mobile VARCHAR(20),
 	telephone VARCHAR(20),
@@ -2933,8 +2934,9 @@ CREATE TABLE branch(
 
 CREATE INDEX branch_index_branch_id ON branch(branch_id);
 CREATE INDEX branch_index_city_id ON branch(city_id);
+CREATE INDEX branch_index_company_id ON branch(company_id);
 
-INSERT INTO branch (branch_name, address, city_id, last_log_by) VALUES ('Nueva Ecija Hub', 'Km 114', '257', '1');
+INSERT INTO branch (branch_name, address, city_id, company_id, last_log_by) VALUES ('Nueva Ecija Hub', 'Km 114', '257', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

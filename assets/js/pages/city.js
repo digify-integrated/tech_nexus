@@ -258,7 +258,7 @@
             });
         });
 
-        $(document).on('click','#filter-datatable',function() {
+        $(document).on('click','#apply-filter',function() {
             cityTable('#city-table');
         });
     });
@@ -266,7 +266,13 @@
 
 function cityTable(datatable_name, buttons = false, show_all = false){
     const type = 'city table';
-    var filter_state = $('#filter_state').val();
+    var filter_state_values = [];
+
+    $('.state-filter:checked').each(function() {
+        filter_state_values.push($(this).val());
+    });
+
+    var filter_state = filter_state_values.join(', ');
     var settings;
 
     const column = [ 

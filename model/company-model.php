@@ -254,8 +254,8 @@ class CompanyModel {
 
     # -------------------------------------------------------------
     #
-    # Function: generateCompanyOptions
-    # Description: Generates the company options.
+    # Function: generateCompanyCheckBox
+    # Description: Generates the company check box.
     #
     # Parameters:None
     #
