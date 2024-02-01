@@ -4278,13 +4278,13 @@ BEGIN
 	VALUES(p_contact_id, p_company_id, p_department_id, p_job_position_id, p_branch_id, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE insertEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, kiosk_pin_code, onboard_date, last_log_by) 
-	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_kiosk_pin_code, p_onboard_date, p_last_log_by);
+    INSERT INTO employment_information (contact_id, badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, kiosk_pin_code, biometrics_id, onboard_date, last_log_by) 
+	VALUES(p_contact_id, p_badge_id, p_company_id, p_employee_type_id, p_department_id, p_job_position_id, p_job_level_id, p_branch_id, p_manager_id, p_work_schedule_id, p_kiosk_pin_code, p_biometrics_id, p_onboard_date, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_onboard_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateEmploymentInformation(IN p_contact_id INT, IN p_badge_id VARCHAR(500), IN p_company_id INT, IN p_employee_type_id INT, IN p_department_id INT, IN p_job_position_id INT, IN p_job_level_id INT, IN p_branch_id INT, IN p_manager_id INT, IN p_work_schedule_id INT, IN p_kiosk_pin_code VARCHAR(255), IN p_biometrics_id VARCHAR(500), IN p_onboard_date DATE, IN p_last_log_by INT)
 BEGIN
 	UPDATE employment_information
     SET badge_id = p_badge_id,
@@ -4297,6 +4297,7 @@ BEGIN
     manager_id = p_manager_id,
     work_schedule_id = p_work_schedule_id,
     kiosk_pin_code = p_kiosk_pin_code,
+    biometrics_id = p_biometrics_id,
     onboard_date = p_onboard_date,
     last_log_by = p_last_log_by
     WHERE contact_id = p_contact_id;
@@ -5263,25 +5264,29 @@ BEGIN
     WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertManualAttendanceEntry(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_by INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertManualAttendanceEntry(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_notes VARCHAR(1000), IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_notes VARCHAR(1000), IN p_check_out_by INT, IN p_last_log_by INT, OUT p_attendance_id INT)
 BEGIN
     IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
-        INSERT INTO attendance (contact_id, check_in, check_in_by, check_in_mode, check_out, check_out_by, check_out_mode, last_log_by) 
-	    VALUES(p_contact_id, p_check_in, p_check_in_by, 'Manual', p_check_out, p_check_out_by, 'Manual', p_last_log_by);
+        INSERT INTO attendance (contact_id, check_in, check_in_notes, check_in_by, check_in_mode, check_out, check_out_notes, check_out_by, check_out_mode, last_log_by) 
+	    VALUES(p_contact_id, p_check_in, p_check_in_notes, p_check_in_by, 'Manual', p_check_out, p_check_out_notes, p_check_out_by, 'Manual', p_last_log_by);
     ELSE
-        INSERT INTO attendance (contact_id, check_in, check_in_by, check_in_mode, last_log_by) 
-	    VALUES(p_contact_id, p_check_in, p_check_in_by, 'Manual', p_last_log_by);
+        INSERT INTO attendance (contact_id, check_in, check_in_notes, check_in_by, check_in_mode, last_log_by) 
+	    VALUES(p_contact_id, p_check_in, p_check_in_notes, p_check_in_by, 'Manual', p_last_log_by);
     END IF;
+
+    SET p_attendance_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateRegularAttendanceExit(IN p_attendance_id INT, IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_by INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateManualAttendanceEntry(IN p_attendance_id INT, IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_notes VARCHAR(1000), IN p_check_in_by INT, IN p_check_out DATETIME, IN p_check_out_notes VARCHAR(1000), IN p_check_out_by INT, IN p_last_log_by INT)
 BEGIN
     IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
         UPDATE attendance
         SET check_in = p_check_in,
+        check_in_notes = p_check_in_notes,
         check_in_by = p_check_in_by,
         check_in_mode = 'Manual',
         check_out = p_check_out,
+        check_out_notes = p_check_out_notes,
         check_out_by = p_check_out_by,
         check_out_mode = 'Manual',
         last_log_by = p_last_log_by
@@ -5289,13 +5294,39 @@ BEGIN
     ELSE
         UPDATE attendance
         SET check_in = p_check_in,
+        check_in_notes = p_check_in_notes,
         check_in_by = p_check_in_by,
         check_in_mode = 'Manual',
         check_out = null,
         check_out_by = null,
+        check_out_notes = null,
         check_out_mode = null,
         last_log_by = p_last_log_by
         WHERE attendance_id = p_attendance_id AND contact_id = p_contact_id;
+    END IF;
+END //
+
+CREATE PROCEDURE checkAttendanceConflict (IN p_attendance_id INT, IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_out DATETIME)
+BEGIN
+    IF p_attendance_id IS NOT NULL AND p_attendance_id <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM attendance
+        WHERE (
+            (p_check_in BETWEEN check_in AND check_out)
+            OR (p_check_out BETWEEN check_in AND check_out)
+            OR (check_in BETWEEN p_check_in AND p_check_out)
+            OR (check_out BETWEEN p_check_in AND p_check_out)
+        ) AND
+        attendance_id != p_attendance_id AND contact_id = p_contact_id;
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM attendance
+        WHERE (
+            (p_check_in BETWEEN check_in AND check_out)
+            OR (p_check_out BETWEEN check_in AND check_out)
+            OR (check_in BETWEEN p_check_in AND p_check_out)
+            OR (check_out BETWEEN p_check_in AND p_check_out)
+        ) AND contact_id = p_contact_id;
     END IF;
 END //
 

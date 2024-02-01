@@ -3895,6 +3895,7 @@ function displayDetails(transaction){
                         $('#badge_id').val(response.badgeID);
                         $('#onboard_date').val(response.onboardDate);
                         $('#kiosk_pin_code').val(response.kioskPinCode);
+                        $('#biometrics_ID').val(response.biometricsID);
 
                         document.getElementById('employee-status-badge').innerHTML = response.isActiveBadge;
 

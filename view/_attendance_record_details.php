@@ -57,7 +57,7 @@
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="check_in_date_label"></label>
                         <div class="input-group date d-none form-edit">
-                        <input type="text" class="form-control regular-datepicker" id="check_in_date" name="check_in_date">
+                        <input type="text" class="form-control future-date-restricted-datepicker" id="check_in_date" name="check_in_date" autocomplete="off">
                             <span class="input-group-text">
                                 <i class="feather icon-calendar"></i>
                             </span>
@@ -66,7 +66,14 @@
                       <label class="col-lg-2 col-form-label">Check In Time <span class="text-danger d-none form-edit">*</span></label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="check_in_time_label"></label>
-                        <input class="form-control d-none form-edit id="check_in_time" name="check_in_time" type="time">
+                        <input class="form-control d-none form-edit" id="check_in_time" name="check_in_time" type="time">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Check In Notes</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="check_in_notes_label"></label>
+                        <textarea class="form-control d-none form-edit" id="check_in_notes" name="check_in_notes" maxlength="1000" rows="3"></textarea>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -74,7 +81,7 @@
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="check_out_date_label"></label>
                         <div class="input-group date d-none form-edit">
-                        <input type="text" class="form-control regular-datepicker" id="check_out_date" name="check_out_date">
+                        <input type="text" class="form-control future-date-restricted-datepicker" id="check_out_date" name="check_out_date" autocomplete="off">
                             <span class="input-group-text">
                                 <i class="feather icon-calendar"></i>
                             </span>
@@ -83,7 +90,14 @@
                       <label class="col-lg-2 col-form-label">Check Out Time</label>
                       <div class="col-lg-4">
                         <label class="col-form-label form-details fw-normal" id="check_out_time_label"></label>
-                        <input class="form-control d-none form-edit id="check_out_time" name="check_out_time" type="time">
+                        <input class="form-control d-none form-edit" id="check_out_time" name="check_out_time" type="time">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Check Out Notes</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="check_out_notes_label"></label>
+                        <textarea class="form-control d-none form-edit" id="check_out_notes" name="check_out_notes" maxlength="1000" rows="3"></textarea>
                       </div>
                     </div>';
             }
@@ -105,6 +119,12 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Check In Notes</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="check_in_notes_label"></label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-lg-2 col-form-label">Check Out Date</label>
                         <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="check_out_date_label"></label>
@@ -113,10 +133,72 @@
                         <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="check_out_time_label"></label>
                         </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label">Check Out Notes</label>
+                      <div class="col-lg-10">
+                        <label class="col-form-label form-details fw-normal" id="check_out_notes_label"></label>
+                      </div>
                     </div>';
             }
           ?>
         </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Check In Image</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="Check In Image" id="check-in-image" class="img-fluid rounded">
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Check Out Image</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <img src="<?php echo DEFAULT_AVATAR_IMAGE; ?>" alt="User Image" id="check-out-image" class="img-fluid rounded">
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Check In Location</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" id="check-in-map">
+           
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Check Out Location</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" id="check-out-map">
+              
       </div>
     </div>
   </div>

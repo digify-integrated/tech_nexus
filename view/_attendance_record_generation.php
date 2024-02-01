@@ -72,7 +72,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $delete = '';
                     if($attendanceRecordDeleteAccess['total'] > 0){
-                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-attendance-record" data-attendance-record-id="'. $attendanceRecordID .'" title="Delete Attendance Setting">
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-attendance-record" data-attendance-id="'. $attendanceRecordID .'" title="Delete Attendance Setting">
                                             <i class="ti ti-trash"></i>
                                         </button>';
                     }

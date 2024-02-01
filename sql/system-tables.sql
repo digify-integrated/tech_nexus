@@ -142,7 +142,8 @@ CREATE INDEX menu_group_index_menu_group_id ON menu_group(menu_group_id);
 
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Human Resources', '40', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '90', '1');
-INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1000');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '100', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -405,6 +406,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User A
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlink User Account To Contact', '1');
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Record Attendance', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Import Attendance', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -505,6 +507,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('80', '1', '1', '1');
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('81', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('82', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3648,6 +3651,7 @@ CREATE TABLE employment_information(
 	work_schedule_id INT UNSIGNED,
 	employment_status TINYINT(1) NOT NULL DEFAULT 1,
     kiosk_pin_code VARCHAR(255),
+    biometrics_id VARCHAR(500),
     onboard_date DATE,
     offboard_date DATE,
     departure_reason_id INT UNSIGNED,
@@ -4184,6 +4188,15 @@ CREATE TABLE attendance (
 );
 
 CREATE INDEX attendance_index_attendance_id ON attendance(attendance_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Temporary Attendance Import Table */
+
+CREATE TABLE temp_attendance_import (
+    badge_id INT UNSIGNED NOT NULL,
+    check_in DATETIME
+);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

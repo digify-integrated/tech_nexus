@@ -85,6 +85,20 @@
             });
         }
 
+        if ($('.future-date-restricted-datepicker').length) {
+            var future_date_restricted_datepickers = document.querySelectorAll('.future-date-restricted-datepicker');
+        
+            future_date_restricted_datepickers.forEach(function(element) {
+                var today = new Date();
+                var filter_date_picker = new Datepicker(element, {
+                    buttonClass: 'btn',
+                    todayHighlight: true,
+                    autohide: true,
+                    maxDate: today,
+                });
+            });
+        }
+
         if ($('.tiny-mce').length) {
             initTinyMCE();
         }

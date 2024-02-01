@@ -195,6 +195,10 @@
                                 
                     echo $action;
                   }
+
+                  if($importAttendance['total'] > 0){
+                    echo ' <a href="attendance-record.php?import" class="btn btn-info">Import</a>';
+                  }
                 ?>
                 <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter

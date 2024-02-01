@@ -31,7 +31,7 @@
             <label class="col-lg-2 col-form-label">Check In Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="check_in_date" name="check_in_date">
+                    <input type="text" class="form-control future-date-restricted-datepicker" id="check_in_date" name="check_in_date" autocomplete="off">
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>
@@ -43,10 +43,16 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Check In Notes</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="check_in_notes" name="check_in_notes" maxlength="1000" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Check Out Date </label>
             <div class="col-lg-4">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="check_out_date" name="check_out_date">
+                    <input type="text" class="form-control future-date-restricted-datepicker" id="check_out_date" name="check_out_date" autocomplete="off">
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>
@@ -55,6 +61,12 @@
             <label class="col-lg-2 col-form-label">Check Out Time</label>
             <div class="col-lg-4">
                 <input class="form-control" id="check_out_time" name="check_out_time" type="time">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Check Out Notes</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="check_out_notes" name="check_out_notes" maxlength="1000" rows="3"></textarea>
             </div>
           </div>
         </form>

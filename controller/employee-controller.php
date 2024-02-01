@@ -372,6 +372,7 @@ class EmployeeController {
         $branchID = htmlspecialchars($_POST['branch_id'], ENT_QUOTES, 'UTF-8');
         $managerID = htmlspecialchars($_POST['manager_id'], ENT_QUOTES, 'UTF-8');
         $workScheduleID = htmlspecialchars($_POST['work_schedule_id'], ENT_QUOTES, 'UTF-8');
+        $biometricsID = htmlspecialchars($_POST['biometrics_id'], ENT_QUOTES, 'UTF-8');
         $kioskPinCode = $this->securityModel->encryptData($_POST['kiosk_pin_code']);
         $onboardDate = $this->systemModel->checkDate('empty', $_POST['onboard_date'], '', 'Y-m-d', '');
     
@@ -386,13 +387,13 @@ class EmployeeController {
         $total = $checkEmploymentInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $onboardDate, $userID);
+            $this->employeeModel->updateEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $onboardDate, $userID);
+            $this->employeeModel->insertEmploymentInformation($employeeID, $badgeID, $companyID, $employeeTypeID, $departmentID, $jobPositionID, $jobLevelID, $branchID, $managerID, $workScheduleID, $kioskPinCode, $biometricsID, $onboardDate, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -2299,6 +2300,7 @@ class EmployeeController {
             $managerID = $employeeDetails['manager_id'] ?? null;
             $workScheduleID = $employeeDetails['work_schedule_id'] ?? null;
             $kioskPinCode = !empty($employeeDetails['kiosk_pin_code']) ? $this->securityModel->decryptData($employeeDetails['kiosk_pin_code']) : null;
+            $biometricsID = $employeeDetails['biometrics_id'] ?? null;
             $employmentStatus = $employeeDetails['employment_status'] ?? null;
             $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
             $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? null;
@@ -2326,6 +2328,7 @@ class EmployeeController {
                 'managerID' => $managerID,
                 'workScheduleID' => $workScheduleID,
                 'kioskPinCode' => $kioskPinCode,
+                'biometricsID' => $biometricsID,
                 'branchName' => $branchName,
                 'isActiveBadge' => $isActiveBadge,
                 'onboardDate' =>  $this->systemModel->checkDate('empty', $employeeDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),

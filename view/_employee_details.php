@@ -591,6 +591,10 @@
                           </div>
                           <div class="form-group row">
                             <div class="col-lg-6">
+                              <label class="form-label">Biometrics ID</label>
+                              <input type="text" class="form-control" id="biometrics_id" name="biometrics_id" maxlength="300" autocomplete="off">
+                            </div>
+                            <div class="col-lg-6">
                               <label class="form-label">Kiosk Pin Code</label>
                               <input type="text" class="form-control" id="kiosk_pin_code" name="kiosk_pin_code" maxlength="6" autocomplete="off">
                             </div>

@@ -177,7 +177,7 @@ class SystemModel {
     # -------------------------------------------------------------
     #
     # Function: getDefaultImage
-    # Description: Checks the date with different format
+    # Description: Gets the default
     #
     # Parameters:
     # - $type (string): The type of default image.
@@ -194,7 +194,7 @@ class SystemModel {
             'menu logo' => DEFAULT_MENU_LOGO_IMAGE,
             'module icon' => DEFAULT_MODULE_ICON_IMAGE,
             'favicon' => DEFAULT_FAVICON_IMAGE,
-            'company logo' => DEFAULT_COMPANY_LOGO_IMAGE,
+            'company logo' => DEFAULT_COMPANY_LOGO_IMAGE
         ];
     
         return $defaultImages[$type] ?? DEFAULT_PLACEHOLDER_IMAGE;
@@ -203,7 +203,7 @@ class SystemModel {
 
     # -------------------------------------------------------------
     #
-    # Function: getDefaultImage
+    # Function: getMonthNameFromNumber
     # Description: Checks the date with different format
     #
     # Parameters:

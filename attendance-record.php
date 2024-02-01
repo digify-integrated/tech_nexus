@@ -19,6 +19,7 @@
     $attendanceRecordCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 52, 'create');
     $attendanceRecordWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 52, 'write');
     $attendanceRecordDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 52, 'delete'); 
+    $importAttendance = $userModel->checkSystemActionAccessRights($user_id, 82);
 
     if ($attendanceRecordReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -46,6 +47,7 @@
     }
 
     $newRecord = isset($_GET['new']);
+    $importRecord = isset($_GET['import']);
 
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
@@ -102,6 +104,9 @@
         <?php
             if($newRecord && $attendanceRecordCreateAccess['total'] > 0){
                 require_once('view/_attendance_record_new.php');
+            }
+            else if($importRecord && $importAttendance['total'] > 0){
+                require_once('view/_attendance_record_import.php');
             }
             else if(!empty($attendanceID) && $attendanceRecordWriteAccess['total'] > 0){
                 require_once('view/_attendance_record_details.php');

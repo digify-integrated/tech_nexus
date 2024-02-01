@@ -2538,6 +2538,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Employment Status ID: ", OLD.employment_status, " -> ", NEW.employment_status, "<br/>");
     END IF;
     
+    IF NEW.biometrics_id <> OLD.biometrics_id THEN
+        SET audit_log = CONCAT(audit_log, "Biometrics ID: ", OLD.biometrics_id, " -> ", NEW.biometrics_id, "<br/>");
+    END IF;
+    
     IF NEW.onboard_date <> OLD.onboard_date THEN
         SET audit_log = CONCAT(audit_log, "On Board Date: ", OLD.onboard_date, " -> ", NEW.onboard_date, "<br/>");
     END IF;
@@ -2596,6 +2600,10 @@ BEGIN
 
     IF NEW.employment_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Employement Status: ", NEW.employment_status);
+    END IF;
+    
+    IF NEW.biometrics_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Biometrics ID: ", NEW.biometrics_id);
     END IF;
 
     IF NEW.onboard_date <> '' THEN

@@ -10,6 +10,10 @@
             attendanceRecordForm();
         }
 
+        if($('#import-attendance-form').length){
+            importAttendanceForm();
+        }
+
         if($('#attendance-id').length){
             displayDetails('get attendance record details');
         }
@@ -268,7 +272,8 @@ function attendanceRecordTable(datatable_name, buttons = false, show_all = false
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '15%', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': '15%', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -401,7 +406,7 @@ function attendanceRecordForm(){
                         const notificationDescription = response.insertRecord ? 'The attendance record has been inserted successfully.' : 'The attendance record has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'attendance record.php?id=' + response.attendanceID;
+                        window.location = 'attendance-record.php?id=' + response.attendanceID;
                     }
                     else {
                         if (response.isInactive) {
@@ -430,6 +435,98 @@ function attendanceRecordForm(){
     });
 }
 
+function importAttendanceForm(){
+    $('#import-attendance-form').validate({
+        rules: {
+            company_id: {
+                required: true
+            },
+            import_file: {
+                required: true
+            },
+        },
+        messages: {
+            company_id: {
+                required: 'Please choose the company'
+            },
+            import_file: {
+                required: 'Please choose the import file'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const transaction = 'save attendance record import';
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-load-file');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-load-file', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get attendance record details':
@@ -450,17 +547,27 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#attendance_id').val(attendance_id);
                         $('#check_in_date').val(response.checkInDate);
-                        $('#check_in_time').val(response.checkInTime);
                         $('#check_out_date').val(response.checkOutDate);
+                        $('#check_in_time').val(response.checkInTime);
                         $('#check_out_time').val(response.checkOutTime);
+                        $('#check_in_notes').val(response.checkInNotes);
+                        $('#check_out_notes').val(response.checkOutNotes);
 
-                        checkOptionExist('#employee_id', response.employeeID, '');
+                        document.getElementById('check-in-map').innerHTML = response.checkInMap;
+                        document.getElementById('check-out-map').innerHTML = response.checkOutMap;
+
+                        document.getElementById('check-in-image').src = response.checkInImage;
+                        document.getElementById('check-out-image').src = response.checkOutImage;
+
+                        checkOptionExist('#employee_id', response.contactID, '');
 
                         $('#employee_id_label').text(response.employeeName);
                         $('#check_in_date_label').text(response.checkInDate);
-                        $('#check_in_time_label').text(response.checkInTime);
                         $('#check_out_date_label').text(response.checkOutDate);
-                        $('#check_out_time_label').text(response.checkOutTime);
+                        $('#check_in_time_label').text(response.checkInTimeLabel);
+                        $('#check_out_time_label').text(response.checkOutTimeLabel);
+                        $('#check_in_notes_label').text(response.checkInNotes);
+                        $('#check_out_notes_label').text(response.checkOutNotes);
                     } 
                     else {
                         if(response.isInactive){
