@@ -3779,86 +3779,6 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateWorkScheduleTable(IN p_offset INT, IN p_employee_per_page INT, IN p_search VARCHAR(500), IN p_employment_status VARCHAR(10), IN p_company_filter VARCHAR(500), IN p_department_filter VARCHAR(500), IN p_job_position_filter VARCHAR(500), IN p_branch_filter VARCHAR(500), IN p_employee_type_filter VARCHAR(500), IN p_job_level_filter VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
-BEGIN
-    DECLARE sql_query VARCHAR(5000);
-
-    SET sql_query = 'SELECT 
-        c.contact_id AS contact_id, contact_image, 
-        file_as, department_id, branch_id, job_position_id, employment_status 
-    FROM contact c
-    LEFT JOIN personal_information p ON p.contact_id = c.contact_id
-    LEFT JOIN employment_information e ON e.contact_id = c.contact_id
-    WHERE c.is_employee = 1';
-
-    IF p_search IS NOT NULL AND p_search <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND (
-            p.first_name LIKE ?
-            OR p.middle_name LIKE ?
-            OR p.last_name LIKE ?
-        )');
-    END IF;
-
-    IF p_employment_status <> 'all' THEN
-        IF p_employment_status = 'active' THEN
-            SET sql_query = CONCAT(sql_query, ' AND employment_status = 1');
-        ELSE
-           SET sql_query = CONCAT(sql_query, ' AND employment_status = 0');
-        END IF;
-    END IF;
-
-    IF p_company_filter IS NOT NULL AND p_company_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company_filter, ')');
-    END IF;
-
-    IF p_department_filter IS NOT NULL AND p_department_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND department_id IN (', p_department_filter, ')');
-    END IF;
-
-    IF p_job_position_filter IS NOT NULL AND p_job_position_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND job_position_id IN (', p_job_position_filter, ')');
-    END IF;
-
-    IF p_branch_filter IS NOT NULL AND p_branch_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND branch_id IN (', p_branch_filter, ')');
-    END IF;
-
-    IF p_employee_type_filter IS NOT NULL AND p_employee_type_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND employee_type_id IN (', p_employee_type_filter, ')');
-    END IF;
-
-    IF p_job_level_filter IS NOT NULL AND p_job_level_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND job_level_id IN (', p_job_level_filter, ')');
-    END IF;
-
-    IF p_gender_filter IS NOT NULL AND p_gender_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND gender_id IN (', p_gender_filter, ')');
-    END IF;
-
-    IF p_civil_status_filter IS NOT NULL AND p_civil_status_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND civil_status_id IN (', p_civil_status_filter, ')');
-    END IF;
-
-    IF p_blood_type_filter IS NOT NULL AND p_blood_type_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND blood_type_id IN (', p_blood_type_filter, ')');
-    END IF;
-
-    IF p_religion_filter IS NOT NULL AND p_religion_filter <> '' THEN
-        SET sql_query = CONCAT(sql_query, ' AND religion_id IN (', p_religion_filter, ')');
-    END IF;
-
-    SET sql_query = CONCAT(sql_query, ' ORDER BY p.last_name LIMIT ?, ?;');
-
-    PREPARE stmt FROM sql_query;
-    IF p_search IS NOT NULL AND p_search <> '' THEN
-        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_employee_per_page;
-    ELSE
-        EXECUTE stmt USING p_offset, p_employee_per_page;
-    END IF;
-
-    DEALLOCATE PREPARE stmt;
-END //
-
 CREATE PROCEDURE generateWorkScheduleOptions()
 BEGIN
 	SELECT work_schedule_id, work_schedule_name FROM work_schedule
@@ -4309,9 +4229,15 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
+CREATE PROCEDURE getEmploymentInformationByBiometricsID(IN p_biometrics_id VARCHAR(500), IN p_company_id INT)
+BEGIN
+	SELECT * FROM employment_information
+    WHERE biometrics_id = p_biometrics_id AND company_id = p_company_id;
+END //
+
 CREATE PROCEDURE generateEmploymentInformationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT badge_id, company_id, employee_type_id, department_id, job_position_id, job_level_id, branch_id, manager_id, work_schedule_id, onboard_date
+	SELECT *
     FROM employment_information
     WHERE contact_id = p_contact_id;
 END //
@@ -5298,6 +5224,8 @@ BEGIN
         check_in_by = p_check_in_by,
         check_in_mode = 'Manual',
         check_out = null,
+        check_out_image = null,
+        check_out_location = null,
         check_out_by = null,
         check_out_notes = null,
         check_out_mode = null,
@@ -5309,24 +5237,37 @@ END //
 CREATE PROCEDURE checkAttendanceConflict (IN p_attendance_id INT, IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_out DATETIME)
 BEGIN
     IF p_attendance_id IS NOT NULL AND p_attendance_id <> '' THEN
-        SELECT COUNT(*) AS total
-        FROM attendance
-        WHERE (
-            (p_check_in BETWEEN check_in AND check_out)
-            OR (p_check_out BETWEEN check_in AND check_out)
-            OR (check_in BETWEEN p_check_in AND p_check_out)
-            OR (check_out BETWEEN p_check_in AND p_check_out)
-        ) AND
-        attendance_id != p_attendance_id AND contact_id = p_contact_id;
+        IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
+            SELECT COUNT(*) AS total
+            FROM attendance
+            WHERE (
+                (p_check_in BETWEEN check_in AND check_out)
+                OR (p_check_out BETWEEN check_in AND check_out)
+            ) AND
+            attendance_id != p_attendance_id AND contact_id = p_contact_id;
+        ELSE
+            SELECT COUNT(*) AS total
+            FROM attendance
+            WHERE (
+                (p_check_in BETWEEN check_in AND check_out)
+            ) AND
+            attendance_id != p_attendance_id AND contact_id = p_contact_id;
+        END IF;
     ELSE
-        SELECT COUNT(*) AS total
-        FROM attendance
-        WHERE (
-            (p_check_in BETWEEN check_in AND check_out)
-            OR (p_check_out BETWEEN check_in AND check_out)
-            OR (check_in BETWEEN p_check_in AND p_check_out)
-            OR (check_out BETWEEN p_check_in AND p_check_out)
-        ) AND contact_id = p_contact_id;
+        IF p_check_out IS NOT NULL AND p_check_out <> '' THEN
+            SELECT COUNT(*) AS total
+            FROM attendance
+            WHERE (
+                (p_check_in BETWEEN check_in AND check_out)
+                OR (p_check_out BETWEEN check_in AND check_out)
+            ) AND contact_id = p_contact_id;
+        ELSE
+             SELECT COUNT(*) AS total
+            FROM attendance
+            WHERE (
+                (p_check_in BETWEEN check_in AND check_out)
+            ) AND contact_id = p_contact_id;
+        END IF;
     END IF;
 END //
 
@@ -5429,6 +5370,111 @@ BEGIN
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
+
+CREATE PROCEDURE generateImportAttendanceRecordTable(IN p_attendance_record_start_date DATE, IN p_attendance_record_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM temp_attendance_import';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_attendance_record_start_date IS NOT NULL AND p_attendance_record_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(check_in) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_attendance_record_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_attendance_record_end_date));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY contact_id, check_in;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Attendance Record Import Table Stored Procedures */
+
+CREATE PROCEDURE deleteBiometricsAttendanceRecord()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM temp_attendance_biometrics_import;
+    DELETE FROM temp_attendance_import;
+
+    ALTER TABLE temp_attendance_import AUTO_INCREMENT = 1;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE insertBiometricsAttendanceRecord(IN p_biometrics_id INT, IN p_company_id INT, IN p_attendance_date DATETIME)
+BEGIN
+    INSERT INTO temp_attendance_biometrics_import (biometrics_id, company_id, attendance_record_date) 
+	VALUES(p_biometrics_id, p_company_id, p_attendance_date);
+END //
+
+CREATE PROCEDURE getBiometricsAttendanceRecord()
+BEGIN
+    SELECT * FROM temp_attendance_biometrics_import
+    ORDER BY biometrics_id, attendance_record_date;
+END //
+
+CREATE PROCEDURE getArrangedImportedAttendanceRecord(IN p_attendance_id INT)
+BEGIN
+    SELECT * FROM temp_attendance_import
+    WHERE attendance_id = p_attendance_id;
+END //
+
+CREATE PROCEDURE checkBiometricsAttendanceRecordExist (IN p_contact_id INT, IN p_attendance_date DATETIME)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM temp_attendance_import
+    WHERE contact_id = p_contact_id AND (check_in = p_attendance_date OR check_out = p_attendance_date);
+END //
+
+CREATE PROCEDURE checkArrangedBiometricsAttendanceRecordExist (IN p_contact_id INT, IN p_attendance_date DATETIME)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM temp_attendance_import
+    WHERE contact_id = p_contact_id AND (check_out IS NULL OR check_out = '') AND DATE(check_in) = DATE(p_attendance_date);
+END //
+
+CREATE PROCEDURE insertArrangedBiometricsAttendanceRecord(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_by INT)
+BEGIN
+	INSERT INTO temp_attendance_import (contact_id, check_in, check_in_by, check_in_mode) 
+	VALUES(p_contact_id, p_check_in, p_check_in_by, 'Biometrics');
+END //
+
+CREATE PROCEDURE updateArrangedBiometricsAttendanceRecord(IN p_contact_id INT, IN p_check_out DATETIME, IN p_check_out_by INT)
+BEGIN
+	UPDATE temp_attendance_import
+    SET check_out = p_check_out,
+    check_out_by = p_check_out_by,
+    check_out_mode = 'Biometrics'
+    WHERE contact_id = p_contact_id AND (check_out IS NULL OR check_out = '') AND DATE(check_in) = DATE(p_check_out);
+END //
+
+CREATE PROCEDURE insertImportedAttendanceEntry(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_location VARCHAR(100), IN p_check_in_by INT, IN p_check_in_mode VARCHAR(50), IN p_check_in_notes VARCHAR(1000), IN p_check_out DATETIME, IN p_check_out_location VARCHAR(100), IN p_check_out_by INT, IN p_check_out_mode VARCHAR(50), IN p_check_out_notes VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	INSERT INTO attendance (contact_id, check_in, check_in_location, check_in_by, check_in_mode, check_in_notes, check_out, check_out_location, check_out_by, check_out_mode, check_out_notes, last_log_by) 
+	VALUES(p_contact_id, p_check_in, p_check_in_location, p_check_in_by, p_check_in_mode, p_check_in_notes, p_check_out, p_check_out_location, p_check_out_by, p_check_out_mode, p_check_out_notes, p_last_log_by);
+END //
+
+CREATE PROCEDURE insertRegularImportedAttendanceEntry(IN p_contact_id INT, IN p_check_in DATETIME, IN p_check_in_location VARCHAR(100), IN p_check_in_by INT, IN p_check_in_mode VARCHAR(50), IN p_check_in_notes VARCHAR(1000), IN p_check_out DATETIME, IN p_check_out_location VARCHAR(100), IN p_check_out_by INT, IN p_check_out_mode VARCHAR(50), IN p_check_out_notes VARCHAR(1000))
+BEGIN
+	INSERT INTO temp_attendance_import (contact_id, check_in, check_in_location, check_in_by, check_in_mode, check_in_notes, check_out, check_out_location, check_out_by, check_out_mode, check_out_notes) 
+	VALUES(p_contact_id, p_check_in, p_check_in_location, p_check_in_by, p_check_in_mode, p_check_in_notes, p_check_out, p_check_out_location, p_check_out_by, p_check_out_mode, p_check_out_notes);
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /*  Table Stored Procedures */

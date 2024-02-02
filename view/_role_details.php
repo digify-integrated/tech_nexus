@@ -57,7 +57,7 @@
   }
 
   echo '<div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -96,7 +96,7 @@
             </div>
             <div class="card-body">
               <div class="dt-responsive table-responsive">
-                <table id="update-add-role-user-account-role-access-table" class="table table-hover nowrap w-100 dataTable">
+                <table id="update-menu-item-role-access-table" class="table table-hover nowrap w-100 dataTable">
                   <thead>
                     <tr>
                       <th>Menu Item</th>
@@ -115,7 +115,7 @@
           </div>
         </div>
         <div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">

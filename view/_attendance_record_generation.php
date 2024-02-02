@@ -60,9 +60,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $attendanceRecordID = $row['attendance_id'];
                     $contactID = $row['contact_id'];
-                    $checkIn = $systemModel->checkDate('empty', $row['check_in'], '', 'F d, Y g:i a', '');
+                    $checkIn = $systemModel->checkDate('empty', $row['check_in'], '', 'm/d/Y g:i a', '');
                     $checkInMode = $row['check_in_mode'];
-                    $checkOut = $systemModel->checkDate('empty', $row['check_out'], '', 'F d, Y g:i a', '');
+                    $checkOut = $systemModel->checkDate('empty', $row['check_out'], '', 'm/d/Y g:i a', '');
                     $checkOutMode = $row['check_out_mode'];
 
                     $employeeDetails = $employeeModel->getPersonalInformation($contactID);
@@ -90,6 +90,56 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </a>
                                         '. $delete .'
                                     </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: import attendance record table
+        # Description:
+        # Generates the import attendance record table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'import attendance record table':
+            if(isset($_POST['filter_attendance_record_date_start_date']) && isset($_POST['filter_attendance_record_date_end_date'])){
+                $filterAttendanceRecordDateStartDate = $systemModel->checkDate('empty', $_POST['filter_attendance_record_date_start_date'], '', 'Y-m-d', '');
+                $filterAttendanceRecordDateEndDate = $systemModel->checkDate('empty', $_POST['filter_attendance_record_date_end_date'], '', 'Y-m-d', '');
+                $previousBiometricsID = null;
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateImportAttendanceRecordTable(:filterAttendanceRecordDateStartDate, :filterAttendanceRecordDateEndDate)');
+                $sql->bindValue(':filterAttendanceRecordDateStartDate', $filterAttendanceRecordDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterAttendanceRecordDateEndDate', $filterAttendanceRecordDateEndDate, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $attendanceRecordID = $row['attendance_id'];
+                    $contactID = $row['contact_id'];
+                    $checkIn = $systemModel->checkDate('empty', $row['check_in'], '', 'm/d/Y g:i a', '');
+                    $checkInMode = $row['check_in_mode'];
+                    $checkOut = $systemModel->checkDate('empty', $row['check_out'], '', 'm/d/Y g:i a', '');
+                    $checkOutMode = $row['check_out_mode'];
+
+                    $employeeDetails = $employeeModel->getPersonalInformation($contactID);
+                    $fileAs = $employeeDetails['file_as'];
+
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $attendanceRecordID .'">',
+                        'EMPLOYEE_NAME' => $fileAs,
+                        'CHECK_IN' => $checkIn,
+                        'CHECK_IN_MODE' => $checkInMode,
+                        'CHECK_OUT' => $checkOut,
+                        'CHECK_OUT_MODE' => $checkOutMode,
                     ];
                 }
 

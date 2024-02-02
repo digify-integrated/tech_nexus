@@ -13,7 +13,11 @@
                                 Action
                               </button>
                               <ul class="dropdown-menu dropdown-menu-end">';
-                                         
+
+              if ($importAttendance['total'] > 0) {
+                $dropdown .= ' <li><a href="attendance-record.php?import&type=regular" class="dropdown-item">Import Attendance Record</a></li>';
+              }
+
               if ($attendanceRecordDeleteAccess['total'] > 0) {
                 $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-attendance-record-details">Delete Attendance Record</button></li>';
               }

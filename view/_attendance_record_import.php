@@ -29,7 +29,7 @@
                                                 </div>
                                             </li>
                                             <li class="list-group-item px-0 py-2">
-                                                <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
+                                                <button type="button" class="btn btn-light-success w-100" id="apply-import-filter">Apply</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -47,20 +47,26 @@
                                 <h5>Attendance Record Import</h5>
                             </div>
                             <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
+                                <div class="btn-group m-r-10">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                      <li><button class="dropdown-item" type="button" id="import-attendance-record">Import Attendance Record</button></li>
+                                    </ul>
+                                </div>
                                 <?php
                                     if ($importAttendance['total'] > 0) {
                                         echo '
                                             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#load-file-offcanvas" aria-controls="load-file-offcanvas" id="add-load-file">Load File</button>';
                                     }
                                 ?>
-                                <button type="button" class="d-none btn btn-warning" id="filter-button" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+                                <button type="button" class="btn btn-warning" id="filter-button" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                                     Filter
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive dt-responsive d-none">
+                        <div class="table-responsive dt-responsive">
                             <table id="attendance-record-import-table" class="table table-hover nowrap w-100">
                                 <thead>
                                     <tr>
@@ -69,11 +75,11 @@
                                                 <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                                             </div>
                                         </th>
-                                        <th>Biometrics ID</th>
                                         <th>Employee</th>
                                         <th>Check In</th>
+                                        <th>Check In Mode</th>
                                         <th>Check Out</th>
-                                        <th>Actions</th>
+                                        <th>Check Out Mode</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -90,17 +96,24 @@
 if($importAttendance['total'] > 0){
     echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="load-file-offcanvas" aria-labelledby="load-file-offcanvas-label">
             <div class="offcanvas-header">
-              <h2 id="load-file-offcanvas-label" style="margin-bottom:-0.5rem">Import Attendance Record</h2>
+              <h2 id="load-file-offcanvas-label" style="margin-bottom:-0.5rem">Loan Attendance Record</h2>
               <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-              <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                The Import Attendance Record feature facilitates the seamless integration of attendance data into the system, allowing efficient management and analysis of employee attendance records.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
               <div class="row mb-2">
                 <div class="col-lg-12">
                   <form id="import-attendance-form" method="post" action="#">
+                    <div class="form-group row">
+                        <div class="col-lg-12">
+                            <label class="form-label">Import Type <span class="text-danger">*</span></label>
+                            <select class="form-control offcanvas-select2" name="import_type" id="import_type">
+                                <option value="">--</option>
+                                <option value="Biometrics">Biometrics</option>
+                                <option value="Regular">Regular</option>
+                                <option value="Kiosk">Kiosk</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <div class="col-lg-12">
                             <label class="form-label">Company <span class="text-danger">*</span></label>

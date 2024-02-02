@@ -6,6 +6,10 @@
             attendanceRecordTable('#attendance-record-table');
         }
 
+        if($('#attendance-record-import-table').length){
+            importAttendanceRecordTable('#attendance-record-import-table', false, true);
+        }
+
         if($('#attendance-record-form').length){
             attendanceRecordForm();
         }
@@ -196,6 +200,73 @@
             });
         });
 
+        $(document).on('click','#import-attendance-record',function() {
+            let attendance_id = [];
+            const transaction = 'save imported attendance record';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    attendance_id.push(element.value);
+                }
+            });
+    
+            if(attendance_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Imported Attendance Records Saving',
+                    text: 'Are you sure you want to save these imported attendance records?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Import',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/attendance-record-controller.php',
+                            dataType: 'json',
+                            data: {
+                                attendance_id: attendance_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Save Imported Attendance Record Success', 'The selected imported attendance records have been saved successfully.', 'success');
+                                    window.location = 'attendance-record.php';
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Delete Attendance Record Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Save Imported Attendance Record Error', 'Please select the imported attendance records you wish to save.', 'danger');
+            }
+        });
+
         $(document).on('click','#discard-create',function() {
             discardCreate('attendance-record.php');
         });
@@ -208,6 +279,10 @@
 
         $(document).on('click','#apply-filter',function() {
             attendanceRecordTable('#attendance-record-table');
+        });
+
+        $(document).on('click','#apply-import-filter',function() {
+            importAttendanceRecordTable('#attendance-record-import-table', false, true);
         });
     });
 })(jQuery);
@@ -284,6 +359,70 @@ function attendanceRecordTable(datatable_name, buttons = false, show_all = false
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type, 'filter_attendance_record_date_start_date' : filter_attendance_record_date_start_date, 'filter_attendance_record_date_end_date' : filter_attendance_record_date_end_date, 'check_in_mode_filter' : check_in_mode_filter, 'check_out_mode_filter' : check_out_mode_filter, 'employment_status_filter' : employment_status_filter, 'company_filter' : company_filter, 'department_filter' : department_filter, 'job_position_filter' : job_position_filter, 'branch_filter' : branch_filter},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 2, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function importAttendanceRecordTable(datatable_name, buttons = false, show_all = false){
+    const type = 'import attendance record table';
+    var filter_attendance_record_date_start_date = $('#filter_attendance_record_date_start_date').val();
+    var filter_attendance_record_date_end_date = $('#filter_attendance_record_date_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'EMPLOYEE_NAME' },
+        { 'data' : 'CHECK_IN' },
+        { 'data' : 'CHECK_IN_MODE' },
+        { 'data' : 'CHECK_OUT' },
+        { 'data' : 'CHECK_OUT_MODE' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': '29%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '20%', 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_attendance_record_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'filter_attendance_record_date_start_date' : filter_attendance_record_date_start_date, 'filter_attendance_record_date_end_date' : filter_attendance_record_date_end_date},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -438,14 +577,20 @@ function attendanceRecordForm(){
 function importAttendanceForm(){
     $('#import-attendance-form').validate({
         rules: {
+            import_type: {
+                required: true
+            },
             company_id: {
                 required: true
             },
             import_file: {
                 required: true
-            },
+            }
         },
         messages: {
+            import_type: {
+                required: 'Please choose the import type'
+            },
             company_id: {
                 required: 'Please choose the company'
             },
@@ -489,16 +634,18 @@ function importAttendanceForm(){
         
             $.ajax({
                 type: 'POST',
-                url: 'controller.php',
+                url: 'controller/attendance-record-controller.php',
                 data: formData,
                 processData: false,
                 contentType: false,
+                dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-load-file');
                 },
                 success: function (response) {
                     if (response.success) {
-                        
+                        setNotification('Attendance Record File Load Success', 'The attendance record file has been loaded successfully.', 'success');
+                        window.location.reload();
                     }
                     else {
                         if (response.isInactive) {

@@ -346,6 +346,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $branchID = $row['branch_id'];
                     $managerID = $row['manager_id'];
                     $workScheduleID = $row['work_schedule_id'];
+                    $biometricsID = $row['biometrics_id'];
                     $onboardDate = $systemModel->checkDate('summary', $row['onboard_date'], '', 'F d, Y', '');
 
                     $companyName = $companyModel->getCompany($companyID)['company_name'] ?? '--';
@@ -377,6 +378,14 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <div class="col-md-12">
                                                 <p class="mb-1 text-primary"><b>ID Number</b></p>
                                                 <p class="mb-0">'. $badgeID .'</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p class="mb-1 text-primary"><b>Biometrics ID</b></p>
+                                                <p class="mb-0">'. $biometricsID .'</p>
                                             </div>
                                         </div>
                                     </li>

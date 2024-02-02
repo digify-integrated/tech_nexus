@@ -689,6 +689,28 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateArrangedBiometricsAttendanceRecord
+    # Description: Updates the arranged biometrics attendance record.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_check_out (datetime): The date and time of check out.
+    # - $p_check_out_by (int): The check out by.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateArrangedBiometricsAttendanceRecord($p_contact_id, $p_check_out, $p_check_out_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateArrangedBiometricsAttendanceRecord (:p_contact_id, :p_check_out, :p_check_out_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -1267,7 +1289,7 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: insertRegularAttendanceEntry
-    # Description: Updates the regular attendance exit.
+    # Description: Inserts the regular attendance exit.
     #
     # Parameters:
     # - $p_contact_id (int): The contact ID.
@@ -1297,7 +1319,7 @@ class EmployeeModel {
     # -------------------------------------------------------------
     #
     # Function: insertManualAttendanceEntry
-    # Description: Updates the manual attendance exit.
+    # Description: Inserts the manual attendance exit.
     #
     # Parameters:
     # - $p_attendance_id (int): The attendance ID.
@@ -1332,6 +1354,128 @@ class EmployeeModel {
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #
+    # Function: insertBiometricsAttendanceRecord
+    # Description: Inserts the biometrics attendance record for arrangement.
+    #
+    # Parameters:
+    # - $p_biometrics_id (int): The biometrics ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_attendance_date (datetime): The attendance date.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertBiometricsAttendanceRecord($p_biometrics_id, $p_company_id, $p_attendance_date) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertBiometricsAttendanceRecord (:p_biometrics_id, :p_company_id, :p_attendance_date)');
+        $stmt->bindValue(':p_biometrics_id', $p_biometrics_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_attendance_date', $p_attendance_date, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertArrangedBiometricsAttendanceRecord
+    # Description: Inserts the arranged biometrics attendance record.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The biometrics ID.
+    # - $p_check_in (datetime): The date and time of check in.
+    # - $p_check_in_by (int): The check in by.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertArrangedBiometricsAttendanceRecord($p_contact_id, $p_check_in, $p_check_in_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertArrangedBiometricsAttendanceRecord (:p_contact_id, :p_check_in, :p_check_in_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_in', $p_check_in, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_by', $p_check_in_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertImportedAttendanceEntry
+    # Description: Inserts the arranged imported attendance record.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_check_in (datetime): The date and time of check in.
+    # - $p_check_in_location (string): The check in location.
+    # - $p_check_in_by (int): The check in by.
+    # - $p_check_in_mode (string): The check in mode.
+    # - $p_check_in_notes (string): The check in notes.
+    # - $p_check_out (datetime): The date and time of check out.
+    # - $p_check_out_location (string): The check out location.
+    # - $p_check_out_by (int): The check out by.
+    # - $p_check_out_mode (string): The check out mode.
+    # - $p_check_out_notes (string): The check out notes.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertImportedAttendanceEntry($p_contact_id, $p_check_in, $p_check_in_location, $p_check_in_by, $p_check_in_mode, $p_check_in_notes, $p_check_out, $p_check_out_location, $p_check_out_by, $p_check_out_mode, $p_check_out_notes, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportedAttendanceEntry (:p_contact_id, :p_check_in, :p_check_in_location, :p_check_in_by, :p_check_in_mode, :p_check_in_notes, :p_check_out, :p_check_out_location, :p_check_out_by, :p_check_out_mode, :p_check_out_notes, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_in', $p_check_in, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_location', $p_check_in_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_by', $p_check_in_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_in_mode', $p_check_in_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_notes', $p_check_in_notes, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_location', $p_check_out_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_out_mode', $p_check_out_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_notes', $p_check_out_notes, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertRegularImportedAttendanceEntry
+    # Description: Inserts the regular imported attendance record.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_check_in (datetime): The date and time of check in.
+    # - $p_check_in_location (string): The check in location.
+    # - $p_check_in_by (int): The check in by.
+    # - $p_check_in_mode (string): The check in mode.
+    # - $p_check_in_notes (string): The check in notes.
+    # - $p_check_out (datetime): The date and time of check out.
+    # - $p_check_out_location (string): The check out location.
+    # - $p_check_out_by (int): The check out by.
+    # - $p_check_out_mode (string): The check out mode.
+    # - $p_check_out_notes (string): The check out notes.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertRegularImportedAttendanceEntry($p_contact_id, $p_check_in, $p_check_in_location, $p_check_in_by, $p_check_in_mode, $p_check_in_notes, $p_check_out, $p_check_out_location, $p_check_out_by, $p_check_out_mode, $p_check_out_notes) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertRegularImportedAttendanceEntry (:p_contact_id, :p_check_in, :p_check_in_location, :p_check_in_by, :p_check_in_mode, :p_check_in_notes, :p_check_out, :p_check_out_location, :p_check_out_by, :p_check_out_mode, :p_check_out_notes)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_in', $p_check_in, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_location', $p_check_in_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_by', $p_check_in_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_in_mode', $p_check_in_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_in_notes', $p_check_in_notes, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_location', $p_check_out_location, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_out_mode', $p_check_out_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_out_notes', $p_check_out_notes, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Check exist methods
@@ -1680,6 +1824,48 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkBiometricsAttendanceRecordExist
+    # Description: Checks if the imported biometrics attendance record exists on the temp_attendance_import table for arranging of attendance records.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_attendance_date (datetime): The attendance date.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkBiometricsAttendanceRecordExist($p_contact_id, $p_attendance_date) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkBiometricsAttendanceRecordExist(:p_contact_id, :p_attendance_date)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_attendance_date', $p_attendance_date, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkArrangedBiometricsAttendanceRecordExist
+    # Description: Checks if the there are attendance record that does not have check out.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_attendance_date (datetime): The attendance date.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkArrangedBiometricsAttendanceRecordExist($p_contact_id, $p_attendance_date) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkArrangedBiometricsAttendanceRecordExist(:p_contact_id, :p_attendance_date)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_attendance_date', $p_attendance_date, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
     
@@ -1996,6 +2182,22 @@ class EmployeeModel {
     public function deleteAttendance($p_attendance_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteAttendance(:p_attendance_id)');
         $stmt->bindValue(':p_attendance_id', $p_attendance_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteBiometricsAttendanceRecord
+    # Description: Deletes the biometrics import attendance record.
+    #
+    # Parameters: None
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteBiometricsAttendanceRecord() {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteBiometricsAttendanceRecord()');
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -2419,6 +2621,47 @@ class EmployeeModel {
     public function getAttendanceRecordCount($p_contact_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getAttendanceRecordCount(:p_contact_id)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getEmploymentInformationByBiometricsID
+    # Description: Retrieves the details of employment information based on the biometrics ID.
+    #
+    # Parameters:
+    # - $p_biometrics_id (int): The biometrics ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getEmploymentInformationByBiometricsID($p_biometrics_id, $p_company_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getEmploymentInformationByBiometricsID(:p_biometrics_id, :p_company_id)');
+        $stmt->bindValue(':p_biometrics_id', $p_biometrics_id, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getArrangedImportedAttendanceRecord
+    # Description: Retrieves the details of arranged imported attendance record.
+    #
+    # Parameters:
+    # - $p_attendance_id (int): The attendace ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getArrangedImportedAttendanceRecord($p_attendance_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getArrangedImportedAttendanceRecord(:p_attendance_id)');
+        $stmt->bindValue(':p_attendance_id', $p_attendance_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

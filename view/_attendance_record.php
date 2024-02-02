@@ -177,7 +177,7 @@
               </div>
               <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                 <?php
-                  if($attendanceRecordCreateAccess['total'] > 0 || $attendanceRecordDeleteAccess['total'] > 0){
+                  if($attendanceRecordCreateAccess['total'] > 0 || $attendanceRecordDeleteAccess['total'] > 0 || $importAttendance['total'] > 0){
                     $action = '';
                                 
                     if($attendanceRecordDeleteAccess['total'] > 0){

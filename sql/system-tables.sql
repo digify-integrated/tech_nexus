@@ -31,7 +31,7 @@ CREATE TABLE users (
 CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('CGMIntraSys Bot', 'cgmintrasys@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('CGMI Bot', 'cgmintrasys@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '1');
 INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'lawrenceagulto.317@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2024-12-30', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -142,8 +142,8 @@ CREATE INDEX menu_group_index_menu_group_id ON menu_group(menu_group_id);
 
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Human Resources', '40', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '90', '1');
-INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1000');
-INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '100', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '30', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -216,16 +216,15 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Contact Information Type', '3', 'contact-information-type.php', '11', '', '3', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Address Type', '3', 'address-type.php', '11', '', '1', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Educational Stage', '3', 'educational-stage.php', '11', '', '5', '1');
-
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employees', '1', '', '', 'users', '10', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Employee', '1', 'employee.php', '47', '', '5', '1');
-
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language', '3', 'language.php', '11', '', '12', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Language Proficiency', '3', 'language-proficiency.php', '11', '', '12', '1');
 
-
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Attendance Setting', '1', 'attendance-setting.php', '25', '', '1', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Attendance Record', '1', 'attendance-record.php', '47', '', '1', '1');
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal', '4', 'transmittal.php', '', 'inbox', '1', '1');
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -310,6 +309,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('51', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('52', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('53', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -704,6 +704,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Interface Setting', 'Sets the upload setting when uploading interface setting image.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Company Logo', 'Sets the upload setting when uploading company logo.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Employee Image', 'Sets the upload setting when uploading employee image.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Attendance Record Import', 'Sets the upload setting when importing attendance record.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -739,6 +740,7 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('4', 63);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('4', 66);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('4', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('5', 25);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4191,14 +4193,63 @@ CREATE INDEX attendance_index_attendance_id ON attendance(attendance_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Temporary Attendance Import Table */
+/* Temporary Attendance Biometrics Import Table */
 
-CREATE TABLE temp_attendance_import (
-    badge_id INT UNSIGNED NOT NULL,
-    check_in DATETIME
+CREATE TABLE temp_attendance_biometrics_import (
+    biometrics_id VARCHAR(500) NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+    attendance_record_date DATETIME NOT NULL
 );
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Temporary Attendance Import Table */
+
+CREATE TABLE temp_attendance_import (
+    attendance_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    check_in DATETIME,
+    check_in_location VARCHAR(100),
+    check_in_by INT UNSIGNED,
+    check_in_mode VARCHAR(50),
+    check_in_notes VARCHAR(1000),
+    check_out DATETIME,
+    check_out_location VARCHAR(100),
+    check_out_by INT UNSIGNED,
+    check_out_mode VARCHAR(50),
+    check_out_notes VARCHAR(1000)
+);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Transmittal Table */
+
+CREATE TABLE transmittal (
+    transmittal_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    current_employee INT UNSIGNED NOT NULL,
+    current_department INT UNSIGNED NOT NULL,
+    transmitted_employee INT UNSIGNED NOT NULL,
+    transmitted_department INT UNSIGNED NOT NULL,
+    transmittal_status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (current_employee) REFERENCES contact(contact_id),
+    FOREIGN KEY (current_department) REFERENCES department(department_id),
+    FOREIGN KEY (transmitted_employee) REFERENCES contact(contact_id),
+    FOREIGN KEY (transmitted_department) REFERENCES department(department_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX transmittal_index_transmittal_id ON transmittal(transmittal_id);
+CREATE INDEX transmittal_index_current_employee ON contact(contact_id);
+CREATE INDEX transmittal_index_current_department ON department(department_id);
+CREATE INDEX transmittal_index_transmitted_employee ON contact(contact_id);
+CREATE INDEX transmittal_index_transmitted_department ON department(department_id);
+CREATE INDEX transmittal_intex_contact_id ON contact(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 
 /*  Table */
 

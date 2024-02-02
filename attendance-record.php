@@ -28,7 +28,7 @@
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
-            header('location: employee.php');
+            header('location: attendance-record.php');
             exit;
         }
 
@@ -46,8 +46,8 @@
         $attendanceID = null;
     }
 
-    $newRecord = isset($_GET['new']);
     $importRecord = isset($_GET['import']);
+    $newRecord = isset($_GET['new']);
 
     require('config/_interface_settings.php');
     require('config/_user_account_details.php');
@@ -89,6 +89,10 @@
 
                         if($newRecord){
                             echo '<li class="breadcrumb-item">New</li>';
+                        }
+
+                        if($importRecord){
+                            echo '<li class="breadcrumb-item">Import</li>';
                         }
                   ?>
                 </ul>

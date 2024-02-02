@@ -106,7 +106,7 @@
   }
 
   echo '<div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -135,7 +135,7 @@
           </div>
         </div>
         <div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -167,7 +167,7 @@
           </div>
         </div>
         <div class="col-lg-12">
-          <div class="card">
+          <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">
@@ -195,7 +195,7 @@
           </div>
         </div>
         <div class="col-lg-12">
-          <div class="card">
+        <div class="card table-card">
             <div class="card-header">
               <div class="row align-items-center">
                 <div class="col-sm-6">

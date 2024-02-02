@@ -10,13 +10,17 @@ if (!empty($contact_id)) {
     $userAttendanceRecordWithoutCheckOut = $employeeModel->getAttendanceRecordWithoutCheckOut($contact_id);
     $userLatestAttendanceRecord = $employeeModel->getLatestAttendanceRecord($contact_id);
 
-    $currentAttendanceID = $userAttendanceRecordWithoutCheckOut['attendance_id'] ?? $userLatestAttendanceRecord['attendance_id'] ?? null;
+    $currentAttendanceID = $userAttendanceRecordWithoutCheckOut['attendance_id'] ?? null;
 
     if (!empty($currentAttendanceID)) {
         $attendanceRecord = !empty($userAttendanceRecordWithoutCheckOut) ? $userAttendanceRecordWithoutCheckOut : $userLatestAttendanceRecord;
 
         $userCheckIn = !empty($attendanceRecord['check_in']) ? date('F d, Y g:i a', strtotime($attendanceRecord['check_in'])) : $userCheckIn;
         $userCheckOut = !empty($attendanceRecord['check_out']) ? date('F d, Y g:i a', strtotime($attendanceRecord['check_out'])) : $userCheckOut;
+    }
+    else{
+        $userCheckIn = !empty($userLatestAttendanceRecord['check_in']) ? date('F d, Y g:i a', strtotime($userLatestAttendanceRecord['check_in'])) : $userCheckIn;
+        $userCheckOut = !empty($userLatestAttendanceRecord['check_out']) ? date('F d, Y g:i a', strtotime($userLatestAttendanceRecord['check_out'])) : $userCheckOut;
     }
 }
 ?>
