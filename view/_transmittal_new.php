@@ -19,9 +19,17 @@
       <div class="card-body">
         <form id="transmittal-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-              <input type="text" class="form-control" id="id_type_name" name="id_type_name" maxlength="100" autocomplete="off">
+              <input type="text" class="form-control" id="transmittal_description" name="transmittal_description" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Transmit To <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <select class="form-control select2" name="department_id" id="department_id">
+                <?php echo $ ?>
+              </select>
             </div>
           </div>
         </form>

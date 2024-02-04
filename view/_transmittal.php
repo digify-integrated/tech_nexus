@@ -40,7 +40,12 @@
                     <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                   </div>
                 </th>
-                <th>Transmittal</th>
+                <th>Description</th>
+                <th>Transmitted From</th>
+                <th>Transmitted To</th>
+                <th>Transmittal Date</th>
+                <th>Incoming/Outgoing</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>

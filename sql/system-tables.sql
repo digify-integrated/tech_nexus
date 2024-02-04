@@ -4226,27 +4226,54 @@ CREATE TABLE temp_attendance_import (
 
 CREATE TABLE transmittal (
     transmittal_id INT AUTO_INCREMENT PRIMARY KEY,
+    transmittal_description VARCHAR(100) NOT NULL,
     contact_id INT UNSIGNED NOT NULL,
-    current_employee INT UNSIGNED NOT NULL,
-    current_department INT UNSIGNED NOT NULL,
-    transmitted_employee INT UNSIGNED NOT NULL,
-    transmitted_department INT UNSIGNED NOT NULL,
+    transmitter_id INT UNSIGNED NOT NULL,
     transmittal_status VARCHAR(20) NOT NULL DEFAULT 'Pending',
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (current_employee) REFERENCES contact(contact_id),
-    FOREIGN KEY (current_department) REFERENCES department(department_id),
-    FOREIGN KEY (transmitted_employee) REFERENCES contact(contact_id),
-    FOREIGN KEY (transmitted_department) REFERENCES department(department_id),
+    FOREIGN KEY (transmitter_id) REFERENCES contact(contact_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
 CREATE INDEX transmittal_index_transmittal_id ON transmittal(transmittal_id);
-CREATE INDEX transmittal_index_current_employee ON contact(contact_id);
-CREATE INDEX transmittal_index_current_department ON department(department_id);
-CREATE INDEX transmittal_index_transmitted_employee ON contact(contact_id);
-CREATE INDEX transmittal_index_transmitted_department ON department(department_id);
-CREATE INDEX transmittal_intex_contact_id ON contact(contact_id);
+CREATE INDEX transmittal_index_current_employee ON transmittal(current_employee);
+CREATE INDEX transmittal_index_contact_id ON transmittal(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Transmittal Receiver Table */
+
+CREATE TABLE transmittal_receiver (
+    transmittal_receiver_id INT AUTO_INCREMENT PRIMARY KEY,
+    transmittal_id INT NOT NULL,
+    receiver_id INT UNSIGNED NOT NULL,
+    FOREIGN KEY (transmittal_id) REFERENCES transmittal(transmittal_id),
+    FOREIGN KEY (receiver_id) REFERENCES contact(contact_id)
+);
+
+CREATE INDEX transmittal_receiver_index_transmittal_receiver_id ON transmittal_receiver(transmittal_receiver_id);
+CREATE INDEX transmittal_receiver_index_transmittal_id ON transmittal_receiver(transmittal_id);
+CREATE INDEX transmittal_receiver_index_receiver_id ON transmittal_receiver(receiver_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Transmittal History Table */
+
+CREATE TABLE transmittal_history (
+    transmittal_history_id INT AUTO_INCREMENT PRIMARY KEY,
+    transmittal_id INT NOT NULL,
+    transmitter_id INT UNSIGNED NOT NULL,
+    receiver_id INT UNSIGNED,
+    transmittal_status VARCHAR(20) NOT NULL,
+    history_date DATETIME NOT NULL,
+    FOREIGN KEY (transmittal_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (receiver_id) REFERENCES contact(contact_id)
+);
+
+CREATE INDEX transmittal_index_transmittal_history_id ON transmittal_history(transmittal_history_id);
+CREATE INDEX transmittal_index_transmittal_id ON transmittal_history(transmittal_id);
+CREATE INDEX transmittal_index_receiver_id ON transmittal_history(receiver_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
