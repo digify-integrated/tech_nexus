@@ -3528,7 +3528,7 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Attendance Setting Table Triggers */
+/* Attendance Table Triggers */
 
 CREATE TRIGGER attendance_trigger_update
 AFTER UPDATE ON attendance
@@ -3630,6 +3630,96 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('attendance', NEW.attendance_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Transmittal Table Triggers */
+
+CREATE TRIGGER transmittal_trigger_update
+AFTER UPDATE ON transmittal
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.transmittal_description <> OLD.transmittal_description THEN
+        SET audit_log = CONCAT(audit_log, "Description: ", OLD.transmittal_description, " -> ", NEW.transmittal_description, "<br/>");
+    END IF;
+
+    IF NEW.created_by <> OLD.created_by THEN
+        SET audit_log = CONCAT(audit_log, "Created By: ", OLD.created_by, " -> ", NEW.created_by, "<br/>");
+    END IF;
+
+    IF NEW.transmitter_id <> OLD.transmitter_id THEN
+        SET audit_log = CONCAT(audit_log, "Transmitter ID: ", OLD.transmitter_id, " -> ", NEW.transmitter_id, "<br/>");
+    END IF;
+
+    IF NEW.transmitter_department <> OLD.transmitter_department THEN
+        SET audit_log = CONCAT(audit_log, "Transmitter Department: ", OLD.transmitter_department, " -> ", NEW.transmitter_department, "<br/>");
+    END IF;
+
+    IF NEW.receiver_id <> OLD.receiver_id THEN
+        SET audit_log = CONCAT(audit_log, "Receiver ID: ", OLD.receiver_id, " -> ", NEW.receiver_id, "<br/>");
+    END IF;
+
+    IF NEW.receiver_department <> OLD.receiver_department THEN
+        SET audit_log = CONCAT(audit_log, "Receiver Department: ", OLD.receiver_department, " -> ", NEW.receiver_department, "<br/>");
+    END IF;
+
+    IF NEW.transmittal_status <> OLD.transmittal_status THEN
+        SET audit_log = CONCAT(audit_log, "Transmittal Status: ", OLD.transmittal_status, " -> ", NEW.transmittal_status, "<br/>");
+    END IF;
+
+    IF NEW.transmittal_date <> OLD.transmittal_date THEN
+        SET audit_log = CONCAT(audit_log, "Transmittal Date: ", OLD.transmittal_date, " -> ", NEW.transmittal_date, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('transmittal', NEW.transmittal_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER transmittal_trigger_insert
+AFTER INSERT ON transmittal
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Transmittal created. <br/>';
+
+    IF NEW.transmittal_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Description: ", NEW.transmittal_description);
+    END IF;
+
+    IF NEW.created_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Created By: ", NEW.created_by);
+    END IF;
+
+    IF NEW.transmitter_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmitter ID: ", NEW.transmitter_id);
+    END IF;
+
+    IF NEW.transmitter_department <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmitter Department: ", NEW.transmitter_department);
+    END IF;
+
+    IF NEW.receiver_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Receiver ID: ", NEW.receiver_id);
+    END IF;
+
+    IF NEW.receiver_department <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Receiver Department: ", NEW.receiver_department);
+    END IF;
+
+    IF NEW.transmittal_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmittal Status: ", NEW.transmittal_status);
+    END IF;
+
+    IF NEW.transmittal_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmittal Date: ", NEW.transmittal_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('transmittal', NEW.transmittal_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

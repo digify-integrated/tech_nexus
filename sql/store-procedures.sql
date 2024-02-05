@@ -4104,15 +4104,17 @@ END //
 CREATE PROCEDURE generateEmployeeOptions(IN p_generate_type VARCHAR(50), IN p_reference_id INT)
 BEGIN
 	IF p_generate_type = 'all' THEN
-        SELECT contact_id, file_as FROM personal_information;
+        SELECT contact_id, file_as FROM personal_information ORDER BY file_as;
 	ELSEIF p_generate_type = 'active employee' THEN
-        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1) ORDER BY file_as;
 	ELSEIF p_generate_type = 'inactive employee' THEN
-        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 0);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 0) ORDER BY file_as;
     ELSEIF p_generate_type = 'department' THEN
-        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id) ORDER BY file_as;
+    ELSEIF p_generate_type = 'department active' THEN
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE department_id = p_reference_id) AND contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1) ORDER BY file_as;
     ELSE
-        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id);
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE job_position_id = p_reference_id) ORDER BY file_as;
     END IF;
 END //
 
@@ -5473,6 +5475,104 @@ CREATE PROCEDURE insertRegularImportedAttendanceEntry(IN p_contact_id INT, IN p_
 BEGIN
 	INSERT INTO temp_attendance_import (contact_id, check_in, check_in_location, check_in_by, check_in_mode, check_in_notes, check_out, check_out_location, check_out_by, check_out_mode, check_out_notes) 
 	VALUES(p_contact_id, p_check_in, p_check_in_location, p_check_in_by, p_check_in_mode, p_check_in_notes, p_check_out, p_check_out_location, p_check_out_by, p_check_out_mode, p_check_out_notes);
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Transmittal Table Stored Procedures */
+
+CREATE PROCEDURE checkTransmittalExist (IN p_transmittal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM transmittal
+    WHERE transmittal_id = p_transmittal_id;
+END //
+
+CREATE PROCEDURE insertTransmittal(IN p_transmittal_description VARCHAR(500), IN p_created_by INT, IN p_transmitter_id INT, IN p_transmitter_department INT, IN p_receiver_id INT, IN p_receiver_department INT, IN p_transmittal_date DATETIME, IN p_last_log_by INT, OUT p_transmittal_id INT)
+BEGIN
+    INSERT INTO transmittal (transmittal_description, created_by, transmitter_id, transmitter_department, receiver_id, receiver_department, transmittal_date, last_log_by) 
+	VALUES(p_transmittal_description, p_created_by, p_transmitter_id, p_transmitter_department, p_receiver_id, p_receiver_department, p_transmittal_date, p_last_log_by);
+	
+    SET p_transmittal_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateTransmittal(IN p_transmittal_id INT, IN p_transmittal_description VARCHAR(500), IN p_receiver_id INT, IN p_receiver_department INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE transmittal
+    SET transmittal_description = p_transmittal_description,
+    receiver_id = p_receiver_id,
+    receiver_department = p_receiver_department,
+    last_log_by = p_last_log_by
+    WHERE transmittal_id = p_transmittal_id;
+END //
+
+CREATE PROCEDURE updateTransmittalStatus(IN p_transmittal_id INT, IN p_transmittal_status VARCHAR(20), IN p_last_log_by INT)
+BEGIN
+    IF p_transmittal_status = 'Received' THEN
+        UPDATE transmittal
+        SET transmittal_status = p_transmittal_status,
+        receiver_id = null,
+        receiver_department = null,
+        last_log_by = p_last_log_by
+        WHERE transmittal_id = p_transmittal_id;
+    ELSE
+        UPDATE transmittal
+        SET transmittal_status = p_transmittal_status,
+        last_log_by = p_last_log_by
+        WHERE transmittal_id = p_transmittal_id;
+    END IF;
+END //
+
+CREATE PROCEDURE deleteTransmittal(IN p_transmittal_id INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+	DELETE FROM transmittal_history WHERE transmittal_id = p_transmittal_id;
+	DELETE FROM transmittal WHERE transmittal_id = p_transmittal_id;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE getTransmittal(IN p_transmittal_id INT)
+BEGIN
+	SELECT * FROM transmittal
+    WHERE transmittal_id = p_transmittal_id;
+END //
+
+CREATE PROCEDURE generateTransmittalTable()
+BEGIN
+	SELECT *
+    FROM transmittal
+    ORDER BY transmittal_id;
+END //
+
+CREATE PROCEDURE generateTransmittalTable(IN p_transmittal_start_date DATE, IN p_transmittal_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM transmittal';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_transmittal_start_date IS NOT NULL AND p_transmittal_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(transmittal_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_end_date));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transmittal_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

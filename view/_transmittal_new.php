@@ -19,17 +19,24 @@
       <div class="card-body">
         <form id="transmittal-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
-            <div class="col-lg-10">
-              <input type="text" class="form-control" id="transmittal_description" name="transmittal_description" maxlength="100" autocomplete="off">
+            <label class="col-lg-2 col-form-label">Department <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="receiver_department" id="receiver_department">
+                    <option value="">--</option>
+                    <?php echo $departmentModel->generateDepartmentOptions(); ?>
+                </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Specific Person</label>
+            <div class="col-lg-4">
+                <select class="form-control select2" name="receiver_id" id="receiver_id">
+                    <option value="">--</option>
+                </select>
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Transmit To <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-10">
-              <select class="form-control select2" name="department_id" id="department_id">
-                <?php echo $ ?>
-              </select>
+              <textarea class="form-control" id="transmittal_description" name="transmittal_description" maxlength="500" rows="3"></textarea>
             </div>
           </div>
         </form>

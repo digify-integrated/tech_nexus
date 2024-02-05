@@ -13,13 +13,25 @@
                                     Action
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">';
-
-                if ($transmittalDuplicateAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="duplicate-transmittal">Duplicate Transmittal</button></li>';
+                                
+                if ($transmitTransmittal['total'] > 0 && $transmittalStatus == 'Draft'){
+                   $dropdown .= '<li><button class="dropdown-item" type="button" id="transmit-transmittal-details">Transmit Transmittal</button></li>';
                 }
-                            
+                                              
+                if ($receiveTransmittal['total'] > 0 && ($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted')){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="receive-transmittal-details">Receive Transmittal</button></li>';
+                }
+                                              
+                if ($fileTransmittal['total'] > 0 && $transmittalStatus == 'Received'){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="receive-transmittal-details">File Transmittal</button></li>';
+                }
+                                              
+                if ($cancelTransmittal['total'] > 0 && ($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted')){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="cancel-transmittal-details">Cancel Transmittal</button></li>';
+                }
+
                 if ($transmittalDeleteAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-transmittal-details">Delete Transmittal</button></li>';
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-transmittal-details">Delete Transmittal</button></li>';
                 }
                         
                 $dropdown .= '</ul>
@@ -40,28 +52,64 @@
           </div>
         </div>
       </div>
-      <div class="card-body">
-        <form id="transmittal-form" method="post" action="#">
-          <?php
-            if($transmittalWriteAccess['total'] > 0){
-              echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
-                      <div class="col-lg-10">
-                        <label class="col-form-label form-details fw-normal" id="transmittal_name_label"></label>
-                        <input type="text" class="form-control d-none form-edit" id="transmittal_name" name="transmittal_name" maxlength="100" autocomplete="off">
+      <div class="card-body pc-component">
+        <div class="d-flex flex-wrap gap-2 mb-2" id="transmittal_status">
+          
+        </div>
+        <div class="pc-modal-content">
+          <form id="transmittal-form" method="post" action="#">
+            <?php
+              if($transmittalWriteAccess['total'] > 0){
+                echo '<div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Department <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-4">
+                              <label class="col-form-label form-details fw-normal" id="receiver_department_label"></label>
+                              <div class="d-none form-edit">
+                                <select class="form-control select2" name="receiver_department" id="receiver_department">
+                                  <option value="">--</option>
+                                  '. $departmentModel->generateDepartmentOptions() .'
+                                </select>
+                              </div>
+                          </div>
+                        <label class="col-lg-2 col-form-label">Specific Person</label>
+                          <div class="col-lg-4">
+                              <label class="col-form-label form-details fw-normal" id="receiver_id_label"></label>
+                              <div class="d-none form-edit">
+                                <select class="form-control select2" name="receiver_id" id="receiver_id">
+                                  <option value="">--</option>
+                                </select>
+                              </div>
+                          </div>
                       </div>
-                    </div>';
-            }
-            else{
-              echo '<div class="form-group row">
-                      <label class="col-lg-2 col-form-label">Name</label>
-                      <div class="col-lg-10">
-                        <label class="col-form-label form-details fw-normal" id="transmittal_name_label"></label>
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-10">
+                            <label class="col-form-label form-details fw-normal" id="transmittal_description_label"></label>
+                            <textarea class="form-control d-none form-edit" id="transmittal_description" name="transmittal_description" maxlength="500" rows="3"></textarea>
+                          </div>
+                      </div>';
+              }
+              else{
+                echo '<div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Department <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="receiver_department_label"></label>
+                          </div>
+                        <label class="col-lg-2 col-form-label">Specific Person</label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="receiver_id_label"></label>
+                          </div>
                       </div>
-                    </div>';
-            }
-          ?>
-        </form>
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-10">
+                            <label class="col-form-label form-details fw-normal" id="transmittal_description_label"></label>
+                          </div>
+                      </div>';
+              }
+            ?>
+          </form>
+        </div>
       </div>
     </div>
   </div>

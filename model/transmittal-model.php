@@ -22,16 +22,42 @@ class TransmittalModel {
     #
     # Parameters:
     # - $p_transmittal_id (int): The transmittal ID.
-    # - $p_transmittal_name (string): The transmittal name.
+    # - $p_transmittal_description (string): The transmittal description.
+    # - $p_receiver_id (int): The receiver id.
+    # - $p_receiver_department (int): The receiver department.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateTransmittal($p_transmittal_id, $p_transmittal_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateTransmittal(:p_transmittal_id, :p_transmittal_name, :p_last_log_by)');
+    public function updateTransmittal($p_transmittal_id, $p_transmittal_description, $p_receiver_id, $p_receiver_department, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTransmittal(:p_transmittal_id, :p_transmittal_description, :p_receiver_id, :p_receiver_department, :p_last_log_by)');
         $stmt->bindValue(':p_transmittal_id', $p_transmittal_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_transmittal_name', $p_transmittal_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmittal_description', $p_transmittal_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_receiver_id', $p_receiver_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_department', $p_receiver_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateTransmittalStatus
+    # Description: Updates the transmittal.
+    #
+    # Parameters:
+    # - $p_transmittal_id (int): The transmittal ID.
+    # - $p_transmittal_status (string): The transmittal status.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateTransmittalStatus($p_transmittal_id, $p_transmittal_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTransmittalStatus(:p_transmittal_id, :p_transmittal_status, :p_last_log_by)');
+        $stmt->bindValue(':p_transmittal_id', $p_transmittal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmittal_status', $p_transmittal_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -47,15 +73,27 @@ class TransmittalModel {
     # Description: Inserts the transmittal.
     #
     # Parameters:
-    # - $p_transmittal_name (string): The transmittal name.
+    # - $p_transmittal_description (string): The transmittal description.
+    # - $p_created_by (int): The transmittal description.
+    # - $p_transmitter_id (int): The transmitter ID.
+    # - $p_transmitter_department (int): The transmitter department.
+    # - $p_receiver_id (int): The receiver ID.
+    # - $p_receiver_department (int): The receiver department.
+    # - $p_transmittal_date (datetime): The date and time of the transmittal.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertTransmittal($p_transmittal_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertTransmittal(:p_transmittal_name, :p_last_log_by, @p_transmittal_id)');
-        $stmt->bindValue(':p_transmittal_name', $p_transmittal_name, PDO::PARAM_STR);
+    public function insertTransmittal($p_transmittal_description, $p_created_by, $p_transmitter_id, $p_transmitter_department, $p_receiver_id, $p_receiver_department, $p_transmittal_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertTransmittal(:p_transmittal_description, :p_created_by, :p_transmitter_id, :p_transmitter_department, :p_receiver_id, :p_receiver_department, :p_transmittal_date, :p_last_log_by, @p_transmittal_id)');
+        $stmt->bindValue(':p_transmittal_description', $p_transmittal_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_id', $p_transmitter_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_department', $p_transmitter_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_id', $p_receiver_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_department', $p_receiver_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmittal_date', $p_transmittal_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -136,62 +174,31 @@ class TransmittalModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #
-    # Function: duplicateTransmittal
-    # Description: Duplicates the transmittal.
+    # Function: getTransmittalStatus
+    # Description: Retrieves the details of a transmittal.
     #
     # Parameters:
-    # - $p_transmittal_id (int): The transmittal ID.
-    # - $p_last_log_by (int): The last logged user.
+    # - $p_transmittal_status (string): The transmittal status.
     #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function duplicateTransmittal($p_transmittal_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL duplicateTransmittal(:p_transmittal_id, :p_last_log_by, @p_new_transmittal_id)');
-        $stmt->bindValue(':p_transmittal_id', $p_transmittal_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $result = $this->db->getConnection()->query("SELECT @p_new_transmittal_id AS transmittal_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['transmittal_id'];
-
-        return $systemActionID;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Generate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: generateTransmittalOptions
-    # Description: Generates the transmittal options.
-    #
-    # Parameters:None
-    #
-    # Returns: String.
+    # Returns:
+    # - An array containing the transmittal details.
     #
     # -------------------------------------------------------------
-    public function generateTransmittalOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateTransmittalOptions()');
-        $stmt->execute();
-        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $htmlOptions = '';
-        foreach ($options as $row) {
-            $transmittalID = $row['transmittal_id'];
-            $transmittalName = $row['transmittal_name'];
-
-            $htmlOptions .= '<option value="' . htmlspecialchars($transmittalID, ENT_QUOTES) . '">' . htmlspecialchars($transmittalName, ENT_QUOTES) .'</option>';
-        }
-
-        return $htmlOptions;
+    public function getTransmittalStatus($p_transmittal_status) {
+        $statusClasses = [
+            'Draft' => 'light-secondary',
+            'Transmitted' => 'light-primary',
+            'Re-Transmitted' => 'light-info',
+            'Received' => 'light-success',
+            'Cancelled' => 'light-warning',
+        ];
+        
+        $defaultClass = 'light-dark';
+        
+        $class = $statusClasses[$p_transmittal_status] ?? $defaultClass;
+        
+        return '<span class="badge bg-' . $class . '">' . $p_transmittal_status . '</span>';
     }
     # -------------------------------------------------------------
 }

@@ -5,12 +5,16 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require_once '../model/employee-model.php';
+require_once '../model/department-model.php';
 require_once '../model/transmittal-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $transmittalModel = new TransmittalModel($databaseModel);
+$employeeModel = new EmployeeModel($databaseModel);
+$departmentModel = new DepartmentModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -30,39 +34,73 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'transmittal table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateTransmittalTable()');
-            $sql->execute();
-            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
-            $sql->closeCursor();
+            if(isset($_POST['filter_transmittal_date_start_date']) && isset($_POST['filter_transmittal_date_end_date'])){
+                $filterTransmmittalDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_start_date'], '', 'Y-m-d', '');
+                $filterTransmmittalDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_end_date'], '', 'Y-m-d', '');
 
-            $transmittalDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 52, 'delete');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate)');
+                $sql->bindValue(':filterTransmmittalDateStartDate', $filterTransmmittalDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterTransmmittalDateEndDate', $filterTransmmittalDateEndDate, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
 
-            foreach ($options as $row) {
-                $transmittalID = $row['transmittal_id'];
-                $transmittalName = $row['transmittal_name'];
+                $transmittalDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 53, 'delete');
 
-                $transmittalIDEncrypted = $securityModel->encryptData($transmittalID);
+                foreach ($options as $row) {
+                    $transmittalID = $row['transmittal_id'];
+                    $transmittalDescription = $row['transmittal_description'];
+                    $transmitterID = $row['transmitter_id'];
+                    $transmitterDepartment = $row['transmitter_department'];
+                    $receiverID = $row['receiver_id'];
+                    $receiverDepartment = $row['receiver_department'];
+                    $transmittalStatus = $row['transmittal_status'];
+                    $transmittalDate = $systemModel->checkDate('empty', $row['transmittal_date'], '', 'm/d/Y g:i:s a', '');
 
-                $delete = '';
-                if($transmittalDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-transmittal" data-transmittal-id="'. $transmittalID .'" title="Delete Transmittal">
-                                    <i class="ti ti-trash"></i>
-                                </button>';
+                    $transmittalStatusBadge = $transmittalModel->getTransmittalStatus($transmittalStatus);
+
+                    $employeeDetails = $employeeModel->getPersonalInformation($transmitterID);
+                    $transmitterName = $employeeDetails['file_as'];
+
+                    $employeeDetails = $employeeModel->getPersonalInformation($receiverID);
+                    $receiverName = $employeeDetails['file_as'] ?? 'Anyone';
+
+                    $transmitterDepartmentName = $departmentModel->getDepartment($transmitterDepartment)['department_name'] ?? null;
+                    $receiverDepartmentName = $departmentModel->getDepartment($receiverDepartment)['department_name'] ?? null;
+
+                    $transmittalIDEncrypted = $securityModel->encryptData($transmittalID);
+
+                    $delete = '';
+                    if($transmittalDeleteAccess['total'] > 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-transmittal" data-transmittal-id="'. $transmittalID .'" title="Delete Transmittal">
+                                        <i class="ti ti-trash"></i>
+                                    </button>';
+                    }
+
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $transmittalID .'">',
+                        'TRANSMITTAL_DESCRIPTION' => $transmittalDescription,
+                        'TRANSMITTED_FROM' => '<div class="col">
+                                                    <h6 class="mb-0">'. $transmitterName .'</h6>
+                                                    <p class="f-12 mb-0">'. $transmitterDepartmentName .'</p>
+                                                </div>',
+                        'TRANSMITTED_TO' => '<div class="col">
+                                                <h6 class="mb-0">'. $receiverName .'</h6>
+                                                <p class="f-12 mb-0">'. $receiverDepartmentName .'</p>
+                                            </div>',
+                        'TRANSMITTAL_DATE' => $transmittalDate,
+                        'STATUS' => $transmittalStatusBadge,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="transmittal.php?id='. $transmittalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                        '. $delete .'
+                                    </div>'
+                        ];
                 }
 
-                $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $transmittalID .'">',
-                    'ID_TYPE_NAME' => $transmittalName,
-                    'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="transmittal.php?id='. $transmittalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
-                                    '. $delete .'
-                                </div>'
-                    ];
+                echo json_encode($response);
             }
-
-            echo json_encode($response);
         break;
         # -------------------------------------------------------------
     }

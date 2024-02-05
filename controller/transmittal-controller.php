@@ -14,6 +14,8 @@ session_start();
 # -------------------------------------------------------------
 class TransmittalController {
     private $transmittalModel;
+    private $employeeModel;
+    private $departmentModel;
     private $userModel;
     private $securityModel;
 
@@ -26,14 +28,18 @@ class TransmittalController {
     #
     # Parameters:
     # - @param TransmittalModel $transmittalModel     The TransmittalModel instance for transmittal related operations.
+    # - @param EmployeeModel $employeeModel     The EmployeeModel instance for employee related operations.
+    # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(TransmittalModel $transmittalModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(TransmittalModel $transmittalModel, EmployeeModel $employeeModel, DepartmentModel $departmentModel, UserModel $userModel, SecurityModel $securityModel) {
         $this->transmittalModel = $transmittalModel;
+        $this->employeeModel = $employeeModel;
+        $this->departmentModel = $departmentModel;
         $this->userModel = $userModel;
         $this->securityModel = $securityModel;
     }
@@ -101,8 +107,11 @@ class TransmittalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $transmittalID = isset($_POST['transmittal_id']) ? htmlspecialchars($_POST['transmittal_id'], ENT_QUOTES, 'UTF-8') : null;
-        $transmittalName = htmlspecialchars($_POST['transmittal_name'], ENT_QUOTES, 'UTF-8');
+        $transmittalDescription = htmlspecialchars($_POST['transmittal_description'], ENT_QUOTES, 'UTF-8');
+        $receiverDepartment = htmlspecialchars($_POST['receiver_department'], ENT_QUOTES, 'UTF-8');
+        $receiverID = htmlspecialchars($_POST['receiver_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -110,18 +119,21 @@ class TransmittalController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $employeeDetails = $this->employeeModel->getEmploymentInformation($contactID);
+        $departmentID = $employeeDetails['department_id'] ?? null;
     
         $checkTransmittalExist = $this->transmittalModel->checkTransmittalExist($transmittalID);
         $total = $checkTransmittalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->transmittalModel->updateTransmittal($transmittalID, $transmittalName, $userID);
+            $this->transmittalModel->updateTransmittal($transmittalID, $transmittalDescription, $receiverID, $receiverDepartment, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'transmittalID' => $this->securityModel->encryptData($transmittalID)]);
             exit;
         } 
         else {
-            $transmittalID = $this->transmittalModel->insertTransmittal($transmittalName, $userID);
+            $transmittalID = $this->transmittalModel->insertTransmittal($transmittalDescription, $contactID, $contactID, $departmentID, $receiverID, $receiverDepartment, date('Y-m-d H:i:s'), $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'transmittalID' => $this->securityModel->encryptData($transmittalID)]);
             exit;
@@ -210,51 +222,6 @@ class TransmittalController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: duplicateTransmittal
-    # Description: 
-    # Duplicates the transmittal if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function duplicateTransmittal() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $transmittalID = htmlspecialchars($_POST['transmittal_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkTransmittalExist = $this->transmittalModel->checkTransmittalExist($transmittalID);
-        $total = $checkTransmittalExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-
-        $transmittalID = $this->transmittalModel->duplicateTransmittal($transmittalID, $userID);
-
-        echo json_encode(['success' => true, 'transmittalID' =>  $this->securityModel->encryptData($transmittalID)]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -286,10 +253,25 @@ class TransmittalController {
             }
     
             $transmittalDetails = $this->transmittalModel->getTransmittal($transmittalID);
+            $receiverID = $transmittalDetails['receiver_id'];
+            $receiverDepartment = $transmittalDetails['receiver_department'];
+            $transmittalStatus = $transmittalDetails['transmittal_status'];
+
+            $employeeDetails = $this->employeeModel->getPersonalInformation($receiverID);
+            $receiverName = $employeeDetails['file_as'] ?? null;
+
+            $departmentname = $this->departmentModel->getDepartment($receiverDepartment)['department_name'] ?? null;
+
+            $transmittalStatusBadge = $this->transmittalModel->getTransmittalStatus($transmittalStatus);
 
             $response = [
                 'success' => true,
-                'transmittalName' => $transmittalDetails['transmittal_name']
+                'transmittalDescription' => $transmittalDetails['transmittal_description'],
+                'receiverID' => $receiverID,
+                'receiverDepartment' => $receiverDepartment,
+                'departmentName' => $departmentname,
+                'receiverName' => $receiverName,
+                'transmittalStatusBadge' => $transmittalStatusBadge
             ];
 
             echo json_encode($response);
@@ -303,10 +285,12 @@ class TransmittalController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/transmittal-model.php';
+require_once '../model/employee-model.php';
+require_once '../model/department-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new TransmittalController(new TransmittalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new TransmittalController(new TransmittalModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
 $controller->handleRequest();
 ?>

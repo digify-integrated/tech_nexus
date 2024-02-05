@@ -1224,6 +1224,84 @@ class UserController {
     
     # -------------------------------------------------------------
     #
+    # Function: otpAuthentication
+    # Description: 
+    # Handles the OTP authentication process, including OTP validation, expiry check, and remember me functionality.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function otpAuthentication() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $this->securityModel->decryptData($_POST['user_id']);
+        $otp = htmlspecialchars($_POST['otp'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user) {
+            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
+            exit;
+        }
+
+        $contactDetails = $this->userModel->getContactByID($userID);
+        $contactID = $contactDetails['contact_id'] ?? null;
+    
+        $email = $user['email'] ?? null;
+        $rememberMe = $user['remember_me'] ?? 0;
+        $userOTP = $this->securityModel->decryptData($user['otp']);
+        $userOTPExpiryDate = $user['otp_expiry_date'];
+        $failedOTPAttempts = $user['failed_otp_attempts'];
+    
+        if (empty($email)) {
+            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
+            exit;
+        }
+    
+        if ($otp !== $userOTP) {
+            $systemSettingDetails = $this->systemSettingModel->getSystemSetting(1);
+            $maxFailedOTPAttempts = $systemSettingDetails['value'] ?? MAX_FAILED_OTP_ATTEMPTS;
+
+            if ($failedOTPAttempts >= $maxFailedOTPAttempts) {
+                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 year'));
+                $this->userModel->updateOTPAsExpired($userID, $otpExpiryDate);
+    
+                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid otp')]);
+                exit;
+            }
+    
+            $this->userModel->updateFailedOTPAttempts($userID, $failedOTPAttempts + 1);
+            echo json_encode(['success' => false, 'message' => 'The email verification code you entered is incorrect.']);
+            exit;
+        }
+    
+        if (strtotime(date('Y-m-d H:i:s')) > strtotime($userOTPExpiryDate)) {
+            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('otp expired')]);
+            exit;
+        }
+    
+        if ($rememberMe) {
+            $rememberToken = bin2hex(random_bytes(16));
+            $this->userModel->updateRememberToken($userID, $rememberToken);
+            setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
+        }
+    
+        $connectionDate = date('Y-m-d H:i:s');
+        $this->userModel->updateLastConnection($userID, $connectionDate);
+    
+        $_SESSION['user_id'] = $userID;
+        $_SESSION['contact_id'] = $contactID;
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
     # Function: handleInvalidCredentials
     # Description:
     # Updates the failed login attempts and, if the maximum attempts are reached, locks the account.
@@ -1587,80 +1665,6 @@ class UserController {
         $this->userModel->updateResetToken($userAccountID, $encryptedResetToken, $resetTokenExpiryDate);
         $this->sendPasswordReset($email, $encryptedUserID, $encryptedResetToken);
     
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: otpAuthentication
-    # Description: 
-    # Handles the OTP authentication process, including OTP validation, expiry check, and remember me functionality.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function otpAuthentication() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $this->securityModel->decryptData($_POST['user_id']);
-        $otp = htmlspecialchars($_POST['otp'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user) {
-            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
-            exit;
-        }
-    
-        $email = $user['email'] ?? null;
-        $rememberMe = $user['remember_me'] ?? 0;
-        $userOTP = $this->securityModel->decryptData($user['otp']);
-        $userOTPExpiryDate = $user['otp_expiry_date'];
-        $failedOTPAttempts = $user['failed_otp_attempts'];
-    
-        if (empty($email)) {
-            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid user')]);
-            exit;
-        }
-    
-        if ($otp !== $userOTP) {
-            $systemSettingDetails = $this->systemSettingModel->getSystemSetting(1);
-            $maxFailedOTPAttempts = $systemSettingDetails['value'] ?? MAX_FAILED_OTP_ATTEMPTS;
-
-            if ($failedOTPAttempts >= $maxFailedOTPAttempts) {
-                $otpExpiryDate = date('Y-m-d H:i:s', strtotime('-1 year'));
-                $this->userModel->updateOTPAsExpired($userID, $otpExpiryDate);
-    
-                echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('invalid otp')]);
-                exit;
-            }
-    
-            $this->userModel->updateFailedOTPAttempts($userID, $failedOTPAttempts + 1);
-            echo json_encode(['success' => false, 'message' => 'The email verification code you entered is incorrect.']);
-            exit;
-        }
-    
-        if (strtotime(date('Y-m-d H:i:s')) > strtotime($userOTPExpiryDate)) {
-            echo json_encode(['success' => false, 'errorRedirect' => true, 'errorType' => $this->securityModel->encryptData('otp expired')]);
-            exit;
-        }
-    
-        if ($rememberMe) {
-            $rememberToken = bin2hex(random_bytes(16));
-            $this->userModel->updateRememberToken($userID, $rememberToken);
-            setcookie('remember_token', $rememberToken, time() + (30 * 24 * 60 * 60), '/');
-        }
-    
-        $connectionDate = date('Y-m-d H:i:s');
-        $this->userModel->updateLastConnection($userID, $connectionDate);
-    
-        $_SESSION['user_id'] = $userID;
         echo json_encode(['success' => true]);
         exit;
     }

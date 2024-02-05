@@ -58,7 +58,7 @@
 </div>
 
 <?php
-  if($recordAttendance['total'] > 0 && !empty($contact_id) && $userAttendanceRecordCount < $maxAttendanceRecord){
+  if($recordAttendance['total'] > 0 && !empty($contact_id)){
     echo '<div id="record-attendance-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="record-attendance-title" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">

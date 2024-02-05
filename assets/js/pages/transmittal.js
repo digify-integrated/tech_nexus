@@ -3,16 +3,30 @@
 
     $(function() {
         if($('#transmittal-table').length){
-            idTypeTable('#transmittal-table');
+            transmittalTable('#transmittal-table');
         }
 
         if($('#transmittal-form').length){
-            idTypeForm();
+            transmittalForm();
         }
 
         if($('#transmittal-id').length){
             displayDetails('get transmittal details');
         }
+
+        $(document).on('change','#receiver_department',function() {
+            $('#receiver_id').empty();
+    
+            if(this.value != ''){
+                generateDepartmentEmployeeOptions(this.value, '');
+                document.getElementById('receiver_id').disabled = false;
+            }
+            else{
+                var newOption = new Option('--', '', false, false);
+                $('#receiver_id').append(newOption);
+                document.getElementById('receiver_id').disabled = true;
+            }
+        });
 
         $(document).on('click','.delete-transmittal',function() {
             const transmittal_id = $(this).data('transmittal-id');
@@ -192,28 +206,85 @@
             });
         });
 
-        $(document).on('click','#discard-create',function() {
-            discardCreate('transmittal.php');
+        $(document).on('click','#transmit-transmittal',function() {
+            let transmittal_id = [];
+            const transaction = 'transmit multiple transmittal';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    transmittal_id.push(element.value);
+                }
+            });
+    
+            if(transmittal_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple Transmittal Transmissions',
+                    text: 'Are you sure you want to transmit these transmittals?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Transmit',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/transmittal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                transmittal_id: transmittal_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Transmit Transmittal Success', 'The selected transmittals have been transmitted successfully.', 'success');
+                                        reloadDatatable('#transmittal-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Transmit Transmittal Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Transmit Multiple Transmittal Error', 'Please select the transmittals you wish to transmit.', 'danger');
+            }
         });
 
-        $(document).on('click','#edit-form',function() {
-            displayDetails('get transmittal details');
-
-            enableForm();
-        });
-
-        $(document).on('click','#duplicate-transmittal',function() {
+        $(document).on('click','#transmit-transmittal-details',function() {
             const transmittal_id = $('#transmittal-id').text();
-            const transaction = 'duplicate transmittal';
+            const transaction = 'transmit transmittal';
     
             Swal.fire({
-                title: 'Confirm Transmittal Duplication',
-                text: 'Are you sure you want to duplicate this transmittal?',
+                title: 'Confirm Transmittal Transmission',
+                text: 'Are you sure you want to transmit this transmittal?',
                 icon: 'info',
                 showCancelButton: !0,
-                confirmButtonText: 'Duplicate',
+                confirmButtonText: 'Transmit',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-info mt-2',
+                confirmButtonClass: 'btn btn-danger mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
@@ -228,8 +299,8 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Duplicate Transmittal Success', 'The transmittal has been duplicated successfully.', 'success');
-                                window.location = 'transmittal.php?id=' + response.idTypeID;
+                                setNotification('Transmit Transmittal Success', 'The transmittal has been transmitted successfully.', 'success');
+                                window.location = 'transmittal.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -237,11 +308,10 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Duplicate Transmittal Error', 'The transmittal does not exist.', 'danger');
-                                    reloadDatatable('#transmittal-table');
+                                    window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Duplicate Transmittal Error', response.message, 'danger');
+                                    showNotification('Transmit Transmittal Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -257,23 +327,413 @@
                 }
             });
         });
+
+        $(document).on('click','#receive-transmittal',function() {
+            let transmittal_id = [];
+            const transaction = 'receive multiple transmittal';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    transmittal_id.push(element.value);
+                }
+            });
+    
+            if(transmittal_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Receipt of Multiple Transmittals',
+                    text: 'Are you sure you want to receive these transmittals?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Receive',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/transmittal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                transmittal_id: transmittal_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Receive Transmittal Success', 'The selected transmittals have been received successfully.', 'success');
+                                        reloadDatatable('#transmittal-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Receive Transmittal Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Receive Multiple Transmittal Error', 'Please select the transmittals you wish to receive.', 'danger');
+            }
+        });
+
+        $(document).on('click','#receive-transmittal-details',function() {
+            const transmittal_id = $('#transmittal-id').text();
+            const transaction = 'receive transmittal';
+    
+            Swal.fire({
+                title: 'Confirm Receipt of Transmittal',
+                text: 'Are you sure you want to receive this transmittal?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Receive',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/transmittal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            transmittal_id : transmittal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Receive Transmittal Success', 'The transmittal has been received successfully.', 'success');
+                                window.location = 'transmittal.php';
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Receive Transmittal Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#file-transmittal',function() {
+            let transmittal_id = [];
+            const transaction = 'file multiple transmittal';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    transmittal_id.push(element.value);
+                }
+            });
+    
+            if(transmittal_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm File Multiple Transmittals',
+                    text: 'Are you sure you want to file these transmittals?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'File',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/transmittal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                transmittal_id: transmittal_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('File Transmittal Success', 'The selected transmittals have been filed successfully.', 'success');
+                                        reloadDatatable('#transmittal-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('File Transmittal Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('File Multiple Transmittal Error', 'Please select the transmittals you wish to file.', 'danger');
+            }
+        });
+
+        $(document).on('click','#file-transmittal-details',function() {
+            const transmittal_id = $('#transmittal-id').text();
+            const transaction = 'file transmittal';
+    
+            Swal.fire({
+                title: 'Confirm Transmittal File',
+                text: 'Are you sure you want to file this transmittal?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'File',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/transmittal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            transmittal_id : transmittal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('File Transmittal Success', 'The transmittal has been filed successfully.', 'success');
+                                window.location = 'transmittal.php';
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('File Transmittal Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#cancel-transmittal',function() {
+            let transmittal_id = [];
+            const transaction = 'cancel multiple transmittal';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    transmittal_id.push(element.value);
+                }
+            });
+    
+            if(transmittal_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Cancellation of Multiple Transmittals',
+                    text: 'Are you sure you want to cancel these transmittals?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Cancel',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/transmittal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                transmittal_id: transmittal_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Cancel Transmittal Success', 'The selected transmittals have been cancelled successfully.', 'success');
+                                        reloadDatatable('#transmittal-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Cancel Transmittal Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Cancel Multiple Transmittal Error', 'Please select the transmittals you wish to cancel.', 'danger');
+            }
+        });
+
+        $(document).on('click','#cancel-transmittal-details',function() {
+            const transmittal_id = $('#transmittal-id').text();
+            const transaction = 'cancel transmittal';
+    
+            Swal.fire({
+                title: 'Confirm Transmittal Cancel',
+                text: 'Are you sure you want to cancel this transmittal?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Cancel',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/transmittal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            transmittal_id : transmittal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Cancel Transmittal Success', 'The transmittal has been cancalled successfully.', 'success');
+                                window.location = 'transmittal.php';
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Cancel Transmittal Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#discard-create',function() {
+            discardCreate('transmittal.php');
+        });
+
+        $(document).on('click','#edit-form',function() {
+            displayDetails('get transmittal details');
+
+            enableForm();
+        });
+
+        $(document).on('click','#apply-filter',function() {
+            transmittalTable('#transmittal-table');
+        });
     });
 })(jQuery);
 
-function idTypeTable(datatable_name, buttons = false, show_all = false){
+function transmittalTable(datatable_name, buttons = false, show_all = false){
     const type = 'transmittal table';
+    var filter_transmittal_date_start_date = $('#filter_transmittal_date_start_date').val();
+    var filter_transmittal_date_end_date = $('#filter_transmittal_date_end_date').val();
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'ID_TYPE_NAME' },
+        { 'data' : 'TRANSMITTAL_DESCRIPTION' },
+        { 'data' : 'TRANSMITTED_FROM' },
+        { 'data' : 'TRANSMITTED_TO' },
+        { 'data' : 'TRANSMITTAL_DATE' },
+        { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': '20%', 'aTargets': 1 },
+        { 'width': '20%', 'aTargets': 2 },
+        { 'width': '20%', 'aTargets': 3 },
+        { 'width': '19%', 'aTargets': 4 },
+        { 'width': '5%', 'aTargets': 5 },
+        { 'width': '15%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -283,7 +743,7 @@ function idTypeTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_transmittal_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type},
+            'data': {'type' : type, 'filter_transmittal_date_start_date' : filter_transmittal_date_start_date, 'filter_transmittal_date_end_date' : filter_transmittal_date_end_date},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -293,7 +753,7 @@ function idTypeTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -315,17 +775,23 @@ function idTypeTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function idTypeForm(){
+function transmittalForm(){
     $('#transmittal-form').validate({
         rules: {
-            transmittal_name: {
+            receiver_department: {
                 required: true
             },
+            transmittal_description: {
+                required: true
+            }
         },
         messages: {
-            transmittal_name: {
-                required: 'Please enter the transmittal name'
+            receiver_department: {
+                required: 'Please choose the department'
             },
+            transmittal_description: {
+                required: 'Please enter the description'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -374,7 +840,7 @@ function idTypeForm(){
                         const notificationDescription = response.insertRecord ? 'The transmittal has been inserted successfully.' : 'The transmittal has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'transmittal.php?id=' + response.idTypeID;
+                        window.location = 'transmittal.php?id=' + response.transmittalID;
                     }
                     else {
                         if (response.isInactive) {
@@ -403,6 +869,36 @@ function idTypeForm(){
     });
 }
 
+function generateDepartmentEmployeeOptions(department_id, selected){
+    const type = 'department employee options';
+
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {type : type, department_id : department_id},
+        beforeSend: function(){
+            $('#receiver_id').empty();
+        },
+        success: function(response) {
+            $('#receiver_id').empty();
+
+            var newOption = new Option('--', '', false, false);
+            $('#receiver_id').append(newOption);
+
+            for(var i = 0; i < response.length; i++) {
+                newOption = new Option(response[i].FILE_AS, response[i].CONTACT_ID, false, false);
+                $('#receiver_id').append(newOption);
+            }
+        },
+        complete: function(){
+            if(selected != ''){
+                $('#receiver_id').val(selected).change();
+            }
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get transmittal details':
@@ -422,9 +918,17 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#transmittal_id').val(transmittal_id);
-                        $('#transmittal_name').val(response.idTypeName);
+                        $('#transmittal_description').val(response.transmittalDescription);
 
-                        $('#transmittal_name_label').text(response.idTypeName);
+                        document.getElementById('transmittal_status').innerHTML = response.transmittalStatusBadge;
+
+                        checkOptionExist('#receiver_department', response.receiverDepartment, '');
+
+                        $('#transmittal_description_label').text(response.transmittalDescription);
+                        $('#receiver_department_label').text(response.departmentName);
+                        $('#receiver_id_label').text(response.receiverName);
+                        
+                        generateDepartmentEmployeeOptions(response.receiverDepartment, response.receiverID);
                     } 
                     else {
                         if(response.isInactive){

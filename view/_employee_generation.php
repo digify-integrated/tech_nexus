@@ -1813,6 +1813,44 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: department employee options
+        # Description:
+        # Generates the department employee options.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'department employee options':
+            if(isset($_POST['department_id']) && !empty($_POST['department_id'])){
+                $details = '';
+                $departmentID = htmlspecialchars($_POST['department_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeOptions(:genderationType, :departmentID)');
+                $sql->bindValue(':genderationType', 'department active', PDO::PARAM_STR);
+                $sql->bindValue(':departmentID', $departmentID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $index => $row) {
+                    $contactID = $row['contact_id'];
+                    $fileAs = $row['file_as'];
+
+                    $response[] = [
+                        'FILE_AS' => $fileAs,
+                        'CONTACT_ID' => $contactID
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 

@@ -1290,8 +1290,8 @@ class EmployeeController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.' . $employeeImageActualFileExtension;
 
-        $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_image/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_image/' . $fileNew;
+        $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $employeeID .'/employee_image/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $employeeID . '/employee_image/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);

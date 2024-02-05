@@ -404,9 +404,14 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Grant Porta
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Revoke Portal Access', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User Account To Contact', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlink User Account To Contact', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Record Attendance', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Import Attendance', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Transmit Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Receive Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Re-Transmit Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('File Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Transmittal', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -505,9 +510,14 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('78', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('79', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('80', '1', '1', '1');
-
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('81', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('82', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('83', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('84', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('85', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('86', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('87', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4226,35 +4236,26 @@ CREATE TABLE temp_attendance_import (
 
 CREATE TABLE transmittal (
     transmittal_id INT AUTO_INCREMENT PRIMARY KEY,
-    transmittal_description VARCHAR(100) NOT NULL,
-    contact_id INT UNSIGNED NOT NULL,
+    transmittal_description VARCHAR(500) NOT NULL,
+    created_by INT UNSIGNED NOT NULL,
     transmitter_id INT UNSIGNED NOT NULL,
-    transmittal_status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    transmitter_department INT UNSIGNED NOT NULL,
+    receiver_id INT UNSIGNED,
+    receiver_department INT UNSIGNED,
+    transmittal_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
+    transmittal_date DATETIME,
     last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
     FOREIGN KEY (transmitter_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (transmitter_department) REFERENCES department(department_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
 CREATE INDEX transmittal_index_transmittal_id ON transmittal(transmittal_id);
-CREATE INDEX transmittal_index_current_employee ON transmittal(current_employee);
-CREATE INDEX transmittal_index_contact_id ON transmittal(contact_id);
-
-/* ----------------------------------------------------------------------------------------------------------------------------- */
-
-/* Transmittal Receiver Table */
-
-CREATE TABLE transmittal_receiver (
-    transmittal_receiver_id INT AUTO_INCREMENT PRIMARY KEY,
-    transmittal_id INT NOT NULL,
-    receiver_id INT UNSIGNED NOT NULL,
-    FOREIGN KEY (transmittal_id) REFERENCES transmittal(transmittal_id),
-    FOREIGN KEY (receiver_id) REFERENCES contact(contact_id)
-);
-
-CREATE INDEX transmittal_receiver_index_transmittal_receiver_id ON transmittal_receiver(transmittal_receiver_id);
-CREATE INDEX transmittal_receiver_index_transmittal_id ON transmittal_receiver(transmittal_id);
-CREATE INDEX transmittal_receiver_index_receiver_id ON transmittal_receiver(receiver_id);
+CREATE INDEX transmittal_index_created_by ON transmittal(created_by);
+CREATE INDEX transmittal_index_transmitter_id ON transmittal(transmitter_id);
+CREATE INDEX transmittal_index_transmitter_department ON transmittal(transmitter_department);
+CREATE INDEX transmittal_index_receiver_id ON transmittal(receiver_id);
+CREATE INDEX transmittal_index_receiver_department ON transmittal(receiver_department);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4263,17 +4264,23 @@ CREATE INDEX transmittal_receiver_index_receiver_id ON transmittal_receiver(rece
 CREATE TABLE transmittal_history (
     transmittal_history_id INT AUTO_INCREMENT PRIMARY KEY,
     transmittal_id INT NOT NULL,
+    transmittal_description VARCHAR(500) NOT NULL,
     transmitter_id INT UNSIGNED NOT NULL,
+    transmitter_department INT UNSIGNED NOT NULL,
     receiver_id INT UNSIGNED,
+    receiver_department INT UNSIGNED,
     transmittal_status VARCHAR(20) NOT NULL,
     history_date DATETIME NOT NULL,
-    FOREIGN KEY (transmittal_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (transmitter_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (transmitter_department) REFERENCES department(department_id),
     FOREIGN KEY (receiver_id) REFERENCES contact(contact_id)
 );
 
-CREATE INDEX transmittal_index_transmittal_history_id ON transmittal_history(transmittal_history_id);
-CREATE INDEX transmittal_index_transmittal_id ON transmittal_history(transmittal_id);
-CREATE INDEX transmittal_index_receiver_id ON transmittal_history(receiver_id);
+CREATE INDEX transmittal_history_index_transmittal_history_id ON transmittal_history(transmittal_history_id);
+CREATE INDEX transmittal_history_index_transmittal_id ON transmittal_history(transmittal_id);
+CREATE INDEX transmittal_history_index_transmitter_id ON transmittal_history(transmitter_id);
+CREATE INDEX transmittal_history_index_receiver_id ON transmittal(receiver_id);
+CREATE INDEX transmittal_history_index_receiver_department ON transmittal(receiver_department);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

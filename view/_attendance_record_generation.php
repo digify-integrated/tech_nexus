@@ -30,7 +30,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'attendance record table':
-            if(isset($_POST['filter_attendance_record_date_start_date']) && isset($_POST['filter_attendance_record_date_end_date'])){
+            if(isset($_POST['filter_attendance_record_date_start_date']) && isset($_POST['filter_attendance_record_date_end_date']) && isset($_POST['employment_status_filter']) && isset($_POST['check_in_mode_filter']) && isset($_POST['check_out_mode_filter']) && isset($_POST['company_filter']) && isset($_POST['department_filter']) && isset($_POST['job_position_filter']) && isset($_POST['branch_filter'])){
                 $filterAttendanceRecordDateStartDate = $systemModel->checkDate('empty', $_POST['filter_attendance_record_date_start_date'], '', 'Y-m-d', '');
                 $filterAttendanceRecordDateEndDate = $systemModel->checkDate('empty', $_POST['filter_attendance_record_date_end_date'], '', 'Y-m-d', '');
                 $filterEmployeeStatus = htmlspecialchars($_POST['employment_status_filter'], ENT_QUOTES, 'UTF-8');
