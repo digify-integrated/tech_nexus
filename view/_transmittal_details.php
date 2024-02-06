@@ -14,19 +14,23 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">';
                                 
-                if ($transmitTransmittal['total'] > 0 && $transmittalStatus == 'Draft'){
-                   $dropdown .= '<li><button class="dropdown-item" type="button" id="transmit-transmittal-details">Transmit Transmittal</button></li>';
+                if ($transmitTransmittal['total'] > 0 && $transmittalStatus == 'Draft' && $transmitterID == $contact_id){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="transmit-transmittal-details">Transmit Transmittal</button></li>';
                 }
                                               
-                if ($receiveTransmittal['total'] > 0 && ($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted')){
+                if ($retransmitTransmittal['total'] > 0 && $transmittalStatus == 'Received' && ($transmitterID == $contact_id)){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="retransmit-transmittal-details">Re-Transmit Transmittal</button></li>';
+                }
+                                              
+                if ($receiveTransmittal['total'] > 0 && ($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted') && ((!empty($receiverID) && $receiverID == $contact_id) || (empty($receiverID) && $contactDepartment == $receiverDepartment))){
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="receive-transmittal-details">Receive Transmittal</button></li>';
                 }
                                               
-                if ($fileTransmittal['total'] > 0 && $transmittalStatus == 'Received'){
-                  $dropdown .= '<li><button class="dropdown-item" type="button" id="receive-transmittal-details">File Transmittal</button></li>';
+                if ($fileTransmittal['total'] > 0 && $transmittalStatus == 'Received' && ($receiverID == $contact_id || $contactDepartment == $receiverDepartment)){
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="file-transmittal-details">File Transmittal</button></li>';
                 }
                                               
-                if ($cancelTransmittal['total'] > 0 && ($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted')){
+                if ($cancelTransmittal['total'] > 0 && ($transmittalStatus == 'Draft' || $transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted') && $transmitterID == $contact_id){
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="cancel-transmittal-details">Cancel Transmittal</button></li>';
                 }
 
@@ -39,7 +43,7 @@
                     
                 echo $dropdown;
 
-                if ($transmittalWriteAccess['total'] > 0) {
+                if ($transmittalWriteAccess['total'] > 0 && (($transmittalStatus == 'Draft' && $transmitterID == $contact_id) || $transmittalStatus == 'Received')) {
                     echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                         <button type="submit" form="transmittal-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                         <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';

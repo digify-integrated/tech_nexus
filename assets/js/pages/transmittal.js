@@ -222,9 +222,9 @@
                     text: 'Are you sure you want to transmit these transmittals?',
                     icon: 'info',
                     showCancelButton: !0,
-                    confirmButtonText: 'Transmit',
+                    confirmButtonText: 'Transmit Transmittal',
                     cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-warning mt-2',
+                    confirmButtonClass: 'btn btn-info mt-2',
                     cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                     buttonsStyling: !1
                 }).then(function(result) {
@@ -240,7 +240,7 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('Transmit Transmittal Success', 'The selected transmittals have been transmitted successfully.', 'success');
-                                        reloadDatatable('#transmittal-table');
+                                    reloadDatatable('#transmittal-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -282,9 +282,9 @@
                 text: 'Are you sure you want to transmit this transmittal?',
                 icon: 'info',
                 showCancelButton: !0,
-                confirmButtonText: 'Transmit',
+                confirmButtonText: 'Transmit Transmittal',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
+                confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
@@ -300,12 +300,20 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Transmit Transmittal Success', 'The transmittal has been transmitted successfully.', 'success');
-                                window.location = 'transmittal.php';
+                                location.reload();
                             }
                             else {
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
+                                }
+                                else if (response.notDraft) {
+                                    setNotification('Transmit Transmittal Error', 'The transmittal cannot be transmitted because its status is not set to draft.', 'danger');
+                                    location.reload();
+                                }
+                                else if (response.notTransmitter) {
+                                    setNotification('Transmit Transmittal Error', 'You are not authorized to transmit the transmittal as you are not assigned as the transmitter.', 'danger');
+                                    location.reload();
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';
@@ -344,9 +352,9 @@
                     text: 'Are you sure you want to receive these transmittals?',
                     icon: 'info',
                     showCancelButton: !0,
-                    confirmButtonText: 'Receive',
+                    confirmButtonText: 'Receive Transmittal',
                     cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-warning mt-2',
+                    confirmButtonClass: 'btn btn-success mt-2',
                     cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                     buttonsStyling: !1
                 }).then(function(result) {
@@ -404,9 +412,9 @@
                 text: 'Are you sure you want to receive this transmittal?',
                 icon: 'info',
                 showCancelButton: !0,
-                confirmButtonText: 'Receive',
+                confirmButtonText: 'Receive Transmittal',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
+                confirmButtonClass: 'btn btn-success mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
@@ -422,12 +430,20 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Receive Transmittal Success', 'The transmittal has been received successfully.', 'success');
-                                window.location = 'transmittal.php';
+                                location.reload();
                             }
                             else {
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
+                                }
+                                else if (response.notTransmitted) {
+                                    setNotification('Receive Transmittal Error', 'The transmittal cannot be received because its status is not set to transmitted or re-transmitted.', 'danger');
+                                    location.reload();
+                                }
+                                else if (response.notReceiver) {
+                                    setNotification('Receive Transmittal Error', 'You are not authorized to receive the transmittal as you are not assigned as the receiver.', 'danger');
+                                    location.reload();
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';
@@ -450,6 +466,70 @@
             });
         });
 
+        $(document).on('click','#retransmit-transmittal-details',function() {
+            const transmittal_id = $('#transmittal-id').text();
+            const transaction = 'retransmit transmittal';
+    
+            Swal.fire({
+                title: 'Confirm Transmittal Re-Transmit',
+                text: 'Are you sure you want to re-transmit this transmittal?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Re-Transmit Transmittal',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/transmittal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            transmittal_id : transmittal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Re-Transmit Transmittal Success', 'The transmittal has been re-transmitted successfully.', 'success');
+                                location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notReceived) {
+                                    setNotification('Re-Transmit Transmittal Error', 'The transmittal cannot be re-transmitted because its status is not set to received.', 'danger');
+                                    location.reload();
+                                }
+                                else if (response.notTransmitter) {
+                                    setNotification('Re-Transmit Transmittal Error', 'You are not authorized to re-transmit the transmittal as you are not assigned as the transmitter.', 'danger');
+                                    location.reload();
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Re-Transmit Transmittal Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+
         $(document).on('click','#file-transmittal',function() {
             let transmittal_id = [];
             const transaction = 'file multiple transmittal';
@@ -466,9 +546,9 @@
                     text: 'Are you sure you want to file these transmittals?',
                     icon: 'info',
                     showCancelButton: !0,
-                    confirmButtonText: 'File',
+                    confirmButtonText: 'File Transmittal',
                     cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-warning mt-2',
+                    confirmButtonClass: 'btn btn-info mt-2',
                     cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                     buttonsStyling: !1
                 }).then(function(result) {
@@ -484,7 +564,7 @@
                             success: function (response) {
                                 if (response.success) {
                                     showNotification('File Transmittal Success', 'The selected transmittals have been filed successfully.', 'success');
-                                        reloadDatatable('#transmittal-table');
+                                    reloadDatatable('#transmittal-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -526,9 +606,9 @@
                 text: 'Are you sure you want to file this transmittal?',
                 icon: 'info',
                 showCancelButton: !0,
-                confirmButtonText: 'File',
+                confirmButtonText: 'File Transmittal',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
+                confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
@@ -544,12 +624,20 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('File Transmittal Success', 'The transmittal has been filed successfully.', 'success');
-                                window.location = 'transmittal.php';
+                                location.reload();
                             }
                             else {
                                 if (response.isInactive) {
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
+                                }
+                                else if (response.notReceived) {
+                                    setNotification('Receive Transmittal Error', 'The transmittal cannot be filed because its status is not set to received.', 'danger');
+                                    location.reload();
+                                }
+                                else if (response.notReceiver) {
+                                    setNotification('Receive Transmittal Error', 'You are not authorized to file the transmittal as you are not assigned as the receiver.', 'danger');
+                                    location.reload();
                                 }
                                 else if (response.notExist) {
                                     window.location = '404.php';
@@ -588,7 +676,7 @@
                     text: 'Are you sure you want to cancel these transmittals?',
                     icon: 'warning',
                     showCancelButton: !0,
-                    confirmButtonText: 'Cancel',
+                    confirmButtonText: 'Cancel Transmittal',
                     cancelButtonText: 'Cancel',
                     confirmButtonClass: 'btn btn-warning mt-2',
                     cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -648,9 +736,9 @@
                 text: 'Are you sure you want to cancel this transmittal?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'Cancel',
+                confirmButtonText: 'Cancel Transmittal',
                 cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-danger mt-2',
+                confirmButtonClass: 'btn btn-warning mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
                 buttonsStyling: !1
             }).then(function(result) {
@@ -666,7 +754,7 @@
                         success: function (response) {
                             if (response.success) {
                                 setNotification('Cancel Transmittal Success', 'The transmittal has been cancalled successfully.', 'success');
-                                window.location = 'transmittal.php';
+                                location.reload();
                             }
                             else {
                                 if (response.isInactive) {
@@ -714,7 +802,14 @@ function transmittalTable(datatable_name, buttons = false, show_all = false){
     const type = 'transmittal table';
     var filter_transmittal_date_start_date = $('#filter_transmittal_date_start_date').val();
     var filter_transmittal_date_end_date = $('#filter_transmittal_date_end_date').val();
+    var transmittal_status_filter_values = [];
     var settings;
+
+    $('.transmittal-status-filter:checked').each(function() {
+        transmittal_status_filter_values.push("'" + $(this).val() + "'");
+    });
+
+    var transmittal_status_filter = transmittal_status_filter_values.join(', ');
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
@@ -743,7 +838,7 @@ function transmittalTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_transmittal_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_transmittal_date_start_date' : filter_transmittal_date_start_date, 'filter_transmittal_date_end_date' : filter_transmittal_date_end_date},
+            'data': {'type' : type, 'filter_transmittal_date_start_date' : filter_transmittal_date_start_date, 'filter_transmittal_date_end_date' : filter_transmittal_date_end_date, 'transmittal_status_filter' : transmittal_status_filter},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -876,24 +971,20 @@ function generateDepartmentEmployeeOptions(department_id, selected){
         url: 'view/_employee_generation.php',
         method: 'POST',
         dataType: 'json',
-        data: {type : type, department_id : department_id},
-        beforeSend: function(){
-            $('#receiver_id').empty();
-        },
-        success: function(response) {
-            $('#receiver_id').empty();
+        data: { type: type, department_id: department_id },
+        success: function (response) {
+            $('#receiver_id').empty()
+                .append(new Option('--', '', false, false));
 
-            var newOption = new Option('--', '', false, false);
-            $('#receiver_id').append(newOption);
+            response.forEach(function (item) {
+                $('#receiver_id').append(new Option(item.FILE_AS, item.CONTACT_ID, false, false));
+            });
 
-            for(var i = 0; i < response.length; i++) {
-                newOption = new Option(response[i].FILE_AS, response[i].CONTACT_ID, false, false);
-                $('#receiver_id').append(newOption);
-            }
+            checkOptionExist('#receiver_id', '', '');
         },
-        complete: function(){
-            if(selected != ''){
-                $('#receiver_id').val(selected).change();
+        complete: function () {
+            if (selected) {
+                checkOptionExist('#receiver_id', selected, '');
             }
         }
     });

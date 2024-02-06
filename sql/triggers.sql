@@ -3650,20 +3650,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Created By: ", OLD.created_by, " -> ", NEW.created_by, "<br/>");
     END IF;
 
-    IF NEW.transmitter_id <> OLD.transmitter_id THEN
-        SET audit_log = CONCAT(audit_log, "Transmitter ID: ", OLD.transmitter_id, " -> ", NEW.transmitter_id, "<br/>");
+    IF NEW.transmitter_name <> OLD.transmitter_name THEN
+        SET audit_log = CONCAT(audit_log, "Transmitter: ", OLD.transmitter_name, " -> ", NEW.transmitter_name, "<br/>");
     END IF;
 
-    IF NEW.transmitter_department <> OLD.transmitter_department THEN
-        SET audit_log = CONCAT(audit_log, "Transmitter Department: ", OLD.transmitter_department, " -> ", NEW.transmitter_department, "<br/>");
+    IF NEW.transmitter_department_name <> OLD.transmitter_department_name THEN
+        SET audit_log = CONCAT(audit_log, "Transmitter Department: ", OLD.transmitter_department_name, " -> ", NEW.transmitter_department_name, "<br/>");
     END IF;
 
-    IF NEW.receiver_id <> OLD.receiver_id THEN
-        SET audit_log = CONCAT(audit_log, "Receiver ID: ", OLD.receiver_id, " -> ", NEW.receiver_id, "<br/>");
+    IF NEW.receiver_name <> OLD.receiver_name THEN
+        SET audit_log = CONCAT(audit_log, "Receiver: ", OLD.receiver_name, " -> ", NEW.receiver_name, "<br/>");
     END IF;
 
-    IF NEW.receiver_department <> OLD.receiver_department THEN
-        SET audit_log = CONCAT(audit_log, "Receiver Department: ", OLD.receiver_department, " -> ", NEW.receiver_department, "<br/>");
+    IF NEW.receiver_department_name <> OLD.receiver_department_name THEN
+        SET audit_log = CONCAT(audit_log, "Receiver Department: ", OLD.receiver_department_name, " -> ", NEW.receiver_department_name, "<br/>");
     END IF;
 
     IF NEW.transmittal_status <> OLD.transmittal_status THEN
@@ -3694,20 +3694,20 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Created By: ", NEW.created_by);
     END IF;
 
-    IF NEW.transmitter_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Transmitter ID: ", NEW.transmitter_id);
+    IF NEW.transmitter_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmitter: ", NEW.transmitter_name);
     END IF;
 
-    IF NEW.transmitter_department <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Transmitter Department: ", NEW.transmitter_department);
+    IF NEW.transmitter_department_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transmitter Department: ", NEW.transmitter_department_name);
     END IF;
 
-    IF NEW.receiver_id <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Receiver ID: ", NEW.receiver_id);
+    IF NEW.receiver_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Receiver Name: ", NEW.receiver_name);
     END IF;
 
-    IF NEW.receiver_department <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Receiver Department: ", NEW.receiver_department);
+    IF NEW.receiver_department_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Receiver Department: ", NEW.receiver_department_name);
     END IF;
 
     IF NEW.transmittal_status <> '' THEN
@@ -3720,6 +3720,40 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('transmittal', NEW.transmittal_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Category Table Triggers */
+
+CREATE TRIGGER document_category_trigger_update
+AFTER UPDATE ON document_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.document_category_name <> OLD.document_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Document Category Name: ", OLD.document_category_name, " -> ", NEW.document_category_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('document_category', NEW.document_category_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER document_category_trigger_insert
+AFTER INSERT ON document_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Document category created. <br/>';
+
+    IF NEW.document_category_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Category Name: ", NEW.document_category_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('document_category', NEW.document_category_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

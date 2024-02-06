@@ -29,6 +29,39 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#transmittal-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Transmittal Status
+                        </a>
+                        <div class="collapse show" id="transmittal-status-filter-collapse">
+                          <div class="py-3">
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-regular" value="Draft">
+                                <label class="form-check-label" for="transmittal-status-regular">Draft</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-transmitted" value="Transmitted">
+                                <label class="form-check-label" for="transmittal-status-transmitted">Transmitted</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-retransmitted" value="Re-Transmitted">
+                                <label class="form-check-label" for="transmittal-status-retransmitted">Re-Transmitted</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-received" value="Received">
+                                <label class="form-check-label" for="transmittal-status-received">Received</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-filed" value="Filed">
+                                <label class="form-check-label" for="transmittal-status-filed">Filed</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input transmittal-status-filter" type="checkbox" id="transmittal-status-cancelled" value="Cancelled">
+                                <label class="form-check-label" for="transmittal-status-cancelled">Cancelled</label>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <button type="button" class="btn btn-light-success w-100" id="apply-filter">Apply</a>
                       </li>
                     </ul>

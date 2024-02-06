@@ -16488,6 +16488,9 @@ textarea.is-invalid.dataTable-input {
 .m-r-0 {
   margin-right: 0px;
 }
+.mr-0 {
+  margin-right: 0px !important;
+}
 
 .p-5 {
   padding: 5px;

@@ -24,18 +24,60 @@ class TransmittalModel {
     # - $p_transmittal_id (int): The transmittal ID.
     # - $p_transmittal_description (string): The transmittal description.
     # - $p_receiver_id (int): The receiver id.
+    # - $p_receiver_name (string): The receiver name.
     # - $p_receiver_department (int): The receiver department.
+    # - $p_receiver_department_name (string): The receiver department name.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateTransmittal($p_transmittal_id, $p_transmittal_description, $p_receiver_id, $p_receiver_department, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateTransmittal(:p_transmittal_id, :p_transmittal_description, :p_receiver_id, :p_receiver_department, :p_last_log_by)');
+    public function updateTransmittal($p_transmittal_id, $p_transmittal_description, $p_receiver_id, $p_receiver_name, $p_receiver_department, $p_receiver_department_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTransmittal(:p_transmittal_id, :p_transmittal_description, :p_receiver_id, :p_receiver_name, :p_receiver_department, :p_receiver_department_name, :p_last_log_by)');
         $stmt->bindValue(':p_transmittal_id', $p_transmittal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_transmittal_description', $p_transmittal_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_receiver_id', $p_receiver_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_name', $p_receiver_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_receiver_department', $p_receiver_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_department_name', $p_receiver_department_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateReTransmittal
+    # Description: Updates the re-transmittal.
+    #
+    # Parameters:
+    # - $p_transmittal_description (string): The transmittal description.
+    # - $p_created_by (int): The transmittal description.
+    # - $p_transmitter_id (int): The transmitter ID.
+    # - $p_transmitter_name (string): The transmitter name.
+    # - $p_transmitter_department (int): The transmitter department.
+    # - $p_transmitter_department_name (string): The transmitter department name.
+    # - $p_receiver_id (int): The receiver ID.
+    # - $p_receiver_name (string): The receiver name.
+    # - $p_receiver_department (int): The receiver department.
+    # - $p_receiver_department_name (string): The receiver department name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function updateReTransmittal($p_transmittal_id, $p_transmittal_description, $p_transmitter_id, $p_transmitter_name, $p_transmitter_department, $p_transmitter_department_name, $p_receiver_id, $p_receiver_name, $p_receiver_department, $p_receiver_department_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateReTransmittal(:p_transmittal_id, :p_transmittal_description, :p_transmitter_id, :p_transmitter_name, :p_transmitter_department, :p_transmitter_department_name, :p_receiver_id, :p_receiver_name, :p_receiver_department, :p_receiver_department_name, :p_last_log_by)');
+        $stmt->bindValue(':p_transmittal_id', $p_transmittal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmittal_description', $p_transmittal_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmitter_id', $p_transmitter_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_name', $p_transmitter_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transmitter_department', $p_transmitter_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_department_name', $p_transmitter_department_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_receiver_id', $p_receiver_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_name', $p_receiver_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_receiver_department', $p_receiver_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_department_name', $p_receiver_department_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -76,24 +118,30 @@ class TransmittalModel {
     # - $p_transmittal_description (string): The transmittal description.
     # - $p_created_by (int): The transmittal description.
     # - $p_transmitter_id (int): The transmitter ID.
+    # - $p_transmitter_name (string): The transmitter name.
     # - $p_transmitter_department (int): The transmitter department.
+    # - $p_transmitter_department_name (string): The transmitter department name.
     # - $p_receiver_id (int): The receiver ID.
+    # - $p_receiver_name (string): The receiver name.
     # - $p_receiver_department (int): The receiver department.
-    # - $p_transmittal_date (datetime): The date and time of the transmittal.
+    # - $p_receiver_department_name (string): The receiver department name.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertTransmittal($p_transmittal_description, $p_created_by, $p_transmitter_id, $p_transmitter_department, $p_receiver_id, $p_receiver_department, $p_transmittal_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertTransmittal(:p_transmittal_description, :p_created_by, :p_transmitter_id, :p_transmitter_department, :p_receiver_id, :p_receiver_department, :p_transmittal_date, :p_last_log_by, @p_transmittal_id)');
+    public function insertTransmittal($p_transmittal_description, $p_created_by, $p_transmitter_id, $p_transmitter_name, $p_transmitter_department, $p_transmitter_department_name, $p_receiver_id, $p_receiver_name, $p_receiver_department, $p_receiver_department_name, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertTransmittal(:p_transmittal_description, :p_created_by, :p_transmitter_id, :p_transmitter_name, :p_transmitter_department, :p_transmitter_department_name, :p_receiver_id, :p_receiver_name, :p_receiver_department, :p_receiver_department_name, :p_last_log_by, @p_transmittal_id)');
         $stmt->bindValue(':p_transmittal_description', $p_transmittal_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_transmitter_id', $p_transmitter_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_name', $p_transmitter_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_transmitter_department', $p_transmitter_department, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transmitter_department_name', $p_transmitter_department_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_receiver_id', $p_receiver_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_receiver_name', $p_receiver_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_receiver_department', $p_receiver_department, PDO::PARAM_INT);
-        $stmt->bindValue(':p_transmittal_date', $p_transmittal_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_receiver_department_name', $p_receiver_department_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

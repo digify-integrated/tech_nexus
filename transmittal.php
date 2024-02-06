@@ -39,7 +39,13 @@
       exit;
     }
 
+    $employmentDetails = $employeeModel->getEmploymentInformation($contact_id);
+    $contactDepartment = $employmentDetails['department_id'];
+
     $transmittalDetails = $transmittalModel->getTransmittal($transmittalID);
+    $transmitterID = $transmittalDetails['transmitter_id'];
+    $receiverID = $transmittalDetails['receiver_id'];
+    $receiverDepartment = $transmittalDetails['receiver_department'];
     $transmittalStatus = $transmittalDetails['transmittal_status'];
   }
   else{

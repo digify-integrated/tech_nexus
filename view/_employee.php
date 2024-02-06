@@ -198,7 +198,7 @@
               <ul class="list-inline ms-auto my-1">
                 <?php
                   if($employeeCreateAccess['total'] > 0){
-                    echo '<li class="list-inline-item align-bottom"><a href="employee.php?new" class="btn btn-success">Create</a></li>';
+                    echo '<li class="list-inline-item align-bottom mr-0"><a href="employee.php?new" class="btn btn-success">Create</a></li>';
                   }
                 ?>
                 <li class="list-inline-item align-bottom">

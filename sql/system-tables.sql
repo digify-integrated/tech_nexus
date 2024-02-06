@@ -144,6 +144,7 @@ INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('H
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Administration', '90', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '30', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Document Management', '35', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -226,6 +227,9 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal', '4', 'transmittal.php', '', 'inbox', '1', '1');
 
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '5', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Category', '5', 'document-category.php', '54', '', '4', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document', '5', 'document.php', '', 'file', '4', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -310,6 +314,10 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('51', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('52', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('53', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('54', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('55', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('56', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -406,12 +414,12 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Link User A
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unlink User Account To Contact', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Record Attendance', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Import Attendance', '1');
-
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Transmit Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Receive Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Re-Transmit Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('File Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('View Own Transmittal', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -518,6 +526,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('85', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('86', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('87', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('88', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -715,6 +724,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Company Logo', 'Sets the upload setting when uploading company logo.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Employee Image', 'Sets the upload setting when uploading employee image.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Attendance Record Import', 'Sets the upload setting when importing attendance record.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Document Upload', 'Sets the upload setting when uploading a document.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -751,6 +761,8 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('4', 66);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('4', 69);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('5', 25);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('6', 127);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4239,11 +4251,15 @@ CREATE TABLE transmittal (
     transmittal_description VARCHAR(500) NOT NULL,
     created_by INT UNSIGNED NOT NULL,
     transmitter_id INT UNSIGNED NOT NULL,
+    transmitter_name VARCHAR(500) NOT NULL,
     transmitter_department INT UNSIGNED NOT NULL,
+    transmitter_department_name VARCHAR(100) NOT NULL,
     receiver_id INT UNSIGNED,
+    receiver_name VARCHAR(500),
     receiver_department INT UNSIGNED,
+    receiver_department_name VARCHAR(100),
     transmittal_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
-    transmittal_date DATETIME,
+    transmittal_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (transmitter_id) REFERENCES contact(contact_id),
     FOREIGN KEY (transmitter_department) REFERENCES department(department_id),
@@ -4259,33 +4275,87 @@ CREATE INDEX transmittal_index_receiver_department ON transmittal(receiver_depar
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/* Transmittal History Table */
+/* Document Category Table */
 
-CREATE TABLE transmittal_history (
-    transmittal_history_id INT AUTO_INCREMENT PRIMARY KEY,
-    transmittal_id INT NOT NULL,
-    transmittal_description VARCHAR(500) NOT NULL,
-    transmitter_id INT UNSIGNED NOT NULL,
-    transmitter_department INT UNSIGNED NOT NULL,
-    receiver_id INT UNSIGNED,
-    receiver_department INT UNSIGNED,
-    transmittal_status VARCHAR(20) NOT NULL,
-    history_date DATETIME NOT NULL,
-    FOREIGN KEY (transmitter_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (transmitter_department) REFERENCES department(department_id),
-    FOREIGN KEY (receiver_id) REFERENCES contact(contact_id)
+CREATE TABLE document_category(
+	document_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	document_category_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX transmittal_history_index_transmittal_history_id ON transmittal_history(transmittal_history_id);
-CREATE INDEX transmittal_history_index_transmittal_id ON transmittal_history(transmittal_id);
-CREATE INDEX transmittal_history_index_transmitter_id ON transmittal_history(transmitter_id);
-CREATE INDEX transmittal_history_index_receiver_id ON transmittal(receiver_id);
-CREATE INDEX transmittal_history_index_receiver_department ON transmittal(receiver_department);
+CREATE INDEX document_category_index_document_category_id ON document_category(document_category_id);
+
+INSERT INTO document_category (document_category_name, last_log_by)
+VALUES
+    ('Memorandums', '1'),
+    ('Policies & Procedures', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Document Table */
+
+CREATE TABLE document(
+	document_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	document_name VARCHAR(100) NOT NULL,
+	document_description VARCHAR(500),
+	author INT UNSIGNED NOT NULL,
+	document_password VARCHAR(500),
+	document_path VARCHAR(500) NOT NULL,
+	document_category_id INT UNSIGNED NOT NULL,
+	document_extension VARCHAR(10) NOT NULL,
+	document_size DOUBLE NOT NULL,
+	document_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
+	document_version INT UNSIGNED NOT NULL DEFAULT 1,
+	upload_date DATETIME NOT NULL DEFAULT NOW(),
+	publish_date DATETIME,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (author) REFERENCES contact(contact_id),
+    FOREIGN KEY (document_category_id) REFERENCES document_category(document_category_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX document_index_document_id ON document(document_id);
+CREATE INDEX document_index_author ON document(author);
+CREATE INDEX document_index_document_category_id ON document(document_category_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Authorizer Table */
+
+CREATE TABLE document_authorizer(
+	document_authorizer_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	document_id INT UNSIGNED NOT NULL,
+	authorizer_id INT UNSIGNED NOT NULL,
+    FOREIGN KEY (authorizer_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (document_id) REFERENCES document(document_id)
+);
+
+CREATE INDEX document_authorizer_index_document_id ON document_authorizer(document_id);
+CREATE INDEX document_authorizer_index_authorizer_id ON document_authorizer(authorizer_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Version History Table */
+
+CREATE TABLE document_version_history(
+	document_version_history_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	document_id INT UNSIGNED NOT NULL,
+	document_path VARCHAR(500) NOT NULL,
+	document_version INT UNSIGNED NOT NULL DEFAULT 1,
+    uploaded_by INT UNSIGNED NOT NULL,
+    upload_date DATETIME NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (uploaded_by) REFERENCES contact(contact_id),
+    FOREIGN KEY (document_id) REFERENCES document(document_id)
+);
+
+CREATE INDEX document_version_history_index_document_id ON document_version_history(document_id);
+CREATE INDEX document_version_history_index_uploaded_by ON document_version_history(uploaded_by);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /*  Table */
+
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

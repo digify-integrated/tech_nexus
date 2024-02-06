@@ -5488,54 +5488,54 @@ BEGIN
     WHERE transmittal_id = p_transmittal_id;
 END //
 
-CREATE PROCEDURE insertTransmittal(IN p_transmittal_description VARCHAR(500), IN p_created_by INT, IN p_transmitter_id INT, IN p_transmitter_department INT, IN p_receiver_id INT, IN p_receiver_department INT, IN p_transmittal_date DATETIME, IN p_last_log_by INT, OUT p_transmittal_id INT)
+CREATE PROCEDURE insertTransmittal(IN p_transmittal_description VARCHAR(500), IN p_created_by INT, IN p_transmitter_id INT, IN p_transmitter_name VARCHAR(500), IN p_transmitter_department INT, IN p_transmitter_department_name VARCHAR(100), IN p_receiver_id INT, IN p_receiver_name VARCHAR(500), IN p_receiver_department INT, IN p_receiver_department_name VARCHAR(100), IN p_last_log_by INT, OUT p_transmittal_id INT)
 BEGIN
-    INSERT INTO transmittal (transmittal_description, created_by, transmitter_id, transmitter_department, receiver_id, receiver_department, transmittal_date, last_log_by) 
-	VALUES(p_transmittal_description, p_created_by, p_transmitter_id, p_transmitter_department, p_receiver_id, p_receiver_department, p_transmittal_date, p_last_log_by);
+    INSERT INTO transmittal (transmittal_description, created_by, transmitter_id, transmitter_name, transmitter_department, transmitter_department_name, receiver_id, receiver_name, receiver_department, receiver_department_name, last_log_by) 
+	VALUES(p_transmittal_description, p_created_by, p_transmitter_id, p_transmitter_name, p_transmitter_department, p_transmitter_department_name, p_receiver_id, p_receiver_name, p_receiver_department, p_receiver_department_name, p_last_log_by);
 	
     SET p_transmittal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateTransmittal(IN p_transmittal_id INT, IN p_transmittal_description VARCHAR(500), IN p_receiver_id INT, IN p_receiver_department INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateTransmittal(IN p_transmittal_id INT, IN p_transmittal_description VARCHAR(500), IN p_receiver_id INT, IN p_receiver_name VARCHAR(500), IN p_receiver_department INT, IN p_receiver_department_name VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE transmittal
     SET transmittal_description = p_transmittal_description,
     receiver_id = p_receiver_id,
+    receiver_name = p_receiver_name,
     receiver_department = p_receiver_department,
+    receiver_department_name = p_receiver_department_name,
+    last_log_by = p_last_log_by
+    WHERE transmittal_id = p_transmittal_id;
+END //
+
+CREATE PROCEDURE updateReTransmittal(IN p_transmittal_id INT, IN p_transmittal_description VARCHAR(500), IN p_transmitter_id INT, IN p_transmitter_name VARCHAR(500), IN p_transmitter_department INT, IN p_transmitter_department_name VARCHAR(100), IN p_receiver_id INT, IN p_receiver_name VARCHAR(500), IN p_receiver_department INT, IN p_receiver_department_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE transmittal
+    SET transmittal_description = p_transmittal_description,
+    transmitter_id = p_transmitter_id,
+    transmitter_name = p_transmitter_name,
+    transmitter_department = p_transmitter_department,
+    transmitter_department_name = p_transmitter_department_name,
+    receiver_id = p_receiver_id,
+    receiver_name = p_receiver_name,
+    receiver_department = p_receiver_department,
+    receiver_department_name = p_receiver_department_name,
     last_log_by = p_last_log_by
     WHERE transmittal_id = p_transmittal_id;
 END //
 
 CREATE PROCEDURE updateTransmittalStatus(IN p_transmittal_id INT, IN p_transmittal_status VARCHAR(20), IN p_last_log_by INT)
 BEGIN
-    IF p_transmittal_status = 'Received' THEN
-        UPDATE transmittal
-        SET transmittal_status = p_transmittal_status,
-        receiver_id = null,
-        receiver_department = null,
-        last_log_by = p_last_log_by
-        WHERE transmittal_id = p_transmittal_id;
-    ELSE
-        UPDATE transmittal
-        SET transmittal_status = p_transmittal_status,
-        last_log_by = p_last_log_by
-        WHERE transmittal_id = p_transmittal_id;
-    END IF;
+    UPDATE transmittal
+    SET transmittal_status = p_transmittal_status,
+    transmittal_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE transmittal_id = p_transmittal_id;
 END //
 
 CREATE PROCEDURE deleteTransmittal(IN p_transmittal_id INT)
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-	DELETE FROM transmittal_history WHERE transmittal_id = p_transmittal_id;
-	DELETE FROM transmittal WHERE transmittal_id = p_transmittal_id;
-
-    COMMIT;
+   DELETE FROM transmittal WHERE transmittal_id = p_transmittal_id;
 END //
 
 CREATE PROCEDURE getTransmittal(IN p_transmittal_id INT)
@@ -5544,14 +5544,52 @@ BEGIN
     WHERE transmittal_id = p_transmittal_id;
 END //
 
-CREATE PROCEDURE generateTransmittalTable()
+CREATE PROCEDURE generateOwnTransmittalTable(IN p_contact_id INT, IN p_department_id INT, IN p_transmittal_start_date DATE, IN p_transmittal_end_date DATE, IN p_transmittal_status VARCHAR(500))
 BEGIN
-	SELECT *
-    FROM transmittal
-    ORDER BY transmittal_id;
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM transmittal';
+    SET conditionList = ' WHERE 1';
+
+    SET conditionList = CONCAT(conditionList, ' AND (');
+    SET conditionList = CONCAT(conditionList, 'created_by IN (SELECT contact_id FROM employment_information WHERE department_id = ');
+    SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ')');
+    SET conditionList = CONCAT(conditionList, ' OR created_by = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' OR transmitter_id = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' OR receiver_id = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' OR transmitter_department = ');
+    SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ' OR receiver_department =');
+    SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ')');
+    
+    IF p_transmittal_start_date IS NOT NULL AND p_transmittal_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(transmittal_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_end_date));
+    END IF;
+
+    IF p_transmittal_status IS NOT NULL AND p_transmittal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND transmittal_status IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_status));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transmittal_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateTransmittalTable(IN p_transmittal_start_date DATE, IN p_transmittal_end_date DATE)
+CREATE PROCEDURE generateAllTransmittalTable(IN p_transmittal_start_date DATE, IN p_transmittal_end_date DATE, IN p_transmittal_status VARCHAR(500))
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -5567,12 +5605,84 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_end_date));
     END IF;
 
+    IF p_transmittal_status IS NOT NULL AND p_transmittal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND transmittal_status IN (');
+        SET conditionList = CONCAT(conditionList, p_transmittal_status);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY transmittal_date DESC;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Category Table Stored Procedures */
+
+CREATE PROCEDURE checkDocumentCategoryExist (IN p_document_category_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_category
+    WHERE document_category_id = p_document_category_id;
+END //
+
+CREATE PROCEDURE insertDocumentCategory(IN p_document_category_name VARCHAR(100), IN p_last_log_by INT, OUT p_document_category_id INT)
+BEGIN
+    INSERT INTO document_category (document_category_name, last_log_by) 
+	VALUES(p_document_category_name, p_last_log_by);
+	
+    SET p_document_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateDocumentCategory(IN p_document_category_id INT, IN p_document_category_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE document_category
+    SET document_category_name = p_document_category_name,
+    last_log_by = p_last_log_by
+    WHERE document_category_id = p_document_category_id;
+END //
+
+CREATE PROCEDURE deleteDocumentCategory(IN p_document_category_id INT)
+BEGIN
+    DELETE FROM document_category WHERE document_category_id = p_document_category_id;
+END //
+
+CREATE PROCEDURE getDocumentCategory(IN p_document_category_id INT)
+BEGIN
+	SELECT * FROM document_category
+    WHERE document_category_id = p_document_category_id;
+END //
+
+CREATE PROCEDURE duplicateDocumentCategory(IN p_document_category_id INT, IN p_last_log_by INT, OUT p_new_document_category_id INT)
+BEGIN
+    DECLARE p_document_category_name VARCHAR(100);
+    
+    SELECT document_category_name
+    INTO p_document_category_name
+    FROM document_category 
+    WHERE document_category_id = p_document_category_id;
+    
+    INSERT INTO document_category (document_category_name, last_log_by) 
+    VALUES(p_document_category_name, p_last_log_by);
+    
+    SET p_new_document_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateDocumentCategoryTable()
+BEGIN
+    SELECT document_category_id, document_category_name
+    FROM document_category
+    ORDER BY document_category_id;
+END //
+
+CREATE PROCEDURE generateDocumentCategoryOptions()
+BEGIN
+	SELECT document_category_id, document_category_name FROM document_category
+	ORDER BY document_category_name;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

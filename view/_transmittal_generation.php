@@ -34,13 +34,29 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'transmittal table':
-            if(isset($_POST['filter_transmittal_date_start_date']) && isset($_POST['filter_transmittal_date_end_date'])){
+            if(isset($_POST['filter_transmittal_date_start_date']) && isset($_POST['filter_transmittal_date_end_date']) && isset($_POST['transmittal_status_filter'])){
                 $filterTransmmittalDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_start_date'], '', 'Y-m-d', '');
                 $filterTransmmittalDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_end_date'], '', 'Y-m-d', '');
+                $filterTransmittalStatus = $_POST['transmittal_status_filter'];
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate)');
+                $viewOwnTransmittal = $userModel->checkSystemActionAccessRights($user_id, 88);
+
+                if($viewOwnTransmittal['total'] > 0){
+                    $contactID = $_SESSION['contact_id'];
+                    $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+                    $contactDepartment = $employmentDetails['department_id'];
+                    
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnTransmittalTable(:contactID, :contactDepartment, :filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
+                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+                    $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
+                }
+                else{
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
+                }
+                
                 $sql->bindValue(':filterTransmmittalDateStartDate', $filterTransmmittalDateStartDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterTransmmittalDateEndDate', $filterTransmmittalDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterTransmittalStatus', $filterTransmittalStatus, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
