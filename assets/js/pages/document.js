@@ -2,33 +2,147 @@
     'use strict';
 
     $(function() {
-        if($('#document-record-table').length){
-            documentRecordTable('#document-record-table');
+        var page = 1;
+        var is_loading = false;
+        var documentCard = $('#document-card');
+        var loadContent = $('#load-content');
+        var documentSearch = $('#document_search');
+        var lastSearchValue = '';
+
+        var debounceTimeout;
+
+        function debounce(func, delay) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(func, delay);
         }
 
-        if($('#document-record-import-table').length){
-            importDocumentRecordTable('#document-record-import-table', false, true);
+        function loanDocumentCard(current_page, is_loading, clearExisting) {
+            if (is_loading) return;
+
+            var document_search = documentSearch.val();
+            var filter_publish_date_start_date = $('#filter_publish_date_start_date').val();
+            var filter_publish_date_end_date = $('#filter_publish_date_end_date').val();
+            var document_category_filter_values = [];
+            var department_filter_values = [];
+
+            $('.document-category-filter:checked').each(function() {
+                document_category_filter_values.push($(this).val());
+            });
+
+            $('.department-filter:checked').each(function() {
+                department_filter_values.push($(this).val());
+            });
+        
+            var document_category_filter = document_category_filter_values.join(', ');
+            var department_filter = department_filter_values.join(', ');
+        
+            lastSearchValue = document_search;
+
+            is_loading = true;
+            const type = 'document card';
+
+            if (clearExisting) {
+                documentCard.empty();
+            }
+
+            loadContent.removeClass('d-none');
+
+            $.ajax({
+                url: 'view/_document_generation.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    current_page: current_page,
+                    document_search: document_search,
+                    filter_publish_date_start_date: filter_publish_date_start_date,
+                    filter_publish_date_end_date: filter_publish_date_end_date,
+                    document_category_filter: document_category_filter,
+                    department_filter: department_filter,
+                    type: type
+                },
+                success: function(response) {
+                    is_loading = false;
+
+                    loadContent.addClass('d-none');
+
+                    if (response.length === 0) {
+                        if (current_page === 1) {
+                            documentCard.html('<div class="col-lg-12 text-center">No document found.</div>');
+                        }
+                        return;
+                    }
+
+                    response.forEach(function(item) {
+                        documentCard.append(item.documentCard);
+                    });
+
+                    documentCard.find('.no-search-result').remove();
+                },
+                error: function(xhr, status, error) {
+                    is_loading = false;
+
+                    loadContent.addClass('d-none');
+
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
         }
 
-        if($('#document-record-form').length){ 
-            documentRecordForm();
+        function resetAndLoadDocumentCard() {
+            page = 1;
+            loanDocumentCard(page, false, true);
         }
 
-        if($('#import-document-form').length){
-            importDocumentForm();
+        function debounceAndReset() {
+            debounce(function() {
+                resetAndLoadDocumentCard();
+            }, 300);
+        }
+
+        if (documentCard.length) {
+            loanDocumentCard(page, is_loading, true);
+            documentSearch.on('keyup', function() {
+                debounceAndReset();
+            });
+
+            $(document).on('click','#apply-filter',function() {
+                debounceAndReset();
+            });
+        }
+
+        documentSearch.val(lastSearchValue);
+        
+        if($('#add-document-form').length){
+            addDocumentForm();
+        }
+        
+        if($('#document-file-update-form').length){
+            updateDocumentFileForm();
+        }
+        
+        if($('#document-update-form').length){
+            updateDocumentForm();
         }
 
         if($('#document-id').length){
-            displayDetails('get document record details');
+            displayDetails('get document details');
         }
 
-        $(document).on('click','.delete-document-record',function() {
+        if($('#document-version-history-summary').length){
+            documentVersionHistorySummary();
+        }
+
+        $(document).on('click','.delete-document',function() {
             const document_id = $(this).data('document-id');
-            const transaction = 'delete document record';
+            const transaction = 'delete document';
     
             Swal.fire({
-                title: 'Confirm Document Record Deletion',
-                text: 'Are you sure you want to delete this document record?',
+                title: 'Confirm Document Deletion',
+                text: 'Are you sure you want to delete this document?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -40,7 +154,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/document-record-controller.php',
+                        url: 'controller/document-controller.php',
                         dataType: 'json',
                         data: {
                             document_id : document_id, 
@@ -48,8 +162,8 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Document Record Success', 'The document record has been deleted successfully.', 'success');
-                                reloadDatatable('#document-record-table');
+                                showNotification('Delete Document Success', 'The document has been deleted successfully.', 'success');
+                                reloadDatatable('#document-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -57,11 +171,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Document Record Error', 'The document record does not exist.', 'danger');
-                                    reloadDatatable('#document-record-table');
+                                    showNotification('Delete Document Error', 'The document does not exist.', 'danger');
+                                    reloadDatatable('#document-table');
                                 }
                                 else {
-                                    showNotification('Delete Document Record Error', response.message, 'danger');
+                                    showNotification('Delete Document Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -78,9 +192,9 @@
             });
         });
 
-        $(document).on('click','#delete-document-record',function() {
+        $(document).on('click','#delete-document',function() {
             let document_id = [];
-            const transaction = 'delete multiple document record';
+            const transaction = 'delete multiple document';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
@@ -90,8 +204,8 @@
     
             if(document_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Document Records Deletion',
-                    text: 'Are you sure you want to delete these document records?',
+                    title: 'Confirm Multiple Documents Deletion',
+                    text: 'Are you sure you want to delete these documents?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,7 +217,7 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/document-record-controller.php',
+                            url: 'controller/document-controller.php',
                             dataType: 'json',
                             data: {
                                 document_id: document_id,
@@ -111,8 +225,8 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Document Record Success', 'The selected document records have been deleted successfully.', 'success');
-                                        reloadDatatable('#document-record-table');
+                                    showNotification('Delete Document Success', 'The selected documents have been deleted successfully.', 'success');
+                                        reloadDatatable('#document-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -120,7 +234,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Document Record Error', response.message, 'danger');
+                                        showNotification('Delete Document Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -141,17 +255,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Document Record Error', 'Please select the document records you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Document Error', 'Please select the documents you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-document-record-details',function() {
+        $(document).on('click','#delete-document-details',function() {
             const document_id = $('#document-id').text();
-            const transaction = 'delete document record';
+            const transaction = 'delete document';
     
             Swal.fire({
-                title: 'Confirm Document Record Deletion',
-                text: 'Are you sure you want to delete this document record?',
+                title: 'Confirm Document Deletion',
+                text: 'Are you sure you want to delete this document?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -163,7 +277,7 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/document-record-controller.php',
+                        url: 'controller/document-controller.php',
                         dataType: 'json',
                         data: {
                             document_id : document_id, 
@@ -171,8 +285,8 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Document Record Success', 'The document record has been deleted successfully.', 'success');
-                                window.location = 'document-record.php';
+                                setNotification('Deleted Document Success', 'The document has been deleted successfully.', 'success');
+                                window.location = 'document.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -183,7 +297,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Document Record Error', response.message, 'danger');
+                                    showNotification('Delete Document Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -200,282 +314,93 @@
             });
         });
 
-        $(document).on('click','#import-document-record',function() {
-            let document_id = [];
-            const transaction = 'save imported document record';
-
-            $('.datatable-checkbox-children').each((index, element) => {
-                if ($(element).is(':checked')) {
-                    document_id.push(element.value);
-                }
-            });
-    
-            if(document_id.length > 0){
-                Swal.fire({
-                    title: 'Confirm Imported Document Records Saving',
-                    text: 'Are you sure you want to save these imported document records?',
-                    icon: 'info',
-                    showCancelButton: !0,
-                    confirmButtonText: 'Import',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-warning mt-2',
-                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                    buttonsStyling: !1
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            type: 'POST',
-                            url: 'controller/document-record-controller.php',
-                            dataType: 'json',
-                            data: {
-                                document_id: document_id,
-                                transaction : transaction
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    setNotification('Save Imported Document Record Success', 'The selected imported document records have been saved successfully.', 'success');
-                                    window.location = 'document-record.php';
-                                }
-                                else {
-                                    if (response.isInactive) {
-                                        setNotification('User Inactive', response.message, 'danger');
-                                        window.location = 'logout.php?logout';
-                                    }
-                                    else {
-                                        showNotification('Delete Document Record Error', response.message, 'danger');
-                                    }
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                                if (xhr.responseText) {
-                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                                }
-                                showErrorDialog(fullErrorMessage);
-                            },
-                            complete: function(){
-                                toggleHideActionDropdown();
-                            }
-                        });
-                        
-                        return false;
-                    }
-                });
-            }
-            else{
-                showNotification('Save Imported Document Record Error', 'Please select the imported document records you wish to save.', 'danger');
-            }
-        });
-
         $(document).on('click','#discard-create',function() {
-            discardCreate('document-record.php');
+            discardCreate('document.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get document record details');
+            displayDetails('get document details');
 
             enableForm();
-        });
-
-        $(document).on('click','#apply-filter',function() {
-            documentRecordTable('#document-record-table');
-        });
-
-        $(document).on('click','#apply-import-filter',function() {
-            importDocumentRecordTable('#document-record-import-table', false, true);
         });
     });
 })(jQuery);
 
-function documentRecordTable(datatable_name, buttons = false, show_all = false){
-    const type = 'document record table';
-    var filter_document_record_date_start_date = $('#filter_document_record_date_start_date').val();
-    var filter_document_record_date_end_date = $('#filter_document_record_date_end_date').val();
-    var employment_status_filter = $('.employment-status-filter:checked').val();
-    var check_in_mode_filter_values = [];
-    var check_out_mode_filter_values = [];
-    var company_filter_values = [];
-    var department_filter_values = [];
-    var job_position_filter_values = [];
-    var branch_filter_values = [];
+function documentCard(current_page, is_loading){
+    if (is_loading) return;
+    var document_search = $('#document_search').val();
 
-    $('.check-in-mode-filter:checked').each(function() {
-        check_in_mode_filter_values.push("'" + $(this).val() + "'");
-    });
+    is_loading = true;
 
-    $('.check-out-mode-filter:checked').each(function() {
-        check_out_mode_filter_values.push("'" + $(this).val() + "'");
-    });
-
-    $('.company-filter:checked').each(function() {
-        company_filter_values.push($(this).val());
-    });
-
-    $('.department-filter:checked').each(function() {
-        department_filter_values.push($(this).val());
-    });
-
-    $('.job-position-filter:checked').each(function() {
-        job_position_filter_values.push($(this).val());
-    });
-
-    $('.branch-filter:checked').each(function() {
-        branch_filter_values.push($(this).val());
-    });
-
-    var check_in_mode_filter = check_in_mode_filter_values.join(', ');
-    var check_out_mode_filter = check_out_mode_filter_values.join(', ');
-    var company_filter = company_filter_values.join(', ');
-    var department_filter = department_filter_values.join(', ');
-    var job_position_filter = job_position_filter_values.join(', ');
-    var branch_filter = branch_filter_values.join(', ');
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'EMPLOYEE_NAME' },
-        { 'data' : 'CHECK_IN' },
-        { 'data' : 'CHECK_IN_MODE' },
-        { 'data' : 'CHECK_OUT' },
-        { 'data' : 'CHECK_OUT_MODE' },
-        { 'data' : 'ACTION' }
-    ];
-
-    const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '24%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%', 'aTargets': 5 },
-        { 'width': '15%','bSortable': false, 'aTargets': 6 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_document_record_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'filter_document_record_date_start_date' : filter_document_record_date_start_date, 'filter_document_record_date_end_date' : filter_document_record_date_end_date, 'check_in_mode_filter' : check_in_mode_filter, 'check_out_mode_filter' : check_out_mode_filter, 'employment_status_filter' : employment_status_filter, 'company_filter' : company_filter, 'department_filter' : department_filter, 'job_position_filter' : job_position_filter, 'branch_filter' : branch_filter},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                }
-                showErrorDialog(fullErrorMessage);
+    const type = 'document card';
+            
+    $.ajax({
+        url: 'view/_document_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            current_page : current_page,
+            document_search : document_search,
+            type : type
+        },
+        beforeSend: function(){
+            $('#load-content').removeClass('d-none');
+            if(current_page == 1){
+                $('#document-card').html('');
             }
         },
-        'order': [[ 2, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
-        }
-    };
+        success: function(response) {
+            is_loading = false;
 
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
-}
-
-function importDocumentRecordTable(datatable_name, buttons = false, show_all = false){
-    const type = 'import document record table';
-    var filter_document_record_date_start_date = $('#filter_document_record_date_start_date').val();
-    var filter_document_record_date_end_date = $('#filter_document_record_date_end_date').val();
-
-    var settings;
-
-    const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'EMPLOYEE_NAME' },
-        { 'data' : 'CHECK_IN' },
-        { 'data' : 'CHECK_IN_MODE' },
-        { 'data' : 'CHECK_OUT' },
-        { 'data' : 'CHECK_OUT_MODE' }
-    ];
-
-    const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '29%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '20%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '20%', 'aTargets': 5 }
-    ];
-
-    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
-
-    settings = {
-        'ajax': { 
-            'url' : 'view/_document_record_generation.php',
-            'method' : 'POST',
-            'dataType': 'json',
-            'data': {'type' : type, 'filter_document_record_date_start_date' : filter_document_record_date_start_date, 'filter_document_record_date_end_date' : filter_document_record_date_end_date},
-            'dataSrc' : '',
-            'error': function(xhr, status, error) {
-                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                if (xhr.responseText) {
-                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+            if (response.length == 0) {
+                if(current_page == 1){
+                    document.getElementById('document-card').innerHTML = '<div class="col-lg-12 text-center">No document found.</div>';
                 }
-                showErrorDialog(fullErrorMessage);
+                return;
             }
+            
+            response.forEach(function(item) {
+                $('#document-card').append(item.documentCard);
+            });
+
+            current_page++;
+            $('#document-card').find('.no-search-result').remove();
         },
-        'order': [[ 2, 'desc' ]],
-        'columns' : column,
-        'columnDefs': column_definition,
-        'lengthMenu': length_menu,
-        'language': {
-            'emptyTable': 'No data found',
-            'searchPlaceholder': 'Search...',
-            'search': '',
-            'loadingRecords': 'Just a moment while we fetch your data...'
+        complete: function(){
+            $('#load-content').addClass('d-none');
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
         }
-    };
-
-    if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
-        settings.buttons = ['csv', 'excel', 'pdf'];
-    }
-
-    destroyDatatable(datatable_name);
-
-    $(datatable_name).dataTable(settings);
+    });
 }
 
-function importDocumentForm(){
-    $('#import-document-form').validate({
+function addDocumentForm(){
+    $('#add-document-form').validate({
         rules: {
-            import_type: {
+            document_name: {
                 required: true
             },
-            company_id: {
+            document_category_id: {
                 required: true
             },
-            import_file: {
+            document_file: {
                 required: true
             }
         },
         messages: {
-            import_type: {
-                required: 'Please choose the import type'
+            document_name: {
+                required: 'Please enter the document name'
             },
-            company_id: {
-                required: 'Please choose the company'
+            document_category_id: {
+                required: 'Please choose the document category'
             },
-            import_file: {
-                required: 'Please choose the import file'
+            document_file: {
+                required: 'Please choose the document'
             }
         },
         errorPlacement: function (error, element) {
@@ -508,24 +433,27 @@ function importDocumentForm(){
             }
         },
         submitHandler: function(form) {
-            const transaction = 'save document record import';
+            const transaction = 'add document';
             var formData = new FormData(form);
             formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/document-record-controller.php',
+                url: 'controller/document-controller.php',
                 data: formData,
                 processData: false,
                 contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-load-file');
+                    disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        setNotification('Document Record File Load Success', 'The document record file has been loaded successfully.', 'success');
-                        window.location.reload();
+                        const notificationMessage = 'Insert Document Success';
+                        const notificationDescription = 'The document has been inserted successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'document.php?id=' + response.documentID;
                     }
                     else {
                         if (response.isInactive) {
@@ -545,7 +473,7 @@ function importDocumentForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-load-file', 'Submit');
+                    enableFormSubmitButton('submit-data', 'Save');
                 }
             });
         
@@ -554,13 +482,233 @@ function importDocumentForm(){
     });
 }
 
+function updateDocumentFileForm(){
+    $('#document-file-update-form').validate({
+        rules: {
+            document_file: {
+                required: true
+            }
+        },
+        messages: {
+            document_file: {
+                required: 'Please choose the document'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const document_id = $('#document-id').text();
+            const transaction = 'update document file';
+            var formData = new FormData(form);
+            formData.append('document_id', document_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/document-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Update Document File Success';
+                        const notificationDescription = 'The document file has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'document.php?id=' + response.documentID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.notExist) {
+                            setNotification('Transaction Error', 'The document does not exists.', 'danger');
+                            window.location = '404.php';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Save');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function updateDocumentForm(){
+    $('#document-update-form').validate({
+        rules: {
+            document_name: {
+                required: true
+            },
+            document_category_id: {
+                required: true
+            }
+        },
+        messages: {
+            document_name: {
+                required: 'Please enter the document name'
+            },
+            document_category_id: {
+                required: 'Please choose the document category'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const document_id = $('#document-id').text();
+            const transaction = 'update document';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/document-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&document_id=' + document_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-update-document-file-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'Update Document Success';
+                        const notificationDescription = 'The document has been updated successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location = 'document.php?id=' + response.documentID;
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else if (response.notExist) {
+                            setNotification('Transaction Error', 'The document does not exists.', 'danger');
+                            window.location = '404.php';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-update-document-file-data', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function documentVersionHistorySummary(){
+    const type = 'document version history summary';
+    var document_id = $('#document-id').text();
+            
+    $.ajax({
+        url: 'view/_document_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            document_id : document_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('document-version-history-summary').innerHTML = response[0].documentVersionHistorySummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get document record details':
+        case 'get document details':
             const document_id = $('#document-id').text();
             
             $.ajax({
-                url: 'controller/document-record-controller.php',
+                url: 'controller/document-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
@@ -568,40 +716,26 @@ function displayDetails(transaction){
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('document-record-form');
+                    resetForm('document-form');
                 },
                 success: function(response) {
                     if (response.success) {
                         $('#document_id').val(document_id);
-                        $('#check_in_date').val(response.checkInDate);
-                        $('#check_out_date').val(response.checkOutDate);
-                        $('#check_in_time').val(response.checkInTime);
-                        $('#check_out_time').val(response.checkOutTime);
-                        $('#check_in_notes').val(response.checkInNotes);
-                        $('#check_out_notes').val(response.checkOutNotes);
+                        $('#document_name').val(response.documentName);
+                        $('#document_description').val(response.documentDescription);
 
-                        document.getElementById('check-in-map').innerHTML = response.checkInMap;
-                        document.getElementById('check-out-map').innerHTML = response.checkOutMap;
+                        checkOptionExist('#document_category_id', response.documentCategoryID, '');
 
-                        document.getElementById('check-in-image').src = response.checkInImage;
-                        document.getElementById('check-out-image').src = response.checkOutImage;
-
-                        checkOptionExist('#employee_id', response.contactID, '');
-
-                        $('#employee_id_label').text(response.employeeName);
-                        $('#check_in_date_label').text(response.checkInDate);
-                        $('#check_out_date_label').text(response.checkOutDate);
-                        $('#check_in_time_label').text(response.checkInTimeLabel);
-                        $('#check_out_time_label').text(response.checkOutTimeLabel);
-                        $('#check_in_notes_label').text(response.checkInNotes);
-                        $('#check_out_notes_label').text(response.checkOutNotes);
+                        $('#document_name_label').text(response.documentName);
+                        $('#document_category_id_label').text(response.documentCategoryName);
+                        $('#document_description_label').text(response.documentDescription);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Document Record Details Error', response.message, 'danger');
+                            showNotification('Get Document Details Error', response.message, 'danger');
                         }
                     }
                 },

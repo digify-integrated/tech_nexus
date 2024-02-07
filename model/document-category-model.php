@@ -216,8 +216,8 @@ class DocumentCategoryModel {
             $documentCategoryName = $row['document_category_name'];
 
             $htmlOptions .= '<div class="form-check my-2">
-                                <input class="form-check-input department-filter" type="checkbox" id="department-' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '" value="' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '" />
-                                <label class="form-check-label" for="department-' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '">' . htmlspecialchars($documentCategoryName, ENT_QUOTES) .'</label>
+                                <input class="form-check-input document-category-filter" type="checkbox" id="document-category-' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '" value="' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '" />
+                                <label class="form-check-label" for="document-category-' . htmlspecialchars($documentCategoryID, ENT_QUOTES) . '">' . htmlspecialchars($documentCategoryName, ENT_QUOTES) .'</label>
                             </div>';
         }
 

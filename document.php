@@ -1,10 +1,10 @@
 <?php
     require('config/_required_php_file.php');
     require('config/_check_user_active.php');
-    #require('model/document-model.php');
+    require('model/document-model.php');
     require('model/document-category-model.php');
 
-    #$documentModel = new DocumentModel($databaseModel);
+    $documentModel = new DocumentModel($databaseModel);
     $documentCategoryModel = new DocumentCategoryModel($databaseModel);
 
     $pageTitle = 'Document';
@@ -13,6 +13,7 @@
     $documentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'create');
     $documentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'write');
     $documentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'delete'); 
+    $updateDocumentFile = $userModel->checkSystemActionAccessRights($user_id, 89);
 
     if ($documentReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -30,8 +31,23 @@
         $checkDocumentExist = $documentModel->checkDocumentExist($documentID);
         $total = $checkDocumentExist['total'] ?? 0;
 
-        $documentDetails = $documentModel->getEmployee($documentID);
-        $portalAccess = $documentDetails['portal_access'];
+        $documentDetails = $documentModel->getDocument($documentID);
+        $documentName = $documentDetails['document_name'];
+        $documentDescription = $documentDetails['document_description'];
+        $author = $documentDetails['author'];
+        $documentPath = $documentDetails['document_path'];
+        $documentCategoryID = $documentDetails['document_category_id'];
+        $documentExtension = $documentDetails['document_extension'];
+        $documentSize = $documentDetails['document_size'];
+        $documentVersion = $documentDetails['document_version'];
+        $uploadDate = $systemModel->checkDate('summary', $documentDetails['upload_date'], '', 'F j, Y h:i:s A', '');
+        $publishDate = $systemModel->checkDate('summary', $documentDetails['publish_date'], '', 'F j, Y h:i:s A', '');
+
+        $authorDetails = $employeeModel->getPersonalInformation($author);
+        $authorName = $authorDetails['file_as'] ?? null;
+
+        $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
+        $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
 
         if($total == 0){
             header('location: 404.php');

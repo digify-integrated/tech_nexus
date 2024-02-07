@@ -21,27 +21,27 @@
             <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Document Name <span class="text-danger">*</span></label>
                 <div class="col-lg-4">
-                    <input type="text" class="form-control" id="document_name" name="document_name" maxlength="100" autocomplete="off">
+                  <input type="text" class="form-control" id="document_name" name="document_name" maxlength="100" autocomplete="off">
                 </div>
                 <label class="col-lg-2 col-form-label">Document Category <span class="text-danger">*</span></label>
                 <div class="col-lg-4">
-                    <select class="form-control select2" name="document_category_id" id="document_category_id">
-                        <option value="">--</option>
-                        <?php echo $documentCategoryModel->generateDocumentCategoryOptions(); ?>
-                    </select>
+                  <select class="form-control select2" name="document_category_id" id="document_category_id">
+                      <option value="">--</option>
+                      <?php echo $documentCategoryModel->generateDocumentCategoryOptions(); ?>
+                  </select>
                 </div>
             </div>
             <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Document <span class="text-danger">*</span></label>
                 <div class="col-lg-10">
-                    <input type="file" class="form-control" id="document" name="document">
+                  <input type="file" class="form-control" id="document_file" name="document_file">
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-lg-2 col-form-label">Description</label>
-                <div class="col-lg-10">
-                    <textarea class="form-control" id="document_description" name="document_description" maxlength="500" rows="3"></textarea>
-                </div>
+              <label class="col-lg-2 col-form-label">Description</label>
+              <div class="col-lg-10">
+                <textarea class="form-control" id="document_description" name="document_description" maxlength="500" rows="3"></textarea>
+              </div>
             </div>
         </form>
       </div>

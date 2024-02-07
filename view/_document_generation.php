@@ -6,6 +6,7 @@ require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 require_once '../model/document-model.php';
+require_once '../model/document-category-model.php';
 require_once '../model/employee-model.php';
 require_once '../model/company-model.php';
 require_once '../model/department-model.php';
@@ -16,6 +17,7 @@ $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $systemSettingModel = new SystemSettingModel($databaseModel);
 $documentModel = new DocumentModel($databaseModel);
+$documentCategoryModel = new DocumentCategoryModel($databaseModel);
 $employeeModel = new EmployeeModel($databaseModel);
 $companyModel = new CompanyModel($databaseModel);
 $departmentModel = new DepartmentModel($databaseModel);
@@ -38,110 +40,168 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'document card':
-            if(isset($_POST['current_page']) && isset($_POST['document_search']) && isset($_POST['employment_status_filter']) && isset($_POST['department_filter']) && isset($_POST['job_position_filter']) && isset($_POST['branch_filter']) && isset($_POST['document_type_filter']) && isset($_POST['job_level_filter']) && isset($_POST['gender_filter']) && isset($_POST['civil_status_filter']) && isset($_POST['blood_type_filter']) && isset($_POST['religion_filter']) && isset($_POST['age_filter'])){
-                $initialEmployeesPerPage = 9;
-                $loadMoreEmployeesPerPage = 6;
-                $documentPerPage = $initialEmployeesPerPage;
+            if(isset($_POST['current_page']) && isset($_POST['document_search']) && isset($_POST['filter_publish_date_start_date']) && isset($_POST['filter_publish_date_end_date']) && isset($_POST['document_category_filter']) && isset($_POST['department_filter'])){
+                $initialDocumentPerPage = 9;
+                $loadMoreDocumentPerPage = 6;
+                $documentPerPage = $initialDocumentPerPage;
+                $contactID = $_SESSION['contact_id'];
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
                 $documentSearch = htmlspecialchars($_POST['document_search'], ENT_QUOTES, 'UTF-8');
-                $employementStatusFilter = htmlspecialchars($_POST['employment_status_filter'], ENT_QUOTES, 'UTF-8');
-                $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
+                $filterPublishDateStartDate = $systemModel->checkDate('empty', $_POST['filter_publish_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterPublishDateEndDate = $systemModel->checkDate('empty', $_POST['filter_publish_date_end_date'], '', 'Y-m-d', '', '', '');
+                $documentCategoryFilter = htmlspecialchars($_POST['document_category_filter'], ENT_QUOTES, 'UTF-8');
                 $departmentFilter = htmlspecialchars($_POST['department_filter'], ENT_QUOTES, 'UTF-8');
-                $jobPositionFilter = htmlspecialchars($_POST['job_position_filter'], ENT_QUOTES, 'UTF-8');
-                $branchFilter = htmlspecialchars($_POST['branch_filter'], ENT_QUOTES, 'UTF-8');
-                $documentTypeFilter = htmlspecialchars($_POST['document_type_filter'], ENT_QUOTES, 'UTF-8');
-                $jobLevelFilter = htmlspecialchars($_POST['job_level_filter'], ENT_QUOTES, 'UTF-8');
-                $genderFilter = htmlspecialchars($_POST['gender_filter'], ENT_QUOTES, 'UTF-8');
-                $civilStatusFilter = htmlspecialchars($_POST['civil_status_filter'], ENT_QUOTES, 'UTF-8');
-                $bloodTypeFilter = htmlspecialchars($_POST['blood_type_filter'], ENT_QUOTES, 'UTF-8');
-                $religionFilter = htmlspecialchars($_POST['religion_filter'], ENT_QUOTES, 'UTF-8');
-                $ageFilter = htmlspecialchars($_POST['age_filter'], ENT_QUOTES, 'UTF-8');
-                $ageExplode = explode(',', $ageFilter);
-                $minAge = $ageExplode[0];
-                $maxAge = $ageExplode[1];
                 $offset = ($currentPage - 1) * $documentPerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateEmployeeCard(:offset, :documentPerPage, :documentSearch, :employementStatusFilter, :companyFilter, :departmentFilter, :jobPositionFilter, :branchFilter, :documentTypeFilter, :jobLevelFilter, :genderFilter, :civilStatusFilter, :bloodTypeFilter, :religionFilter, :minAge, :maxAge)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCard(:offset, :documentPerPage, :documentSearch, :filterPublishDateStartDate, :filterPublishDateEndDate, :documentCategoryFilter, :departmentFilter)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':documentPerPage', $documentPerPage, PDO::PARAM_INT);
                 $sql->bindValue(':documentSearch', $documentSearch, PDO::PARAM_STR);
-                $sql->bindValue(':employementStatusFilter', $employementStatusFilter, PDO::PARAM_STR);
-                $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
+                $sql->bindValue(':filterPublishDateStartDate', $filterPublishDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterPublishDateEndDate', $filterPublishDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':documentCategoryFilter', $documentCategoryFilter, PDO::PARAM_STR);
                 $sql->bindValue(':departmentFilter', $departmentFilter, PDO::PARAM_STR);
-                $sql->bindValue(':jobPositionFilter', $jobPositionFilter, PDO::PARAM_STR);
-                $sql->bindValue(':branchFilter', $branchFilter, PDO::PARAM_STR);
-                $sql->bindValue(':documentTypeFilter', $documentTypeFilter, PDO::PARAM_STR);
-                $sql->bindValue(':jobLevelFilter', $jobLevelFilter, PDO::PARAM_STR);
-                $sql->bindValue(':genderFilter', $genderFilter, PDO::PARAM_STR);
-                $sql->bindValue(':civilStatusFilter', $civilStatusFilter, PDO::PARAM_STR);
-                $sql->bindValue(':bloodTypeFilter', $bloodTypeFilter, PDO::PARAM_STR);
-                $sql->bindValue(':religionFilter', $religionFilter, PDO::PARAM_STR);
-                $sql->bindValue(':minAge', $minAge, PDO::PARAM_INT);
-                $sql->bindValue(':maxAge', $maxAge, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
                 
-                $documentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'delete');
+                $documentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'delete');
 
                 foreach ($options as $row) {
-                    $documentID = $row['contact_id'];
-                    $fileAs = $row['file_as'];
-                    $departmentID = $row['department_id'];
-                    $jobPositionID = $row['job_position_id'];
-                    $branchID = $row['branch_id'];
-                    $employmentStatus = $row['employment_status'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>';
-                    $documentImage = $systemModel->checkImage($row['contact_image'], 'profile');
+                    $documentID = $row['document_id'];
+                    $documentName = $row['document_name'];
+                    $documentCategoryID = $row['document_category_id'];
+                    $documentExtension = $row['document_extension'];
+                    $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
 
-                    $departmentName = $departmentModel->getDepartment($departmentID)['department_name'] ?? null;
-                    $jobPositionName = $jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
-                    $branchName = $branchModel->getBranch($branchID)['branch_name'] ?? null;
+                    $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
                    
                     $documentIDEncrypted = $securityModel->encryptData($documentID);
 
                     $delete = '';
                     if($documentDeleteAccess['total'] > 0){
                         $delete = '<div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
-                                        <button class="btn btn-danger delete-document" data-document-id="'. $documentID .'" title="Delete Employee">
+                                        <button class="avtar avtar-s btn btn-danger delete-document" data-document-id="'. $documentID .'" title="Delete Employee">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>';
                     }
     
                     $response[] = [
-                        'documentCard' => '<div class="col-sm-6 col-xl-4">
-                                                <div class="card product-card">
-                                                    <div class="card-img-top">
+                        'documentCard' => '<div class="col-md-6 col-lg-4 col-xxl-3">
+                                            <div class="card file-card">
+                                                <div class="card-body">
+                                                    <div class="my-3 text-center">
                                                         <a href="document.php?id='. $documentIDEncrypted .'">
-                                                            <img src="'. $documentImage .'" alt="image" class="img-prod img-fluid" />
+                                                            <img src="'. $documentIcon .'" alt="img" class="img-fluid" />
                                                         </a>
-                                                        <div class="card-body position-absolute start-0 top-0">
-                                                           '. $employmentStatus .'
+                                                    </div>
+                                                    <div class="d-flex align-items-center justify-content-between mt-4">
+                                                        <div class="w-75 text-truncate">
+                                                            <a href="document.php?id='. $documentIDEncrypted .'">
+                                                                <h6 class="mb-0"><span class="text-primary">'. $documentName .'</span></h6>
+                                                                <p class="mb-0 text-muted"><small>'. $documentCategoryName .'</small></p>
+                                                            </a>
                                                         </div>
                                                         '. $delete .'
                                                     </div>
-                                                    <div class="card-body">
-                                                        <a href="document.php?id='. $documentIDEncrypted .'">
-                                                            <div class="d-flex align-items-center justify-content-between mt-3">
-                                                                <h4 class="mb-0 text-truncate text-primary"><b>'. $fileAs .'</b></h4>
-                                                            </div>
-                                                            <div class="mt-3">
-                                                                <h6 class="prod-content mb-0">'. $jobPositionName .'</h6>
-                                                            </div>
-                                                            <div>
-                                                                <h6 class="prod-content mb-0">'. $departmentName .'</h6>
-                                                            </div>
-                                                        </a>
-                                                    </div>
                                                 </div>
-                                            </div>'
+                                            </div>
+                                        </div>'
                     ];
                 }
 
-                if ($documentPerPage === $initialEmployeesPerPage) {
-                    $documentPerPage = $loadMoreEmployeesPerPage;
+                if ($documentPerPage === $initialDocumentPerPage) {
+                    $documentPerPage = $loadMoreDocumentPerPage;
                 }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: document version history summary
+        # Description:
+        # Generates the document version history summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'document version history summary':
+            if(isset($_POST['document_id']) && !empty($_POST['document_id'])){
+                $details = '';
+                $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentVersionHistorySummary(:documentID)');
+                $sql->bindValue(':documentID', $documentID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $documentPath = $row['document_path'];
+                    $documentVersion = $row['document_version'];
+                    $uploadedBy = $row['uploaded_by'];
+                    $cityID = $row['city_id'];
+                    $isPrimary = $row['is_primary'];
+
+                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+
+                    $dropdown = '';
+                    if ($employeeWriteAccess['total'] > 0) {
+                        $update = ($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-address" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" data-contact-address-id="'. $contactAddressID . '">Edit</a>' : '';
+                    
+                        $tag = ($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0 && !$isPrimary) ? '<a href="javascript:void(0);" class="dropdown-item tag-contact-address-as-primary" data-contact-address-id="'. $contactAddressID . '">Tag As Primary</a>' : '';
+                    
+                        $delete = ($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-contact-address" data-contact-address-id="'. $contactAddressID . '">Delete</a>' : '';
+                    
+                        $dropdown = ($update || $tag || $delete) ? '<div class="dropdown">
+                            <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ti ti-dots-vertical f-18"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                ' . $update . '
+                                ' . $tag . '
+                                ' . $delete . '
+                            </div>
+                        </div>' : '';
+                    }
+
+                    if ($index === 0) {
+                        $listMargin = 'pt-0';
+                    }
+                    else {
+                        $listMargin = '';
+                    }
+
+                    $details .= ' <li class="list-group-item '. $listMargin .'">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            <p class="mb-2 text-primary"><b>'. $addressTypeName .'</b></p>
+                                            <p class="mb-2">' . $contactAddress . '</p>
+                                            '. $isPrimaryBadge .'
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            '. $dropdown .'
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No address found.';
+                }
+
+                $response[] = [
+                    'contactAddressSummary' => $details
+                ];
     
                 echo json_encode($response);
             }

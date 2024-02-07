@@ -152,7 +152,7 @@ class SystemModel {
     # -------------------------------------------------------------
     #
     # Function: formatDate
-    # Description: Checks the date with different format
+    # Description: Checks the date with different format.
     #
     # Parameters:
     # - $format (string): The desired date format.
@@ -177,7 +177,7 @@ class SystemModel {
     # -------------------------------------------------------------
     #
     # Function: getDefaultImage
-    # Description: Gets the default
+    # Description: Gets the default image.
     #
     # Parameters:
     # - $type (string): The type of default image.
@@ -204,7 +204,7 @@ class SystemModel {
     # -------------------------------------------------------------
     #
     # Function: getMonthNameFromNumber
-    # Description: Checks the date with different format
+    # Description: Checks the date with different format.
     #
     # Parameters:
     # - $type (string): The type of default image.
@@ -244,6 +244,65 @@ class SystemModel {
         $image = $image ?? '';
         
         return (empty($image) || (!file_exists('.' . $image) && !file_exists($image))) ? $this->getDefaultImage($type) : $image;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getFileExtensionIcon
+    # Description: Gets the default file extension icon
+    #
+    # Parameters:
+    # - $type (string): The type of default file extension icon.
+    #
+    # Returns:
+    # - A the default image on each type.
+    #
+    # -------------------------------------------------------------
+    public function getFileExtensionIcon($type) {
+        $defaultImages = [
+            'ai' => './assets/images/file_icon/img-file-ai.svg',
+            'doc' => './assets/images/file_icon/img-file-doc.svg',
+            'docx' => './assets/images/file_icon/img-file-doc.svg',
+            'jpeg' => './assets/images/file_icon/img-file-img.svg',
+            'jpg' => './assets/images/file_icon/img-file-img.svg',
+            'png' => './assets/images/file_icon/img-file-img.svg',
+            'gif' => './assets/images/file_icon/img-file-img.svg',
+            'pdf' => './assets/images/file_icon/img-file-pdf.svg',
+            'ppt' => './assets/images/file_icon/img-file-ppt.svg',
+            'pptx' => './assets/images/file_icon/img-file-ppt.svg',
+            'rar' => './assets/images/file_icon/img-file-rar.svg',
+            'txt' => './assets/images/file_icon/img-file-txt.svg',
+            'xls' => './assets/images/file_icon/img-file-xls.svg',
+            'xlsx' => './assets/images/file_icon/img-file-xls.svg',
+        ];
+    
+        return $defaultImages[$type] ?? './assets/images/file_icon/img-file-img.svg';
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getFormatBytes
+    # Description: Gets the formatted bytes
+    #
+    # Parameters:
+    # - $bytes (int): The type of default image.
+    #
+    # Returns:
+    # - A the default image on each type.
+    #
+    # -------------------------------------------------------------
+    public function getFormatBytes($bytes, $precision = 2) {
+        $units = ['B', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+    
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+    
+        $bytes /= (1 << (10 * $pow));
+    
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
     # -------------------------------------------------------------
 

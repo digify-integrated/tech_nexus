@@ -420,6 +420,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Re-Transmit
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('File Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('View Own Transmittal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Document File', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -527,6 +528,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('86', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('87', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('88', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('89', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

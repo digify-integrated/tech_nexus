@@ -5687,6 +5687,102 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Document Table Stored Procedures */
+
+CREATE PROCEDURE checkDocumentExist (IN p_document_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document
+    WHERE document_id = p_document_id;
+END //
+
+CREATE PROCEDURE updateDocument(IN p_document_id INT, IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_document_category_id INT, IN p_last_log_by INT)
+BEGIN
+    UPDATE document
+    SET document_name = p_document_name,
+    document_description = p_document_description,
+    document_category_id = p_document_category_id,
+    last_log_by = p_last_log_by
+    WHERE document_id = p_document_id;
+END //
+
+CREATE PROCEDURE insertDocument(IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_author INT, IN p_document_path VARCHAR(500), IN p_document_category_id INT, IN p_document_extension VARCHAR(10), IN p_document_size DOUBLE, IN p_last_log_by INT, OUT p_document_id INT)
+BEGIN
+    INSERT INTO document (document_name, document_description, author, document_path, document_category_id, document_extension, document_size, last_log_by) 
+	VALUES(p_document_name, p_document_description, p_author, p_document_path, p_document_category_id, p_document_extension, p_document_size, p_last_log_by);
+	
+    SET p_document_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE getDocument(IN p_document_id INT)
+BEGIN
+	SELECT * FROM document
+    WHERE document_id = p_document_id;
+END //
+
+CREATE PROCEDURE updateDocumentFile(IN p_document_id INT, IN p_document_path VARCHAR(500), IN p_document_version INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE document 
+    SET document_path = p_document_path, 
+    document_version = p_document_version, 
+    last_log_by = p_last_log_by 
+    WHERE document_id = p_document_id;
+END //
+
+CREATE PROCEDURE generateDocumentCard(IN p_offset INT, IN p_document_per_page INT, IN p_search VARCHAR(500), IN p_publish_start_date_filter DATETIME, IN p_publish_end_date_filter DATETIME, IN p_document_category_filter VARCHAR(500), IN p_department_filter VARCHAR(500))
+BEGIN
+    DECLARE sql_query VARCHAR(5000);
+
+    SET sql_query = 'SELECT *
+    FROM document
+    WHERE 1';
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (
+            document_name LIKE ?
+            OR document_description LIKE ?
+        )');
+    END IF;
+
+    IF p_document_category_filter IS NOT NULL AND p_document_category_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND document_category_id IN (', p_document_category_filter, ')');
+    END IF;
+
+    IF p_department_filter IS NOT NULL AND p_department_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND author IN (SELECT contact_id FROM employment_information WHERE department_id IN (', p_department_filter,'))');
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY document_name LIMIT ?, ?;');
+
+    PREPARE stmt FROM sql_query;
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_document_per_page;
+    ELSE
+        EXECUTE stmt USING p_offset, p_document_per_page;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Version History Table Stored Procedures */
+
+CREATE PROCEDURE insertDocumentVersionHistory(IN p_document_id INT, IN p_document_path VARCHAR(500), IN p_document_version INT, IN p_uploaded_by INT)
+BEGIN
+    INSERT INTO document_version_history (document_id, document_path, document_version, uploaded_by) 
+	VALUES(p_document_id, p_document_path, p_document_version, p_uploaded_by);
+END //
+
+CREATE PROCEDURE generateDocumentVersionHistorySummary(IN p_document_id INT)
+BEGIN
+	SELECT *
+    FROM document_version_history
+    WHERE document_id = p_document_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

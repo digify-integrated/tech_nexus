@@ -3760,6 +3760,112 @@ END //
 
 /*  Table Triggers */
 
+CREATE TRIGGER document_trigger_update
+AFTER UPDATE ON document
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.document_name <> OLD.document_name THEN
+        SET audit_log = CONCAT(audit_log, "Document Name: ", OLD.document_name, " -> ", NEW.document_name, "<br/>");
+    END IF;
+
+    IF NEW.document_description <> OLD.document_description THEN
+        SET audit_log = CONCAT(audit_log, "Document Description: ", OLD.document_description, " -> ", NEW.document_description, "<br/>");
+    END IF;
+
+    IF NEW.author <> OLD.author THEN
+        SET audit_log = CONCAT(audit_log, "Author: ", OLD.author, " -> ", NEW.author, "<br/>");
+    END IF;
+
+    IF NEW.document_category_id <> OLD.document_category_id THEN
+        SET audit_log = CONCAT(audit_log, "Document Category ID: ", OLD.document_category_id, " -> ", NEW.document_category_id, "<br/>");
+    END IF;
+
+    IF NEW.document_extension <> OLD.document_extension THEN
+        SET audit_log = CONCAT(audit_log, "Document Extension: ", OLD.document_extension, " -> ", NEW.document_extension, "<br/>");
+    END IF;
+
+    IF NEW.document_size <> OLD.document_size THEN
+        SET audit_log = CONCAT(audit_log, "Document Size: ", OLD.document_size, " -> ", NEW.document_size, "<br/>");
+    END IF;
+
+    IF NEW.document_status <> OLD.document_status THEN
+        SET audit_log = CONCAT(audit_log, "Document Status: ", OLD.document_status, " -> ", NEW.document_status, "<br/>");
+    END IF;
+
+    IF NEW.document_version <> OLD.document_version THEN
+        SET audit_log = CONCAT(audit_log, "Document Version: ", OLD.document_version, " -> ", NEW.document_version, "<br/>");
+    END IF;
+
+    IF NEW.upload_date <> OLD.upload_date THEN
+        SET audit_log = CONCAT(audit_log, "Upload Date: ", OLD.upload_date, " -> ", NEW.upload_date, "<br/>");
+    END IF;
+
+    IF NEW.publish_date <> OLD.publish_date THEN
+        SET audit_log = CONCAT(audit_log, "Publish Date: ", OLD.publish_date, " -> ", NEW.publish_date, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('document', NEW.document_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER document_trigger_insert
+AFTER INSERT ON document
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Document created. <br/>';
+
+    IF NEW.document_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Name: ", NEW.document_name);
+    END IF;
+
+    IF NEW.document_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Description: ", NEW.document_description);
+    END IF;
+
+    IF NEW.author <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Author: ", NEW.author);
+    END IF;
+
+    IF NEW.document_category_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Category ID: ", NEW.document_category_id);
+    END IF;
+
+    IF NEW.document_extension <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Extension: ", NEW.document_extension);
+    END IF;
+
+    IF NEW.document_size <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Size: ", NEW.document_size);
+    END IF;
+
+    IF NEW.document_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Status: ", NEW.document_status);
+    END IF;
+
+    IF NEW.document_version <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Version: ", NEW.document_version);
+    END IF;
+
+    IF NEW.upload_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Document Date: ", NEW.upload_date);
+    END IF;
+
+    IF NEW.publish_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Publish Date: ", NEW.publish_date);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('document', NEW.document_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Table Triggers */
+
 
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

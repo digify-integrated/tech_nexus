@@ -4,9 +4,9 @@
     $(function() {
         var page = 1;
         var is_loading = false;
-        var $employeeCard = $('#employee-card');
-        var $loadContent = $('#load-content');
-        var $employeeSearch = $('#employee_search');
+        var employeeCard = $('#employee-card');
+        var loadContent = $('#load-content');
+        var employeeSearch = $('#employee_search');
         var lastSearchValue = '';
         var age_filter_slider = $('#age-filter').slider();
 
@@ -20,7 +20,7 @@
         function loadEmployeeCard(current_page, is_loading, clearExisting) {
             if (is_loading) return;
 
-            var employee_search = $employeeSearch.val();
+            var employee_search = employeeSearch.val();
             var employment_status_filter = $('.employment-status-filter:checked').val();
             var age_filter = $('#age-filter').val();
             var company_filter_values = [];
@@ -91,10 +91,10 @@
             const type = 'employee card';
 
             if (clearExisting) {
-                $employeeCard.empty();
+                employeeCard.empty();
             }
 
-            $loadContent.removeClass('d-none');
+            loadContent.removeClass('d-none');
 
             $.ajax({
                 url: 'view/_employee_generation.php',
@@ -120,25 +120,25 @@
                 success: function(response) {
                     is_loading = false;
 
-                    $loadContent.addClass('d-none');
+                    loadContent.addClass('d-none');
 
                     if (response.length === 0) {
                         if (current_page === 1) {
-                            $employeeCard.html('<div class="col-lg-12 text-center">No employee found.</div>');
+                            employeeCard.html('<div class="col-lg-12 text-center">No employee found.</div>');
                         }
                         return;
                     }
 
                     response.forEach(function(item) {
-                        $employeeCard.append(item.employeeCard);
+                        employeeCard.append(item.employeeCard);
                     });
 
-                    $employeeCard.find('.no-search-result').remove();
+                    employeeCard.find('.no-search-result').remove();
                 },
                 error: function(xhr, status, error) {
                     is_loading = false;
 
-                    $loadContent.addClass('d-none');
+                    loadContent.addClass('d-none');
 
                     var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
                     if (xhr.responseText) {
@@ -160,9 +160,9 @@
             }, 300);
         }
 
-        if ($employeeCard.length) {
+        if (employeeCard.length) {
             loadEmployeeCard(page, is_loading, true);
-            $employeeSearch.on('keyup', function() {
+            employeeSearch.on('keyup', function() {
                 debounceAndReset();
             });
 
@@ -171,7 +171,7 @@
             });
         }
 
-        $employeeSearch.val(lastSearchValue);
+        employeeSearch.val(lastSearchValue);
 
         if($('#add-employee-form').length){
             addEmployeeForm();

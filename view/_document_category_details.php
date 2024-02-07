@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Document CategoryType</h5>
+            <h5>Document Category</h5>
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
             <?php                            
@@ -15,11 +15,11 @@
                                 <ul class="dropdown-menu dropdown-menu-end">';
 
                 if ($documentCategoryDuplicateAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="duplicate-document-category">Duplicate Document CategoryType</button></li>';
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="duplicate-document-category">Duplicate Document Category</button></li>';
                 }
                             
                 if ($documentCategoryDeleteAccess['total'] > 0) {
-                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-document-category-details">Delete Document CategoryType</button></li>';
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-document-category-details">Delete Document Category</button></li>';
                 }
                         
                 $dropdown .= '</ul>
