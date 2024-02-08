@@ -84,11 +84,26 @@ class DocumentController {
                 case 'update document file':
                     $this->updateDocumentFile();
                     break;
+                case 'add department restriction':
+                    $this->addDepartmentRestriction();
+                    break;
+                case 'add employee restriction':
+                    $this->addEmployeeRestriction();
+                    break;
+                case 'publish document':
+                    $this->publishDocument();
+                    break;
+                case 'unpublish document':
+                    $this->unpublishDocument();
+                    break;
                 case 'get document details':
                     $this->getDocumentDetails();
                     break;
                 case 'delete document':
                     $this->deleteDocument();
+                    break;
+                case 'delete document restrictions':
+                    $this->deleteDocumentRestriction();
                     break;
                 case 'delete multiple document':
                     $this->deleteMultipleDocument();
@@ -128,6 +143,8 @@ class DocumentController {
         $contactID = $_SESSION['contact_id'];
         $documentName = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
         $documentCategoryID = htmlspecialchars($_POST['document_category_id'], ENT_QUOTES, 'UTF-8');
+        $isConfidential = htmlspecialchars($_POST['is_confidential'], ENT_QUOTES, 'UTF-8');
+        $documentPassword = $this->securityModel->encryptData(htmlspecialchars($_POST['document_password'], ENT_QUOTES, 'UTF-8'));;
         $documentDescription = htmlspecialchars($_POST['document_description'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -196,7 +213,7 @@ class DocumentController {
             exit;
         }
 
-        $documentID = $this->documentModel->insertDocument($documentName, $documentDescription, $contactID, $filePath, $documentCategoryID, $documentFileActualFileExtension, $documentFileFileSize, $userID);
+        $documentID = $this->documentModel->insertDocument($documentName, $documentDescription, $contactID, $documentPassword, $filePath, $documentCategoryID, $documentFileActualFileExtension, $documentFileFileSize, $isConfidential, $userID);
 
         $documentVersionDirectory = DEFAULT_DOCUMENT_RELATIVE_PATH_FILE . 'document_version/';
         $documentVersionFileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_DOCUMENT_FULL_PATH_FILE . 'document_version/' . $fileNew;
@@ -214,9 +231,91 @@ class DocumentController {
             exit;
         }
 
-        $this->documentModel->insertDocumentVersionHistory($documentID, $filePath, 1, $contactID);
+        $this->documentModel->insertDocumentVersionHistory($documentID, $documentVersionFilePath, 1, $contactID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'documentID' => $this->securityModel->encryptData($documentID)]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addDepartmentRestriction
+    # Description:
+    # Add the document department restriction.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addDepartmentRestriction() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+        $departmentIDs = explode(',', $_POST['department_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($departmentIDs as $departmentID) {
+            $checkDocumentDepartmentRestrictionExist = $this->documentModel->checkDocumentDepartmentRestrictionExist($documentID, $departmentID);
+            $total = $checkDocumentDepartmentRestrictionExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->documentModel->insertDocumentRestriction($documentID, $departmentID, null, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: addEmployeeRestriction
+    # Description:
+    # Add the document employee restriction.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function addEmployeeRestriction() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+        
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+        $employeeIDs = explode(',', $_POST['employee_id']);
+        
+        $user = $this->userModel->getUserByID($userID);
+        
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+        
+        foreach ($employeeIDs as $employeeID) {
+            $checkDocumentEmployeeRestrictionExist = $this->documentModel->checkDocumentEmployeeRestrictionExist($documentID, $employeeID);
+            $total = $checkDocumentEmployeeRestrictionExist['total'] ?? 0;
+        
+            if ($total === 0) {
+                $this->documentModel->insertDocumentRestriction($documentID, null, $employeeID, $userID);
+            }
+        }
+        
+        echo json_encode(['success' => true]);
         exit;
     }
     # -------------------------------------------------------------
@@ -245,6 +344,7 @@ class DocumentController {
         $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
         $documentName = htmlspecialchars($_POST['document_name'], ENT_QUOTES, 'UTF-8');
         $documentCategoryID = htmlspecialchars($_POST['document_category_id'], ENT_QUOTES, 'UTF-8');
+        $isConfidential = htmlspecialchars($_POST['is_confidential'], ENT_QUOTES, 'UTF-8');
         $documentDescription = htmlspecialchars($_POST['document_description'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -262,7 +362,7 @@ class DocumentController {
             exit;
         }
     
-        $this->documentModel->updateDocument($documentID, $documentName, $documentDescription, $documentCategoryID, $userID);
+        $this->documentModel->updateDocument($documentID, $documentName, $documentDescription, $documentCategoryID, $isConfidential, $userID);
             
         echo json_encode(['success' => true, 'documentID' => $this->securityModel->encryptData($documentID)]);
         exit;
@@ -393,9 +493,99 @@ class DocumentController {
             exit;
         }
 
-        $this->documentModel->insertDocumentVersionHistory($documentID, $filePath, $documentVersion, $contactID);
+        $this->documentModel->insertDocumentVersionHistory($documentID, $documentVersionFilePath, $documentVersion, $contactID);
 
         echo json_encode(['success' => true, 'documentID' => $this->securityModel->encryptData($documentID)]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Publish methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: publishDocument
+    # Description: 
+    # Updates the existing document if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function publishDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->documentModel->updateDocumentStatus($documentID, 'Published', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Unpublish methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: unpublishDocument
+    # Description: 
+    # Updates the existing document if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function unpublishDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->documentModel->updateDocumentStatus($documentID, 'Draft', $userID);
+            
+        echo json_encode(['success' => true]);
         exit;
     }
     # -------------------------------------------------------------
@@ -430,15 +620,38 @@ class DocumentController {
             exit;
         }
     
-        $checkAttendanceExist = $this->employeeModel->checkAttendanceExist($documentID);
-        $total = $checkAttendanceExist['total'] ?? 0;
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $this->employeeModel->deleteAttendance($documentID);
+
+        $documentDetails = $this->documentModel->getDocument($documentID);
+        $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+
+        if(file_exists($documentPath)){
+            if (!unlink($documentPath)) {
+                echo json_encode(['success' => false, 'message' => 'Document file cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        $documentVersionHistoryDetails = $this->documentModel->getDocumentVersionHistoryByDocumentID($documentID);
+
+        foreach ($documentVersionHistoryDetails as $row) {
+            $documentPath = $row['document_path'] !== null ? '.' . $row['document_path'] : null;
+
+            if(file_exists($documentPath)){
+                if (!unlink($documentPath)) {
+                    echo json_encode(['success' => false, 'message' => 'Document file cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+        }
+        
+        $this->documentModel->deleteDocument($documentID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -472,8 +685,77 @@ class DocumentController {
         }
 
         foreach($documentIDs as $documentID){
-            $this->employeeModel->deleteAttendance($documentID);
+            $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+            $total = $checkDocumentExist['total'] ?? 0;
+    
+            if($total > 0){
+                $documentDetails = $this->documentModel->getDocument($documentID);
+                $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+
+                if(file_exists($documentPath)){
+                    if (!unlink($documentPath)) {
+                        echo json_encode(['success' => false, 'message' => 'Document file cannot be deleted due to an error.']);
+                        exit;
+                    }
+                }
+
+                $documentVersionHistoryDetails = $this->documentModel->getDocumentVersionHistoryByDocumentID($documentID);
+
+                foreach ($documentVersionHistoryDetails as $row) {
+                    $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+
+                    if(file_exists($documentPath)){
+                        if (!unlink($documentPath)) {
+                            echo json_encode(['success' => false, 'message' => 'Document file cannot be deleted due to an error.']);
+                            exit;
+                        }
+                    }
+                }
+                
+                $this->documentModel->deleteDocument($documentID);
+            }
         }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: deleteDocumentRestriction
+    # Description: 
+    # Delete the document restriction if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteDocumentRestriction() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentRestrictionID = htmlspecialchars($_POST['document_restriction_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDocumenRestrictionExist = $this->documentModel->checkDocumenRestrictionExist($documentRestrictionID);
+        $total = $checkDocumenRestrictionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->documentModel->deleteDocumentRestriction($documentRestrictionID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -515,16 +797,14 @@ class DocumentController {
             $documentName = $documentDetails['document_name'];
             $documentDescription = $documentDetails['document_description'];
             $documentCategoryID = $documentDetails['document_category_id'];
-
-            $documentCategoryDetails = $this->documentCategoryModel->getDocumentCategory($documentCategoryID);
-            $documentCategoryName = $documentCategoryDetails['document_category_name'] ?? null;
+            $isConfidential = $documentDetails['is_confidential'];
 
             $response = [
                 'success' => true,
                 'documentName' => $documentName,
                 'documentDescription' => $documentDescription,
                 'documentCategoryID' => $documentCategoryID,
-                'documentCategoryName' => $documentCategoryName
+                'isConfidential' => $isConfidential
             ];
 
             echo json_encode($response);

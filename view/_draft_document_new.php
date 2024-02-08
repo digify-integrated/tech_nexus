@@ -7,7 +7,7 @@
             <h5>Document</h5>
           </div>
           <?php
-            if ($documentCreateAccess['total'] > 0) {
+            if ($draftDocumentCreateAccess['total'] > 0) {
                echo '<div class="col-md-6 text-sm-end mt-3 mt-sm-0">
                       <button type="submit" form="add-document-form" class="btn btn-success form-edit" id="submit-data">Save</button>
                       <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>
@@ -29,6 +29,20 @@
                       <option value="">--</option>
                       <?php echo $documentCategoryModel->generateDocumentCategoryOptions(); ?>
                   </select>
+                </div>
+            </div>
+            <div class="form-group row align-items-center">
+                <label class="col-lg-2 col-form-label">Confidential <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="is_confidential" id="is_confidential">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                <label class="col-lg-2 col-form-label">Document Password</label>
+                <div class="col-lg-4">
+                  <input type="password" class="form-control" id="document_password" name="document_password">
                 </div>
             </div>
             <div class="form-group row">

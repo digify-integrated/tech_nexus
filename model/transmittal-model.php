@@ -224,7 +224,7 @@ class TransmittalModel {
     # -------------------------------------------------------------
     #
     # Function: getTransmittalStatus
-    # Description: Retrieves the details of a transmittal.
+    # Description: Retrieves the transmittal status badge.
     #
     # Parameters:
     # - $p_transmittal_status (string): The transmittal status.
@@ -239,7 +239,7 @@ class TransmittalModel {
             'Transmitted' => 'light-primary',
             'Re-Transmitted' => 'light-info',
             'Received' => 'light-success',
-            'Cancelled' => 'light-warning',
+            'Cancelled' => 'light-warning'
         ];
         
         $defaultClass = 'light-dark';

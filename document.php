@@ -3,17 +3,17 @@
     require('config/_check_user_active.php');
     require('model/document-model.php');
     require('model/document-category-model.php');
+    require('model/document-authorizer-model.php');
 
     $documentModel = new DocumentModel($databaseModel);
     $documentCategoryModel = new DocumentCategoryModel($databaseModel);
+    $documentAuthorizerModel = new DocumentAuthorizerModel($databaseModel);
 
     $pageTitle = 'Document';
     
     $documentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'read');
-    $documentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'create');
-    $documentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'write');
-    $documentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'delete'); 
     $updateDocumentFile = $userModel->checkSystemActionAccessRights($user_id, 89);
+    $unpublishDocument = $userModel->checkSystemActionAccessRights($user_id, 96);
 
     if ($documentReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -33,7 +33,7 @@
 
         $documentDetails = $documentModel->getDocument($documentID);
         $documentName = $documentDetails['document_name'];
-        $documentDescription = $documentDetails['document_description'];
+        $documentDescription = $documentDetails['document_description'] ?? '--';
         $author = $documentDetails['author'];
         $documentPath = $documentDetails['document_path'];
         $documentCategoryID = $documentDetails['document_category_id'];
@@ -42,14 +42,17 @@
         $documentVersion = $documentDetails['document_version'];
         $uploadDate = $systemModel->checkDate('summary', $documentDetails['upload_date'], '', 'F j, Y h:i:s A', '');
         $publishDate = $systemModel->checkDate('summary', $documentDetails['publish_date'], '', 'F j, Y h:i:s A', '');
+        $documentStatus = $documentDetails['document_status'];
 
         $authorDetails = $employeeModel->getPersonalInformation($author);
         $authorName = $authorDetails['file_as'] ?? null;
+        $auhtorDetails = $employeeModel->getEmploymentInformation($author);
+        $authorDepartment = $auhtorDetails['department_id'];
 
         $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
         $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
 
-        if($total == 0){
+        if($total == 0 || $documentStatus != 'Published'){
             header('location: 404.php');
             exit;
         }
@@ -69,7 +72,6 @@
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
     <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
-    <link rel="stylesheet" href="./assets/css/plugins/bootstrap-slider.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -115,7 +117,7 @@
             if($newRecord && $documentCreateAccess['total'] > 0){
                 require_once('view/_document_new.php');
             }
-            else if(!empty($documentID) && $documentWriteAccess['total'] > 0){
+            else if(!empty($documentID)){
                 require_once('view/_document_details.php');
             }
             else{

@@ -5696,20 +5696,21 @@ BEGIN
     WHERE document_id = p_document_id;
 END //
 
-CREATE PROCEDURE updateDocument(IN p_document_id INT, IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_document_category_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateDocument(IN p_document_id INT, IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_document_category_id INT, IN p_is_confidential VARCHAR(5), IN p_last_log_by INT)
 BEGIN
     UPDATE document
     SET document_name = p_document_name,
     document_description = p_document_description,
     document_category_id = p_document_category_id,
+    is_confidential = p_is_confidential,
     last_log_by = p_last_log_by
     WHERE document_id = p_document_id;
 END //
 
-CREATE PROCEDURE insertDocument(IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_author INT, IN p_document_path VARCHAR(500), IN p_document_category_id INT, IN p_document_extension VARCHAR(10), IN p_document_size DOUBLE, IN p_last_log_by INT, OUT p_document_id INT)
+CREATE PROCEDURE insertDocument(IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_author INT, IN p_document_password VARCHAR(500), IN p_document_path VARCHAR(500), IN p_document_category_id INT, IN p_document_extension VARCHAR(10), IN p_document_size DOUBLE, IN p_is_confidential VARCHAR(5), IN p_last_log_by INT, OUT p_document_id INT)
 BEGIN
-    INSERT INTO document (document_name, document_description, author, document_path, document_category_id, document_extension, document_size, last_log_by) 
-	VALUES(p_document_name, p_document_description, p_author, p_document_path, p_document_category_id, p_document_extension, p_document_size, p_last_log_by);
+    INSERT INTO document (document_name, document_description, author, document_password, document_path, document_category_id, document_extension, document_size, is_confidential, last_log_by) 
+	VALUES(p_document_name, p_document_description, p_author, p_document_password, p_document_path, p_document_category_id, p_document_extension, p_document_size, p_is_confidential, p_last_log_by);
 	
     SET p_document_id = LAST_INSERT_ID();
 END //
@@ -5718,6 +5719,23 @@ CREATE PROCEDURE getDocument(IN p_document_id INT)
 BEGIN
 	SELECT * FROM document
     WHERE document_id = p_document_id;
+END //
+
+CREATE PROCEDURE updateDocumentStatus(IN p_document_id INT, IN p_document_status VARCHAR(20), IN p_last_log_by INT)
+BEGIN
+    IF p_document_status = 'Published' THEN
+        UPDATE document
+        SET document_status = p_document_status,
+        publish_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE document_id = p_document_id;
+    ELSE
+        UPDATE document
+        SET document_status = p_document_status,
+        publish_date = null,
+        last_log_by = p_last_log_by
+        WHERE document_id = p_document_id;
+    END IF;
 END //
 
 CREATE PROCEDURE updateDocumentFile(IN p_document_id INT, IN p_document_path VARCHAR(500), IN p_document_version INT, IN p_last_log_by INT)
@@ -5729,19 +5747,39 @@ BEGIN
     WHERE document_id = p_document_id;
 END //
 
-CREATE PROCEDURE generateDocumentCard(IN p_offset INT, IN p_document_per_page INT, IN p_search VARCHAR(500), IN p_publish_start_date_filter DATETIME, IN p_publish_end_date_filter DATETIME, IN p_document_category_filter VARCHAR(500), IN p_department_filter VARCHAR(500))
+CREATE PROCEDURE deleteDocument(IN p_document_id INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM document_version_history WHERE document_id = p_document_id;
+    DELETE FROM document_restriction WHERE document_id = p_document_id;
+    DELETE FROM document WHERE document_id = p_document_id;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE generateDocumentCard(IN p_offset INT, IN p_document_per_page INT, IN p_search VARCHAR(500), IN p_contact_id INT, IN p_department INT, IN p_publish_start_date_filter DATETIME, IN p_publish_end_date_filter DATETIME, IN p_document_category_filter VARCHAR(500), IN p_department_filter VARCHAR(500))
 BEGIN
     DECLARE sql_query VARCHAR(5000);
 
     SET sql_query = 'SELECT *
     FROM document
-    WHERE 1';
+    WHERE document_status = "Published"';
 
     IF p_search IS NOT NULL AND p_search <> '' THEN
         SET sql_query = CONCAT(sql_query, ' AND (
             document_name LIKE ?
             OR document_description LIKE ?
         )');
+    END IF;
+
+    IF p_contact_id IS NOT NULL AND p_contact_id <> '' AND p_department IS NOT NULL AND p_department <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND document_id NOT IN (SELECT document_id FROM document_restriction WHERE department_id = ', p_department, ' OR contact_id = ', p_contact_id ,')');
     END IF;
 
     IF p_document_category_filter IS NOT NULL AND p_document_category_filter <> '' THEN
@@ -5764,6 +5802,86 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateOwnDraftDocumentTable(IN p_contact_id INT, IN p_department_id INT, IN p_upload_start_date DATE, IN p_upload_end_date DATE, IN p_document_category VARCHAR(500), IN p_department VARCHAR(500))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM document';
+    SET conditionList = ' WHERE document_status IN ("Draft", "For Publish")';
+
+    SET conditionList = CONCAT(conditionList, ' AND (');
+    SET conditionList = CONCAT(conditionList, 'author IN (SELECT contact_id FROM employment_information WHERE department_id = ');
+    SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ')');
+    SET conditionList = CONCAT(conditionList, ' OR author IN (SELECT contact_id FROM employment_information WHERE department_id IN (SELECT department_id FROM document_authorizer WHERE authorizer_id = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, '))');
+    SET conditionList = CONCAT(conditionList, ' OR author = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ')');
+    
+    IF p_upload_start_date IS NOT NULL AND p_upload_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(upload_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_upload_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_upload_end_date));
+    END IF;
+
+    IF p_document_category IS NOT NULL AND p_document_category <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND document_category_id IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_document_category));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_department IS NOT NULL AND p_department <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND author IN (SELECT contact_id FROM employment_information WHERE department_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_department));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY upload_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateAllDraftDocumentTable(IN p_upload_start_date DATE, IN p_upload_end_date DATE, IN p_document_category VARCHAR(500), IN p_department VARCHAR(500))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM document';
+    SET conditionList = ' WHERE document_status IN ("Draft", "For Publish")';
+
+   IF p_upload_start_date IS NOT NULL AND p_upload_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND DATE(upload_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_upload_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_upload_end_date));
+    END IF;
+    IF p_document_category IS NOT NULL AND p_document_category <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND document_category_id IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_document_category));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_department IS NOT NULL AND p_department <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND author IN (SELECT contact_id FROM employment_information WHERE department_id = ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_department));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY upload_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Document Version History Table Stored Procedures */
@@ -5778,8 +5896,136 @@ CREATE PROCEDURE generateDocumentVersionHistorySummary(IN p_document_id INT)
 BEGIN
 	SELECT *
     FROM document_version_history
+    WHERE document_id = p_document_id
+    ORDER BY upload_date DESC;
+END //
+
+CREATE PROCEDURE getDocumentVersionHistoryByDocumentID(IN p_document_id INT)
+BEGIN
+	SELECT * FROM document_version_history
     WHERE document_id = p_document_id;
 END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Authorizer Table Stored Procedures */
+
+CREATE PROCEDURE checkDocumentAuthorizerExist (IN p_document_authorizer_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_authorizer
+    WHERE document_authorizer_id = p_document_authorizer_id;
+END //
+
+
+CREATE PROCEDURE checkDocumentDepartmentAuthorizerExist (IN p_department_id INT, IN p_authorizer_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_authorizer
+    WHERE department_id = p_department_id AND authorizer_id = p_authorizer_id;
+END //
+
+CREATE PROCEDURE checkIfDocumentAuthorizer (IN p_authorizer_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document
+    WHERE author IN (SELECT contact_id FROM employment_information WHERE department_id IN (SELECT department_id FROM document_authorizer WHERE authorizer_id = p_authorizer_id));
+END //
+
+CREATE PROCEDURE insertDocumentAuthorizer(IN p_department_id INT, IN p_authorizer_id INT, IN p_last_log_by INT, OUT p_document_authorizer_id INT)
+BEGIN
+    INSERT INTO document_authorizer (department_id, authorizer_id, last_log_by) 
+	VALUES(p_department_id, p_authorizer_id, p_last_log_by);
+	
+    SET p_document_authorizer_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE deleteDocumentAuthorizer(IN p_document_authorizer_id INT)
+BEGIN
+    DELETE FROM document_authorizer WHERE document_authorizer_id = p_document_authorizer_id;
+END //
+
+CREATE PROCEDURE getDocumentAuthorizer(IN p_document_authorizer_id INT)
+BEGIN
+	SELECT * FROM document_authorizer
+    WHERE document_authorizer_id = p_document_authorizer_id;
+END //
+
+CREATE PROCEDURE generateDocumentAuthorizerTable()
+BEGIN
+    SELECT *
+    FROM document_authorizer
+    ORDER BY document_authorizer_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Restriction Table Stored Procedures */
+
+CREATE PROCEDURE checkDocumenRestrictionExist (IN p_document_restriction_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_restriction
+    WHERE document_restriction_id = p_document_restriction_id;
+END //
+
+CREATE PROCEDURE checkDocumentDepartmentRestrictionExist (IN p_document_id INT, IN p_department_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_restriction
+    WHERE document_id = p_document_id AND department_id = p_department_id;
+END //
+
+CREATE PROCEDURE checkDocumentEmployeeRestrictionExist (IN p_document_id INT, IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM document_restriction
+    WHERE document_id = p_document_id AND contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE insertDocumentRestriction(IN document_id INT, IN p_department_id INT, IN p_contact_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO document_restriction (document_id, department_id, contact_id, last_log_by) 
+	VALUES(document_id, p_department_id, p_contact_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE generateDocumentDepartmentRestriction(IN p_document_id INT)
+BEGIN
+	SELECT *
+    FROM document_restriction
+    WHERE document_id = p_document_id AND department_id IS NOT NULL
+    ORDER BY department_id DESC;
+END //
+
+CREATE PROCEDURE generateDocumentDepartmentRestrictionExcemption(IN p_document_id INT)
+BEGIN
+	SELECT *
+    FROM department
+    WHERE department_id NOT IN (SELECT department_id FROM document_restriction WHERE document_id = p_document_id AND department_id IS NOT NULL)
+    ORDER BY department_id DESC;
+END //
+
+CREATE PROCEDURE generateDocumentEmployeeRestriction(IN p_document_id INT)
+BEGIN
+	SELECT *
+    FROM document_restriction
+    WHERE document_id = p_document_id AND contact_id IS NOT NULL
+    ORDER BY contact_id DESC;
+END //
+
+CREATE PROCEDURE generateDocumentEmployeeRestrictionExcemption(IN p_document_id INT)
+BEGIN
+	SELECT *
+    FROM employment_information
+    WHERE contact_id NOT IN (SELECT contact_id FROM document_restriction WHERE document_id = p_document_id AND contact_id IS NOT NULL) AND employment_status = 1
+    ORDER BY contact_id DESC;
+END //
+
+CREATE PROCEDURE deleteDocumentRestriction(IN p_document_restriction_id INT)
+BEGIN
+    DELETE FROM document_restriction WHERE document_restriction_id = p_document_restriction_id;
+END //
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

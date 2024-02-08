@@ -3864,6 +3864,48 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Document Authorizer Table Triggers */
+
+CREATE TRIGGER document_authorizer_trigger_update
+AFTER UPDATE ON document_authorizer
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.department_id <> OLD.department_id THEN
+        SET audit_log = CONCAT(audit_log, "Department ID: ", OLD.department_id, " -> ", NEW.department_id, "<br/>");
+    END IF;
+
+    IF NEW.authorizer_id <> OLD.authorizer_id THEN
+        SET audit_log = CONCAT(audit_log, "Authorizer ID: ", OLD.authorizer_id, " -> ", NEW.authorizer_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('document_authorizer', NEW.document_authorizer_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER document_authorizer_trigger_insert
+AFTER INSERT ON document_authorizer
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Document authorizer created. <br/>';
+
+    IF NEW.department_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Department ID: ", NEW.department_id);
+    END IF;
+
+    IF NEW.authorizer_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Authorizer ID: ", NEW.authorizer_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('document_authorizer', NEW.document_authorizer_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

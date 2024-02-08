@@ -230,6 +230,8 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '5', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Category', '5', 'document-category.php', '54', '', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document', '5', 'document.php', '', 'file', '4', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Draft Document', '5', 'draft-document.php', '', 'file-plus', '5', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Authorizer', '5', 'document-authorizer.php', '54', '', '3', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -318,6 +320,8 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('54', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('55', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('56', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('57', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('58', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -421,6 +425,13 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('File Transm
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('View Own Transmittal', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Document File', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('View Own Draft Document', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Document Department Restrictions', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Document Department Restrictions', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Document Employee Restrictions', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Document Employee Restrictions', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Publish Document', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unpublish Document', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -529,6 +540,14 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('87', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('88', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('89', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('90', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('91', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('92', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('93', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('94', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('95', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('96', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4309,6 +4328,7 @@ CREATE TABLE document(
 	document_size DOUBLE NOT NULL,
 	document_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
 	document_version INT UNSIGNED NOT NULL DEFAULT 1,
+	is_confidential VARCHAR(5) NOT NULL DEFAULT 'No',
 	upload_date DATETIME NOT NULL DEFAULT NOW(),
 	publish_date DATETIME,
     last_log_by INT UNSIGNED NOT NULL,
@@ -4327,13 +4347,16 @@ CREATE INDEX document_index_document_category_id ON document(document_category_i
 
 CREATE TABLE document_authorizer(
 	document_authorizer_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	document_id INT UNSIGNED NOT NULL,
+	department_id INT UNSIGNED NOT NULL,
 	authorizer_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (authorizer_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (document_id) REFERENCES document(document_id)
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX document_authorizer_index_document_id ON document_authorizer(document_id);
+CREATE INDEX document_authorizer_index_document_authorizer_id ON document_authorizer(document_authorizer_id);
+CREATE INDEX document_authorizer_index_department_id ON document_authorizer(department_id);
 CREATE INDEX document_authorizer_index_authorizer_id ON document_authorizer(authorizer_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -4353,6 +4376,27 @@ CREATE TABLE document_version_history(
 
 CREATE INDEX document_version_history_index_document_id ON document_version_history(document_id);
 CREATE INDEX document_version_history_index_uploaded_by ON document_version_history(uploaded_by);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Document Restriction Table */
+
+CREATE TABLE document_restriction(
+	document_restriction_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	document_id INT UNSIGNED NOT NULL,
+	department_id INT UNSIGNED,
+	contact_id INT UNSIGNED,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (document_id) REFERENCES document(document_id),
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX document_restriction_index_document_restriction_id ON document_restriction(document_restriction_id);
+CREATE INDEX document_restriction_index_document_document_id ON document_restriction(document_id);
+CREATE INDEX document_restriction_index_department_id ON document_restriction(department_id);
+CREATE INDEX document_restriction_index_contact_id ON document_restriction(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

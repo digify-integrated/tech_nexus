@@ -534,12 +534,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -642,12 +637,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
 
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -735,12 +725,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
 
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -836,12 +821,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
 
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -932,12 +912,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1028,12 +1003,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1116,12 +1086,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1200,12 +1165,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1281,12 +1241,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1362,12 +1317,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1493,12 +1443,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1603,12 +1548,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1693,12 +1633,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
@@ -1780,12 +1715,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         </div>' : '';
                     }
                     
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">

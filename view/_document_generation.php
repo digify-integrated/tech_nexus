@@ -41,10 +41,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         # -------------------------------------------------------------
         case 'document card':
             if(isset($_POST['current_page']) && isset($_POST['document_search']) && isset($_POST['filter_publish_date_start_date']) && isset($_POST['filter_publish_date_end_date']) && isset($_POST['document_category_filter']) && isset($_POST['department_filter'])){
-                $initialDocumentPerPage = 9;
-                $loadMoreDocumentPerPage = 6;
+                $initialDocumentPerPage = 8;
+                $loadMoreDocumentPerPage = 4;
                 $documentPerPage = $initialDocumentPerPage;
                 $contactID = $_SESSION['contact_id'];
+                $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+                $contactDepartment = $employmentDetails['department_id'];
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
                 $documentSearch = htmlspecialchars($_POST['document_search'], ENT_QUOTES, 'UTF-8');
@@ -54,10 +56,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $departmentFilter = htmlspecialchars($_POST['department_filter'], ENT_QUOTES, 'UTF-8');
                 $offset = ($currentPage - 1) * $documentPerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCard(:offset, :documentPerPage, :documentSearch, :filterPublishDateStartDate, :filterPublishDateEndDate, :documentCategoryFilter, :departmentFilter)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCard(:offset, :documentPerPage, :documentSearch, :contactID, :contactDepartment, :filterPublishDateStartDate, :filterPublishDateEndDate, :documentCategoryFilter, :departmentFilter)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':documentPerPage', $documentPerPage, PDO::PARAM_INT);
                 $sql->bindValue(':documentSearch', $documentSearch, PDO::PARAM_STR);
+                $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+                $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
                 $sql->bindValue(':filterPublishDateStartDate', $filterPublishDateStartDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterPublishDateEndDate', $filterPublishDateEndDate, PDO::PARAM_STR);
                 $sql->bindValue(':documentCategoryFilter', $documentCategoryFilter, PDO::PARAM_STR);
@@ -66,8 +70,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
                 
-                $documentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'delete');
-
                 foreach ($options as $row) {
                     $documentID = $row['document_id'];
                     $documentName = $row['document_name'];
@@ -78,36 +80,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
                    
                     $documentIDEncrypted = $securityModel->encryptData($documentID);
-
-                    $delete = '';
-                    if($documentDeleteAccess['total'] > 0){
-                        $delete = '<div class="btn-prod-cart card-body position-absolute end-0 bottom-0">
-                                        <button class="avtar avtar-s btn btn-danger delete-document" data-document-id="'. $documentID .'" title="Delete Employee">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>';
-                    }
     
                     $response[] = [
-                        'documentCard' => '<div class="col-md-6 col-lg-4 col-xxl-3">
-                                            <div class="card file-card">
-                                                <div class="card-body">
-                                                    <div class="my-3 text-center">
-                                                        <a href="document.php?id='. $documentIDEncrypted .'">
+                        'documentCard' => '<div class="col-lg-3">
+                                            <a href="document.php?id='. $documentIDEncrypted .'">
+                                                <div class="card file-card">
+                                                    <div class="card-body">
+                                                        <div class="my-3 text-center">
                                                             <img src="'. $documentIcon .'" alt="img" class="img-fluid" />
-                                                        </a>
-                                                    </div>
-                                                    <div class="d-flex align-items-center justify-content-between mt-4">
-                                                        <div class="w-75 text-truncate">
-                                                            <a href="document.php?id='. $documentIDEncrypted .'">
+                                                        </div>
+                                                        <div class="d-flex align-items-center justify-content-between mt-4">
+                                                            <div class="w-100 text-truncate">
                                                                 <h6 class="mb-0"><span class="text-primary">'. $documentName .'</span></h6>
                                                                 <p class="mb-0 text-muted"><small>'. $documentCategoryName .'</small></p>
-                                                            </a>
+                                                            </div>
                                                         </div>
-                                                        '. $delete .'
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </a>
                                         </div>'
                     ];
                 }
@@ -146,47 +136,38 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $count = count($options);
 
                 foreach ($options as $index => $row) {
+                    $documentID = $row['document_id'];
                     $documentPath = $row['document_path'];
                     $documentVersion = $row['document_version'];
                     $uploadedBy = $row['uploaded_by'];
-                    $cityID = $row['city_id'];
-                    $isPrimary = $row['is_primary'];
+                    $uploadDate = $systemModel->checkDate('empty', $row['upload_date'], '', 'F j, Y h:i:s A', '');
 
-                    $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Alternate</span>';
+                    $uploadedByDetails = $employeeModel->getPersonalInformation($uploadedBy);
+                    $uploadedByName = $uploadedByDetails['file_as'] ?? null;
 
-                    $dropdown = '';
-                    if ($employeeWriteAccess['total'] > 0) {
-                        $update = ($employeeWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-address" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" data-contact-address-id="'. $contactAddressID . '">Edit</a>' : '';
-                    
-                        $tag = ($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0 && !$isPrimary) ? '<a href="javascript:void(0);" class="dropdown-item tag-contact-address-as-primary" data-contact-address-id="'. $contactAddressID . '">Tag As Primary</a>' : '';
-                    
-                        $delete = ($employeeWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-contact-address" data-contact-address-id="'. $contactAddressID . '">Delete</a>' : '';
-                    
-                        $dropdown = ($update || $tag || $delete) ? '<div class="dropdown">
-                            <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ti ti-dots-vertical f-18"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                ' . $update . '
-                                ' . $tag . '
-                                ' . $delete . '
-                            </div>
-                        </div>' : '';
-                    }
+                    $documentDetails = $documentModel->getDocument($documentID);
+                    $currentDocumentVersion = $documentDetails['document_version'];
 
-                    if ($index === 0) {
-                        $listMargin = 'pt-0';
-                    }
-                    else {
-                        $listMargin = '';
-                    }
+                    $documentStatus = ($documentVersion == $currentDocumentVersion) ? '<span class="badge bg-light-success">Current Version</span>' : '<span class="badge bg-light-warning">Old Version</span>';
+
+                    $dropdown = '<div class="dropdown">
+                                    <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical f-18"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                    <a href="'. $documentPath .'" class="dropdown-item" target="_blank">Preview</a>
+                                    </div>
+                                </div>';
+
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
                                         <div class="flex-grow-1 me-2">
-                                            <p class="mb-2 text-primary"><b>'. $addressTypeName .'</b></p>
-                                            <p class="mb-2">' . $contactAddress . '</p>
-                                            '. $isPrimaryBadge .'
+                                            <p class="mb-2 text-primary"><b>Version: '. $documentVersion .'</b></p>
+                                            <p class="mb-2">Upload Date: ' . $uploadDate . '</p>
+                                            <p class="mb-3">Uploaded By: ' . $uploadedByName . '</p>
+                                            '. $documentStatus .'
                                         </div>
                                         <div class="flex-shrink-0">
                                             '. $dropdown .'
@@ -196,11 +177,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 if(empty($details)){
-                    $details = 'No address found.';
+                    $details = 'No version history found.';
                 }
 
                 $response[] = [
-                    'contactAddressSummary' => $details
+                    'documentVersionHistorySummary' => $details
                 ];
     
                 echo json_encode($response);
