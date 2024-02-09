@@ -2,44 +2,53 @@
     $checkIfDocumentAuthorizer = $documentModel->checkIfDocumentAuthorizer($contact_id);
     $changeDocumentPasswordButton = '';
     $publishButton = '';
+    $removeDocumentPasswordButton = '';
 
     if($draftDocumentWriteAccess['total'] > 0){
         $updateDocumentButton = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-document-offcanvas" aria-controls="update-document-offcanvas" id="update-document"><i class="ti ti-pencil"></i></button>';
     }
 
-    if($updateDocumentFile['total'] > 0){
-        $updateDocumentFileButton = '<button type="button" class="btn btn-icon btn-info" data-bs-toggle="offcanvas" data-bs-target="#update-document-file-offcanvas" aria-controls="update-document-file-offcanvas"><i class="ti ti-upload"></i></button>';
+    if($updateDocumentFile['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
+        $updateDocumentFileButton = '<a class="dropdown-item" href="Javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#update-document-file-offcanvas" aria-controls="update-document-file-offcanvas">Update Document File</a>';
     }
 
-    if($checkIfDocumentAuthorizer['total'] > 0){
-        $changeDocumentPasswordButton = '<button type="button" class="btn btn-icon btn-warning" data-bs-toggle="offcanvas" data-bs-target="#change-document-password-offcanvas" aria-controls="change-document-password-offcanvas" id="change-document-password"><i class="ti ti-lock"></i></button>';
+    if($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0){
+        $changeDocumentPasswordButton = '<a class="dropdown-item" href="Javascript:void(0)" data-bs-toggle="offcanvas" data-bs-target="#change-document-password-offcanvas" aria-controls="change-document-password-offcanvas" id="change-document-password">Set Document Password</a>';
+
+        if(!empty($documentPassword)){
+          $removeDocumentPasswordButton = '<a class="dropdown-item" href="Javascript:void(0)" id="remove-document-password">Remove Document Password</a>';
+        }
     }
 
-    if($publishDocument['total'] > 0 && $checkIfDocumentAuthorizer['total'] > 0){
+    if($publishDocument['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $fullAccessToDocuments['total'] > 0)){
         $publishButton = '<button type="button" class="btn btn-icon btn-success" id="publish-document"><i class="ti ti-check"></i></button>';
     }
 
-    if($addDocumentDepartmentRestrictions['total'] > 0){
+    if($addDocumentDepartmentRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         $addDocumentDepartmentRestrictionsButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-department-restrictions-offcanvas" aria-controls="add-department-restrictions-offcanvas" id="add-department-restrictions">Add Department Restrictions</button>';
     }
 
-    if($addDocumentEmployeeRestrictions['total'] > 0){
+    if($addDocumentEmployeeRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         $addDocumentEmployeeRestrictionsButton = '<button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#add-employee-restrictions-offcanvas" aria-controls="add-employee-restrictions-offcanvas" id="add-employee-restrictions">Add Employee Restrictions</button>';
     }
 ?>
 <div class="row">
     <div class="col-lg-4">
         <div class="card">
-            <div class="card-body position-relative">
-                <div class="position-absolute end-0 top-0 p-3">
-                    <div class="d-flex flex-wrap gap-2 mb-2">
-                        <a href="<?php echo $documentPath; ?>" class="btn btn-icon btn-primary" target="_blank"><i class="ti ti-eye"></i></a>
-                        <?php echo $updateDocumentFileButton . $changeDocumentPasswordButton . $publishButton; ?>
+            <div class="card-body">
+              <div class="d-flex align-items-top justify-content-between">
+                  <a href="<?php echo $documentPath; ?>" target="_blank"><img src="<?php echo $documentIcon; ?>" alt="img" class="img-fluid mb-4" /></a>
+                  <div class="dropdown">
+                    <a href="<?php echo $documentPath; ?>" target="_blank" class="btn btn-icon btn-primary"><i class="ti ti-eye"></i></a>
+                    <?php echo $publishButton; ?>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                      <?php echo $updateDocumentFileButton . $changeDocumentPasswordButton . $removeDocumentPasswordButton; ?>
                     </div>
+                  </div>
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-0">
                     <div class="text-truncate">
-                        <img src="<?php echo $documentIcon; ?>" alt="img" class="img-fluid mb-4" />
                         <h6 class="mb-1 text-primary"><?php echo $documentName; ?></h6>
                         <p class="mb-0"><?php echo $documentCategoryName; ?></p>
                     </div>
@@ -194,41 +203,26 @@
             </div>
           </div>';
 
-    if($draftDocumentWriteAccess['total'] > 0){
-        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="update-document-offcanvas" aria-labelledby="update-document-offcanvas-label">
+    if($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0){
+        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="change-document-password-offcanvas" aria-labelledby="change-document-password-offcanvas-label">
                 <div class="offcanvas-header">
-                  <h2 id="update-document-offcanvas-label" style="margin-bottom:-0.5rem">Document Information</h2>
+                  <h2 id="change-document-password-offcanvas-label" style="margin-bottom:-0.5rem">Set Document Password</h2>
                   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
                   <div class="row">
                     <div class="col-lg-12">
-                      <form id="document-update-form" method="post" action="#">
+                      <form id="change-document-password-form" method="post" action="#">
                         <div class="form-group row">
-                          <div class="col-lg-4">
-                            <label class="form-label">Document Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="document_name" name="document_name" maxlength="100" autocomplete="off">
-                          </div>
-                          <div class="col-lg-4 mt-3 mt-lg-0">
-                            <label class="form-label">Document Category <span class="text-danger">*</span></label>
-                            <select class="form-control offcanvas-select2" name="document_category_id" id="document_category_id">
-                              <option value="">--</option>
-                              '. $documentCategoryModel->generateDocumentCategoryOptions() .'
-                            </select>
-                          </div>
-                          <div class="col-lg-4 mt-3 mt-lg-0">
-                            <label class="form-label">Confidential <span class="text-danger">*</span></label>
-                            <select class="form-control offcanvas-select2" name="is_confidential" id="is_confidential">
-                              <option value="">--</option>
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
-                            </select>
+                          <div class="col-lg-12">
+                            <label class="form-label">New Document Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="new_document_password" name="new_document_password">
                           </div>
                         </div>
                         <div class="form-group row">
                           <div class="col-lg-12">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" id="document_description" name="document_description" maxlength="500" rows="3"></textarea>
+                            <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="confirm_document_password" name="confirm_document_password">
                           </div>
                         </div>
                       </form>
@@ -236,15 +230,65 @@
                   </div>
                   <div class="row">
                     <div class="col-lg-12">
-                      <button type="submit" class="btn btn-primary" id="submit-update-document-data" form="document-update-form">Submit</button>
+                      <button type="submit" class="btn btn-primary" id="submit-change-document-password-data" form="change-document-password-form">Update Password</button>
                       <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                     </div>
                   </div>
                 </div>
               </div>';
     }
+
+    if($draftDocumentWriteAccess['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
+      echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="update-document-offcanvas" aria-labelledby="update-document-offcanvas-label">
+              <div class="offcanvas-header">
+                <h2 id="update-document-offcanvas-label" style="margin-bottom:-0.5rem">Document Information</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form id="document-update-form" method="post" action="#">
+                      <div class="form-group row">
+                        <div class="col-lg-4">
+                          <label class="form-label">Document Name <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" id="document_name" name="document_name" maxlength="100" autocomplete="off">
+                        </div>
+                        <div class="col-lg-4 mt-3 mt-lg-0">
+                          <label class="form-label">Document Category <span class="text-danger">*</span></label>
+                          <select class="form-control offcanvas-select2" name="document_category_id" id="document_category_id">
+                            <option value="">--</option>
+                            '. $documentCategoryModel->generateDocumentCategoryOptions() .'
+                          </select>
+                        </div>
+                        <div class="col-lg-4 mt-3 mt-lg-0">
+                          <label class="form-label">Confidential <span class="text-danger">*</span></label>
+                          <select class="form-control offcanvas-select2" name="is_confidential" id="is_confidential">
+                            <option value="">--</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-lg-12">
+                          <label class="form-label">Description</label>
+                          <textarea class="form-control" id="document_description" name="document_description" maxlength="500" rows="3"></textarea>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-update-document-data" form="document-update-form">Submit</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                  </div>
+                </div>
+              </div>
+            </div>';
+    }
     
-    if($updateDocumentFile['total'] > 0){
+    if($updateDocumentFile['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
         echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="update-document-file-offcanvas" aria-labelledby="update-document-file-offcanvas-label">
         <div class="offcanvas-header">
           <h2 id="update-document-file-offcanvas-label" style="margin-bottom:-0.5rem">Update Document File</h2>
@@ -273,7 +317,7 @@
       </div>';
     }
 
-    if($addDocumentDepartmentRestrictions['total'] > 0){
+    if($addDocumentDepartmentRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
       echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-department-restrictions-offcanvas" aria-labelledby="add-department-restrictions-offcanvas-label">
               <div class="offcanvas-header">
                 <h2 id="add-department-restrictions-offcanvas-label" style="margin-bottom:-0.5rem">Add Department Restriction</h2>
@@ -309,7 +353,7 @@
             </div>';
     }
 
-    if($addDocumentEmployeeRestrictions['total'] > 0){
+    if($addDocumentEmployeeRestrictions['total'] > 0 && ($checkIfDocumentAuthorizer['total'] > 0 || $author == $contact_id || $fullAccessToDocuments['total'] > 0)){
       echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="add-employee-restrictions-offcanvas" aria-labelledby="add-employee-restrictions-offcanvas-label">
               <div class="offcanvas-header">
                 <h2 id="add-employee-restrictions-offcanvas-label" style="margin-bottom:-0.5rem">Add Employee Restriction</h2>

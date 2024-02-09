@@ -17,6 +17,7 @@
   $addDocumentDepartmentRestrictions = $userModel->checkSystemActionAccessRights($user_id, 91);
   $addDocumentEmployeeRestrictions = $userModel->checkSystemActionAccessRights($user_id, 93);
   $publishDocument = $userModel->checkSystemActionAccessRights($user_id, 95);
+  $fullAccessToDocuments = $userModel->checkSystemActionAccessRights($user_id, 97);
 
   if ($draftDocumentReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -38,6 +39,7 @@
     $documentName = $documentDetails['document_name'];
     $documentDescription = $documentDetails['document_description'] ?? '--';
     $author = $documentDetails['author'];
+    $documentPassword = $documentDetails['document_password'];
     $documentPath = $documentDetails['document_path'];
     $documentCategoryID = $documentDetails['document_category_id'];
     $documentExtension = $documentDetails['document_extension'];
@@ -46,6 +48,7 @@
     $isConfidential = $documentDetails['is_confidential'];
     $uploadDate = $systemModel->checkDate('summary', $documentDetails['upload_date'], '', 'F j, Y h:i:s A', '');
     $publishDate = $systemModel->checkDate('summary', $documentDetails['publish_date'], '', 'F j, Y h:i:s A', '');
+    $documentStatus = $documentDetails['document_status'];
 
     $authorDetails = $employeeModel->getPersonalInformation($author);
     $authorName = $authorDetails['file_as'] ?? null;
@@ -55,7 +58,7 @@
     $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
     $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
 
-    if($total == 0){
+    if($total == 0 || $documentStatus != 'Draft'){
       header('location: 404.php');
       exit;
     }

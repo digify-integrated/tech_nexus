@@ -40,7 +40,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'document card':
-            if(isset($_POST['current_page']) && isset($_POST['document_search']) && isset($_POST['filter_publish_date_start_date']) && isset($_POST['filter_publish_date_end_date']) && isset($_POST['document_category_filter']) && isset($_POST['department_filter'])){
+            if(isset($_POST['current_page']) && isset($_POST['document_search']) && isset($_POST['filter_upload_date_start_date']) && isset($_POST['filter_upload_date_end_date']) && isset($_POST['filter_publish_date_start_date']) && isset($_POST['filter_publish_date_end_date']) && isset($_POST['document_category_filter']) && isset($_POST['department_filter'])){
                 $initialDocumentPerPage = 8;
                 $loadMoreDocumentPerPage = 4;
                 $documentPerPage = $initialDocumentPerPage;
@@ -50,18 +50,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
                 $documentSearch = htmlspecialchars($_POST['document_search'], ENT_QUOTES, 'UTF-8');
+                $filterUploadDateStartDate = $systemModel->checkDate('empty', $_POST['filter_upload_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterUploadDateEndDate = $systemModel->checkDate('empty', $_POST['filter_upload_date_end_date'], '', 'Y-m-d', '', '', '');
                 $filterPublishDateStartDate = $systemModel->checkDate('empty', $_POST['filter_publish_date_start_date'], '', 'Y-m-d', '', '', '');
                 $filterPublishDateEndDate = $systemModel->checkDate('empty', $_POST['filter_publish_date_end_date'], '', 'Y-m-d', '', '', '');
                 $documentCategoryFilter = htmlspecialchars($_POST['document_category_filter'], ENT_QUOTES, 'UTF-8');
                 $departmentFilter = htmlspecialchars($_POST['department_filter'], ENT_QUOTES, 'UTF-8');
                 $offset = ($currentPage - 1) * $documentPerPage;
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCard(:offset, :documentPerPage, :documentSearch, :contactID, :contactDepartment, :filterPublishDateStartDate, :filterPublishDateEndDate, :documentCategoryFilter, :departmentFilter)');
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCard(:offset, :documentPerPage, :documentSearch, :contactID, :contactDepartment, :filterUploadDateStartDate, :filterUploadDateEndDate, :filterPublishDateStartDate, :filterPublishDateEndDate, :documentCategoryFilter, :departmentFilter)');
                 $sql->bindValue(':offset', $offset, PDO::PARAM_INT);
                 $sql->bindValue(':documentPerPage', $documentPerPage, PDO::PARAM_INT);
                 $sql->bindValue(':documentSearch', $documentSearch, PDO::PARAM_STR);
                 $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
                 $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
+                $sql->bindValue(':filterUploadDateStartDate', $filterUploadDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterUploadDateEndDate', $filterUploadDateEndDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterPublishDateStartDate', $filterPublishDateStartDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterPublishDateEndDate', $filterPublishDateEndDate, PDO::PARAM_STR);
                 $sql->bindValue(':documentCategoryFilter', $documentCategoryFilter, PDO::PARAM_STR);
@@ -147,17 +151,24 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $documentDetails = $documentModel->getDocument($documentID);
                     $currentDocumentVersion = $documentDetails['document_version'];
+                    $documentPassword = $documentDetails['document_password'];
+                    $isConfidential = $documentDetails['is_confidential'];
 
                     $documentStatus = ($documentVersion == $currentDocumentVersion) ? '<span class="badge bg-light-success">Current Version</span>' : '<span class="badge bg-light-warning">Old Version</span>';
 
-                    $dropdown = '<div class="dropdown">
-                                    <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical f-18"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
+                    $dropdown = '';
+                    if($documentVersion != $currentDocumentVersion){
+                        if($isConfidential == 'No' || empty($documentPassword)){
+                                $dropdown = '<div class="dropdown">
+                                <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="ti ti-dots-vertical f-18"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
                                     <a href="'. $documentPath .'" class="dropdown-item" target="_blank">Preview</a>
-                                    </div>
-                                </div>';
+                                </div>
+                            </div>';
+                        }
+                    }
 
                     $listMargin = ($index === 0) ? 'pt-0' : '';
 

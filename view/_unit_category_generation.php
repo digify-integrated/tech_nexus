@@ -5,12 +5,12 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/document-category-model.php';
+require_once '../model/unit-category-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$documentCategoryModel = new DocumentCategoryModel($databaseModel);
+$unitCategoryModel = new UnitCategoryModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -20,41 +20,41 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: document category table
+        # Type: unit category table
         # Description:
-        # Generates the document category table.
+        # Generates the unit category table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'document category table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCategoryTable()');
+        case 'unit category table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateUnitCategoryTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $documentCategoryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 55, 'delete');
+            $unitCategoryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 62, 'delete');
 
             foreach ($options as $row) {
-                $documentCategoryID = $row['document_category_id'];
-                $documentCategoryName = $row['document_category_name'];
+                $unitCategoryID = $row['unit_category_id'];
+                $unitCategoryName = $row['unit_category_name'];
 
-                $documentCategoryIDEncrypted = $securityModel->encryptData($documentCategoryID);
+                $unitCategoryIDEncrypted = $securityModel->encryptData($unitCategoryID);
 
                 $delete = '';
-                if($documentCategoryDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-document-category" data-document-category-id="'. $documentCategoryID .'" title="Delete Document Category">
+                if($unitCategoryDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-unit-category" data-unit-category-id="'. $unitCategoryID .'" title="Delete Unit Category">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $documentCategoryID .'">',
-                    'DOCUMENT_CATEGORY_NAME' => $documentCategoryName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $unitCategoryID .'">',
+                    'UNIT_CATEGORY_NAME' => $unitCategoryName,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="document-category.php?id='. $documentCategoryIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="unit-category.php?id='. $unitCategoryIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

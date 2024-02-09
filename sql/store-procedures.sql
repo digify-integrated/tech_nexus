@@ -5707,6 +5707,14 @@ BEGIN
     WHERE document_id = p_document_id;
 END //
 
+CREATE PROCEDURE updateDocumentPassword(IN p_document_id INT, IN p_document_password VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    UPDATE document
+    SET document_password = p_document_password,
+    last_log_by = p_last_log_by
+    WHERE document_id = p_document_id;
+END //
+
 CREATE PROCEDURE insertDocument(IN p_document_name VARCHAR(100), IN p_document_description VARCHAR(500), IN p_author INT, IN p_document_password VARCHAR(500), IN p_document_path VARCHAR(500), IN p_document_category_id INT, IN p_document_extension VARCHAR(10), IN p_document_size DOUBLE, IN p_is_confidential VARCHAR(5), IN p_last_log_by INT, OUT p_document_id INT)
 BEGIN
     INSERT INTO document (document_name, document_description, author, document_password, document_path, document_category_id, document_extension, document_size, is_confidential, last_log_by) 
@@ -5763,7 +5771,7 @@ BEGIN
     COMMIT;
 END //
 
-CREATE PROCEDURE generateDocumentCard(IN p_offset INT, IN p_document_per_page INT, IN p_search VARCHAR(500), IN p_contact_id INT, IN p_department INT, IN p_publish_start_date_filter DATETIME, IN p_publish_end_date_filter DATETIME, IN p_document_category_filter VARCHAR(500), IN p_department_filter VARCHAR(500))
+CREATE PROCEDURE generateDocumentCard(IN p_offset INT, IN p_document_per_page INT, IN p_search VARCHAR(500), IN p_contact_id INT, IN p_department INT, IN p_upload_start_date_filter DATE, IN p_upload_end_date_filter DATE, IN p_publish_start_date_filter DATE, IN p_publish_end_date_filter DATE, IN p_document_category_filter VARCHAR(500), IN p_department_filter VARCHAR(500))
 BEGIN
     DECLARE sql_query VARCHAR(5000);
 
@@ -5776,6 +5784,14 @@ BEGIN
             document_name LIKE ?
             OR document_description LIKE ?
         )');
+    END IF;
+
+    IF p_upload_start_date_filter IS NOT NULL AND p_upload_end_date_filter IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND DATE(upload_date) BETWEEN ', QUOTE(p_upload_start_date_filter), ' AND ', QUOTE(p_upload_end_date_filter));
+    END IF;
+
+    IF p_publish_start_date_filter IS NOT NULL AND p_publish_end_date_filter IS NOT NULL THEN
+        SET sql_query = CONCAT(sql_query, ' AND DATE(publish_date) BETWEEN ', QUOTE(p_publish_start_date_filter), ' AND ', QUOTE(p_publish_end_date_filter));
     END IF;
 
     IF p_contact_id IS NOT NULL AND p_contact_id <> '' AND p_department IS NOT NULL AND p_department <> '' THEN
@@ -5856,12 +5872,13 @@ BEGIN
     SET query = 'SELECT * FROM document';
     SET conditionList = ' WHERE document_status IN ("Draft", "For Publish")';
 
-   IF p_upload_start_date IS NOT NULL AND p_upload_end_date IS NOT NULL THEN
+    IF p_upload_start_date IS NOT NULL AND p_upload_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND DATE(upload_date) BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_upload_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_upload_end_date));
     END IF;
+
     IF p_document_category IS NOT NULL AND p_document_category <> '' THEN
         SET conditionList = CONCAT(conditionList, ' AND document_category_id IN (');
         SET conditionList = CONCAT(conditionList, QUOTE(p_document_category));
@@ -5897,7 +5914,7 @@ BEGIN
 	SELECT *
     FROM document_version_history
     WHERE document_id = p_document_id
-    ORDER BY upload_date DESC;
+    ORDER BY upload_date;
 END //
 
 CREATE PROCEDURE getDocumentVersionHistoryByDocumentID(IN p_document_id INT)
@@ -6026,6 +6043,339 @@ BEGIN
     DELETE FROM document_restriction WHERE document_restriction_id = p_document_restriction_id;
 END //
 
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkBodyTypeExist (IN p_body_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM body_type
+    WHERE body_type_id = p_body_type_id;
+END //
+
+CREATE PROCEDURE insertBodyType(IN p_body_type_name VARCHAR(100), IN p_last_log_by INT, OUT p_body_type_id INT)
+BEGIN
+    INSERT INTO body_type (body_type_name, last_log_by) 
+	VALUES(p_body_type_name, p_last_log_by);
+	
+    SET p_body_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBodyType(IN p_body_type_id INT, IN p_body_type_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE body_type
+    SET body_type_name = p_body_type_name,
+    last_log_by = p_last_log_by
+    WHERE body_type_id = p_body_type_id;
+END //
+
+CREATE PROCEDURE deleteBodyType(IN p_body_type_id INT)
+BEGIN
+    DELETE FROM body_type WHERE body_type_id = p_body_type_id;
+END //
+
+CREATE PROCEDURE getBodyType(IN p_body_type_id INT)
+BEGIN
+	SELECT * FROM body_type
+    WHERE body_type_id = p_body_type_id;
+END //
+
+CREATE PROCEDURE duplicateBodyType(IN p_body_type_id INT, IN p_last_log_by INT, OUT p_new_body_type_id INT)
+BEGIN
+    DECLARE p_body_type_name VARCHAR(100);
+    
+    SELECT body_type_name
+    INTO p_body_type_name
+    FROM body_type 
+    WHERE body_type_id = p_body_type_id;
+    
+    INSERT INTO body_type (body_type_name, last_log_by) 
+    VALUES(p_body_type_name, p_last_log_by);
+    
+    SET p_new_body_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBodyTypeTable()
+BEGIN
+    SELECT body_type_id, body_type_name
+    FROM body_type
+    ORDER BY body_type_id;
+END //
+
+CREATE PROCEDURE generateBodyTypeOptions()
+BEGIN
+	SELECT body_type_id, body_type_name FROM body_type
+	ORDER BY body_type_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Color Table Stored Procedures */
+
+CREATE PROCEDURE checkColorExist (IN p_color_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM color
+    WHERE color_id = p_color_id;
+END //
+
+CREATE PROCEDURE insertColor(IN p_color_name VARCHAR(100), IN p_last_log_by INT, OUT p_color_id INT)
+BEGIN
+    INSERT INTO color (color_name, last_log_by) 
+	VALUES(p_color_name, p_last_log_by);
+	
+    SET p_color_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateColor(IN p_color_id INT, IN p_color_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE color
+    SET color_name = p_color_name,
+    last_log_by = p_last_log_by
+    WHERE color_id = p_color_id;
+END //
+
+CREATE PROCEDURE deleteColor(IN p_color_id INT)
+BEGIN
+    DELETE FROM color WHERE color_id = p_color_id;
+END //
+
+CREATE PROCEDURE getColor(IN p_color_id INT)
+BEGIN
+	SELECT * FROM color
+    WHERE color_id = p_color_id;
+END //
+
+CREATE PROCEDURE duplicateColor(IN p_color_id INT, IN p_last_log_by INT, OUT p_new_color_id INT)
+BEGIN
+    DECLARE p_color_name VARCHAR(100);
+    
+    SELECT color_name
+    INTO p_color_name
+    FROM color 
+    WHERE color_id = p_color_id;
+    
+    INSERT INTO color (color_name, last_log_by) 
+    VALUES(p_color_name, p_last_log_by);
+    
+    SET p_new_color_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateColorTable()
+BEGIN
+    SELECT color_id, color_name
+    FROM color
+    ORDER BY color_id;
+END //
+
+CREATE PROCEDURE generateColorOptions()
+BEGIN
+	SELECT color_id, color_name FROM color
+	ORDER BY color_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Category Table Stored Procedures */
+
+CREATE PROCEDURE checkUnitCategoryExist (IN p_unit_category_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM unit_category
+    WHERE unit_category_id = p_unit_category_id;
+END //
+
+CREATE PROCEDURE insertUnitCategory(IN p_unit_category_name VARCHAR(100), IN p_last_log_by INT, OUT p_unit_category_id INT)
+BEGIN
+    INSERT INTO unit_category (unit_category_name, last_log_by) 
+	VALUES(p_unit_category_name, p_last_log_by);
+	
+    SET p_unit_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateUnitCategory(IN p_unit_category_id INT, IN p_unit_category_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE unit_category
+    SET unit_category_name = p_unit_category_name,
+    last_log_by = p_last_log_by
+    WHERE unit_category_id = p_unit_category_id;
+END //
+
+CREATE PROCEDURE deleteUnitCategory(IN p_unit_category_id INT)
+BEGIN
+    DELETE FROM unit_category WHERE unit_category_id = p_unit_category_id;
+END //
+
+CREATE PROCEDURE getUnitCategory(IN p_unit_category_id INT)
+BEGIN
+	SELECT * FROM unit_category
+    WHERE unit_category_id = p_unit_category_id;
+END //
+
+CREATE PROCEDURE duplicateUnitCategory(IN p_unit_category_id INT, IN p_last_log_by INT, OUT p_new_unit_category_id INT)
+BEGIN
+    DECLARE p_unit_category_name VARCHAR(100);
+    
+    SELECT unit_category_name
+    INTO p_unit_category_name
+    FROM unit_category 
+    WHERE unit_category_id = p_unit_category_id;
+    
+    INSERT INTO unit_category (unit_category_name, last_log_by) 
+    VALUES(p_unit_category_name, p_last_log_by);
+    
+    SET p_new_unit_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateUnitCategoryTable()
+BEGIN
+    SELECT unit_category_id, unit_category_name
+    FROM unit_category
+    ORDER BY unit_category_id;
+END //
+
+CREATE PROCEDURE generateUnitCategoryOptions()
+BEGIN
+	SELECT unit_category_id, unit_category_name FROM unit_category
+	ORDER BY unit_category_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Table Stored Procedures */
+
+CREATE PROCEDURE checkUnitExist (IN p_unit_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM unit
+    WHERE unit_id = p_unit_id;
+END //
+
+CREATE PROCEDURE insertUnit(IN p_unit_name VARCHAR(100), IN p_short_name VARCHAR(10), p_unit_category_id INT, IN p_last_log_by INT, OUT p_unit_id INT)
+BEGIN
+    INSERT INTO unit (unit_name, short_name, unit_category_id, last_log_by) 
+	VALUES(p_unit_name, p_short_name, p_unit_category_id, p_last_log_by);
+	
+    SET p_unit_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateUnit(IN p_unit_id INT, IN p_unit_name VARCHAR(100), IN p_short_name VARCHAR(10), p_unit_category_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE unit
+    SET unit_name = p_unit_name,
+    short_name = p_short_name,
+    unit_category_id = p_unit_category_id,
+    last_log_by = p_last_log_by
+    WHERE unit_id = p_unit_id;
+END //
+
+CREATE PROCEDURE deleteUnit(IN p_unit_id INT)
+BEGIN
+    DELETE FROM unit WHERE unit_id = p_unit_id;
+END //
+
+CREATE PROCEDURE getUnit(IN p_unit_id INT)
+BEGIN
+	SELECT * FROM unit
+    WHERE unit_id = p_unit_id;
+END //
+
+CREATE PROCEDURE duplicateUnit(IN p_unit_id INT, IN p_last_log_by INT, OUT p_new_unit_id INT)
+BEGIN
+    DECLARE p_unit_name VARCHAR(100);
+    DECLARE p_short_name VARCHAR(10);
+    DECLARE p_unit_category_id INT;
+    
+    SELECT unit_name, short_name, unit_category_id
+    INTO p_unit_name, p_short_name, p_unit_category_id
+    FROM unit 
+    WHERE unit_id = p_unit_id;
+    
+    INSERT INTO unit (unit_name, short_name, unit_category_id, last_log_by) 
+    VALUES(p_unit_name, p_short_name, p_unit_category_id, p_last_log_by);
+    
+    SET p_new_unit_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateUnitTable()
+BEGIN
+    SELECT *
+    FROM unit
+    ORDER BY unit_id;
+END //
+
+CREATE PROCEDURE generateUnitOptions()
+BEGIN
+	SELECT unit_id, unit_name FROM unit
+	ORDER BY unit_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Warehouse Table Stored Procedures */
+
+CREATE PROCEDURE checkWarehouseExist (IN p_warehouse_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
+END //
+
+CREATE PROCEDURE insertWarehouse(IN p_warehouse_name VARCHAR(100), IN p_last_log_by INT, OUT p_warehouse_id INT)
+BEGIN
+    INSERT INTO warehouse (warehouse_name, last_log_by) 
+	VALUES(p_warehouse_name, p_last_log_by);
+	
+    SET p_warehouse_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateWarehouse(IN p_warehouse_id INT, IN p_warehouse_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE warehouse
+    SET warehouse_name = p_warehouse_name,
+    last_log_by = p_last_log_by
+    WHERE warehouse_id = p_warehouse_id;
+END //
+
+CREATE PROCEDURE deleteWarehouse(IN p_warehouse_id INT)
+BEGIN
+    DELETE FROM warehouse WHERE warehouse_id = p_warehouse_id;
+END //
+
+CREATE PROCEDURE getWarehouse(IN p_warehouse_id INT)
+BEGIN
+	SELECT * FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
+END //
+
+CREATE PROCEDURE duplicateWarehouse(IN p_warehouse_id INT, IN p_last_log_by INT, OUT p_new_warehouse_id INT)
+BEGIN
+    DECLARE p_warehouse_name VARCHAR(100);
+    
+    SELECT warehouse_name
+    INTO p_warehouse_name
+    FROM warehouse 
+    WHERE warehouse_id = p_warehouse_id;
+    
+    INSERT INTO warehouse (warehouse_name, last_log_by) 
+    VALUES(p_warehouse_name, p_last_log_by);
+    
+    SET p_new_warehouse_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateWarehouseTable()
+BEGIN
+    SELECT warehouse_id, warehouse_name
+    FROM warehouse
+    ORDER BY warehouse_id;
+END //
+
+CREATE PROCEDURE generateWarehouseOptions()
+BEGIN
+	SELECT warehouse_id, warehouse_name FROM warehouse
+	ORDER BY warehouse_name;
+END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

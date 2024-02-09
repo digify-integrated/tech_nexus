@@ -3906,6 +3906,176 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Body Type Table Triggers */
+
+CREATE TRIGGER body_type_trigger_update
+AFTER UPDATE ON body_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.body_type_name <> OLD.body_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Body Type Name: ", OLD.body_type_name, " -> ", NEW.body_type_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('body_type', NEW.body_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER body_type_trigger_insert
+AFTER INSERT ON body_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Body type created. <br/>';
+
+    IF NEW.body_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Body Type Name: ", NEW.body_type_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('body_type', NEW.body_type_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Color Table Triggers */
+
+CREATE TRIGGER color_trigger_update
+AFTER UPDATE ON color
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.color_name <> OLD.color_name THEN
+        SET audit_log = CONCAT(audit_log, "Color Name: ", OLD.color_name, " -> ", NEW.color_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('color', NEW.color_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER color_trigger_insert
+AFTER INSERT ON color
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Color created. <br/>';
+
+    IF NEW.color_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Color Name: ", NEW.color_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('color', NEW.color_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Category Table Triggers */
+
+CREATE TRIGGER unit_category_trigger_update
+AFTER UPDATE ON unit_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.unit_category_name <> OLD.unit_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit Category Name: ", OLD.unit_category_name, " -> ", NEW.unit_category_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('unit_category', NEW.unit_category_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER unit_category_trigger_insert
+AFTER INSERT ON unit_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Unit category created. <br/>';
+
+    IF NEW.unit_category_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unit Category Name: ", NEW.unit_category_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('unit_category', NEW.unit_category_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Table Triggers */
+
+CREATE TRIGGER unit_trigger_update
+AFTER UPDATE ON unit
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.unit_name <> OLD.unit_name THEN
+        SET audit_log = CONCAT(audit_log, "Unit Name: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('unit', NEW.unit_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER unit_trigger_insert
+AFTER INSERT ON unit
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Unit created. <br/>';
+
+    IF NEW.unit_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unit Name: ", NEW.unit_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('unit', NEW.unit_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Warehouse Table Triggers */
+
+CREATE TRIGGER warehouse_trigger_update
+AFTER UPDATE ON warehouse
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.warehouse_name <> OLD.warehouse_name THEN
+        SET audit_log = CONCAT(audit_log, "Warehouse Name: ", OLD.warehouse_name, " -> ", NEW.warehouse_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER warehouse_trigger_insert
+AFTER INSERT ON warehouse
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Warehouse created. <br/>';
+
+    IF NEW.warehouse_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Warehouse Name: ", NEW.warehouse_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 

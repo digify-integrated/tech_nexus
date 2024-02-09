@@ -40,6 +40,10 @@
                 addEmployeeRestrictionForm();
             }
 
+            if($('#change-document-password-form').length){
+                changeDocumentPasswordForm();
+            }
+
             $(document).on('click','#add-department-restrictions',function() {
                 departmentRestrictionExceptionTable('#add-department-restrictions-table');
             });
@@ -155,6 +159,122 @@
                             },
                             complete: function(){
                                 reloadDatatable('#employee-restriction-table');
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#publish-document',function() {
+                const document_id = $('#document-id').text();
+                const transaction = 'publish document';
+        
+                Swal.fire({
+                    title: 'Confirm Document Publish',
+                    text: 'Are you sure you want to publish this document?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Publish',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/document-controller.php',
+                            dataType: 'json',
+                            data: {
+                                document_id : document_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Publish Document Success', 'The document has been published successfully.', 'success');
+                                    window.location = 'draft-document.php';
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else if (response.isConfidential) {
+                                        showNotification('Publish Document Error', 'Please set a document password. This document contains confidential information and requires additional security.', 'danger');
+                                    }
+                                    else {
+                                        showNotification('Publish Document Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#remove-document-password',function() {
+                const document_id = $('#document-id').text();
+                const transaction = 'remove document password';
+        
+                Swal.fire({
+                    title: 'Confirm Document Password Removal',
+                    text: 'Are you sure you want to remove the password of this document?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Remove',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/document-controller.php',
+                            dataType: 'json',
+                            data: {
+                                document_id : document_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Remove Document Password Success', 'The document password has been removed successfully.', 'success');
+                                    window.location.reload();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else if (response.isConfidential) {
+                                        showNotification('Remove Document Password Error', 'Unable to remove the document password. This document has been marked as confidential, and a password is required to maintain its security.', 'danger');
+                                    }
+                                    else {
+                                        showNotification('Remove Document Password Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
                             }
                         });
                         return false;
@@ -325,61 +445,6 @@
                                 }
                                 else {
                                     showNotification('Delete Document Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#publish-document',function() {
-            const document_id = $('#document-id').text();
-            const transaction = 'publish document';
-    
-            Swal.fire({
-                title: 'Confirm Document Publish',
-                text: 'Are you sure you want to publish this document?',
-                icon: 'info',
-                showCancelButton: !0,
-                confirmButtonText: 'Publish',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/document-controller.php',
-                        dataType: 'json',
-                        data: {
-                            document_id : document_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Publish Document Success', 'The document has been published successfully.', 'success');
-                                window.location = 'draft-document.php';
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Publish Document Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -721,6 +786,11 @@ function addDocumentForm(){
             document_password: {
                 required: function(element) {
                     return $('#is_confidential').val() === 'Yes';
+                },
+                password_strength: {
+                    depends: function(element) {
+                        return ($('#is_confidential').val() === 'Yes') || (($('#is_confidential').val() === 'No') && ($('#document_password').val() !== null));
+                    }
                 }
             },
             document_file: {
@@ -920,6 +990,102 @@ function updateDocumentFileForm(){
     });
 }
 
+function changeDocumentPasswordForm(){
+    $('#change-document-password-form').validate({
+        rules: {
+            new_document_password: {
+              required: true,
+              password_strength: true
+            },
+            confirm_document_password: {
+              required: true,
+              equalTo: '#new_document_password'
+            }
+        },
+        messages: {
+            new_document_password: {
+              required: 'Please enter the new password'
+            },
+            confirm_document_password: {
+              required: 'Please re-enter the password for confirmation',
+              equalTo: 'The passwords you entered do not match. Please make sure to enter the same password in both fields'
+            }
+        },
+      errorPlacement: function (error, element) {
+        if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+          error.insertAfter(element.next('.select2-container'));
+        }
+        else if (element.parent('.input-group').length) {
+          error.insertAfter(element.parent());
+        }
+        else {
+          error.insertAfter(element);
+        }
+      },
+      highlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        } 
+        else {
+          $(element).addClass('is-invalid');
+        }
+      },
+      unhighlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+        }
+        else {
+          $(element).removeClass('is-invalid');
+        }
+      },
+      submitHandler: function(form) {
+        const transaction = 'change document password';
+        const document_id = $('#document-id').text();
+  
+        $.ajax({
+            type: 'POST',
+            url: 'controller/document-controller.php',
+            data: $(form).serialize() + '&transaction=' + transaction + '&document_id=' + document_id,
+            dataType: 'json',
+            beforeSend: function() {
+                disableFormSubmitButton('submit-change-document-password-form');
+            },
+            success: function(response) {
+                if (response.success) {
+                    setNotification('Document Password Change Success', 'The document password has been successfully updated.', 'success');
+                    $('#change-document-password-offcanvas').offcanvas('hide');
+                    resetModalForm('change-document-password-form');
+                }
+                else{
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else if (response.notExist) {
+                        window.location = '404.php';
+                    }
+                    else{
+                        showNotification('Document Password Change Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+            complete: function() {
+                enableFormSubmitButton('submit-change-document-password-form', 'Update Password');
+                window.location.reload();
+            }
+        });
+  
+        return false;
+      }
+    });
+}
+
 function updateDocumentForm(){
     $('#document-update-form').validate({
         rules: {
@@ -927,6 +1093,9 @@ function updateDocumentForm(){
                 required: true
             },
             document_category_id: {
+                required: true
+            },
+            is_confidential: {
                 required: true
             }
         },
@@ -936,6 +1105,9 @@ function updateDocumentForm(){
             },
             document_category_id: {
                 required: 'Please choose the document category'
+            },
+            is_confidential: {
+                required: 'Please choose the confidential status'
             }
         },
         errorPlacement: function (error, element) {
@@ -1127,7 +1299,7 @@ function documentVersionHistorySummary(){
     var document_id = $('#document-id').text();
             
     $.ajax({
-        url: 'view/_document_generation.php',
+        url: 'view/_draft_document_generation.php',
         method: 'POST',
         dataType: 'json',
         data: {

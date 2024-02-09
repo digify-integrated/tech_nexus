@@ -5,12 +5,12 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/document-category-model.php';
+require_once '../model/color-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$documentCategoryModel = new DocumentCategoryModel($databaseModel);
+$colorModel = new ColorModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -20,41 +20,41 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: document category table
+        # Type: color table
         # Description:
-        # Generates the document category table.
+        # Generates the color table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'document category table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCategoryTable()');
+        case 'color table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateColorTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $documentCategoryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 55, 'delete');
+            $colorDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 61, 'delete');
 
             foreach ($options as $row) {
-                $documentCategoryID = $row['document_category_id'];
-                $documentCategoryName = $row['document_category_name'];
+                $colorID = $row['color_id'];
+                $colorName = $row['color_name'];
 
-                $documentCategoryIDEncrypted = $securityModel->encryptData($documentCategoryID);
+                $colorIDEncrypted = $securityModel->encryptData($colorID);
 
                 $delete = '';
-                if($documentCategoryDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-document-category" data-document-category-id="'. $documentCategoryID .'" title="Delete Document Category">
+                if($colorDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-color" data-color-id="'. $colorID .'" title="Delete Color">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $documentCategoryID .'">',
-                    'DOCUMENT_CATEGORY_NAME' => $documentCategoryName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $colorID .'">',
+                    'COLOR_NAME' => $colorName,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="document-category.php?id='. $documentCategoryIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="color.php?id='. $colorIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

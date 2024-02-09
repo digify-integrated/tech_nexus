@@ -20,6 +20,8 @@
             if (is_loading) return;
 
             var document_search = documentSearch.val();
+            var filter_upload_date_start_date = $('#filter_upload_date_start_date').val();
+            var filter_upload_date_end_date = $('#filter_upload_date_end_date').val();
             var filter_publish_date_start_date = $('#filter_publish_date_start_date').val();
             var filter_publish_date_end_date = $('#filter_publish_date_end_date').val();
             var document_category_filter_values = [];
@@ -54,6 +56,8 @@
                 data: {
                     current_page: current_page,
                     document_search: document_search,
+                    filter_upload_date_start_date: filter_upload_date_start_date,
+                    filter_upload_date_end_date: filter_upload_date_end_date,
                     filter_publish_date_start_date: filter_publish_date_start_date,
                     filter_publish_date_end_date: filter_publish_date_end_date,
                     document_category_filter: document_category_filter,
@@ -115,6 +119,10 @@
         }
 
         documentSearch.val(lastSearchValue);
+
+        if($('#preview-protected-document-form').length){
+            previewProtectedDocumentForm();
+        }
 
         $(document).on('click','#unpublish-document',function() {
             const document_id = $('#document-id').text();
@@ -227,6 +235,95 @@ function documentCard(current_page, is_loading){
             }
             showErrorDialog(fullErrorMessage);
         }
+    });
+}
+
+function previewProtectedDocumentForm(){
+    $('#preview-protected-document-form').validate({
+        rules: {
+            document_password: {
+              required: true,
+            },
+        },
+        messages: {
+            document_password: {
+              required: 'Please enter the document password'
+            }
+        },
+      errorPlacement: function (error, element) {
+        if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+          error.insertAfter(element.next('.select2-container'));
+        }
+        else if (element.parent('.input-group').length) {
+          error.insertAfter(element.parent());
+        }
+        else {
+          error.insertAfter(element);
+        }
+      },
+      highlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').addClass('is-invalid');
+        } 
+        else {
+          $(element).addClass('is-invalid');
+        }
+      },
+      unhighlight: function(element) {
+        if ($(element).hasClass('select2-hidden-accessible')) {
+          $(element).next().find('.select2-selection__rendered').removeClass('is-invalid');
+        }
+        else {
+          $(element).removeClass('is-invalid');
+        }
+      },
+      submitHandler: function(form) {
+        const transaction = 'preview protected document version history';
+        const document_id = $('#document-id').text();
+  
+        $.ajax({
+            type: 'POST',
+            url: 'controller/document-controller.php',
+            data: $(form).serialize() + '&transaction=' + transaction + '&document_id=' + document_id,
+            dataType: 'json',
+            beforeSend: function() {
+                disableFormSubmitButton('submit-preview-protected-document-data');
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#preview-protected-document-offcanvas').offcanvas('hide');
+                    resetModalForm('preview-protected-document-form');
+                    window.open(response.documentLink, '_blank');
+                }
+                else{
+                    if(response.isInactive){
+                        window.location = 'logout.php?logout';
+                    }
+                    else if (response.incorrectPassword) {
+                        showNotification('Preview Protected Document Error', 'The entered document password is incorrect. Please double-check and ensure that you have entered the correct password.', 'danger');
+                    }
+                    else if (response.notExist) {
+                        window.location = '404.php';
+                    }
+                    else{
+                        showNotification('Preview Protected Document Error', response.message, 'danger');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            },
+            complete: function() {
+                enableFormSubmitButton('submit-preview-protected-document-data', 'Preview Document');
+            }
+        });
+  
+        return false;
+      }
     });
 }
 

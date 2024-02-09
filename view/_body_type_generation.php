@@ -5,12 +5,12 @@ require_once '../model/database-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
-require_once '../model/document-category-model.php';
+require_once '../model/body-type-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
-$documentCategoryModel = new DocumentCategoryModel($databaseModel);
+$bodyTypeModel = new BodyTypeModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -20,41 +20,41 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     switch ($type) {
         # -------------------------------------------------------------
         #
-        # Type: document category table
+        # Type: body type table
         # Description:
-        # Generates the document category table.
+        # Generates the body type table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'document category table':
-            $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentCategoryTable()');
+        case 'body type table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateBodyTypeTable()');
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
 
-            $documentCategoryDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 55, 'delete');
+            $bodyTypeDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 60, 'delete');
 
             foreach ($options as $row) {
-                $documentCategoryID = $row['document_category_id'];
-                $documentCategoryName = $row['document_category_name'];
+                $bodyTypeID = $row['body_type_id'];
+                $bodyTypeName = $row['body_type_name'];
 
-                $documentCategoryIDEncrypted = $securityModel->encryptData($documentCategoryID);
+                $bodyTypeIDEncrypted = $securityModel->encryptData($bodyTypeID);
 
                 $delete = '';
-                if($documentCategoryDeleteAccess['total'] > 0){
-                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-document-category" data-document-category-id="'. $documentCategoryID .'" title="Delete Document Category">
+                if($bodyTypeDeleteAccess['total'] > 0){
+                    $delete = '<button type="button" class="btn btn-icon btn-danger delete-body-type" data-body-type-id="'. $bodyTypeID .'" title="Delete Body Type">
                                     <i class="ti ti-trash"></i>
                                 </button>';
                 }
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $documentCategoryID .'">',
-                    'DOCUMENT_CATEGORY_NAME' => $documentCategoryName,
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $bodyTypeID .'">',
+                    'BODY_TYPE_NAME' => $bodyTypeName,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="document-category.php?id='. $documentCategoryIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="body-type.php?id='. $bodyTypeIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                     '. $delete .'

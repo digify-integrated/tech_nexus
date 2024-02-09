@@ -145,6 +145,7 @@ INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('A
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Technical', '100', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '30', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Document Management', '35', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Inventory', '31', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -232,6 +233,20 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document', '5', 'document.php', '', 'file', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Draft Document', '5', 'draft-document.php', '', 'file-plus', '5', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Authorizer', '5', 'document-authorizer.php', '54', '', '3', '1');
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '6', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Body Type', '6', 'body-type.php', '59', '', '2', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Color', '6', 'color.php', '59', '', '3', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit Category', '6', 'unit-category.php', '59', '', '21', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit', '6', 'unit.php', '59', '', '21', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Warehouse', '6', 'warehouse.php', '59', '', '23', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('59', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('60', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('61', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('62', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('63', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('64', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -322,6 +337,13 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('56', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('57', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('58', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('59', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('60', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('61', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('62', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('63', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('64', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -432,6 +454,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Documen
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Document Employee Restrictions', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Publish Document', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unpublish Document', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Full Access To Document', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -548,6 +571,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('94', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('95', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('96', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('97', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4397,6 +4421,137 @@ CREATE INDEX document_restriction_index_document_restriction_id ON document_rest
 CREATE INDEX document_restriction_index_document_document_id ON document_restriction(document_id);
 CREATE INDEX document_restriction_index_department_id ON document_restriction(department_id);
 CREATE INDEX document_restriction_index_contact_id ON document_restriction(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table */
+
+CREATE TABLE body_type(
+	body_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	body_type_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX body_type_index_body_type_id ON body_type(body_type_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Color Table */
+
+CREATE TABLE color(
+	color_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	color_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX color_index_color_id ON color(color_id);
+
+INSERT INTO color (color_name, last_log_by)
+VALUES
+    ('Black', '1'),
+    ('White', '1'),
+    ('Silver', '1'),
+    ('Gray', '1'),
+    ('Blue', '1'),
+    ('Red', '1'),
+    ('Green', '1'),
+    ('Brown', '1'),
+    ('Beige', '1'),
+    ('Gold', '1'),
+    ('Yellow', '1'),
+    ('Orange', '1'),
+    ('Dark Blue', '1'),
+    ('Dark Green', '1'),
+    ('Charcoal', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Category Table */
+
+CREATE TABLE unit_category(
+	unit_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	unit_category_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX unit_category_index_unit_category_id ON unit_category(unit_category_id);
+
+INSERT INTO unit_category (unit_category_name, last_log_by)
+VALUES
+    ('Length', '1'),
+    ('Weight', '1'),
+    ('Volume', '1'),
+    ('Area', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Unit Table */
+
+CREATE TABLE unit(
+	unit_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	unit_name VARCHAR(100) NOT NULL,
+	short_name VARCHAR(10) NOT NULL,
+	unit_category_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (unit_category_id) REFERENCES unit_category(unit_category_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX unit_index_unit_id ON unit(unit_id);
+CREATE INDEX unit_index_unit_category_id ON unit_category(unit_category_id);
+
+INSERT INTO unit (unit_name, short_name, unit_category_id, last_log_by)
+VALUES
+    ('Nanometer', 'nm', 1, '1'),
+    ('Micrometer', 'µm', 1, '1'),
+    ('Millimeter', 'mm', 1, '1'),
+    ('Centimeter', 'cm', 1, '1'),
+    ('Meter', 'm', 1, '1'),
+    ('Kilometer', 'km', 1, '1'),
+    ('Inch', 'in', 1, '1'),
+    ('Foot', 'ft', 1, '1'),
+    ('Yard', 'yd', 1, '1'),
+    ('Mile', 'mi', 1, '1'),
+    ('Carat', 'mi', 2, '1'),
+    ('Milligram', 'mg', 2, '1'),
+    ('Gram', 'g', 2, '1'),
+    ('Kilogram', 'kg', 2, '1'),
+    ('Metric Ton', 'tonne', 2, '1'),
+    ('Ounce', 'oz', 2, '1'),
+    ('Pound', 'lb', 2, '1'),
+    ('Cubic Millimeter', 'mm³', 3, '1'),
+    ('Cubic Centimeter', 'cm³', 3, '1'),
+    ('Milliliter', 'mL', 3, '1'),
+    ('Liter', 'L', 3, '1'),
+    ('Cubic Meter', 'm³', 3, '1'),
+    ('Cubic Kilometer', 'km³', 3, '1'),
+    ('Gallon', 'gal', 3, '1'),
+    ('Barrel', 'bbl', 3, '1'),
+    ('Square Millimeter', 'mm²', 4, '1'),
+    ('Square Centimeter', 'cm²', 4, '1'),
+    ('Square Meter', 'm²', 4, '1'),
+    ('Square Kilometer', 'km²', 4, '1'),
+    ('Square Inch', 'in²', 4, '1'),
+    ('Square Foot', 'ft²', 4, '1'),
+    ('Acre', 'ac', 4, '1'),
+    ('Hectare', 'ha', 4, '1'),
+    ('Square Mile', 'mi²', 4, '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Warehouse Table */
+
+CREATE TABLE warehouse(
+	warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	warehouse_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX warehouse_index_warehouse_id ON warehouse(warehouse_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

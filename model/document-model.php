@@ -90,6 +90,28 @@ class DocumentModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateDocumentPassword
+    # Description: Updates the document password.
+    #
+    # Parameters:
+    # - $p_document_id (int): The document ID.
+    # - $p_document_password (string): The document password .
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateDocumentPassword($p_document_id, $p_document_password, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateDocumentPassword(:p_document_id, :p_document_password, :p_last_log_by)');
+        $stmt->bindValue(':p_document_id', $p_document_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_document_password', $p_document_password, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 

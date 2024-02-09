@@ -14,6 +14,7 @@
     $documentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'read');
     $updateDocumentFile = $userModel->checkSystemActionAccessRights($user_id, 89);
     $unpublishDocument = $userModel->checkSystemActionAccessRights($user_id, 96);
+    $fullAccessToDocuments = $userModel->checkSystemActionAccessRights($user_id, 97);
 
     if ($documentReadAccess['total'] == 0) {
         header('location: 404.php');
@@ -40,9 +41,13 @@
         $documentExtension = $documentDetails['document_extension'];
         $documentSize = $documentDetails['document_size'];
         $documentVersion = $documentDetails['document_version'];
+        $isConfidential = $documentDetails['is_confidential'];
+        $documentPassword = $documentDetails['document_password'];
         $uploadDate = $systemModel->checkDate('summary', $documentDetails['upload_date'], '', 'F j, Y h:i:s A', '');
         $publishDate = $systemModel->checkDate('summary', $documentDetails['publish_date'], '', 'F j, Y h:i:s A', '');
         $documentStatus = $documentDetails['document_status'];
+
+        $confidentialBadge = $documentModel->getDocumentConfidentailStatus($isConfidential);
 
         $authorDetails = $employeeModel->getPersonalInformation($author);
         $authorName = $authorDetails['file_as'] ?? null;

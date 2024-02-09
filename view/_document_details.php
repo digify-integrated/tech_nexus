@@ -1,9 +1,18 @@
 <?php
 $checkIfDocumentAuthorizer = $documentModel->checkIfDocumentAuthorizer($contact_id);
 
-if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumentAuthorizer['total'] > 0)){
+if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumentAuthorizer['total'] > 0 || $fullAccessToDocuments['total'] > 0)){
     $unpublishButton = '<button type="button" class="btn btn-icon btn-danger" id="unpublish-document"><i class="ti ti-x"></i></button>';
 }
+
+if($isConfidential == 'Yes' || !empty($documentPassword)){
+    $previewButton = '<button type="button" class="btn btn-icon btn-primary" data-bs-toggle="offcanvas" data-bs-target="#preview-protected-document-offcanvas" aria-controls="preview-protected-document-offcanvas" id="preview-protected-document" id="preview-protected-document"><i class="ti ti-eye"></i></button>';
+}
+else{
+    $previewButton = '<a href="'. $documentPath .'" class="btn btn-icon btn-primary" target="_blank"><i class="ti ti-eye"></i></a>
+    <a href="'. $documentPath .'" class="btn btn-icon btn-warning" target="_blank" download="'. $documentPath .'.'. $documentExtension .'"><i class="ti ti-download"></i></a>';
+}
+
 ?>
 
 <div class="row">
@@ -12,9 +21,8 @@ if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumen
             <div class="card-body position-relative">
                 <div class="position-absolute end-0 top-0 p-3">
                     <div class="d-flex flex-wrap gap-2 mb-2">
-                        <a href="<?php echo $documentPath; ?>" class="btn btn-icon btn-primary" target="_blank"><i class="ti ti-eye"></i></a>
-                        <a href="<?php echo $documentPath; ?>" class="btn btn-icon btn-warning" target="_blank" download="<?php echo $documentName . '.' . $documentExtension ?>"><i class="ti ti-download"></i></a>
-                        <?php echo $unpublishButton; ?>
+                        
+                        <?php echo $previewButton . $unpublishButton; ?>
                     </div>
                 </div>
                 <div class="d-flex align-items-end justify-content-between mt-0">
@@ -48,6 +56,14 @@ if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumen
                             <div class="col-md-12">
                                 <p class="mb-1 text-primary"><b>Author</b></p>
                                 <p class="mb-0"><?php echo $authorName; ?></p>
+                            </div> 
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="mb-1 text-primary"><b>Confidential</b></p>
+                                <p class="mb-0"><?php echo $confidentialBadge; ?></p>
                             </div> 
                         </div>
                     </li>
@@ -114,4 +130,33 @@ if($unpublishDocument['total'] > 0 && ($author == $contact_id || $checkIfDocumen
           </div>
         </div>
     </div>';
+
+    if($isConfidential == 'Yes' || !empty($documentPassword)){
+        echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="preview-protected-document-offcanvas" aria-labelledby="preview-protected-document-offcanvas-label">
+                <div class="offcanvas-header">
+                  <h2 id="preview-protected-document-offcanvas-label" style="margin-bottom:-0.5rem">Preview Document</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <form id="preview-protected-document-form" method="post" action="#">
+                        <div class="form-group row">
+                          <div class="col-lg-12">
+                            <label class="form-label">Document Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="document_password" name="document_password">
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <button type="submit" class="btn btn-primary" id="submit-preview-protected-document-data" form="preview-protected-document-form">Preview Document</button>
+                      <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                    </div>
+                  </div>
+                </div>
+              </div>';
+    }
 ?>

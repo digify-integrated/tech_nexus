@@ -90,6 +90,15 @@ class DocumentController {
                 case 'add employee restriction':
                     $this->addEmployeeRestriction();
                     break;
+                case 'change document password':
+                    $this->updateDocumentPassword();
+                    break;
+                case 'remove document password':
+                    $this->updateDocumentPasswordToNull();
+                    break;
+                case 'preview protected document':
+                    $this->previewProtectedDocument();
+                    break;
                 case 'publish document':
                     $this->publishDocument();
                     break;
@@ -501,7 +510,156 @@ class DocumentController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Publish methods
+    #
+    # Function: updateDocumentPassword
+    # Description: 
+    # Handles the update of the document password.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateDocumentPassword() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+        $newDocumentPassword = htmlspecialchars($_POST['new_document_password'], ENT_QUOTES, 'UTF-8');
+        $encryptedPassword = $this->securityModel->encryptData($newDocumentPassword);
+    
+        $user = $this->userModel->getUserByID($userID);
+        $isActive = $user['is_active'] ?? 0;
+    
+        if (!$isActive) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->documentModel->updateDocumentPassword($documentID, $encryptedPassword, $userID);
+    
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateDocumentPasswordToNull
+    # Description: 
+    # Handles the update of the document password to null.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateDocumentPasswordToNull() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $documentDetails = $this->documentModel->getDocument($documentID);
+        $isConfidential = $documentDetails['is_confidential'];
+        $documentPassword = $documentDetails['document_password'];
+    
+        if($isConfidential == 'Yes' && empty($documentPassword)){
+            echo json_encode(['success' => false, 'isConfidential' =>  true]);
+            exit;
+        }
+
+        $this->documentModel->updateDocumentPassword($documentID, null, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Preview methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: previewProtectedDocument
+    # Description: 
+    # Preview the existing document if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function previewProtectedDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+        $enteredDocumentPassword = htmlspecialchars($_POST['document_password'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkDocumentExist = $this->documentModel->checkDocumentExist($documentID);
+        $total = $checkDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $documentDetails = $this->documentModel->getDocument($documentID);
+        $documentPassword =  $this->securityModel->decryptData($documentDetails['document_password']);
+        $documentPath = $documentDetails['document_path'];
+        $documentStatus = $documentDetails['document_status'];
+
+        if($documentStatus != 'Published'){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        if($enteredDocumentPassword != $documentPassword){
+            echo json_encode(['success' => false, 'incorrectPassword' =>  true]);
+            exit;
+        }
+            
+        echo json_encode(['success' => true, 'documentLink' => $documentPath]);
+        exit;
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -537,7 +695,22 @@ class DocumentController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $documentDetails = $this->documentModel->getDocument($documentID);
+        $isConfidential = $documentDetails['is_confidential'];
+        $documentPassword = $documentDetails['document_password'];
+        $documentStatus = $documentDetails['document_status'];
     
+        if($isConfidential == 'Yes' && empty($documentPassword)){
+            echo json_encode(['success' => false, 'isConfidential' =>  true]);
+            exit;
+        }
+
+        if($documentStatus != 'Draft'){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
         $this->documentModel->updateDocumentStatus($documentID, 'Published', $userID);
             
         echo json_encode(['success' => true]);
@@ -579,6 +752,14 @@ class DocumentController {
         $total = $checkDocumentExist['total'] ?? 0;
 
         if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $documentDetails = $this->documentModel->getDocument($documentID);
+        $documentStatus = $documentDetails['document_status'];
+
+        if($documentStatus != 'Published'){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }

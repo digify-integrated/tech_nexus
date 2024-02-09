@@ -298,6 +298,87 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: document version history summary
+        # Description:
+        # Generates the document version history summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'document version history summary':
+            if(isset($_POST['document_id']) && !empty($_POST['document_id'])){
+                $details = '';
+                $documentID = htmlspecialchars($_POST['document_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDocumentVersionHistorySummary(:documentID)');
+                $sql->bindValue(':documentID', $documentID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $index => $row) {
+                    $documentID = $row['document_id'];
+                    $documentPath = $row['document_path'];
+                    $documentVersion = $row['document_version'];
+                    $uploadedBy = $row['uploaded_by'];
+                    $uploadDate = $systemModel->checkDate('empty', $row['upload_date'], '', 'F j, Y h:i:s A', '');
+
+                    $uploadedByDetails = $employeeModel->getPersonalInformation($uploadedBy);
+                    $uploadedByName = $uploadedByDetails['file_as'] ?? null;
+
+                    $documentDetails = $documentModel->getDocument($documentID);
+                    $currentDocumentVersion = $documentDetails['document_version'];
+
+                    $documentStatus = ($documentVersion == $currentDocumentVersion) ? '<span class="badge bg-light-success">Current Version</span>' : '<span class="badge bg-light-warning">Old Version</span>';
+
+                    $dropdown = '';
+                    if($documentVersion != $currentDocumentVersion){
+                        $dropdown = '<div class="dropdown">
+                                        <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="ti ti-dots-vertical f-18"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="'. $documentPath .'" class="dropdown-item" target="_blank">Preview</a>
+                                        </div>
+                                    </div>';
+                    }
+
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
+
+                    $details .= ' <li class="list-group-item '. $listMargin .'">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            <p class="mb-2 text-primary"><b>Version: '. $documentVersion .'</b></p>
+                                            <p class="mb-2">Upload Date: ' . $uploadDate . '</p>
+                                            <p class="mb-3">Uploaded By: ' . $uploadedByName . '</p>
+                                            '. $documentStatus .'
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            '. $dropdown .'
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No version history found.';
+                }
+
+                $response[] = [
+                    'documentVersionHistorySummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 
