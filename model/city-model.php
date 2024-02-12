@@ -162,9 +162,9 @@ class CityModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_city_id AS city_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['city_id'];
+        $cityID = $result->fetch(PDO::FETCH_ASSOC)['city_id'];
 
-        return $systemActionID;
+        return $cityID;
     }
     # -------------------------------------------------------------
 

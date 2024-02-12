@@ -158,9 +158,9 @@ class EducationalStageModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_educational_stage_id AS educational_stage_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['educational_stage_id'];
+        $educationalStageID = $result->fetch(PDO::FETCH_ASSOC)['educational_stage_id'];
 
-        return $systemActionID;
+        return $educationalStageID;
     }
     # -------------------------------------------------------------
 

@@ -166,9 +166,9 @@ class JobLevelModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_job_level_id AS job_level_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['job_level_id'];
+        $jobLevelID = $result->fetch(PDO::FETCH_ASSOC)['job_level_id'];
 
-        return $systemActionID;
+        return $jobLevelID;
     }
     # -------------------------------------------------------------
 

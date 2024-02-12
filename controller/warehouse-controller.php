@@ -15,7 +15,12 @@ session_start();
 class WarehouseController {
     private $warehouseModel;
     private $userModel;
+    private $companyModel;
+    private $cityModel;
+    private $stateModel;
+    private $countryModel;
     private $securityModel;
+    private $systemModel;
 
     # -------------------------------------------------------------
     #
@@ -27,15 +32,25 @@ class WarehouseController {
     # Parameters:
     # - @param WarehouseModel $warehouseModel     The WarehouseModel instance for warehouse related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
+    # - @param CityModel $cityModel     The CityModel instance for city related operations.
+    # - @param StateModel $stateModel     The StateModel instance for state related operations.
+    # - @param CountryModel $countryModel     The CountryModel instance for country related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
+    # - @param SystemModel $systemModel   The SystemModel instance for system related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(WarehouseModel $warehouseModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(WarehouseModel $warehouseModel, UserModel $userModel, CompanyModel $companyModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->warehouseModel = $warehouseModel;
         $this->userModel = $userModel;
+        $this->companyModel = $companyModel;
+        $this->cityModel = $cityModel;
+        $this->stateModel = $stateModel;
+        $this->countryModel = $countryModel;
         $this->securityModel = $securityModel;
+        $this->systemModel = $systemModel;
     }
     # -------------------------------------------------------------
 
@@ -103,6 +118,13 @@ class WarehouseController {
         $userID = $_SESSION['user_id'];
         $warehouseID = isset($_POST['warehouse_id']) ? htmlspecialchars($_POST['warehouse_id'], ENT_QUOTES, 'UTF-8') : null;
         $warehouseName = htmlspecialchars($_POST['warehouse_name'], ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
+        $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
+        $phone = htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8');
+        $mobile = htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8');
+        $telephone = htmlspecialchars($_POST['telephone'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -115,20 +137,20 @@ class WarehouseController {
         $total = $checkWarehouseExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->warehouseModel->updateWarehouse($warehouseID, $warehouseName, $userID);
+            $this->warehouseModel->updateWarehouse($warehouseID, $warehouseName, $address, $cityID, $companyID, $phone, $mobile, $telephone, $email, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'warehouseID' => $this->securityModel->encryptData($warehouseID)]);
             exit;
         } 
         else {
-            $warehouseID = $this->warehouseModel->insertWarehouse($warehouseName, $userID);
+            $warehouseID = $this->warehouseModel->insertWarehouse($warehouseName, $address, $cityID, $companyID, $phone, $mobile, $telephone, $email, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'warehouseID' => $this->securityModel->encryptData($warehouseID)]);
             exit;
         }
     }
     # -------------------------------------------------------------
-
+    
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
@@ -286,10 +308,35 @@ class WarehouseController {
             }
     
             $warehouseDetails = $this->warehouseModel->getWarehouse($warehouseID);
+            $cityID = $warehouseDetails['city_id'] ?? null;
+            $companyID = $warehouseDetails['company_id'] ?? null;
+
+            $companyDetails = $this->companyModel->getCompany($companyID);
+            $companyName = $companyDetails['company_name'] ?? null;
+
+            $cityDetails = $this->cityModel->getCity($cityID);
+            $cityName = $cityDetails['city_name'] ?? null;
+            $stateID = $cityDetails['state_id'] ?? null;
+
+            $stateDetails = $this->stateModel->getState($stateID);
+            $stateName = $stateDetails['state_name'] ?? null;
+            $countryID = $stateDetails['country_id'] ?? null;
+
+            $countryName = $this->countryModel->getCountry($countryID)['country_name'];
+            $cityName = $cityName . ', ' . $stateName . ', ' . $countryName;
 
             $response = [
                 'success' => true,
-                'warehouseName' => $warehouseDetails['warehouse_name']
+                'warehouseName' => $warehouseDetails['warehouse_name'],
+                'address' => $warehouseDetails['address'],
+                'cityID' => $cityID,
+                'cityName' => $cityName,
+                'companyID' => $companyID,
+                'companyName' => $companyName,
+                'phone' => $warehouseDetails['phone'],
+                'mobile' => $warehouseDetails['mobile'],
+                'telephone' => $warehouseDetails['telephone'],
+                'email' => $warehouseDetails['email']
             ];
 
             echo json_encode($response);
@@ -303,10 +350,14 @@ class WarehouseController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/warehouse-model.php';
+require_once '../model/company-model.php';
+require_once '../model/city-model.php';
+require_once '../model/state-model.php';
+require_once '../model/country-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new WarehouseController(new WarehouseModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new WarehouseController(new WarehouseModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

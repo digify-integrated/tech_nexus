@@ -166,9 +166,9 @@ class CurrencyModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_currency_id AS currency_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['currency_id'];
+        $currencyID = $result->fetch(PDO::FETCH_ASSOC)['currency_id'];
 
-        return $systemActionID;
+        return $currencyID;
     }
     # -------------------------------------------------------------
 

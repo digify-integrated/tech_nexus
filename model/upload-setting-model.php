@@ -285,9 +285,9 @@ class UploadSettingModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_upload_setting_id AS upload_setting_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['upload_setting_id'];
+        $uploadSettingID = $result->fetch(PDO::FETCH_ASSOC)['upload_setting_id'];
 
-        return $systemActionID;
+        return $uploadSettingID;
     }
     # -------------------------------------------------------------
 }

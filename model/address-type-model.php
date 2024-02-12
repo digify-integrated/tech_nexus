@@ -158,9 +158,9 @@ class AddressTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_address_type_id AS address_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['address_type_id'];
+        $addressTypeID = $result->fetch(PDO::FETCH_ASSOC)['address_type_id'];
 
-        return $systemActionID;
+        return $addressTypeID;
     }
     # -------------------------------------------------------------
 

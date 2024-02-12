@@ -325,10 +325,22 @@ function unitForm(){
             unit_name: {
                 required: true
             },
+            short_name: {
+                required: true
+            },
+            unit_category_id: {
+                required: true
+            },
         },
         messages: {
             unit_name: {
                 required: 'Please enter the unit name'
+            },
+            short_name: {
+                required: 'Please enter the short name'
+            },
+            unit_category_id: {
+                required: 'Please choose the unit category'
             },
         },
         errorPlacement: function (error, element) {

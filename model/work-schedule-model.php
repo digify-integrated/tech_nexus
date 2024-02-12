@@ -431,9 +431,9 @@ class WorkScheduleModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_work_schedule_id AS work_schedule_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['work_schedule_id'];
+        $workScheduleID = $result->fetch(PDO::FETCH_ASSOC)['work_schedule_id'];
 
-        return $systemActionID;
+        return $workScheduleID;
     }
     # -------------------------------------------------------------
 

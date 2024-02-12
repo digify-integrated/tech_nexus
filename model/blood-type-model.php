@@ -158,9 +158,9 @@ class BloodTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_blood_type_id AS blood_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['blood_type_id'];
+        $bloodTypeID = $result->fetch(PDO::FETCH_ASSOC)['blood_type_id'];
 
-        return $systemActionID;
+        return $bloodTypeID;
     }
     # -------------------------------------------------------------
 

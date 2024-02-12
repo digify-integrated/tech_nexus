@@ -158,9 +158,9 @@ class ColorModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_color_id AS color_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['color_id'];
+        $colorID = $result->fetch(PDO::FETCH_ASSOC)['color_id'];
 
-        return $systemActionID;
+        return $colorID;
     }
     # -------------------------------------------------------------
 

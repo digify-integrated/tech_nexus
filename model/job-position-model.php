@@ -553,9 +553,9 @@ class JobPositionModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_job_position_id AS job_position_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['job_position_id'];
+        $jobPostionID = $result->fetch(PDO::FETCH_ASSOC)['job_position_id'];
 
-        return $systemActionID;
+        return $jobPostionID;
     }
     # -------------------------------------------------------------
 

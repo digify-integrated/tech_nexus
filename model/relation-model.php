@@ -158,9 +158,9 @@ class RelationModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_relation_id AS relation_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['relation_id'];
+        $relationID = $result->fetch(PDO::FETCH_ASSOC)['relation_id'];
 
-        return $systemActionID;
+        return $relationID;
     }
     # -------------------------------------------------------------
 

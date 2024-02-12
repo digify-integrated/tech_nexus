@@ -189,9 +189,9 @@ class BranchModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_branch_id AS branch_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['branch_id'];
+        $branchID = $result->fetch(PDO::FETCH_ASSOC)['branch_id'];
 
-        return $systemActionID;
+        return $branchID;
     }
     # -------------------------------------------------------------
 

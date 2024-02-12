@@ -170,9 +170,9 @@ class ZoomAPIModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_zoom_api_id AS zoom_api_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['zoom_api_id'];
+        $zoomAPIID = $result->fetch(PDO::FETCH_ASSOC)['zoom_api_id'];
 
-        return $systemActionID;
+        return $zoomAPIID;
     }
     # -------------------------------------------------------------
 }

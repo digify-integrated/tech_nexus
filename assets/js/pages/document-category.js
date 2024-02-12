@@ -82,8 +82,8 @@
     
             if(document_category_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Document Categorys Deletion',
-                    text: 'Are you sure you want to delete these document categorys?',
+                    title: 'Confirm Multiple Document Categories Deletion',
+                    text: 'Are you sure you want to delete these document categories?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,7 +103,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Document Category Success', 'The selected document categorys have been deleted successfully.', 'success');
+                                    showNotification('Delete Document Category Success', 'The selected document categories have been deleted successfully.', 'success');
                                     reloadDatatable('#document-category-table');
                                 }
                                 else {
@@ -133,7 +133,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Document Category Error', 'Please select the document categorys you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Document Category Error', 'Please select the document categories you wish to delete.', 'danger');
             }
         });
 

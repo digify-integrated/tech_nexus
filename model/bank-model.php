@@ -162,9 +162,9 @@ class BankModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_bank_id AS bank_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['bank_id'];
+        $bankID = $result->fetch(PDO::FETCH_ASSOC)['bank_id'];
 
-        return $systemActionID;
+        return $bankID;
     }
     # -------------------------------------------------------------
 

@@ -212,9 +212,9 @@ class EmailSettingModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_email_setting_id AS email_setting_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['email_setting_id'];
+        $emailSettingID = $result->fetch(PDO::FETCH_ASSOC)['email_setting_id'];
 
-        return $systemActionID;
+        return $emailSettingID;
     }
     # -------------------------------------------------------------
 }

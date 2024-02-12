@@ -158,9 +158,9 @@ class HolidayTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_holiday_type_id AS holiday_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['holiday_type_id'];
+        $holidayTypeID = $result->fetch(PDO::FETCH_ASSOC)['holiday_type_id'];
 
-        return $systemActionID;
+        return $holidayTypeID;
     }
     # -------------------------------------------------------------
 

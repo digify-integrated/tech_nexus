@@ -158,9 +158,9 @@ class WorkScheduleTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_work_schedule_type_id AS work_schedule_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['work_schedule_type_id'];
+        $workScheduleTypeID = $result->fetch(PDO::FETCH_ASSOC)['work_schedule_type_id'];
 
-        return $systemActionID;
+        return $workScheduleTypeID;
     }
     # -------------------------------------------------------------
 

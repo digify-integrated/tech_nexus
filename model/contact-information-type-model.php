@@ -158,9 +158,9 @@ class ContactInformationTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_contact_information_type_id AS contact_information_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['contact_information_type_id'];
+        $contactInformationTypeID = $result->fetch(PDO::FETCH_ASSOC)['contact_information_type_id'];
 
-        return $systemActionID;
+        return $contactInformationTypeID;
     }
     # -------------------------------------------------------------
 

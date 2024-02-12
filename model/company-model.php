@@ -215,9 +215,9 @@ class CompanyModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_company_id AS company_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['company_id'];
+        $companyID = $result->fetch(PDO::FETCH_ASSOC)['company_id'];
 
-        return $systemActionID;
+        return $companyID;
     }
     # -------------------------------------------------------------
 

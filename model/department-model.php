@@ -167,9 +167,9 @@ class DepartmentModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_department_id AS department_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['department_id'];
+        $departmentID = $result->fetch(PDO::FETCH_ASSOC)['department_id'];
 
-        return $systemActionID;
+        return $departmentID;
     }
     # -------------------------------------------------------------
 

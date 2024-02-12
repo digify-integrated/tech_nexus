@@ -166,9 +166,9 @@ class CountryModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_country_id AS country_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['country_id'];
+        $countryID = $result->fetch(PDO::FETCH_ASSOC)['country_id'];
 
-        return $systemActionID;
+        return $countryID;
     }
     # -------------------------------------------------------------
 

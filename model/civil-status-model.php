@@ -158,9 +158,9 @@ class CivilStatusModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_civil_status_id AS civil_status_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['civil_status_id'];
+        $civilStatusID = $result->fetch(PDO::FETCH_ASSOC)['civil_status_id'];
 
-        return $systemActionID;
+        return $civilStatusID;
     }
     # -------------------------------------------------------------
 

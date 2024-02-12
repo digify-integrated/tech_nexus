@@ -158,9 +158,9 @@ class ReligionModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_religion_id AS religion_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['religion_id'];
+        $religionID = $result->fetch(PDO::FETCH_ASSOC)['religion_id'];
 
-        return $systemActionID;
+        return $religionID;
     }
     # -------------------------------------------------------------
 

@@ -158,9 +158,9 @@ class NationalityModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_nationality_id AS nationality_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['nationality_id'];
+        $nationalityID = $result->fetch(PDO::FETCH_ASSOC)['nationality_id'];
 
-        return $systemActionID;
+        return $nationalityID;
     }
     # -------------------------------------------------------------
 

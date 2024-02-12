@@ -1696,6 +1696,17 @@ BEGIN
         INNER JOIN country cy ON cy.country_id = s.country_id
         WHERE city_id IN (SELECT city_id FROM branch)
         ORDER BY city_name;
+    ELSEIF p_generation_type = 'warehouse' THEN
+        SELECT 
+        ct.city_id AS city_id, 
+        ct.city_name AS city_name,
+        cy.country_name AS country_name,
+        s.state_name AS state_name
+        FROM city ct
+        INNER JOIN state s ON s.state_id = ct.state_id
+        INNER JOIN country cy ON cy.country_id = s.country_id
+        WHERE city_id IN (SELECT city_id FROM warehouse)
+        ORDER BY city_name;
     ELSEIF p_generation_type = 'company' THEN
         SELECT 
         ct.city_id AS city_id, 
@@ -6311,6 +6322,13 @@ BEGIN
 	ORDER BY unit_name;
 END //
 
+CREATE PROCEDURE generateUnitByCategoryOptions(IN p_unit_category_id INT)
+BEGIN
+	SELECT unit_id, short_name FROM unit
+    WHERE unit_category_id = p_unit_category_id
+	ORDER BY unit_name;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Warehouse Table Stored Procedures */
@@ -6322,25 +6340,34 @@ BEGIN
     WHERE warehouse_id = p_warehouse_id;
 END //
 
-CREATE PROCEDURE insertWarehouse(IN p_warehouse_name VARCHAR(100), IN p_last_log_by INT, OUT p_warehouse_id INT)
+CREATE PROCEDURE insertWarehouse(IN p_warehouse_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_company_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT, OUT p_warehouse_id INT)
 BEGIN
-    INSERT INTO warehouse (warehouse_name, last_log_by) 
-	VALUES(p_warehouse_name, p_last_log_by);
+    INSERT INTO warehouse (warehouse_name, address, city_id, company_id, phone, mobile, telephone, email, last_log_by) 
+	VALUES(p_warehouse_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email, p_last_log_by);
 	
     SET p_warehouse_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateWarehouse(IN p_warehouse_id INT, IN p_warehouse_name VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateWarehouse(IN p_warehouse_id INT, IN p_warehouse_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_company_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE warehouse
     SET warehouse_name = p_warehouse_name,
+    warehouse_name = p_warehouse_name,
+    address = p_address,
+    city_id = p_city_id,
+    company_id = p_company_id,
+    phone = p_phone,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
     last_log_by = p_last_log_by
     WHERE warehouse_id = p_warehouse_id;
 END //
 
 CREATE PROCEDURE deleteWarehouse(IN p_warehouse_id INT)
 BEGIN
-    DELETE FROM warehouse WHERE warehouse_id = p_warehouse_id;
+	DELETE FROM warehouse
+    WHERE warehouse_id = p_warehouse_id;
 END //
 
 CREATE PROCEDURE getWarehouse(IN p_warehouse_id INT)
@@ -6352,29 +6379,267 @@ END //
 CREATE PROCEDURE duplicateWarehouse(IN p_warehouse_id INT, IN p_last_log_by INT, OUT p_new_warehouse_id INT)
 BEGIN
     DECLARE p_warehouse_name VARCHAR(100);
+    DECLARE p_address VARCHAR(1000);
+    DECLARE p_city_id INT;
+    DECLARE p_company_id INT;
+    DECLARE p_phone VARCHAR(20);
+    DECLARE p_mobile VARCHAR(20);
+    DECLARE p_telephone VARCHAR(20);
+    DECLARE p_email VARCHAR(100);
     
-    SELECT warehouse_name
-    INTO p_warehouse_name
+    SELECT warehouse_name, address, city_id, company_id, phone, mobile, telephone, email
+    INTO p_warehouse_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email
     FROM warehouse 
     WHERE warehouse_id = p_warehouse_id;
     
-    INSERT INTO warehouse (warehouse_name, last_log_by) 
-    VALUES(p_warehouse_name, p_last_log_by);
+    INSERT INTO warehouse (warehouse_name, address, city_id, company_id, phone, mobile, telephone, email, last_log_by) 
+    VALUES(p_warehouse_name, p_address, p_city_id, p_company_id, p_phone, p_mobile, p_telephone, p_email, p_last_log_by);
     
     SET p_new_warehouse_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE generateWarehouseTable()
+CREATE PROCEDURE generateWarehouseTable(IN p_company_id VARCHAR(500), IN p_city_id VARCHAR(500))
 BEGIN
-    SELECT warehouse_id, warehouse_name
-    FROM warehouse
-    ORDER BY warehouse_id;
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT warehouse_id, warehouse_name, address, city_id, company_id FROM warehouse';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_company_id IS NOT NULL AND p_company_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (');
+        SET conditionList = CONCAT(conditionList, p_company_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_city_id IS NOT NULL AND p_city_id <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND city_id IN (');
+        SET conditionList = CONCAT(conditionList, p_city_id);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY warehouse_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateWarehouseOptions()
 BEGIN
 	SELECT warehouse_id, warehouse_name FROM warehouse
 	ORDER BY warehouse_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Category Table Stored Procedures */
+
+CREATE PROCEDURE checkProductCategoryExist (IN p_product_category_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_category
+    WHERE product_category_id = p_product_category_id;
+END //
+
+CREATE PROCEDURE insertProductCategory(IN p_product_category_name VARCHAR(100), IN p_last_log_by INT, OUT p_product_category_id INT)
+BEGIN
+    INSERT INTO product_category (product_category_name, last_log_by) 
+	VALUES(p_product_category_name, p_last_log_by);
+	
+    SET p_product_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateProductCategory(IN p_product_category_id INT, IN p_product_category_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE product_category
+    SET product_category_name = p_product_category_name,
+    last_log_by = p_last_log_by
+    WHERE product_category_id = p_product_category_id;
+END //
+
+CREATE PROCEDURE deleteProductCategory(IN p_product_category_id INT)
+BEGIN
+    DELETE FROM product_category WHERE product_category_id = p_product_category_id;
+END //
+
+CREATE PROCEDURE getProductCategory(IN p_product_category_id INT)
+BEGIN
+	SELECT * FROM product_category
+    WHERE product_category_id = p_product_category_id;
+END //
+
+CREATE PROCEDURE duplicateProductCategory(IN p_product_category_id INT, IN p_last_log_by INT, OUT p_new_product_category_id INT)
+BEGIN
+    DECLARE p_product_category_name VARCHAR(100);
+    
+    SELECT product_category_name
+    INTO p_product_category_name
+    FROM product_category 
+    WHERE product_category_id = p_product_category_id;
+    
+    INSERT INTO product_category (product_category_name, last_log_by) 
+    VALUES(p_product_category_name, p_last_log_by);
+    
+    SET p_new_product_category_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateProductCategoryTable()
+BEGIN
+    SELECT product_category_id, product_category_name
+    FROM product_category
+    ORDER BY product_category_id;
+END //
+
+CREATE PROCEDURE generateProductCategoryOptions()
+BEGIN
+	SELECT product_category_id, product_category_name FROM product_category
+	ORDER BY product_category_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product subcategory Table Stored Procedures */
+
+CREATE PROCEDURE checkProductSubcategoryExist (IN p_product_subcategory_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product_subcategory
+    WHERE product_subcategory_id = p_product_subcategory_id;
+END //
+
+CREATE PROCEDURE insertProductSubcategory(IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_last_log_by INT, OUT p_product_subcategory_id INT)
+BEGIN
+    INSERT INTO product_subcategory (product_subcategory_name, product_subcategory_code, product_category_id, last_log_by) 
+	VALUES(p_product_subcategory_name, p_product_subcategory_code, p_product_category_id, p_last_log_by);
+	
+    SET p_product_subcategory_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateProductSubcategory(IN p_product_subcategory_id INT, IN p_product_subcategory_name VARCHAR(100), IN p_product_subcategory_code VARCHAR(50), IN p_product_category_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE product_subcategory
+    SET product_subcategory_name = p_product_subcategory_name,
+    product_subcategory_code = p_product_subcategory_code,
+    product_category_id = p_product_category_id,
+    last_log_by = p_last_log_by
+    WHERE product_subcategory_id = p_product_subcategory_id;
+END //
+
+CREATE PROCEDURE deleteProductSubcategory(IN p_product_subcategory_id INT)
+BEGIN
+    DELETE FROM product_subcategory WHERE product_subcategory_id = p_product_subcategory_id;
+END //
+
+CREATE PROCEDURE getProductSubcategory(IN p_product_subcategory_id INT)
+BEGIN
+	SELECT * FROM product_subcategory
+    WHERE product_subcategory_id = p_product_subcategory_id;
+END //
+
+CREATE PROCEDURE duplicateProductSubcategory(IN p_product_subcategory_id INT, IN p_last_log_by INT, OUT p_new_product_subcategory_id INT)
+BEGIN
+    DECLARE p_product_subcategory_name VARCHAR(100);
+    DECLARE p_product_subcategory_code VARCHAR(50);
+    DECLARE p_product_category_id INT;
+    
+    SELECT product_subcategory_name, product_subcategory_code, product_category_id
+    INTO p_product_subcategory_name, p_product_subcategory_code, p_product_category_id
+    FROM product_subcategory 
+    WHERE product_subcategory_id = p_product_subcategory_id;
+    
+    INSERT INTO product_subcategory (product_subcategory_name, product_subcategory_code, product_category_id, last_log_by) 
+    VALUES(p_product_subcategory_name, p_product_subcategory_code, p_product_category_id, p_last_log_by);
+    
+    SET p_new_product_subcategory_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateProductSubcategoryTable()
+BEGIN
+    SELECT *
+    FROM product_subcategory
+    ORDER BY product_subcategory_id;
+END //
+
+CREATE PROCEDURE generateProductSubcategoryOptions()
+BEGIN
+	SELECT product_subcategory_id, product_subcategory_name FROM product_subcategory
+	ORDER BY product_subcategory_name;
+END //
+
+CREATE PROCEDURE generateProductSubcategoryByCategoryOptions(IN p_product_category_id INT)
+BEGIN
+	SELECT product_subcategory_id, product_subcategory_name FROM product_subcategory
+    WHERE product_category_id = p_product_category_id
+	ORDER BY product_subcategory_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Table Stored Procedures */
+
+CREATE PROCEDURE checkProductExist (IN p_product_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_product_id INT)
+BEGIN
+    INSERT INTO product (product_category_id, product_subcategory_id, stock_number, engine_number, chassis_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_stock_number, p_engine_number, p_chassis_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
+	
+    SET p_product_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE product
+    SET product_category_id = p_product_category_id,
+    product_subcategory_id = p_product_subcategory_id,
+    stock_number = p_stock_number,
+    engine_number = p_engine_number,
+    chassis_number = p_chassis_number,
+    description = p_description,
+    warehouse_id = p_warehouse_id,
+    body_type_id = p_body_type_id,
+    length = p_length,
+    length_unit = p_length_unit,
+    running_hours = p_running_hours,
+    mileage = p_mileage,
+    color_id = p_color_id,
+    product_cost = p_product_cost,
+    product_price = p_product_price,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE deleteProduct(IN p_product_id INT)
+BEGIN
+    DELETE FROM product WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE getProduct(IN p_product_id INT)
+BEGIN
+	SELECT * FROM product
+    WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE generateProductTable()
+BEGIN
+    SELECT *
+    FROM product
+    ORDER BY product_id;
+END //
+
+CREATE PROCEDURE generateProductOptions()
+BEGIN
+	SELECT product_id, product_name FROM product
+	ORDER BY product_name;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

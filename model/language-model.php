@@ -158,9 +158,9 @@ class LanguageModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_language_id AS language_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['language_id'];
+        $languageID = $result->fetch(PDO::FETCH_ASSOC)['language_id'];
 
-        return $systemActionID;
+        return $languageID;
     }
     # -------------------------------------------------------------
 

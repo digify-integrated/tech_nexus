@@ -82,8 +82,8 @@
     
             if(unit_category_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Unit Categorys Deletion',
-                    text: 'Are you sure you want to delete these unit categorys?',
+                    title: 'Confirm Multiple Unit Categories Deletion',
+                    text: 'Are you sure you want to delete these unit categories?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,7 +103,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Unit Category Success', 'The selected unit categorys have been deleted successfully.', 'success');
+                                    showNotification('Delete Unit Category Success', 'The selected unit categories have been deleted successfully.', 'success');
                                     reloadDatatable('#unit-category-table');
                                 }
                                 else {
@@ -133,7 +133,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Unit Category Error', 'Please select the unit categorys you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Unit Category Error', 'Please select the unit categories you wish to delete.', 'danger');
             }
         });
 

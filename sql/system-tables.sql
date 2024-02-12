@@ -195,7 +195,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Currency', '3', 'currency.php', '20', '', '3', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('State', '3', 'state.php', '20', '', '19', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '1', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('HR Configurations', '1', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Branch', '1', 'branch.php', '25', '', '2', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Department', '1', 'department.php', '25', '', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Job Position', '1', 'job-position.php', '25', '', '10', '1');
@@ -228,25 +228,21 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal', '4', 'transmittal.php', '', 'inbox', '1', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '5', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Configurations', '5', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Category', '5', 'document-category.php', '54', '', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document', '5', 'document.php', '', 'file', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Draft Document', '5', 'draft-document.php', '', 'file-plus', '5', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Authorizer', '5', 'document-authorizer.php', '54', '', '3', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '6', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Inventory Configurations', '6', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Body Type', '6', 'body-type.php', '59', '', '2', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Color', '6', 'color.php', '59', '', '3', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit Category', '6', 'unit-category.php', '59', '', '21', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit', '6', 'unit.php', '59', '', '21', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Warehouse', '6', 'warehouse.php', '59', '', '23', '1');
-
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('59', '1', '1', '0', '0', '0', '0', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('60', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('61', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('62', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('63', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('64', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Category', '6', 'product-category.php', '59', '', '16', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Subcategory', '6', 'product-subcategory.php', '59', '', '17', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product', '6', 'product.php', '', 'box', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -344,6 +340,9 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('62', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('63', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('64', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('65', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('66', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('67', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4547,11 +4546,120 @@ VALUES
 CREATE TABLE warehouse(
 	warehouse_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	warehouse_name VARCHAR(100) NOT NULL,
+    address VARCHAR(1000) NOT NULL,
+	city_id INT NOT NULL,
+	company_id INT NOT NULL,
+    phone VARCHAR(20),
+	mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE INDEX warehouse_index_city_id ON warehouse(city_id);
+CREATE INDEX warehouse_index_company_id ON warehouse(company_id);
 CREATE INDEX warehouse_index_warehouse_id ON warehouse(warehouse_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Category Table */
+
+CREATE TABLE product_category(
+	product_category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_category_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_category_index_product_category_id ON product_category(product_category_id);
+
+INSERT INTO product_category (product_category_name, last_log_by)
+VALUES
+    ('Truck', '1'),
+    ('Heavy Equipment', '1'),
+    ('Equipment', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Subcategory Table */
+
+CREATE TABLE product_subcategory(
+	product_subcategory_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	product_subcategory_name VARCHAR(100) NOT NULL,
+	product_subcategory_code VARCHAR(50) NOT NULL,
+	product_category_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_subcategory_index_product_subcategory_id ON product_subcategory(product_subcategory_id);
+CREATE INDEX product_subcategory_index_product_category_id ON product_subcategory(product_category_id);
+
+INSERT INTO product_subcategory (product_subcategory_name, product_subcategory_code, product_category_id, last_log_by)
+VALUES
+    ('Elf', 'ELF', '1', '1'),
+    ('Forward', 'FOR', '1', '1'),
+    ('10-Wheeler', '10W', '1', '1'),
+    ('Dumptruck', 'DT', '1', '1'),
+    ('Tractor', 'TRA', '1', '1'),
+    ('Trailer', 'TRB', '1', '1'),
+    ('Mixer', 'MT', '2', '1'),
+    ('Excavator', 'EXC', '2', '1'),
+    ('Crane Truck', 'CT', '2', '1'),
+    ('Wheel Loader', 'WL', '2', '1'),
+    ('Bulldozer', 'BDZR', '2', '1'),
+    ('Grader', 'GRADER', '2', '1'),
+    ('Roller', 'ROL', '2', '1'),
+    ('Forklift', 'FL', '2', '1'),
+    ('Suzuki Carry', 'SUZUKI', '2', '1'),
+    ('TLC', 'TLC', '2', '1'),
+    ('Breaker', 'BREAKER', '3', '1'),
+    ('Generator', 'GEN', '3', '1'),
+    ('Compressor', 'COMP', '3', '1'),
+    ('Body', 'BODY', '3', '1'),
+    ('Service Unit', 'SUV', '3', '1');
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Table */
+
+CREATE TABLE product(
+	product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    product_category_id INT UNSIGNED NOT NULL,
+    product_subcategory_id INT UNSIGNED NOT NULL,
+	product_image VARCHAR(500) NOT NULL,
+	product_status VARCHAR(50) NOT NULL DEFAULT 'In Stock',
+	stock_number VARCHAR(100) NOT NULL,
+	engine_number VARCHAR(100),
+	chassis_number VARCHAR(100),
+	description VARCHAR(1000) NOT NULL,
+	warehouse_id INT UNSIGNED NOT NULL,
+	body_type_id INT UNSIGNED NOT NULL,
+	length DOUBLE,
+	length_unit INT UNSIGNED,
+	running_hours DOUBLE,
+	mileage DOUBLE,
+	color_id INT UNSIGNED,
+	product_cost DOUBLE DEFAULT 0,
+	product_price DOUBLE DEFAULT 0,
+	remarks VARCHAR(1000),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
+    FOREIGN KEY (product_subcategory_id) REFERENCES product_subcategory(product_subcategory_id),
+    FOREIGN KEY (warehouse_id) REFERENCES warehouse(warehouse_id),
+    FOREIGN KEY (body_type_id) REFERENCES body_type(body_type_id),
+    FOREIGN KEY (color_id) REFERENCES color(color_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_index_product_id ON product(product_id);
+CREATE INDEX product_index_product_category_id ON product(product_category_id);
+CREATE INDEX product_index_product_subcategory_id ON product(product_subcategory_id);
+CREATE INDEX product_index_product_warehouse_id ON product(warehouse_id);
+CREATE INDEX product_index_product_body_type_id ON product(body_type_id);
+CREATE INDEX product_index_product_color_id ON product(color_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

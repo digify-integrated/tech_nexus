@@ -158,9 +158,9 @@ class IDTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_id_type_id AS id_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['id_type_id'];
+        $idTypeID = $result->fetch(PDO::FETCH_ASSOC)['id_type_id'];
 
-        return $systemActionID;
+        return $idTypeID;
     }
     # -------------------------------------------------------------
 

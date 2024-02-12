@@ -204,9 +204,9 @@ class InterfaceSettingModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_interface_setting_id AS interface_setting_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['interface_setting_id'];
+        $interfaceSettingID = $result->fetch(PDO::FETCH_ASSOC)['interface_setting_id'];
 
-        return $systemActionID;
+        return $interfaceSettingID;
     }
     # -------------------------------------------------------------
 }

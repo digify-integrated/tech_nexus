@@ -166,9 +166,9 @@ class UnitModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_unit_id AS unit_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['unit_id'];
+        $unitID = $result->fetch(PDO::FETCH_ASSOC)['unit_id'];
 
-        return $systemActionID;
+        return $unitID;
     }
     # -------------------------------------------------------------
 
@@ -197,6 +197,34 @@ class UnitModel {
             $unitName = $row['unit_name'];
 
             $htmlOptions .= '<option value="' . htmlspecialchars($unitID, ENT_QUOTES) . '">' . htmlspecialchars($unitName, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateUnitByShortNameOptions
+    # Description: Generates the unit options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateUnitByShortNameOptions($p_unit_category_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateUnitByCategoryOptions(:p_unit_category_id)');
+        $stmt->bindValue(':p_unit_category_id', $p_unit_category_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $unitID = $row['unit_id'];
+            $shortName = $row['short_name'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($unitID, ENT_QUOTES) . '">' . htmlspecialchars($shortName, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

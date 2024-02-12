@@ -158,9 +158,9 @@ class EmployeeTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_employee_type_id AS employee_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['employee_type_id'];
+        $employeeTypeID = $result->fetch(PDO::FETCH_ASSOC)['employee_type_id'];
 
-        return $systemActionID;
+        return $employeeTypeID;
     }
     # -------------------------------------------------------------
 

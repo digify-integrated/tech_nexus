@@ -158,9 +158,9 @@ class BankAccountTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_bank_account_type_id AS bank_account_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['bank_account_type_id'];
+        $bankAccountTypeID = $result->fetch(PDO::FETCH_ASSOC)['bank_account_type_id'];
 
-        return $systemActionID;
+        return $bankAccountTypeID;
     }
     # -------------------------------------------------------------
 

@@ -158,9 +158,9 @@ class FileTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_file_type_id AS file_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['file_type_id'];
+        $fileTypeID = $result->fetch(PDO::FETCH_ASSOC)['file_type_id'];
 
-        return $systemActionID;
+        return $fileTypeID;
     }
     # -------------------------------------------------------------
 

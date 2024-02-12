@@ -9,6 +9,7 @@
         if($('#add-document-form').length){
             addDocumentForm();
         }
+        
         if($('#document-id').length){
             displayDetails('get document details');
 

@@ -23,15 +23,29 @@ class WarehouseModel {
     # Parameters:
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_warehouse_name (string): The warehouse name.
+    # - $p_address (string): The address of the warehouse.
+    # - $p_city_id (int): The city ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_phone (string): The phone of the warehouse.
+    # - $p_mobile (string): The mobile of the warehouse.
+    # - $p_telephone (string): The telephone of the warehouse.
+    # - $p_email (string): The email of the warehouse.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateWarehouse($p_warehouse_id, $p_warehouse_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateWarehouse(:p_warehouse_id, :p_warehouse_name, :p_last_log_by)');
+    public function updateWarehouse($p_warehouse_id, $p_warehouse_name, $p_address, $p_city_id, $p_company_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateWarehouse(:p_warehouse_id, :p_warehouse_name, :p_address, :p_city_id, :p_company_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_warehouse_name', $p_warehouse_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -48,14 +62,27 @@ class WarehouseModel {
     #
     # Parameters:
     # - $p_warehouse_name (string): The warehouse name.
-    # - $p_last_log_by (int): The last logged user.
+    # - $p_address (string): The address of the warehouse.
+    # - $p_city_id (int): The city ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_phone (string): The phone of the warehouse.
+    # - $p_mobile (string): The mobile of the warehouse.
+    # - $p_telephone (string): The telephone of the warehouse.
+    # - $p_email (string): The email of the warehouse.
     #
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertWarehouse($p_warehouse_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertWarehouse(:p_warehouse_name, :p_last_log_by, @p_warehouse_id)');
+    public function insertWarehouse($p_warehouse_name, $p_address, $p_city_id, $p_company_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertWarehouse(:p_warehouse_name, :p_address, :p_city_id, :p_company_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by, @p_warehouse_id)');
         $stmt->bindValue(':p_warehouse_name', $p_warehouse_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
+        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
+        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

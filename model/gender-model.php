@@ -158,9 +158,9 @@ class GenderModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_gender_id AS gender_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['gender_id'];
+        $genderID = $result->fetch(PDO::FETCH_ASSOC)['gender_id'];
 
-        return $systemActionID;
+        return $genderID;
     }
     # -------------------------------------------------------------
 

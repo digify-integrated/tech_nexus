@@ -158,9 +158,9 @@ class DepartureReasonModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_departure_reason_id AS departure_reason_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['departure_reason_id'];
+        $departureReasonID = $result->fetch(PDO::FETCH_ASSOC)['departure_reason_id'];
 
-        return $systemActionID;
+        return $departureReasonID;
     }
     # -------------------------------------------------------------
 

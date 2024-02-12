@@ -158,9 +158,9 @@ class UnitCategoryModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_unit_category_id AS unit_category_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['unit_category_id'];
+        $unitCategoryID = $result->fetch(PDO::FETCH_ASSOC)['unit_category_id'];
 
-        return $systemActionID;
+        return $unitCategoryID;
     }
     # -------------------------------------------------------------
 

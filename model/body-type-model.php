@@ -158,9 +158,9 @@ class BodyTypeModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_body_type_id AS body_type_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['body_type_id'];
+        $bodyTypeiD = $result->fetch(PDO::FETCH_ASSOC)['body_type_id'];
 
-        return $systemActionID;
+        return $bodyTypeiD;
     }
     # -------------------------------------------------------------
 

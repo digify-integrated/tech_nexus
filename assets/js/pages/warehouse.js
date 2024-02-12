@@ -82,8 +82,8 @@
     
             if(warehouse_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Warehouses Deletion',
-                    text: 'Are you sure you want to delete these warehouses?',
+                    title: 'Confirm Multiple Warehousees Deletion',
+                    text: 'Are you sure you want to delete these warehousees?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -103,8 +103,8 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Warehouse Success', 'The selected warehouses have been deleted successfully.', 'success');
-                                    reloadDatatable('#warehouse-table');
+                                    showNotification('Delete Warehouse Success', 'The selected warehousees have been deleted successfully.', 'success');
+                                        reloadDatatable('#warehouse-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -133,7 +133,7 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Warehouse Error', 'Please select the warehouses you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Warehouse Error', 'Please select the warehousees you wish to delete.', 'danger');
             }
         });
 
@@ -257,23 +257,42 @@
                 }
             });
         });
+
+        $(document).on('click','#apply-filter',function() {
+            warehouseTable('#warehouse-table');
+        });
     });
 })(jQuery);
 
 function warehouseTable(datatable_name, buttons = false, show_all = false){
     const type = 'warehouse table';
+    var filter_company_values = [];
+    var filter_city_values = [];
+
+    $('.company-filter:checked').each(function() {
+        filter_company_values.push($(this).val());
+    });
+
+    $('.city-filter:checked').each(function() {
+        filter_city_values.push($(this).val());
+    });
+
+    var filter_company = filter_company_values.join(', ');
+    var filter_city = filter_city_values.join(', ');
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'WAREHOUSE_NAME' },
+        { 'data' : 'COMPANY_NAME' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '84%', 'aTargets': 1 },
-        { 'width': '15%','bSortable': false, 'aTargets': 2 }
+        { 'width': '54%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
+        { 'width': '15%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -283,7 +302,7 @@ function warehouseTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_warehouse_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type},
+            'data': {'type' : type, 'filter_company' : filter_company, 'filter_city' : filter_city},
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -321,11 +340,29 @@ function warehouseForm(){
             warehouse_name: {
                 required: true
             },
+            address: {
+                required: true
+            },
+            company_id: {
+                required: true
+            },
+            city_id: {
+                required: true
+            }
         },
         messages: {
             warehouse_name: {
                 required: 'Please enter the warehouse name'
             },
+            address: {
+                required: 'Please enter the address'
+            },
+            company_id: {
+                required: 'Please choose the company'
+            },
+            city_id: {
+                required: 'Please choose the city'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -423,8 +460,23 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#warehouse_id').val(warehouse_id);
                         $('#warehouse_name').val(response.warehouseName);
+                        $('#address').val(response.address);
+                        $('#phone').val(response.phone);
+                        $('#mobile').val(response.mobile);
+                        $('#telephone').val(response.telephone);
+                        $('#email').val(response.email);
 
+                        checkOptionExist('#city_id', response.cityID, '');
+                        checkOptionExist('#company_id', response.companyID, '');
+
+                        $('#city_id_label').text(response.cityName);
+                        $('#company_id_label').text(response.companyName);
                         $('#warehouse_name_label').text(response.warehouseName);
+                        $('#address_label').text(response.address);
+                        $('#phone_label').text(response.phone);
+                        $('#mobile_label').text(response.mobile);
+                        $('#telephone_label').text(response.telephone);
+                        $('#email_label').text(response.email);
                     } 
                     else {
                         if(response.isInactive){

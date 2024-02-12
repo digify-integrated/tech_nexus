@@ -4019,6 +4019,14 @@ BEGIN
     IF NEW.unit_name <> OLD.unit_name THEN
         SET audit_log = CONCAT(audit_log, "Unit Name: ", OLD.unit_name, " -> ", NEW.unit_name, "<br/>");
     END IF;
+
+    IF NEW.short_name <> OLD.short_name THEN
+        SET audit_log = CONCAT(audit_log, "Short Name: ", OLD.short_name, " -> ", NEW.short_name, "<br/>");
+    END IF;
+
+    IF NEW.unit_category_id <> OLD.unit_category_id THEN
+        SET audit_log = CONCAT(audit_log, "Unit Category ID: ", OLD.unit_category_id, " -> ", NEW.unit_category_id, "<br/>");
+    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -4034,6 +4042,14 @@ BEGIN
 
     IF NEW.unit_name <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Unit Name: ", NEW.unit_name);
+    END IF;
+
+    IF NEW.short_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Short Name: ", NEW.short_name);
+    END IF;
+
+    IF NEW.unit_category_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unit Category ID: ", NEW.unit_category_id);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -4053,6 +4069,34 @@ BEGIN
     IF NEW.warehouse_name <> OLD.warehouse_name THEN
         SET audit_log = CONCAT(audit_log, "Warehouse Name: ", OLD.warehouse_name, " -> ", NEW.warehouse_name, "<br/>");
     END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_id <> OLD.city_id THEN
+        SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -4070,8 +4114,278 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Warehouse Name: ", NEW.warehouse_name);
     END IF;
 
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    IF NEW.city_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>City ID: ", NEW.city_id);
+    END IF;
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
+    IF NEW.phone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Phone: ", NEW.phone);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('warehouse', NEW.warehouse_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Category Table Triggers */
+
+CREATE TRIGGER product_category_trigger_update
+AFTER UPDATE ON product_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.product_category_name <> OLD.product_category_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Category Name: ", OLD.product_category_name, " -> ", NEW.product_category_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_category', NEW.product_category_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER product_category_trigger_insert
+AFTER INSERT ON product_category
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product category created. <br/>';
+
+    IF NEW.product_category_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Category Name: ", NEW.product_category_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_category', NEW.product_category_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Subcategory Table Triggers */
+
+CREATE TRIGGER product_subcategory_trigger_update
+AFTER UPDATE ON product_subcategory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.product_subcategory_name <> OLD.product_subcategory_name THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory Name: ", OLD.product_subcategory_name, " -> ", NEW.product_subcategory_name, "<br/>");
+    END IF;
+
+    IF NEW.product_subcategory_code <> OLD.product_subcategory_code THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory Code: ", OLD.product_subcategory_code, " -> ", NEW.product_subcategory_code, "<br/>");
+    END IF;
+
+    IF NEW.product_category_id <> OLD.product_category_id THEN
+        SET audit_log = CONCAT(audit_log, "Product Category ID: ", OLD.product_category_id, " -> ", NEW.product_category_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product_subcategory', NEW.product_subcategory_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER product_subcategory_trigger_insert
+AFTER INSERT ON product_subcategory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product subcategory created. <br/>';
+
+    IF NEW.product_subcategory_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory Name: ", NEW.product_subcategory_name);
+    END IF;
+
+    IF NEW.product_subcategory_code <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory Code: ", NEW.product_subcategory_code);
+    END IF;
+
+    IF NEW.product_category_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Category ID: ", NEW.product_category_id);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product_subcategory', NEW.product_subcategory_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Product Table Triggers */
+
+CREATE TRIGGER product_trigger_update
+AFTER UPDATE ON product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.product_category_id <> OLD.product_category_id THEN
+        SET audit_log = CONCAT(audit_log, "Product Category ID: ", OLD.product_category_id, " -> ", NEW.product_category_id, "<br/>");
+    END IF;
+
+    IF NEW.product_subcategory_id <> OLD.product_subcategory_id THEN
+        SET audit_log = CONCAT(audit_log, "Product Subcategory ID: ", OLD.product_subcategory_id, " -> ", NEW.product_subcategory_id, "<br/>");
+    END IF;
+
+    IF NEW.product_status <> OLD.product_status THEN
+        SET audit_log = CONCAT(audit_log, "Product Status: ", OLD.product_status, " -> ", NEW.product_status, "<br/>");
+    END IF;
+
+    IF NEW.stock_number <> OLD.stock_number THEN
+        SET audit_log = CONCAT(audit_log, "Stock Number: ", OLD.stock_number, " -> ", NEW.stock_number, "<br/>");
+    END IF;
+
+    IF NEW.engine_number <> OLD.engine_number THEN
+        SET audit_log = CONCAT(audit_log, "Engine Number: ", OLD.engine_number, " -> ", NEW.engine_number, "<br/>");
+    END IF;
+
+    IF NEW.chassis_number <> OLD.chassis_number THEN
+        SET audit_log = CONCAT(audit_log, "Chassis Number: ", OLD.chassis_number, " -> ", NEW.chassis_number, "<br/>");
+    END IF;
+
+    IF NEW.description <> OLD.description THEN
+        SET audit_log = CONCAT(audit_log, "Description: ", OLD.description, " -> ", NEW.description, "<br/>");
+    END IF;
+
+    IF NEW.warehouse_id <> OLD.warehouse_id THEN
+        SET audit_log = CONCAT(audit_log, "Warehouse ID: ", OLD.warehouse_id, " -> ", NEW.warehouse_id, "<br/>");
+    END IF;
+
+    IF NEW.body_type_id <> OLD.body_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Body ID: ", OLD.body_type_id, " -> ", NEW.body_type_id, "<br/>");
+    END IF;
+
+    IF NEW.length <> OLD.length THEN
+        SET audit_log = CONCAT(audit_log, "Length: ", OLD.length, " -> ", NEW.length, "<br/>");
+    END IF;
+
+    IF NEW.length_unit <> OLD.length_unit THEN
+        SET audit_log = CONCAT(audit_log, "Length Unit: ", OLD.length_unit, " -> ", NEW.length_unit, "<br/>");
+    END IF;
+
+    IF NEW.running_hours <> OLD.running_hours THEN
+        SET audit_log = CONCAT(audit_log, "Running Hours: ", OLD.running_hours, " -> ", NEW.running_hours, "<br/>");
+    END IF;
+
+    IF NEW.mileage <> OLD.mileage THEN
+        SET audit_log = CONCAT(audit_log, "Mileage: ", OLD.mileage, " -> ", NEW.mileage, "<br/>");
+    END IF;
+
+    IF NEW.color_id <> OLD.color_id THEN
+        SET audit_log = CONCAT(audit_log, "Color ID: ", OLD.color_id, " -> ", NEW.color_id, "<br/>");
+    END IF;
+
+    IF NEW.product_cost <> OLD.product_cost THEN
+        SET audit_log = CONCAT(audit_log, "Product Cost: ", OLD.product_cost, " -> ", NEW.product_cost, "<br/>");
+    END IF;
+
+    IF NEW.product_price <> OLD.product_price THEN
+        SET audit_log = CONCAT(audit_log, "Product Price: ", OLD.product_price, " -> ", NEW.product_price, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER product_trigger_insert
+AFTER INSERT ON product
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Product created. <br/>';
+
+    IF NEW.product_category_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Category ID: ", NEW.product_category_id);
+    END IF;
+
+    IF NEW.product_subcategory_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory ID: ", NEW.product_subcategory_id);
+    END IF;
+
+    IF NEW.product_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Status: ", NEW.product_status);
+    END IF;
+
+    IF NEW.stock_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Stock Number: ", NEW.stock_number);
+    END IF;
+
+    IF NEW.chassis_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Chassis Number: ", NEW.chassis_number);
+    END IF;
+
+    IF NEW.description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Description: ", NEW.description);
+    END IF;
+
+    IF NEW.warehouse_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Warehouse ID: ", NEW.warehouse_id);
+    END IF;
+
+    IF NEW.body_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Body Type ID: ", NEW.body_type_id);
+    END IF;
+
+    IF NEW.length <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Length: ", NEW.length);
+    END IF;
+
+    IF NEW.length_unit <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Length Unit: ", NEW.length_unit);
+    END IF;
+
+    IF NEW.running_hours <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Running Hours: ", NEW.running_hours);
+    END IF;
+
+    IF NEW.mileage <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mileage: ", NEW.mileage);
+    END IF;
+
+    IF NEW.color_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Color ID: ", NEW.color_id);
+    END IF;
+
+    IF NEW.product_cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Cost: ", NEW.product_cost);
+    END IF;
+
+    IF NEW.product_price <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Price: ", NEW.product_price);
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('product', NEW.product_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

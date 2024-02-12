@@ -158,9 +158,9 @@ class DocumentCategoryModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_document_category_id AS document_category_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['document_category_id'];
+        $documentCategoryID = $result->fetch(PDO::FETCH_ASSOC)['document_category_id'];
 
-        return $systemActionID;
+        return $documentCategoryID;
     }
     # -------------------------------------------------------------
 

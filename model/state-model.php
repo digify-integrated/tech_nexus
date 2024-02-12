@@ -184,9 +184,9 @@ class StateModel {
         $stmt->execute();
 
         $result = $this->db->getConnection()->query("SELECT @p_new_state_id AS state_id");
-        $systemActionID = $result->fetch(PDO::FETCH_ASSOC)['state_id'];
+        $stateID = $result->fetch(PDO::FETCH_ASSOC)['state_id'];
 
-        return $systemActionID;
+        return $stateID;
     }
     # -------------------------------------------------------------
 
