@@ -470,10 +470,10 @@ class DocumentController {
 
         $documentDetails = $this->documentModel->getDocument($documentID);
         $documentVersion = $documentDetails['document_version'] + 1;
-        $documentFile = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+        $documentPath = !empty($documentDetails['document_path']) ? '.' . $documentDetails['document_path'] : null;
 
-        if(file_exists($documentFile)){
-            if (!unlink($documentFile)) {
+        if(file_exists($documentPath)){
+            if (!unlink($documentPath)) {
                 echo json_encode(['success' => false, 'message' => 'Document file cannot be deleted due to an error.']);
                 exit;
             }
@@ -504,7 +504,7 @@ class DocumentController {
 
         $this->documentModel->insertDocumentVersionHistory($documentID, $documentVersionFilePath, $documentVersion, $contactID);
 
-        echo json_encode(['success' => true, 'documentID' => $this->securityModel->encryptData($documentID)]);
+        echo json_encode(['success' => true]);
         exit;
     }
     # -------------------------------------------------------------
@@ -810,7 +810,7 @@ class DocumentController {
         }
 
         $documentDetails = $this->documentModel->getDocument($documentID);
-        $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+        $documentPath = !empty($documentDetails['document_path']) ? '.' . $documentDetails['document_path'] : null;
 
         if(file_exists($documentPath)){
             if (!unlink($documentPath)) {
@@ -822,7 +822,7 @@ class DocumentController {
         $documentVersionHistoryDetails = $this->documentModel->getDocumentVersionHistoryByDocumentID($documentID);
 
         foreach ($documentVersionHistoryDetails as $row) {
-            $documentPath = $row['document_path'] !== null ? '.' . $row['document_path'] : null;
+            $documentPath = !empty($row['document_path']) ? '.' . $row['document_path'] : null;
 
             if(file_exists($documentPath)){
                 if (!unlink($documentPath)) {
@@ -871,7 +871,7 @@ class DocumentController {
     
             if($total > 0){
                 $documentDetails = $this->documentModel->getDocument($documentID);
-                $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+                $documentPath = !empty($documentDetails['document_path']) ? '.' . $documentDetails['document_path'] : null;
 
                 if(file_exists($documentPath)){
                     if (!unlink($documentPath)) {
@@ -883,7 +883,7 @@ class DocumentController {
                 $documentVersionHistoryDetails = $this->documentModel->getDocumentVersionHistoryByDocumentID($documentID);
 
                 foreach ($documentVersionHistoryDetails as $row) {
-                    $documentPath = $documentDetails['document_path'] !== null ? '.' . $documentDetails['document_path'] : null;
+                    $documentPath = !empty($documentDetails['document_path']) ? '.' . $documentDetails['document_path'] : null;
 
                     if(file_exists($documentPath)){
                         if (!unlink($documentPath)) {

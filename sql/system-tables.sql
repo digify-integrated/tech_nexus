@@ -769,6 +769,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Employee Image', 'Sets the upload setting when uploading employee image.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Attendance Record Import', 'Sets the upload setting when importing attendance record.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Document Upload', 'Sets the upload setting when uploading a document.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Product Image', 'Sets the upload setting when uploading product image.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -807,6 +808,11 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('5', 25);
 
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('6', 127);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 69);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4629,6 +4635,7 @@ CREATE TABLE product(
 	product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     product_category_id INT UNSIGNED NOT NULL,
     product_subcategory_id INT UNSIGNED NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
 	product_image VARCHAR(500) NOT NULL,
 	product_status VARCHAR(50) NOT NULL DEFAULT 'In Stock',
 	stock_number VARCHAR(100) NOT NULL,
@@ -4646,6 +4653,7 @@ CREATE TABLE product(
 	product_price DOUBLE DEFAULT 0,
 	remarks VARCHAR(1000),
     last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES company(company_id),
     FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
     FOREIGN KEY (product_subcategory_id) REFERENCES product_subcategory(product_subcategory_id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouse(warehouse_id),
@@ -4655,6 +4663,7 @@ CREATE TABLE product(
 );
 
 CREATE INDEX product_index_product_id ON product(product_id);
+CREATE INDEX product_index_product_company_id ON product(company_id);
 CREATE INDEX product_index_product_category_id ON product(product_category_id);
 CREATE INDEX product_index_product_subcategory_id ON product(product_subcategory_id);
 CREATE INDEX product_index_product_warehouse_id ON product(warehouse_id);

@@ -16,7 +16,7 @@
             debounceTimeout = setTimeout(func, delay);
         }
 
-        function loanDocumentCard(current_page, is_loading, clearExisting) {
+        function loadDocumentCard(current_page, is_loading, clearExisting) {
             if (is_loading) return;
 
             var document_search = documentSearch.val();
@@ -98,7 +98,7 @@
 
         function resetAndLoadDocumentCard() {
             page = 1;
-            loanDocumentCard(page, false, true);
+            loadDocumentCard(page, false, true);
         }
 
         function debounceAndReset() {
@@ -108,7 +108,7 @@
         }
 
         if (documentCard.length) {
-            loanDocumentCard(page, is_loading, true);
+            loadDocumentCard(page, is_loading, true);
             documentSearch.on('keyup', function() {
                 debounceAndReset();
             });

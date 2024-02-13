@@ -67,6 +67,8 @@ define('DEFAULT_IMAGES_FULL_PATH_FILE', '/tech_nexus/assets/images/');
 define('DEFAULT_IMAGES_RELATIVE_PATH_FILE', './assets/images/');
 define('DEFAULT_DOCUMENT_FULL_PATH_FILE', '/tech_nexus/document/');
 define('DEFAULT_DOCUMENT_RELATIVE_PATH_FILE', './document/');
+define('DEFAULT_PRODUCT_FULL_PATH_FILE', '/tech_nexus/inventory/product/');
+define('DEFAULT_PRODUCT_RELATIVE_PATH_FILE', './inventory/product/');
 define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/tech_nexus/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './employee/');
 define('DEFAULT_EMAIL_EXTENSION', '@encorefinancials.com');

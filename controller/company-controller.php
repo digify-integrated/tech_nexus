@@ -247,8 +247,8 @@ class CompanyController {
             exit;
         }
 
-        $company = $this->companyModel->getCompany($companyID);
-        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
+        $companyDetails = $this->companyModel->getCompany($companyID);
+        $companyLogo = !empty($companyDetails['company_logo']) ? '.' . $companyDetails['company_logo'] : null;
 
         if(file_exists($companyLogo)){
             if (!unlink($companyLogo)) {
@@ -307,8 +307,8 @@ class CompanyController {
             exit;
         }
 
-        $company = $this->companyModel->getCompany($companyID);
-        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
+        $companyDetails = $this->companyModel->getCompany($companyID);
+        $companyLogo = !empty($companyDetails['company_logo']) ? '.' . $companyDetails['company_logo'] : null;
 
         if(file_exists($companyLogo)){
             if (!unlink($companyLogo)) {
@@ -351,8 +351,8 @@ class CompanyController {
         }
 
         foreach($companyIDs as $companyID){
-            $company = $this->companyModel->getCompany($companyID);
-            $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
+            $companyDetails = $this->companyModel->getCompany($companyID);
+            $companyLogo = !empty($companyDetails['company_logo']) ? '.' . $companyDetails['company_logo'] : null;
 
             if(file_exists($companyLogo)){
                 if (!unlink($companyLogo)) {
@@ -407,8 +407,8 @@ class CompanyController {
             exit;
         }
 
-        $company = $this->companyModel->getCompany($companyID);
-        $companyLogo = $company['company_logo'] !== null ? '.' . $company['company_logo'] : null;
+        $companyDetails = $this->companyModel->getCompany($companyID);
+        $companyLogo = !empty($companyDetails['company_logo']) ? '.' . $companyDetails['company_logo'] : null;
 
         if(file_exists($companyLogo)){
             $extension = pathinfo($companyLogo, PATHINFO_EXTENSION);

@@ -8416,7 +8416,7 @@ textarea.is-invalid.dataTable-input {
 }
 [data-pc-direction=ltr] .text-muted {
   --bs-text-opacity: 1;
-  color: rgb(46, 56, 73) !important;
+  color: #748892 !important;
 }
 [data-pc-direction=ltr] .text-black-50 {
   --bs-text-opacity: 1;
@@ -13194,7 +13194,7 @@ textarea.is-invalid.dataTable-input {
 }
 [data-pc-direction=rtl] .text-muted {
   --bs-text-opacity: 1;
-  color: rgb(46, 56, 73) !important;
+  color: #748892 !important;
 }
 [data-pc-direction=rtl] .text-black-50 {
   --bs-text-opacity: 1;

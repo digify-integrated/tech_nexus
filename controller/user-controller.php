@@ -307,7 +307,7 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
+        $profilePicture = !empty($userAccount['profile_picture']) ? '.' . $userAccount['profile_picture'] : null;
 
         if(file_exists($profilePicture)){
             if (!unlink($profilePicture)) {
@@ -352,7 +352,7 @@ class UserController {
         foreach($userAccountIDs as $userAccountID){
             if($userAccountID != $userID){
                 $userAccount = $this->userModel->getUserByID($userAccountID);
-                $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
+                $profilePicture = !empty($userAccount['profile_picture']) ? '.' . $userAccount['profile_picture'] : null;
         
                 if(file_exists($profilePicture)){
                     if (!unlink($profilePicture)) {
@@ -1119,7 +1119,7 @@ class UserController {
         }
 
         $userAccount = $this->userModel->getUserByID($userAccountID);
-        $profilePicture = $userAccount['profile_picture'] !== null ? '.' . $userAccount['profile_picture'] : null;
+        $profilePicture = !empty($userAccount['profile_picture']) ? '.' . $userAccount['profile_picture'] : null;
 
         if(file_exists($profilePicture)){
             if (!unlink($profilePicture)) {

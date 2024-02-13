@@ -19,8 +19,15 @@
       <div class="card-body">
         <form id="product-form" method="post" action="#">
             <div class="form-group row">
+                <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                  <select class="form-control select2" name="company_id" id="company_id">
+                      <option value="">--</option>
+                      <?php echo $companyModel->generateCompanyOptions(); ?>
+                  </select>
+                </div>
                 <label class="col-lg-2 col-form-label">Product Category <span class="text-danger">*</span></label>
-                <div class="col-lg-10">
+                <div class="col-lg-4">
                   <select class="form-control select2" name="product_subcategory_id" id="product_subcategory_id">
                       <option value="">--</option>
                       <?php echo $productSubcategoryModel->generateGroupedProductSubcategoryOptions(); ?>
@@ -35,16 +42,6 @@
               <label class="col-lg-2 col-form-label">Stock Number <span class="text-danger">*</span></label>
                 <div class="col-lg-4">
                     <input type="text" class="form-control" id="stock_number" name="stock_number" maxlength="50" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group row align-items-center">
-                <label class="col-lg-2 col-form-label">Product Price</label>
-                <div class="col-lg-4">
-                    <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01">
-                </div>
-                <label class="col-lg-2 col-form-label">Product Cost</label>
-                <div class="col-lg-4">
-                    <input type="number" class="form-control" id="product_cost" name="product_cost" min="0" step="0.01">
                 </div>
             </div>
             <div class="form-group row">
@@ -99,6 +96,16 @@
                             <?php echo $unitModel->generateUnitByShortNameOptions(1); ?>
                         </select>
                     </div>
+                </div>
+            </div>
+            <div class="form-group row align-items-center">
+                <label class="col-lg-2 col-form-label">Product Price</label>
+                <div class="col-lg-4">
+                    <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01">
+                </div>
+                <label class="col-lg-2 col-form-label">Product Cost</label>
+                <div class="col-lg-4">
+                    <input type="number" class="form-control" id="product_cost" name="product_cost" min="0" step="0.01">
                 </div>
             </div>
             <div class="form-group row">

@@ -6587,19 +6587,20 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_product_id INT)
+CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_product_id INT)
 BEGIN
-    INSERT INTO product (product_category_id, product_subcategory_id, stock_number, engine_number, chassis_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, last_log_by) 
-	VALUES(p_product_category_id, p_product_subcategory_id, p_stock_number, p_engine_number, p_chassis_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
+    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
 	
     SET p_product_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_company_id INT, IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET product_category_id = p_product_category_id,
     product_subcategory_id = p_product_subcategory_id,
+    company_id = p_company_id,
     stock_number = p_stock_number,
     engine_number = p_engine_number,
     chassis_number = p_chassis_number,
@@ -6618,6 +6619,14 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+CREATE PROCEDURE updateProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE product 
+    SET product_image = p_product_image, 
+    last_log_by = p_last_log_by 
+    WHERE product_id = p_product_id;
+END //
+
 CREATE PROCEDURE deleteProduct(IN p_product_id INT)
 BEGIN
     DELETE FROM product WHERE product_id = p_product_id;
@@ -6629,11 +6638,63 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE generateProductTable()
+CREATE PROCEDURE generateProductCard(IN p_offset INT, IN p_product_per_page INT, IN p_search VARCHAR(500), IN p_product_category VARCHAR(500), IN p_product_subcategory VARCHAR(500), IN p_company VARCHAR(500), IN p_warehouse VARCHAR(500), IN p_body_type VARCHAR(500), IN p_color VARCHAR(500), IN p_product_cost_min DOUBLE, IN p_product_cost_max DOUBLE, IN p_product_price_min DOUBLE, IN p_product_price_max DOUBLE)
 BEGIN
-    SELECT *
+    DECLARE sql_query VARCHAR(5000);
+
+    SET sql_query = 'SELECT *
     FROM product
-    ORDER BY product_id;
+    WHERE 1';
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (
+            stock_number LIKE ?
+            OR description LIKE ?
+        )');
+    END IF;
+
+    IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_category_id IN (', p_product_category, ')');
+    END IF;
+
+    IF p_product_subcategory IS NOT NULL AND p_product_subcategory <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_subcategory_id IN (', p_product_subcategory, ')');
+    END IF;
+
+    IF p_company IS NOT NULL AND p_company <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND company_id IN (', p_company, ')');
+    END IF;
+
+    IF p_warehouse IS NOT NULL AND p_warehouse <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND warehouse_id IN (', p_warehouse, ')');
+    END IF;
+
+    IF p_body_type IS NOT NULL AND p_body_type <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND body_type_id IN (', p_body_type, ')');
+    END IF;
+
+    IF p_color IS NOT NULL AND p_color <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND color_id IN (', p_color, ')');
+    END IF;
+
+    IF p_product_cost_min IS NOT NULL AND p_product_cost_min <> '' AND p_product_cost_max IS NOT NULL AND p_product_cost_max <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_cost BETWEEN ', p_product_cost_min, ' AND ', p_product_cost_max);
+    END IF;
+
+    IF p_product_price_min IS NOT NULL AND p_product_price_min <> '' AND p_product_price_max IS NOT NULL AND p_product_price_max <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND product_price BETWEEN ', p_product_price_min, ' AND ', p_product_price_max);
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY description LIMIT ?, ?;');
+
+    PREPARE stmt FROM sql_query;
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_product_per_page;
+    ELSE
+        EXECUTE stmt USING p_offset, p_product_per_page;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
 END //
 
 CREATE PROCEDURE generateProductOptions()

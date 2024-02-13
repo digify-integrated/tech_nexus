@@ -1302,7 +1302,7 @@ class EmployeeController {
         }
 
         $employeeDetails = $this->employeeModel->getPersonalInformation($employeeID);
-        $employeeImage = $employeeDetails['contact_image'] !== null ? '.' . $employeeDetails['contact_image'] : null;
+        $employeeImage = !empty($employeeDetails['contact_image']) ? '.' . $employeeDetails['contact_image'] : null;
 
         if(file_exists($employeeImage)){
             if (!unlink($employeeImage)) {

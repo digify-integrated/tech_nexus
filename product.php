@@ -1,23 +1,25 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  #require('model/product-model.php');
+  require('model/product-model.php');
   require('model/product-category-model.php');
   require('model/product-subcategory-model.php');
   require('model/body-type-model.php');
   require('model/warehouse-model.php');
   require('model/unit-model.php');
   require('model/color-model.php');
+  require('model/company-model.php');
   
-  #$productModel = new ProductModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
   $productCategoryModel = new ProductCategoryModel($databaseModel);
   $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
   $bodyTypeModel = new BodyTypeModel($databaseModel);
   $warehouseModel = new WarehouseModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
   $colorModel = new ColorModel($databaseModel);
 
-  $pageTitle = 'Product Category';
+  $pageTitle = 'Product';
     
   $productReadAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'read');
   $productCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'create');
@@ -45,6 +47,48 @@
       header('location: 404.php');
       exit;
     }
+
+    $productDetails = $productModel->getProduct($productID);
+    $productCategoryID = $productDetails['product_category_id'];
+    $productSubategoryID = $productDetails['product_subcategory_id'];
+    $companyID = $productDetails['company_id'];
+    $stockNumber = $productDetails['stock_number'];
+    $description = $productDetails['description'];
+    $engineNumber = $productDetails['engine_number'];
+    $chassisNumber = $productDetails['chassis_number'];
+    $warehouseID = $productDetails['warehouse_id'];
+    $bodyTypeID = $productDetails['body_type_id'];
+    $colorID = $productDetails['color_id'];
+    $lengthUnit = $productDetails['length_unit'];
+    $length = number_format($productDetails['length'], 2);
+    $runningHours = number_format($productDetails['running_hours'], 2);
+    $mileage = number_format($productDetails['mileage'], 2);
+    $productCost = number_format($productDetails['product_cost'], 2);
+    $productPrice = number_format($productDetails['product_price'], 2);
+    $remarks = !empty($productDetails['remarks']) ? $productDetails['remarks'] : '--';
+    $productImage = $systemModel->checkImage($productDetails['product_image'], 'default');
+    $productStatus = $productModel->getProductStatus($productDetails['product_status']);
+
+    $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
+    $productCategoryName = $productCategoryDetails['product_category_name'] ?? '--';
+
+    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? '--';
+
+    $companyDetails = $companyModel->getCompany($companyID);
+    $companyName = $companyDetails['company_name'] ?? '--';
+
+    $warehouseDetails = $warehouseModel->getWarehouse($warehouseID);
+    $warehouseName = $warehouseDetails['warehouse_name']  ?? '--';
+
+    $bodyTypeDetails = $bodyTypeModel->getBodyType($bodyTypeID);
+    $bodyTypeName = $bodyTypeDetails['body_type_name']  ?? '--';
+
+    $colorDetails = $colorModel->getColor($colorID);
+    $colorName = $colorDetails['color_name'] ?? '--';
+
+    $unitDetails = $unitModel->getUnit($lengthUnit);
+    $shortName = $unitDetails['short_name'] ?? null;
   }
   else{
     $productID = null;

@@ -958,7 +958,7 @@ function updateDocumentFileForm(){
                         const notificationDescription = 'The document file has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'draft-document.php?id=' + response.documentID;
+                        window.location.reload();
                     }
                     else {
                         if (response.isInactive) {

@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-sm-12">
+  <div class="col-md-12">
     <div class="ecom-wrapper">
       <div class="offcanvas-xxl offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
         <div class="offcanvas-body p-0 sticky-xxl-top">
@@ -15,6 +15,18 @@
                 <div class="scroll-block">
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#company-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Company
+                        </a>
+                        <div class="collapse show" id="company-filter-collapse">
+                          <div class="py-3">
+                            <?php
+                              echo $companyModel->generateCompanyCheckBox();
+                            ?>
+                          </div>
+                        </div>
+                      </li>
                         <li class="list-group-item px-0 py-2">
                             <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#product-category-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                                 Product Category
@@ -142,7 +154,7 @@
             </div>
           </div>
         </div>
-        <div class="row" id="document-card"></div>
+        <div class="row" id="product-card"></div>
           <div class="row" class="d-none" id="load-content">
             <div class="col-lg-12 text-center">
               <div class="spinner-grow text-primary" role="status">
