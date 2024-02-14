@@ -139,7 +139,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'CHECK_IN' => $checkIn,
                         'CHECK_IN_MODE' => $checkInMode,
                         'CHECK_OUT' => $checkOut,
-                        'CHECK_OUT_MODE' => $checkOutMode,
+                        'CHECK_OUT_MODE' => $checkOutMode
                     ];
                 }
 

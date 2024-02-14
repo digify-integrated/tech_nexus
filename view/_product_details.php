@@ -43,7 +43,6 @@ if($productDeleteAccess['total'] > 0){
                             <li class="mb-2">Company:  <?php echo $companyName; ?></li>
                         </ul>
                         <h5 class="mb-2"><b>Price: <?php echo $productPrice; ?> Php</b></h5>
-                        <h5 class="mb-4"><b>Cost: <?php echo $productCost; ?> Php</b></h5>
                         <div class="row">
                             <?php echo $updateProductButton . $deleteProductButton; ?>
                         </div>

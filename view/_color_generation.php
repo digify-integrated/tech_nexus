@@ -65,6 +65,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: color reference table
+        # Description:
+        # Generates the color reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'color reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateColorTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $colorID = $row['color_id'];
+                $colorName = $row['color_name'];
+
+                $response[] = [
+                    'COLOR_ID' => $colorID,
+                    'COLOR' => $colorName
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

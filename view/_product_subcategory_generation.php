@@ -74,6 +74,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: product subcategory reference table
+        # Description:
+        # Generates the product subcategory reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'product subcategory reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateProductSubcategoryTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $productSubcategoryID = $row['product_subcategory_id'];
+                $productSubcategoryName = $row['product_subcategory_name'];
+
+                $response[] = [
+                    'PRODUCT_SUBCATEGORY_ID' => $productSubcategoryID,
+                    'PRODUCT_SUBCATEGORY' => $productSubcategoryName,
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

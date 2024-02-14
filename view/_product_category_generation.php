@@ -65,6 +65,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: product category reference table
+        # Description:
+        # Generates the product category reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'product category reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateProductCategoryTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $productCategoryID = $row['product_category_id'];
+                $productCategoryName = $row['product_category_name'];
+
+                $response[] = [
+                    'PRODUCT_CATEGORY_ID' => $productCategoryID,
+                    'PRODUCT_CATEGORY' => $productCategoryName,
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

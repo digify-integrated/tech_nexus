@@ -26,6 +26,7 @@
   $productWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'write');
   $productDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'delete');
   $productDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'duplicate');
+  $importProduct = $userModel->checkSystemActionAccessRights($user_id, 98);
 
   if ($productReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -94,6 +95,7 @@
     $productID = null;
   }
 
+  $importRecord = isset($_GET['import']);
   $newRecord = isset($_GET['new']);
 
   require('config/_interface_settings.php');
@@ -135,6 +137,10 @@
                         if($newRecord){
                             echo '<li class="breadcrumb-item">New</li>';
                         }
+
+                        if($importRecord){
+                          echo '<li class="breadcrumb-item">Import</li>';
+                      }
                   ?>
                 </ul>
               </div>
@@ -149,6 +155,9 @@
         <?php
           if($newRecord && $productCreateAccess['total'] > 0){
             require_once('view/_product_new.php');
+          }
+          else if($importRecord && $importProduct['total'] > 0){
+            require_once('view/_product_import.php');
           }
           else if(!empty($productID) && $productWriteAccess['total'] > 0){
             require_once('view/_product_details.php');

@@ -99,6 +99,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: company reference table
+        # Description:
+        # Generates the company reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'company reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCompanyReferenceTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+    
+            foreach ($options as $row) {
+                $companyID = $row['company_id'];
+                $companyName = $row['company_name'];
+    
+                $response[] = [
+                    'COMPANY_ID' => $companyID,
+                    'COMPANY' => $companyName,
+                ];
+            }
+    
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

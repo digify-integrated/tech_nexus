@@ -71,6 +71,62 @@ class ProductModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateImportedProduct
+    # Description: Updates the product.
+    #
+    # Parameters:
+    # - $p_product_id (int): The product ID.
+    # - $p_product_category_id (int): The product category ID.
+    # - $p_product_subcategory_id (int): The product subcategory ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_product_status (int): The product status.
+    # - $p_stock_number (string): The stock number.
+    # - $p_engine_number (string): The engine number.
+    # - $p_chassis_number (string): The chassis number.
+    # - $p_description (string): The product description.
+    # - $p_warehouse_id (int): The warehouse ID.
+    # - $p_body_type_id (int): The body type ID.
+    # - $p_length (double): The length.
+    # - $p_length_unit (int): The length unit.
+    # - $p_running_hours (double): The running hours.
+    # - $p_mileage (double): The mileage.
+    # - $p_color_id (int): The color ID.
+    # - $p_product_cost (double): The cost of the product.
+    # - $p_product_price (double): The price of the product.
+    # - $p_remarks (double): The remarks.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateImportedProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateImportedProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_INT);
+        $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_INT);
+        $stmt->bindValue(':p_running_hours', $p_running_hours, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mileage', $p_mileage, PDO::PARAM_STR);
+        $stmt->bindValue(':p_color_id', $p_color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateProductImage
     # Description: Updates the product image.
     #
@@ -117,7 +173,7 @@ class ProductModel {
     # - $p_color_id (int): The color ID.
     # - $p_product_cost (double): The cost of the product.
     # - $p_product_price (double): The price of the product.
-    # - $p_remarks (double): The remarks.
+    # - $p_remarks (string): The remarks.
     # - $p_last_log_by (int): The last logged user.
     #
     #
@@ -150,6 +206,115 @@ class ProductModel {
         $p_product_id = $result->fetch(PDO::FETCH_ASSOC)['p_product_id'];
 
         return $p_product_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertImportedProduct
+    # Description: Inserts the product.
+    #
+    # Parameters:
+    # - $p_product_category_id (int): The product category ID.
+    # - $p_product_subcategory_id (int): The product subcategory ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_product_status (int): The product status.
+    # - $p_stock_number (string): The stock number.
+    # - $p_engine_number (string): The engine number.
+    # - $p_chassis_number (string): The chassis number.
+    # - $p_description (string): The product description.
+    # - $p_warehouse_id (int): The warehouse ID.
+    # - $p_body_type_id (int): The body type ID.
+    # - $p_length (double): The length.
+    # - $p_length_unit (int): The length unit.
+    # - $p_running_hours (double): The running hours.
+    # - $p_mileage (double): The mileage.
+    # - $p_color_id (int): The color ID.
+    # - $p_product_cost (double): The cost of the product.
+    # - $p_product_price (double): The price of the product.
+    # - $p_remarks (string): The remarks.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertImportedProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportedProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_INT);
+        $stmt->bindValue(':p_running_hours', $p_running_hours, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mileage', $p_mileage, PDO::PARAM_STR);
+        $stmt->bindValue(':p_color_id', $p_color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertImportProduct
+    # Description: Inserts the product.
+    #
+    # Parameters:
+    # - $p_product_id (int): The product ID.
+    # - $p_product_category_id (int): The product category ID.
+    # - $p_product_subcategory_id (int): The product subcategory ID.
+    # - $p_company_id (int): The company ID.
+    # - $p_stock_number (string): The stock number.
+    # - $p_engine_number (string): The engine number.
+    # - $p_chassis_number (string): The chassis number.
+    # - $p_description (string): The product description.
+    # - $p_warehouse_id (int): The warehouse ID.
+    # - $p_body_type_id (int): The body type ID.
+    # - $p_length (double): The length.
+    # - $p_length_unit (int): The length unit.
+    # - $p_running_hours (double): The running hours.
+    # - $p_mileage (double): The mileage.
+    # - $p_color_id (int): The color ID.
+    # - $p_product_cost (double): The cost of the product.
+    # - $p_product_price (double): The price of the product.
+    # - $p_remarks (string): The remarks.
+    #
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertImportProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_status', $p_product_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_length', $p_length, PDO::PARAM_STR);
+        $stmt->bindValue(':p_length_unit', $p_length_unit, PDO::PARAM_INT);
+        $stmt->bindValue(':p_running_hours', $p_running_hours, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mileage', $p_mileage, PDO::PARAM_STR);
+        $stmt->bindValue(':p_color_id', $p_color_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 
@@ -194,6 +359,22 @@ class ProductModel {
     public function deleteProduct($p_product_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteProduct(:p_product_id)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteTempProduct
+    # Description: Deletes the temporary product import.
+    #
+    # Parameters: N/A
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteTempProduct() {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteTempProduct()');
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -245,6 +426,26 @@ class ProductModel {
         $class = $statusClasses[$p_product_status] ?? $defaultClass;
         
         return '<span class="badge bg-' . $class . '">' . $p_product_status . '</span>';
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getImportedProduct
+    # Description: Retrieves the details of an imported product.
+    #
+    # Parameters:
+    # - $p_temp_product_id (int): The temporary product ID.
+    #
+    # Returns:
+    # - An array containing the product details.
+    #
+    # -------------------------------------------------------------
+    public function getImportedProduct($p_temp_product_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getImportedProduct(:p_temp_product_id)');
+        $stmt->bindValue(':p_temp_product_id', $p_temp_product_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 

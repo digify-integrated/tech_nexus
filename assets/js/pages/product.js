@@ -160,6 +160,109 @@
             productImageForm();
         }
 
+        if($('#import-product-form').length){
+            importProductForm();
+        }
+
+        if($('#product-import-table').length){
+            importProductTable('#product-import-table', false, true);
+        }
+
+        if($('#product-category-reference-table').length){
+            productCategoryReferenceTable('#product-category-reference-table');
+        }
+
+        if($('#product-subcategory-reference-table').length){
+            productSubcategoryReferenceTable('#product-subcategory-reference-table');
+        }
+
+        if($('#company-reference-table').length){
+            companyReferenceTable('#company-reference-table');
+        }
+
+        if($('#warehouse-reference-table').length){
+            warehouseReferenceTable('#warehouse-reference-table');
+        }
+
+        if($('#body-type-reference-table').length){
+            bodyTypeReferenceTable('#body-type-reference-table');
+        }
+
+        if($('#unit-reference-table').length){
+            unitReferenceTable('#unit-reference-table');
+        }
+
+        if($('#color-reference-table').length){
+            colorReferenceTable('#color-reference-table');
+        }
+
+        $(document).on('click','#import-product',function() {
+            let temp_product_id = [];
+            const transaction = 'save imported product';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    temp_product_id.push(element.value);
+                }
+            });
+    
+            if(temp_product_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Imported Products Saving',
+                    text: 'Are you sure you want to save these imported products?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Import',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/product-controller.php',
+                            dataType: 'json',
+                            data: {
+                                temp_product_id: temp_product_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    setNotification('Save Imported Product Success', 'The selected imported products have been saved successfully.', 'success');
+                                    window.location = 'product.php';
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Save Imported Product Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Save Imported Product Error', 'Please select the imported products you wish to save.', 'danger');
+            }
+        });
+
         $(document).on('click','.delete-product',function() {
             const product_id = $(this).data('product-id');
             const transaction = 'delete product';
@@ -270,7 +373,10 @@
                 }
             });
         });
-       
+        
+        $(document).on('click','#apply-import-filter',function() {
+            importProductTable('#product-import-table', false, true);
+        });
     });
 })(jQuery);
 
@@ -481,6 +587,219 @@ function productImageForm(){
             return false;
         }
     });
+}
+
+function importProductForm(){
+    $('#import-product-form').validate({
+        rules: {
+            import_file: {
+                required: true
+            }
+        },
+        messages: {
+            import_file: {
+                required: 'Please choose the import file'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const transaction = 'save product import';
+            var formData = new FormData(form);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/product-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-load-file');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Product File Load Success', 'The product file has been loaded successfully.', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-load-file', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function importProductTable(datatable_name, buttons = false, show_all = false){
+    const type = 'import product table';
+    var company_filter_values = [];
+    var product_category_filter_values = [];
+    var product_subcategory_filter_values = [];
+    var warehouse_filter_values = [];
+    var body_type_filter_values = [];
+    var color_filter_values = [];
+
+    $('.company-filter:checked').each(function() {
+        company_filter_values.push($(this).val());
+    });
+
+    $('.product-category-filter:checked').each(function() {
+        product_category_filter_values.push($(this).val());
+    });
+
+    $('.product-subcategory-filter:checked').each(function() {
+        product_subcategory_filter_values.push($(this).val());
+    });
+
+    $('.warehouse-filter:checked').each(function() {
+        warehouse_filter_values.push($(this).val());
+    });
+
+    $('.body-type-filter:checked').each(function() {
+        body_type_filter_values.push($(this).val());
+    });
+
+    $('.color-filter:checked').each(function() {
+        color_filter_values.push($(this).val());
+    });
+        
+    var company_filter = company_filter_values.join(', ');
+    var product_category_filter = product_category_filter_values.join(', ');
+    var product_subcategory_filter = product_subcategory_filter_values.join(', ');
+    var warehouse_filter = warehouse_filter_values.join(', ');
+    var body_type_filter = body_type_filter_values.join(', ');
+    var color_filter = color_filter_values.join(', ');
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'PRODUCT_ID' },
+        { 'data' : 'PRODUCT_CATEGORY' },
+        { 'data' : 'PRODUCT_SUBCATEGORY' },
+        { 'data' : 'COMPANY_NAME' },
+        { 'data' : 'PRODUCT_STATUS' },
+        { 'data' : 'STOCK_NUMBER' },
+        { 'data' : 'ENGINE_NUMBER' },
+        { 'data' : 'CHASSIS_NUMBER' },
+        { 'data' : 'DESCRIPTION' },
+        { 'data' : 'WAREHOUSE_NAME' },
+        { 'data' : 'BODY_TYPE_NAME' },
+        { 'data' : 'LENGTH' },
+        { 'data' : 'RUNNING_HOURS' },
+        { 'data' : 'MILEAGE' },
+        { 'data' : 'COLOR' },
+        { 'data' : 'PRODUCT_COST' },
+        { 'data' : 'PRODUCT_PRICE' },
+        { 'data' : 'REMARKS' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
+        { 'width': 'auto', 'aTargets': 14 },
+        { 'width': 'auto', 'aTargets': 15 },
+        { 'width': 'auto', 'aTargets': 16 },
+        { 'width': 'auto', 'aTargets': 17 },
+        { 'width': 'auto', 'aTargets': 18 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_product_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'company_filter' : company_filter, 'product_category_filter' : product_category_filter, 'product_subcategory_filter' : product_subcategory_filter, 'warehouse_filter' : warehouse_filter, 'body_type_filter' : body_type_filter, 'color_filter' : color_filter},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 2, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
 }
 
 function displayDetails(transaction){

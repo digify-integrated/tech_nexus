@@ -1907,6 +1907,13 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateCompanyReferenceTable()
+BEGIN
+    SELECT company_id, company_name
+    FROM company
+    ORDER BY company_name;
+END //
+
 CREATE PROCEDURE generateCompanyOptions()
 BEGIN
 	SELECT company_id, company_name FROM company
@@ -6427,6 +6434,13 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateWarehouseReferenceTable()
+BEGIN
+   SELECT warehouse_id, warehouse_name FROM warehouse
+	ORDER BY warehouse_name;
+END //
+
+
 CREATE PROCEDURE generateWarehouseOptions()
 BEGIN
 	SELECT warehouse_id, warehouse_name FROM warehouse
@@ -6619,11 +6633,42 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
+CREATE PROCEDURE insertImportedProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_product_status VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO product (product_category_id, product_subcategory_id, company_id, product_status, stock_number, engine_number, chassis_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_product_status, p_stock_number, p_engine_number, p_chassis_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
+END //
+
 CREATE PROCEDURE updateProductImage(IN p_product_id INT, IN p_product_image VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE product 
     SET product_image = p_product_image, 
     last_log_by = p_last_log_by 
+    WHERE product_id = p_product_id;
+END //
+
+CREATE PROCEDURE updateImportedProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_company_id INT, IN p_product_status VARCHAR(50), IN p_product_subcategory_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE product
+    SET product_category_id = p_product_category_id,
+    product_subcategory_id = p_product_subcategory_id,
+    company_id = p_company_id,
+    product_status = p_product_status,
+    stock_number = p_stock_number,
+    engine_number = p_engine_number,
+    chassis_number = p_chassis_number,
+    description = p_description,
+    warehouse_id = p_warehouse_id,
+    body_type_id = p_body_type_id,
+    length = p_length,
+    length_unit = p_length_unit,
+    running_hours = p_running_hours,
+    mileage = p_mileage,
+    color_id = p_color_id,
+    product_cost = p_product_cost,
+    product_price = p_product_price,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
 
@@ -6701,6 +6746,79 @@ CREATE PROCEDURE generateProductOptions()
 BEGIN
 	SELECT product_id, product_name FROM product
 	ORDER BY product_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Temporary Product Table Stored Procedures */
+
+CREATE PROCEDURE deleteTempProduct()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM temp_product;
+
+    ALTER TABLE temp_product AUTO_INCREMENT = 1;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE insertImportProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_product_status VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(500), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000))
+BEGIN
+    INSERT INTO temp_product (product_id, product_category_id, product_subcategory_id, company_id, product_status, stock_number, engine_number, chassis_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks) 
+	VALUES(p_product_id, p_product_category_id, p_product_subcategory_id, p_company_id, p_product_status, p_stock_number, p_engine_number, p_chassis_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks);
+END //
+
+CREATE PROCEDURE generateImportProductTable(IN p_product_category VARCHAR(500), IN p_product_subcategory VARCHAR(500), IN p_company VARCHAR(500), IN p_warehouse VARCHAR(500), IN p_body_type VARCHAR(500), IN p_color VARCHAR(500))
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM temp_product';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_product_category IS NOT NULL AND p_product_category <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND product_category_id IN (', p_product_category, ')');
+    END IF;
+
+    IF p_product_subcategory IS NOT NULL AND p_product_subcategory <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND product_subcategory_id IN (', p_product_subcategory, ')');
+    END IF;
+
+    IF p_company IS NOT NULL AND p_company <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND company_id IN (', p_company, ')');
+    END IF;
+
+    IF p_warehouse IS NOT NULL AND p_warehouse <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND warehouse_id IN (', p_warehouse, ')');
+    END IF;
+
+    IF p_body_type IS NOT NULL AND p_body_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND body_type_id IN (', p_body_type, ')');
+    END IF;
+
+    IF p_color IS NOT NULL AND p_color <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND color_id IN (', p_color, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY description;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE getImportedProduct(IN p_temp_product_id INT)
+BEGIN
+	SELECT * FROM temp_product
+    WHERE temp_product_id = p_temp_product_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

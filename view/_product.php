@@ -141,6 +141,10 @@
                   if($productCreateAccess['total'] > 0){
                     echo '<li class="list-inline-item align-bottom mr-0"><a href="product.php?new" class="btn btn-success">Create</a></li>';
                   }
+
+                  if($importProduct['total'] > 0){
+                    echo ' <a href="product.php?import" class="btn btn-info">Import</a>';
+                  }
                 ?>
                 <li class="list-inline-item align-bottom">
                   <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">

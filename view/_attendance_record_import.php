@@ -96,7 +96,7 @@
 if($importAttendance['total'] > 0){
     echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="load-file-offcanvas" aria-labelledby="load-file-offcanvas-label">
             <div class="offcanvas-header">
-              <h2 id="load-file-offcanvas-label" style="margin-bottom:-0.5rem">Loan Attendance Record</h2>
+              <h2 id="load-file-offcanvas-label" style="margin-bottom:-0.5rem">Load Attendance Record</h2>
               <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">

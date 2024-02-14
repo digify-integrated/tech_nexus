@@ -454,6 +454,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Docu
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Publish Document', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unpublish Document', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Full Access To Document', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Import Product', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -571,6 +572,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('95', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('96', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('97', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('98', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -770,6 +772,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Attendance Record Import', 'Sets the upload setting when importing attendance record.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Document Upload', 'Sets the upload setting when uploading a document.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Product Image', 'Sets the upload setting when uploading product image.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Product Import', 'Sets the upload setting when importing product.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -813,6 +816,7 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 63);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 66);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('8', 25);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -2920,7 +2924,9 @@ CREATE INDEX company_index_company_id ON company(company_id);
 CREATE INDEX company_index_city_id ON company(city_id);
 CREATE INDEX company_index_currency_id ON company(currency_id);
 
-INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Company Placeholder.', '237', '257', '1');
+INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Christian General Motors Inc.', '237', '257', '1');
+INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('Nueva Ecija Trucks', '237', '257', '1');
+INSERT INTO company (company_name, address, city_id, last_log_by) VALUES ('FUSO Tarlac', '237', '257', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4440,6 +4446,59 @@ CREATE TABLE body_type(
 
 CREATE INDEX body_type_index_body_type_id ON body_type(body_type_id);
 
+INSERT INTO body_type (body_type_name, last_log_by)
+VALUES
+    ('Aluminum Dropside', '1'),
+    ('Aluminum Van', '1'),
+    ('Bull Dozer', '1'),
+    ('Bus', '1'),
+    ('Cab And Chassis', '1'),
+    ('Cab And Chassis W/ Boom', '1'),
+    ('Cab And Chassis W/ Crane', '1'),
+    ('Cargo W/ Crane', '1'),
+    ('Closed Van', '1'),
+    ('Crane Truck', '1'),
+    ('Drill W/ Boom', '1'),
+    ('Dropside', '1'),
+    ('Dropside W/ Boom Crane', '1'),
+    ('Dump', '1'),
+    ('Dump Truck', '1'),
+    ('Excavator', '1'),
+    ('Fb Van', '1'),
+    ('Fire Truck', '1'),
+    ('Flat Bed', '1'),
+    ('Flat Bed W/ Crane', '1'),
+    ('Forklift', '1'),
+    ('Freezer Van', '1'),
+    ('Freezer Wing Van', '1'),
+    ('Fuel Tanker', '1'),
+    ('Grader', '1'),
+    ('Long Dump', '1'),
+    ('Low Bed', '1'),
+    ('Manlift', '1'),
+    ('Mini Dump', '1'),
+    ('Mini Dump Truck', '1'),
+    ('Mini Dump W/ Boom', '1'),
+    ('Mixer', '1'),
+    ('Pick-Up', '1'),
+    ('Pick-Up W/ Power Steering', '1'),
+    ('Ref Closed Van', '1'),
+    ('Ref Van', '1'),
+    ('Roller', '1'),
+    ('Self Loading', '1'),
+    ('Self Loading W Boom', '1'),
+    ('Self Loading W/ Boom', '1'),
+    ('Self Loading W/ Winch', '1'),
+    ('Self Loading W/ Rampa & Boom Crane', '1'),
+    ('Tanker', '1'),
+    ('Tractor Head', '1'),
+    ('Transit Mixer', '1'),
+    ('Truck W/ Boom', '1'),
+    ('Water Tanker', '1'),
+    ('Wheel Loader', '1'),
+    ('Wing Van', '1'),
+    ('Wingvan', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Color Table */
@@ -4455,21 +4514,61 @@ CREATE INDEX color_index_color_id ON color(color_id);
 
 INSERT INTO color (color_name, last_log_by)
 VALUES
+    ('Beige Metallic', '1'),
+    ('Beige/Orange', '1'),
     ('Black', '1'),
-    ('White', '1'),
-    ('Silver', '1'),
-    ('Gray', '1'),
     ('Blue', '1'),
-    ('Red', '1'),
-    ('Green', '1'),
+    ('Blue / White', '1'),
+    ('Blue/Green', '1'),
+    ('Blue/Red', '1'),
+    ('Blue/Violet', '1'),
+    ('Blue/White', '1'),
+    ('Blue/Yellow', '1'),
+    ('Blue/Yellow/Black', '1'),
+    ('Bronze', '1'),
     ('Brown', '1'),
-    ('Beige', '1'),
+    ('Cement Grey', '1'),
+    ('Cream', '1'),
+    ('Cream/Orange', '1'),
+    ('Dark Grey', '1'),
+    ('Dark Violet', '1'),
     ('Gold', '1'),
-    ('Yellow', '1'),
+    ('Gray', '1'),
+    ('Gray/Blue', '1'),
+    ('Green', '1'),
+    ('Green / Gray', '1'),
+    ('Green / Violet', '1'),
+    ('Light Blue', '1'),
+    ('Light Blue/Yellow', '1'),
+    ('Maroon/White', '1'),
+    ('Multi Color', '1'),
     ('Orange', '1'),
-    ('Dark Blue', '1'),
-    ('Dark Green', '1'),
-    ('Charcoal', '1');
+    ('Orange/Black Stripe', '1'),
+    ('Orange/Blue', '1'),
+    ('Pink / Gray', '1'),
+    ('Powder Blue', '1'),
+    ('Red', '1'),
+    ('Red/Black', '1'),
+    ('Red/Orange', '1'),
+    ('Red/Silver', '1'),
+    ('Sand Beige', '1'),
+    ('Silver', '1'),
+    ('Silver/Gold', '1'),
+    ('Turquoise', '1'),
+    ('Violet', '1'),
+    ('White', '1'),
+    ('White Pearl', '1'),
+    ('White/Blue', '1'),
+    ('White/Green Stripe', '1'),
+    ('White/Red', '1'),
+    ('White/Yellow', '1'),
+    ('Yard 3', '1'),
+    ('Yellow', '1'),
+    ('Yellow / Blue', '1'),
+    ('Yellow/Blue', '1'),
+    ('Yellow/Gray', '1'),
+    ('Yellow/Green', '1'),
+    ('Yellow/White', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4567,6 +4666,14 @@ CREATE INDEX warehouse_index_city_id ON warehouse(city_id);
 CREATE INDEX warehouse_index_company_id ON warehouse(company_id);
 CREATE INDEX warehouse_index_warehouse_id ON warehouse(warehouse_id);
 
+INSERT INTO warehouse (warehouse_name, address, city_id, company_id, last_log_by)
+VALUES
+    ('Main Office', 'Main Office', 257, 1, '1'),
+    ('Fuso', 'Fuso', 324, 3, '1'),
+    ('Yard 1', 'Yard 1', 257, 2, '1'),
+    ('Yard 2', 'Yard 2', 257, 2, '1'),
+    ('Yard 3', 'Yard 3', 257, 2, '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Product Category Table */
@@ -4584,6 +4691,7 @@ INSERT INTO product_category (product_category_name, last_log_by)
 VALUES
     ('Truck', '1'),
     ('Heavy Equipment', '1'),
+    ('FUSO', '1'),
     ('Equipment', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -4621,11 +4729,16 @@ VALUES
     ('Forklift', 'FL', '2', '1'),
     ('Suzuki Carry', 'SUZUKI', '2', '1'),
     ('TLC', 'TLC', '2', '1'),
-    ('Breaker', 'BREAKER', '3', '1'),
-    ('Generator', 'GEN', '3', '1'),
-    ('Compressor', 'COMP', '3', '1'),
-    ('Body', 'BODY', '3', '1'),
-    ('Service Unit', 'SUV', '3', '1');
+    ('Bus', 'EPW', '3', '1'),
+    ('FUSO Canter', 'FUSO CANTER', '3', '1'),
+    ('FUSO Forward', 'FUSO FORWARD', '3', '1'),
+    ('Breaker', 'BREAKER', '4', '1'),
+    ('Generator', 'GEN', '4', '1'),
+    ('Compressor', 'COMP', '4', '1'),
+    ('Body', 'BODY', '4', '1'),
+    ('Boom Crane', 'BC', '4', '1'),
+    ('Power Winch', 'EPW', '4', '1'),
+    ('Service Unit', 'SUV', '4', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4643,7 +4756,7 @@ CREATE TABLE product(
 	chassis_number VARCHAR(100),
 	description VARCHAR(1000) NOT NULL,
 	warehouse_id INT UNSIGNED NOT NULL,
-	body_type_id INT UNSIGNED NOT NULL,
+	body_type_id INT UNSIGNED,
 	length DOUBLE,
 	length_unit INT UNSIGNED,
 	running_hours DOUBLE,
@@ -4669,6 +4782,43 @@ CREATE INDEX product_index_product_subcategory_id ON product(product_subcategory
 CREATE INDEX product_index_product_warehouse_id ON product(warehouse_id);
 CREATE INDEX product_index_product_body_type_id ON product(body_type_id);
 CREATE INDEX product_index_product_color_id ON product(color_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Temporary Product Table */
+
+CREATE TABLE temp_product (
+    temp_product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    product_id INT UNSIGNED,
+    product_category_id INT UNSIGNED NOT NULL,
+    product_subcategory_id INT UNSIGNED NOT NULL,
+    company_id INT UNSIGNED NOT NULL,
+	product_status VARCHAR(50) DEFAULT 'In Stock',
+	stock_number VARCHAR(100),
+	engine_number VARCHAR(100),
+	chassis_number VARCHAR(100),
+	description VARCHAR(1000) NOT NULL,
+	warehouse_id INT UNSIGNED NOT NULL,
+	body_type_id INT UNSIGNED,
+	length DOUBLE,
+	length_unit INT UNSIGNED,
+	running_hours DOUBLE,
+	mileage DOUBLE,
+	color_id INT UNSIGNED,
+	product_cost DOUBLE DEFAULT 0,
+	product_price DOUBLE DEFAULT 0,
+	remarks VARCHAR(1000)
+);
+
+CREATE INDEX temp_product_index_temp_product_id ON temp_product(temp_product_id);
+CREATE INDEX temp_product_index_product_id ON temp_product(product_id);
+CREATE INDEX temp_product_index_product_company_id ON temp_product(company_id);
+CREATE INDEX temp_product_index_product_category_id ON temp_product(product_category_id);
+CREATE INDEX temp_product_index_product_subcategory_id ON temp_product(product_subcategory_id);
+CREATE INDEX temp_product_index_product_warehouse_id ON temp_product(warehouse_id);
+CREATE INDEX temp_product_index_product_body_type_id ON temp_product(body_type_id);
+CREATE INDEX temp_product_index_product_color_id ON temp_product(color_id);
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

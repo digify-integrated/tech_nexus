@@ -65,6 +65,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: body type reference table
+        # Description:
+        # Generates the body type reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'body type reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateBodyTypeTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $bodyTypeID = $row['body_type_id'];
+                $bodyTypeName = $row['body_type_name'];
+
+                $response[] = [
+                    'BODY_TYPE_ID' => $bodyTypeID,
+                    'BODY_TYPE' => $bodyTypeName
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

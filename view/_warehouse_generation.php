@@ -104,6 +104,37 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: warehouse reference table
+        # Description:
+        # Generates the warehouse reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'warehouse reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateWarehouseReferenceTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+    
+            foreach ($options as $row) {
+                $warehouseID = $row['warehouse_id'];
+                $warehouseName = $row['warehouse_name'];
+
+                $response[] = [
+                    'WAREHOUSE_ID' => $warehouseID,
+                    'WAREHOUSE' => $warehouseName
+                ];
+            }
+    
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

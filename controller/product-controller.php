@@ -14,7 +14,9 @@ session_start();
 # -------------------------------------------------------------
 class ProductController {
     private $productModel;
+    private $productCategoryModel;
     private $productSubcategoryModel;
+    private $companyModel;
     private $bodyTypeModel;
     private $warehouseModel;
     private $unitModel;
@@ -34,7 +36,9 @@ class ProductController {
     #
     # Parameters:
     # - @param ProductModel $productModel     The ProductModel instance for product related operations.
+    # - @param ProductCategoryModel $productCategoryModel     The ProductCategoryModel instance for product category related operations.
     # - @param ProductSubcategoryModel $productSubcategoryModel     The ProductSubcategoryModel instance for product subcategory related operations.
+    # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
     # - @param BodyTypeModel $bodyTypeModel     The BodyTypeModel instance for body type related operations.
     # - @param WarehouseModel $warehouseModel     The WarehouseModel instance for warehouse related operations.
     # - @param UnitModel $unitModel     The UnitModel instance for unit related operations.
@@ -48,9 +52,11 @@ class ProductController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, BodyTypeModel $bodyTypeModel, WarehouseModel $warehouseModel, UnitModel $unitModel, ColorModel $colorModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(ProductModel $productModel, ProductCategoryModel $productCategoryModel, ProductSubcategoryModel $productSubcategoryModel, CompanyModel $companyModel, BodyTypeModel $bodyTypeModel, WarehouseModel $warehouseModel, UnitModel $unitModel, ColorModel $colorModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->productModel = $productModel;
+        $this->productCategoryModel = $productCategoryModel;
         $this->productSubcategoryModel = $productSubcategoryModel;
+        $this->companyModel = $companyModel;
         $this->bodyTypeModel = $bodyTypeModel;
         $this->warehouseModel = $warehouseModel;
         $this->unitModel = $unitModel;
@@ -83,6 +89,12 @@ class ProductController {
             switch ($transaction) {
                 case 'save product':
                     $this->saveProduct();
+                    break;
+                case 'save product import':
+                    $this->saveImportProduct();
+                    break;
+                case 'save imported product':
+                    $this->saveSelectedImportProduct();
                     break;
                 case 'get product details':
                     $this->getProductDetails();
@@ -176,6 +188,193 @@ class ProductController {
         }
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveImportProduct
+    # Description: 
+    # Save the imported product for loading.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveImportProduct() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $importFileFileName = $_FILES['import_file']['name'];
+        $importFileFileSize = $_FILES['import_file']['size'];
+        $importFileFileError = $_FILES['import_file']['error'];
+        $importFileTempName = $_FILES['import_file']['tmp_name'];
+        $importFileFileExtension = explode('.', $importFileFileName);
+        $importFileActualFileExtension = strtolower(end($importFileFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(8);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(8);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($importFileActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($importFileTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the import file.']);
+            exit;
+        }
+        
+        if($importFileFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($importFileFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The import file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $this->productModel->deleteTempProduct();
+
+        $importData = array_map('str_getcsv', file($importFileTempName));
+
+        array_shift($importData);
+
+        foreach ($importData as $row) {
+            $productID = htmlspecialchars($row[0], ENT_QUOTES, 'UTF-8');
+            $productCategoryID = htmlspecialchars($row[1], ENT_QUOTES, 'UTF-8');
+            $productSubcategoryID = htmlspecialchars($row[2], ENT_QUOTES, 'UTF-8');
+            $companyID = htmlspecialchars($row[3], ENT_QUOTES, 'UTF-8');
+            $productStatus = htmlspecialchars($row[4], ENT_QUOTES, 'UTF-8');
+            $stockNumber = htmlspecialchars($row[5], ENT_QUOTES, 'UTF-8');
+            $engineNumber = htmlspecialchars($row[6], ENT_QUOTES, 'UTF-8');
+            $chassisNumber = htmlspecialchars($row[7], ENT_QUOTES, 'UTF-8');
+            $description = htmlspecialchars($row[8], ENT_QUOTES, 'UTF-8');
+            $warehouseID = htmlspecialchars($row[9], ENT_QUOTES, 'UTF-8');
+            $bodyTypeID = htmlspecialchars($row[10], ENT_QUOTES, 'UTF-8');
+            $length = htmlspecialchars($row[11], ENT_QUOTES, 'UTF-8');
+            $lengthUnit = htmlspecialchars($row[12], ENT_QUOTES, 'UTF-8');
+            $runningHours = htmlspecialchars($row[13], ENT_QUOTES, 'UTF-8');
+            $mileage = htmlspecialchars($row[14], ENT_QUOTES, 'UTF-8');
+            $colorID = htmlspecialchars($row[15], ENT_QUOTES, 'UTF-8');
+            $productCost = htmlspecialchars($row[16], ENT_QUOTES, 'UTF-8');
+            $productPrice = htmlspecialchars($row[17], ENT_QUOTES, 'UTF-8');
+            $remarks = htmlspecialchars($row[18], ENT_QUOTES, 'UTF-8');
+
+            $checkProductCategoryExist = $this->productCategoryModel->checkProductCategoryExist($productCategoryID)['total'];
+            $checkProductSubcategoryExist = $this->productSubcategoryModel->checkProductSubcategoryExist($productSubcategoryID)['total'];
+            $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID)['total'];
+            $checkWarehouseExist = $this->warehouseModel->checkWarehouseExist($warehouseID)['total'];
+            $checkBodyTypeExist = $this->bodyTypeModel->checkBodyTypeExist($bodyTypeID)['total'];
+            $checkColorExist = $this->colorModel->checkColorExist($colorID)['total'];
+
+            if($checkProductCategoryExist == 0){
+                $productSubCategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
+                $productCategoryID = $productSubCategoryDetails['product_category_id'];
+            }
+
+            if($checkBodyTypeExist == 0){
+                $bodyTypeID = null;
+            }
+
+            if($checkColorExist == 0){
+                $colorID = null;
+            }
+
+            if(!empty($productCategoryID) && !empty($productSubcategoryID) && !empty($companyID) && !empty($description) && !empty($warehouseID) && $checkProductSubcategoryExist > 0 && $checkCompanyExist > 0 && $checkWarehouseExist > 0){
+                $this->productModel->insertImportProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks);
+            }
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSelectedImportProduct
+    # Description: 
+    # Delete the selected products if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSelectedImportProduct() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $tempProductIDs = $_POST['temp_product_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($tempProductIDs as $tempProductID){
+            $importedProductDetails = $this->productModel->getImportedProduct($tempProductID);
+            $productID = $importedProductDetails['product_id'];
+            $productCategoryID = $importedProductDetails['product_category_id'];
+            $productSubcategoryID = $importedProductDetails['product_subcategory_id'];
+            $companyID = $importedProductDetails['company_id'];
+            $productStatus = $importedProductDetails['product_status'];
+            $stockNumber = $importedProductDetails['stock_number'];
+            $engineNumber = $importedProductDetails['engine_number'];
+            $chassisNumber = $importedProductDetails['chassis_number'];
+            $description = $importedProductDetails['description'];
+            $warehouseID = $importedProductDetails['warehouse_id'];
+            $bodyTypeID = $importedProductDetails['body_type_id'];
+            $length = $importedProductDetails['length'];
+            $lengthUnit = $importedProductDetails['length_unit'];
+            $runningHours = $importedProductDetails['running_hours'];
+            $mileage = $importedProductDetails['mileage'];
+            $colorID = $importedProductDetails['color_id'];
+            $productCost = $importedProductDetails['product_cost'];
+            $productPrice = $importedProductDetails['product_price'];
+            $remarks = $importedProductDetails['remarks'];
+
+            $checkProductExist = $this->productModel->checkProductExist($productID);
+            $total = $checkProductExist['total'] ?? 0;
+        
+            if ($total > 0) {
+                $this->productModel->updateImportedProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            } 
+            else {
+                $productID = $this->productModel->insertImportedProduct($productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            }
+        }
+        
+        $this->productModel->deleteTempProduct();
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
     
     # -------------------------------------------------------------
     #   Update methods
@@ -418,7 +617,9 @@ class ProductController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/product-model.php';
+require_once '../model/product-category-model.php';
 require_once '../model/product-subcategory-model.php';
+require_once '../model/company-model.php';
 require_once '../model/body-type-model.php';
 require_once '../model/warehouse-model.php';
 require_once '../model/unit-model.php';
@@ -429,6 +630,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new ProductController(new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new WarehouseModel(new DatabaseModel), new UnitModel(new DatabaseModel), new ColorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new ProductController(new ProductModel(new DatabaseModel), new ProductCategoryModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new WarehouseModel(new DatabaseModel), new UnitModel(new DatabaseModel), new ColorModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

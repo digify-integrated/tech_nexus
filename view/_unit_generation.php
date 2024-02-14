@@ -74,6 +74,40 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: unit reference table
+        # Description:
+        # Generates the unit reference table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'unit reference table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateUnitTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $unitID = $row['unit_id'];
+                $unitName = $row['unit_name'];
+                $shortName = $row['short_name'];
+
+
+                $response[] = [
+                    'UNIT_ID' => $unitID,
+                    'UNIT' => $unitName,
+                    'SHORT_NAME' => $shortName,
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

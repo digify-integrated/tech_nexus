@@ -8,6 +8,11 @@ require_once '../model/system-model.php';
 require_once '../model/product-model.php';
 require_once '../model/product-category-model.php';
 require_once '../model/product-subcategory-model.php';
+require_once '../model/company-model.php';
+require_once '../model/warehouse-model.php';
+require_once '../model/body-type-model.php';
+require_once '../model/unit-model.php';
+require_once '../model/color-model.php';
 require_once '../model/system-setting-model.php';
 
 $databaseModel = new DatabaseModel();
@@ -17,6 +22,11 @@ $systemSettingModel = new SystemSettingModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $productCategoryModel = new ProductCategoryModel($databaseModel);
 $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
+$companyModel = new CompanyModel($databaseModel);
+$warehouseModel = new WarehouseModel($databaseModel);
+$bodyTypeModel = new BodyTypeModel($databaseModel);
+$unitModel = new UnitModel($databaseModel);
+$colorModel = new ColorModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -142,84 +152,101 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
-        # Type: product version history summary
+        # Type: import product table
         # Description:
-        # Generates the product version history summary.
+        # Generates the import product table.
         #
         # Parameters: None
         #
         # Returns: Array
         #
         # -------------------------------------------------------------
-        case 'product version history summary':
-            if(isset($_POST['product_id']) && !empty($_POST['product_id'])){
-                $details = '';
-                $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        case 'import product table':
+            if(isset($_POST['product_category_filter']) && isset($_POST['product_subcategory_filter']) && isset($_POST['company_filter']) && isset($_POST['warehouse_filter']) && isset($_POST['body_type_filter'])){
+                $companyFilter = htmlspecialchars($_POST['company_filter'], ENT_QUOTES, 'UTF-8');
+                $productCategoryFilter = htmlspecialchars($_POST['product_category_filter'], ENT_QUOTES, 'UTF-8');
+                $productSubcategoryFilter = htmlspecialchars($_POST['product_subcategory_filter'], ENT_QUOTES, 'UTF-8');
+                $warehouseFilter = htmlspecialchars($_POST['warehouse_filter'], ENT_QUOTES, 'UTF-8');
+                $bodyTypeFilter = htmlspecialchars($_POST['body_type_filter'], ENT_QUOTES, 'UTF-8');
+                $colorFilter = htmlspecialchars($_POST['color_filter'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateProductVersionHistorySummary(:productID)');
-                $sql->bindValue(':productID', $productID, PDO::PARAM_INT);
+                $sql = $databaseModel->getConnection()->prepare('CALL generateImportProductTable(:productCategoryFilter, :productSubcategoryFilter, :companyFilter, :warehouseFilter, :bodyTypeFilter, :colorFilter)');
+                $sql->bindValue(':productCategoryFilter', $productCategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':productSubcategoryFilter', $productSubcategoryFilter, PDO::PARAM_STR);
+                $sql->bindValue(':companyFilter', $companyFilter, PDO::PARAM_STR);
+                $sql->bindValue(':warehouseFilter', $warehouseFilter, PDO::PARAM_STR);
+                $sql->bindValue(':bodyTypeFilter', $bodyTypeFilter, PDO::PARAM_STR);
+                $sql->bindValue(':colorFilter', $colorFilter, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
-                
-                $count = count($options);
 
-                foreach ($options as $index => $row) {
+                foreach ($options as $row) {
+                    $tempProductID = $row['temp_product_id'];
                     $productID = $row['product_id'];
-                    $productPath = $row['product_path'];
-                    $productVersion = $row['product_version'];
-                    $uploadedBy = $row['uploaded_by'];
-                    $uploadDate = $systemModel->checkDate('empty', $row['upload_date'], '', 'F j, Y h:i:s A', '');
+                    $productCategoryID = $row['product_category_id'];
+                    $productSubcategoryID = $row['product_subcategory_id'];
+                    $companyID = $row['company_id'];
+                    $productStatus = $row['product_status'];
+                    $stockNumber = $row['stock_number'];
+                    $engineNumber = $row['engine_number'];
+                    $chassisNumber = $row['chassis_number'];
+                    $description = $row['description'];
+                    $warehouseID = $row['warehouse_id'];
+                    $bodyTypeID = $row['body_type_id'];
+                    $length = $row['length'];
+                    $lengthUnit = $row['length_unit'];
+                    $runningHours = $row['running_hours'];
+                    $mileage = $row['mileage'];
+                    $colorID = $row['color_id'];
+                    $productCost = $row['product_cost'];
+                    $productPrice = $row['product_price'];
+                    $remarks = $row['remarks'];
 
-                    $uploadedByDetails = $employeeModel->getPersonalInformation($uploadedBy);
-                    $uploadedByName = $uploadedByDetails['file_as'] ?? null;
+                    $productCategoryDetails = $productCategoryModel->getProductCategory($productCategoryID);
+                    $productCategoryName = $productCategoryDetails['product_category_name'] ?? null;
 
-                    $productDetails = $productModel->getProduct($productID);
-                    $currentProductVersion = $productDetails['product_version'];
-                    $productPassword = $productDetails['product_password'];
-                    $isConfidential = $productDetails['is_confidential'];
+                    $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productCategoryID);
+                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
 
-                    $productStatus = ($productVersion == $currentProductVersion) ? '<span class="badge bg-light-success">Current Version</span>' : '<span class="badge bg-light-warning">Old Version</span>';
+                    $companyDetails = $companyModel->getcompany($companyID);
+                    $companyName = $companyDetails['company_name'] ?? null;
 
-                    $dropdown = '';
-                    if($productVersion != $currentProductVersion){
-                        if($isConfidential == 'No' || empty($productPassword)){
-                                $dropdown = '<div class="dropdown">
-                                <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="ti ti-dots-vertical f-18"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end">
-                                    <a href="'. $productPath .'" class="dropdown-item" target="_blank">Preview</a>
-                                </div>
-                            </div>';
-                        }
-                    }
+                    $warehouseDetails = $warehouseModel->getWarehouse($warehouseID);
+                    $warehouseName = $warehouseDetails['warehouse_name'] ?? null;
 
-                    $listMargin = ($index === 0) ? 'pt-0' : '';
+                    $bodyTypeDetails = $bodyTypeModel->getBodyType($bodyTypeID);
+                    $bodyTypeName = $bodyTypeDetails['body_type_name'] ?? null;
 
-                    $details .= ' <li class="list-group-item '. $listMargin .'">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-grow-1 me-2">
-                                            <p class="mb-2 text-primary"><b>Version: '. $productVersion .'</b></p>
-                                            <p class="mb-2">Upload Date: ' . $uploadDate . '</p>
-                                            <p class="mb-3">Uploaded By: ' . $uploadedByName . '</p>
-                                            '. $productStatus .'
-                                        </div>
-                                        <div class="flex-shrink-0">
-                                            '. $dropdown .'
-                                        </div>
-                                    </div>
-                                </li>';
+                    $unitDetails = $unitModel->getUnit($lengthUnit);
+                    $unitShortName = $unitDetails['short_name'] ?? null;
+
+                    $colorDetails = $colorModel->getColor($colorID);
+                    $colorName = $colorDetails['color_name'] ?? null;
+
+                    $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $tempProductID .'">',
+                        'PRODUCT_ID' => $productID,
+                        'PRODUCT_CATEGORY' => $productCategoryName,
+                        'PRODUCT_SUBCATEGORY' => $productSubcategoryName,
+                        'COMPANY_NAME' => $companyName,
+                        'PRODUCT_STATUS' => $productStatus,
+                        'STOCK_NUMBER' => $stockNumber,
+                        'ENGINE_NUMBER' => $engineNumber,
+                        'CHASSIS_NUMBER' => $chassisNumber,
+                        'DESCRIPTION' => $description,
+                        'WAREHOUSE_NAME' => $warehouseName,
+                        'BODY_TYPE_NAME' => $bodyTypeName,
+                        'LENGTH' => $length . ' ' . $unitShortName,
+                        'RUNNING_HOURS' => $runningHours,
+                        'MILEAGE' => $mileage,
+                        'COLOR' => $colorName,
+                        'PRODUCT_COST' => number_format($productCost, 2),
+                        'PRODUCT_PRICE' => number_format($productPrice, 2),
+                        'REMARKS' => $remarks
+                    ];
                 }
 
-                if(empty($details)){
-                    $details = 'No version history found.';
-                }
-
-                $response[] = [
-                    'productVersionHistorySummary' => $details
-                ];
-    
                 echo json_encode($response);
             }
         break;
