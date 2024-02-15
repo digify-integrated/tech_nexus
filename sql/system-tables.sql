@@ -146,6 +146,7 @@ INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('T
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Employee', '30', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Document Management', '35', '1');
 INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Inventory', '31', '1');
+INSERT INTO menu_group (menu_group_name, order_sequence, last_log_by) VALUES ('Sales Proposal', '29', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -243,6 +244,8 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Category', '6', 'product-category.php', '59', '', '16', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Subcategory', '6', 'product-subcategory.php', '59', '', '17', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product', '6', 'product.php', '', 'box', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Customer', '7', 'customer.php', '', 'users', '3', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Search Customer', '7', 'search-customer.php', '', 'search', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -343,6 +346,8 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('65', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('66', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('67', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('68', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('69', '1', '1', '0', '0', '0', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -857,6 +862,7 @@ INSERT INTO system_setting (system_setting_name, system_setting_description, val
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', 5, '1');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Default Forgot Password Link', 'This sets the default forgot password link.', 'http://localhost/tech_nexus/password-reset.php?id=', '1');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('File As Arrangement', 'This sets the arrangement of the file as.', '{last_name}, {first_name} {suffix} {middle_name}', '1');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Customer ID', 'This sets the customer ID.', '200000000', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3669,10 +3675,16 @@ VALUES
 CREATE TABLE contact(
 	contact_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	user_id INT UNSIGNED,
+	customer_id VARCHAR(50),
 	is_employee TINYINT(1) DEFAULT 0,
 	is_applicant TINYINT(1) DEFAULT 0,
 	is_customer TINYINT(1) DEFAULT 0,
+	is_comaker TINYINT(1) DEFAULT 0,
+	is_dealer TINYINT(1) DEFAULT 0,
+	is_salesman TINYINT(1) DEFAULT 0,
+	contact_status VARCHAR(50) DEFAULT 'Draft',
 	portal_access TINYINT(1) DEFAULT 0,
+	created_date DATETIME DEFAULT NOW(),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)

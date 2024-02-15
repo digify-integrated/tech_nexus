@@ -790,7 +790,7 @@ function addDocumentForm(){
                 },
                 password_strength: {
                     depends: function(element) {
-                        return ($('#is_confidential').val() === 'Yes') || (($('#is_confidential').val() === 'No') && ($('#document_password').val() !== null));
+                        return ($('#is_confidential').val() === 'Yes');
                     }
                 }
             },

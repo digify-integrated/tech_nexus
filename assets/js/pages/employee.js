@@ -463,7 +463,7 @@
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    setNotification('Tag Contact Information As Primary Success', 'The contact information has been tagged as primary successfully.', 'success');
+                                    showNotification('Tag Contact Information As Primary Success', 'The contact information has been tagged as primary successfully.', 'success');
                                     contactInformationSummary();
                                 }
                                 else {

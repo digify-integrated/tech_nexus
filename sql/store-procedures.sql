@@ -6823,6 +6823,93 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Customer Table Stored Procedures */
+
+CREATE PROCEDURE checkCustomerExist (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact
+    WHERE contact_id = p_contact_id AND is_customer = 1;
+END //
+
+CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE system_setting
+    SET value = p_customer_id,
+    last_log_by = p_last_log_by
+    WHERE system_setting_id = 5;
+
+    INSERT INTO contact (customer_id, is_customer, last_log_by) 
+	VALUES(p_customer_id, 1, p_last_log_by);
+	
+    SET p_contact_id = LAST_INSERT_ID();
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE getCustomer(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM contact
+    WHERE contact_id = p_contact_id AND is_customer = 1;
+END //
+
+CREATE PROCEDURE generateCustomerCard(IN p_offset INT, IN p_customer_per_page INT, IN p_search VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
+BEGIN
+    DECLARE sql_query VARCHAR(5000);
+
+    SET sql_query = 'SELECT 
+        c.contact_id AS contact_id, customer_id, contact_image, 
+        file_as, contact_status
+    FROM contact c
+    LEFT JOIN personal_information p ON p.contact_id = c.contact_id
+    WHERE c.is_customer = 1';
+
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND (
+            p.first_name LIKE ?
+            OR p.middle_name LIKE ?
+            OR p.last_name LIKE ?
+            OR customer_id LIKE ?
+        )');
+    END IF;
+
+    IF p_gender_filter IS NOT NULL AND p_gender_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND gender_id IN (', p_gender_filter, ')');
+    END IF;
+
+    IF p_civil_status_filter IS NOT NULL AND p_civil_status_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND civil_status_id IN (', p_civil_status_filter, ')');
+    END IF;
+
+    IF p_blood_type_filter IS NOT NULL AND p_blood_type_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND blood_type_id IN (', p_blood_type_filter, ')');
+    END IF;
+
+    IF p_religion_filter IS NOT NULL AND p_religion_filter <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND religion_id IN (', p_religion_filter, ')');
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY p.last_name LIMIT ?, ?;');
+
+    PREPARE stmt FROM sql_query;
+    IF p_search IS NOT NULL AND p_search <> '' THEN
+        EXECUTE stmt USING CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), CONCAT("%", p_search, "%"), p_offset, p_customer_per_page;
+    ELSE
+        EXECUTE stmt USING p_offset, p_customer_per_page;
+    END IF;
+
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Stored Procedures */
 
 

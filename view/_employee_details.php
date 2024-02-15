@@ -130,11 +130,6 @@
               Employee Profile
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" id="attendance-list-tab" data-bs-toggle="tab" href="#attendance-list-content" role="tab" aria-selected="true">
-              Attendance List
-            </a>
-          </li>
         </ul>
       </div>
     </div>
