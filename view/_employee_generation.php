@@ -28,8 +28,8 @@ require_once '../model/language-proficiency-model.php';
 require_once '../model/bank-model.php';
 require_once '../model/work-schedule-model.php';
 require_once '../model/bank-account-type-model.php';
-require_once '../model/system-setting-model.php';
 require_once '../model/contact-information-type-model.php';
+require_once '../model/system-setting-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();

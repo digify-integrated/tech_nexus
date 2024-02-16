@@ -6832,6 +6832,20 @@ BEGIN
     WHERE contact_id = p_contact_id AND is_customer = 1;
 END //
 
+CREATE PROCEDURE checkCustomerSearch(IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+    IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM personal_information
+        WHERE first_name = p_first_name AND middle_name = p_middle_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM personal_information
+        WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
+    END IF;
+END //
+
+
 CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6854,13 +6868,21 @@ BEGIN
     COMMIT;
 END //
 
+CREATE PROCEDURE updateCustomerStatus(IN p_contact_id INT, IN p_contact_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+    UPDATE contact 
+    SET contact_status = p_contact_status, 
+    last_log_by = p_last_log_by 
+    WHERE contact_id = p_contact_id;
+END //
+
 CREATE PROCEDURE getCustomer(IN p_contact_id INT)
 BEGIN
     SELECT * FROM contact
     WHERE contact_id = p_contact_id AND is_customer = 1;
 END //
 
-CREATE PROCEDURE generateCustomerCard(IN p_offset INT, IN p_customer_per_page INT, IN p_search VARCHAR(500), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
+CREATE PROCEDURE generateCustomerCard(IN p_offset INT, IN p_customer_per_page INT, IN p_search VARCHAR(500), IN p_customer_status VARCHAR(50), IN p_gender_filter VARCHAR(500), IN p_civil_status_filter VARCHAR(500), IN p_blood_type_filter VARCHAR(500), IN p_religion_filter VARCHAR(500), p_min_age INT, p_max_age INT)
 BEGIN
     DECLARE sql_query VARCHAR(5000);
 
@@ -6878,6 +6900,10 @@ BEGIN
             OR p.last_name LIKE ?
             OR customer_id LIKE ?
         )');
+    END IF;
+
+    IF p_customer_status IS NOT NULL AND p_customer_status <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND contact_status = ', QUOTE(p_customer_status), '');
     END IF;
 
     IF p_gender_filter IS NOT NULL AND p_gender_filter <> '' THEN
@@ -6906,6 +6932,19 @@ BEGIN
     END IF;
 
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateCustomerSearchResultTable(IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+   IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
+        SELECT contact_id, file_as
+        FROM personal_information
+        WHERE first_name = p_first_name AND middle_name = p_middle_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
+    ELSE
+        SELECT contact_id, file_as
+        FROM personal_information
+        WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
+    END IF;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

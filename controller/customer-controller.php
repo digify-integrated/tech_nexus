@@ -87,11 +87,114 @@ class CustomerController {
                 case 'add customer':
                     $this->insertCustomer();
                     break;
+                case 'save personal information':
+                    $this->savePersonalInformation();
+                    break;
+                case 'save contact information':
+                    $this->saveContactInformation();
+                    break;
+                case 'tag contact information as primary':
+                    $this->tagContactInformationAsPrimary();
+                    break;
+                case 'save contact address':
+                    $this->saveContactAddress();
+                    break;
+                case 'tag contact address as primary':
+                    $this->tagContactAddressAsPrimary();
+                    break;
+                case 'save contact identification':
+                    $this->saveContactIdentification();
+                    break;
+                case 'tag contact identification as primary':
+                    $this->tagContactIdentificationAsPrimary();
+                    break;
+                case 'save contact family background':
+                    $this->saveContactFamilyBackground();
+                    break;
+                case 'get personal information details':
+                    $this->getPersonalInformation();
+                    break;
+                case 'get contact information details':
+                    $this->getContactInformation();
+                    break;
+                case 'get contact address details':
+                    $this->getContactAddress();
+                    break;
+                case 'get contact identification details':
+                    $this->getContactIdentification();
+                    break;
+                case 'get contact family background details':
+                    $this->getContactFamilyBackground();
+                    break;
+                case 'delete contact information':
+                    $this->deleteContactInformation();
+                    break;
+                case 'delete contact address':
+                    $this->deleteContactAddress();
+                    break;
+                case 'delete contact identification':
+                    $this->deleteContactIdentification();
+                    break;
+                case 'delete contact family background':
+                    $this->deleteContactFamilyBackground();
+                    break;
+                case 'change customer image':
+                    $this->updateCustomerImage();
+                    break;
+                case 'update contact status to active':
+                    $this->updateCustomerStatusToActive();
+                    break;
+                case 'update contact status to for updating':
+                    $this->updateCustomerStatusToForUpdating();
+                    break;
+                case 'search customer':
+                    $this->searchCustomer();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
             }
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Search methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: searchCustomer
+    # Description: 
+    # Check the customer if exist and number of results.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function searchCustomer() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
+        $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
+        $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCustomerSearch = $this->customerModel->checkCustomerSearch($firstName, $middleName, $lastName);
+        $resultCount = $checkCustomerSearch['total'] ?? 0;
+    
+        echo json_encode(['success' => true, 'resultCount' => $resultCount]);
+        exit;
     }
     # -------------------------------------------------------------
     
@@ -1105,8 +1208,8 @@ class CustomerController {
         $fileName = $this->securityModel->generateFileName();
         $fileNew = $fileName . '.' . $customerImageActualFileExtension;
 
-        $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $customerID .'/customer_image/';
-        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $customerID . '/customer_image/' . $fileNew;
+        $directory = DEFAULT_CUSTOMER_RELATIVE_PATH_FILE . $customerID .'/customer_image/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_CUSTOMER_FULL_PATH_FILE . $customerID . '/customer_image/' . $fileNew;
         $filePath = $directory . $fileNew;
 
         $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
@@ -1133,6 +1236,88 @@ class CustomerController {
 
         $this->customerModel->updateCustomerImage($customerID, $filePath, $userID);
 
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+     # -------------------------------------------------------------
+    #
+    # Function: updateCustomerStatusToActive
+    # Description: 
+    # Update the customer status to active if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateCustomerStatusToActive() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCustomerExist = $this->customerModel->checkCustomerExist($customerID);
+        $total = $checkCustomerExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->customerModel->updateCustomerStatus($customerID, 'Active', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateCustomerStatusToForUpdating
+    # Description: 
+    # Update the customer status to for updating if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function updateCustomerStatusToForUpdating() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCustomerExist = $this->customerModel->checkCustomerExist($customerID);
+        $total = $checkCustomerExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->customerModel->updateCustomerStatus($customerID, 'For Updating', $userID);
+            
         echo json_encode(['success' => true]);
         exit;
     }
@@ -1424,375 +1609,6 @@ class CustomerController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: deleteContactEmergencyContact
-    # Description: 
-    # Delete the contact emergency contact if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactEmergencyContact() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactEmergencyContactID = htmlspecialchars($_POST['contact_emergency_contact_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactEmergencyContactExist = $this->customerModel->checkContactEmergencyContactExist($contactEmergencyContactID);
-        $total = $checkContactEmergencyContactExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactEmergencyContact($contactEmergencyContactID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactTraining
-    # Description: 
-    # Delete the contact training if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactTraining() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactTrainingID = htmlspecialchars($_POST['contact_training_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactTrainingExist = $this->customerModel->checkContactTrainingExist($contactTrainingID);
-        $total = $checkContactTrainingExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactTraining($contactTrainingID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactSkills
-    # Description: 
-    # Delete the contact skills if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactSkills() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactSkillsID = htmlspecialchars($_POST['contact_skills_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactSkillsExist = $this->customerModel->checkContactSkillsExist($contactSkillsID);
-        $total = $checkContactSkillsExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactSkills($contactSkillsID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactTalents
-    # Description: 
-    # Delete the contact talents if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactTalents() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactTalentsID = htmlspecialchars($_POST['contact_talents_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactTalentsExist = $this->customerModel->checkContactTalentsExist($contactTalentsID);
-        $total = $checkContactTalentsExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactTalents($contactTalentsID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactHobby
-    # Description: 
-    # Delete the contact hobby if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactHobby() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactHobbyID = htmlspecialchars($_POST['contact_hobby_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactHobbyExist = $this->customerModel->checkContactHobbyExist($contactHobbyID);
-        $total = $checkContactHobbyExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactHobby($contactHobbyID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactEmploymentHistory
-    # Description: 
-    # Delete the contact employment history if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactEmploymentHistory() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactEmploymentHistoryID = htmlspecialchars($_POST['contact_employment_history_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactEmploymentHistoryExist = $this->customerModel->checkContactEmploymentHistoryExist($contactEmploymentHistoryID);
-        $total = $checkContactEmploymentHistoryExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactEmploymentHistory($contactEmploymentHistoryID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactLicense
-    # Description: 
-    # Delete the contact license if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactLicense() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactLicenseID = htmlspecialchars($_POST['contact_license_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactLicenseExist = $this->customerModel->checkContactLicenseExist($contactLicenseID);
-        $total = $checkContactLicenseExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactLicense($contactLicenseID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactLanguage
-    # Description: 
-    # Delete the contact language if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactLanguage() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactLanguageID = htmlspecialchars($_POST['contact_language_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactLanguageExist = $this->customerModel->checkContactLanguageExist($contactLanguageID);
-        $total = $checkContactLanguageExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactLanguage($contactLanguageID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: deleteContactBank
-    # Description: 
-    # Delete the contact bank if it exists; otherwise, return an error message.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function deleteContactBank() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $contactBankID = htmlspecialchars($_POST['contact_bank_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkContactBankExist = $this->customerModel->checkContactBankExist($contactBankID);
-        $total = $checkContactBankExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->deleteContactBank($contactBankID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Custom methods
     # -------------------------------------------------------------
 
@@ -1923,88 +1739,6 @@ class CustomerController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #
-    # Function: grantPortalAccess
-    # Description: 
-    # Updates the portal status to granted.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function grantPortalAccess() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkCustomerExist = $this->customerModel->checkCustomerExist($customerID);
-        $total = $checkCustomerExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->grantPortalAccess($customerID, $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: revokePortalAccess
-    # Description: 
-    # Updates the portal status to revoked.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function revokePortalAccess() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
-    
-        $user = $this->userModel->getUserByID($userID);
-    
-        if (!$user || !$user['is_active']) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-    
-        $checkCustomerExist = $this->customerModel->checkCustomerExist($customerID);
-        $total = $checkCustomerExist['total'] ?? 0;
-
-        if($total === 0){
-            echo json_encode(['success' => false, 'notExist' =>  true]);
-            exit;
-        }
-    
-        $this->customerModel->revokePortalAccess($customerID, $userID);
-            
-        echo json_encode(['success' => true]);
-        exit;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -2070,126 +1804,6 @@ class CustomerController {
                 'birthPlace' => $customerDetails['birth_place'],
                 'height' => $customerDetails['height'] ?? 0,
                 'weight' => $customerDetails['weight'] ?? 0
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getEmploymentInformation
-    # Description: 
-    # Handles the retrieval of employment information details such as badge ID, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getEmploymentInformation() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['customer_id']) && !empty($_POST['customer_id'])) {
-            $userID = $_SESSION['user_id'];
-            $customerID = $_POST['customer_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $customerDetails = $this->customerModel->getEmploymentInformation($customerID);
-            $departmentID = $customerDetails['department_id'] ?? null;
-            $companyID = $customerDetails['company_id'] ?? null;
-            $jobPositionID = $customerDetails['job_position_id'] ?? null;
-            $customerTypeID = $customerDetails['customer_type_id'] ?? null;
-            $jobLevelID = $customerDetails['job_level_id'] ?? null;
-            $branchID = $customerDetails['branch_id'] ?? null;
-            $managerID = $customerDetails['manager_id'] ?? null;
-            $workScheduleID = $customerDetails['work_schedule_id'] ?? null;
-            $kioskPinCode = !empty($customerDetails['kiosk_pin_code']) ? $this->securityModel->decryptData($customerDetails['kiosk_pin_code']) : null;
-            $biometricsID = $customerDetails['biometrics_id'] ?? null;
-            $employmentStatus = $customerDetails['employment_status'] ?? null;
-            $jobPositionName = $this->jobPositionModel->getJobPosition($jobPositionID)['job_position_name'] ?? null;
-            $companyName = $this->companyModel->getCompany($companyID)['company_name'] ?? null;
-            $departmentName = $this->departmentModel->getDepartment($departmentID)['department_name'] ?? null;
-            $customerTypeName = $this->customerTypeModel->getCustomerType($customerTypeID)['customer_type_name'] ?? null;
-            $jobLevelName = $this->jobLevelModel->getJobLevel($jobLevelID)['rank'] ?? null;
-            $branchName = $this->branchModel->getBranch($branchID)['branch_name'] ?? null;
-
-            $isActiveBadge = $employmentStatus ? '<span class="badge bg-light-success">Active</span>' : '<span class="badge bg-light-danger">Inactive</span>';
-
-            $response = [
-                'success' => true,
-                'badgeID' => $customerDetails['badge_id'] ?? null,
-                'customerTypeID' => $customerTypeID,
-                'customerTypeName' => $customerTypeName,
-                'companyID' => $companyID,
-                'companyName' => $companyName,
-                'departmentID' => $departmentID,
-                'departmentName' => $departmentName,
-                'jobPositionID' => $jobPositionID,
-                'jobPositionName' => $jobPositionName,
-                'jobLevelID' => $jobLevelID,
-                'jobLevelName' => $jobLevelName,
-                'branchID' => $branchID,
-                'managerID' => $managerID,
-                'workScheduleID' => $workScheduleID,
-                'kioskPinCode' => $kioskPinCode,
-                'biometricsID' => $biometricsID,
-                'branchName' => $branchName,
-                'isActiveBadge' => $isActiveBadge,
-                'onboardDate' =>  $this->systemModel->checkDate('empty', $customerDetails['onboard_date'] ?? null, '', 'm/d/Y', ''),
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getCustomerQRCodeDetails
-    # Description: 
-    # Handles the retrieval of customer QR code details such as badge ID, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getCustomerQRCodeDetails() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['customer_id']) && !empty($_POST['customer_id'])) {
-            $userID = $_SESSION['user_id'];
-            $customerID = $_POST['customer_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $employmentDetails = $this->customerModel->getEmploymentInformation($customerID);
-            $customerDetails = $this->customerModel->getPersonalInformation($customerID);
-            $fileAs = $customerDetails['file_as'];
-
-            $response = [
-                'success' => true,
-                'badgeID' => $employmentDetails['badge_id'] ?? null,
-                'fileAs' => $fileAs
             ];
 
             echo json_encode($response);
@@ -2326,54 +1940,6 @@ class CustomerController {
 
     # -------------------------------------------------------------
     #
-    # Function: getContactEducationalBackground
-    # Description: 
-    # Handles the retrieval of contact educational background details such as institution name, field of study, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactEducationalBackground() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_educational_background_id']) && !empty($_POST['contact_educational_background_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactEducationalBackgroundID = htmlspecialchars($_POST['contact_educational_background_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactEducationalBackgroundDetails = $this->customerModel->getContactEducationalBackground($contactEducationalBackgroundID);
-
-            $response = [
-                'success' => true,
-                'educationalStageID' => $contactEducationalBackgroundDetails['educational_stage_id'] ?? null,
-                'institutionName' => $contactEducationalBackgroundDetails['institution_name'] ?? null,
-                'degreeEarned' => $contactEducationalBackgroundDetails['degree_earned'] ?? null,
-                'fieldOfStudy' => $contactEducationalBackgroundDetails['field_of_study'] ?? null,
-                'startMonth' => $contactEducationalBackgroundDetails['start_month'] ?? null,
-                'startYear' => $contactEducationalBackgroundDetails['start_year'] ?? null,
-                'endMonth' => $contactEducationalBackgroundDetails['end_month'] ?? null,
-                'endYear' => $contactEducationalBackgroundDetails['end_year'] ?? null,
-                'courseHighlights' => $contactEducationalBackgroundDetails['course_highlights'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
     # Function: getContactFamilyBackground
     # Description: 
     # Handles the retrieval of contact family background details such as institution name, field of study, etc.
@@ -2409,391 +1975,6 @@ class CustomerController {
                 'mobile' => $contactFamilyBackgroundDetails['mobile'] ?? null,
                 'telephone' => $contactFamilyBackgroundDetails['telephone'] ?? null,
                 'email' => $contactFamilyBackgroundDetails['email'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getContactEmergencyContact
-    # Description: 
-    # Handles the retrieval of contact emergency contact details such as institution name, field of study, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactEmergencyContact() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_emergency_contact_id']) && !empty($_POST['contact_emergency_contact_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactEmergencyContactID = htmlspecialchars($_POST['contact_emergency_contact_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactEmergencyContactDetails = $this->customerModel->getContactEmergencyContact($contactEmergencyContactID);
-
-            $response = [
-                'success' => true,
-                'emergencyContactName' => $contactEmergencyContactDetails['emergency_contact_name'] ?? null,
-                'relationID' => $contactEmergencyContactDetails['relation_id'] ?? null,
-                'mobile' => $contactEmergencyContactDetails['mobile'] ?? null,
-                'telephone' => $contactEmergencyContactDetails['telephone'] ?? null,
-                'email' => $contactEmergencyContactDetails['email'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getContactTraining
-    # Description: 
-    # Handles the retrieval of contact training details such as traning name, traning date, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactTraining() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_training_id']) && !empty($_POST['contact_training_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactTrainingID = htmlspecialchars($_POST['contact_training_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactTrainingDetails = $this->customerModel->getContactTraining($contactTrainingID);
-
-            $response = [
-                'success' => true,
-                'trainingName' => $contactTrainingDetails['training_name'] ?? null,
-                'trainingDate' =>  $this->systemModel->checkDate('empty', $contactTrainingDetails['training_date'], '', 'm/d/Y', ''),
-                'trainingLocation' => $contactTrainingDetails['training_location'] ?? null,
-                'trainingProvider' => $contactTrainingDetails['training_provider'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getContactSkills
-    # Description: 
-    # Handles the retrieval of contact skills details such as skill name, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactSkills() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_skills_id']) && !empty($_POST['contact_skills_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactSkillsID = htmlspecialchars($_POST['contact_skills_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactSkillsDetails = $this->customerModel->getContactSkills($contactSkillsID);
-
-            $response = [
-                'success' => true,
-                'skillName' => $contactSkillsDetails['skill_name'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getContactTalents
-    # Description: 
-    # Handles the retrieval of contact talents details such as talent name, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactTalents() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_talents_id']) && !empty($_POST['contact_talents_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactTalentsID = htmlspecialchars($_POST['contact_talents_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactTalentsDetails = $this->customerModel->getContactTalents($contactTalentsID);
-
-            $response = [
-                'success' => true,
-                'talentName' => $contactTalentsDetails['talent_name'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: getContactHobby
-    # Description: 
-    # Handles the retrieval of contact hobby details such as talent name, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactHobby() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_hobby_id']) && !empty($_POST['contact_hobby_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactHobbyID = htmlspecialchars($_POST['contact_hobby_id'], ENT_QUOTES, 'UTF-8');
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactHobbyDetails = $this->customerModel->getContactHobby($contactHobbyID);
-
-            $response = [
-                'success' => true,
-                'hobbyName' => $contactHobbyDetails['hobby_name'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: getContactEmploymentHistory
-    # Description: 
-    # Handles the retrieval of employment history details such as company, address, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactEmploymentHistory() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_employment_history_id']) && !empty($_POST['contact_employment_history_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactEmploymentHistoryID = $_POST['contact_employment_history_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactEmploymentHistoryDetails = $this->customerModel->getContactEmploymentHistory($contactEmploymentHistoryID);
-
-            $response = [
-                'success' => true,
-                'company' => $contactEmploymentHistoryDetails['company'] ?? null,
-                'address' => $contactEmploymentHistoryDetails['address'] ?? null,
-                'lastPositionHeld' => $contactEmploymentHistoryDetails['last_position_held'] ?? null,
-                'basicFunction' => $contactEmploymentHistoryDetails['basic_function'] ?? null,
-                'startingSalary' => $contactEmploymentHistoryDetails['starting_salary'] ?? null,
-                'finalSalary' => $contactEmploymentHistoryDetails['final_salary'] ?? null,
-                'startMonth' => $contactEmploymentHistoryDetails['start_month'] ?? null,
-                'startYear' => $contactEmploymentHistoryDetails['start_year'] ?? null,
-                'endMonth' => $contactEmploymentHistoryDetails['end_month'] ?? null,
-                'endYear' => $contactEmploymentHistoryDetails['end_year'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: getContactLicense
-    # Description: 
-    # Handles the retrieval of license details such as license name, issuing organization, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactLicense() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_license_id']) && !empty($_POST['contact_license_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactLicenseID = $_POST['contact_license_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactLicenseDetails = $this->customerModel->getContactLicense($contactLicenseID);
-
-            $response = [
-                'success' => true,
-                'licenseName' => $contactLicenseDetails['license_name'] ?? null,
-                'issuingOrganization' => $contactLicenseDetails['issuing_organization'] ?? null,
-                'description' => $contactLicenseDetails['description'] ?? null,
-                'startMonth' => $contactLicenseDetails['start_month'] ?? null,
-                'startYear' => $contactLicenseDetails['start_year'] ?? null,
-                'endMonth' => $contactLicenseDetails['end_month'] ?? null,
-                'endYear' => $contactLicenseDetails['end_year'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: getContactLanguage
-    # Description: 
-    # Handles the retrieval of language details such as language, language proficiency, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactLanguage() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_language_id']) && !empty($_POST['contact_language_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactLanguageID = $_POST['contact_language_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactLanguageDetails = $this->customerModel->getContactLanguage($contactLanguageID);
-
-            $response = [
-                'success' => true,
-                'languageID' => $contactLanguageDetails['language_id'] ?? null,
-                'languageProficiencyID' => $contactLanguageDetails['language_proficiency_id'] ?? null
-            ];
-
-            echo json_encode($response);
-            exit;
-        }
-    }
-    # -------------------------------------------------------------
-    
-    # -------------------------------------------------------------
-    #
-    # Function: getContactBank
-    # Description: 
-    # Handles the retrieval of language details such as language, language proficiency, etc.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function getContactBank() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        if (isset($_POST['contact_bank_id']) && !empty($_POST['contact_bank_id'])) {
-            $userID = $_SESSION['user_id'];
-            $contactBankID = $_POST['contact_bank_id'];
-    
-            $user = $this->userModel->getUserByID($userID);
-    
-            if (!$user || !$user['is_active']) {
-                echo json_encode(['success' => false, 'isInactive' => true]);
-                exit;
-            }
-    
-            $contactLanguageDetails = $this->customerModel->getContactBank($contactBankID);
-
-            $response = [
-                'success' => true,
-                'bankID' => $contactLanguageDetails['bank_id'] ?? null,
-                'bankAccountTypeID' => $contactLanguageDetails['bank_account_type_id'] ?? null,
-                'accountNumber' => $contactLanguageDetails['account_number'] ?? null
             ];
 
             echo json_encode($response);

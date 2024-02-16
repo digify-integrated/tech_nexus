@@ -16,6 +16,33 @@
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#customer-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Customer Status
+                        </a>
+                        <div class="collapse show" id="customer-status-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input customer-status-filter" type="radio" name="customer-status-filter" id="customer-status-all" value="" checked />
+                                <label class="form-check-label" for="customer-status-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input customer-status-filter" type="radio" name="customer-status-filter" id="customer-status-active" value="Active" />
+                                <label class="form-check-label" for="customer-status-active">Active</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input customer-status-filter" type="radio" name="customer-status-filter" id="customer-status-for-updating" value="For Updating" />
+                                <label class="form-check-label" for="customer-status-active">For Updating</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input customer-status-filter" type="radio" name="customer-status-filter" id="customer-status-draft" value="Draft" />
+                                <label class="form-check-label" for="customer-status-inactive">Inactive</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#age-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Age
                         </a>

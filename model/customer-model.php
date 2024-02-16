@@ -358,354 +358,22 @@ class CustomerModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateContactEmergencyContact
-    # Description: Updates the contact emergency contact.
+    # Function: updateCustomerStatus
+    # Description: Updates the customer status.
     #
     # Parameters:
-    # - $p_contact_emergency_contact_id (int): The emergency contact ID.
     # - $p_contact_id (int): The contact ID.
-    # - $p_emergency_contact_name (string): The emergency contact name.
-    # - $p_relation_id (int): The relation ID.
-    # - $p_mobile (string): The mobile.
-    # - $p_telephone (string): The telephone.
-    # - $p_email (string): The email.
+    # - $p_contact_status (string): The contact status.
     # - $p_last_log_by (int): The last logged user.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactEmergencyContact($p_contact_emergency_contact_id, $p_contact_id, $p_emergency_contact_name, $p_relation_id, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmergencyContact (:p_contact_emergency_contact_id, :p_contact_id, :p_emergency_contact_name, :p_relation_id, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_emergency_contact_id', $p_contact_emergency_contact_id, PDO::PARAM_INT);
+    public function updateCustomerStatus($p_contact_id, $p_contact_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateCustomerStatus (:p_contact_id, :p_contact_status, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_emergency_contact_name', $p_emergency_contact_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_relation_id', $p_relation_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
-        $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
-        $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contact_status', $p_contact_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactTraining
-    # Description: Updates the contact training.
-    #
-    # Parameters:
-    # - $p_contact_training_id (int): The training ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_training_name (string): The training name.
-    # - $p_training_date (date): The training date.
-    # - $p_training_location (string): The training location.
-    # - $p_training_provider (string): The training provider.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactTraining($p_contact_training_id, $p_contact_id, $p_training_name, $p_training_date, $p_training_location, $p_training_provider, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactTraining (:p_contact_training_id, :p_contact_id, :p_training_name, :p_training_date, :p_training_location, :p_training_provider, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_training_id', $p_contact_training_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_training_name', $p_training_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_training_date', $p_training_date, PDO::PARAM_INT);
-        $stmt->bindValue(':p_training_location', $p_training_location, PDO::PARAM_STR);
-        $stmt->bindValue(':p_training_provider', $p_training_provider, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactSkills
-    # Description: Updates the contact skills.
-    #
-    # Parameters:
-    # - $p_contact_skills_id (int): The skills ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_skill_name (string): The skill name.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactSkills($p_contact_skills_id, $p_contact_id, $p_skill_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactSkills (:p_contact_skills_id, :p_contact_id, :p_skill_name, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_skills_id', $p_contact_skills_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_skill_name', $p_skill_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactTalents
-    # Description: Updates the contact talents.
-    #
-    # Parameters:
-    # - $p_contact_talents_id (int): The talents ID.
-    # - $p_talent_name (string): The talent name.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactTalents($p_contact_talents_id, $p_contact_id, $p_talent_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactTalents (:p_contact_talents_id, :p_contact_id, :p_talent_name, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_talents_id', $p_contact_talents_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_talent_name', $p_talent_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactHobby
-    # Description: Updates the contact hobby.
-    #
-    # Parameters:
-    # - $p_contact_hobby_id (int): The hobby ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_hobby_name (string): The hobby name.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactHobby($p_contact_hobby_id, $p_contact_id, $p_hobby_name, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactHobby (:p_contact_hobby_id, :p_contact_id, :p_hobby_name, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_hobby_id', $p_contact_hobby_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_hobby_name', $p_hobby_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactEmploymentHistory
-    # Description: Updates the contact employment history.
-    #
-    # Parameters:
-    # - $p_contact_employment_history_id (int): The employment history ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_company (string): The company name.
-    # - $p_address (string): The company address.
-    # - $p_last_position_held (string): The last position held.
-    # - $p_start_month (string): The start month.
-    # - $p_start_year (string): The start year.
-    # - $p_end_month (string): The end month.
-    # - $p_end_year (string): The end year.
-    # - $p_basic_function (date): The basic function.
-    # - $p_starting_salary (double): The starting salary.
-    # - $p_final_salary (double): The final salary.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactEmploymentHistory($p_contact_employment_history_id, $p_contact_id, $p_company, $p_address, $p_last_position_held, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_basic_function, $p_starting_salary, $p_final_salary, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactEmploymentHistory (:p_contact_employment_history_id, :p_contact_id, :p_company, :p_address, :p_last_position_held, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_basic_function, :p_starting_salary, :p_final_salary, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_employment_history_id', $p_contact_employment_history_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_company', $p_company, PDO::PARAM_STR);
-        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_position_held', $p_last_position_held, PDO::PARAM_STR);
-        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
-        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
-        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
-        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
-        $stmt->bindValue(':p_basic_function', $p_basic_function, PDO::PARAM_STR);
-        $stmt->bindValue(':p_starting_salary', $p_starting_salary, PDO::PARAM_STR);
-        $stmt->bindValue(':p_final_salary', $p_final_salary, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactLicense
-    # Description: Updates the contact license.
-    #
-    # Parameters:
-    # - $p_contact_license_id (int): The license ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_license_name (string): The license name.
-    # - $issuing_organization (string): The issuing organization.
-    # - $p_start_month (string): The start month.
-    # - $p_start_year (string): The start year.
-    # - $p_end_month (string): The end month.
-    # - $p_end_year (string): The end year.
-    # - $p_description (string): The description.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactLicense($p_contact_license_id, $p_contact_id, $p_license_name, $issuing_organization, $p_start_month, $p_start_year, $p_end_month, $p_end_year, $p_description, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactLicense (:p_contact_license_id, :p_contact_id, :p_license_name, :issuing_organization, :p_start_month, :p_start_year, :p_end_month, :p_end_year, :p_description, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_license_id', $p_contact_license_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_license_name', $p_license_name, PDO::PARAM_STR);
-        $stmt->bindValue(':issuing_organization', $issuing_organization, PDO::PARAM_STR);
-        $stmt->bindValue(':p_start_month', $p_start_month, PDO::PARAM_STR);
-        $stmt->bindValue(':p_start_year', $p_start_year, PDO::PARAM_STR);
-        $stmt->bindValue(':p_end_month', $p_end_month, PDO::PARAM_STR);
-        $stmt->bindValue(':p_end_year', $p_end_year, PDO::PARAM_STR);
-        $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactLanguage
-    # Description: Updates the contact language.
-    #
-    # Parameters:
-    # - $p_contact_language_id (int): The language ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_language_id (int): The language ID.
-    # - $p_language_proficiency_id (int): The language proficiency ID.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactLanguage($p_contact_language_id, $p_contact_id, $p_language_id, $p_language_proficiency_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactLanguage (:p_contact_language_id, :p_contact_id, :p_language_id, :p_language_proficiency_id, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_language_id', $p_contact_language_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_language_id', $p_language_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_language_proficiency_id', $p_language_proficiency_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateContactBank
-    # Description: Updates the contact bank.
-    #
-    # Parameters:
-    # - $p_contact_bank_id (int): The bank ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_bank_id (int): The bank ID.
-    # - $bank_account_type_id (int): The bank account type ID.
-    # - $p_account_number (string): The account number.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateContactBank($p_contact_bank_id, $p_contact_id, $p_bank_id, $bank_account_type_id, $p_account_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactBank (:p_contact_bank_id, :p_contact_id, :p_bank_id, :bank_account_type_id, :p_account_number, :p_last_log_by)');
-        $stmt->bindValue(':p_contact_bank_id', $p_contact_bank_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_bank_id', $p_bank_id, PDO::PARAM_INT);
-        $stmt->bindValue(':bank_account_type_id', $bank_account_type_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateRegularAttendanceExit
-    # Description: Updates the regular attendance exit.
-    #
-    # Parameters:
-    # - $p_attendance_id (int): The attendance ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_check_out_image (int): The check out image.
-    # - $p_check_out (datetime): The date and time of check out.
-    # - $p_check_out_location (string): The check out location.
-    # - $p_check_out_by (string): The check out by.
-    # - $p_check_out_notes (string): The check out note.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateRegularAttendanceExit($p_attendance_id, $p_contact_id, $p_check_out_image, $p_check_out, $p_check_out_location, $p_check_out_by, $p_check_out_notes, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateRegularAttendanceExit (:p_attendance_id, :p_contact_id, :p_check_out_image, :p_check_out, :p_check_out_location, :p_check_out_by, :p_check_out_notes, :p_last_log_by)');
-        $stmt->bindValue(':p_attendance_id', $p_attendance_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_out_image', $p_check_out_image, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out_location', $p_check_out_location, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_out_notes', $p_check_out_notes, PDO::PARAM_STR);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateManualAttendanceEntry
-    # Description: Updates the manual attendance exit.
-    #
-    # Parameters:
-    # - $p_attendance_id (int): The attendance ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_check_in (datetime): The date and time of check in.
-    # - $p_check_in_notes (string): The check in notes.
-    # - $p_check_in_by (int): The check in by.
-    # - $p_check_out (datetime): The date and time of check out.
-    # - $p_check_out_notes (string): The check out notes.
-    # - $p_check_out_by (int): The check out by.
-    # - $p_last_log_by (int): The last logged user.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateManualAttendanceEntry($p_attendance_id, $p_contact_id, $p_check_in, $p_check_in_notes, $p_check_in_by, $p_check_out, $p_check_out_notes, $p_check_out_by, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateManualAttendanceEntry (:p_attendance_id, :p_contact_id, :p_check_in, :p_check_in_notes, :p_check_in_by, :p_check_out, :p_check_out_notes, :p_check_out_by, :p_last_log_by)');
-        $stmt->bindValue(':p_attendance_id', $p_attendance_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_in', $p_check_in, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_in_notes', $p_check_in_notes, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_in_by', $p_check_in_by, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out_notes', $p_check_out_notes, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
-        $stmt->execute();
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateArrangedBiometricsAttendanceRecord
-    # Description: Updates the arranged biometrics attendance record.
-    #
-    # Parameters:
-    # - $p_contact_id (int): The contact ID.
-    # - $p_check_out (datetime): The date and time of check out.
-    # - $p_check_out_by (int): The check out by.
-    #
-    # Returns: None
-    #
-    # -------------------------------------------------------------
-    public function updateArrangedBiometricsAttendanceRecord($p_contact_id, $p_check_out, $p_check_out_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateArrangedBiometricsAttendanceRecord (:p_contact_id, :p_check_out, :p_check_out_by)');
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out_by', $p_check_out_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1870,27 +1538,25 @@ class CustomerModel {
     # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
-    
+
     # -------------------------------------------------------------
     #
-    # Function: checkAttendanceConflict
-    # Description: Checks if a attendance conflicts with other attendace record.
+    # Function: checkCustomerSearch
+    # Description: Checks if a customer exists.
     #
     # Parameters:
-    # - $p_attendance_id (int): The attendance ID.
-    # - $p_contact_id (int): The contact ID.
-    # - $p_check_in (datetime): The check in.
-    # - $p_check_out (datetime): The check out.
+    # - $p_first_name (string): The first name.
+    # - $p_middle_name (string): The middle name.
+    # - $p_last_name (string): The last name.
     #
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkAttendanceConflict($p_attendance_id, $p_contact_id, $p_check_in, $p_check_out) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkAttendanceConflict(:p_attendance_id, :p_contact_id, :p_check_in, :p_check_out)');
-        $stmt->bindValue(':p_attendance_id', $p_attendance_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_check_in', $p_check_in, PDO::PARAM_STR);
-        $stmt->bindValue(':p_check_out', $p_check_out, PDO::PARAM_STR);
+    public function checkCustomerSearch($p_first_name, $p_middle_name, $p_last_name) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerSearch(:p_first_name, :p_middle_name, :p_last_name)');
+        $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -2564,7 +2230,7 @@ class CustomerModel {
         $statusClasses = [
             'Draft' => 'secondary',
             'Active' => 'success',
-            'Archived' => 'danger'
+            'For Updating' => 'warning'
         ];
         
         $defaultClass = 'dark';

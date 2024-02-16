@@ -347,7 +347,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('66', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('67', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('68', '1', '1', '1', '1', '1', '1', '1');
-INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('69', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('69', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -460,6 +460,24 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Publish Doc
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Unpublish Document', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Full Access To Document', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Import Product', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Contact Information', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Customer Contact Information', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Contact Information', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Customer Contact Information As Primary', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Address', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Customer Address', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Address', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Customer Address As Primary', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Customer Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Identification', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Customer Identification As Primary', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Family Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Customer Family Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Family Background', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change Customer Status to Active', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change Customer Status to For Updating', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -578,6 +596,25 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('96', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('97', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('98', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('99', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('100', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('101', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('102', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('103', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('104', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('105', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('106', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('107', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('108', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('109', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('110', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('111', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('112', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('113', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('114', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('115', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -71,6 +71,8 @@ define('DEFAULT_PRODUCT_FULL_PATH_FILE', '/tech_nexus/inventory/product/');
 define('DEFAULT_PRODUCT_RELATIVE_PATH_FILE', './inventory/product/');
 define('DEFAULT_EMPLOYEE_FULL_PATH_FILE', '/tech_nexus/employee/');
 define('DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE', './employee/');
+define('DEFAULT_CUSTOMER_FULL_PATH_FILE', '/tech_nexus/customer/');
+define('DEFAULT_CUSTOMER_RELATIVE_PATH_FILE', './customer/');
 define('DEFAULT_EMAIL_EXTENSION', '@encorefinancials.com');
 define('DEFAULT_PASSWORD', 'P@ssw0rd');
 

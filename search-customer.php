@@ -17,7 +17,7 @@
     require('model/bank-model.php');
     require('model/bank-account-type-model.php');
 
-    $pageTitle = 'Customer';
+    $pageTitle = 'Search Customer';
 
     $customerModel = new CustomerModel($databaseModel);
     $genderModel = new GenderModel($databaseModel);
@@ -35,10 +35,10 @@
     $bankModel = new BankModel($databaseModel);
     $bankAccountTypeModel = new BankAccountTypeModel($databaseModel);
     
-    $customerReadAccess = $userModel->checkMenuItemAccessRights($user_id, 68, 'read');
-    $customerCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 68, 'create');
-    $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 68, 'write');
-    $customerDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 68, 'delete');
+    $customerReadAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'read');
+    $customerCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'create');
+    $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
+    $customerDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'delete');
 
     $addCustomerContactInformation = $userModel->checkSystemActionAccessRights($user_id, 99);
     $updateCustomerContactInformation = $userModel->checkSystemActionAccessRights($user_id, 100);
@@ -80,7 +80,6 @@
         $customerID = null;
     }
 
-    $searchCustomer = isset($_GET['search']);
     $newRecord = isset($_GET['new']);
 
     require('config/_interface_settings.php');
@@ -114,14 +113,9 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
+                    <li class="breadcrumb-item" aria-current="page" id="search-customer-tag"><a href="search-customer.php"><?php echo $pageTitle; ?></a></li>
+                    
                     <?php
-                        if($searchCustomer){
-                            echo '<li class="breadcrumb-item" aria-current="page" id="search-customer-tag"><a href="search-customer.php">Search Customer</a></li>';
-                        }
-                        else{
-                            echo '<li class="breadcrumb-item" aria-current="page"><a href="customer.php">'. $pageTitle .'</a></li>';
-                        }
-
                         if(!$newRecord && !empty($customerID)){
                             echo '<li class="breadcrumb-item" id="customer-id">'. $customerID .'</li>';
                         }
@@ -148,7 +142,7 @@
                 require_once('view/_customer_details.php');
             }
             else{
-                require_once('view/_customer.php');
+                require_once('view/_search_customer.php');
             }
         ?>
       </div>
@@ -169,6 +163,7 @@
     <script src="./assets/js/plugins/bootstrap-slider.min.js"></script>
     <script src="./assets/js/plugins/qr/qrcode.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/search-customer.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/customer.js?v=<?php echo rand(); ?>"></script>
 </body>
 
