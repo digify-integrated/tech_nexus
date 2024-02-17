@@ -26,12 +26,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
   }
 }
 
-if($changeCustomerStatusToActive['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
-  $changeCustomerStatusButton = '<button type="button" class="btn btn-success" id="change-status-to-active">Active</button>';
-}
-else if($changeCustomerStatusToForUpdating['total'] && $customerStatus == 'Active'){
-  $changeCustomerStatusButton = '<button type="button" class="btn btn-warning" id="change-status-to-for-updating">For Updating</button>';
-}
+
 ?>
 
 <div class="row">
@@ -50,11 +45,29 @@ else if($changeCustomerStatusToForUpdating['total'] && $customerStatus == 'Activ
               </div>
               <div class="col-md-auto">
                 <?php
-                  if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
-                    echo '<button type="button" class="btn btn-outline-secondary me-1" data-bs-toggle="offcanvas" data-bs-target="#contact-image-offcanvas" aria-controls="contact-image-offcanvas" for="customer_image">Update Customer Image</button>';
-                  }
+                  if($customerWriteAccess['total'] > 0){
+                    $dropdown = '<div class="btn-group m-r-5">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle form-details" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Action
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">';
+                                
+                                if($changeCustomerStatusToActive['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
+                                  $dropdown .= '<li><button type="button" class="dropdown-item" id="change-status-to-active">Activate Customer</button></li>';
+                                }
+                                else if($changeCustomerStatusToForUpdating['total'] && $customerStatus == 'Active'){
+                                  $dropdown .= '<li><button type="button" class="dropdown-item" id="change-status-to-for-updating">For Updating</button></li>';
+                                }
 
-                  echo $changeCustomerStatusButton;
+                                if ($customerStatus == 'Draft' || $customerStatus == 'For Updating') {
+                                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-image-offcanvas" aria-controls="contact-image-offcanvas">Update Customer Image</button></li>';
+                                }
+                                        
+                                $dropdown .= '</ul>
+                                            </div>';
+                                    
+                                echo $dropdown;
+                  }                  
                 ?>
               </div>
             </div>
