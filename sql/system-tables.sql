@@ -479,6 +479,14 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Cust
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change Customer Status to Active', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Change Customer Status to For Updating', '1');
 
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('View Sales Proposal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Sales Proposal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Sales Proposal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Sales Proposal', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Co-Maker', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Co-Maker', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* System Action Access Right Table */
@@ -615,6 +623,14 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('114', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('115', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('116', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('117', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('118', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('119', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('120', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('121', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3716,7 +3732,7 @@ CREATE TABLE contact(
 	is_employee TINYINT(1) DEFAULT 0,
 	is_applicant TINYINT(1) DEFAULT 0,
 	is_customer TINYINT(1) DEFAULT 0,
-	is_comaker TINYINT(1) DEFAULT 0,
+	is_comaker TINYINT(1) DEFAULT 1,
 	is_dealer TINYINT(1) DEFAULT 0,
 	is_salesman TINYINT(1) DEFAULT 0,
 	contact_status VARCHAR(50) DEFAULT 'Draft',
@@ -3820,8 +3836,8 @@ CREATE TABLE contact_information (
 );
 
 CREATE INDEX contact_information_index_contact_information_id ON contact_information(contact_information_id);
-CREATE INDEX contact_information_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_information_index_contact_information_type_id ON contact_information_type(contact_information_type_id);
+CREATE INDEX contact_information_index_contact_id ON contact_information(contact_id);
+CREATE INDEX contact_information_index_contact_information_type_id ON contact_information(contact_information_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3840,9 +3856,9 @@ CREATE TABLE contact_address (
 );
 
 CREATE INDEX contact_address_index_contact_address_id ON contact_address(contact_address_id);
-CREATE INDEX contact_address_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_address_index_address_type_id ON address_type(address_type_id);
-CREATE INDEX contact_address_index_city_id ON city(city_id);
+CREATE INDEX contact_address_index_contact_id ON contact_address(contact_id);
+CREATE INDEX contact_address_index_address_type_id ON contact_address(address_type_id);
+CREATE INDEX contact_address_index_city_id ON contact_address(city_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3860,8 +3876,8 @@ CREATE TABLE contact_identification (
 );
 
 CREATE INDEX contact_identification_index_contact_identification_id ON contact_identification(contact_identification_id);
-CREATE INDEX contact_identification_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_identification_index_id_type_id ON id_type(id_type_id);
+CREATE INDEX contact_identification_index_contact_id ON contact_identification(contact_id);
+CREATE INDEX contact_identification_index_id_type_id ON contact_identification(id_type_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3885,8 +3901,8 @@ CREATE TABLE contact_educational_background (
 );
 
 CREATE INDEX contact_educational_background_index_educational_background_id ON contact_educational_background(contact_educational_background_id);
-CREATE INDEX contact_educational_background_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_educational_background_index_educational_stage_id ON educational_stage(educational_stage_id);
+CREATE INDEX contact_educational_background_index_contact_id ON contact_educational_background(contact_id);
+CREATE INDEX contact_educational_background_index_educational_stage_id ON contact_educational_background(educational_stage_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3907,8 +3923,8 @@ CREATE TABLE contact_family_background (
 );
 
 CREATE INDEX contact_family_background_index_family_background_id ON contact_family_background(contact_family_background_id);
-CREATE INDEX contact_family_background_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_family_background_index_relation_id ON relation(relation_id);
+CREATE INDEX contact_family_background_index_contact_id ON contact_family_background(contact_id);
+CREATE INDEX contact_family_background_index_relation_id ON contact_family_background(relation_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3928,8 +3944,8 @@ CREATE TABLE contact_emergency_contact (
 );
 
 CREATE INDEX contact_emergency_contact_index_emergency_contact_id ON contact_emergency_contact(contact_emergency_contact_id);
-CREATE INDEX contact_emergency_contact_index_contact_id ON contact(contact_id);
-CREATE INDEX contact_emergency_contact_index_relation_id ON relation(relation_id);
+CREATE INDEX contact_emergency_contact_index_contact_id ON contact_emergency_contact(contact_id);
+CREATE INDEX contact_emergency_contact_index_relation_id ON contact_emergency_contact(relation_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3948,7 +3964,7 @@ CREATE TABLE contact_training (
 );
 
 CREATE INDEX contact_training_index_contact_training_id ON contact_training(contact_training_id);
-CREATE INDEX contact_training_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_training_index_contact_id ON contact_training(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3964,7 +3980,7 @@ CREATE TABLE contact_skills (
 );
 
 CREATE INDEX contact_skills_index_contact_skills_id ON contact_skills(contact_skills_id);
-CREATE INDEX contact_skills_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_skills_index_contact_id ON contact_skills(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3980,7 +3996,7 @@ CREATE TABLE contact_talents (
 );
 
 CREATE INDEX contact_talents_index_contact_talents_id ON contact_talents(contact_talents_id);
-CREATE INDEX contact_talents_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_talents_index_contact_id ON contact_talents(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3996,7 +4012,7 @@ CREATE TABLE contact_hobby (
 );
 
 CREATE INDEX contact_hobby_index_contact_hobby_id ON contact_hobby(contact_hobby_id);
-CREATE INDEX contact_hobby_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_hobby_index_contact_id ON contact_hobby(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4021,7 +4037,7 @@ CREATE TABLE contact_employment_history (
 );
 
 CREATE INDEX contact_employment_history_index_contact_employment_history_id ON contact_employment_history(contact_employment_history_id);
-CREATE INDEX contact_employment_history_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_employment_history_index_contact_id ON contact_employment_history(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4043,7 +4059,25 @@ CREATE TABLE contact_license (
 );
 
 CREATE INDEX contact_license_index_contact_license_id ON contact_license(contact_license_id);
-CREATE INDEX contact_license_index_contact_id ON contact(contact_id);
+CREATE INDEX contact_license_index_contact_id ON contact_license(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Comaker Table */
+
+CREATE TABLE contact_comaker (
+    contact_comaker_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    comaker_id INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (comaker_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_comaker_index_contact_comaker_id ON contact_comaker(contact_comaker_id);
+CREATE INDEX contact_comaker_index_contact_id ON contact_comaker(contact_id);
+CREATE INDEX contact_comaker_index_comaker_id ON contact_comaker(comaker_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

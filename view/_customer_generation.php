@@ -145,7 +145,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         # -------------------------------------------------------------
 
-         # -------------------------------------------------------------
+        # -------------------------------------------------------------
         #
         # Type: personal information summary
         # Description:
@@ -634,6 +634,128 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'contactFamilyBackgroundSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: search comaker result table
+        # Description:
+        # Generates the search comaker result table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'search comaker result table':
+            if(isset($_POST['customer_id']) && !empty($_POST['customer_id'])){
+                $details = '';
+                $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+                $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
+                $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateCustomerComakerSearchResultTable(:customerID, :firstName, :lastName)');
+                $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
+                $sql->bindValue(':firstName', $firstName, PDO::PARAM_STR);
+                $sql->bindValue(':lastName', $lastName, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                foreach ($options as $row) {
+                    $contactID = $row['contact_id'];
+                    $fileAs = $row['file_as'];
+
+                    $response[] = [
+                        'FILE_AS' => $fileAs,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-success assign-comaker" data-comaker-id="'. $contactID .'" title="Assign Co-maker">
+                                            <i class="ti ti-check"></i>
+                                        </button>
+                                    </div>'
+                    ];
+                }
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        
+        # -------------------------------------------------------------
+        #
+        # Type: comaker summary
+        # Description:
+        # Generates the co-maker summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'comaker summary':
+            if(isset($_POST['customer_id']) && !empty($_POST['customer_id'])){
+                $details = '';
+                $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactComakerSummary(:customerID)');
+                $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $deleteCustomerComaker = $userModel->checkSystemActionAccessRights($user_id, 121);
+
+                foreach ($options as $index => $row) {
+                    $contactComakerID = $row['contact_comaker_id'];
+                    $comakerID = $row['comaker_id'];
+
+                    $comakerDetails = $customerModel->getPersonalInformation($comakerID);
+                    $comakerName = $comakerDetails['file_as'] ?? null;
+
+                    $dropdown = '';
+                    if ($deleteCustomerComaker['total'] > 0) {
+                        $delete = ($deleteCustomerComaker['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-comaker" data-contact-comaker-id="'. $contactComakerID . '">Delete</a>' : '';
+                    
+                        $dropdown = ($delete) ? '<div class="dropdown">
+                            <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ti ti-dots-vertical f-18"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                ' . $delete . '
+                            </div>
+                        </div>' : '';
+                    }
+                    
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
+
+                    $details .= ' <li class="list-group-item '. $listMargin .'">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            <p class="mb-1 text-primary"><b>'. $comakerName .'</b></p>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            '. $dropdown .'
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No co-maker found.';
+                }
+
+                $response[] = [
+                    'contactComakerSummary' => $details
                 ];
     
                 echo json_encode($response);

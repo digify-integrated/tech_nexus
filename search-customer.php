@@ -50,6 +50,8 @@
     $updateCustomerFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 112);
     $changeCustomerStatusToActive = $userModel->checkSystemActionAccessRights($user_id, 114);
     $changeCustomerStatusToForUpdating = $userModel->checkSystemActionAccessRights($user_id, 115);
+    $viewSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 116);
+    $addCustomerComaker = $userModel->checkSystemActionAccessRights($user_id, 120);
 
     if ($customerReadAccess['total'] == 0) {
         header('location: 404.php');

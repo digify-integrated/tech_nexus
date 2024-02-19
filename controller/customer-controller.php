@@ -138,6 +138,9 @@ class CustomerController {
                 case 'delete contact family background':
                     $this->deleteContactFamilyBackground();
                     break;
+                case 'delete contact comaker':
+                    $this->deleteContactComaker();
+                    break;
                 case 'change customer image':
                     $this->updateCustomerImage();
                     break;
@@ -149,6 +152,12 @@ class CustomerController {
                     break;
                 case 'search customer':
                     $this->searchCustomer();
+                    break;
+                case 'search customer comaker':
+                    $this->searchCustomerComaker();
+                    break;
+                case 'assign co-maker':
+                    $this->assignComaker();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -192,6 +201,42 @@ class CustomerController {
     
         $checkCustomerSearch = $this->customerModel->checkCustomerSearch($firstName, $middleName, $lastName);
         $resultCount = $checkCustomerSearch['total'] ?? 0;
+    
+        echo json_encode(['success' => true, 'resultCount' => $resultCount]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: searchCustomerComaker
+    # Description: 
+    # Check the customer comaker if exist and number of results.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function searchCustomerComaker() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $firstName = htmlspecialchars($_POST['comaker_first_name'], ENT_QUOTES, 'UTF-8');
+        $lastName = htmlspecialchars($_POST['comaker_last_name'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCustomerComakerSearch = $this->customerModel->checkCustomerComakerSearch($customerID, $firstName, $lastName);
+        $resultCount = $checkCustomerComakerSearch['total'] ?? 0;
     
         echo json_encode(['success' => true, 'resultCount' => $resultCount]);
         exit;
@@ -1251,7 +1296,7 @@ class CustomerController {
     }
     # -------------------------------------------------------------
 
-     # -------------------------------------------------------------
+    # -------------------------------------------------------------
     #
     # Function: updateCustomerStatusToActive
     # Description: 
@@ -1351,6 +1396,60 @@ class CustomerController {
         }
     
         $this->customerModel->updateCustomerStatus($customerID, 'For Updating', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Assign methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: assignComaker
+    # Description: 
+    # Assign the customer if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function assignComaker() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkCustomerExist = $this->customerModel->checkCustomerExist($customerID);
+        $total = $checkCustomerExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $checkComakerExist = $this->customerModel->checkCustomerExist($comakerID);
+        $total = $checkComakerExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->customerModel->insertCustomerComaker($customerID, $comakerID, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -1636,6 +1735,47 @@ class CustomerController {
         }
     
         $this->customerModel->deleteContactFamilyBackground($contactFamilyBackgroundID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactComaker
+    # Description: 
+    # Delete the contact family background if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactComaker() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactComakerID = htmlspecialchars($_POST['contact_comaker_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactComakerExist = $this->customerModel->checkContactComakerExist($contactComakerID);
+        $total = $checkContactComakerExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->customerModel->deleteContactComaker($contactComakerID);
             
         echo json_encode(['success' => true]);
         exit;

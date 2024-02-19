@@ -6866,6 +6866,26 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE checkCustomerComakerSearch(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+    SELECT COUNT(*) AS total
+    FROM personal_information
+    WHERE first_name = p_first_name AND last_name = p_last_name 
+    AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND is_comaker = 1 AND contact_status = 'Active')
+    AND contact_id != p_contact_id 
+    AND contact_id NOT IN (SELECT comaker_id FROM contact_comaker WHERE contact_id = p_contact_id);
+END //
+
+CREATE PROCEDURE generateCustomerComakerSearchResultTable(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+    SELECT contact_id, file_as
+    FROM personal_information
+    WHERE first_name = p_first_name AND last_name = p_last_name 
+    AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND is_comaker = 1 AND contact_status = 'Active')
+    AND contact_id != p_contact_id 
+    AND contact_id NOT IN (SELECT comaker_id FROM contact_comaker WHERE contact_id = p_contact_id);
+END //
+
 CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -6966,6 +6986,48 @@ BEGIN
         WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
     END IF;
 END //
+
+CREATE PROCEDURE generateContactComakerSummary(IN p_contact_id INT)
+BEGIN
+    SELECT contact_comaker_id, comaker_id
+    FROM contact_comaker
+    WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE insertCustomerComaker(IN p_contact_id INT, IN p_comaker_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO contact_comaker (contact_id, comaker_id, last_log_by) 
+	VALUES(p_contact_id, p_comaker_id, p_last_log_by);
+END //
+
+CREATE PROCEDURE checkContactComakerExist (IN p_contact_comaker_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_comaker
+    WHERE contact_comaker_id = p_contact_comaker_id;
+END //
+
+CREATE PROCEDURE deleteContactComaker (IN p_contact_comaker_id INT)
+BEGIN
+	DELETE FROM contact_comaker WHERE contact_comaker_id = p_contact_comaker_id;
+END //
+
+CREATE PROCEDURE getCustomerPrimaryAddress(IN p_contact_id INT)
+BEGIN
+	SELECT address, city_name, state_name, country_name FROM contact_address
+    LEFT OUTER JOIN city ON city.city_id = contact_address.city_id
+    LEFT OUTER JOIN state ON state.state_id = city.state_id
+    LEFT OUTER JOIN country ON country.country_id = state.country_id
+    WHERE contact_id = p_contact_id AND is_primary = 1;
+END //
+
+CREATE PROCEDURE generateComakerRadioOptions(IN p_contact_id INT)
+BEGIN
+    SELECT contact_id, file_as
+    FROM personal_information
+    WHERE contact_id IN (SELECT comaker_id FROM contact_comaker WHERE contact_id = p_contact_id);
+END //
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

@@ -224,6 +224,131 @@
                 customerFamilyBackgroundSummary();
             }
 
+            if($('#contact-comaker-summary').length){
+                customerComakerSummary();
+            }
+
+            if($('#comaker-result-table').length){
+                searchComakerResultTable('#comaker-result-table');
+            }
+
+            if($('#search-contact-comaker-form').length){
+                searchCustomerComakerForm();
+            }
+
+            $(document).on('click','.assign-comaker',function() {
+                const comaker_id = $(this).data('comaker-id');
+                const customer_id = $('#customer-id').text();
+                const transaction = 'assign co-maker';
+        
+                Swal.fire({
+                    title: 'Confirm Co-Maker Assignment',
+                    text: 'Are you sure you want to assign this comaker to the customer?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Assign',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-warning mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/customer-controller.php',
+                            dataType: 'json',
+                            data: {
+                                comaker_id : comaker_id, 
+                                customer_id : customer_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Assign Comaker Success', 'The co-maker has been assigned successfully.', 'success');
+                                    searchComakerResultTable('#comaker-result-table');
+                                    customerComakerSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Assign Comaker Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','.delete-comaker',function() {
+                const contact_comaker_id = $(this).data('contact-comaker-id');
+                const transaction = 'delete contact comaker';
+        
+                Swal.fire({
+                    title: 'Confirm Co-Maker Deletion',
+                    text: 'Are you sure you want to delete this co-maker?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/customer-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_comaker_id : contact_comaker_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Co-maker Success', 'The co-maker has been deleted successfully.', 'success');
+                                    customerComakerSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Co-maker Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
             $(document).on('click','.update-contact-information',function() {
                 const contact_information_id = $(this).data('contact-information-id');
         
@@ -698,13 +823,13 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else if (response.noPrimaryAddress) {
-                                        showNotification('Customer Status Activation Error', 'There is not set primary address of the customer.', 'danger');
+                                        showNotification('Customer Status Activation Error', 'There is no primary address set.', 'danger');
                                     }
                                     else if (response.noPrimaryContactInformation) {
-                                        showNotification('Customer Status Activation Error', 'There is not set primary contact information of the customer.', 'danger');
+                                        showNotification('Customer Status Activation Error', 'There is no primary contact information set.', 'danger');
                                     }
                                     else if (response.noPrimaryIdentification) {
-                                        showNotification('Customer Status Activation Error', 'There is not set primary contact identification of the customer.', 'danger');
+                                        showNotification('Customer Status Activation Error', 'There is no primary contact identification set.', 'danger');
                                     }
                                     else if (response.notExist) {
                                         window.location = '404.php';
@@ -956,6 +1081,31 @@ function customerFamilyBackgroundSummary(){
         },
         success: function(response) {
             document.getElementById('contact-family-background-summary').innerHTML = response[0].contactFamilyBackgroundSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
+function customerComakerSummary(){
+    const type = 'comaker summary';
+    var customer_id = $('#customer-id').text();
+            
+    $.ajax({
+        url: 'view/_customer_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            customer_id : customer_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-comaker-summary').innerHTML = response[0].contactComakerSummary;
         },
         error: function(xhr, status, error) {
             var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -1695,6 +1845,165 @@ function customerFamilyBackgroundForm(){
                     $('#contact-family-background-offcanvas').offcanvas('hide');
                     customerFamilyBackgroundSummary();
                     resetModalForm('contact-family-background-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function searchComakerResultTable(datatable_name, buttons = false, show_all = false){
+    const type = 'search comaker result table';
+    const customer_id = $('#customer-id').text();
+    var first_name = $('#comaker_first_name').val();
+    var last_name = $('#comaker_last_name').val();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'FILE_AS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '85%', 'aTargets': 0 },
+        { 'width': '15%','bSortable': false, 'aTargets': 1 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_customer_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'customer_id' : customer_id, 'first_name' : first_name, 'last_name' : last_name},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function searchCustomerComakerForm(){
+    $('#search-contact-comaker-form').validate({
+        rules: {
+            comaker_first_name: {
+                required: true
+            },
+            comaker_last_name: {
+                required: true
+            }
+        },
+        messages: {
+            comaker_first_name: {
+                required: 'Please enter the first name'
+            },
+            comaker_last_name: {
+                required: 'Please enter the last name'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const customer_id = $('#customer-id').text();
+            const transaction = 'search customer comaker';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/customer-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&customer_id=' + customer_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const resultCount = response.resultCount;
+                        const notificationTitle = 'Search Co-Maker Success';
+                        let notificationMessage;
+
+                        if (resultCount === 0) {
+                            notificationMessage = 'No co-maker found.';
+                        } else if (resultCount === 1) {
+                            notificationMessage = '1 co-maker found.';
+                        } else {
+                            notificationMessage = `${resultCount} co-makers found.`;
+                        }
+
+                        showNotification(notificationTitle, notificationMessage, 'success');
+                        searchComakerResultTable('#comaker-result-table');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('search-contact-comaker', 'Search');
                 }
             });
         

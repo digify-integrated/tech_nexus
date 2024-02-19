@@ -5,6 +5,7 @@ $contactInformationAdd = '';
 $customerIdentificationAdd = '';
 $customerFamilyBackgroundAdd = '';
 $changeCustomerStatusButton = '';
+$customerComakerAdd = '';
 
 if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')){
   $customerCustomerInformationUpdate = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#personal-information-offcanvas" aria-controls="personal-information-offcanvas" id="update-personal-information"><i class="ti ti-pencil"></i></button>';
@@ -24,9 +25,11 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
   if($addCustomerFamilyBackground['total'] > 0){
     $customerFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
   }
+
+  if($addCustomerComaker['total'] > 0){
+    $customerComakerAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-offcanvas" aria-controls="contact-comaker-offcanvas" id="add-contact-comaker"><i class="ti ti-plus"></i></button>';
+  }
 }
-
-
 ?>
 
 <div class="row">
@@ -67,7 +70,11 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                                             </div>';
                                     
                                 echo $dropdown;
-                  }                  
+                  }                 
+                  
+                  if($viewSalesProposal['total'] > 0 && $customerStatus == 'Active'){
+                    echo '<a href="sales-proposal.php?new&customer='. $securityModel->encryptData($customerID) .'" class="btn btn-success">Create Sales Proposal</a>';
+                  }
                 ?>
               </div>
             </div>
@@ -88,6 +95,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-contact-information-tab" data-bs-toggle="tab" href="#v-customer-profile-contact-information" role="tab" aria-controls="v-customer-profile-contact-information">Contact Information</a></li>
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-customer-identification-tab" data-bs-toggle="tab" href="#v-customer-profile-customer-identification">Contact Identification</a></li>
                     <li class="nav-item"><a class="nav-link" id="v-customer-profile-family-background-tab" data-bs-toggle="tab" href="#v-customer-profile-family-background" role="tab" aria-controls="v-customer-profile-family-background">Family Background</a></li>
+                    <li class="nav-item"><a class="nav-link" id="v-customer-profile-comaker-tab" data-bs-toggle="tab" href="#v-customer-profile-comaker" role="tab" aria-controls="v-customer-profile-comaker">Co-Maker</a></li>
                   </ul>
                 </div>
               </div>
@@ -156,6 +164,19 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                 </div>
                 <div class="card-body">
                   <ul class="list-group list-group-flush" id="contact-family-background-summary"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="v-customer-profile-comaker" role="tabpanel" aria-labelledby="v-customer-profile-comaker-tab">
+              <div class="card">
+                <div class="card-header">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <h5>Co-Maker</h5>
+                    <?php echo $customerComakerAdd; ?>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush" id="contact-comaker-summary"></ul>
                 </div>
               </div>
             </div>
@@ -494,6 +515,52 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                         <div class="col-lg-12">
                           <button type="submit" class="btn btn-primary" id="submit-contact-family-background" form="contact-family-background-form">Submit</button>
                           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>';
+          }
+
+          if($addCustomerComaker['total'] > 0){
+            echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-comaker-offcanvas" aria-labelledby="contact-comaker-offcanvas-label">
+                    <div class="offcanvas-header">
+                      <h2 id="contact-comaker-offcanvas-label" style="margin-bottom:-0.5rem">Search Co-maker</h2>
+                      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <form id="search-contact-comaker-form" method="post" action="#">
+                            <div class="form-group row">
+                              <div class="col-lg-6">
+                                <label class="form-label" for="comaker_first_name">First Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="comaker_first_name" name="comaker_first_name" maxlength="100" autocomplete="off">
+                              </div>
+                              <div class="col-lg-6">
+                                <label class="form-label" for="comaker_last_name">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="comaker_last_name" name="comaker_last_name" maxlength="100" autocomplete="off">
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                      <div class="row mb-4">
+                        <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="search-contact-comaker" form="search-contact-comaker-form">Search</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <table id="comaker-result-table" class="table table-hover nowrap w-100 dataTable">
+                            <thead>
+                              <tr>
+                                <th>Co-Maker</th>
+                                <th class="all">Assign</th>
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
                         </div>
                       </div>
                     </div>

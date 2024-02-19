@@ -1148,6 +1148,28 @@ class CustomerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertCustomerComaker
+    # Description: Inserts the regular imported attendance record.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_comaker_id (datetime): The date and time of check in.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertCustomerComaker($p_contact_id, $p_comaker_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCustomerComaker (:p_contact_id, :p_comaker_id, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -1536,6 +1558,25 @@ class CustomerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkContactComakerExist
+    # Description: Checks if the there are attendance record that does not have check out.
+    #
+    # Parameters:
+    # - $p_contact_comaker_id (int): The contact comaker ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactComakerExist($p_contact_comaker_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactComakerExist(:p_contact_comaker_id)');
+        $stmt->bindValue(':p_contact_comaker_id', $p_contact_comaker_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check methods
     # -------------------------------------------------------------
 
@@ -1556,6 +1597,29 @@ class CustomerModel {
         $stmt = $this->db->getConnection()->prepare('CALL checkCustomerSearch(:p_first_name, :p_middle_name, :p_last_name)');
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_middle_name', $p_middle_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkCustomerComakerSearch
+    # Description: Checks if a customer comaker exists.
+    #
+    # Parameters:
+    # - $p_customer_id (int): The customer ID.
+    # - $p_first_name (string): The first name.
+    # - $p_last_name (string): The last name.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkCustomerComakerSearch($p_customer_id, $p_first_name, $p_last_name) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerComakerSearch(:p_customer_id, :p_first_name, :p_last_name)');
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1928,6 +1992,24 @@ class CustomerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteContactComaker
+    # Description: Deletes the contact comaker.
+    #
+    # Parameters:
+    # - $p_contact_comaker_id (int): The contact comaker ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactComaker($p_contact_comaker_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactComaker(:p_contact_comaker_id)');
+        $stmt->bindValue(':p_contact_comaker_id', $p_contact_comaker_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -2270,6 +2352,26 @@ class CustomerModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getCustomerPrimaryAddress
+    # Description: Retrieves the details of a contact primary address.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getCustomerPrimaryAddress($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCustomerPrimaryAddress(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -2327,6 +2429,50 @@ class CustomerModel {
             $fileAs = $row['file_as'];
 
             $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: generateComakerRadioOptions
+    # Description: Generates the customer options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateComakerRadioOptions($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateComakerRadioOptions(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt->closeCursor();
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['contact_id'];
+            $fileAs = $row['file_as'];
+
+            $addressDetails = $this->getCustomerPrimaryAddress($contactID);
+            $comakerAddress = $addressDetails['address'] . ', ' . $addressDetails['city_name'] . ', ' . $addressDetails['state_name'] . ', ' . $addressDetails['country_name'];
+
+            $htmlOptions .= '<div class="address-check border rounded p-3">
+                                <div class="form-check">
+                                <input type="radio" name="comaker_options" class="form-check-input input-primary"
+                                    id="comaker-check-'. $contactID .'" value="'. $contactID .'">
+                                <label class="form-check-label d-block" for="comaker-check-'. $contactID .'">
+                                    <span class="h6 mb-0 d-block">'. $fileAs .'</span>
+                                    <span class="text-muted address-details">'. $comakerAddress .'</span>
+                                    <span class="row align-items-center justify-content-between">
+                                    </span>
+                                </label>
+                                </div>
+                            </div>';
         }
 
         return $htmlOptions;
