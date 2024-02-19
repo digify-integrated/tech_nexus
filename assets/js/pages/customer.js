@@ -697,6 +697,15 @@
                                         setNotification('User Inactive', response.message, 'danger');
                                         window.location = 'logout.php?logout';
                                     }
+                                    else if (response.noPrimaryAddress) {
+                                        showNotification('Customer Status Activation Error', 'There is not set primary address of the customer.', 'danger');
+                                    }
+                                    else if (response.noPrimaryContactInformation) {
+                                        showNotification('Customer Status Activation Error', 'There is not set primary contact information of the customer.', 'danger');
+                                    }
+                                    else if (response.noPrimaryIdentification) {
+                                        showNotification('Customer Status Activation Error', 'There is not set primary contact identification of the customer.', 'danger');
+                                    }
                                     else if (response.notExist) {
                                         window.location = '404.php';
                                     }
@@ -967,6 +976,18 @@ function addCustomerForm(){
             last_name: {
                 required: true
             },
+            birthday: {
+                required: true
+            },
+            birth_place: {
+                required: true
+            },
+            gender: {
+                required: true
+            },
+            civil_status: {
+                required: true
+            },
         },
         messages: {
             first_name: {
@@ -974,6 +995,18 @@ function addCustomerForm(){
             },
             last_name: {
                 required: 'Please enter the last name'
+            },
+            birthday: {
+                required: 'Please enter the birthday'
+            },
+            birth_place: {
+                required: 'Please enter the birth place'
+            },
+            gender: {
+                required: 'Please choose the gender'
+            },
+            civil_status: {
+                required: 'Please choose the civil status'
             },
         },
         errorPlacement: function (error, element) {
@@ -1070,6 +1103,9 @@ function personalInformationForm(){
             birthday: {
                 required: true
             },
+            birth_place: {
+                required: true
+            },
             gender: {
                 required: true
             },
@@ -1083,6 +1119,12 @@ function personalInformationForm(){
             },
             last_name: {
                 required: 'Please enter the last name'
+            },
+            birthday: {
+                required: 'Please enter the birthday'
+            },
+            birth_place: {
+                required: 'Please enter the birth place'
             },
             gender: {
                 required: 'Please choose the gender'

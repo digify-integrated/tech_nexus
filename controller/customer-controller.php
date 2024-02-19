@@ -1110,6 +1110,16 @@ class CustomerController {
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
+        $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
+        $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
+        $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
+        $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');
+        $religion = htmlspecialchars($_POST['religion'], ENT_QUOTES, 'UTF-8');
+        $bloodType = htmlspecialchars($_POST['blood_type'], ENT_QUOTES, 'UTF-8');
+        $birthday = $this->systemModel->checkDate('empty', $_POST['birthday'], '', 'Y-m-d', '');
+        $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
+        $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
+        $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
 
         $fileAs = $this->systemSettingModel->getSystemSetting(4)['value'];
         $fileAs = str_replace('{first_name}', $firstName, $fileAs);
@@ -1127,7 +1137,7 @@ class CustomerController {
         }
     
         $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
-        $this->customerModel->insertPartialPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $userID);
+        $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
         echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID)]);
         exit;
@@ -1272,6 +1282,30 @@ class CustomerController {
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $checkCustomerPrimaryAddress = $this->customerModel->checkCustomerPrimaryAddress($customerID);
+        $total = $checkCustomerPrimaryAddress['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'noPrimaryAddress' =>  true]);
+            exit;
+        }
+    
+        $checkCustomerPrimaryContactInformation = $this->customerModel->checkCustomerPrimaryContactInformation($customerID);
+        $total = $checkCustomerPrimaryContactInformation['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'noPrimaryContactInformation' =>  true]);
+            exit;
+        }
+    
+        $checkCustomerPrimaryIdentification = $this->customerModel->checkCustomerPrimaryIdentification($customerID);
+        $total = $checkCustomerPrimaryIdentification['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'noPrimaryIdentification' =>  true]);
             exit;
         }
     

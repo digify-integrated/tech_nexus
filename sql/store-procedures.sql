@@ -6832,6 +6832,27 @@ BEGIN
     WHERE contact_id = p_contact_id AND is_customer = 1;
 END //
 
+CREATE PROCEDURE checkCustomerPrimaryAddress (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_address
+    WHERE contact_id = p_contact_id AND is_primary = 1;
+END //
+
+CREATE PROCEDURE checkCustomerPrimaryContactInformation (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_information
+    WHERE contact_id = p_contact_id AND is_primary = 1;
+END //
+
+CREATE PROCEDURE checkCustomerPrimaryIdentification (IN p_contact_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_identification
+    WHERE contact_id = p_contact_id AND is_primary = 1;
+END //
+
 CREATE PROCEDURE checkCustomerSearch(IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300))
 BEGIN
     IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
@@ -6844,7 +6865,6 @@ BEGIN
         WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
     END IF;
 END //
-
 
 CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN

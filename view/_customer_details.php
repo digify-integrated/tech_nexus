@@ -216,7 +216,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6">
-                        <label class="form-label">Birth Place</label>
+                        <label class="form-label">Birth Place <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
                       </div>
                       <div class="col-lg-6 mt-3 mt-lg-0">

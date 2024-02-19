@@ -1563,6 +1563,63 @@ class CustomerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkCustomerPrimaryAddress
+    # Description: Checks if there is a primary address of the customer.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkCustomerPrimaryAddress($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerPrimaryAddress(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkCustomerPrimaryContactInformation
+    # Description: Checks if there is a primary contact information of the customer.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkCustomerPrimaryContactInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerPrimaryContactInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkCustomerPrimaryIdentification
+    # Description: Checks if there is a primary identification of the customer.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkCustomerPrimaryIdentification($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerPrimaryIdentification(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
