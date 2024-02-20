@@ -28,6 +28,7 @@ class ProductModel {
     # - $p_stock_number (string): The stock number.
     # - $p_engine_number (string): The engine number.
     # - $p_chassis_number (string): The chassis number.
+    # - $p_plate_number (string): The plate number.
     # - $p_description (string): The product description.
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_body_type_id (int): The body type ID.
@@ -44,8 +45,8 @@ class ProductModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+    public function updateProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
@@ -53,6 +54,7 @@ class ProductModel {
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
@@ -83,6 +85,7 @@ class ProductModel {
     # - $p_stock_number (string): The stock number.
     # - $p_engine_number (string): The engine number.
     # - $p_chassis_number (string): The chassis number.
+    # - $p_plate_number (string): The plate number.
     # - $p_description (string): The product description.
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_body_type_id (int): The body type ID.
@@ -99,8 +102,8 @@ class ProductModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateImportedProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateImportedProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+    public function updateImportedProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateImportedProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
@@ -109,6 +112,7 @@ class ProductModel {
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
@@ -163,6 +167,7 @@ class ProductModel {
     # - $p_stock_number (string): The stock number.
     # - $p_engine_number (string): The engine number.
     # - $p_chassis_number (string): The chassis number.
+    # - $p_plate_number (string): The chassis number.
     # - $p_description (string): The product description.
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_body_type_id (int): The body type ID.
@@ -180,7 +185,7 @@ class ProductModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+    public function insertProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
         $stmt = $this->db->getConnection()->prepare('CALL insertProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by, @p_product_id)');
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
@@ -188,6 +193,7 @@ class ProductModel {
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
@@ -222,6 +228,7 @@ class ProductModel {
     # - $p_stock_number (string): The stock number.
     # - $p_engine_number (string): The engine number.
     # - $p_chassis_number (string): The chassis number.
+    # - $p_plate_number (string): The plate number.
     # - $p_description (string): The product description.
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_body_type_id (int): The body type ID.
@@ -239,8 +246,8 @@ class ProductModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertImportedProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertImportedProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+    public function insertImportedProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportedProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -248,6 +255,7 @@ class ProductModel {
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
@@ -277,6 +285,7 @@ class ProductModel {
     # - $p_stock_number (string): The stock number.
     # - $p_engine_number (string): The engine number.
     # - $p_chassis_number (string): The chassis number.
+    # - $p_plate_number (string): The plate number.
     # - $p_description (string): The product description.
     # - $p_warehouse_id (int): The warehouse ID.
     # - $p_body_type_id (int): The body type ID.
@@ -293,8 +302,8 @@ class ProductModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertImportProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertImportProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks)');
+    public function insertImportProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_product_status, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_product_status, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
@@ -303,6 +312,7 @@ class ProductModel {
         $stmt->bindValue(':p_stock_number', $p_stock_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_engine_number', $p_engine_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_chassis_number', $p_chassis_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_plate_number', $p_plate_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_description', $p_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_warehouse_id', $p_warehouse_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_body_type_id', $p_body_type_id, PDO::PARAM_INT);
@@ -475,6 +485,66 @@ class ProductModel {
         $productID = $result->fetch(PDO::FETCH_ASSOC)['product_id'];
 
         return $productID;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateProductOptions
+    # Description: Generates the product options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateProductOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateInStockProductOptions
+    # Description: Generates the product options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateInStockProductOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateInStockProductOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $productID = $row['product_id'];
+            $description = $row['description'];
+            $stockNumber = $row['stock_number'];
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($productID, ENT_QUOTES) . '">' . htmlspecialchars($stockNumber, ENT_QUOTES) .' - '. htmlspecialchars($description, ENT_QUOTES) .'</option>';
+        }
+
+        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

@@ -2,10 +2,12 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/customer-model.php');
+  require('model/product-model.php');
 
   $pageTitle = 'Sales Proposal';
   
   $customerModel = new CustomerModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
     
   $viewSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 116);
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
@@ -21,6 +23,17 @@
 
     $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
     $total = $checkCustomerExist['total'] ?? 0;
+    
+    $customerDetails = $customerModel->getPersonalInformation($customerID);
+    $customerName = $customerDetails['file_as'] ?? null;
+
+    $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
+    $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
+
+    $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
+    $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
+    $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
+    $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
     if($total == 0){
       header('location: 404.php');
@@ -37,6 +50,8 @@
 <html lang="en">
 <head>
     <?php include_once('config/_title.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -99,6 +114,8 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
+    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
+    <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/sales-proposal.js?v=<?php echo rand(); ?>"></script>
 </body>
 

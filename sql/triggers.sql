@@ -4264,6 +4264,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Chassis Number: ", OLD.chassis_number, " -> ", NEW.chassis_number, "<br/>");
     END IF;
 
+    IF NEW.plate_number <> OLD.plate_number THEN
+        SET audit_log = CONCAT(audit_log, "Plate Number: ", OLD.plate_number, " -> ", NEW.plate_number, "<br/>");
+    END IF;
+
     IF NEW.description <> OLD.description THEN
         SET audit_log = CONCAT(audit_log, "Description: ", OLD.description, " -> ", NEW.description, "<br/>");
     END IF;
@@ -4338,6 +4342,10 @@ BEGIN
 
     IF NEW.chassis_number <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Chassis Number: ", NEW.chassis_number);
+    END IF;
+
+    IF NEW.plate_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Plate Number: ", NEW.plate_number);
     END IF;
 
     IF NEW.description <> '' THEN

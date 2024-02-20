@@ -2372,6 +2372,46 @@ class CustomerModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getCustomerPrimaryContactInformation
+    # Description: Retrieves the details of a contact primary contact information.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getCustomerPrimaryContactInformation($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCustomerPrimaryContactInformation(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getCustomerPrimaryContactIdentification
+    # Description: Retrieves the details of a contact primary contact identification.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns:
+    # - An array containing the bank.
+    #
+    # -------------------------------------------------------------
+    public function getCustomerPrimaryContactIdentification($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getCustomerPrimaryContactIdentification(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -2437,7 +2477,7 @@ class CustomerModel {
     
     # -------------------------------------------------------------
     #
-    # Function: generateComakerRadioOptions
+    # Function: generateComakerOptions
     # Description: Generates the customer options.
     #
     # Parameters:None
@@ -2445,8 +2485,8 @@ class CustomerModel {
     # Returns: String.
     #
     # -------------------------------------------------------------
-    public function generateComakerRadioOptions($p_contact_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL generateComakerRadioOptions(:p_contact_id)');
+    public function generateComakerOptions($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateComakerOptions(:p_contact_id)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -2458,21 +2498,7 @@ class CustomerModel {
             $contactID = $row['contact_id'];
             $fileAs = $row['file_as'];
 
-            $addressDetails = $this->getCustomerPrimaryAddress($contactID);
-            $comakerAddress = $addressDetails['address'] . ', ' . $addressDetails['city_name'] . ', ' . $addressDetails['state_name'] . ', ' . $addressDetails['country_name'];
-
-            $htmlOptions .= '<div class="address-check border rounded p-3">
-                                <div class="form-check">
-                                <input type="radio" name="comaker_options" class="form-check-input input-primary"
-                                    id="comaker-check-'. $contactID .'" value="'. $contactID .'">
-                                <label class="form-check-label d-block" for="comaker-check-'. $contactID .'">
-                                    <span class="h6 mb-0 d-block">'. $fileAs .'</span>
-                                    <span class="text-muted address-details">'. $comakerAddress .'</span>
-                                    <span class="row align-items-center justify-content-between">
-                                    </span>
-                                </label>
-                                </div>
-                            </div>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
         }
 
         return $htmlOptions;

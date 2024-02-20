@@ -57,6 +57,7 @@
     $description = $productDetails['description'];
     $engineNumber = $productDetails['engine_number'];
     $chassisNumber = $productDetails['chassis_number'];
+    $plateNumber = $productDetails['plate_number'];
     $warehouseID = $productDetails['warehouse_id'];
     $bodyTypeID = $productDetails['body_type_id'];
     $colorID = $productDetails['color_id'];

@@ -147,6 +147,7 @@ class ProductController {
         $stockNumber = htmlspecialchars($_POST['stock_number'], ENT_QUOTES, 'UTF-8');
         $engineNumber = htmlspecialchars($_POST['engine_number'], ENT_QUOTES, 'UTF-8');
         $chassisNumber = htmlspecialchars($_POST['chassis_number'], ENT_QUOTES, 'UTF-8');
+        $plateNumber = htmlspecialchars($_POST['plate_number'], ENT_QUOTES, 'UTF-8');
         $warehouseID = htmlspecialchars($_POST['warehouse_id'], ENT_QUOTES, 'UTF-8');
         $bodyTypeID = htmlspecialchars($_POST['body_type_id'], ENT_QUOTES, 'UTF-8');
         $colorID = htmlspecialchars($_POST['color_id'], ENT_QUOTES, 'UTF-8');
@@ -175,13 +176,13 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            $this->productModel->updateProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
         } 
         else {
-            $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -269,17 +270,18 @@ class ProductController {
             $stockNumber = htmlspecialchars($row[5], ENT_QUOTES, 'UTF-8');
             $engineNumber = htmlspecialchars($row[6], ENT_QUOTES, 'UTF-8');
             $chassisNumber = htmlspecialchars($row[7], ENT_QUOTES, 'UTF-8');
-            $description = htmlspecialchars($row[8], ENT_QUOTES, 'UTF-8');
-            $warehouseID = htmlspecialchars($row[9], ENT_QUOTES, 'UTF-8');
-            $bodyTypeID = htmlspecialchars($row[10], ENT_QUOTES, 'UTF-8');
-            $length = htmlspecialchars($row[11], ENT_QUOTES, 'UTF-8');
-            $lengthUnit = htmlspecialchars($row[12], ENT_QUOTES, 'UTF-8');
-            $runningHours = htmlspecialchars($row[13], ENT_QUOTES, 'UTF-8');
-            $mileage = htmlspecialchars($row[14], ENT_QUOTES, 'UTF-8');
-            $colorID = htmlspecialchars($row[15], ENT_QUOTES, 'UTF-8');
-            $productCost = htmlspecialchars($row[16], ENT_QUOTES, 'UTF-8');
-            $productPrice = htmlspecialchars($row[17], ENT_QUOTES, 'UTF-8');
-            $remarks = htmlspecialchars($row[18], ENT_QUOTES, 'UTF-8');
+            $plateNumber = htmlspecialchars($row[8], ENT_QUOTES, 'UTF-8');
+            $description = htmlspecialchars($row[9], ENT_QUOTES, 'UTF-8');
+            $warehouseID = htmlspecialchars($row[10], ENT_QUOTES, 'UTF-8');
+            $bodyTypeID = htmlspecialchars($row[11], ENT_QUOTES, 'UTF-8');
+            $length = htmlspecialchars($row[12], ENT_QUOTES, 'UTF-8');
+            $lengthUnit = htmlspecialchars($row[13], ENT_QUOTES, 'UTF-8');
+            $runningHours = htmlspecialchars($row[14], ENT_QUOTES, 'UTF-8');
+            $mileage = htmlspecialchars($row[15], ENT_QUOTES, 'UTF-8');
+            $colorID = htmlspecialchars($row[16], ENT_QUOTES, 'UTF-8');
+            $productCost = htmlspecialchars($row[17], ENT_QUOTES, 'UTF-8');
+            $productPrice = htmlspecialchars($row[18], ENT_QUOTES, 'UTF-8');
+            $remarks = htmlspecialchars($row[19], ENT_QUOTES, 'UTF-8');
 
             $checkProductCategoryExist = $this->productCategoryModel->checkProductCategoryExist($productCategoryID)['total'];
             $checkProductSubcategoryExist = $this->productSubcategoryModel->checkProductSubcategoryExist($productSubcategoryID)['total'];
@@ -302,7 +304,7 @@ class ProductController {
             }
 
             if(!empty($productCategoryID) && !empty($productSubcategoryID) && !empty($companyID) && !empty($description) && !empty($warehouseID) && $checkProductSubcategoryExist > 0 && $checkCompanyExist > 0 && $checkWarehouseExist > 0){
-                $this->productModel->insertImportProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks);
+                $this->productModel->insertImportProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks);
             }
         }
 
@@ -347,6 +349,7 @@ class ProductController {
             $stockNumber = $importedProductDetails['stock_number'];
             $engineNumber = $importedProductDetails['engine_number'];
             $chassisNumber = $importedProductDetails['chassis_number'];
+            $plateNumber = $importedProductDetails['plate_number'];
             $description = $importedProductDetails['description'];
             $warehouseID = $importedProductDetails['warehouse_id'];
             $bodyTypeID = $importedProductDetails['body_type_id'];
@@ -363,10 +366,10 @@ class ProductController {
             $total = $checkProductExist['total'] ?? 0;
         
             if ($total > 0) {
-                $this->productModel->updateImportedProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+                $this->productModel->updateImportedProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
             } 
             else {
-                $productID = $this->productModel->insertImportedProduct($productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+                $productID = $this->productModel->insertImportedProduct($productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
             }
         }
         
@@ -593,6 +596,7 @@ class ProductController {
                 'stockNumber' => $stockNumber,
                 'engineNumber' => $productDetails['engine_number'],
                 'chassisNumber' => $productDetails['chassis_number'],
+                'plateNumber' => $productDetails['plate_number'],
                 'description' => $productDetails['description'],
                 'warehouseID' => $productDetails['warehouse_id'],
                 'bodyTypeID' => $productDetails['body_type_id'],

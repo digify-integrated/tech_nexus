@@ -42,7 +42,7 @@ if($productDeleteAccess['total'] > 0){
                             <li class="mb-2">Product Subcategory:  <?php echo $productSubcategoryName; ?></li>
                             <li class="mb-2">Company:  <?php echo $companyName; ?></li>
                         </ul>
-                        <h5 class="mb-2"><b>Price: <?php echo $productPrice; ?> Php</b></h5>
+                        <h5 class="mb-4"><b>Price: <?php echo $productPrice; ?> Php</b></h5>
                         <div class="row">
                             <?php echo $updateProductButton . $deleteProductButton; ?>
                         </div>
@@ -73,6 +73,10 @@ if($productDeleteAccess['total'] > 0){
                             <tr>
                                 <td class="text-muted py-1">Chassis Number :</td>
                                 <td class="py-1"><?php echo $chassisNumber; ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted py-1">Plate Number :</td>
+                                <td class="py-1"><?php echo $plateNumber; ?></td>
                             </tr>
                             <tr>
                                 <td class="text-muted py-1">Warehouse :</td>
@@ -158,12 +162,18 @@ if($productDeleteAccess['total'] > 0){
                 </div>
                 <div class="form-group row">
                   <div class="col-lg-6">
+                    <label class="form-label">Plate Number</label>
+                    <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
+                  </div>
+                  <div class="col-lg-6">
                     <label class="form-label">Warehouse <span class="text-danger">*</span></label>
                     <select class="form-control offcanvas-select2" name="warehouse_id" id="warehouse_id">
                         <option value="">--</option>
                         '. $warehouseModel->generateWarehouseOptions() .'
                     </select>
                   </div>
+                </div>
+                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Body Type</label>
                     <select class="form-control offcanvas-select2" name="body_type_id" id="body_type_id">
@@ -171,8 +181,6 @@ if($productDeleteAccess['total'] > 0){
                         '. $bodyTypeModel->generateBodyTypeOptions() .'
                     </select>
                   </div>
-                </div>
-                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Color</label>
                     <select class="form-control offcanvas-select2" name="color_id" id="color_id">
@@ -180,16 +188,18 @@ if($productDeleteAccess['total'] > 0){
                         '. $colorModel->generateColorOptions() .'
                     </select>
                   </div>
+                </div>
+                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Running Hours</label>
                     <input type="number" class="form-control" id="running_hours" name="running_hours" min="0" step="0.01">
                   </div>
-                </div>
-                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Mileage</label>
                     <input type="number" class="form-control" id="mileage" name="mileage" min="0" step="0.01">
                   </div>
+                </div>
+                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Length</label>
                     <div class="input-group">
@@ -199,12 +209,12 @@ if($productDeleteAccess['total'] > 0){
                       </select>
                     </div>
                   </div>
-                </div>
-                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Product Price</label>
                     <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01">
                   </div>
+                </div>
+                <div class="form-group row">
                   <div class="col-lg-6">
                     <label class="form-label">Product Cost</label>
                     <input type="number" class="form-control" id="product_cost" name="product_cost" min="0" step="0.01">

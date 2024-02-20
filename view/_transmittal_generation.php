@@ -44,7 +44,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 if($viewOwnTransmittal['total'] > 0){
                     $contactID = $_SESSION['contact_id'];
                     $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
-                    $contactDepartment = $employmentDetails['department_id'];
+                    $contactDepartment = $employmentDetails['department_id'] ?? '';
                     
                     $sql = $databaseModel->getConnection()->prepare('CALL generateOwnTransmittalTable(:contactID, :contactDepartment, :filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
                     $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);

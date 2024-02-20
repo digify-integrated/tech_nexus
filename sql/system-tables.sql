@@ -4837,6 +4837,7 @@ CREATE TABLE product(
 	stock_number VARCHAR(100) NOT NULL,
 	engine_number VARCHAR(100),
 	chassis_number VARCHAR(100),
+	plate_number VARCHAR(100),
 	description VARCHAR(1000) NOT NULL,
 	warehouse_id INT UNSIGNED NOT NULL,
 	body_type_id INT UNSIGNED,
@@ -4902,6 +4903,39 @@ CREATE INDEX temp_product_index_product_warehouse_id ON temp_product(warehouse_i
 CREATE INDEX temp_product_index_product_body_type_id ON temp_product(body_type_id);
 CREATE INDEX temp_product_index_product_color_id ON temp_product(color_id);
 
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Table */
+
+CREATE TABLE sales_proposal(
+	sales_proposal_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_number VARCHAR(100) NOT NULL,
+	customer_id INT UNSIGNED NOT NULL,
+	comaker_id INT UNSIGNED NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	referred_by VARCHAR(100),
+	release_date DATE NOT NULL,
+	start_date DATE NOT NULL,
+	first_due_date DATE NOT NULL,
+	term_length INT UNSIGNED NOT NULL,
+	term_type VARCHAR(20) NOT NULL,
+	number_of_payments INT UNSIGNED NOT NULL,
+	payment_frequency VARCHAR(20) NOT NULL,
+	for_registration VARCHAR(5) NOT NULL,
+	with_cr VARCHAR(5) NOT NULL,
+	for_transfer VARCHAR(5) NOT NULL,
+	remarks VARCHAR(500),
+	created_by INT UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (comaker_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (product_id) REFERENCES product(product_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX product_subcategory_index_product_subcategory_id ON product_subcategory(product_subcategory_id);
+CREATE INDEX product_subcategory_index_product_category_id ON product_subcategory(product_category_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

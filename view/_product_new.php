@@ -55,6 +55,10 @@
                 </div>
             </div>
             <div class="form-group row">
+                <label class="col-lg-2 col-form-label">Plate Number</label>
+                <div class="col-lg-4">
+                    <input type="text" class="form-control" id="plate_number" name="plate_number" maxlength="100" autocomplete="off">
+                </div>
                 <label class="col-lg-2 col-form-label">Warehouse <span class="text-danger">*</span></label>
                 <div class="col-lg-4">
                   <select class="form-control select2" name="warehouse_id" id="warehouse_id">
@@ -62,15 +66,15 @@
                       <?php echo $warehouseModel->generateWarehouseOptions(); ?>
                   </select>
                 </div>
-                <label class="col-lg-2 col-form-label">Body Type</label>
+            </div>
+            <div class="form-group row align-items-center">
+              <label class="col-lg-2 col-form-label">Body Type</label>
                 <div class="col-lg-4">
                   <select class="form-control select2" name="body_type_id" id="body_type_id">
                       <option value="">--</option>
                       <?php echo $bodyTypeModel->generateBodyTypeOptions(); ?>
                   </select>
                 </div>
-            </div>
-            <div class="form-group row align-items-center">
                 <label class="col-lg-2 col-form-label">Color</label>
                 <div class="col-lg-4">
                   <select class="form-control select2" name="color_id" id="color_id">
@@ -78,16 +82,18 @@
                       <?php echo $colorModel->generateColorOptions(); ?>
                   </select>
                 </div>
+            </div>
+            <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Running Hours</label>
                 <div class="col-lg-4">
                     <input type="number" class="form-control" id="running_hours" name="running_hours" min="0" step="0.01">
                 </div>
-            </div>
-            <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Mileage</label>
                 <div class="col-lg-4">
                     <input type="number" class="form-control" id="mileage" name="mileage" min="0" step="0.01">
                 </div>
+            </div>
+            <div class="form-group row align-items-center">
                 <label class="col-lg-2 col-form-label">Length</label>
                 <div class="col-lg-4">
                     <div class="input-group">
@@ -97,12 +103,12 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="form-group row align-items-center">
                 <label class="col-lg-2 col-form-label">Product Price</label>
                 <div class="col-lg-4">
                     <input type="number" class="form-control" id="product_price" name="product_price" min="0" step="0.01">
                 </div>
+            </div>
+            <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Product Cost</label>
                 <div class="col-lg-4">
                     <input type="number" class="form-control" id="product_cost" name="product_cost" min="0" step="0.01">

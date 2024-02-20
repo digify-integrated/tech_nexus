@@ -120,6 +120,9 @@ class CustomerController {
                 case 'get contact address details':
                     $this->getContactAddress();
                     break;
+                case 'get comaker details':
+                    $this->getComakerDetails();
+                    break;
                 case 'get contact identification details':
                     $this->getContactIdentification();
                     break;
@@ -2149,6 +2152,59 @@ class CustomerController {
                 'mobile' => $contactFamilyBackgroundDetails['mobile'] ?? null,
                 'telephone' => $contactFamilyBackgroundDetails['telephone'] ?? null,
                 'email' => $contactFamilyBackgroundDetails['email'] ?? null
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getComakerDetails
+    # Description: 
+    # Handles the retrieval of comaker details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getComakerDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['comaker_id']) && !empty($_POST['comaker_id'])) {
+            $userID = $_SESSION['user_id'];
+            $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $comakerDetails = $this->customerModel->getPersonalInformation($comakerID);
+            $comakerName = $comakerDetails['file_as'] ?? null;
+
+            $comakerPrimaryAddress = $this->customerModel->getcustomerPrimaryAddress($comakerID);
+            $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+
+            $comakerContactInformation = $this->customerModel->getcustomerPrimaryContactInformation($comakerID);
+            $comakerMobile = !empty($comakerContactInformation['mobile']) ? $comakerContactInformation['mobile'] : '--';
+            $comakerTelephone = !empty($comakerContactInformation['telephone']) ? $comakerContactInformation['telephone'] : '--';
+            $comakerEmail = !empty($comakerContactInformation['email']) ? $comakerContactInformation['email'] : '--';
+
+            $response = [
+                'success' => true,
+                'comakerName' => $comakerName,
+                'comakerAddress' => $comakerAddress,
+                'comakerMobile' => $comakerMobile,
+                'comakerTelephone' => $comakerTelephone,
+                'comakerEmail' => $comakerEmail
             ];
 
             echo json_encode($response);

@@ -46,7 +46,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $documentPerPage = $initialDocumentPerPage;
                 $contactID = $_SESSION['contact_id'];
                 $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
-                $contactDepartment = $employmentDetails['department_id'];
+                $contactDepartment = $employmentDetails['department_id'] ?? null;
                 
                 $currentPage = htmlspecialchars($_POST['current_page'], ENT_QUOTES, 'UTF-8');
                 $documentSearch = htmlspecialchars($_POST['document_search'], ENT_QUOTES, 'UTF-8');

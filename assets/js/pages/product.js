@@ -729,6 +729,7 @@ function importProductTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'ENGINE_NUMBER' },
         { 'data' : 'CHASSIS_NUMBER' },
+        { 'data' : 'PLATE_NUMBER' },
         { 'data' : 'DESCRIPTION' },
         { 'data' : 'WAREHOUSE_NAME' },
         { 'data' : 'BODY_TYPE_NAME' },
@@ -760,7 +761,8 @@ function importProductTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 15 },
         { 'width': 'auto', 'aTargets': 16 },
         { 'width': 'auto', 'aTargets': 17 },
-        { 'width': 'auto', 'aTargets': 18 }
+        { 'width': 'auto', 'aTargets': 18 },
+        { 'width': 'auto', 'aTargets': 19 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -825,6 +827,7 @@ function displayDetails(transaction){
                         $('#stock_number').val(response.stockNumber);
                         $('#engine_number').val(response.engineNumber);
                         $('#chassis_number').val(response.chassisNumber);
+                        $('#plate_number').val(response.plateNumber);
                         $('#running_hours').val(response.runningHours);
                         $('#mileage').val(response.mileage);
                         $('#length').val(response.length);
