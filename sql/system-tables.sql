@@ -915,7 +915,8 @@ INSERT INTO system_setting (system_setting_name, system_setting_description, val
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Max Failed OTP Attempt', 'This sets the maximum failed OTP attempt before the user is needs a new OTP code.', 5, '1');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Default Forgot Password Link', 'This sets the default forgot password link.', 'http://localhost/tech_nexus/password-reset.php?id=', '1');
 INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('File As Arrangement', 'This sets the arrangement of the file as.', '{last_name}, {first_name} {suffix} {middle_name}', '1');
-INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Customer ID', 'This sets the customer ID.', '200000000', '1');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Customer ID', 'This sets the customer ID.', '2000000000', '1');
+INSERT INTO system_setting (system_setting_name, system_setting_description, value, last_log_by) VALUES ('Sales Proposal ID', 'This sets the sales proposal ID.', '5000000000', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4912,7 +4913,7 @@ CREATE TABLE sales_proposal(
 	sales_proposal_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
 	sales_proposal_number VARCHAR(100) NOT NULL,
 	customer_id INT UNSIGNED NOT NULL,
-	comaker_id INT UNSIGNED NOT NULL,
+	comaker_id INT UNSIGNED,
 	product_id INT UNSIGNED NOT NULL,
 	referred_by VARCHAR(100),
 	release_date DATE NOT NULL,
@@ -4927,6 +4928,13 @@ CREATE TABLE sales_proposal(
 	for_transfer VARCHAR(5) NOT NULL,
 	remarks VARCHAR(500),
 	created_by INT UNSIGNED NOT NULL,
+	sales_proposal_status VARCHAR(50) DEFAULT 'Draft',
+	initial_approving_officer INT UNSIGNED NOT NULL,
+	final_approving_officer INT UNSIGNED NOT NULL,
+	initial_approval_by INT UNSIGNED,
+	approval_by INT UNSIGNED,
+	initial_approval_date DATETIME,
+	approval_date DATETIME,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES contact(contact_id),
     FOREIGN KEY (comaker_id) REFERENCES contact(contact_id),
@@ -4934,8 +4942,63 @@ CREATE TABLE sales_proposal(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
-CREATE INDEX product_subcategory_index_product_subcategory_id ON product_subcategory(product_subcategory_id);
-CREATE INDEX product_subcategory_index_product_category_id ON product_subcategory(product_category_id);
+CREATE INDEX sales_proposal_index_sales_proposal_id ON sales_proposal(sales_proposal_id);
+CREATE INDEX sales_proposal_index_sales_proposal_number ON sales_proposal(sales_proposal_number);
+CREATE INDEX sales_proposal_index_sales_customer_id ON sales_proposal(customer_id);
+CREATE INDEX sales_proposal_index_sales_product_id ON sales_proposal(product_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Accessories Table */
+
+CREATE TABLE sales_proposal_accessories(
+	sales_proposal_accessories_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	accessories VARCHAR(500) NOT NULL,
+	cost DOUBLE UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX sales_proposal_accessories_index_sales_proposal_accessories_id ON sales_proposal_accessories(sales_proposal_accessories_id);
+CREATE INDEX sales_proposal_accessories_index_sales_proposal_id ON sales_proposal_accessories(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Job Order Table */
+
+CREATE TABLE sales_proposal_job_order(
+	sales_proposal_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	job_order VARCHAR(500) NOT NULL,
+	cost DOUBLE UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX sales_proposal_job_order_index_sales_proposal_job_order_id ON sales_proposal_job_order(sales_proposal_job_order_id);
+CREATE INDEX sales_proposal_job_order_index_sales_proposal_id ON sales_proposal_job_order(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Additional Job Order Table */
+
+CREATE TABLE sales_proposal_additional_job_order(
+	sales_proposal_additional_job_order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	job_order_number VARCHAR(500) NOT NULL,
+	job_order_date DATE NOT NULL,
+	particulars VARCHAR(1000) NOT NULL,
+	cost DOUBLE UNSIGNED NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX additional_job_order_index_additional_job_order_id ON sales_proposal_additional_job_order(sales_proposal_additional_job_order_id);
+CREATE INDEX additional_job_order_index_sales_proposal_id ON sales_proposal_additional_job_order(sales_proposal_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

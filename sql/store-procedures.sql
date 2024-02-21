@@ -1371,6 +1371,14 @@ BEGIN
     WHERE system_setting_id = p_system_setting_id;
 END //
 
+CREATE PROCEDURE updateSystemSettingValue(IN p_system_setting_id INT, IN p_value VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+	UPDATE system_setting
+    SET value = p_value,
+    last_log_by = p_last_log_by
+    WHERE system_setting_id = p_system_setting_id;
+END //
+
 CREATE PROCEDURE deleteSystemSetting(IN p_system_setting_id INT)
 BEGIN
 	DELETE FROM system_setting
@@ -6897,24 +6905,10 @@ END //
 
 CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    UPDATE system_setting
-    SET value = p_customer_id,
-    last_log_by = p_last_log_by
-    WHERE system_setting_id = 5;
-
-    INSERT INTO contact (customer_id, is_customer, last_log_by) 
+   INSERT INTO contact (customer_id, is_customer, last_log_by) 
 	VALUES(p_customer_id, 1, p_last_log_by);
 	
     SET p_contact_id = LAST_INSERT_ID();
-
-    COMMIT;
 END //
 
 CREATE PROCEDURE updateCustomerStatus(IN p_contact_id INT, IN p_contact_status VARCHAR(50), IN p_last_log_by INT)
@@ -7053,8 +7047,202 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-/*  Table Stored Procedures */
+/* Sales Proposal Table Stored Procedures */
 
+CREATE PROCEDURE checkSalesProposalExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
 
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+BEGIN
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, remarks, created_by, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_remarks, p_created_by, p_last_log_by);
+	
+    SET p_sales_proposal_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal
+    SET sales_proposal_number = p_sales_proposal_number,
+    customer_id = p_customer_id,
+    comaker_id = p_comaker_id,
+    product_id = p_product_id,
+    referred_by = p_referred_by,
+    release_date = p_release_date,
+    start_date = p_start_date,
+    first_due_date = p_first_due_date,
+    term_length = p_term_length,
+    term_type = p_term_type,
+    number_of_payments = p_number_of_payments,
+    payment_frequency = p_payment_frequency,
+    for_registration = p_for_registration,
+    with_cr = p_with_cr,
+    for_transfer = p_for_transfer,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposal(IN p_sales_proposal_id INT)
+BEGIN
+    DELETE FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalTable(IN p_customer_id INT)
+BEGIN
+    SELECT sales_proposal_id, sales_proposal_name
+    FROM sales_proposal
+    ORDER BY sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Accessories Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalAccessoriesExist (IN p_sales_proposal_accessories_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_accessories
+    WHERE sales_proposal_accessories_id = p_sales_proposal_accessories_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalAccessories(IN p_sales_proposal_id INT, IN p_accessories VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_accessories (sales_proposal_id, accessories, cost, last_log_by) 
+	VALUES(p_sales_proposal_id, p_accessories, p_cost, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalAccessories(IN p_sales_proposal_accessories_id INT, IN p_sales_proposal_id INT, IN p_accessories VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_accessories
+    SET sales_proposal_id = p_sales_proposal_id,
+    accessories = p_accessories,
+    cost = p_cost,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_accessories_id = p_sales_proposal_accessories_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposalAccessories(IN p_sales_proposal_accessories_id INT)
+BEGIN
+    DELETE FROM sales_proposal_accessories WHERE sales_proposal_accessories_id = p_sales_proposal_accessories_id;
+END //
+
+CREATE PROCEDURE getSalesProposalAccessories(IN p_sales_proposal_accessories_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_accessories
+    WHERE sales_proposal_accessories_id = p_sales_proposal_accessories_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalAccessoriesTable(IN p_sales_proposal_id INT)
+BEGIN
+    SELECT *
+    FROM sales_proposal_accessories
+    WHERE sales_proposal_id = p_sales_proposal_id
+    ORDER BY sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Job Order Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalJobOrderExist (IN p_sales_proposal_job_order_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_job_order
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalJobOrder(IN p_sales_proposal_id INT, IN p_job_order VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_job_order (sales_proposal_id, job_order, cost, last_log_by) 
+	VALUES(p_sales_proposal_id, p_job_order, p_cost, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalJobOrder(IN p_sales_proposal_job_order_id INT, IN p_sales_proposal_id INT, IN p_job_order VARCHAR(500), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_job_order
+    SET sales_proposal_id = p_sales_proposal_id,
+    job_order = p_job_order,
+    cost = p_cost,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposalJobOrder(IN p_sales_proposal_job_order_id INT)
+BEGIN
+    DELETE FROM sales_proposal_job_order WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE getSalesProposalJobOrder(IN p_sales_proposal_job_order_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_job_order
+    WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalJobOrderTable(IN p_sales_proposal_id INT)
+BEGIN
+    SELECT *
+    FROM sales_proposal_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id
+    ORDER BY sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Additional Job Order Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalAdditionalJobOrderExist (IN p_sales_proposal_additional_job_order_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalAdditionalJobOrder(IN p_sales_proposal_id INT, IN p_job_order_number VARCHAR(500), IN p_job_order_date DATE, IN p_particulars VARCHAR(1000), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_additional_job_order (sales_proposal_id, job_order_number, job_order_date, particulars, cost, last_log_by) 
+	VALUES(p_sales_proposal_id, p_job_order_number, p_job_order_date, p_particulars, p_cost, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrder(IN p_sales_proposal_additional_job_order_id INT, IN p_sales_proposal_id INT, IN p_job_order_number VARCHAR(500), IN p_job_order_date DATE, IN p_particulars VARCHAR(1000), IN p_cost DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_additional_job_order
+    SET sales_proposal_id = p_sales_proposal_id,
+    job_order_number = p_job_order_number,
+    job_order_date = p_job_order_date,
+    particulars = p_particulars,
+    cost = p_cost,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposalAdditionalJobOrder(IN p_sales_proposal_additional_job_order_id INT)
+BEGIN
+    DELETE FROM sales_proposal_additional_job_order WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+CREATE PROCEDURE getSalesProposalAdditionalJobOrder(IN p_sales_proposal_additional_job_order_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalAdditionalJobOrderTable(IN p_sales_proposal_id INT)
+BEGIN
+    SELECT *
+    FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id
+    ORDER BY sales_proposal_id;
+END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

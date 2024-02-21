@@ -1,17 +1,20 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
+  require('model/sales-proposal-model.php');
   require('model/customer-model.php');
   require('model/product-model.php');
 
   $pageTitle = 'Sales Proposal';
   
+  $salesProposalModel = new SalesProposalModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
     
   $viewSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 116);
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
-  $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
+  $updateSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
+  $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
 
   if ($viewSalesProposal['total'] == 0) {
     header('location: 404.php');
@@ -40,6 +43,31 @@
       exit;
     }
   }
+
+  if(isset($_GET['id'])){
+    if(empty($_GET['id'])){
+      header('location: seach-customer.php');
+      exit;
+    }
+
+    $salesProposalID = $securityModel->decryptData($_GET['id']);
+
+    $checkSalesProposalExist = $salesProposalModel->checkSalesProposalExist($salesProposalID);
+    $total = $checkSalesProposalExist['total'] ?? 0;
+
+    if($total == 0){
+      header('location: 404.php');
+      exit;
+    }
+
+    $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
+    $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
+    $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
+  }
+  else{
+    $salesProposalID = null;
+  }
+
 
   $newRecord = isset($_GET['new']);
 
@@ -75,8 +103,12 @@
                   <li class="breadcrumb-item">Sales Proposal</li>
                   <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal.php"><?php echo $pageTitle; ?></a></li>
                   <?php
+                    if(!$newRecord && !empty($salesProposalID)){
+                      echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';
+                    }
+
                     if($newRecord){
-                      echo '<li class="breadcrumb-item">New</li><li class="breadcrumb-item"id="customer-id">'. $customerID .'</li>';
+                      echo '<li class="breadcrumb-item">New</li>';
                     }
                   ?>
                 </ul>
@@ -90,12 +122,12 @@
           </div>
         </div>
         <?php
-          if($newRecord && $addSalesProposal['total'] > 0){
+          if($newRecord && !empty($customerID) && $addSalesProposal['total'] > 0){
             require_once('view/_sales_proposal_new.php');
           }
-          /*else if(!empty($customerID) && $interfaceSettingWriteAccess['total'] > 0){
+          else if(!empty($salesProposalID) && !empty($customerID) && $updateSalesProposal['total'] > 0){
             require_once('view/_sales_proposal_details.php');
-          }*/
+          }
           else{
             require_once('view/_sales_proposal.php');
           }

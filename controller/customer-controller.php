@@ -1187,6 +1187,8 @@ class CustomerController {
         $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
         $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
+        $this->systemSettingModel->updateSystemSettingValue(5, $customerUniqueID, $userID);
+
         echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID)]);
         exit;
     }

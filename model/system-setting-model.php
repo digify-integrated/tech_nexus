@@ -42,6 +42,28 @@ class SystemSettingModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateSystemSettingValue
+    # Description: Updates the system setting value.
+    #
+    # Parameters:
+    # - $p_system_setting_id (int): The system setting ID.
+    # - $p_value (string): The value of the system setting.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSystemSettingValue($p_system_setting_id, $p_value, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSystemSettingValue(:p_system_setting_id, :p_value, :p_last_log_by)');
+        $stmt->bindValue(':p_system_setting_id', $p_system_setting_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_value', $p_value, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
