@@ -87,17 +87,62 @@ class SalesProposalController {
                 case 'save sales proposal additional job order':
                     $this->saveSalesProposalAdditionalJobOrder();
                     break;
+                case 'save sales proposal pricing computation':
+                    $this->saveSalesProposalPricingComputation();
+                    break;
+                case 'save sales proposal other charges':
+                    $this->saveSalesProposalOtherCharges();
+                    break;
+                case 'save sales proposal renewal amount':
+                    $this->saveSalesProposalRenewalAmount();
+                    break;
+                case 'save sales proposal deposit amount':
+                    $this->saveSalesProposalDepositAmount();
+                    break;
+                case 'delete sales proposal accessories':
+                    $this->deleteSalesProposalAccessories();
+                    break;
+                case 'delete sales proposal job order':
+                    $this->deleteSalesProposalJobOrder();
+                    break;
+                case 'delete sales proposal additional job order':
+                    $this->deleteSalesProposalAdditionalJobOrder();
+                    break;
+                case 'delete sales proposal deposit amount':
+                    $this->deleteSalesProposalDepositAmount();
+                    break;
                 case 'get sales proposal details':
                     $this->getSalesProposalDetails();
                     break;
                 case 'get sales proposal accessories details':
                     $this->getSalesProposalAccessoriesDetails();
                     break;
+                case 'get sales proposal accessories total details':
+                    $this->getSalesProposalAccessoriesTotalDetails();
+                    break;
                 case 'get sales proposal job order details':
                     $this->getSalesProposalJobOrderDetails();
                     break;
+                case 'get sales proposal job order total details':
+                    $this->getSalesProposalJobOrderTotalDetails();
+                    break;
                 case 'get sales proposal additional job order details':
                     $this->getSalesProposalAdditionalJobOrderDetails();
+                    break;
+                case 'get sales proposal additional job order total details':
+                    $this->getSalesProposalAdditionalJobOrderTotalDetails();
+                    break;
+                case 'get sales proposal deposit amount details':
+                    $this->getSalesProposalDepositAmountDetails();
+                    break;
+                case 'get sales proposal pricing computation details':
+                    $this->getSalesProposalPricingComputationDetails();
+                    break;
+                case 'get sales proposal other charges details':
+                    $this->getSalesProposalOtherChargesDetails();
+                    break;
+                case 'get sales proposal renewal amount details':
+                    $this->getSalesProposalRenewalAmountDetails();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -194,7 +239,7 @@ class SalesProposalController {
         $salesProposalAccessoriesID = htmlspecialchars($_POST['sales_proposal_accessories_id'], ENT_QUOTES, 'UTF-8');
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $accessories = htmlspecialchars($_POST['accessories'], ENT_QUOTES, 'UTF-8');
-        $cost = htmlspecialchars($_POST['cost'], ENT_QUOTES, 'UTF-8');
+        $cost = htmlspecialchars($_POST['accessories_cost'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -241,7 +286,7 @@ class SalesProposalController {
         $salesProposalJobOrderID = htmlspecialchars($_POST['sales_proposal_job_order_id'], ENT_QUOTES, 'UTF-8');
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $jobOrder = htmlspecialchars($_POST['job_order'], ENT_QUOTES, 'UTF-8');
-        $cost = htmlspecialchars($_POST['cost'], ENT_QUOTES, 'UTF-8');
+        $cost = htmlspecialchars($_POST['job_order_cost'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -290,7 +335,7 @@ class SalesProposalController {
         $jobOrderNumber = htmlspecialchars($_POST['job_order_number'], ENT_QUOTES, 'UTF-8');
         $jobOrderDate = $this->systemModel->checkDate('empty', $_POST['job_order_date'], '', 'Y-m-d', '');
         $particulars = htmlspecialchars($_POST['particulars'], ENT_QUOTES, 'UTF-8');
-        $cost = htmlspecialchars($_POST['cost'], ENT_QUOTES, 'UTF-8');
+        $cost = htmlspecialchars($_POST['additional_job_order_cost'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -303,13 +348,216 @@ class SalesProposalController {
         $total = $checkSalesProposalAdditionalJobOrderExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalAdditionalJobOrder($salesProposalAdditionalJobOrderID, $salesProposalID, $jobOrderNumber, $particulars, $jobOrderDate, $cost, $userID);
+            $this->salesProposalModel->updateSalesProposalAdditionalJobOrder($salesProposalAdditionalJobOrderID, $salesProposalID, $jobOrderNumber, $jobOrderDate, $particulars, $cost, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
             $this->salesProposalModel->insertSalesProposalAdditionalJobOrder($salesProposalID, $jobOrderNumber, $jobOrderDate, $particulars, $cost, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalPricingComputation
+    # Description: 
+    # Updates the existing sales proposal pricing computation if it exists; otherwise, inserts a new sales proposal pricing computation.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalPricingComputation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $deliverPrice = htmlspecialchars($_POST['delivery_price'], ENT_QUOTES, 'UTF-8');
+        $costOfAccessories = htmlspecialchars($_POST['cost_of_accessories'], ENT_QUOTES, 'UTF-8');
+        $reconditioningCost = htmlspecialchars($_POST['reconditioning_cost'], ENT_QUOTES, 'UTF-8');
+        $subtotal = htmlspecialchars($_POST['subtotal'], ENT_QUOTES, 'UTF-8');
+        $downpayment = htmlspecialchars($_POST['downpayment'], ENT_QUOTES, 'UTF-8');
+        $outstandingBalance = htmlspecialchars($_POST['outstanding_balance'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalPricingComputationExist = $this->salesProposalModel->checkSalesProposalPricingComputationExist($salesProposalID);
+        $total = $checkSalesProposalPricingComputationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalOtherCharges
+    # Description: 
+    # Updates the existing sales proposal other charges if it exists; otherwise, inserts a new sales proposal other charges.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalOtherCharges() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $insuranceCoverage = htmlspecialchars($_POST['insurance_coverage'], ENT_QUOTES, 'UTF-8');
+        $insurancePremium = htmlspecialchars($_POST['insurance_premium'], ENT_QUOTES, 'UTF-8');
+        $handlingFee = htmlspecialchars($_POST['handling_fee'], ENT_QUOTES, 'UTF-8');
+        $transferFee = htmlspecialchars($_POST['transfer_fee'], ENT_QUOTES, 'UTF-8');
+        $registrationFee = htmlspecialchars($_POST['registration_fee'], ENT_QUOTES, 'UTF-8');
+        $docStampTax = htmlspecialchars($_POST['doc_stamp_tax'], ENT_QUOTES, 'UTF-8');
+        $transactionFee = htmlspecialchars($_POST['transaction_fee'], ENT_QUOTES, 'UTF-8');
+        $totalOtherCharges = htmlspecialchars($_POST['total_other_charges'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalPricingOtherChargesExist = $this->salesProposalModel->checkSalesProposalPricingOtherChargesExist($salesProposalID);
+        $total = $checkSalesProposalPricingOtherChargesExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalRenewalAmount
+    # Description: 
+    # Updates the existing sales proposal other charges if it exists; otherwise, inserts a new sales proposal other charges.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalRenewalAmount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $registrationSecondYear = htmlspecialchars($_POST['registration_second_year'], ENT_QUOTES, 'UTF-8');
+        $registrationThirdYear = htmlspecialchars($_POST['registration_third_year'], ENT_QUOTES, 'UTF-8');
+        $registrationFourthYear = htmlspecialchars($_POST['registration_fourth_year'], ENT_QUOTES, 'UTF-8');
+        $insuranceCoverageSecondYear = htmlspecialchars($_POST['insurance_coverage_second_year'], ENT_QUOTES, 'UTF-8');
+        $insuranceCoverageThirdYear = htmlspecialchars($_POST['insurance_coverage_third_year'], ENT_QUOTES, 'UTF-8');
+        $insuranceCoverageFourthYear = htmlspecialchars($_POST['insurance_coverage_fourth_year'], ENT_QUOTES, 'UTF-8');
+        $insurancePremiumSecondYear = htmlspecialchars($_POST['insurance_premium_second_year'], ENT_QUOTES, 'UTF-8');
+        $insurancePremiumThirdYear = htmlspecialchars($_POST['insurance_premium_third_year'], ENT_QUOTES, 'UTF-8');
+        $insurancePremiumFourthYear = htmlspecialchars($_POST['insurance_premium_fourth_year'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalRenewalAmountExist = $this->salesProposalModel->checkSalesProposalRenewalAmountExist($salesProposalID);
+        $total = $checkSalesProposalRenewalAmountExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalDepositAmount
+    # Description: 
+    # Updates the existing sales proposal deposit amount if it exists; otherwise, inserts a new sales proposal deposit amount.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalDepositAmount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalDepositAmountID = htmlspecialchars($_POST['sales_proposal_deposit_amount_id'], ENT_QUOTES, 'UTF-8');
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $depositDate = $this->systemModel->checkDate('empty', $_POST['deposit_date'], '', 'Y-m-d', '');
+        $referenceNumber = htmlspecialchars($_POST['reference_number'], ENT_QUOTES, 'UTF-8');
+        $depositAmount = htmlspecialchars($_POST['deposit_amount'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalDepositAmountExist = $this->salesProposalModel->checkSalesProposalDepositAmountExist($salesProposalDepositAmountID);
+        $total = $checkSalesProposalDepositAmountExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalDepositAmount($salesProposalDepositAmountID, $salesProposalID, $depositDate, $referenceNumber, $depositAmount, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalDepositAmount($salesProposalID, $depositDate, $referenceNumber, $depositAmount, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -445,6 +693,47 @@ class SalesProposalController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteSalesProposalDepositAmount
+    # Description: 
+    # Delete the sales proposal deposit amount if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteSalesProposalDepositAmount() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalDepositAmountID = htmlspecialchars($_POST['sales_proposal_deposit_amount_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalDepositAmountExist = $this->salesProposalModel->checkSalesProposalDepositAmountExist($salesProposalDepositAmountID);
+        $total = $checkSalesProposalDepositAmountExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->deleteSalesProposalDepositAmount($salesProposalDepositAmountID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -545,6 +834,46 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: getSalesProposalAccessoriesTotalDetails
+    # Description: 
+    # Handles the retrieval of sales proposal accessories total details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalAccessoriesTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalAccessoriesTotalDetails = $this->salesProposalModel->getSalesProposalAccessoriesTotal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'total' => number_format($salesProposalAccessoriesTotalDetails['total'] ?? 0, 2)
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getSalesProposalJobOrderDetails
     # Description: 
     # Handles the retrieval of sales proposal job order details.
@@ -576,6 +905,46 @@ class SalesProposalController {
                 'success' => true,
                 'jobOrder' => $salesProposalJobOrderDetails['job_order'],
                 'cost' => $salesProposalJobOrderDetails['cost']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalJobOrderTotalDetails
+    # Description: 
+    # Handles the retrieval of sales proposal job order total details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalJobOrderTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalJobOrderTotalDetails = $this->salesProposalModel->getSalesProposalJobOrderTotal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'total' => number_format($salesProposalJobOrderTotalDetails['total'] ?? 0, 2)
             ];
 
             echo json_encode($response);
@@ -619,6 +988,225 @@ class SalesProposalController {
                 'jobOrderDate' =>  $this->systemModel->checkDate('empty', $salesProposalAdditionalJobOrderDetails['job_order_date'], '', 'm/d/Y', ''),
                 'particulars' =>  $salesProposalAdditionalJobOrderDetails['particulars'],
                 'cost' => $salesProposalAdditionalJobOrderDetails['cost']
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalAdditionalJobOrderTotalDetails
+    # Description: 
+    # Handles the retrieval of sales proposal additional job order total details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalAdditionalJobOrderTotalDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalAdditionalJobOrderTotalDetails = $this->salesProposalModel->getSalesProposalAdditionalJobOrderTotal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'total' => number_format($salesProposalAdditionalJobOrderTotalDetails['total'] ?? 0, 2)
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalPricingComputationDetails
+    # Description: 
+    # Handles the retrieval of sales proposal pricing computation details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalPricingComputationDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'deliveryPrice' => $salesProposalPricingComputationDetails['delivery_price'] ?? 0,
+                'costOfAccessories' => $salesProposalPricingComputationDetails['cost_of_accessories'] ?? 0,
+                'reconditioningCost' => $salesProposalPricingComputationDetails['reconditioning_cost'] ?? 0,
+                'downpayment' => $salesProposalPricingComputationDetails['downpayment'] ?? 0
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalOtherChargesDetails
+    # Description: 
+    # Handles the retrieval of sales proposal other charges details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalOtherChargesDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalOtherChargesDetails = $this->salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'insuranceCoverage' => $salesProposalOtherChargesDetails['insurance_coverage'] ?? 0,
+                'insurancePremium' => $salesProposalOtherChargesDetails['insurance_premium'] ?? 0,
+                'handlingFee' => $salesProposalOtherChargesDetails['handling_fee'] ?? 0,
+                'transferFee' => $salesProposalOtherChargesDetails['transfer_fee'] ?? 0,
+                'registrationFee' => $salesProposalOtherChargesDetails['registration_fee'] ?? 0,
+                'docStampTax' => $salesProposalOtherChargesDetails['doc_stamp_tax'] ?? 0,
+                'transactionFee' => $salesProposalOtherChargesDetails['transaction_fee'] ?? 0
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalRenewalAmountDetails
+    # Description: 
+    # Handles the retrieval of sales proposal renewal amount details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalRenewalAmountDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalRenewalAmountDetails = $this->salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'registrationSecondYear' => $salesProposalRenewalAmountDetails['registration_second_year'] ?? 0,
+                'registrationThirdYear' => $salesProposalRenewalAmountDetails['registration_third_year'] ?? 0,
+                'registrationFourthYear' => $salesProposalRenewalAmountDetails['registration_fourth_year'] ?? 0,
+                'insuranceCoverageSecondYear' => $salesProposalRenewalAmountDetails['insurance_coverage_second_year'] ?? 0,
+                'insuranceCoverageThirdYear' => $salesProposalRenewalAmountDetails['insurance_coverage_third_year'] ?? 0,
+                'insuranceCoverageFourthYear' => $salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] ?? 0,
+                'insurancePremiumSecondYear' => $salesProposalRenewalAmountDetails['insurance_premium_second_year'] ?? 0,
+                'insurancePremiumThirdYear' => $salesProposalRenewalAmountDetails['insurance_premium_third_year'] ?? 0,
+                'insurancePremiumFourthYear' => $salesProposalRenewalAmountDetails['insurance_premium_fourth_year'] ?? 0
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalDepositAmountDetails
+    # Description: 
+    # Handles the retrieval of sales proposal job order details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalDepositAmountDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_deposit_amount_id']) && !empty($_POST['sales_proposal_deposit_amount_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalDepositAmountID = $_POST['sales_proposal_deposit_amount_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDepositAmountDetails = $this->salesProposalModel->getSalesProposalDepositAmount($salesProposalDepositAmountID);
+
+            $response = [
+                'success' => true,
+                'depositDate' =>  $this->systemModel->checkDate('empty', $salesProposalDepositAmountDetails['deposit_date'], '', 'm/d/Y', ''),
+                'referenceNumber' =>  $salesProposalDepositAmountDetails['reference_number'],
+                'depositAmount' =>  $salesProposalDepositAmountDetails['deposit_amount']
             ];
 
             echo json_encode($response);

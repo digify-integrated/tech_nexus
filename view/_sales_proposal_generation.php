@@ -156,6 +156,53 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: sales proposal deposit amount table
+        # Description:
+        # Generates the sales proposal deposit amount table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'sales proposal deposit amount table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalDepositAmountTable(:salesProposalID)');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalDepositAmountID = $row['sales_proposal_deposit_amount_id'];
+                    $depositDate = $systemModel->checkDate('summary', $row['deposit_date'], '', 'F d, Y', '');
+                    $referenceNumber = $row['reference_number'];
+                    $depositAmount = number_format($row['deposit_amount'], 2);
+
+                    $response[] = [
+                        'DEPOSIT_DATE' => $depositDate,
+                        'REFERENCE_NUMBER' => $referenceNumber,
+                        'DEPOSIT_AMOUNT' => $depositAmount,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-deposit-amount" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Update Amount of Deposit">
+                                            <i class="ti ti-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-deposit-amount" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Delete Amount of Deposit">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 

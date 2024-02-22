@@ -7143,6 +7143,12 @@ BEGIN
     WHERE sales_proposal_accessories_id = p_sales_proposal_accessories_id;
 END //
 
+CREATE PROCEDURE getSalesProposalAccessoriesTotal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT SUM(cost) AS total FROM sales_proposal_accessories
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE generateSalesProposalAccessoriesTable(IN p_sales_proposal_id INT)
 BEGIN
     SELECT *
@@ -7187,6 +7193,12 @@ CREATE PROCEDURE getSalesProposalJobOrder(IN p_sales_proposal_job_order_id INT)
 BEGIN
 	SELECT * FROM sales_proposal_job_order
     WHERE sales_proposal_job_order_id = p_sales_proposal_job_order_id;
+END //
+
+CREATE PROCEDURE getSalesProposalJobOrderTotal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT SUM(cost) AS total FROM sales_proposal_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateSalesProposalJobOrderTable(IN p_sales_proposal_id INT)
@@ -7237,12 +7249,227 @@ BEGIN
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
 END //
 
+CREATE PROCEDURE getSalesProposalAdditionalJobOrderTotal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT SUM(cost) AS total FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE generateSalesProposalAdditionalJobOrderTable(IN p_sales_proposal_id INT)
 BEGIN
     SELECT *
     FROM sales_proposal_additional_job_order
     WHERE sales_proposal_id = p_sales_proposal_id
     ORDER BY sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Pricing Computation Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalPricingComputationExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_pricing_computation
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_pricing_computation (sales_proposal_id, delivery_price, cost_of_accessories, reconditioning_cost, subtotal, downpayment, outstanding_balance, last_log_by) 
+	VALUES(p_sales_proposal_id, p_delivery_price, p_cost_of_accessories, p_reconditioning_cost, p_subtotal, p_downpayment, p_outstanding_balance, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_pricing_computation
+    SET delivery_price = p_delivery_price,
+    cost_of_accessories = p_cost_of_accessories,
+    reconditioning_cost = p_reconditioning_cost,
+    subtotal = p_subtotal,
+    downpayment = p_downpayment,
+    outstanding_balance = p_outstanding_balance,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposalPricingComputation(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_pricing_computation
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Pricing Other Charges Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalPricingOtherChargesExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_other_charges
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_other_charges (sales_proposal_id, insurance_coverage, insurance_premium, handling_fee, transfer_fee, registration_fee, doc_stamp_tax, transaction_fee, total_other_charges, last_log_by) 
+	VALUES(p_sales_proposal_id, p_insurance_coverage, p_insurance_premium, p_handling_fee, p_transfer_fee, p_registration_fee, p_doc_stamp_tax, p_transaction_fee, p_total_other_charges, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_other_charges
+    SET insurance_coverage = p_insurance_coverage,
+    insurance_premium = p_insurance_premium,
+    handling_fee = p_handling_fee,
+    transfer_fee = p_transfer_fee,
+    registration_fee = p_registration_fee,
+    doc_stamp_tax = p_doc_stamp_tax,
+    transaction_fee = p_transaction_fee,
+    total_other_charges = p_total_other_charges,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposalOtherCharges(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_other_charges
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Pricing Renewal Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalRenewalAmountExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_renewal_amount
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalRenewalAmount(IN p_sales_proposal_id INT, IN p_registration_second_year DOUBLE, IN p_registration_third_year DOUBLE, IN p_registration_fourth_year DOUBLE, IN p_insurance_coverage_second_year DOUBLE, IN p_insurance_coverage_third_year DOUBLE, IN p_insurance_coverage_fourth_year DOUBLE, IN p_insurance_premium_second_year DOUBLE, IN p_insurance_premium_third_year DOUBLE, IN p_insurance_premium_fourth_year DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_renewal_amount (sales_proposal_id, registration_second_year, registration_third_year, registration_fourth_year, insurance_coverage_second_year, insurance_coverage_third_year, insurance_coverage_fourth_year, insurance_premium_second_year, insurance_premium_third_year, insurance_premium_fourth_year, last_log_by) 
+	VALUES(p_sales_proposal_id, p_registration_second_year, p_registration_third_year, p_registration_fourth_year, p_insurance_coverage_second_year, p_insurance_coverage_third_year, p_insurance_coverage_fourth_year, p_insurance_premium_second_year, p_insurance_premium_third_year, p_insurance_premium_fourth_year, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalRenewalAmount(IN p_sales_proposal_id INT, IN p_registration_second_year DOUBLE, IN p_registration_third_year DOUBLE, IN p_registration_fourth_year DOUBLE, IN p_insurance_coverage_second_year DOUBLE, IN p_insurance_coverage_third_year DOUBLE, IN p_insurance_coverage_fourth_year DOUBLE, IN p_insurance_premium_second_year DOUBLE, IN p_insurance_premium_third_year DOUBLE, IN p_insurance_premium_fourth_year DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_renewal_amount
+    SET registration_second_year = p_registration_second_year,
+    registration_third_year = p_registration_third_year,
+    registration_fourth_year = p_registration_fourth_year,
+    insurance_coverage_second_year = p_insurance_coverage_second_year,
+    insurance_coverage_third_year = p_insurance_coverage_third_year,
+    insurance_coverage_fourth_year = p_insurance_coverage_fourth_year,
+    insurance_premium_second_year = p_insurance_premium_second_year,
+    insurance_premium_third_year = p_insurance_premium_third_year,
+    insurance_premium_fourth_year = p_insurance_premium_fourth_year,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposalRenewalAmount(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_renewal_amount
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Deposit Amount Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalDepositAmountExist (IN p_sales_proposal_deposit_amount_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_deposit_amount
+    WHERE sales_proposal_deposit_amount_id = p_sales_proposal_deposit_amount_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalDepositAmount(IN p_sales_proposal_id INT, IN p_deposit_date DATE, IN p_reference_number VARCHAR(100), IN p_deposit_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_deposit_amount (sales_proposal_id, deposit_date, reference_number, deposit_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_deposit_date, p_reference_number, p_deposit_amount, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalDepositAmount(IN p_sales_proposal_deposit_amount_id INT, IN p_sales_proposal_id INT, IN p_deposit_date DATE, IN p_reference_number VARCHAR(100), IN p_deposit_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_deposit_amount
+    SET sales_proposal_id = p_sales_proposal_id,
+    deposit_date = p_deposit_date,
+    reference_number = p_reference_number,
+    deposit_amount = p_deposit_amount,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_deposit_amount_id = p_sales_proposal_deposit_amount_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposalDepositAmount(IN p_sales_proposal_deposit_amount_id INT)
+BEGIN
+    DELETE FROM sales_proposal_deposit_amount WHERE sales_proposal_deposit_amount_id = p_sales_proposal_deposit_amount_id;
+END //
+
+CREATE PROCEDURE getSalesProposalDepositAmount(IN p_sales_proposal_deposit_amount_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_deposit_amount
+    WHERE sales_proposal_deposit_amount_id = p_sales_proposal_deposit_amount_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalDepositAmountTable(IN p_sales_proposal_id INT)
+BEGIN
+    SELECT *
+    FROM sales_proposal_deposit_amount
+    WHERE sales_proposal_id = p_sales_proposal_id
+    ORDER BY sales_proposal_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Approving Officer Table Stored Procedures */
+
+CREATE PROCEDURE checkApprovingOfficerExist (IN p_approving_officer_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM approving_officer
+    WHERE approving_officer_id = approving_officer_id;
+END //
+
+CREATE PROCEDURE insertApprovingOfficer(IN p_contact_id INT, IN p_approving_officer_type VARCHAR(10), IN p_last_log_by INT, OUT p_approving_officer_id INT)
+BEGIN
+    INSERT INTO approving_officer (contact_id, approving_officer_type, last_log_by) 
+	VALUES(p_contact_id, p_approving_officer_type, p_last_log_by);
+	
+    SET p_approving_officer_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE deleteApprovingOfficer(IN p_approving_officer_id INT)
+BEGIN
+	DELETE FROM approving_officer
+    WHERE approving_officer_id = p_approving_officer_id;
+END //
+
+CREATE PROCEDURE getApprovingOfficer(IN p_approving_officer_id INT)
+BEGIN
+	SELECT * FROM approving_officer
+    WHERE approving_officer_id = p_approving_officer_id;
+END //
+
+CREATE PROCEDURE generateApprovingOfficerTable()
+BEGIN
+	SELECT approving_officer_id, contact_id, approving_officer_type
+    FROM approving_officer
+    ORDER BY approving_officer_id;
+END //
+
+CREATE PROCEDURE generateApprovingOfficerOptions(IN p_approving_officer_type VARCHAR(10))
+BEGIN
+    IF p_approving_officer_type IS NOT NULL AND p_approving_officer_type <> '' THEN
+        SELECT contact_id, file_as FROM personal_information 
+        WHERE contact_id IN (SELECT contact_id FROM approving_officer WHERE approving_officer_type = p_approving_officer_type);
+    ELSE
+        SELECT contact_id, file_as FROM personal_information 
+        WHERE contact_id IN (SELECT contact_id FROM approving_officer);
+    END IF;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

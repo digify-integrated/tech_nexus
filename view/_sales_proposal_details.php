@@ -5,7 +5,7 @@
               <ul class="nav nav-tabs checkout-tabs mb-0" id="myTab" role="tablist">
                 <li class="nav-item">
                   <a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="tab" href="#details-tab" role="tab"
-                    aria-controls="details-tab" aria-selected="true" disabled>
+                    aria-controls="details-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-file-text"></i>
@@ -18,7 +18,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-2" data-bs-toggle="tab" href="#accessories-tab" role="tab"
-                    aria-controls="accessories-tab" aria-selected="true" disabled>
+                    aria-controls="accessories-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-briefcase"></i>
@@ -31,7 +31,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#job-order-tab" role="tab"
-                    aria-controls="job-order-tab" aria-selected="true" disabled>
+                    aria-controls="job-order-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-clipboard"></i>
@@ -44,7 +44,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-4" data-bs-toggle="tab" href="#other-charges-tab" role="tab"
-                    aria-controls="other-charges-tab" aria-selected="true" disabled>
+                    aria-controls="other-charges-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-credit-card"></i>
@@ -57,7 +57,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#additional-job-order-tab" role="tab"
-                    aria-controls="additional-job-order-tab" aria-selected="true" disabled>
+                    aria-controls="additional-job-order-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-file-plus"></i>
@@ -70,7 +70,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="tab" href="#summary-tab" role="tab"
-                    aria-controls="summary-tab" aria-selected="true" disabled>
+                    aria-controls="summary-tab" aria-selected="true" >
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-printer"></i>
@@ -437,11 +437,11 @@
                           <h5 class="mb-0">Accessories</h5>
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-accessories-offcanvas" aria-controls="sales-proposal-accessories-offcanvas">Add Accessories</button>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-accessories-offcanvas" aria-controls="sales-proposal-accessories-offcanvas" id="add-sales-proposal-accessories">Add Accessories</button>
                         </div>
                       </div>
                     </div>
-                    <div class="card-body p-0 table-body">
+                    <div class="card-body p-0 table-body mb-4">
                       <div class="table-responsive">
                         <table id="sales-proposal-accessories-table" class="table table-hover nowrap w-100">
                           <thead>
@@ -462,7 +462,7 @@
                       <ul class="list-group list-group-flush">
                         <li class="list-group-item px-0">
                           <div class="float-end">
-                            <h5 class="mb-0">$300.00</h5>
+                            <h5 class="mb-0" id="sales-proposal-accessories-total">--</h5>
                           </div>
                           <h5 class="mb-0 d-inline-block">Total</h5>
                         </li>
@@ -498,11 +498,11 @@
                           <h5 class="mb-0">Job Order</h5>
                         </div>
                         <div class="col-auto">
-                          <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas">Add Job Order</button>
+                          <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
                         </div>
                       </div>
                     </div>
-                    <div class="card-body p-0 table-body">
+                    <div class="card-body p-0 table-body mb-4">
                       <div class="table-responsive">
                         <table id="sales-proposal-job-order-table" class="table table-hover nowrap w-100">
                           <thead>
@@ -523,7 +523,7 @@
                       <ul class="list-group list-group-flush">
                         <li class="list-group-item px-0">
                           <div class="float-end">
-                            <h5 class="mb-0">$300.00</h5>
+                            <h5 class="mb-0" id="sales-proposal-job-order-total">--</h5>
                           </div>
                           <h5 class="mb-0 d-inline-block">Total</h5>
                         </li>
@@ -553,16 +553,216 @@
                         </div>
                       </div>
                     </div>
-                    <div class="card-body border-bottom">
-                      <h5>Other Charges</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          <h5 class="mb-0">Pricing Computation</h5>
+                        </div>
+                        <div class="col-auto">
+                          <button type="submit" form="sales-proposal-pricing-computation-form" class="btn btn-success" id="submit-pricing-computation-data">Submit</button>
+                        </div>
+                      </div>
                     </div>
                     <div class="card-body">
+                      <form id="sales-proposal-pricing-computation-form" method="post" action="#">
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="delivery_price" name="delivery_price" step="0.01" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Cost of Accessories :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="cost_of_accessories" name="cost_of_accessories" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Reconditioning Cost :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="reconditioning_cost" name="reconditioning_cost" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Sub-Total :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div><div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Downpayment :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="downpayment" name="downpayment" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Outstanding Balance :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="outstanding_balance" name="outstanding_balance" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div>
+                      </form>
                     </div>
-                  </div>
+                  </div>                  
+                </div>
+                <div class="col-xl-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          <h5 class="mb-0">Other Charges</h5>
+                        </div>
+                        <div class="col-auto">
+                          <button type="submit" form="sales-proposal-other-charges-form" class="btn btn-success" id="submit-other-charges-data">Submit</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form id="sales-proposal-other-charges-form" method="post" action="#">
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Insurance Coverage :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="insurance_coverage" name="insurance_coverage" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Insurance Premium :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="insurance_premium" name="insurance_premium" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Handling Fee :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="handling_fee" name="handling_fee" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Transfer Fee :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="transfer_fee" name="transfer_fee" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Registration Fee :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="registration_fee" name="registration_fee" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Doc. Stamp Tax :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="doc_stamp_tax" name="doc_stamp_tax" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Transaction Fee :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="transaction_fee" name="transaction_fee" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Total :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="total_other_charges" name="total_other_charges" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>                  
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          <h5 class="mb-0">Renewal Amount</h5>
+                        </div>
+                        <div class="col-auto">
+                          <button type="submit" form="sales-proposal-renewal-amount-form" class="btn btn-success" id="submit-renewal-amount-data">Submit</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <form id="sales-proposal-renewal-amount-form" method="post" action="#">
+                        <table class="table table-borderless table-xl">
+                          <thead>
+                            <tr class="text-center">
+                              <th></th>
+                              <th>2nd Year</th>
+                              <th>3rd Year</th>
+                              <th>4th Year</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Registration</td>
+                              <td><input type="number" class="form-control" id="registration_second_year" name="registration_second_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="registration_third_year" name="registration_third_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="registration_fourth_year" name="registration_fourth_year" step="0.01" value="0" min="0"></td>
+                            </tr>
+                            <tr>
+                              <td>Ins. Coverage</td>
+                              <td><input type="number" class="form-control" id="insurance_coverage_second_year" name="insurance_coverage_second_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="insurance_coverage_third_year" name="insurance_coverage_third_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="insurance_coverage_fourth_year" name="insurance_coverage_fourth_year" step="0.01" value="0" min="0"></td>
+                            </tr>
+                            <tr>
+                              <td>Ins. Premium</td>
+                              <td><input type="number" class="form-control" id="insurance_premium_second_year" name="insurance_premium_second_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="insurance_premium_third_year" name="insurance_premium_third_year" step="0.01" value="0" min="0"></td>
+                              <td><input type="number" class="form-control" id="insurance_premium_fourth_year" name="insurance_premium_fourth_year" step="0.01" value="0" min="0"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>                  
+                </div>
+                <div class="col-xl-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          <h5 class="mb-0">Amount of Deposit</h5>
+                        </div>
+                        <div class="col-auto">
+                          <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body p-0 table-body mb-4">
+                      <div class="table-responsive">
+                        <table id="sales-proposal-deposit-amount-table" class="table table-hover nowrap w-100">
+                          <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Reference No.</th>
+                              <th>Amount</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>                  
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-xl-12">
                   <div class="text-end btn-page mb-0 mt-4">
                     <button class="btn btn-warning" id="prev-step-4">Previous</button>
                     <button class="btn btn-primary" id="next-step-4">Next</button>
-                  </div>
+                  </div>       
                 </div>
               </div>
             </div>
@@ -588,11 +788,11 @@
                           <h5 class="mb-0">Additional Job Order</h5>
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas">Add Additional Job Order</button>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>
                         </div>
                       </div>
                     </div>
-                    <div class="card-body p-0 table-body">
+                    <div class="card-body p-0 table-body mb-4">
                       <div class="table-responsive">
                         <table id="sales-proposal-additional-job-order-table" class="table table-hover nowrap w-100">
                           <thead>
@@ -615,7 +815,7 @@
                       <ul class="list-group list-group-flush">
                         <li class="list-group-item px-0">
                           <div class="float-end">
-                            <h5 class="mb-0">$300.00</h5>
+                            <h5 class="mb-0" id="sales-proposal-additional-job-order-total">--</h5>
                           </div>
                           <h5 class="mb-0 d-inline-block">Total</h5>
                         </li>
@@ -776,7 +976,53 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order" form="sales-proposal-job-order-form">Submit</button>
+                        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order" form="sales-proposal-additional-job-order-form">Submit</button>
+                        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                    </di>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-deposit-amount-offcanvas" aria-labelledby="sales-proposal-deposit-amount-offcanvas-label">
+            <div class="offcanvas-header">
+                <h2 id="sales-proposal-deposit-amount-offcanvas-label" style="margin-bottom:-0.5rem">Amount of Deposit</h2>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                    <form id="sales-proposal-deposit-amount-form" method="post" action="#">
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label">Deposit Date <span class="text-danger">*</span></label>
+                                <input type="hidden" id="sales_proposal_deposit_amount_id" name="sales_proposal_deposit_amount_id">
+                                <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off">
+                                    <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Reference Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="deposit_amount">Deposit Amount <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="deposit_amount" name="deposit_amount" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-deposit-amount" form="sales-proposal-deposit-amount-form">Submit</button>
                         <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                     </di>
                 </div>

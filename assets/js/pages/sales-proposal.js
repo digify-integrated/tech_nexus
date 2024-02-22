@@ -8,6 +8,12 @@
 
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal details');
+            displayDetails('get sales proposal accessories total details');
+            displayDetails('get sales proposal job order total details');
+            displayDetails('get sales proposal additional job order total details');
+            displayDetails('get sales proposal pricing computation details');
+            displayDetails('get sales proposal other charges details');
+            displayDetails('get sales proposal renewal amount details');
 
             if($('#sales-proposal-accessories-table').length){
                 salesProposalAccessoriesTable('#sales-proposal-accessories-table');
@@ -31,6 +37,345 @@
 
             if($('#sales-proposal-additional-job-order-form').length){
                 salesProposalAdditionalJobOrderForm();
+            }
+
+            if($('#sales-proposal-deposit-amount-table').length){
+                salesProposalDepositAmountTable('#sales-proposal-deposit-amount-table');
+            }
+
+            if($('#sales-proposal-deposit-amount-form').length){
+                salesProposalDepositAmountForm();
+            }
+
+            $(document).on('change','#delivery_price',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#cost_of_accessories',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#cost_of_accessories',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#reconditioning_cost',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#downpayment',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#insurance_coverage',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#insurance_premium',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#handling_fee',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#transfer_fee',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#registration_fee',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#doc_stamp_tax',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('change','#transaction_fee',function() {
+                calculateTotalOtherCharges();
+            });
+
+            $(document).on('click','#add-sales-proposal-accessories',function() {
+                resetModalForm("sales-proposal-accessories-form");
+            });
+
+            $(document).on('click','.update-sales-proposal-accessories',function() {
+                const sales_proposal_accessories_id = $(this).data('sales-proposal-accessories-id');
+        
+                sessionStorage.setItem('sales_proposal_accessories_id', sales_proposal_accessories_id);
+                
+                displayDetails('get sales proposal accessories details');
+            });
+
+            $(document).on('click','.delete-sales-proposal-accessories',function() {
+                const sales_proposal_accessories_id = $(this).data('sales-proposal-accessories-id');
+                const transaction = 'delete sales proposal accessories';
+        
+                Swal.fire({
+                    title: 'Confirm Accessories Deletion',
+                    text: 'Are you sure you want to delete this accessories?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/sales-proposal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                sales_proposal_accessories_id : sales_proposal_accessories_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Accessories Success', 'The accessories has been deleted successfully.', 'success');
+                                    reloadDatatable('#sales-proposal-accessories-table');
+                                    displayDetails('get sales proposal accessories total details');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Accessories Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-sales-proposal-job-order',function() {
+                resetModalForm("sales-proposal-job-order-form");
+            });
+
+            $(document).on('click','.update-sales-proposal-job-order',function() {
+                const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
+        
+                sessionStorage.setItem('sales_proposal_job_order_id', sales_proposal_job_order_id);
+                
+                displayDetails('get sales proposal job order details');
+            });
+
+            $(document).on('click','.delete-sales-proposal-job-order',function() {
+                const sales_proposal_job_order_id = $(this).data('sales-proposal-job-order-id');
+                const transaction = 'delete sales proposal job order';
+        
+                Swal.fire({
+                    title: 'Confirm Job Order Deletion',
+                    text: 'Are you sure you want to delete this job order?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/sales-proposal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                sales_proposal_job_order_id : sales_proposal_job_order_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Job Order Success', 'The job order has been deleted successfully.', 'success');
+                                    reloadDatatable('#sales-proposal-job-order-table');
+                                    displayDetails('get sales proposal job order total details');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Job Order Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-sales-proposal-additional-job-order',function() {
+                resetModalForm("sales-proposal-additional-job-order-form");
+            });
+
+            $(document).on('click','.update-sales-proposal-additional-job-order',function() {
+                const sales_proposal_additional_job_order_id = $(this).data('sales-proposal-additional-job-order-id');
+        
+                sessionStorage.setItem('sales_proposal_additional_job_order_id', sales_proposal_additional_job_order_id);
+                
+                displayDetails('get sales proposal additional job order details');
+            });
+
+            $(document).on('click','.delete-sales-proposal-additional-job-order',function() {
+                const sales_proposal_additional_job_order_id = $(this).data('sales-proposal-additional-job-order-id');
+                const transaction = 'delete sales proposal additional job order';
+        
+                Swal.fire({
+                    title: 'Confirm Additional Job Order Deletion',
+                    text: 'Are you sure you want to delete this additional job order?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/sales-proposal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                sales_proposal_additional_job_order_id : sales_proposal_additional_job_order_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Additional Job Order Success', 'The additional job order has been deleted successfully.', 'success');
+                                    reloadDatatable('#sales-proposal-additional-job-order-table');
+                                    displayDetails('get sales proposal additional job order total details');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Additional Job Order Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','#add-sales-proposal-deposit-amount',function() {
+                resetModalForm("sales-proposal-deposit-amount-form");
+            });
+
+            $(document).on('click','.update-sales-proposal-deposit-amount',function() {
+                const sales_proposal_deposit_amount_id = $(this).data('sales-proposal-deposit-amount-id');
+        
+                sessionStorage.setItem('sales_proposal_deposit_amount_id', sales_proposal_deposit_amount_id);
+                
+                displayDetails('get sales proposal deposit amount details');
+            });
+
+            $(document).on('click','.delete-sales-proposal-deposit-amount',function() {
+                const sales_proposal_deposit_amount_id = $(this).data('sales-proposal-deposit-amount-id');
+                const transaction = 'delete sales proposal deposit amount';
+        
+                Swal.fire({
+                    title: 'Confirm Deposit Amount Deletion',
+                    text: 'Are you sure you want to delete this deposit amount?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/sales-proposal-controller.php',
+                            dataType: 'json',
+                            data: {
+                                sales_proposal_deposit_amount_id : sales_proposal_deposit_amount_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Amount of Deposit Success', 'The amount of deposit has been deleted successfully.', 'success');
+                                    reloadDatatable('#sales-proposal-deposit-amount-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Amount of Deposit Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            if($('#sales-proposal-pricing-computation-form').length){
+                salesProposalPricingComputationForm();
+            }
+
+            if($('#sales-proposal-other-charges-form').length){
+                salesProposalOtherChargesForm();
+            }
+
+            if($('#sales-proposal-renewal-amount-form').length){
+                salesProposalRenewalAmountForm();
             }
         }
 
@@ -259,6 +604,64 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '30%', 'aTargets': 3 },
         { 'width': '15%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalDepositAmountTable(datatable_name, buttons = false, show_all = false){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'sales proposal deposit amount table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'DEPOSIT_DATE' },
+        { 'data' : 'REFERENCE_NUMBER' },
+        { 'data' : 'DEPOSIT_AMOUNT' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '25%', 'aTargets': 0 },
+        { 'width': '30%', 'aTargets': 1 },
+        { 'width': '30%', 'aTargets': 2 },
+        { 'width': '15%','bSortable': false, 'aTargets': 3 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -532,6 +935,7 @@ function salesProposalAccessoriesForm(){
                     $('#sales-proposal-accessories-offcanvas').offcanvas('hide');
                     reloadDatatable('#sales-proposal-accessories-table');
                     resetModalForm('sales-proposal-accessories-form');
+                    displayDetails('get sales proposal accessories total details');
                 }
             });
         
@@ -589,7 +993,7 @@ function salesProposalJobOrderForm(){
         },
         submitHandler: function(form) {
             const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal accessories';
+            const transaction = 'save sales proposal job order';
         
             $.ajax({
                 type: 'POST',
@@ -627,6 +1031,7 @@ function salesProposalJobOrderForm(){
                     $('#sales-proposal-job-order-offcanvas').offcanvas('hide');
                     reloadDatatable('#sales-proposal-job-order-table');
                     resetModalForm('sales-proposal-job-order-form');
+                    displayDetails('get sales proposal job order total details');
                 }
             });
         
@@ -696,7 +1101,7 @@ function salesProposalAdditionalJobOrderForm(){
         },
         submitHandler: function(form) {
             const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'save sales proposal accessories';
+            const transaction = 'save sales proposal additional job order';
         
             $.ajax({
                 type: 'POST',
@@ -734,6 +1139,337 @@ function salesProposalAdditionalJobOrderForm(){
                     $('#sales-proposal-additional-job-order-offcanvas').offcanvas('hide');
                     reloadDatatable('#sales-proposal-additional-job-order-table');
                     resetModalForm('sales-proposal-additional-job-order-form');
+                    displayDetails('get sales proposal additional job order total details');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalDepositAmountForm(){
+    $('#sales-proposal-deposit-amount-form').validate({
+        rules: {
+            deposit_date: {
+                required: true
+            },
+            reference_number: {
+                required: true
+            },
+            deposit_amount: {
+                required: true
+            },
+        },
+        messages: {
+            deposit_date: {
+                required: 'Please choose the deposit date'
+            },
+            reference_number: {
+                required: 'Please enter the reference number'
+            },
+            deposit_amount: {
+                required: 'Please enter the deposit amount'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal deposit amount';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-deposit-amount');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Amount of Deposit Success' : 'Update Amount of Deposit Success';
+                        const notificationDescription = response.insertRecord ? 'The amount of deposit has been inserted successfully.' : 'The amount of deposit has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-deposit-amount', 'Submit');
+                    $('#sales-proposal-deposit-amount-offcanvas').offcanvas('hide');
+                    reloadDatatable('#sales-proposal-deposit-amount-table');
+                    resetModalForm('sales-proposal-deposit-amount-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalPricingComputationForm(){
+    $('#sales-proposal-pricing-computation-form').validate({
+        rules: {
+            delivery_price: {
+                required: true
+            }
+        },
+        messages: {
+            delivery_price: {
+                required: 'Please enter the delivery price'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal pricing computation';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-pricing-computation-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Pricing Computation Success', 'The pricing computation has been updated successfully.', 'success');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-pricing-computation-data', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalOtherChargesForm(){
+    $('#sales-proposal-other-charges-form').validate({
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal other charges';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-other-charges-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Other Charges Success', 'The other charges has been updated successfully.', 'success');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-other-charges-data', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalRenewalAmountForm(){
+    $('#sales-proposal-renewal-amount-form').validate({
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal renewal amount';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-renewal-data');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Update Renewal Amount Success', 'The renewal amount has been updated successfully.', 'success');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-renewal-data', 'Submit');
                 }
             });
         
@@ -745,7 +1481,7 @@ function salesProposalAdditionalJobOrderForm(){
 function displayDetails(transaction){
     switch (transaction) {
         case 'get sales proposal details':
-            const sales_proposal_id = $('#sales-proposal-id').text();
+            var sales_proposal_id = $('#sales-proposal-id').text();
             
             $.ajax({
                 url: 'controller/sales-proposal-controller.php',
@@ -827,6 +1563,39 @@ function displayDetails(transaction){
                     }
                 });
                 break;
+        case 'get sales proposal accessories total details':
+                var sales_proposal_id = $('#sales-proposal-id').text();
+
+                $.ajax({
+                    url: 'controller/sales-proposal-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        sales_proposal_id : sales_proposal_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#sales-proposal-accessories-total').text('Php ' + response.total);
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Sales Proposal Accessories Total Details Error', response.message, 'danger');
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        }
+                        showErrorDialog(fullErrorMessage);
+                    }
+                });
+                break;
         case 'get sales proposal job order details':
                 var sales_proposal_job_order_id = sessionStorage.getItem('sales_proposal_job_order_id');
                 
@@ -862,6 +1631,39 @@ function displayDetails(transaction){
                     }
                 });
                 break;
+        case 'get sales proposal job order total details':
+                    var sales_proposal_id = $('#sales-proposal-id').text();
+    
+                    $.ajax({
+                        url: 'controller/sales-proposal-controller.php',
+                        method: 'POST',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_id : sales_proposal_id, 
+                            transaction : transaction
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $('#sales-proposal-job-order-total').text('Php ' + response.total);
+                            } 
+                            else {
+                                if(response.isInactive){
+                                    window.location = 'logout.php?logout';
+                                }
+                                else{
+                                    showNotification('Get Sales Proposal Job Order Total Details Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                            if (xhr.responseText) {
+                                fullErrorMessage += ', Response: ${xhr.responseText}';
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    break;
         case 'get sales proposal additional job order details':
                 var sales_proposal_additional_job_order_id = sessionStorage.getItem('sales_proposal_additional_job_order_id');
                 
@@ -899,6 +1701,197 @@ function displayDetails(transaction){
                     }
                 });
                 break;
+        case 'get sales proposal additional job order total details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+    
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#sales-proposal-additional-job-order-total').text('Php ' + response.total);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Additional Job Order Total Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get sales proposal deposit amount details':
+            var sales_proposal_deposit_amount_id = sessionStorage.getItem('sales_proposal_deposit_amount_id');
+    
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_deposit_amount_id : sales_proposal_deposit_amount_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#sales_proposal_deposit_amount_id').val(sales_proposal_deposit_amount_id);
+                        $('#deposit_date').val(response.depositDate);
+                        $('#reference_number').val(response.referenceNumber);
+                        $('#deposit_amount').val(response.depositAmount);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Deposit Amount Total Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get sales proposal pricing computation details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+        
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#delivery_price').val(response.deliveryPrice);
+                        $('#cost_of_accessories').val(response.costOfAccessories);
+                        $('#reconditioning_cost').val(response.reconditioningCost);
+                        $('#downpayment').val(response.downpayment);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Pricing Computation Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    calculatePricingComputation();
+                }
+            });
+            break;
+        case 'get sales proposal other charges details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+        
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#insurance_coverage').val(response.insuranceCoverage);
+                        $('#insurance_premium').val(response.insurancePremium);
+                        $('#handling_fee').val(response.handlingFee);
+                        $('#transfer_fee').val(response.transferFee);
+                        $('#registration_fee').val(response.registrationFee);
+                        $('#doc_stamp_tax').val(response.docStampTax);
+                        $('#transaction_fee').val(response.transactionFee);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Other Charges Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    calculateTotalOtherCharges();
+                }
+            });
+            break;
+        case 'get sales proposal renewal amount details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+        
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#registration_second_year').val(response.registrationSecondYear);
+                        $('#registration_third_year').val(response.registrationThirdYear);
+                        $('#registration_fourth_year').val(response.registrationFourthYear);
+                        $('#insurance_coverage_second_year').val(response.insuranceCoverageSecondYear);
+                        $('#insurance_coverage_third_year').val(response.insuranceCoverageThirdYear);
+                        $('#insurance_coverage_fourth_year').val(response.insuranceCoverageFourthYear);
+                        $('#insurance_premium_second_year').val(response.insurancePremiumSecondYear);
+                        $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
+                        $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Renewal Amount Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                        showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
         case 'get product details':
             const product_id = $('#product_id').val();
             
@@ -1020,6 +2013,33 @@ function calculateFirstDueDate(){
             $('#first_due_date').val(result);
         }
     });
+}
+
+function calculatePricingComputation(){
+    var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+    var cost_of_accessories = parseFloat($("#cost_of_accessories").val()) || 0;
+    var reconditioning_cost = parseFloat($("#reconditioning_cost").val()) || 0;
+    var downpayment = parseFloat($("#downpayment").val()) || 0;
+
+    var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
+    var outstanding_balance = subtotal - downpayment;
+
+    $('#subtotal').val(subtotal.toFixed(2));
+    $('#outstanding_balance').val(outstanding_balance.toFixed(2));
+}
+
+function calculateTotalOtherCharges(){
+    var insurance_coverage = parseFloat($("#insurance_coverage").val()) || 0;
+    var insurance_premium = parseFloat($("#insurance_premium").val()) || 0;
+    var handling_fee = parseFloat($("#handling_fee").val()) || 0;
+    var transfer_fee = parseFloat($("#transfer_fee").val()) || 0;
+    var registration_fee = parseFloat($("#registration_fee").val()) || 0;
+    var doc_stamp_tax = parseFloat($("#doc_stamp_tax").val()) || 0;
+    var transaction_fee = parseFloat($("#transaction_fee").val()) || 0;
+
+    var total = insurance_coverage + insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
+
+    $('#total_other_charges').val(total.toFixed(2));
 }
 
 function nextStep(currentStep) {

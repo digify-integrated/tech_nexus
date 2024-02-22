@@ -247,6 +247,9 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Customer', '7', 'customer.php', '', 'users', '3', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Search Customer', '7', 'search-customer.php', '', 'search', '1', '1');
 
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '7', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '59', '', '2', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Menu Item Access Right Table */
@@ -348,6 +351,9 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('67', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('68', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('69', '1', '1', '1', '1', '1', '1', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('70', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('71', '1', '1', '1', '1', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4999,6 +5005,108 @@ CREATE TABLE sales_proposal_additional_job_order(
 
 CREATE INDEX additional_job_order_index_additional_job_order_id ON sales_proposal_additional_job_order(sales_proposal_additional_job_order_id);
 CREATE INDEX additional_job_order_index_sales_proposal_id ON sales_proposal_additional_job_order(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Pricing Computation Table */
+
+CREATE TABLE sales_proposal_pricing_computation(
+	sales_proposal_pricing_computation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	delivery_price DOUBLE,
+	cost_of_accessories DOUBLE,
+	reconditioning_cost DOUBLE,
+	subtotal DOUBLE,
+	downpayment DOUBLE,
+	outstanding_balance DOUBLE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX pricing_computation_index_pricing_computation_id ON sales_proposal_pricing_computation(sales_proposal_pricing_computation_id);
+CREATE INDEX pricing_computation_index_sales_proposal_id ON sales_proposal_pricing_computation(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Other Charges Table */
+
+CREATE TABLE sales_proposal_other_charges(
+	sales_proposal_other_charges_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	insurance_coverage DOUBLE,
+	insurance_premium DOUBLE,
+	handling_fee DOUBLE,
+	transfer_fee DOUBLE,
+	registration_fee DOUBLE,
+	doc_stamp_tax DOUBLE,
+	transaction_fee DOUBLE,
+	total_other_charges DOUBLE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX other_charges_index_other_charges_id ON sales_proposal_other_charges(sales_proposal_other_charges_id);
+CREATE INDEX other_charges_index_sales_proposal_id ON sales_proposal_other_charges(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Renewal Amount Table */
+
+CREATE TABLE sales_proposal_renewal_amount(
+	sales_proposal_renewal_amount_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	registration_second_year DOUBLE,
+	registration_third_year DOUBLE,
+	registration_fourth_year DOUBLE,
+	insurance_coverage_second_year DOUBLE,
+	insurance_coverage_third_year DOUBLE,
+	insurance_coverage_fourth_year DOUBLE,
+	insurance_premium_second_year DOUBLE,
+	insurance_premium_third_year DOUBLE,
+	insurance_premium_fourth_year DOUBLE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX renewal_amount_index_renewal_amount_id ON sales_proposal_renewal_amount(sales_proposal_renewal_amount_id);
+CREATE INDEX renewal_amount_index_sales_proposal_id ON sales_proposal_renewal_amount(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Deposit Amount Table */
+
+CREATE TABLE sales_proposal_deposit_amount(
+	sales_proposal_deposit_amount_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	deposit_date DATE,
+	reference_number VARCHAR(100),
+	deposit_amount DOUBLE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX deposit_amount_index_deposit_amount_id ON sales_proposal_deposit_amount(sales_proposal_deposit_amount_id);
+CREATE INDEX deposit_amount_index_sales_proposal_id ON sales_proposal_deposit_amount(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Approving Officer Table */
+
+CREATE TABLE approving_officer(
+	approving_officer_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	contact_id INT UNSIGNED NOT NULL,
+	approving_officer_type VARCHAR(10) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX approving_officer_approving_officer_id ON approving_officer(approving_officer_id);
+CREATE INDEX approving_officer_contact_id ON approving_officer(contact_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
