@@ -73,7 +73,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                   }                 
                   
                   if($viewSalesProposal['total'] > 0 && $customerStatus == 'Active'){
-                    echo '<a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'" class="btn btn-success">Create Sales Proposal</a>';
+                    echo '<a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'" class="btn btn-success">View Sales Proposal</a>';
                   }
                 ?>
               </div>

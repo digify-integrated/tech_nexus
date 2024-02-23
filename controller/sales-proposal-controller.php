@@ -99,6 +99,9 @@ class SalesProposalController {
                 case 'save sales proposal deposit amount':
                     $this->saveSalesProposalDepositAmount();
                     break;
+                case 'tag for initial approval':
+                    $this->tagSalesProposalForInitialApproval();
+                    break;
                 case 'delete sales proposal accessories':
                     $this->deleteSalesProposalAccessories();
                     break;
@@ -191,6 +194,8 @@ class SalesProposalController {
         $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
         $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
+        $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -203,13 +208,13 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $userID);
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
         } 
         else {
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $contactID, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -263,6 +268,46 @@ class SalesProposalController {
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagSalesProposalForInitialApproval
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalForInitialApproval() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'For Initial Approval', '', $userID);
+            
+        echo json_encode(['success' => true]);
     }
     # -------------------------------------------------------------
 
@@ -386,6 +431,10 @@ class SalesProposalController {
         $subtotal = htmlspecialchars($_POST['subtotal'], ENT_QUOTES, 'UTF-8');
         $downpayment = htmlspecialchars($_POST['downpayment'], ENT_QUOTES, 'UTF-8');
         $outstandingBalance = htmlspecialchars($_POST['outstanding_balance'], ENT_QUOTES, 'UTF-8');
+        $amountFinanced = htmlspecialchars($_POST['amount_financed'], ENT_QUOTES, 'UTF-8');
+        $pnAmount = htmlspecialchars($_POST['pn_amount'], ENT_QUOTES, 'UTF-8');
+        $repaymentAmount = htmlspecialchars($_POST['repayment_amount'], ENT_QUOTES, 'UTF-8');
+        $interestRate = htmlspecialchars($_POST['interest_rate'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -398,13 +447,13 @@ class SalesProposalController {
         $total = $checkSalesProposalPricingComputationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $userID);
+            $this->salesProposalModel->updateSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $userID);
+            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -765,6 +814,17 @@ class SalesProposalController {
             }
     
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+            $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+
+            $createdByDetails = $this->customerModel->getPersonalInformation($salesProposalDetails['created_by']);
+            $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
+            $initialApprovingOfficerDetails = $this->customerModel->getPersonalInformation($initialApprovingOfficer);
+            $initialApprovingOfficerName = strtoupper($initialApprovingOfficerDetails['file_as'] ?? null);
+
+            $finalApprovingOfficerDetails = $this->customerModel->getPersonalInformation($finalApprovingOfficer);
+            $finalApprovingOfficerName = strtoupper($finalApprovingOfficerDetails['file_as'] ?? null);
 
             $response = [
                 'success' => true,
@@ -782,7 +842,12 @@ class SalesProposalController {
                 'forRegistration' => $salesProposalDetails['for_registration'],
                 'withCR' => $salesProposalDetails['with_cr'],
                 'forTransfer' => $salesProposalDetails['for_transfer'],
-                'remarks' => $salesProposalDetails['remarks']
+                'remarks' => $salesProposalDetails['remarks'],
+                'initialApprovingOfficer' => $initialApprovingOfficer,
+                'finalApprovingOfficer' => $finalApprovingOfficer,
+                'createdByName' => $createdByName,
+                'initialApprovingOfficerName' => $initialApprovingOfficerName,
+                'finalApprovingOfficerName' => $finalApprovingOfficerName,
             ];
 
             echo json_encode($response);
@@ -1067,10 +1132,12 @@ class SalesProposalController {
 
             $response = [
                 'success' => true,
-                'deliveryPrice' => $salesProposalPricingComputationDetails['delivery_price'] ?? 0,
+                'deliveryPrice' => $salesProposalPricingComputationDetails['delivery_price'] ?? '',
                 'costOfAccessories' => $salesProposalPricingComputationDetails['cost_of_accessories'] ?? 0,
                 'reconditioningCost' => $salesProposalPricingComputationDetails['reconditioning_cost'] ?? 0,
-                'downpayment' => $salesProposalPricingComputationDetails['downpayment'] ?? 0
+                'downpayment' => $salesProposalPricingComputationDetails['downpayment'] ?? 0,
+                'interestRate' => $salesProposalPricingComputationDetails['interest_rate'] ?? 0,
+                'repaymentAmount' => $salesProposalPricingComputationDetails['repayment_amount'] ?? 0,
             ];
 
             echo json_encode($response);

@@ -7056,15 +7056,15 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, remarks, created_by, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_remarks, p_created_by, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, remarks, created_by, initial_approving_officer, final_approving_officer, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_remarks, p_created_by, p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal
     SET sales_proposal_number = p_sales_proposal_number,
@@ -7083,8 +7083,56 @@ BEGIN
     with_cr = p_with_cr,
     for_transfer = p_for_transfer,
     remarks = p_remarks,
+    initial_approving_officer = p_initial_approving_officer,
+    final_approving_officer = p_final_approving_officer,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    IF p_sales_proposal_status = 'Approved Sales Proposal' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        initial_approval_date = NOW(),
+        initial_approval_by = p_changed_by,
+        initial_approval_remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'For CI' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        for_ci_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'Rejected' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        rejection_date = NOW(),
+        rejection_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'Cancelled' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'Proceed' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        approval_date = NOW(),
+        approval_by = p_changed_by,
+        final_approval_remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSE
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    END IF;
 END //
 
 CREATE PROCEDURE deleteSalesProposal(IN p_sales_proposal_id INT)
@@ -7103,6 +7151,51 @@ BEGIN
     SELECT sales_proposal_id, sales_proposal_name
     FROM sales_proposal
     ORDER BY sales_proposal_id;
+END //
+
+CREATE PROCEDURE generateSalesProposalTable(IN p_customer_id INT, IN p_sales_proposal_status VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM sales_proposal';
+    
+    SET conditionList = ' WHERE customer_id = ';
+    SET conditionList = CONCAT(conditionList, p_customer_id);
+
+    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateAllSalesProposalTable(IN p_sales_proposal_status VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM sales_proposal';
+
+    SET conditionList = '';
+
+    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' WHERE sales_proposal_status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -7274,13 +7367,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_pricing_computation (sales_proposal_id, delivery_price, cost_of_accessories, reconditioning_cost, subtotal, downpayment, outstanding_balance, last_log_by) 
-	VALUES(p_sales_proposal_id, p_delivery_price, p_cost_of_accessories, p_reconditioning_cost, p_subtotal, p_downpayment, p_outstanding_balance, p_last_log_by);
+    INSERT INTO sales_proposal_pricing_computation (sales_proposal_id, delivery_price, cost_of_accessories, reconditioning_cost, subtotal, downpayment, outstanding_balance, amount_financed, pn_amount, repayment_amount, interest_rate, last_log_by) 
+	VALUES(p_sales_proposal_id, p_delivery_price, p_cost_of_accessories, p_reconditioning_cost, p_subtotal, p_downpayment, p_outstanding_balance, p_amount_financed, p_pn_amount, p_repayment_amount, p_interest_rate, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_pricing_computation
     SET delivery_price = p_delivery_price,
@@ -7289,6 +7382,10 @@ BEGIN
     subtotal = p_subtotal,
     downpayment = p_downpayment,
     outstanding_balance = p_outstanding_balance,
+    amount_financed = p_amount_financed,
+    pn_amount = p_pn_amount,
+    repayment_amount = p_repayment_amount,
+    interest_rate = p_interest_rate,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //

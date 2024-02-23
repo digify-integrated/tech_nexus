@@ -1,7 +1,7 @@
 <nav class="pc-sidebar">
     <div class="navbar-wrapper">
         <div class="m-header">
-            <a href="javascript:void(0);" class="b-brand text-primary"><img src="<?php echo $login_logo; ?>" /></a>
+            <a href="javascript:void(0);" class="b-brand text-primary"><img src="<?php echo $login_logo; ?>" class="w-100 hei-50"/></a>
         </div>
         <div class="navbar-content">
             <div class="card pc-user-card">

@@ -6,7 +6,7 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
 
-  $pageTitle = 'Sales Proposal';
+  $pageTitle = 'All Sales Proposal';
   
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
@@ -125,14 +125,11 @@
           </div>
         </div>
         <?php
-          if($newRecord && !empty($customerID) && $addSalesProposal['total'] > 0){
-            require_once('view/_sales_proposal_new.php');
-          }
-          else if(!empty($salesProposalID) && !empty($customerID) && $updateSalesProposal['total'] > 0){
-            require_once('view/_sales_proposal_details.php');
+         if(!empty($salesProposalID) && !empty($customerID) && $updateSalesProposal['total'] > 0){
+            require_once('view/_all_sales_proposal_details.php');
           }
           else{
-            require_once('view/_sales_proposal.php');
+            require_once('view/_all_sales_proposal.php');
           }
         ?>
       </div>

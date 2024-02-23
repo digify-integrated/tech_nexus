@@ -6,6 +6,14 @@
             salesProposalForm();
         }
 
+        if($('#sales-proposal-table').length){
+            salesProposalTable('#sales-proposal-table');
+        }
+
+        if($('#all-sales-proposal-table').length){
+            allSalesProposalTable('#all-sales-proposal-table');
+        }
+
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal details');
             displayDetails('get sales proposal accessories total details');
@@ -14,6 +22,10 @@
             displayDetails('get sales proposal pricing computation details');
             displayDetails('get sales proposal other charges details');
             displayDetails('get sales proposal renewal amount details');
+            salesProposalSummaryAccessoriesTable();
+            salesProposalSummaryJobOrderTable();
+            salesProposalSummaryAdditionalJobOrderTable();
+            salesProposalSummaryDepositTable();
 
             if($('#sales-proposal-accessories-table').length){
                 salesProposalAccessoriesTable('#sales-proposal-accessories-table');
@@ -47,11 +59,15 @@
                 salesProposalDepositAmountForm();
             }
 
-            $(document).on('change','#delivery_price',function() {
+            $(document).on('change','#term_length',function() {
                 calculatePricingComputation();
             });
 
-            $(document).on('change','#cost_of_accessories',function() {
+            $(document).on('change','#interest_rate',function() {
+                calculatePricingComputation();
+            });
+
+            $(document).on('change','#delivery_price',function() {
                 calculatePricingComputation();
             });
 
@@ -419,10 +435,6 @@
             calculatePaymentNumber();
         });
         
-        $(document).on('click','#next-step-1',function() {
-            nextStep(1);
-        });
-        
         $(document).on('click','#prev-step-2',function() {
             prevStep(2);
         });
@@ -444,7 +456,12 @@
         });
         
         $(document).on('click','#next-step-4',function() {
-            nextStep(4);
+            if($('#delivery_price').valid()){
+                nextStep(4);
+            }
+            else{
+                showNotification('Form Required', 'Kindly fill-out all of the required fields before proceeding.', 'warning');
+            }
         });
         
         $(document).on('click','#prev-step-5',function() {
@@ -470,8 +487,200 @@
         $(document).on('focusout', '#start_date', function () {
             calculatePaymentNumber();
         });
+
+        $(document).on('click','#apply-filter',function() {
+            if($('#sales-proposal-table').length){
+                salesProposalTable('#sales-proposal-table');
+            }
+    
+            if($('#all-sales-proposal-table').length){
+                allSalesProposalTable('#all-sales-proposal-table');
+            }
+        });
+
+        $(document).on('click','#tag-for-initial-approval',function() {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'tag for initial approval';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Sales Proposal For Initial Approval',
+                text: 'Are you sure you want to tag this sales proposal for initial approval?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Tag',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_id : sales_proposal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Sales Proposal For Initial Approval Success', 'The sales proposal has been tagged for initial approval successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Sales Proposal For Initial Approval Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
     });
 })(jQuery);
+
+function salesProposalTable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal table';
+    var customer_id = $('#customer_id').val();
+    var sales_proposal_status_filter = $('.sales-proposal-status-filter:checked').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': '14%', 'aTargets': 1 },
+        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '30%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'customer_id' : customer_id, 'sales_proposal_status_filter' : sales_proposal_status_filter},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function allSalesProposalTable(datatable_name, buttons = false, show_all = false){
+    const type = 'all sales proposal table';
+    var sales_proposal_status_filter = $('.sales-proposal-status-filter:checked').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'CHECK_BOX' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
+        { 'width': '14%', 'aTargets': 1 },
+        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '30%', 'aTargets': 3 },
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'sales_proposal_status_filter' : sales_proposal_status_filter},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
 
 function salesProposalAccessoriesTable(datatable_name, buttons = false, show_all = false){
     const sales_proposal_id = $('#sales-proposal-id').text();
@@ -529,6 +738,21 @@ function salesProposalAccessoriesTable(datatable_name, buttons = false, show_all
     $(datatable_name).dataTable(settings);
 }
 
+function salesProposalSummaryAccessoriesTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary accessories table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            document.getElementById('summary-accessories-table').innerHTML = result[0].table;
+        }
+    });
+}
+
 function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = false){
     const sales_proposal_id = $('#sales-proposal-id').text();
     const type = 'sales proposal job order table';
@@ -583,6 +807,21 @@ function salesProposalJobOrderTable(datatable_name, buttons = false, show_all = 
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function salesProposalSummaryJobOrderTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary job order table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            document.getElementById('summary-job-order-table').innerHTML = result[0].table;
+        }
+    });
 }
 
 function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, show_all = false){
@@ -645,6 +884,21 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
     $(datatable_name).dataTable(settings);
 }
 
+function salesProposalSummaryAdditionalJobOrderTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary additional job order table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            document.getElementById('summary-additional-job-order-table').innerHTML = result[0].table;
+        }
+    });
+}
+
 function salesProposalDepositAmountTable(datatable_name, buttons = false, show_all = false){
     const sales_proposal_id = $('#sales-proposal-id').text();
     const type = 'sales proposal deposit amount table';
@@ -703,6 +957,21 @@ function salesProposalDepositAmountTable(datatable_name, buttons = false, show_a
     $(datatable_name).dataTable(settings);
 }
 
+function salesProposalSummaryDepositTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary deposit amount table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            document.getElementById('summary-amount-of-deposit-table').innerHTML = result[0].table;
+        }
+    });
+}
+
 function salesProposalForm(){
     $('#sales-proposal-form').validate({
         rules: {
@@ -731,6 +1000,12 @@ function salesProposalForm(){
                 required: true
             },
             first_due_date: {
+                required: true
+            },
+            initial_approving_officer: {
+                required: true
+            },
+            final_approving_officer: {
                 required: true
             },
             for_registration: {
@@ -770,6 +1045,12 @@ function salesProposalForm(){
             },
             first_due_date: {
                 required: 'Please choose the first due date'
+            },
+            initial_approving_officer: {
+                required: 'Please choose the initial approving officer'
+            },
+            final_approving_officer: {
+                required: 'Please choose the final approving officer'
             },
         },
         errorPlacement: function (error, element) {
@@ -840,6 +1121,8 @@ function salesProposalForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-data', 'Submit');
+                    nextStep(1);
+                    displayDetails('get sales proposal details');
                 }
             });
         
@@ -936,6 +1219,7 @@ function salesProposalAccessoriesForm(){
                     reloadDatatable('#sales-proposal-accessories-table');
                     resetModalForm('sales-proposal-accessories-form');
                     displayDetails('get sales proposal accessories total details');
+                    salesProposalSummaryAccessoriesTable();
                 }
             });
         
@@ -1032,6 +1316,7 @@ function salesProposalJobOrderForm(){
                     reloadDatatable('#sales-proposal-job-order-table');
                     resetModalForm('sales-proposal-job-order-form');
                     displayDetails('get sales proposal job order total details');
+                    salesProposalSummaryJobOrderTable();
                 }
             });
         
@@ -1140,6 +1425,7 @@ function salesProposalAdditionalJobOrderForm(){
                     reloadDatatable('#sales-proposal-additional-job-order-table');
                     resetModalForm('sales-proposal-additional-job-order-form');
                     displayDetails('get sales proposal additional job order total details');
+                    salesProposalSummaryAdditionalJobOrderTable();
                 }
             });
         
@@ -1241,6 +1527,7 @@ function salesProposalDepositAmountForm(){
                     $('#sales-proposal-deposit-amount-offcanvas').offcanvas('hide');
                     reloadDatatable('#sales-proposal-deposit-amount-table');
                     resetModalForm('sales-proposal-deposit-amount-form');
+                    salesProposalSummaryDepositTable();
                 }
             });
         
@@ -1324,6 +1611,7 @@ function salesProposalPricingComputationForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-pricing-computation-data', 'Submit');
+                    displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -1397,6 +1685,7 @@ function salesProposalOtherChargesForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-other-charges-data', 'Submit');
+                    displayDetails('get sales proposal other charges details');
                 }
             });
         
@@ -1470,6 +1759,7 @@ function salesProposalRenewalAmountForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-renewal-data', 'Submit');
+                    displayDetails('get sales proposal renewal amount details');
                 }
             });
         
@@ -1502,6 +1792,19 @@ function displayDetails(transaction){
                         $('#first_due_date').val(response.firstDueDate);
                         $('#remarks').val(response.remarks);
 
+                        $('#summary-sales-proposal-number').text(response.salesProposalNumber);
+                        $('#summary-referred-by').text(response.referredBy);
+                        $('#summary-release-date').text(response.releaseDate);
+                        $('#summary-term').text(response.termLength + ' ' + response.termType);
+                        $('#summary-no-payments').text(response.numberOfPayments);
+                        $('#summary-for-registration').text(response.forRegistration);
+                        $('#summary-with-cr').text(response.withCR);
+                        $('#summary-for-transfer').text(response.forTransfer);
+                        $('#summary-remarks').text(response.remarks);
+                        $('#summary-created-by').text(response.createdByName);
+                        $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
+                        $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
+
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
                         checkOptionExist('#term_type', response.termType, '');
@@ -1509,6 +1812,8 @@ function displayDetails(transaction){
                         checkOptionExist('#for_registration', response.forRegistration, '');
                         checkOptionExist('#with_cr', response.withCR, '');
                         checkOptionExist('#for_transfer', response.forTransfer, '');
+                        checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
+                        checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
                     } 
                     else {
                         if(response.isInactive){
@@ -1577,6 +1882,7 @@ function displayDetails(transaction){
                     success: function(response) {
                         if (response.success) {
                             $('#sales-proposal-accessories-total').text('Php ' + response.total);
+                            $('#summary-accessories-total').text(response.total);
                         } 
                         else {
                             if(response.isInactive){
@@ -1645,6 +1951,7 @@ function displayDetails(transaction){
                         success: function(response) {
                             if (response.success) {
                                 $('#sales-proposal-job-order-total').text('Php ' + response.total);
+                                $('#summary-job-order-total').text(response.total);
                             } 
                             else {
                                 if(response.isInactive){
@@ -1787,6 +2094,13 @@ function displayDetails(transaction){
                         $('#cost_of_accessories').val(response.costOfAccessories);
                         $('#reconditioning_cost').val(response.reconditioningCost);
                         $('#downpayment').val(response.downpayment);
+                        $('#interest_rate').val(response.interestRate);
+
+                        $('#summary-deliver-price').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
+                        $('#summary-cost-of-accessories').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
+                        $('#summary-reconditioning-cost').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
+                        $('#summary-downpayment').text(parseFloat(response.downpayment).toLocaleString("en-US"));
+                        $('#summary-repayment-amount').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -1829,6 +2143,14 @@ function displayDetails(transaction){
                         $('#registration_fee').val(response.registrationFee);
                         $('#doc_stamp_tax').val(response.docStampTax);
                         $('#transaction_fee').val(response.transactionFee);
+
+                        $('#summary-insurance-coverage').text(parseFloat(response.insuranceCoverage).toLocaleString("en-US"));
+                        $('#summary-insurance-premium').text(parseFloat(response.insurancePremium).toLocaleString("en-US"));
+                        $('#summary-handing-fee').text(parseFloat(response.handlingFee).toLocaleString("en-US"));
+                        $('#summary-transfer-fee').text(parseFloat(response.transferFee).toLocaleString("en-US"));
+                        $('#summary-registration-fee').text(parseFloat(response.registrationFee).toLocaleString("en-US"));
+                        $('#summary-doc-stamp-tax').text(parseFloat(response.docStampTax).toLocaleString("en-US"));
+                        $('#summary-transaction-fee').text(parseFloat(response.transactionFee).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -1873,6 +2195,16 @@ function displayDetails(transaction){
                         $('#insurance_premium_second_year').val(response.insurancePremiumSecondYear);
                         $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
                         $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
+
+                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYear).toLocaleString("en-US"));
+                        $('#summary-registration-third-year').text(parseFloat(response.registrationThirdYear).toLocaleString("en-US"));
+                        $('#summary-registration-fourth-year').text(parseFloat(response.registrationFourthYear).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-second-year').text(parseFloat(response.insuranceCoverageSecondYear).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-third-year').text(parseFloat(response.insuranceCoverageThirdYear).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-fourth-year').text(parseFloat(response.insuranceCoverageFourthYear).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYear).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYear).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYear).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -1908,6 +2240,11 @@ function displayDetails(transaction){
                         $('#product_engine_number').text(response.engineNumber);
                         $('#product_chassis_number').text(response.chassisNumber);
                         $('#product_plate_number').text(response.plateNumber);
+
+                        $('#summary-stock-no').text(response.stockNumber);
+                        $('#summary-engine-no').text(response.engineNumber);
+                        $('#summary-chassis-no').text(response.chassisNumber);
+                        $('#summary-plate-no').text(response.plateNumber);
                     } 
                     else {
                         if(response.isInactive){
@@ -1945,6 +2282,10 @@ function displayDetails(transaction){
                         $('#comaker_email').text(response.comakerEmail);
                         $('#comaker_mobile').text(response.chassisNumber);
                         $('#comaker_telephone').text(response.comakerMobile);
+
+                        $('#summary-comaker-name').text(response.comakerName);
+                        $('#summary-comaker-address').text(response.comakerAddress);
+                        $('#summary-comaker-mobile').text(response.comakerMobile);
                     } 
                     else {
                         if(response.isInactive){
@@ -2016,6 +2357,8 @@ function calculateFirstDueDate(){
 }
 
 function calculatePricingComputation(){
+    var term_length = parseFloat($("#term_length").val()) || 0;
+    var interest_rate = parseFloat($("#interest_rate").val()) || 0;
     var delivery_price = parseFloat($("#delivery_price").val()) || 0;
     var cost_of_accessories = parseFloat($("#cost_of_accessories").val()) || 0;
     var reconditioning_cost = parseFloat($("#reconditioning_cost").val()) || 0;
@@ -2023,9 +2366,19 @@ function calculatePricingComputation(){
 
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
     var outstanding_balance = subtotal - downpayment;
+    var amount_financed = delivery_price - downpayment;
+    var pn_amount = amount_financed * (1 + (interest_rate/100));
+    var repayment_amount = Math.ceil(pn_amount / term_length);
 
     $('#subtotal').val(subtotal.toFixed(2));
     $('#outstanding_balance').val(outstanding_balance.toFixed(2));
+
+    $('#amount_financed').val(amount_financed.toFixed(2));
+    $('#pn_amount').val(pn_amount.toFixed(2));
+    $('#repayment_amount').val(repayment_amount.toFixed(2));
+
+    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateTotalOtherCharges(){
@@ -2040,6 +2393,7 @@ function calculateTotalOtherCharges(){
     var total = insurance_coverage + insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
 
     $('#total_other_charges').val(total.toFixed(2));
+    $('#summary-other-charges-total').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 }
 
 function nextStep(currentStep) {

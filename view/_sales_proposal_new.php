@@ -90,6 +90,24 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Initial Approving Officer : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
+                <option value="">--</option>
+                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Final Approving Officer : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
+                <option value="">--</option>
+                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="for_registration" id="for_registration">

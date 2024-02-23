@@ -32,7 +32,7 @@
                 <div class="col-lg-10">
                     <select class="form-control select2" name="approving_officer_type" id="approving_officer_type">
                         <option value="">--</option>
-                        <option value="Inital">Initial</option>
+                        <option value="Initial">Initial</option>
                         <option value="Final">Final</option>
                     </select>
                 </div>

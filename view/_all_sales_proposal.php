@@ -89,10 +89,6 @@
                                       </ul>
                                     </div>';
                       }
-    
-                    if($addSalesProposal['total'] > 0){
-                      $action .= '<a href="sales-proposal.php?new&customer='. $securityModel->encryptData($customerID) .'" class="btn btn-success">Create</a>';
-                    }
                                   
                     echo $action;
                   }
@@ -109,7 +105,7 @@
           <div class="card-body">
             <div class="table-responsive dt-responsive">
               <input type="hidden" id="customer_id" value="<?php echo $customerID; ?>">
-              <table id="sales-proposal-table" class="table table-hover nowrap w-100">
+              <table id="all-sales-proposal-table" class="table table-hover nowrap w-100">
                 <thead>
                   <tr>
                     <th class="all">

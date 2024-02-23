@@ -61,6 +61,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'FILE_AS' => $approverName,
                     'APPROVING_OFFICER_TYPE' => $approvingOfficerType,
                     'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="approving-officer.php?id='. $approvingOfficerIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
                                     '. $delete .'
                                 </div>'
                 ];

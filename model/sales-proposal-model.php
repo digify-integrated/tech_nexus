@@ -43,8 +43,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposal($p_sales_proposal_id, $p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_id, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_id, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_remarks, :p_last_log_by)');
+    public function updateSalesProposal($p_sales_proposal_id, $p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_id, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_id, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
@@ -62,6 +62,8 @@ class SalesProposalModel {
         $stmt->bindValue(':p_with_cr', $p_with_cr, PDO::PARAM_STR);
         $stmt->bindValue(':p_for_transfer', $p_for_transfer, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_STR);
+        $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -88,6 +90,32 @@ class SalesProposalModel {
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_accessories', $p_accessories, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost', $p_cost, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalStatus($p_sales_proposal_id, $p_changed_by, $p_sales_proposal_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalStatus(:p_sales_proposal_id, :p_changed_by, :p_sales_proposal_status, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_changed_by', $p_changed_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_proposal_status', $p_sales_proposal_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -167,8 +195,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalPricingComputation($p_sales_proposal_id, $p_delivery_price, $p_cost_of_accessories, $p_reconditioning_cost, $p_subtotal, $p_downpayment, $p_outstanding_balance, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalPricingComputation(:p_sales_proposal_id, :p_delivery_price, :p_cost_of_accessories, :p_reconditioning_cost, :p_subtotal, :p_downpayment, :p_outstanding_balance, :p_last_log_by)');
+    public function updateSalesProposalPricingComputation($p_sales_proposal_id, $p_delivery_price, $p_cost_of_accessories, $p_reconditioning_cost, $p_subtotal, $p_downpayment, $p_outstanding_balance, $p_amount_financed, $p_pn_amount, $p_repayment_amount, $p_interest_rate, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalPricingComputation(:p_sales_proposal_id, :p_delivery_price, :p_cost_of_accessories, :p_reconditioning_cost, :p_subtotal, :p_downpayment, :p_outstanding_balance, :p_amount_financed, :p_pn_amount, :p_repayment_amount, :p_interest_rate, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_delivery_price', $p_delivery_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost_of_accessories', $p_cost_of_accessories, PDO::PARAM_STR);
@@ -176,6 +204,10 @@ class SalesProposalModel {
         $stmt->bindValue(':p_subtotal', $p_subtotal, PDO::PARAM_STR);
         $stmt->bindValue(':p_downpayment', $p_downpayment, PDO::PARAM_STR);
         $stmt->bindValue(':p_outstanding_balance', $p_outstanding_balance, PDO::PARAM_STR);
+        $stmt->bindValue(':p_amount_financed', $p_amount_financed, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pn_amount', $p_pn_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_repayment_amount', $p_repayment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_interest_rate', $p_interest_rate, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -315,8 +347,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_id, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_remarks, $p_created_by, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_id, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_remarks, :p_created_by, :p_last_log_by, @p_sales_proposal_id)');
+    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_id, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_id, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_last_log_by, @p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
@@ -334,6 +366,8 @@ class SalesProposalModel {
         $stmt->bindValue(':p_for_transfer', $p_for_transfer, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_INT);
+        $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -438,8 +472,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalPricingComputation($p_sales_proposal_id, $p_delivery_price, $p_cost_of_accessories, $p_reconditioning_cost, $p_subtotal, $p_downpayment, $p_outstanding_balance, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalPricingComputation(:p_sales_proposal_id, :p_delivery_price, :p_cost_of_accessories, :p_reconditioning_cost, :p_subtotal, :p_downpayment, :p_outstanding_balance, :p_last_log_by)');
+    public function insertSalesProposalPricingComputation($p_sales_proposal_id, $p_delivery_price, $p_cost_of_accessories, $p_reconditioning_cost, $p_subtotal, $p_downpayment, $p_outstanding_balance, $p_amount_financed, $p_pn_amount, $p_repayment_amount, $p_interest_rate, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalPricingComputation(:p_sales_proposal_id, :p_delivery_price, :p_cost_of_accessories, :p_reconditioning_cost, :p_subtotal, :p_downpayment, :p_outstanding_balance, :p_amount_financed, :p_pn_amount, :p_repayment_amount, :p_interest_rate, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_delivery_price', $p_delivery_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_cost_of_accessories', $p_cost_of_accessories, PDO::PARAM_STR);
@@ -447,6 +481,10 @@ class SalesProposalModel {
         $stmt->bindValue(':p_subtotal', $p_subtotal, PDO::PARAM_STR);
         $stmt->bindValue(':p_downpayment', $p_downpayment, PDO::PARAM_STR);
         $stmt->bindValue(':p_outstanding_balance', $p_outstanding_balance, PDO::PARAM_STR);
+        $stmt->bindValue(':p_amount_financed', $p_amount_financed, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pn_amount', $p_pn_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_repayment_amount', $p_repayment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_interest_rate', $p_interest_rate, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1041,11 +1079,12 @@ class SalesProposalModel {
     public function getSalesProposalStatus($p_sales_proposal_status) {
         $statusClasses = [
             'Draft' => 'secondary',
-            'For Approval' => 'primary',
-            'For Final Approval' => 'info',
+            'For Initial Approval' => 'info',
+            'Approved Sales Proposal' => 'success',
+            'For CI' => 'info',
             'Cancelled' => 'warning',
             'Rejected' => 'danger',
-            'Approved' => 'success'
+            'Proceed' => 'success'
         ];
         
         $defaultClass = 'dark';

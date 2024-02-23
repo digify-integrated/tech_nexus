@@ -250,6 +250,8 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '7', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '59', '', '2', '1');
 
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '2', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Menu Item Access Right Table */
@@ -354,6 +356,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('70', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('71', '1', '1', '1', '1', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('72', '1', '1', '1', '0', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -492,6 +495,13 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Sale
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Add Customer Co-Maker', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Delete Customer Co-Maker', '1');
+
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Initial Approval', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Sales Proposal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Approved', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For CI', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Proceed', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejeceted', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -637,6 +647,13 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('120', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('121', '1', '1', '1');
+
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('122', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('123', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('124', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('125', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('126', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('127', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4937,21 +4954,32 @@ CREATE TABLE sales_proposal(
 	sales_proposal_status VARCHAR(50) DEFAULT 'Draft',
 	initial_approving_officer INT UNSIGNED NOT NULL,
 	final_approving_officer INT UNSIGNED NOT NULL,
+	initial_approval_remarks VARCHAR(500),
+	final_approval_remarks VARCHAR(500),
+	rejection_reason VARCHAR(500),
+	cancellation_reason VARCHAR(500),
 	initial_approval_by INT UNSIGNED,
 	approval_by INT UNSIGNED,
 	initial_approval_date DATETIME,
 	approval_date DATETIME,
+	for_ci_date DATETIME,
+	rejection_date DATETIME,
+	cancellation_date DATETIME,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES contact(contact_id),
     FOREIGN KEY (comaker_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (initial_approving_officer) REFERENCES contact(contact_id),
+    FOREIGN KEY (final_approving_officer) REFERENCES contact(contact_id),
     FOREIGN KEY (product_id) REFERENCES product(product_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
 CREATE INDEX sales_proposal_index_sales_proposal_id ON sales_proposal(sales_proposal_id);
 CREATE INDEX sales_proposal_index_sales_proposal_number ON sales_proposal(sales_proposal_number);
-CREATE INDEX sales_proposal_index_sales_customer_id ON sales_proposal(customer_id);
-CREATE INDEX sales_proposal_index_sales_product_id ON sales_proposal(product_id);
+CREATE INDEX sales_proposal_index_customer_id ON sales_proposal(customer_id);
+CREATE INDEX sales_proposal_index_product_id ON sales_proposal(product_id);
+CREATE INDEX sales_proposal_index_initial_approving_officer ON sales_proposal(initial_approving_officer);
+CREATE INDEX sales_proposal_index_final_approving_officer ON sales_proposal(final_approving_officer);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -5019,6 +5047,10 @@ CREATE TABLE sales_proposal_pricing_computation(
 	subtotal DOUBLE,
 	downpayment DOUBLE,
 	outstanding_balance DOUBLE,
+	amount_financed DOUBLE,
+	pn_amount DOUBLE,
+	repayment_amount DOUBLE,
+	interest_rate DOUBLE,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)

@@ -372,7 +372,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#approving_officer_id').val(approving_officer_id);
 
-                        $('#approving_officer_name_label').text(response.approverName);
+                        $('#contact_id_label').text(response.approverName);
                         $('#approving_officer_type_label').text(response.approvingOfficerType);
                     } 
                     else {

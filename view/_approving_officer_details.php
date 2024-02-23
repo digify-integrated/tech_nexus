@@ -21,12 +21,6 @@
                 
             echo $dropdown;
 
-            if ($approvingOfficerWriteAccess['total'] > 0) {
-              echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
-                  <button type="submit" form="approving-officer-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
-                  <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
-            }
-
             if ($approvingOfficerCreateAccess['total'] > 0) {
               echo '<a class="btn btn-success m-r-5 form-details" href="approving-officer.php?new">Create</a>';
             }
@@ -36,28 +30,20 @@
       </div>
       <div class="card-body">
         <form id="approving-officer-form" method="post" action="#">
-        <?php
-          if($approvingOfficerWriteAccess['total'] > 0){
-            echo '<div class="form-group row">
-                    <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
-                    <div class="col-lg-10">
-                      <label class="col-form-label form-details fw-normal" id="approving_officer_name_label"></label>
-                      <input type="text" class="form-control d-none form-edit" id="approving_officer_name" name="approving_officer_name" maxlength="100" autocomplete="off">
-                    </div>
-                  </div>';
-          }
-          else{
-            echo '<div class="form-group row">
-                    <label class="col-lg-2 col-form-label">Name</label>
-                    <div class="col-lg-10">
-                      <label class="col-form-label form-details fw-normal" id="approving_officer_name_label"></label>
-                    </div>
-                  </div>';
-          }
-        ?>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Approver</label>
+            <div class="col-lg-10">
+              <label class="col-form-label form-details fw-normal" id="contact_id_label"></label>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Approving Officer Type</label>
+            <div class="col-lg-10">
+              <label class="col-form-label form-details fw-normal" id="approving_officer_type_label"></label>
+            </div>
+          </div>
         </form>
       </div>
     </div>
   </div>
-?>
 </div>

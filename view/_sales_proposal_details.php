@@ -5,7 +5,7 @@
               <ul class="nav nav-tabs checkout-tabs mb-0" id="myTab" role="tablist">
                 <li class="nav-item">
                   <a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="tab" href="#details-tab" role="tab"
-                    aria-controls="details-tab" aria-selected="true" >
+                    aria-controls="details-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-file-text"></i>
@@ -18,7 +18,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-2" data-bs-toggle="tab" href="#accessories-tab" role="tab"
-                    aria-controls="accessories-tab" aria-selected="true" >
+                    aria-controls="accessories-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-briefcase"></i>
@@ -31,7 +31,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#job-order-tab" role="tab"
-                    aria-controls="job-order-tab" aria-selected="true" >
+                    aria-controls="job-order-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-clipboard"></i>
@@ -44,7 +44,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-4" data-bs-toggle="tab" href="#other-charges-tab" role="tab"
-                    aria-controls="other-charges-tab" aria-selected="true" >
+                    aria-controls="other-charges-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-credit-card"></i>
@@ -57,7 +57,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#additional-job-order-tab" role="tab"
-                    aria-controls="additional-job-order-tab" aria-selected="true" >
+                    aria-controls="additional-job-order-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-file-plus"></i>
@@ -70,7 +70,7 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="tab" href="#summary-tab" role="tab"
-                    aria-controls="summary-tab" aria-selected="true" >
+                    aria-controls="summary-tab" aria-selected="true" disabled>
                     <div class="media align-items-center">
                       <div class="avtar avtar-s">
                         <i class="ti ti-printer"></i>
@@ -99,6 +99,9 @@
                           </div>
                           <div class="col-auto">
                             <p class="mb-0 h6">Step 1</p>
+                          </div>
+                          <div class="col-auto">
+                            <button type="submit" form="sales-proposal-form" class="btn btn-primary" id="next-step-1">Next</button>
                           </div>
                         </div>
                       </div>
@@ -201,6 +204,24 @@
                             </div>
                           </div>
                           <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Initial Approving Officer : <span class="text-danger">*</span></label>
+                            <div class="col-lg-8">
+                              <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
+                                <option value="">--</option>
+                                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Final Approving Officer : <span class="text-danger">*</span></label>
+                            <div class="col-lg-8">
+                              <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
+                                <option value="">--</option>
+                                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="form-group row">
                             <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
                             <div class="col-lg-8">
                               <select class="form-control select2" name="for_registration" id="for_registration">
@@ -238,9 +259,6 @@
                           </div>
                         </form>
                       </div>
-                    </div>
-                    <div class="text-end btn-page mb-0 mt-4">
-                      <button type="submit" form="sales-proposal-form" class="btn btn-primary" id="next-step-1">Next</button>
                     </div>
                   </div>
                   <div class="col-xl-4">
@@ -429,6 +447,10 @@
                         <div class="col-auto">
                           <p class="mb-0 h6">Step 2</p>
                         </div>
+                        <div class="col-auto">
+                          <button class="btn btn-warning" id="prev-step-2">Previous</button>
+                          <button class="btn btn-primary" id="next-step-2">Next</button>
+                        </div>
                       </div>
                     </div>
                     <div class="card-body border-bottom">
@@ -469,10 +491,6 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="text-end btn-page mb-0 mt-4">
-                    <button class="btn btn-warning" id="prev-step-2">Previous</button>
-                    <button class="btn btn-primary" id="next-step-2">Next</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -489,6 +507,10 @@
                         </div>
                         <div class="col-auto">
                           <p class="mb-0 h6">Step 3</p>
+                        </div>
+                        <div class="col-auto">
+                          <button class="btn btn-warning" id="prev-step-3">Previous</button>
+                          <button class="btn btn-primary" id="next-step-3">Next</button>
                         </div>
                       </div>
                     </div>
@@ -530,10 +552,6 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="text-end btn-page mb-0 mt-4">
-                    <button class="btn btn-warning" id="prev-step-3">Previous</button>
-                    <button class="btn btn-primary" id="next-step-3">Next</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -550,6 +568,10 @@
                         </div>
                         <div class="col-auto">
                           <p class="mb-0 h6">Step 4</p>
+                        </div>
+                        <div class="col-auto">
+                          <button class="btn btn-warning" id="prev-step-4">Previous</button>
+                          <button type="submit" for="sales-proposal-pricing-computation-form" class="btn btn-primary" id="next-step-4">Next</button>
                         </div>
                       </div>
                     </div>
@@ -578,6 +600,12 @@
                           </div>
                         </div>
                         <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" value="0" min="0">
+                          </div>
+                        </div>
+                        <div class="form-group row">
                           <label class="col-lg-4 col-form-label">Cost of Accessories :</label>
                           <div class="col-lg-8">
                             <input type="number" class="form-control" id="cost_of_accessories" name="cost_of_accessories" step="0.01" value="0" min="0">
@@ -594,7 +622,8 @@
                           <div class="col-lg-8">
                             <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="0" min="0" readonly>
                           </div>
-                        </div><div class="form-group row">
+                        </div>
+                        <div class="form-group row">
                           <label class="col-lg-4 col-form-label">Downpayment :</label>
                           <div class="col-lg-8">
                             <input type="number" class="form-control" id="downpayment" name="downpayment" step="0.01" value="0" min="0">
@@ -604,6 +633,24 @@
                           <label class="col-lg-4 col-form-label">Outstanding Balance :</label>
                           <div class="col-lg-8">
                             <input type="number" class="form-control" id="outstanding_balance" name="outstanding_balance" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Amount Financed :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="amount_financed" name="amount_financed" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">PN Amount :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="pn_amount" name="pn_amount" step="0.01" value="0" min="0" readonly>
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4 col-form-label">Repayment Amount :</label>
+                          <div class="col-lg-8">
+                            <input type="number" class="form-control" id="repayment_amount" name="repayment_amount" step="0.01" value="0" min="0" readonly>
                           </div>
                         </div>
                       </form>
@@ -757,14 +804,6 @@
                   </div>                  
                 </div>
               </div>
-              <div class="row">
-                <div class="col-xl-12">
-                  <div class="text-end btn-page mb-0 mt-4">
-                    <button class="btn btn-warning" id="prev-step-4">Previous</button>
-                    <button class="btn btn-primary" id="next-step-4">Next</button>
-                  </div>       
-                </div>
-              </div>
             </div>
             <div class="tab-pane" id="additional-job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
               <div class="row">
@@ -779,6 +818,10 @@
                         </div>
                         <div class="col-auto">
                           <p class="mb-0 h6">Step 5</p>
+                        </div>
+                        <div class="col-auto">
+                          <button class="btn btn-warning" id="prev-step-5">Previous</button>
+                          <button class="btn btn-primary" id="next-step-5">Next</button>
                         </div>
                       </div>
                     </div>
@@ -822,10 +865,6 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="text-end btn-page mb-0 mt-4">
-                    <button class="btn btn-warning" id="prev-step-5">Previous</button>
-                    <button class="btn btn-primary" id="next-step-5">Next</button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -837,22 +876,297 @@
                                 <div class="row align-items-center my-2">
                                     <div class="col">
                                         <div class="progress" style="height: 6px">
-                                            <div class="progress-bar bg-primary" style="width: 99%"></div>
+                                            <div class="progress-bar bg-primary" style="width: 100%"></div>
                                         </div>
                                     </div>
                                     <div class="col-auto">
                                         <p class="mb-0 h6">Step 6</p>
+                                    </div>
+                                    <div class="col-auto">
+                                      <button class="btn btn-warning" id="prev-step-6">Previous</button>
+                                      <?php
+                                        if($salesProposalSatus == 'Draft' && $forInitialApproval['total'] > 0){
+                                          echo '<button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>';
+                                        }
+                                      ?>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body border-bottom">
                                 <h5>Summary</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body print-area">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="table-border-style">
+                                    <div class="table-responsive">
+                                      <table class="table table-bordered">
+                                        <tbody>
+                                          <tr>
+                                            <td colspan="8" class="text-center" style="background-color:#c60206; vertical-align: middle !important; padding-bottom:0!important;"><h3 style="color:white">SALES PROPOSAL</h3></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4"><b>No. <span id="summary-sales-proposal-number"></span></b></td>
+                                            <td colspan="4" class="text-end"><b>Date: <?php echo date('d-M-Y'); ?> </b></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4"><small style="color:#c60206"><b>NAME OF CUSTOMER</b></small><br/><?php echo $customerName;?></td>
+                                            <td colspan="3"><small style="color:#c60206"><b>ADDRESS</b></small><br/><?php echo $customerAddress;?></td>
+                                            <td><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><?php echo $customerMobile;?></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4"><small style="color:#c60206"><b>CO-BORROWER/CO-MORTGAGOR/CO-MAKER</b></small><br/><span id="summary-comaker-name"></span></td>
+                                            <td colspan="3"><small style="color:#c60206"><b>ADDRESS</b></small><br/><span id="summary-comaker-address"></span></td>
+                                            <td><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><span id="summary-comaker-mobile"></span></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="2"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
+                                            <td colspan="2"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
+                                            <td colspan="2"><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
+                                            <td colspan="2"><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="2"><small style="color:#c60206"><b>STOCK NO.</b></small><br/><span id="summary-stock-no"></span></td>
+                                            <td><small style="color:#c60206"><b>ENGINE NO.</b></small><br/><span id="summary-engine-no"></span></td>
+                                            <td><small style="color:#c60206"><b>CHASSIS NO.</b></small><br/><span id="summary-chassis-no"></span></td>
+                                            <td><small style="color:#c60206"><b>PLATE NO.</b></small><br/><span id="summary-plate-no"></span></td>
+                                            <td><small style="color:#c60206"><b>FOR REGISTRATION?</b></small><br/><span id="summary-for-registration"></span></td>
+                                            <td><small style="color:#c60206"><b>WITH CR?</b></small><br/><span id="summary-with-cr"></span></td>
+                                            <td><small style="color:#c60206"><b>FOR TRANSFER?</b></small><br/><span id="summary-for-transfer"></span></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="8" style="padding-bottom:0 !important;"><small><b><span style="color:#c60206; margin-right: 20px;">ACCESSORIES</span> TOTAL COST <span id="summary-accessories-total"></span></b></small><br/><br/>
+                                              <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive" id="summary-accessories-table">
+                                                    
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="8" style="padding-bottom:0 !important;"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
+                                              <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive" id="summary-job-order-table">
+                                                    
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4" style="vertical-align: top !important;"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
+                                              <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive">
+                                                    <table class="table table-borderless text-sm ">
+                                                      <tbody>
+                                                        <tr>
+                                                          <td>DELIVERY PRICE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-deliver-price"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>ADD: COST OF ACCESSORIES</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-cost-of-accessories"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>RECONDITIONING COST</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-reconditioning-cost"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>SUB-TOTAL</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-sub-total"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>LESS: DOWNPAYMENT</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-downpayment"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td><b>OUTSTANDING BALANCE</b></td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-outstanding-balance"></td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                            <td colspan="4" style="padding-bottom:0 !important;"><small style="color:#c60206"><b>OTHER CHARGES:</b></small><br/>
+                                              <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive">
+                                                    <table class="table table-borderless text-sm ">
+                                                      <tbody>
+                                                        <tr>
+                                                          <td>INSURANCE COVERAGE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-insurance-coverage"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>INSURANCE PREMIUM</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-insurance-premium"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>HANDLING FEE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-handing-fee"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>TRANSFER FEE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-transfer-fee"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>REGISTRATION FEE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-registration-fee"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>DOC. STAMP TAX</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-doc-stamp-tax"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>TRANSACTION FEE</td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-transaction-fee"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td><b>TOTAL</b></td>
+                                                          <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-other-charges-total"></td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4" style="vertical-align: top !important;"><small><b>FOR REFERRAL TO FINANCING, PLEASE COMPUTE MO AMORTIZATION:</b></small><br/><br/>
+                                            <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span>
+                                          </td>
+                                            <td colspan="4" style="padding-bottom:0 !important; vertical-align: top !important;"><small style="color:#c60206"><b>AMOUNT OF DEPOSIT:</b></small><br/><br/>
+                                              <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive" id="summary-amount-of-deposit-table">
+                                                    
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="4" style="padding-bottom:0 !important;">
+                                            <div class="row pb-0 mb-0">
+                                                <div class="col-lg-12">
+                                                  <div class="table-responsive">
+                                                    <table class="table table-borderless text-sm ">
+                                                      <tbody>
+                                                        <tr>
+                                                          <td></td>
+                                                          <td><u>2ND YEAR</u></td>
+                                                          <td><u>3RD YEAR</u></td>
+                                                          <td><u>4TH YEAR</u></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>REGISTRATION</td>
+                                                          <td id="summary-registration-second-year"></td>
+                                                          <td id="summary-registration-third-year"></td>
+                                                          <td id="summary-registration-fourth-year"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>INS. COVERAGE</td>
+                                                          <td id="summary-insurance-coverage-second-year"></td>
+                                                          <td id="summary-insurance-coverage-third-year"></td>
+                                                          <td id="summary-insurance-coverage-fourth-year"></td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>INS. PREMIUM</td>
+                                                          <td id="summary-insurance-premium-second-year"></td>
+                                                          <td id="summary-insurance-premium-third-year"></td>
+                                                          <td id="summary-insurance-premium-fourth-year"></td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                            <td colspan="4" style="vertical-align: top !important;"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="8" style="padding-bottom:0 !important;">
+                                              <small style="color:#c60206"><b>REQUIREMENTS:</b></small><br/><br/>
+                                              <div class="row">
+                                                <div class="col-lg-6">
+                                                  <ul>
+                                                    <li><small>PICTURE WITH SIGNATURE AT THE BACK</small></li>
+                                                    <li><small>POST-DATED CHECKS</small></li>
+                                                    <li><small>VALID ID (PHOTOCOPY)</small></li>
+                                                  </ul>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                  <ul>
+                                                    <li><small>BARANGAY CERTIFICATE</small></li>
+                                                    <li><small>BANK STATEMENT FOR THREE (3) MONTHS</small></li>
+                                                    <li><small>BUSINESS LICENSE/CERTIFICATE OF EMPLOYMENT</small></li>
+                                                  </ul>
+                                                </div>
+                                              </div>
+                                              <div class="row">
+                                                <div class="col-lg-12">
+                                                  <small style="color:#c60206"><b>ADDITIONAL REQUIREMENTS (IN CASE OF NON-INDIVIDUAL ACCOUNT):</b></small>
+                                                  <ul>
+                                                    <li><small>DTI REGISTRATION (FOR SINGLE PROPRIETORSHIP)</small></li>
+                                                    <li><small>SEC REGISTRATION (FOR CORPORATION) INCLUDING SECRETARY'S CERTIFICATE FOR AUTHORIZED SIGNATORY/IES</small></li>
+                                                  </ul>
+                                                </div>
+                                              </div>
+                                          </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="8" style="padding-bottom:0 !important;">
+                                              <small style="color:#c60206"><b>REMINDERS:</b></small><br/>
+                                              <div class="row">
+                                                <div class="col-lg-12">
+                                                  <ol class="text-sm">
+                                                    <li><small>PRICES ARE SUBJECT TO CHANGE WITHOUT PRIOR NOTICE. FINANCING IS STILL SUBJECT FOR APPROVAL BY OUR ACCREDITED FINANCING COMPANY</small></li>
+                                                    <li><small>DOWNPAYMENT IS STRICTLY PAYABLE ON OR BEFORE RELEASE OF UNIT IN CASH OR MANAGER'S CHECK</small></li>
+                                                    <li><small>POST-DATED CHECKS SHOULD BE GIVEN ON OR BEFORE RELEASE OF UNIT OTHERWISE UNIT WILL NOT BE RELEASED</small></li>
+                                                    <li><small>ADDITIONAL POST-DATED CHECKS SHALL BE ISSUED FOR INSURANCE AND REGISTRATION RENEWAL</small></li>
+                                                    <li><small>THAT THE BUYER SHALL TAKE AND ASSUME ALL CIVIL AND/OR CRIMINAL LIABILITIES IN THE USE OF SAID VEHICLE EITHER FOR PRIVATE OR BUSINESS USE</small></li>
+                                                    <li><small>THAT THE BUYER HAS FULL KNOWLEDGE OF THE CONDITION OF THE VEHICLE UPON PURCHASE THEREOF</small></li>
+                                                    <li><small>THAT THE UNIT SUBJECT OF SALE IS NOT COVERED WITH WARRANTY AND CONVEYED ON AS-IS BASIS ONLY</small></li>
+                                                    <li><small>THAT THE SELLER IS NOT LIABLE FOR WHATEVER UNSEEN DEFECTS THAT MAY BE DISCOVERED AFTER RELEASE OF UNIT</small></li>
+                                                  </ol>
+                                                </div>
+                                              </div>
+                                          </td>
+                                          </tr>
+                                          <tr>
+                                            <td colspan="2" style="vertical-align: top !important;"><small><b>PREPARED BY:</b></small><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
+                                            <td colspan="2" style="vertical-align: top !important;"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-initial-approval-by" class="text-sm"></span></td>
+                                            <td colspan="2" style="vertical-align: top !important;"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-final-approval-by" class="text-sm"></span></td>
+                                            <td colspan="2" style="vertical-align: top !important;"><small><b>WITH MY CONFORMITY:</b><br/><br/><br/>CUSTOMER'S PRINTED NAME OVER SIGNATURE</small></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row pb-3">
+                                <div class="col-lg-12">
+                                  <small style="color:#c60206;"><b>ADDITIONAL JOB ORDER:</b></small>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="table-border-style">
+                                      <div class="table-responsive" id="summary-additional-job-order-table">
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                        </div>
-                        <div class="text-end btn-page mb-0 mt-4">
-                            <button class="btn btn-warning" id="prev-step-6">Previous</button>
                         </div>
                     </div>
                 </div>

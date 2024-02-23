@@ -36,7 +36,7 @@
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input customer-status-filter" type="radio" name="customer-status-filter" id="customer-status-draft" value="Draft" />
-                                <label class="form-check-label" for="customer-status-inactive">Draft</label>
+                                <label class="form-check-label" for="customer-status-draft">Draft</label>
                               </div>
                             </div>
                           </div>
