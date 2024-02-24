@@ -7127,6 +7127,12 @@ BEGIN
         final_approval_remarks = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'Draft' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        set_to_draft_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
     ELSE
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7144,13 +7150,6 @@ CREATE PROCEDURE getSalesProposal(IN p_sales_proposal_id INT)
 BEGIN
 	SELECT * FROM sales_proposal
     WHERE sales_proposal_id = p_sales_proposal_id;
-END //
-
-CREATE PROCEDURE generateSalesProposalTable(IN p_customer_id INT)
-BEGIN
-    SELECT sales_proposal_id, sales_proposal_name
-    FROM sales_proposal
-    ORDER BY sales_proposal_id;
 END //
 
 CREATE PROCEDURE generateSalesProposalTable(IN p_customer_id INT, IN p_sales_proposal_status VARCHAR(50))

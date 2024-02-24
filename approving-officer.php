@@ -1,13 +1,11 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/file-type-model.php');
   require('model/approving-officer-model.php');
   
-  $fileTypeModel = new FileTypeModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
 
-  $pageTitle = 'File Extension';
+  $pageTitle = 'Approving Officer';
     
   $approvingOfficerReadAccess = $userModel->checkMenuItemAccessRights($user_id, 71, 'read');
   $approvingOfficerCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 71, 'create');

@@ -245,12 +245,12 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Subcategory', '6', 'product-subcategory.php', '59', '', '17', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product', '6', 'product.php', '', 'box', '1', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Customer', '7', 'customer.php', '', 'users', '3', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Search Customer', '7', 'search-customer.php', '', 'search', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Search Customer', '7', 'search-customer.php', '', 'search', '2', '1');
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '7', '', '', 'settings', '20', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '59', '', '2', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '70', '', '2', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '2', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -4874,12 +4874,6 @@ CREATE TABLE product(
 	product_price DOUBLE DEFAULT 0,
 	remarks VARCHAR(1000),
     last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (company_id) REFERENCES company(company_id),
-    FOREIGN KEY (product_category_id) REFERENCES product_category(product_category_id),
-    FOREIGN KEY (product_subcategory_id) REFERENCES product_subcategory(product_subcategory_id),
-    FOREIGN KEY (warehouse_id) REFERENCES warehouse(warehouse_id),
-    FOREIGN KEY (body_type_id) REFERENCES body_type(body_type_id),
-    FOREIGN KEY (color_id) REFERENCES color(color_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
@@ -4958,6 +4952,7 @@ CREATE TABLE sales_proposal(
 	final_approval_remarks VARCHAR(500),
 	rejection_reason VARCHAR(500),
 	cancellation_reason VARCHAR(500),
+	set_to_draft_reason VARCHAR(500),
 	initial_approval_by INT UNSIGNED,
 	approval_by INT UNSIGNED,
 	initial_approval_date DATETIME,
@@ -4966,11 +4961,6 @@ CREATE TABLE sales_proposal(
 	rejection_date DATETIME,
 	cancellation_date DATETIME,
     last_log_by INT UNSIGNED NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (comaker_id) REFERENCES contact(contact_id),
-    FOREIGN KEY (initial_approving_officer) REFERENCES contact(contact_id),
-    FOREIGN KEY (final_approving_officer) REFERENCES contact(contact_id),
-    FOREIGN KEY (product_id) REFERENCES product(product_id),
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 

@@ -186,7 +186,7 @@ class ProductModel {
     #
     # -------------------------------------------------------------
     public function insertProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by, @p_product_id)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by, @p_product_id)');
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
