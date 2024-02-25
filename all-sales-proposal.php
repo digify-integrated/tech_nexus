@@ -126,7 +126,7 @@
         </div>
         <?php
          if(!empty($salesProposalID) && !empty($customerID) && $updateSalesProposal['total'] > 0){
-            require_once('view/_all_sales_proposal_details.php');
+            require_once('view/_sales_proposal_details.php');
           }
           else{
             require_once('view/_all_sales_proposal.php');
