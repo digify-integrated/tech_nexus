@@ -648,6 +648,13 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('120', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('121', '1', '1', '1');
 
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Initial Approval', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Sales Proposal', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Approved', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For CI', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Proceed', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejected', '1');
+
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('122', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('123', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('124', '1', '1', '1');

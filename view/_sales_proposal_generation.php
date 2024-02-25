@@ -170,6 +170,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAccessoriesTable(:salesProposalID)');
                 $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
                 $sql->execute();
@@ -181,17 +185,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $accessories = $row['accessories'];
                     $cost = number_format($row['cost'], 2);
 
+                    $action = '';
+                    if($salesProposalStatus == 'Draft'){
+                        $action = '<div class="d-flex gap-2">
+                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-accessories" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-accessories-offcanvas" aria-controls="sales-proposal-accessories-offcanvas" data-sales-proposal-accessories-id="'. $salesProposalAccessoriesID .'" title="Update Accessories">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-accessories" data-sales-proposal-accessories-id="'. $salesProposalAccessoriesID .'" title="Delete Accessories">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+
                     $response[] = [
                         'ACCESSORIES' => $accessories,
                         'COST' => $cost,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-accessories" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-accessories-offcanvas" aria-controls="sales-proposal-accessories-offcanvas" data-sales-proposal-accessories-id="'. $salesProposalAccessoriesID .'" title="Update Accessories">
-                                            <i class="ti ti-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-accessories" data-sales-proposal-accessories-id="'. $salesProposalAccessoriesID .'" title="Delete Accessories">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>'
+                        'ACTION' => $action
                         ];
                 }
 
@@ -260,6 +269,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalJobOrderTable(:salesProposalID)');
                 $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
                 $sql->execute();
@@ -271,17 +283,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $jobOrder = $row['job_order'];
                     $cost = number_format($row['cost'], 2);
 
+                    $action = '';
+                    if($salesProposalStatus == 'Draft'){
+                        $action = '<div class="d-flex gap-2">
+                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-job-order" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Delete Job Order">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+
                     $response[] = [
                         'JOB_ORDER' => $jobOrder,
                         'COST' => $cost,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Update Job Order">
-                                            <i class="ti ti-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-job-order" data-sales-proposal-job-order-id="'. $salesProposalJobOrderID .'" title="Delete Job Order">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>'
+                        'ACTION' => $action
                         ];
                 }
 
@@ -350,6 +367,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalAdditionalJobOrderTable(:salesProposalID)');
                 $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
                 $sql->execute();
@@ -363,19 +383,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $particulars = $row['particulars'];
                     $cost = number_format($row['cost'], 2);
 
+
+                    $action = '';
+                    if($salesProposalStatus == 'Draft'){
+                        $action = '<div class="d-flex gap-2">
+                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-additional-job-order" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Delete Additional Job Order">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+
                     $response[] = [
                         'JOB_ORDER_NUMBER' => $jobOrderNumber,
                         'JOB_ORDER_DATE' => $jobOrderDate,
                         'PARTICULARS' => $particulars,
                         'COST' => $cost,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order">
-                                            <i class="ti ti-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-additional-job-order" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Delete Additional Job Order">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>'
+                        'ACTION' => $action
                         ];
                 }
 

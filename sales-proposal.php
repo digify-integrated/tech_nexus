@@ -18,6 +18,11 @@
   $updateSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
   $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
   $forInitialApproval = $userModel->checkSystemActionAccessRights($user_id, 122);
+  $cancelSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 123);
+  $initialApproveSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 124);
+  $forCISalesProposal = $userModel->checkSystemActionAccessRights($user_id, 125);
+  $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
+  $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
 
   if ($viewSalesProposal['total'] == 0) {
     header('location: 404.php');

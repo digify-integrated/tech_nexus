@@ -479,6 +479,10 @@
             prevStep(2);
         });
         
+        $(document).on('click','#next-step-1-normal',function() {
+            nextStep(1);
+        });
+        
         $(document).on('click','#next-step-2',function() {
             nextStep(2);
         });
@@ -502,6 +506,10 @@
             else{
                 showNotification('Form Required', 'Kindly fill-out all of the required fields before proceeding.', 'warning');
             }
+        });
+
+        $(document).on('click','#next-step-4-normal',function() {
+            nextStep(4);
         });
         
         $(document).on('click','#prev-step-5',function() {
@@ -2320,6 +2328,20 @@ function displayDetails(transaction){
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
 
+                        $('#referred_by_label').text(response.referredBy);
+                        $('#release_date_label').text(response.releaseDate);
+                        $('#start_date_label').text(response.startDate);
+                        $('#term_length_label').text(response.termLength + ' ' + response.termType);
+                        $('#number_of_payments_label').text(response.numberOfPayments);
+                        $('#payment_frequency_label').text(response.paymentFrequency);
+                        $('#first_due_date_label').text(response.firstDueDate);
+                        $('#for_registration_label').text(response.forRegistration);
+                        $('#with_cr_label').text(response.withCR);
+                        $('#for_transfer_label').text(response.forTransfer);
+                        $('#remarks_label').text(response.remarks);
+                        $('#initial_approving_officer_label').text(response.initialApprovingOfficerName);
+                        $('#final_approving_officer_label').text(response.finalApprovingOfficerName);
+
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
                         checkOptionExist('#term_type', response.termType, '');
@@ -2616,6 +2638,12 @@ function displayDetails(transaction){
                         $('#summary-reconditioning-cost').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#summary-downpayment').text(parseFloat(response.downpayment).toLocaleString("en-US"));
                         $('#summary-repayment-amount').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
+
+                        $('#delivery_price_label').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
+                        $('#cost_of_accessories_label').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
+                        $('#reconditioning_cost_label').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
+                        $('#downpayment_label').text(parseFloat(response.downpayment).toLocaleString("en-US"));
+                        $('#interest_rate_label').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -2666,6 +2694,14 @@ function displayDetails(transaction){
                         $('#summary-registration-fee').text(parseFloat(response.registrationFee).toLocaleString("en-US"));
                         $('#summary-doc-stamp-tax').text(parseFloat(response.docStampTax).toLocaleString("en-US"));
                         $('#summary-transaction-fee').text(parseFloat(response.transactionFee).toLocaleString("en-US"));
+
+                        $('#insurance_coverage_label').text(parseFloat(response.insuranceCoverage).toLocaleString("en-US"));
+                        $('#insurance_premium_label').text(parseFloat(response.insurancePremium).toLocaleString("en-US"));
+                        $('#handling_fee_label').text(parseFloat(response.handlingFee).toLocaleString("en-US"));
+                        $('#transfer_fee_label').text(parseFloat(response.transferFee).toLocaleString("en-US"));
+                        $('#registration_fee_label').text(parseFloat(response.registrationFee).toLocaleString("en-US"));
+                        $('#doc_stamp_tax_label').text(parseFloat(response.docStampTax).toLocaleString("en-US"));
+                        $('#transaction_fee_label').text(parseFloat(response.transactionFee).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -2720,6 +2756,16 @@ function displayDetails(transaction){
                         $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYear).toLocaleString("en-US"));
                         $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYear).toLocaleString("en-US"));
                         $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYear).toLocaleString("en-US"));
+
+                        $('#registration_second_year_label').text(parseFloat(response.registrationSecondYear).toLocaleString("en-US"));
+                        $('#registration_third_year_label').text(parseFloat(response.registrationThirdYear).toLocaleString("en-US"));
+                        $('#registration_fourth_year_label').text(parseFloat(response.registrationFourthYear).toLocaleString("en-US"));
+                        $('#insurance_coverage_second_year_label').text(parseFloat(response.insuranceCoverageSecondYear).toLocaleString("en-US"));
+                        $('#insurance_coverage_third_year_label').text(parseFloat(response.insuranceCoverageThirdYear).toLocaleString("en-US"));
+                        $('#insurance_coverage_fourth_year_label').text(parseFloat(response.insuranceCoverageFourthYear).toLocaleString("en-US"));
+                        $('#insurance_premium_second_year_label').text(parseFloat(response.insurancePremiumSecondYear).toLocaleString("en-US"));
+                        $('#insurance_premium_third_year_label').text(parseFloat(response.insurancePremiumThirdYear).toLocaleString("en-US"));
+                        $('#insurance_premium_fourth_year_label').text(parseFloat(response.insurancePremiumFourthYear).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -2911,18 +2957,10 @@ function calculateTotalOtherCharges(){
     $('#summary-other-charges-total').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 }
 
-function nextStep(currentStep) {
-    $('#sales-proposal-tab-' + currentStep).attr('disabled', true);
-    
+function nextStep(currentStep) {    
     $('#sales-proposal-tab-' + (currentStep + 1)).tab('show');
-    
-    $('#sales-proposal-tab-' + currentStep + 1).removeAttr('disabled');
 }
 
-function prevStep(currentStep) {
-    $('#sales-proposal-tab-' + currentStep).attr('disabled', true);
-    
+function prevStep(currentStep) {    
     $('#sales-proposal-tab-' + (currentStep - 1)).tab('show');
-    
-    $('#sales-proposal-tab-' + currentStep - 1).removeAttr('disabled');
 }
