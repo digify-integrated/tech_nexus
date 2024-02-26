@@ -100,7 +100,6 @@ class ApprovingOfficerController {
         }
     
         $userID = $_SESSION['user_id'];
-        $approvingOfficerID = isset($_POST['approving_officer_id']) ? htmlspecialchars($_POST['approving_officer_id'], ENT_QUOTES, 'UTF-8') : null;
         $contactID = htmlspecialchars($_POST['contact_id'], ENT_QUOTES, 'UTF-8');
         $approvingOfficerType = htmlspecialchars($_POST['approving_officer_type'], ENT_QUOTES, 'UTF-8');
     
@@ -108,6 +107,14 @@ class ApprovingOfficerController {
     
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $checkApprovingOfficerIfExist = $this->approvingOfficerModel->checkApprovingOfficerIfExist($contactID, $approvingOfficerType);
+        $total = $checkApprovingOfficerIfExist['total'] ?? 0;
+
+        if($total > 0){
+            echo json_encode(['success' => false, 'approverExist' => true]);
             exit;
         }
     

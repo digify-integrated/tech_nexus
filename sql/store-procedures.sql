@@ -4130,7 +4130,7 @@ END //
 CREATE PROCEDURE generateEmployeeOptions(IN p_generate_type VARCHAR(50), IN p_reference_id INT)
 BEGIN
 	IF p_generate_type = 'all' THEN
-        SELECT contact_id, file_as FROM personal_information ORDER BY file_as;
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM contact WHERE is_employee = 1) ORDER BY file_as;
 	ELSEIF p_generate_type = 'active employee' THEN
         SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE employment_status = 1) ORDER BY file_as;
 	ELSEIF p_generate_type = 'inactive employee' THEN
@@ -7523,11 +7523,18 @@ END //
 
 /* Approving Officer Table Stored Procedures */
 
+CREATE PROCEDURE checkApprovingOfficerIfExist (IN p_contact_id INT, IN p_approving_officer_type VARCHAR(10))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM approving_officer
+    WHERE contact_id = p_contact_id AND approving_officer_type = p_approving_officer_type;
+END //
+
 CREATE PROCEDURE checkApprovingOfficerExist (IN p_approving_officer_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
     FROM approving_officer
-    WHERE approving_officer_id = approving_officer_id;
+    WHERE approving_officer_id = p_approving_officer_id;
 END //
 
 CREATE PROCEDURE insertApprovingOfficer(IN p_contact_id INT, IN p_approving_officer_type VARCHAR(10), IN p_last_log_by INT, OUT p_approving_officer_id INT)

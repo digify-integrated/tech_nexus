@@ -4906,6 +4906,7 @@ CREATE TABLE temp_product (
 	stock_number VARCHAR(100),
 	engine_number VARCHAR(100),
 	chassis_number VARCHAR(100),
+	plate_number VARCHAR(100),
 	description VARCHAR(1000) NOT NULL,
 	warehouse_id INT UNSIGNED NOT NULL,
 	body_type_id INT UNSIGNED,

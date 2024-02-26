@@ -15,6 +15,7 @@ session_start();
 class SalesProposalController {
     private $salesProposalModel;
     private $customerModel;
+    private $productModel;
     private $userModel;
     private $systemSettingModel;
     private $companyModel;
@@ -33,6 +34,7 @@ class SalesProposalController {
     # Parameters:
     # - @param SalesProposalModel $salesProposalModel     The SalesProposalModel instance for sales proposal related operations.
     # - @param CustomerModel $customerModel     The CustomerModel instance for customer related operations.
+    # - @param ProductModel $productModel     The ProductModel instance for product related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param CompanyModel $companyModel     The CompanyModel instance for company related operations.
@@ -44,9 +46,10 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
+        $this->productModel = $productModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->companyModel = $companyModel;
@@ -1077,11 +1080,28 @@ class SalesProposalController {
             }
     
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $comakerID = $salesProposalDetails['comaker_id'];
+            $productID = $salesProposalDetails['product_id'];
             $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
             $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+            $initialApprovalBy = $salesProposalDetails['initial_approval_by'];
+            $approvalBy = $salesProposalDetails['approval_by'];
 
             $createdByDetails = $this->customerModel->getPersonalInformation($salesProposalDetails['created_by']);
             $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
+            $productDetails = $this->productModel->getProduct($productID);
+            $stockNumber = $productDetails['stock_number'] ?? null;
+            $productDescription = $productDetails['description'] ?? null;
+
+            $approvalByDetails = $this->customerModel->getPersonalInformation($approvalBy);
+            $approvalByName = $approvalByDetails['file_as'] ?? null;
+
+            $initialApprovalByDetails = $this->customerModel->getPersonalInformation($initialApprovalBy);
+            $initialApprovalByName = $initialApprovalByDetails['file_as'] ?? null;
+
+            $comakerDetails = $this->customerModel->getPersonalInformation($comakerID);
+            $comakerName = $comakerDetails['file_as'] ?? null;
 
             $initialApprovingOfficerDetails = $this->customerModel->getPersonalInformation($initialApprovingOfficer);
             $initialApprovingOfficerName = strtoupper($initialApprovingOfficerDetails['file_as'] ?? null);
@@ -1092,17 +1112,31 @@ class SalesProposalController {
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
-                'comakerID' => $salesProposalDetails['comaker_id'],
-                'productID' => $salesProposalDetails['product_id'],
+                'comakerID' => $comakerID,
+                'comakerName' => $comakerName,
+                'productID' => $productID,
+                'initialApprovalByName' => $initialApprovalByName,
+                'approvalByName' => $approvalByName,
+                'productName' => $stockNumber . ' - ' . $productDescription,
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
                 'firstDueDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['first_due_date'], '', 'm/d/Y', ''),
+                'initialApprovalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y', ''),
+                'approvalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y', ''),
+                'forCIDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y', ''),
+                'rejectionDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['rejection_date'], '', 'm/d/Y', ''),
+                'cancellationDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['cancellation_date'], '', 'm/d/Y', ''),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],
                 'paymentFrequency' => $salesProposalDetails['payment_frequency'],
                 'forRegistration' => $salesProposalDetails['for_registration'],
+                'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'],
+                'finalApprovalRemarks' => $salesProposalDetails['final_approval_remarks'],
+                'rejectionReason' => $salesProposalDetails['rejection_reason'],
+                'cancellationReason' => $salesProposalDetails['cancellation_reason'],
+                'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'],
                 'withCR' => $salesProposalDetails['with_cr'],
                 'forTransfer' => $salesProposalDetails['for_transfer'],
                 'remarks' => $salesProposalDetails['remarks'],
@@ -1550,6 +1584,7 @@ class SalesProposalController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/product-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/user-model.php';
 require_once '../model/company-model.php';
@@ -1559,6 +1594,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

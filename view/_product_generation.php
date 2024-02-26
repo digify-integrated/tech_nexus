@@ -191,6 +191,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $stockNumber = $row['stock_number'];
                     $engineNumber = $row['engine_number'];
                     $chassisNumber = $row['chassis_number'];
+                    $plateNumber = $row['plate_number'];
                     $description = $row['description'];
                     $warehouseID = $row['warehouse_id'];
                     $bodyTypeID = $row['body_type_id'];
@@ -234,6 +235,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'STOCK_NUMBER' => $stockNumber,
                         'ENGINE_NUMBER' => $engineNumber,
                         'CHASSIS_NUMBER' => $chassisNumber,
+                        'PLATE_NUMBER' => $plateNumber,
                         'DESCRIPTION' => $description,
                         'WAREHOUSE_NAME' => $warehouseName,
                         'BODY_TYPE_NAME' => $bodyTypeName,

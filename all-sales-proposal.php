@@ -65,6 +65,8 @@
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
     $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
+    $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+    $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
     $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
   }
   else{

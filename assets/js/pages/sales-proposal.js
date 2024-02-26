@@ -2,6 +2,10 @@
     'use strict';
 
     $(function() {
+        if($('#add-sales-proposal-form').length){
+            addSalesProposalForm();
+        }
+
         if($('#sales-proposal-form').length){
             salesProposalForm();
         }
@@ -475,12 +479,12 @@
             calculatePaymentNumber();
         });
         
-        $(document).on('click','#prev-step-2',function() {
-            prevStep(2);
-        });
-        
         $(document).on('click','#next-step-1-normal',function() {
             nextStep(1);
+        });
+        
+        $(document).on('click','#prev-step-2',function() {
+            prevStep(2);
         });
         
         $(document).on('click','#next-step-2',function() {
@@ -1071,6 +1075,163 @@ function salesProposalSummaryDepositTable(){
         data: { type: type, sales_proposal_id: sales_proposal_id },
         success: function (result) {
             document.getElementById('summary-amount-of-deposit-table').innerHTML = result[0].table;
+        }
+    });
+}
+
+function addSalesProposalForm(){
+    $('#add-sales-proposal-form').validate({
+        rules: {
+            product_id: {
+                required: true
+            },
+            referred_by: {
+                required: true
+            },
+            release_date: {
+                required: true
+            },
+            start_date: {
+                required: true
+            },
+            term_length: {
+                required: true
+            },
+            term_type: {
+                required: true
+            },
+            number_of_payments: {
+                required: true
+            },
+            payment_frequency: {
+                required: true
+            },
+            first_due_date: {
+                required: true
+            },
+            initial_approving_officer: {
+                required: true
+            },
+            final_approving_officer: {
+                required: true
+            },
+            for_registration: {
+                required: true
+            },
+            with_cr: {
+                required: true
+            },
+            for_transfer: {
+                required: true
+            },
+        },
+        messages: {
+            product_id: {
+                required: 'Please choose the product'
+            },
+            referred_by: {
+                required: 'Please enter the referred by'
+            },
+            release_date: {
+                required: 'Please choose the estimated date of release'
+            },
+            start_date: {
+                required: 'Please choose the start date'
+            },
+            term_length: {
+                required: 'Please enter the term length'
+            },
+            term_type: {
+                required: 'Please choose the term type'
+            },
+            number_of_payments: {
+                required: 'Please enter the number of payments'
+            },
+            payment_frequency: {
+                required: 'Please choose the payment frequency'
+            },
+            first_due_date: {
+                required: 'Please choose the first due date'
+            },
+            initial_approving_officer: {
+                required: 'Please choose the initial approving officer'
+            },
+            final_approving_officer: {
+                required: 'Please choose the final approving officer'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const customer_id = $('#customer-id').text();
+            const transaction = 'save sales proposal';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-data');           
+                },
+                success: function (response) {
+                    if (response.success) {
+                        if(response.insertRecord){
+                            setNotification('Insert Sales Proposal Success', 'The sales proposal has been inserted successfully.', 'success');
+                            window.location = 'sales-proposal.php?customer='+ response.customerID +'&id=' + response.salesProposalID;
+                        }
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-data', 'Submit');
+                }
+            });
+        
+            return false;
         }
     });
 }
@@ -1947,6 +2108,7 @@ function salesProposalInitalApprovalForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-initial-approval', 'Submit');
+                    $('#sales-proposal-initial-approval-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2031,6 +2193,7 @@ function salesProposalFinalApprovalForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-final-approval', 'Submit');
+                    $('#sales-proposal-final-approval-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2115,6 +2278,7 @@ function salesProposalRejectForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-reject', 'Submit');
+                    $('#sales-proposal-reject-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2199,6 +2363,7 @@ function salesProposalCancelForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-cancel', 'Submit');
+                    $('#sales-proposal-cancel-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2283,6 +2448,7 @@ function salesProposalSetToDraftForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-sales-proposal-set-to-draft', 'Submit');
+                    $('#sales-proposal-set-to-draft-offcanvas').offcanvas('hide');
                 }
             });
         
@@ -2328,12 +2494,31 @@ function displayDetails(transaction){
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
 
+                        $('#product_id_label').text(response.productName);
+                        $('#comaker_id_label').text(response.comakerName);
+                        $('#created-by').text(response.createdByName);
+
+                        $('#initial-approval-by').text(response.initialApprovalByName);
+                        $('#initial-approval-remarks').text(response.initialApprovalRemarks);
+                        $('#initial-approval-date').text(response.initialApprovalDate);
+                        $('#approval-by').text(response.approvalByName);
+                        $('#final-approval-remarks').text(response.finalApprovalRemarks);
+                        $('#final-approval-date').text(response.approvalDate);
+                        $('#for-ci-date').text(response.forCIDate);
+                        $('#rejection-reason').text(response.rejectionReason);
+                        $('#rejection-date').text(response.rejectionDate);
+                        $('#cancellation-reason').text(response.cancellationReason);
+                        $('#cancellation-date').text(response.cancellationDate);
+                        $('#set-to-draft-reason').text(response.setToDraftReason);
+                        
+                        $('#comaker_id_details').text(response.comakerID);
+                        $('#product_id_details').text(response.productID);
                         $('#referred_by_label').text(response.referredBy);
                         $('#release_date_label').text(response.releaseDate);
                         $('#start_date_label').text(response.startDate);
                         $('#term_length_label').text(response.termLength + ' ' + response.termType);
                         $('#number_of_payments_label').text(response.numberOfPayments);
-                        $('#payment_frequency_label').text(response.paymentFrequency);
+                        $('#payment_frequency_label').text('Frequency of Payment: ' + response.paymentFrequency);
                         $('#first_due_date_label').text(response.firstDueDate);
                         $('#for_registration_label').text(response.forRegistration);
                         $('#with_cr_label').text(response.withCR);
@@ -2367,6 +2552,13 @@ function displayDetails(transaction){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    displayDetails('get product details');
+                    
+                    if($('#comaker_id_details').length && $('#comaker_id_details').text() != '' && $('#comaker_id_details').text() != '0'){
+                        displayDetails('get comaker details');
+                    }
                 }
             });
             break;
@@ -2786,7 +2978,14 @@ function displayDetails(transaction){
             });
             break;
         case 'get product details':
-            const product_id = $('#product_id').val();
+            var product_id;
+
+            if($('#product_id_details').length){
+                product_id = $('#product_id_details').text();
+            }
+            else{
+                product_id = $('#product_id').val();
+            }
             
             $.ajax({
                 url: 'controller/product-controller.php',
@@ -2826,7 +3025,14 @@ function displayDetails(transaction){
             });
             break;
         case 'get comaker details':
-            const comaker_id = $('#comaker_id').val();
+            var comaker_id;
+
+            if($('#comaker_id_details').length && $('#comaker_id_details').text() != '' && $('#comaker_id_details').text() != '0'){
+                comaker_id = $('#comaker_id_details').text();
+            }
+            else{
+                comaker_id = $('#comaker_id').val();
+            }
             
             $.ajax({
                 url: 'controller/customer-controller.php',
@@ -2957,10 +3163,10 @@ function calculateTotalOtherCharges(){
     $('#summary-other-charges-total').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 }
 
-function nextStep(currentStep) {    
+function nextStep(currentStep) {
     $('#sales-proposal-tab-' + (currentStep + 1)).tab('show');
 }
 
-function prevStep(currentStep) {    
+function prevStep(currentStep) {
     $('#sales-proposal-tab-' + (currentStep - 1)).tab('show');
 }

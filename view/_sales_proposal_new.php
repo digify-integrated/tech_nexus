@@ -7,12 +7,12 @@
             <h5 class="mb-0">Details</h5>
           </div>
           <div class="col-auto">
-            <button type="submit" form="sales-proposal-form" class="btn btn-success" id="submit-data">Submit</button>
+            <button type="submit" form="add-sales-proposal-form" class="btn btn-success" id="submit-data">Submit</button>
           </div>
         </div>
       </div>
       <div class="card-body">
-        <form id="sales-proposal-form" method="post" action="#">
+        <form id="add-sales-proposal-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Product : <span class="text-danger">*</span></label>
             <div class="col-lg-8">

@@ -364,6 +364,7 @@
                                         <th>Stock Number</th>
                                         <th>Engine Number</th>
                                         <th>Chassis Number</th>
+                                        <th>Plate Number</th>
                                         <th>Description Number</th>
                                         <th>Warehouse</th>
                                         <th>Body Type</th>

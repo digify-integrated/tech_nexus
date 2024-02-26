@@ -10,7 +10,7 @@
     $userModel = new UserModel($databaseModel, $systemModel);
     $interfaceSettingModel = new InterfaceSettingModel($databaseModel);
 
-    $pageTitle = 'Nexus Integrated Solutions';
+    $pageTitle = 'CGMI Digital Solutions';
     
     require('config/_interface_settings.php');
     require('session-check.php');

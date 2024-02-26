@@ -28636,7 +28636,7 @@ div.dataTables_wrapper div.dataTables_paginate {
 
 @media print {
   @page {
-    size: 8.5in 13in;
+    size: 8.5in 11in;
     margin: 0.5in;
   }
 
@@ -28653,7 +28653,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     background-color: white;
     margin: 0 !important;
     padding: 0 !important;
-    margin-top: -32% !important;
+    margin-top: -35% !important;
   }
 
   body, html {

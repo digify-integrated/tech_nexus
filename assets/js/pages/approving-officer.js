@@ -330,6 +330,9 @@ function approvingOfficerForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.approverExist) {
+                            showNotification('Approving Officer Exist', 'The approving officer selected already exist.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }

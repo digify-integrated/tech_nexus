@@ -66,6 +66,27 @@ class ApprovingOfficerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkApprovingOfficerIfExist
+    # Description: Checks if a approving officer exists.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The approving officer ID.
+    # - $p_approving_officer_type (int): The approving officer type.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkApprovingOfficerIfExist($p_contact_id, $p_approving_officer_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkApprovingOfficerIfExist(:p_contact_id, :p_approving_officer_type)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_approving_officer_type', $p_approving_officer_type, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 

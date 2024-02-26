@@ -4398,6 +4398,240 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Sales Proposal Table Triggers */
+
+CREATE TRIGGER sales_proposal_trigger_update
+AFTER UPDATE ON sales_proposal
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.sales_proposal_number <> OLD.sales_proposal_number THEN
+        SET audit_log = CONCAT(audit_log, "Sales Proposal Number: ", OLD.sales_proposal_number, " -> ", NEW.sales_proposal_number, "<br/>");
+    END IF;
+
+    IF NEW.customer_id <> OLD.customer_id THEN
+        SET audit_log = CONCAT(audit_log, "Customer ID: ", OLD.customer_id, " -> ", NEW.customer_id, "<br/>");
+    END IF;
+
+    IF NEW.comaker_id <> OLD.comaker_id THEN
+        SET audit_log = CONCAT(audit_log, "Comaker ID: ", OLD.comaker_id, " -> ", NEW.comaker_id, "<br/>");
+    END IF;
+
+    IF NEW.product_id <> OLD.product_id THEN
+        SET audit_log = CONCAT(audit_log, "Product ID: ", OLD.product_id, " -> ", NEW.product_id, "<br/>");
+    END IF;
+
+    IF NEW.referred_by <> OLD.referred_by THEN
+        SET audit_log = CONCAT(audit_log, "Referred By: ", OLD.referred_by, " -> ", NEW.referred_by, "<br/>");
+    END IF;
+
+    IF NEW.release_date <> OLD.release_date THEN
+        SET audit_log = CONCAT(audit_log, "Release Date: ", OLD.release_date, " -> ", NEW.release_date, "<br/>");
+    END IF;
+
+    IF NEW.start_date <> OLD.start_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.first_due_date <> OLD.first_due_date THEN
+        SET audit_log = CONCAT(audit_log, "First Due Date: ", OLD.first_due_date, " -> ", NEW.first_due_date, "<br/>");
+    END IF;
+
+    IF NEW.term_length <> OLD.term_length THEN
+        SET audit_log = CONCAT(audit_log, "Term Length: ", OLD.term_length, " -> ", NEW.term_length, "<br/>");
+    END IF;
+
+    IF NEW.term_type <> OLD.term_type THEN
+        SET audit_log = CONCAT(audit_log, "Term Type: ", OLD.term_type, " -> ", NEW.term_type, "<br/>");
+    END IF;
+
+    IF NEW.number_of_payments <> OLD.number_of_payments THEN
+        SET audit_log = CONCAT(audit_log, "Number of Payments: ", OLD.number_of_payments, " -> ", NEW.number_of_payments, "<br/>");
+    END IF;
+
+    IF NEW.payment_frequency <> OLD.payment_frequency THEN
+        SET audit_log = CONCAT(audit_log, "Payment Frequency: ", OLD.payment_frequency, " -> ", NEW.payment_frequency, "<br/>");
+    END IF;
+
+    IF NEW.for_registration <> OLD.for_registration THEN
+        SET audit_log = CONCAT(audit_log, "For Registration: ", OLD.for_registration, " -> ", NEW.for_registration, "<br/>");
+    END IF;
+
+    IF NEW.with_cr <> OLD.with_cr THEN
+        SET audit_log = CONCAT(audit_log, "With CR: ", OLD.with_cr, " -> ", NEW.with_cr, "<br/>");
+    END IF;
+
+    IF NEW.for_transfer <> OLD.for_transfer THEN
+        SET audit_log = CONCAT(audit_log, "For Transfer: ", OLD.for_transfer, " -> ", NEW.for_transfer, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+
+    IF NEW.created_by <> OLD.created_by THEN
+        SET audit_log = CONCAT(audit_log, "Created By: ", OLD.created_by, " -> ", NEW.created_by, "<br/>");
+    END IF;
+
+    IF NEW.sales_proposal_status <> OLD.sales_proposal_status THEN
+        SET audit_log = CONCAT(audit_log, "Sales Proposal Status: ", OLD.sales_proposal_status, " -> ", NEW.sales_proposal_status, "<br/>");
+    END IF;
+
+    IF NEW.initial_approving_officer <> OLD.initial_approving_officer THEN
+        SET audit_log = CONCAT(audit_log, "Initial Approving Officer: ", OLD.initial_approving_officer, " -> ", NEW.initial_approving_officer, "<br/>");
+    END IF;
+
+    IF NEW.final_approving_officer <> OLD.final_approving_officer THEN
+        SET audit_log = CONCAT(audit_log, "Final Approving Officer: ", OLD.final_approving_officer, " -> ", NEW.final_approving_officer, "<br/>");
+    END IF;
+
+    IF NEW.initial_approval_remarks <> OLD.initial_approval_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Initial Approving Remarks: ", OLD.initial_approval_remarks, " -> ", NEW.initial_approval_remarks, "<br/>");
+    END IF;
+
+    IF NEW.final_approval_remarks <> OLD.final_approval_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Final Approving Remarks: ", OLD.final_approval_remarks, " -> ", NEW.final_approval_remarks, "<br/>");
+    END IF;
+
+    IF NEW.rejection_reason <> OLD.rejection_reason THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Reason: ", OLD.rejection_reason, " -> ", NEW.rejection_reason, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Reason: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
+    END IF;
+
+    IF NEW.set_to_draft_reason <> OLD.set_to_draft_reason THEN
+        SET audit_log = CONCAT(audit_log, "Set To Draft Reason: ", OLD.set_to_draft_reason, " -> ", NEW.set_to_draft_reason, "<br/>");
+    END IF;
+
+    IF NEW.initial_approval_by <> OLD.initial_approval_by THEN
+        SET audit_log = CONCAT(audit_log, "Initial Approval By: ", OLD.initial_approval_by, " -> ", NEW.initial_approval_by, "<br/>");
+    END IF;
+
+    IF NEW.approval_by <> OLD.approval_by THEN
+        SET audit_log = CONCAT(audit_log, "Final Approval By: ", OLD.approval_by, " -> ", NEW.approval_by, "<br/>");
+    END IF;
+
+    IF NEW.initial_approval_date <> OLD.initial_approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Inital Approval Date: ", OLD.initial_approval_date, " -> ", NEW.initial_approval_date, "<br/>");
+    END IF;
+
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Final Approval Date: ", OLD.approval_date, " -> ", NEW.approval_date, "<br/>");
+    END IF;
+
+    IF NEW.for_ci_date <> OLD.for_ci_date THEN
+        SET audit_log = CONCAT(audit_log, "For CI Date: ", OLD.for_ci_date, " -> ", NEW.for_ci_date, "<br/>");
+    END IF;
+
+    IF NEW.rejection_date <> OLD.rejection_date THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Date: ", OLD.rejection_date, " -> ", NEW.rejection_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_trigger_insert
+AFTER INSERT ON sales_proposal
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Sales proposal created. <br/>';
+
+    IF NEW.sales_proposal_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Sales Proposal Number: ", NEW.sales_proposal_number);
+    END IF;
+
+    IF NEW.customer_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Customer ID: ", NEW.customer_id);
+    END IF;
+
+    IF NEW.comaker_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Comaker ID: ", NEW.comaker_id);
+    END IF;
+
+    IF NEW.product_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product ID: ", NEW.product_id);
+    END IF;
+
+    IF NEW.referred_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Referred By: ", NEW.referred_by);
+    END IF;
+
+    IF NEW.release_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Release Date: ", NEW.release_date);
+    END IF;
+
+    IF NEW.start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date);
+    END IF;
+
+    IF NEW.first_due_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>First Due Date: ", NEW.first_due_date);
+    END IF;
+
+    IF NEW.term_length <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Term Length: ", NEW.term_length);
+    END IF;
+
+    IF NEW.term_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Term Type: ", NEW.term_type);
+    END IF;
+
+    IF NEW.number_of_payments <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Number of Payments: ", NEW.number_of_payments);
+    END IF;
+
+    IF NEW.payment_frequency <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Payment Frequency: ", NEW.payment_frequency);
+    END IF;
+
+    IF NEW.for_registration <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Registration: ", NEW.for_registration);
+    END IF;
+
+    IF NEW.with_cr <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>With CR: ", NEW.with_cr);
+    END IF;
+
+    IF NEW.for_transfer <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Transfer: ", NEW.for_transfer);
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
+    END IF;
+
+    IF NEW.created_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Created By: ", NEW.created_by);
+    END IF;
+
+    IF NEW.sales_proposal_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Sales Proposal Status: ", NEW.sales_proposal_status);
+    END IF;
+
+    IF NEW.initial_approving_officer <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Initial Approving Officer: ", NEW.initial_approving_officer);
+    END IF;
+
+    IF NEW.final_approving_officer <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Final Approving Officer: ", NEW.final_approving_officer);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /*  Table Triggers */
 
 
