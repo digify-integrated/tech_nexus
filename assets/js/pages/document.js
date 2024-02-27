@@ -116,6 +116,15 @@
             $(document).on('click','#apply-filter',function() {
                 debounceAndReset();
             });
+
+            $(window).scroll(function () {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                    if (!is_loading) {
+                        page++;
+                        loadDocumentCard(page, is_loading, false);
+                    }
+                }
+            });
         }
 
         documentSearch.val(lastSearchValue);

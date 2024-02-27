@@ -34,7 +34,7 @@
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <a href="javascript:void(0);"><img src="<?php echo $login_logo; ?>" alt="img"></a>
+                            <a href="javascript:void(0);"><img src="<?php echo $login_logo; ?>" alt="img" class="w-100"></a>
                         </div>
                         <h4 class="text-center f-w-500 mb-3">Login with your email</h4>
                         <div class="form-group mb-3">

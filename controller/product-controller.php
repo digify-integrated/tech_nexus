@@ -292,7 +292,7 @@ class ProductController {
 
             if($checkProductCategoryExist == 0){
                 $productSubCategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
-                $productCategoryID = $productSubCategoryDetails['product_category_id'];
+                $productCategoryID = $productSubCategoryDetails['product_category_id'] ?? null;
             }
 
             if($checkBodyTypeExist == 0){

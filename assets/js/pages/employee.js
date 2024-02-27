@@ -169,6 +169,15 @@
             $(document).on('click','#apply-filter',function() {
                 debounceAndReset();
             });
+
+            $(window).scroll(function () {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height()) {
+                    if (!is_loading) {
+                        page++;
+                        loadEmployeeCard(page, is_loading, false);
+                    }
+                }
+            });
         }
 
         employeeSearch.val(lastSearchValue);
