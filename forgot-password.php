@@ -34,7 +34,7 @@
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center">
-                            <a href="index.php"><img src="<?php echo $login_logo; ?>" alt="img"></a>
+                            <a href="javascript:void(0);"><img src="<?php echo $login_logo; ?>" alt="img" class="w-100"></a>
                         </div>
                         <div class="d-flex justify-content-between align-items-end mb-4">
                             <h3 class="mb-0"><b>Forgot Password</b></h3>

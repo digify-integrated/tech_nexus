@@ -33,12 +33,35 @@ define('DB_PASS', 'qKHJpbkgC6t93nQr');
 # -------------------------------------------------------------
 
 define('ENCRYPTION_KEY', '4b$Gy#89%q*aX@^p&cT!sPv6(5w)zSd+R');
+
+# -------------------------------------------------------------
+
+# -------------------------------------------------------------
+#
+# Name       : EMAIL CONFIGURATION
+# Purpose    : Define constants for email server configuration.
+#
+# -------------------------------------------------------------
+
+// Hostname of the mail server
 define('MAIL_HOST', 'smtp.hostinger.com');
+
+// Enable SMTP authentication
 define('MAIL_SMTP_AUTH', true);
-define('MAIL_USERNAME', 'encore-noreply@encorefinancials.com');
+
+// Username for SMTP authentication
+define('MAIL_USERNAME', 'cgmi-noreply@christianmotors.ph');
+
+// Password for SMTP authentication
 define('MAIL_PASSWORD', 'P@ssw0rd');
+
+// SMTP security type (ssl/tls)
 define('MAIL_SMTP_SECURE', 'ssl');
+
+// Port number for the mail server
 define('MAIL_PORT', 465);
+
+# -------------------------------------------------------------
 
 # -------------------------------------------------------------
 #

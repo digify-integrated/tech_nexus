@@ -892,7 +892,7 @@
                                 <input type="number" class="form-control" id="outstanding_balance" name="outstanding_balance" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row d-none">
                               <label class="col-lg-4 col-form-label">Amount Financed :</label>
                               <div class="col-lg-8">
                                 <input type="number" class="form-control" id="amount_financed" name="amount_financed" step="0.01" value="0" min="0" readonly>
@@ -1319,23 +1319,23 @@
                         echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>';
                       }
 
-                      if(($salesProposalSatus == 'Approved Sales Proposal' || $salesProposalSatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id){
+                      if(($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id){
                         echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>';
                       }
 
-                      if((($salesProposalSatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalSatus == 'Approved Sales Proposal' || $salesProposalSatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
+                      if((($salesProposalSatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
                         echo '<button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>';
                       }
 
-                      if(($salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'Approved Sales Proposal' || $salesProposalSatus == 'For CI') && $cancelSalesProposal['total'] > 0){
+                      if(($salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $cancelSalesProposal['total'] > 0){
                         echo ' <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>';
                       }
 
-                      if($salesProposalSatus == 'Approved Sales Proposal' && $forCISalesProposal['total'] > 0){
+                      if($salesProposalSatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
                         echo '<button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>';
                       }
 
-                      if($salesProposalSatus == 'Approved Sales Proposal' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI'){
+                      if($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI'){
                         echo ' <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>';
                       }
                     ?>                                      
@@ -1811,7 +1811,7 @@
         <div>
           <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-initial-approval-offcanvas" aria-labelledby="sales-proposal-initial-approval-offcanvas-label">
               <div class="offcanvas-header">
-                  <h2 id="sales-proposal-initial-approval-offcanvas-label" style="margin-bottom:-0.5rem">Approve Sales Proposal</h2>
+                  <h2 id="sales-proposal-initial-approval-offcanvas-label" style="margin-bottom:-0.5rem">Initial Approve Sales Proposal</h2>
                   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
               </div>
               <div class="offcanvas-body">

@@ -35,8 +35,8 @@
                                 <label class="form-check-label" for="sales-proposal-status-for-initial-approval">For Initial Approval</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-approved-sales-proposal" value="Approved Sales Proposal" />
-                                <label class="form-check-label" for="sales-proposal-status-approved-sales-proposal">Approved Sales Proposal</label>
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-final-approval" value="For Final Approval" />
+                                <label class="form-check-label" for="sales-proposal-status-for-final-approval">For Final Approval</label>
                               </div>
                               <div class="form-check my-2">
                                 <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-ci" value="For CI" />

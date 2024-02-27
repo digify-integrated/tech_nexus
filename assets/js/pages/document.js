@@ -287,7 +287,7 @@ function previewProtectedDocumentForm(){
         }
       },
       submitHandler: function(form) {
-        const transaction = 'preview protected document version history';
+        const transaction = 'preview protected document';
         const document_id = $('#document-id').text();
   
         $.ajax({

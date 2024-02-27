@@ -407,7 +407,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'Approved Sales Proposal', $initialApprovalRemarks, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'For Final Approval', $initialApprovalRemarks, $userID);
             
         echo json_encode(['success' => true]);
     }

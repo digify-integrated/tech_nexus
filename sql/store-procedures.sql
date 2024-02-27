@@ -7091,7 +7091,7 @@ END //
 
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-    IF p_sales_proposal_status = 'Approved Sales Proposal' THEN
+    IF p_sales_proposal_status = 'For Final Approval' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         initial_approval_date = NOW(),

@@ -1080,7 +1080,7 @@ class SalesProposalModel {
         $statusClasses = [
             'Draft' => 'secondary',
             'For Initial Approval' => 'info',
-            'Approved Sales Proposal' => 'success',
+            'For Final Approval' => 'success',
             'For CI' => 'info',
             'Cancelled' => 'warning',
             'Rejected' => 'danger',

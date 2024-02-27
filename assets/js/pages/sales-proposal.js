@@ -127,10 +127,6 @@
                 calculatePricingComputation();
             });
 
-            $(document).on('change','#insurance_coverage',function() {
-                calculateTotalOtherCharges();
-            });
-
             $(document).on('change','#insurance_premium',function() {
                 calculateTotalOtherCharges();
             });
@@ -2087,7 +2083,7 @@ function salesProposalInitalApprovalForm(){
                 },
                 success: function (response) {
                     if (response.success) {
-                        showNotification('Approve Sales Proposal Success', 'The sales proposal has been approved successfully.', 'success');
+                        showNotification('For Initial Approval Success', 'The sales proposal has been tagged for final approval successfully.', 'success');
                         window.location.reload();
                     }
                     else{
@@ -2555,6 +2551,7 @@ function displayDetails(transaction){
                 },
                 complete: function(){
                     displayDetails('get product details');
+                    calculateFirstDueDate();
                     
                     if($('#comaker_id_details').length && $('#comaker_id_details').text() != '' && $('#comaker_id_details').text() != '0'){
                         displayDetails('get comaker details');
@@ -3133,14 +3130,13 @@ function calculatePricingComputation(){
 
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
     var outstanding_balance = subtotal - downpayment;
-    var amount_financed = delivery_price - downpayment;
-    var pn_amount = amount_financed * (1 + (interest_rate/100));
+    var pn_amount = outstanding_balance * (1 + (interest_rate/100));
     var repayment_amount = Math.ceil(pn_amount / term_length);
 
     $('#subtotal').val(subtotal.toFixed(2));
     $('#outstanding_balance').val(outstanding_balance.toFixed(2));
 
-    $('#amount_financed').val(amount_financed.toFixed(2));
+    $('#amount_financed').val(outstanding_balance.toFixed(2));
     $('#pn_amount').val(pn_amount.toFixed(2));
     $('#repayment_amount').val(repayment_amount.toFixed(2));
 
@@ -3149,7 +3145,6 @@ function calculatePricingComputation(){
 }
 
 function calculateTotalOtherCharges(){
-    var insurance_coverage = parseFloat($("#insurance_coverage").val()) || 0;
     var insurance_premium = parseFloat($("#insurance_premium").val()) || 0;
     var handling_fee = parseFloat($("#handling_fee").val()) || 0;
     var transfer_fee = parseFloat($("#transfer_fee").val()) || 0;
@@ -3157,7 +3152,7 @@ function calculateTotalOtherCharges(){
     var doc_stamp_tax = parseFloat($("#doc_stamp_tax").val()) || 0;
     var transaction_fee = parseFloat($("#transaction_fee").val()) || 0;
 
-    var total = insurance_coverage + insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
+    var total = insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
 
     $('#total_other_charges').val(total.toFixed(2));
     $('#summary-other-charges-total').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));

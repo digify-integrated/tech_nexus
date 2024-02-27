@@ -59,7 +59,7 @@
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center">
-                            <a href="#"><img src="<?php echo $login_logo; ?>" alt="img"></a>
+                            <a href="javascript:void(0);"><img src="<?php echo $login_logo; ?>" alt="img" class="w-100"></a>
                         </div>
                         <h3 class="mb-2"><b>Enter One-Time Password (OTP)</b></h3>
                         <p class="">We`ve sent a OTP to your email - <?php echo $emailObscure; ?></p>
