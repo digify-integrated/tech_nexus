@@ -168,6 +168,12 @@ class SalesProposalController {
                 case 'get sales proposal renewal amount details':
                     $this->getSalesProposalRenewalAmountDetails();
                     break;
+                case 'save sales proposal client confirmation':
+                    $this->saveSalesProposalClientConfirmation();
+                    break;
+                case 'save sales proposal credit advice':
+                    $this->saveSalesProposalCreditAdvice();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -199,9 +205,11 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8') : null;
-        $salesProposalNumber = isset($_POST['sales_proposal_number']) ? htmlspecialchars($_POST['sales_proposal_number'], ENT_QUOTES, 'UTF-8') : $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
+        $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
         $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
         $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
         $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
@@ -214,6 +222,10 @@ class SalesProposalController {
         $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
         $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
         $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
+        $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+        $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
+        $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
+        $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
         $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
@@ -229,17 +241,243 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
         } 
         else {
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
+
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $newBody, $forChangeBody, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalClientConfirmation
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalClientConfirmation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $confirmationImageFileName = $_FILES['client_confirmation_image']['name'];
+            $confirmationImageFileSize = $_FILES['client_confirmation_image']['size'];
+            $confirmationImageFileError = $_FILES['client_confirmation_image']['error'];
+            $confirmationImageTempName = $_FILES['client_confirmation_image']['tmp_name'];
+            $confirmationImageFileExtension = explode('.', $confirmationImageFileName);
+            $confirmationImageActualFileExtension = strtolower(end($confirmationImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientConfirmationImage = !empty($salesProposalDetails['client_confirmation']) ? '.' . $salesProposalDetails['client_confirmation'] : null;
+    
+            if(file_exists($clientConfirmationImage)){
+                if (!unlink($clientConfirmationImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Client confirmation image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($confirmationImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($confirmationImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the client confirmation image.']);
+                exit;
+            }
+            
+            if($confirmationImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($confirmationImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The client confirmation image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $confirmationImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/client_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/client_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($confirmationImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalClientConfirmation($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalCreditAdvice
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalCreditAdvice() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $creditAdviceFileName = $_FILES['credit_advice_image']['name'];
+            $creditAdviceFileSize = $_FILES['credit_advice_image']['size'];
+            $creditAdviceFileError = $_FILES['credit_advice_image']['error'];
+            $creditAdviceTempName = $_FILES['credit_advice_image']['tmp_name'];
+            $creditAdviceFileExtension = explode('.', $creditAdviceFileName);
+            $creditAdviceActualFileExtension = strtolower(end($creditAdviceFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientcreditAdvice = !empty($salesProposalDetails['credit_advice']) ? '.' . $salesProposalDetails['credit_advice'] : null;;
+    
+            if(file_exists($clientcreditAdvice)){
+                if (!unlink($clientcreditAdvice)) {
+                    echo json_encode(['success' => false, 'message' => 'Credit advice image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($creditAdviceActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($creditAdviceTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the credit advice image.']);
+                exit;
+            }
+            
+            if($creditAdviceFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($creditAdviceFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The credit advice image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $creditAdviceActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/credit_advice/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/credit_advice/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($creditAdviceTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalCreditAdvice($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
             exit;
         }
     }
@@ -1115,6 +1353,13 @@ class SalesProposalController {
                 'comakerID' => $comakerID,
                 'comakerName' => $comakerName,
                 'productID' => $productID,
+                'productType' => $salesProposalDetails['product_type'] ?? null,
+                'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
+                'forChangeColor' => $salesProposalDetails['for_change_color'] ?? null,
+                'forChangeBody' => $salesProposalDetails['for_change_body'] ?? null,
+                'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
+                'newColor' => $salesProposalDetails['new_color'] ?? null,
+                'newBody' => $salesProposalDetails['new_body'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
@@ -1127,6 +1372,8 @@ class SalesProposalController {
                 'forCIDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y', ''),
                 'rejectionDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['rejection_date'], '', 'm/d/Y', ''),
                 'cancellationDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['cancellation_date'], '', 'm/d/Y', ''),
+                'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
+                'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],

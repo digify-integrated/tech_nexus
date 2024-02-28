@@ -652,6 +652,12 @@
                                   </div>
                                   <div class="form-group row">
                                     <div class="col-lg-12">
+                                      <label class="form-label" for="contact_information_facebook">Facebook <span class="text-danger">*</span></label>
+                                      <input type="text" class="form-control" id="contact_information_facebook" name="contact_information_facebook" maxlength="300" autocomplete="off">
+                                    </div>
+                                  </div>
+                                  <div class="form-group row">
+                                    <div class="col-lg-12">
                                       <label class="form-label" for="contact_information_email">Email</label>
                                       <input type="email" class="form-control" id="contact_information_email" name="contact_information_email" maxlength="100" autocomplete="off">
                                     </div>
@@ -659,7 +665,7 @@
                                   <div class="form-group row">
                                     <div class="col-lg-6">
                                       <label class="form-label" for="contact_information_mobile">Mobile</label>
-                                      <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
+                                      <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="11" autocomplete="off">
                                     </div>
                                     <div class="col-lg-6 mt-3 mt-lg-0">
                                       <label class="form-label" for="contact_information_telephone">Telephone</label>
@@ -759,6 +765,12 @@
                                     <div class="col-lg-12">
                                       <label class="form-label" for="id_number">ID Number <span class="text-danger">*</span></label>
                                       <input type="text" class="form-control" id="id_number" name="id_number" maxlength="100" autocomplete="off">
+                                    </div>
+                                  </div>
+                                  <div class="form-group row">
+                                    <div class="col-lg-12">
+                                      <label class="form-label" for="id_image">ID Image</label>
+                                      <input type="file" class="form-control" id="id_image" name="id_image">
                                     </div>
                                   </div>
                                 </form>

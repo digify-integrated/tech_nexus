@@ -173,6 +173,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $index => $row) {
                     $fileAs = $row['file_as'];
                     $nickname = $row['nickname'] ?? '--';
+                    $corporateName = $row['corporate_name'] ?? '--';
                     $civilStatusID = $row['civil_status_id'];
                     $genderID = $row['gender_id'];
                     $religionID = $row['religion_id'];
@@ -195,56 +196,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                 <p class="mb-0">'. $customerUniqueID .'</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-1 text-primary"><b>Nickname</b></p>
-                                                <p class="mb-0">'. $nickname .'</p>
+                                                <p class="mb-1 text-primary"><b>Business/Corporate Name</b></p>
+                                                <p class="mb-0">'. $corporateName .'</p>
                                             </div>
                                         </div>
                                     </li>
                                     <li class="list-group-item px-0">
                                         <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1 text-primary"><b>Nickname</b></p>
+                                                <p class="mb-0">'. $nickname .'</p>
+                                            </div>
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Birthday</b></p>
                                                 <p class="mb-0">'. $birthday .'</p>
                                             </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Birth Place</b></p>
                                                 <p class="mb-0">'. $birthPlace .'</p>
                                             </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item px-0">
-                                        <div class="row">
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Gender</b></p>
                                                 <p class="mb-0">'. $genderName .'</p>
                                             </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Civil Status</b></p>
                                                 <p class="mb-0">'. $civilStatusName .'</p>
                                             </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item px-0">
-                                        <div class="row">
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Blood type</b></p>
                                                 <p class="mb-0">'. $bloodTypeName .'</p>
                                             </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item px-0">
+                                        <div class="row">
                                             <div class="col-md-6">
                                                 <p class="mb-1 text-primary"><b>Religion</b></p>
                                                 <p class="mb-0">'. $religionName .'</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1 text-primary"><b>Height</b></p>
+                                                <p class="mb-0">'. $height .'</p>
                                             </div>
                                         </div>
                                     </li>
                                     <li class="list-group-item px-0">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p class="mb-1 text-primary"><b>Height</b></p>
-                                                <p class="mb-0">'. $height .'</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                            <p class="mb-1 text-primary"><b>Weight</b></p>
-                                            <p class="mb-0">'. $weight .'</p>
+                                                <p class="mb-1 text-primary"><b>Weight</b></p>
+                                                <p class="mb-0">'. $weight .'</p>
                                             </div>
                                         </div>
                                     </li>
@@ -299,6 +308,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $mobile = $row['mobile'];
                     $telephone = $row['telephone'];
                     $email = $row['email'];
+                    $facebook = $row['facebook'];
                     $isPrimary = $row['is_primary'];
 
                     $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success mt-3">Primary</span>' : '<span class="badge bg-light-info mt-3">Alternate</span>';
@@ -308,6 +318,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $mobile = !empty($mobile) ? '<p class="mb-0"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
                     $email = !empty($email) ? '<p class="mb-0"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
                     $telephone = !empty($telephone) ? '<p class="mb-0"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
+                    $facebook = !empty($facebook) ? '<p class="mb-0"><i class="ti ti-brand-facebook me-2"></i> ' . $facebook . '</p>' : '';
 
                     $dropdown = '';
                     if ($customerWriteAccess['total'] > 0) {
@@ -335,6 +346,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="d-flex align-items-start">
                                         <div class="flex-grow-1 me-2">
                                             <p class="mb-1 text-primary"><b>'. $contactInformationTypeName .'</b></p>
+                                            '. $facebook .'
                                             '. $email .'
                                             '. $mobile .'
                                             '. $telephone .'
@@ -495,6 +507,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $idTypeID = $row['id_type_id'];
                     $idNumber = $row['id_number'];
                     $isPrimary = $row['is_primary'];
+                    $id_image = $row['id_image'];
 
                     $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success">Primary</span>' : '<span class="badge bg-light-info">Secondary</span>';
     
@@ -524,6 +537,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $details .= ' <li class="list-group-item '. $listMargin .'">
                                     <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-0">
+                                            <img class="img-fluid wid-100 mr-4" src="'. $id_image .'" alt="User image" />
+                                        </div>
                                         <div class="flex-grow-1 me-2">
                                             <p class="mb-2 text-primary"><b>'. $idTypeName .'</b></p>
                                             <p class="mb-2">' . $idNumber . '</p>

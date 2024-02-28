@@ -4155,10 +4155,10 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, nickname, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
-	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
+    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, nickname, corporate_name, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
+	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_corporate_name, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
 END //
 
 CREATE PROCEDURE insertPartialPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
@@ -4167,7 +4167,7 @@ BEGIN
 	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
 BEGIN
 	UPDATE personal_information
     SET file_as = p_file_as,
@@ -4176,6 +4176,7 @@ BEGIN
     last_name = p_last_name,
     suffix = p_suffix,
     nickname = p_nickname,
+    corporate_name = p_corporate_name,
     bio = p_bio,
     civil_status_id = p_civil_status_id,
     gender_id = p_gender_id,
@@ -4204,7 +4205,7 @@ END //
 
 CREATE PROCEDURE generatePersonalInformationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT file_as, nickname, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight
+	SELECT *
     FROM personal_information
     WHERE contact_id = p_contact_id;
 END //
@@ -4281,13 +4282,13 @@ BEGIN
     WHERE contact_information_id = p_contact_information_id;
 END //
 
-CREATE PROCEDURE insertContactInformation(IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertContactInformation(IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_facebook VARCHAR(300), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO contact_information (contact_id, contact_information_type_id, mobile, telephone, email, last_log_by) 
-	VALUES(p_contact_id, p_contact_information_type_id, p_mobile, p_telephone, p_email, p_last_log_by);
+    INSERT INTO contact_information (contact_id, contact_information_type_id, mobile, telephone, email, facebook, last_log_by) 
+	VALUES(p_contact_id, p_contact_information_type_id, p_mobile, p_telephone, p_email, p_facebook, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateContactInformation(IN p_contact_information_id INT, IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateContactInformation(IN p_contact_information_id INT, IN p_contact_id INT, IN p_contact_information_type_id INT, IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_facebook VARCHAR(300), IN p_last_log_by INT)
 BEGIN
 	UPDATE contact_information
     SET contact_id = p_contact_id,
@@ -4295,6 +4296,7 @@ BEGIN
     mobile = p_mobile,
     telephone = p_telephone,
     email = p_email,
+    facebook = p_facebook,
     last_log_by = p_last_log_by
     WHERE contact_information_id = p_contact_information_id;
 END //
@@ -4327,7 +4329,7 @@ END //
 
 CREATE PROCEDURE generateContactInformationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_information_id, contact_information_type_id, mobile, telephone, email, is_primary
+	SELECT *
     FROM contact_information
     WHERE contact_id = p_contact_id 
     ORDER BY is_primary DESC;
@@ -4406,10 +4408,12 @@ BEGIN
     WHERE contact_identification_id = p_contact_identification_id;
 END //
 
-CREATE PROCEDURE insertContactIdentification(IN p_contact_id INT, IN p_id_type_id INT, IN p_id_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertContactIdentification(IN p_contact_id INT, IN p_id_type_id INT, IN p_id_number VARCHAR(100), IN p_last_log_by INT, OUT p_contact_identification_id INT)
 BEGIN
     INSERT INTO contact_identification (contact_id, id_type_id, id_number, last_log_by) 
 	VALUES(p_contact_id, p_id_type_id, p_id_number, p_last_log_by);
+	
+    SET p_contact_identification_id = LAST_INSERT_ID();
 END //
 
 CREATE PROCEDURE updateContactIdentification(IN p_contact_identification_id INT, IN p_contact_id INT, IN p_id_type_id INT, IN p_id_number VARCHAR(100), IN p_last_log_by INT)
@@ -4418,6 +4422,14 @@ BEGIN
     SET contact_id = p_contact_id,
     id_type_id = p_id_type_id,
     id_number = p_id_number,
+    last_log_by = p_last_log_by
+    WHERE contact_identification_id = p_contact_identification_id;
+END //
+
+CREATE PROCEDURE updateContactIdentificationImage(IN p_contact_identification_id INT, IN p_id_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_identification
+    SET id_image = p_id_image,
     last_log_by = p_last_log_by
     WHERE contact_identification_id = p_contact_identification_id;
 END //
@@ -4450,7 +4462,7 @@ END //
 
 CREATE PROCEDURE generateContactIdentificationSummary(IN p_contact_id INT)
 BEGIN
-	SELECT contact_identification_id, id_type_id, id_number, is_primary
+	SELECT *
     FROM contact_identification
     WHERE contact_id = p_contact_id 
     ORDER BY is_primary DESC;
@@ -5530,6 +5542,14 @@ BEGIN
     receiver_name = p_receiver_name,
     receiver_department = p_receiver_department,
     receiver_department_name = p_receiver_department_name,
+    last_log_by = p_last_log_by
+    WHERE transmittal_id = p_transmittal_id;
+END //
+
+CREATE PROCEDURE updateTransmittalImage(IN p_transmittal_id INT, IN p_transmittal_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE transmittal
+    SET transmittal_image = p_transmittal_image,
     last_log_by = p_last_log_by
     WHERE transmittal_id = p_transmittal_id;
 END //
@@ -7056,21 +7076,23 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, remarks, created_by, initial_approving_officer, final_approving_officer, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_remarks, p_created_by, p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, for_change_color, new_color, for_change_body, new_body, remarks, created_by, initial_approving_officer, final_approving_officer, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_for_change_color, p_new_color, p_for_change_body, p_new_body, p_remarks, p_created_by, p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal
-    SET sales_proposal_number = p_sales_proposal_number,
-    customer_id = p_customer_id,
+    SET customer_id = p_customer_id,
     comaker_id = p_comaker_id,
     product_id = p_product_id,
+    product_type = p_product_type,
+    transaction_type = p_transaction_type,
+    financing_institution = p_financing_institution,
     referred_by = p_referred_by,
     release_date = p_release_date,
     start_date = p_start_date,
@@ -7082,6 +7104,10 @@ BEGIN
     for_registration = p_for_registration,
     with_cr = p_with_cr,
     for_transfer = p_for_transfer,
+    for_change_color = p_for_change_color,
+    new_color = p_new_color,
+    for_change_body = p_for_change_body,
+    new_body = p_new_body,
     remarks = p_remarks,
     initial_approving_officer = p_initial_approving_officer,
     final_approving_officer = p_final_approving_officer,
@@ -7139,6 +7165,22 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     END IF;
+END //
+
+CREATE PROCEDURE updateSalesProposalClientConfirmation(IN p_sales_proposal_id INT, IN p_client_confirmation VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET client_confirmation = p_client_confirmation,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalCreditAdvice(IN p_sales_proposal_id INT, IN p_credit_advice VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET credit_advice = p_credit_advice,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE deleteSalesProposal(IN p_sales_proposal_id INT)

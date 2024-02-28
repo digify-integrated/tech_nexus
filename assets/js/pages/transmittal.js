@@ -920,11 +920,17 @@ function transmittalForm(){
         submitHandler: function(form) {
             const transmittal_id = $('#transmittal-id').text();
             const transaction = 'save transmittal';
+    
+            var formData = new FormData(form);
+            formData.append('transmittal_id', transmittal_id);
+            formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/transmittal-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&transmittal_id=' + transmittal_id,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
@@ -1014,6 +1020,7 @@ function displayDetails(transaction){
                         document.getElementById('transmittal_status').innerHTML = response.transmittalStatusBadge;
 
                         checkOptionExist('#receiver_department', response.receiverDepartment, '');
+                        document.getElementById('transmittal-image').src = response.transmittalImage;
 
                         $('#transmittal_description_label').text(response.transmittalDescription);
                         $('#receiver_department_label').text(response.departmentName);

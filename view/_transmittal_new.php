@@ -34,6 +34,12 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Transmittal Image</label>
+            <div class="col-lg-10">
+              <input type="file" class="form-control" id="transmittal_file" name="transmittal_file">
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Description <span class="text-danger">*</span></label>
             <div class="col-lg-10">
               <textarea class="form-control" id="transmittal_description" name="transmittal_description" maxlength="500" rows="3"></textarea>

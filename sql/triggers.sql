@@ -4422,6 +4422,18 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Product ID: ", OLD.product_id, " -> ", NEW.product_id, "<br/>");
     END IF;
 
+    IF NEW.product_type <> OLD.product_type THEN
+        SET audit_log = CONCAT(audit_log, "Product Type: ", OLD.product_type, " -> ", NEW.product_type, "<br/>");
+    END IF;
+
+    IF NEW.transaction_type <> OLD.transaction_type THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Type: ", OLD.transaction_type, " -> ", NEW.transaction_type, "<br/>");
+    END IF;
+
+    IF NEW.financing_institution <> OLD.financing_institution THEN
+        SET audit_log = CONCAT(audit_log, "Financing Institution: ", OLD.financing_institution, " -> ", NEW.financing_institution, "<br/>");
+    END IF;
+
     IF NEW.referred_by <> OLD.referred_by THEN
         SET audit_log = CONCAT(audit_log, "Referred By: ", OLD.referred_by, " -> ", NEW.referred_by, "<br/>");
     END IF;
@@ -4464,6 +4476,22 @@ BEGIN
 
     IF NEW.for_transfer <> OLD.for_transfer THEN
         SET audit_log = CONCAT(audit_log, "For Transfer: ", OLD.for_transfer, " -> ", NEW.for_transfer, "<br/>");
+    END IF;
+
+    IF NEW.for_change_color <> OLD.for_change_color THEN
+        SET audit_log = CONCAT(audit_log, "For Change Color: ", OLD.for_change_color, " -> ", NEW.for_change_color, "<br/>");
+    END IF;
+
+    IF NEW.new_color <> OLD.new_color THEN
+        SET audit_log = CONCAT(audit_log, "New Color: ", OLD.new_color, " -> ", NEW.new_color, "<br/>");
+    END IF;
+
+    IF NEW.for_change_body <> OLD.for_change_body THEN
+        SET audit_log = CONCAT(audit_log, "For Change Body: ", OLD.for_change_body, " -> ", NEW.for_change_body, "<br/>");
+    END IF;
+
+    IF NEW.new_body <> OLD.new_body THEN
+        SET audit_log = CONCAT(audit_log, "New Body: ", OLD.new_body, " -> ", NEW.new_body, "<br/>");
     END IF;
 
     IF NEW.remarks <> OLD.remarks THEN
@@ -4562,6 +4590,18 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Product ID: ", NEW.product_id);
     END IF;
 
+    IF NEW.product_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Type: ", NEW.product_type);
+    END IF;
+
+    IF NEW.transaction_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Type: ", NEW.transaction_type);
+    END IF;
+
+    IF NEW.financing_institution <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Financing Institution: ", NEW.financing_institution);
+    END IF;
+
     IF NEW.referred_by <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Referred By: ", NEW.referred_by);
     END IF;
@@ -4604,6 +4644,22 @@ BEGIN
 
     IF NEW.for_transfer <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>For Transfer: ", NEW.for_transfer);
+    END IF;
+
+    IF NEW.for_change_color <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Change Color: ", NEW.for_change_color);
+    END IF;
+
+    IF NEW.new_color <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>New Color: ", NEW.new_color);
+    END IF;
+
+    IF NEW.for_change_body <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Change Body: ", NEW.for_change_body);
+    END IF;
+
+    IF NEW.new_body <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>New Body: ", NEW.new_body);
     END IF;
 
     IF NEW.remarks <> '' THEN

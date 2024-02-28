@@ -119,6 +119,82 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: transmittal summary table
+        # Description:
+        # Generates the transmittal summary table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'transmittal summary table':
+            if(isset($_POST['filter_transmittal_date_start_date']) && isset($_POST['filter_transmittal_date_end_date']) && isset($_POST['transmittal_status_filter'])){
+                $filterTransmmittalDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_start_date'], '', 'Y-m-d', '');
+                $filterTransmmittalDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_end_date'], '', 'Y-m-d', '');
+                $filterTransmittalStatus = $_POST['transmittal_status_filter'];
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAllTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
+                $sql->bindValue(':filterTransmmittalDateStartDate', $filterTransmmittalDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterTransmmittalDateEndDate', $filterTransmmittalDateEndDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterTransmittalStatus', $filterTransmittalStatus, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $transmittalID = $row['transmittal_id'];
+                    $transmittalDescription = $row['transmittal_description'];
+                    $transmitterID = $row['transmitter_id'];
+                    $transmitterDepartment = $row['transmitter_department'];
+                    $receiverID = $row['receiver_id'];
+                    $receiverDepartment = $row['receiver_department'];
+                    $transmittalStatus = $row['transmittal_status'];
+                    $transmittalDate = $systemModel->checkDate('empty', $row['transmittal_date'], '', 'm/d/Y g:i:s a', '');
+
+                    $transmittalStatusBadge = $transmittalModel->getTransmittalStatus($transmittalStatus);
+
+                    $employeeDetails = $employeeModel->getPersonalInformation($transmitterID);
+                    $transmitterName = $employeeDetails['file_as'];
+
+                    $employeeDetails = $employeeModel->getPersonalInformation($receiverID);
+                    $receiverName = $employeeDetails['file_as'] ?? 'Anyone';
+
+                    $transmitterDepartmentName = $departmentModel->getDepartment($transmitterDepartment)['department_name'] ?? null;
+                    $receiverDepartmentName = $departmentModel->getDepartment($receiverDepartment)['department_name'] ?? null;
+
+                    $transmittalIDEncrypted = $securityModel->encryptData($transmittalID);
+
+                    if($transmittalStatus == 'Transmitted' || $transmittalStatus == 'Re-Transmitted'){
+                        $timeElapsed = $systemModel->timeElapsedString($transmittalDate);
+                    }
+                    else{
+                        $timeElapsed = '--';
+                    }
+
+                    $response[] = [
+                        'TRANSMITTAL_DESCRIPTION' => $transmittalDescription,
+                        'TRANSMITTED_FROM' => '<div class="col">
+                                                    <h6 class="mb-0">'. $transmitterName .'</h6>
+                                                    <p class="f-12 mb-0">'. $transmitterDepartmentName .'</p>
+                                                </div>',
+                        'TRANSMITTED_TO' => '<div class="col">
+                                                <h6 class="mb-0">'. $receiverName .'</h6>
+                                                <p class="f-12 mb-0">'. $receiverDepartmentName .'</p>
+                                            </div>',
+                        'TRANSMITTAL_DATE' => $transmittalDate,
+                        'TIME_ELAPSED' => $timeElapsed,
+                        'STATUS' => $transmittalStatusBadge
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
     }
 }
 

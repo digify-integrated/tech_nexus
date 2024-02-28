@@ -17,6 +17,9 @@ class TransmittalController {
     private $employeeModel;
     private $departmentModel;
     private $userModel;
+    private $uploadSettingModel;
+    private $fileExtensionModel;
+    private $systemModel;
     private $securityModel;
 
     # -------------------------------------------------------------
@@ -31,16 +34,20 @@ class TransmittalController {
     # - @param EmployeeModel $employeeModel     The EmployeeModel instance for employee related operations.
     # - @param DepartmentModel $departmentModel     The DepartmentModel instance for department related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SystemModel $systemModel     The SystemModel instance for user related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(TransmittalModel $transmittalModel, EmployeeModel $employeeModel, DepartmentModel $departmentModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(TransmittalModel $transmittalModel, EmployeeModel $employeeModel, DepartmentModel $departmentModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->transmittalModel = $transmittalModel;
         $this->employeeModel = $employeeModel;
         $this->departmentModel = $departmentModel;
         $this->userModel = $userModel;
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
+        $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
     # -------------------------------------------------------------
@@ -147,6 +154,13 @@ class TransmittalController {
             exit;
         }
 
+        $transmittalFileFileName = $_FILES['transmittal_file']['name'];
+        $transmittalFileFileSize = $_FILES['transmittal_file']['size'];
+        $transmittalFileFileError = $_FILES['transmittal_file']['error'];
+        $transmittalFileTempName = $_FILES['transmittal_file']['tmp_name'];
+        $transmittalFileFileExtension = explode('.', $transmittalFileFileName);
+        $transmittalFileActualFileExtension = strtolower(end($transmittalFileFileExtension));
+
         $transmitterDetails = $this->employeeModel->getPersonalInformation($contactID);
         $transmitterName = $transmitterDetails['file_as'] ?? null;
 
@@ -172,6 +186,72 @@ class TransmittalController {
             else{
                 $this->transmittalModel->updateTransmittal($transmittalID, $transmittalDescription, $receiverID, $receiverName, $receiverDepartment, $receiverDepartmentname, $userID);
             }
+
+            if(!empty($transmittalFileFileName)){
+                $transmittalDetails = $this->transmittalModel->getTransmittal($transmittalID);
+                $clientConfirmationImage = !empty($transmittalDetails['transmittal_image']) ? '.' . $transmittalDetails['transmittal_image'] : null;
+        
+                if(file_exists($transmittalImage)){
+                    if (!unlink($transmittalImage)) {
+                        echo json_encode(['success' => false, 'message' => 'Transmittal image cannot be deleted due to an error.']);
+                        exit;
+                    }
+                }
+
+                $uploadSetting = $this->uploadSettingModel->getUploadSetting(9);
+                $maxFileSize = $uploadSetting['max_file_size'];
+    
+                $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(9);
+                $allowedFileExtensions = [];
+    
+                foreach ($uploadSettingFileExtension as $row) {
+                    $fileExtensionID = $row['file_extension_id'];
+                    $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                    $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+                }
+    
+                if (!in_array($transmittalFileActualFileExtension, $allowedFileExtensions)) {
+                    $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                    echo json_encode($response);
+                    exit;
+                }
+                
+                if(empty($transmittalFileTempName)){
+                    echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                    exit;
+                }
+                
+                if($transmittalFileFileError){
+                    echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                    exit;
+                }
+                
+                if($transmittalFileFileSize > ($maxFileSize * 1048576)){
+                    echo json_encode(['success' => false, 'message' => 'The document file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                    exit;
+                }
+    
+                $fileName = $this->securityModel->generateFileName();
+                $fileNew = $fileName . '.' . $transmittalFileActualFileExtension;
+    
+                $directory = DEFAULT_TRANSMITTAL_RELATIVE_PATH_FILE;
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_TRANSMITTAL_FULL_PATH_FILE . $fileNew;
+                $filePath = $directory . $fileNew;
+    
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+    
+                if(!$directoryChecker){
+                    echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                    exit;
+                }
+    
+                if(!move_uploaded_file($transmittalFileTempName, $fileDestination)){
+                    echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                    exit;
+                }
+    
+                $this->transmittalModel->updateTransmittalImage($transmittalID, $filePath, $userID);
+            }
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'transmittalID' => $this->securityModel->encryptData($transmittalID)]);
             exit;
@@ -179,9 +259,67 @@ class TransmittalController {
         else {
             $transmittalID = $this->transmittalModel->insertTransmittal($transmittalDescription, $contactID, $contactID, $transmitterName, $transmitterDepartmentID, $transmitterDepartmentname, $receiverID, $receiverName, $receiverDepartment, $receiverDepartmentname, $userID);
 
+            if(!empty($transmittalFileFileName)){
+                $uploadSetting = $this->uploadSettingModel->getUploadSetting(9);
+                $maxFileSize = $uploadSetting['max_file_size'];
+    
+                $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(9);
+                $allowedFileExtensions = [];
+    
+                foreach ($uploadSettingFileExtension as $row) {
+                    $fileExtensionID = $row['file_extension_id'];
+                    $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                    $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+                }
+    
+                if (!in_array($transmittalFileActualFileExtension, $allowedFileExtensions)) {
+                    $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                    echo json_encode($response);
+                    exit;
+                }
+                
+                if(empty($transmittalFileTempName)){
+                    echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                    exit;
+                }
+                
+                if($transmittalFileFileError){
+                    echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                    exit;
+                }
+                
+                if($transmittalFileFileSize > ($maxFileSize * 1048576)){
+                    echo json_encode(['success' => false, 'message' => 'The document file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                    exit;
+                }
+    
+                $fileName = $this->securityModel->generateFileName();
+                $fileNew = $fileName . '.' . $transmittalFileActualFileExtension;
+    
+                $directory = DEFAULT_TRANSMITTAL_RELATIVE_PATH_FILE;
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_TRANSMITTAL_FULL_PATH_FILE . $fileNew;
+                $filePath = $directory . $fileNew;
+    
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+    
+                if(!$directoryChecker){
+                    echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                    exit;
+                }
+    
+                if(!move_uploaded_file($transmittalFileTempName, $fileDestination)){
+                    echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                    exit;
+                }
+    
+                $this->transmittalModel->updateTransmittalImage($transmittalID, $filePath, $userID);
+            }
+
             echo json_encode(['success' => true, 'insertRecord' => true, 'transmittalID' => $this->securityModel->encryptData($transmittalID)]);
             exit;
         }
+
+       
     }
     # -------------------------------------------------------------
 
@@ -817,6 +955,7 @@ class TransmittalController {
                 'receiverDepartment' => $receiverDepartment,
                 'departmentName' => $departmentname,
                 'receiverName' => $receiverName,
+                'transmittalImage' => $this->systemModel->checkImage($transmittalDetails['transmittal_image'], 'default'),
                 'transmittalStatusBadge' => $transmittalStatusBadge
             ];
 
@@ -834,9 +973,11 @@ require_once '../model/transmittal-model.php';
 require_once '../model/employee-model.php';
 require_once '../model/department-model.php';
 require_once '../model/user-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new TransmittalController(new TransmittalModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new TransmittalController(new TransmittalModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new DepartmentModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

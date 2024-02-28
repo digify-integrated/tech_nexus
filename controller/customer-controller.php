@@ -272,6 +272,7 @@ class CustomerController {
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
+        $corporateName = htmlspecialchars($_POST['corporate_name'], ENT_QUOTES, 'UTF-8');
         $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
         $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
         $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
@@ -300,13 +301,13 @@ class CustomerController {
         $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->customerModel->updatePersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->customerModel->updatePersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -390,6 +391,7 @@ class CustomerController {
         $contactInformationID = isset($_POST['contact_information_id']) ? htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8') : null;
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $contactInformationTypeID = htmlspecialchars($_POST['contact_information_type_id'], ENT_QUOTES, 'UTF-8');
+        $facebook = htmlspecialchars($_POST['contact_information_facebook'], ENT_QUOTES, 'UTF-8');
         $email = htmlspecialchars($_POST['contact_information_email'], ENT_QUOTES, 'UTF-8');
         $mobile = htmlspecialchars($_POST['contact_information_mobile'], ENT_QUOTES, 'UTF-8');
         $telephone = htmlspecialchars($_POST['contact_information_telephone'], ENT_QUOTES, 'UTF-8');
@@ -405,13 +407,13 @@ class CustomerController {
         $total = $checkContactInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->customerModel->updateContactInformation($contactInformationID, $customerID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+            $this->customerModel->updateContactInformation($contactInformationID, $customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->customerModel->insertContactInformation($customerID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+            $this->customerModel->insertContactInformation($customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -495,6 +497,13 @@ class CustomerController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $idImageFileName = $_FILES['id_image']['name'];
+        $idImageFileSize = $_FILES['id_image']['size'];
+        $idImageFileError = $_FILES['id_image']['error'];
+        $idImageTempName = $_FILES['id_image']['tmp_name'];
+        $idImageFileExtension = explode('.', $idImageFileName);
+        $idImageActualFileExtension = strtolower(end($idImageFileExtension));
     
         $checkContactIdentificationExist = $this->customerModel->checkContactIdentificationExist($contactIdentificationID);
         $total = $checkContactIdentificationExist['total'] ?? 0;
@@ -502,11 +511,136 @@ class CustomerController {
         if ($total > 0) {
             $this->customerModel->updateContactIdentification($contactIdentificationID, $customerID, $idTypeID, $idNumber, $userID);
 
+            if(!empty($idImageFileName)){
+                $contactIdentificationDetails = $this->customerModel->getContactIdentification($contactIdentificationID);
+                $idImage = !empty($contactIdentificationDetails['id_image']) ? '.' . $contactIdentificationDetails['id_image'] : null;
+            
+                if(file_exists($idImage)){
+                    if (!unlink($idImage)) {
+                        echo json_encode(['success' => false, 'message' => 'Transmittal image cannot be deleted due to an error.']);
+                        exit;
+                    }
+                }
+
+                $uploadSetting = $this->uploadSettingModel->getUploadSetting(10);
+                $maxFileSize = $uploadSetting['max_file_size'];
+        
+                $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(10);
+                $allowedFileExtensions = [];
+        
+                foreach ($uploadSettingFileExtension as $row) {
+                    $fileExtensionID = $row['file_extension_id'];
+                    $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                    $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+                }
+        
+                if (!in_array($idImageActualFileExtension, $allowedFileExtensions)) {
+                    $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                    echo json_encode($response);
+                    exit;
+                }
+                    
+                if(empty($idImageTempName)){
+                    echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                    exit;
+                }
+                    
+                if($idImageFileError){
+                    echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                    exit;
+                }
+                    
+                if($idImageFileSize > ($maxFileSize * 1048576)){
+                    echo json_encode(['success' => false, 'message' => 'The customer ID exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                    exit;
+                }
+        
+                $fileName = $this->securityModel->generateFileName();
+                $fileNew = $fileName . '.' . $idImageActualFileExtension;
+        
+                $directory = DEFAULT_CUSTOMER_RELATIVE_PATH_FILE . $customerID .'/customer_id/';
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_CUSTOMER_FULL_PATH_FILE . $customerID . '/customer_id/' . $fileNew;
+                $filePath = $directory . $fileNew;
+        
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+        
+                if(!$directoryChecker){
+                    echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                    exit;
+                }
+        
+                if(!move_uploaded_file($idImageTempName, $fileDestination)){
+                    echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                    exit;
+                }
+        
+                $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
+            }
+
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->customerModel->insertContactIdentification($customerID, $idTypeID, $idNumber, $userID);
+            $contactIdentificationID = $this->customerModel->insertContactIdentification($customerID, $idTypeID, $idNumber, $userID);
+
+            if(empty($idImageFileName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the ID image.']);
+                exit;
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(10);
+            $maxFileSize = $uploadSetting['max_file_size'];
+    
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(10);
+            $allowedFileExtensions = [];
+    
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+    
+            if (!in_array($idImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+                
+            if(empty($idImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                exit;
+            }
+                
+            if($idImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+                
+            if($idImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The customer ID exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+    
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $idImageActualFileExtension;
+    
+            $directory = DEFAULT_CUSTOMER_RELATIVE_PATH_FILE . $customerID .'/customer_id/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_CUSTOMER_FULL_PATH_FILE . $customerID . '/customer_id/' . $fileNew;
+            $filePath = $directory . $fileNew;
+    
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+    
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+    
+            if(!move_uploaded_file($idImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+    
+            $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -1159,6 +1293,7 @@ class CustomerController {
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
         $suffix = htmlspecialchars($_POST['suffix'], ENT_QUOTES, 'UTF-8');
         $nickname = htmlspecialchars($_POST['nickname'], ENT_QUOTES, 'UTF-8');
+        $corporateName = htmlspecialchars($_POST['corporate_name'], ENT_QUOTES, 'UTF-8');
         $bio = htmlspecialchars($_POST['bio'], ENT_QUOTES, 'UTF-8');
         $civilStatus = htmlspecialchars($_POST['civil_status'], ENT_QUOTES, 'UTF-8');
         $gender = htmlspecialchars($_POST['gender'], ENT_QUOTES, 'UTF-8');
@@ -1185,7 +1320,7 @@ class CustomerController {
         }
     
         $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
-        $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+        $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
         $this->systemSettingModel->updateSystemSettingValue(5, $customerUniqueID, $userID);
 
@@ -1974,6 +2109,7 @@ class CustomerController {
                 'lastName' => $lastName,
                 'suffix' => $suffix,
                 'nickname' => $customerDetails['nickname'],
+                'corporateName' => $customerDetails['corporate_name'],
                 'bio' => $customerDetails['bio'] ?? 'No personal summary.',
                 'civilStatusID' => $civilStatusID,
                 'genderID' => $genderID,

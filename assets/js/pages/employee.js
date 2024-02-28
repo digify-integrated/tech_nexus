@@ -2419,11 +2419,15 @@ function contactInformationForm(){
             contact_information_type_id: {
                 required: true
             },
+            contact_information_facebook: {
+                required: true
+            },
             contact_information_email: {
                 contactInformationRequired: true
             },
             contact_information_mobile: {
-                contactInformationRequired: true
+                contactInformationRequired: true,
+                mobile_number_format: true
             },
             contact_information_telephone: {
                 contactInformationRequired: true
@@ -2432,6 +2436,9 @@ function contactInformationForm(){
         messages: {
             contact_information_type_id: {
                 required: 'Please choose the contact information type'
+            },
+            contact_information_facebook: {
+                required: 'Please enter the Facebook account'
             }
         },
         errorPlacement: function (error, element) {
@@ -2660,13 +2667,19 @@ function employeeIdentificationForm(){
             }
         },
         submitHandler: function(form) {
-            const employee_id = $('#employee-id').text();
+            const customer_id = $('#customer-id').text();
             const transaction = 'save contact identification';
+    
+            var formData = new FormData(form);
+            formData.append('customer_id', customer_id);
+            formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/employee-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&employee_id=' + employee_id,
+                url: 'controller/customer-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-contact-identification');
@@ -2697,7 +2710,7 @@ function employeeIdentificationForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-identification', 'Submit');
                     $('#contact-identification-offcanvas').offcanvas('hide');
-                    employeeIdentificationSummary();
+                    customerIdentificationSummary();
                     resetModalForm('contact-identification-form');
                 }
             });

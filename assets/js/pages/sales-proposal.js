@@ -26,10 +26,18 @@
             displayDetails('get sales proposal pricing computation details');
             displayDetails('get sales proposal other charges details');
             displayDetails('get sales proposal renewal amount details');
-            salesProposalSummaryAccessoriesTable();
+            //salesProposalSummaryAccessoriesTable();
             salesProposalSummaryJobOrderTable();
             salesProposalSummaryAdditionalJobOrderTable();
             salesProposalSummaryDepositTable();
+
+            if($('#sales-proposal-client-confirmation-form').length){
+                salesProposalClientConfirmationForm();
+            }
+
+            if($('#sales-proposal-credit-advice-form').length){
+                salesProposalCreditAdviceForm();
+            }
 
             if($('#sales-proposal-initial-approval-form').length){
                 salesProposalInitalApprovalForm();
@@ -435,6 +443,46 @@
             }
         }
 
+        $(document).on('change','#product_type',function() {
+            if($(this).val() == 'Unit'){
+                $('#stock-row').removeClass('d-none'); 
+            }
+            else{
+                $('#stock-row').addClass('d-none'); 
+                checkOptionExist('#product_id', '', '');
+            }
+        });
+
+        $(document).on('change','#transaction_type',function() {
+            if($(this).val() == 'Bank Financing'){
+                $('#financing-institution-row').removeClass('d-none'); 
+            }
+            else{
+                $('#financing-institution-row').addClass('d-none');
+                $('#financing_institution').val('');
+            }
+        });
+
+        $(document).on('change','#for_change_color',function() {
+            if($(this).val() == 'Yes'){
+                $("#new_color").attr("readonly", false); 
+            }
+            else{
+                $('#new_color').val('');
+                $("#new_color").attr("readonly", true); 
+            }
+        });
+
+        $(document).on('change','#for_change_body',function() {
+            if($(this).val() == 'Yes'){
+                $("#new_body").attr("readonly", false); 
+            }
+            else{
+                $('#new_body').val('');
+                $("#new_body").attr("readonly", true); 
+            }
+        });
+
         $(document).on('change','#product_id',function() {
             if($(this).val() != ''){
                 displayDetails('get product details');
@@ -492,7 +540,16 @@
         });
         
         $(document).on('click','#next-step-3',function() {
-            nextStep(3);
+            if($('#delivery_price').valid()){
+                nextStep(3);
+            }
+            else{
+                showNotification('Form Required', 'Kindly fill-out all of the required fields before proceeding.', 'warning');
+            }
+        });
+
+        $(document).on('click','#next-step-3-normal',function() {
+            nextStep(4);
         });
         
         $(document).on('click','#prev-step-4',function() {
@@ -500,28 +557,11 @@
         });
         
         $(document).on('click','#next-step-4',function() {
-            if($('#delivery_price').valid()){
-                nextStep(4);
-            }
-            else{
-                showNotification('Form Required', 'Kindly fill-out all of the required fields before proceeding.', 'warning');
-            }
-        });
-
-        $(document).on('click','#next-step-4-normal',function() {
             nextStep(4);
         });
         
         $(document).on('click','#prev-step-5',function() {
             prevStep(5);
-        });
-        
-        $(document).on('click','#next-step-5',function() {
-            nextStep(5);
-        });
-        
-        $(document).on('click','#prev-step-6',function() {
-            prevStep(6);
         });
         
         $(document).on('change','#payment_frequency',function() {
@@ -1078,11 +1118,32 @@ function salesProposalSummaryDepositTable(){
 function addSalesProposalForm(){
     $('#add-sales-proposal-form').validate({
         rules: {
-            product_id: {
+            product_type: {
                 required: true
             },
-            referred_by: {
+            product_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Unit';
+                    }
+                }
+            },
+            transaction_type: {
                 required: true
+            },
+            financing_institution: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='transaction_type']").val() === 'Bank Financing';
+                    }
+                }
+            },
+            comaker_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='transaction_type']").val() === 'Installment Sales';
+                    }
+                }
             },
             release_date: {
                 required: true
@@ -1120,13 +1181,42 @@ function addSalesProposalForm(){
             for_transfer: {
                 required: true
             },
+            for_change_color: {
+                required: true
+            },
+            new_color: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_color']").val() === 'Yes';
+                    }
+                }
+            },
+            for_change_body: {
+                required: true
+            },
+            new_body: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_body']").val() === 'Yes';
+                    }
+                }
+            },
         },
         messages: {
-            product_id: {
-                required: 'Please choose the product'
+            product_type: {
+                required: 'Please choose the product type'
             },
-            referred_by: {
-                required: 'Please enter the referred by'
+            product_id: {
+                required: 'Please choose the stock'
+            },
+            transaction_type: {
+                required: 'Please choose the transaction type'
+            },
+            financing_institution: {
+                required: 'Please enter the financing institution'
+            },
+            comaker_id: {
+                required: 'Please choose the comaker'
             },
             release_date: {
                 required: 'Please choose the estimated date of release'
@@ -1154,6 +1244,12 @@ function addSalesProposalForm(){
             },
             final_approving_officer: {
                 required: 'Please choose the final approving officer'
+            },
+            new_color: {
+                required: 'Please enter the new color'
+            },
+            new_body: {
+                required: 'Please enter the new body'
             },
         },
         errorPlacement: function (error, element) {
@@ -1235,11 +1331,13 @@ function addSalesProposalForm(){
 function salesProposalForm(){
     $('#sales-proposal-form').validate({
         rules: {
-            product_id: {
+            product_type: {
                 required: true
             },
-            referred_by: {
-                required: true
+            product_id: {
+                required: function(element) {
+                    return $("input[name='product_type']:checked").val() === 'Unit';
+                }
             },
             release_date: {
                 required: true
@@ -1279,11 +1377,11 @@ function salesProposalForm(){
             },
         },
         messages: {
-            product_id: {
-                required: 'Please choose the product'
+            product_type: {
+                required: 'Please choose the product type'
             },
-            referred_by: {
-                required: 'Please enter the referred by'
+            product_id: {
+                required: 'Please choose the stock'
             },
             release_date: {
                 required: 'Please choose the estimated date of release'
@@ -2453,6 +2551,188 @@ function salesProposalSetToDraftForm(){
     });
 }
 
+function salesProposalClientConfirmationForm(){
+    $('#sales-proposal-client-confirmation-form').validate({
+        rules: {
+            client_confirmation_image: {
+                required: true
+            },
+        },
+        messages: {
+            client_confirmation_image: {
+                required: 'Please choose the client confirmation image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal client confirmation';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-client-confirmation');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Client Confirmation Upload Success', 'The client confirmation has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-client-confirmation', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalCreditAdviceForm(){
+    $('#sales-proposal-credit-advice-form').validate({
+        rules: {
+            credit_advice_image: {
+                required: true
+            },
+        },
+        messages: {
+            credit_advice_image: {
+                required: 'Please choose the credit advice image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal credit advice';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-credit-advice');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Credit Advice Upload Success', 'The credit advice has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-credit-advice', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get sales proposal details':
@@ -2476,6 +2756,9 @@ function displayDetails(transaction){
                         $('#number_of_payments').val(response.numberOfPayments);
                         $('#first_due_date').val(response.firstDueDate);
                         $('#remarks').val(response.remarks);
+                        $('#financing_institution').val(response.financingInstitution);
+                        $('#new_color').val(response.newColor);
+                        $('#new_body').val(response.newBody);
 
                         $('#summary-sales-proposal-number').text(response.salesProposalNumber);
                         $('#summary-referred-by').text(response.referredBy);
@@ -2489,10 +2772,19 @@ function displayDetails(transaction){
                         $('#summary-created-by').text(response.createdByName);
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
+                        $('#summary-product-type').text(response.productType);
+                        $('#summary-transaction-type').text(response.transactionType);
+                        $('#summary-for-change-color').text(response.forChangeColor);
+                        $('#summary-new-color').text(response.newColor);
+                        $('#summary-for-body-change').text(response.forChangeBody);
+                        $('#summary-new-body').text(response.newBody);
 
                         $('#product_id_label').text(response.productName);
                         $('#comaker_id_label').text(response.comakerName);
                         $('#created-by').text(response.createdByName);
+                        $('#product_type_label').text(response.productType);
+                        $('#transaction_type_label').text(response.transactionType);
+                        $('#financing_institution_label').text(response.financingInstitution);
 
                         $('#initial-approval-by').text(response.initialApprovalByName);
                         $('#initial-approval-remarks').text(response.initialApprovalRemarks);
@@ -2522,14 +2814,25 @@ function displayDetails(transaction){
                         $('#remarks_label').text(response.remarks);
                         $('#initial_approving_officer_label').text(response.initialApprovingOfficerName);
                         $('#final_approving_officer_label').text(response.finalApprovingOfficerName);
+                        $('#for_change_color_label').text(response.forChangeColor);
+                        $('#new_color_label').text(response.newColor);
+                        $('#for_change_body_label').text(response.forChangeBody);
+                        $('#new_body_label').text(response.newBody);
+
+                        document.getElementById('client-confirmation-image').src = response.clientConfirmation;
+                        document.getElementById('credit-advice-image').src = response.creditAdvice;
 
                         checkOptionExist('#product_id', response.productID, '');
+                        checkOptionExist('#product_type', response.productType, '');
+                        checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
                         checkOptionExist('#term_type', response.termType, '');
                         checkOptionExist('#payment_frequency', response.paymentFrequency, '');
                         checkOptionExist('#for_registration', response.forRegistration, '');
                         checkOptionExist('#with_cr', response.withCR, '');
                         checkOptionExist('#for_transfer', response.forTransfer, '');
+                        checkOptionExist('#for_change_color', response.forChangeColor, '');
+                        checkOptionExist('#for_change_body', response.forChangeBody, '');
                         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
                         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
                     } 
@@ -2998,7 +3301,7 @@ function displayDetails(transaction){
                         $('#product_chassis_number').text(response.chassisNumber);
                         $('#product_plate_number').text(response.plateNumber);
 
-                        $('#summary-stock-no').text(response.stockNumber);
+                        $('#summary-stock-no').text(response.fullStockNumber);
                         $('#summary-engine-no').text(response.engineNumber);
                         $('#summary-chassis-no').text(response.chassisNumber);
                         $('#summary-plate-no').text(response.plateNumber);

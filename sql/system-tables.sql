@@ -32,7 +32,8 @@ CREATE INDEX users_index_user_id ON users(user_id);
 CREATE INDEX users_index_email ON users(email);
 
 INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('CGMI Bot', 'cgmintrasys@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2023-12-30', '0', '1');
-INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Administrator', 'lawrenceagulto.317@gmail.com', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2024-12-30', '0', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Lawrence Agulto', 'l.agulto@christianmotors.ph', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2024-12-30', '0', '1');
+INSERT INTO users (file_as, email, password, is_locked, is_active, password_expiry_date, two_factor_auth, last_log_by) VALUES ('Glen Bonita', 'glenbonita@christianmotors.ph', 'RYHObc8sNwIxdPDNJwCsO8bXKZJXYx7RjTgEWMC17FY%3D', '0', '1', '2024-12-30', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -110,6 +111,12 @@ INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES (
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Administrator', 'Full access to all features and data within the system. This role have similar access levels to the Admin but is not as powerful as the Super Admin.', '1', '1');
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Manager', 'Access to manage specific aspects of the system or resources related to their teams or departments.', '1', '1');
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Employee', 'The typical user account with standard access to use the system features and functionalities.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Human Resources', 'Access to manage HR-related functionalities and employee data.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Sales Proposal Approver', 'Access to approve or reject requests and transactions.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Accounting', 'Access to financial and accounting-related functionalities.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Accounting', 'Access to financial and accounting-related functionalities.', '1', '1');
+INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Sales', 'Access to sales-related functionalities and customer management.', '1', '1');
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -241,7 +248,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit Category', '6', 'unit-category.php', '59', '', '21', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Unit', '6', 'unit.php', '59', '', '21', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Warehouse', '6', 'warehouse.php', '59', '', '23', '1');
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Category', '6', 'product-category.php', '59', '', '16', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Price Category', '6', 'product-category.php', '59', '', '16', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product Subcategory', '6', 'product-subcategory.php', '59', '', '17', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Product', '6', 'product.php', '', 'box', '1', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Customer', '7', 'customer.php', '', 'users', '3', '1');
@@ -251,6 +258,8 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '70', '', '2', '1');
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '1', '1');
+
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal Summary', '4', 'transmittal-summary.php', '', 'file-text', '2', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -357,6 +366,7 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('70', '1', '1', '0', '0', '0', '0', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('71', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('72', '1', '1', '1', '0', '1', '1', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('73', '1', '1', '0', '0', '0', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -501,7 +511,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Sale
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Approved', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For CI', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Proceed', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejeceted', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejected', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -647,13 +657,6 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('120', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('121', '1', '1', '1');
-
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Initial Approval', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Cancel Sales Proposal', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Approved', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For CI', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Proceed', '1');
-INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejected', '1');
 
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('122', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('123', '1', '1', '1');
@@ -861,6 +864,10 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Document Upload', 'Sets the upload setting when uploading a document.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Product Image', 'Sets the upload setting when uploading product image.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Product Import', 'Sets the upload setting when importing product.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Transmittal Image', 'Sets the upload setting on transmittal.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Contact ID', 'Sets the upload setting on uploading contact identification.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Sales Proposal Client Confirmation', 'Sets the upload setting on uploading sales proposal client confirmation.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Sales Proposal Credit Advice', 'Sets the upload setting on uploading sales proposal credit advice.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -905,6 +912,34 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 66);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('7', 69);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('8', 25);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('9', 60);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('10', 60);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('11', 60);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 60);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3042,7 +3077,7 @@ CREATE TABLE email_setting(
 CREATE INDEX email_setting_index_email_setting_id ON email_setting(email_setting_id);
 
 INSERT INTO email_setting (email_setting_name, email_setting_description, mail_host, port, smtp_auth, smtp_auto_tls, mail_username, mail_password, mail_encryption, mail_from_name, mail_from_email, last_log_by) VALUES ('Security Email Setting', '
-Email setting for security emails.', 'smtp.hostinger.com', '465', '1', '0', 'encore-noreply@encorefinancials.com', 'UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D', 'ssl', 'encore-noreply@encorefinancials.com', 'encore-noreply@encorefinancials.com' , '1');
+Email setting for security emails.', 'smtp.hostinger.com', '465', '1', '0', 'cgmi-noreply@christianmotors.ph', 'UsDpF0dYRC6M9v0tT3MHq%2BlrRJu01%2Fb95Dq%2BAeCfu2Y%3D', 'ssl', 'cgmi-noreply@christianmotors.ph', 'cgmi-noreply@christianmotors.ph' , '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -3791,6 +3826,7 @@ CREATE TABLE personal_information(
 	last_name VARCHAR(300) NOT NULL,
 	suffix VARCHAR(10),
 	nickname VARCHAR(100),
+	corporate_name VARCHAR(300),
 	bio VARCHAR(1000),
     civil_status_id INT UNSIGNED,
     gender_id INT UNSIGNED,
@@ -3860,6 +3896,7 @@ CREATE TABLE contact_information (
     mobile VARCHAR(20),
 	telephone VARCHAR(20),
 	email VARCHAR(100),
+	facebook VARCHAR(300),
     is_primary TINYINT DEFAULT 0,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
@@ -3900,6 +3937,7 @@ CREATE TABLE contact_identification (
     contact_id INT UNSIGNED NOT NULL,
     id_type_id INT UNSIGNED NOT NULL,
     id_number VARCHAR(100) NOT NULL,
+    id_image VARCHAR(500),
     is_primary TINYINT DEFAULT 0,
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
@@ -4424,6 +4462,7 @@ CREATE TABLE transmittal (
     transmitter_name VARCHAR(500) NOT NULL,
     transmitter_department INT UNSIGNED NOT NULL,
     transmitter_department_name VARCHAR(100) NOT NULL,
+    transmittal_image VARCHAR(500),
     receiver_id INT UNSIGNED,
     receiver_name VARCHAR(500),
     receiver_department INT UNSIGNED,
@@ -4939,7 +4978,12 @@ CREATE TABLE sales_proposal(
 	sales_proposal_number VARCHAR(100) NOT NULL,
 	customer_id INT UNSIGNED NOT NULL,
 	comaker_id INT UNSIGNED,
-	product_id INT UNSIGNED NOT NULL,
+	product_id INT UNSIGNED,
+	product_type VARCHAR(100) NOT NULL,
+	transaction_type VARCHAR(100) NOT NULL,
+	financing_institution VARCHAR(200),
+	credit_advice VARCHAR(500),
+	client_confirmation VARCHAR(500),
 	referred_by VARCHAR(100),
 	release_date DATE NOT NULL,
 	start_date DATE NOT NULL,
@@ -4951,6 +4995,10 @@ CREATE TABLE sales_proposal(
 	for_registration VARCHAR(5) NOT NULL,
 	with_cr VARCHAR(5) NOT NULL,
 	for_transfer VARCHAR(5) NOT NULL,
+	for_change_color VARCHAR(5),
+	new_color VARCHAR(100),
+	for_change_body VARCHAR(5),
+	new_body VARCHAR(100),
 	remarks VARCHAR(500),
 	created_by INT UNSIGNED NOT NULL,
 	sales_proposal_status VARCHAR(50) DEFAULT 'Draft',

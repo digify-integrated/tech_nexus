@@ -222,9 +222,15 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6">
+                        <label class="form-label">Business/Corporate Name</label>
+                        <input type="text" class="form-control" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
+                      </div>
+                      <div class="col-lg-6">
                         <label class="form-label">Nickname</label>
                         <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
                       </div>
+                    </div>
+                    <div class="form-group row">
                       <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Birthday <span class="text-danger">*</span></label>
                         <div class="input-group date">
@@ -234,12 +240,12 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                           </span>
                         </div>
                       </div>
-                    </div>
-                    <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Birth Place <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
                       </div>
+                    </div>
+                    <div class="form-group row">
                       <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Gender <span class="text-danger">*</span></label>
                         <select class="form-control offcanvas-select2" name="gender" id="gender">
@@ -247,8 +253,6 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                           '. $genderModel->generateGenderOptions() .'
                         </select>
                       </div>
-                    </div>
-                    <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">Civil Status <span class="text-danger">*</span></label>
                         <select class="form-control offcanvas-select2" name="civil_status" id="civil_status">
@@ -256,30 +260,32 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                           '. $civilStatusModel->generateCivilStatusOptions() .'
                         </select>
                       </div>
-                    <div class="col-lg-6 mt-3 mt-lg-0">
-                      <label class="form-label">Religion</label>
-                        <select class="form-control offcanvas-select2" name="religion" id="religion">
-                          <option value="">--</option>
-                          '. $religionModel->generateReligionOptions() .'
-                        </select>
-                      </div>
                     </div>
                     <div class="form-group row">
-                      <div class="col-lg-4">
-                        <label class="form-label">Blood Type</label>
-                        <select class="form-control offcanvas-select2" name="blood_type" id="blood_type">
-                          <option value="">--</option>
-                          '. $bloodTypeModel->generateBloodTypeOptions() .'
-                        </select>
+                      <div class="col-lg-6 mt-3 mt-lg-0">
+                        <label class="form-label">Religion</label>
+                          <select class="form-control offcanvas-select2" name="religion" id="religion">
+                            <option value="">--</option>
+                            '. $religionModel->generateReligionOptions() .'
+                          </select>
+                        </div>
+                        <div class="col-lg-6">
+                          <label class="form-label">Blood Type</label>
+                          <select class="form-control offcanvas-select2" name="blood_type" id="blood_type">
+                            <option value="">--</option>
+                            '. $bloodTypeModel->generateBloodTypeOptions() .'
+                          </select>
+                        </div>
                       </div>
-                      <div class="col-lg-4 mt-3 mt-lg-0">
+                      <div class="form-group row">
+                      <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Height</label>
                         <div class="input-group">
                           <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
                           <span class="input-group-text">cm</span>
                         </div>
                       </div>
-                      <div class="col-lg-4 mt-3 mt-lg-0">
+                      <div class="col-lg-6 mt-3 mt-lg-0">
                         <label class="form-label">Weight</label>
                         <div class="input-group">
                           <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
@@ -331,6 +337,12 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                             </div>
                             <div class="form-group row">
                               <div class="col-lg-12">
+                                <label class="form-label" for="contact_information_facebook">Facebook <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contact_information_facebook" name="contact_information_facebook" maxlength="300" autocomplete="off">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-lg-12">
                                 <label class="form-label" for="contact_information_email">Email</label>
                                 <input type="email" class="form-control" id="contact_information_email" name="contact_information_email" maxlength="100" autocomplete="off">
                               </div>
@@ -338,7 +350,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                             <div class="form-group row">
                               <div class="col-lg-6">
                                 <label class="form-label" for="contact_information_mobile">Mobile</label>
-                                <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="20" autocomplete="off">
+                                <input type="text" class="form-control" id="contact_information_mobile" name="contact_information_mobile" maxlength="11" autocomplete="off">
                               </div>
                               <div class="col-lg-6 mt-3 mt-lg-0">
                                 <label class="form-label" for="contact_information_telephone">Telephone</label>
@@ -438,6 +450,12 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                               <div class="col-lg-12">
                                 <label class="form-label" for="id_number">ID Number <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="id_number" name="id_number" maxlength="100" autocomplete="off">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-lg-12">
+                                <label class="form-label" for="id_image">ID Image</label>
+                                <input type="file" class="form-control" id="id_image" name="id_image">
                               </div>
                             </div>
                           </form>

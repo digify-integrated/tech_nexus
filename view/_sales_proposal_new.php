@@ -14,12 +14,41 @@
       <div class="card-body">
         <form id="add-sales-proposal-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Product : <span class="text-danger">*</span></label>
+            <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="product_type" id="product_type">
+                <option value="">--</option>
+                <option value="Unit">Unit</option>
+                <option value="Fuel">Fuel</option>
+                <option value="Refinancing">Refinancing</option>
+                <option value="Real Estate">Real Estate</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row d-none" id="stock-row">
+            <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="product_id" id="product_id">
                 <option value="">--</option>
                 <?php echo $productModel->generateInStockProductOptions(); ?>
               </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Transaction Type : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="transaction_type" id="transaction_type">
+                <option value="">--</option>
+                <option value="COD">COD</option>
+                <option value="Installment Sales">Installment Sales</option>
+                <option value="Bank Financing">Bank Financing</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row d-none" id="financing-institution-row">
+            <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" class="form-control" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
@@ -32,7 +61,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Referred By : <span class="text-danger">*</span></label>
+            <label class="col-lg-4 col-form-label">Referred By :</label>
             <div class="col-lg-8">
               <input type="text" class="form-control" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
             </div>
@@ -135,6 +164,32 @@
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
               </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
+            <div class="col-lg-3">
+              <select class="form-control select2" name="for_change_color" id="for_change_color">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-5">
+              <input type="text" class="form-control" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+            <div class="col-lg-3">
+              <select class="form-control select2" name="for_change_body" id="for_change_body">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-5">
+              <input type="text" class="form-control" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">

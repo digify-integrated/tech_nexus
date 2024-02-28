@@ -3,6 +3,11 @@ $.validator.addMethod('password_strength', function(value) {
     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
 }, 'Password must contain at least one lowercase and uppercase letter, one number, one special character, and be 8 characters or longer.');
 
+$.validator.addMethod('mobile_number_format', function(value, element) {
+    // Check if there is a value and, if present, ensure it follows the format "09xxxxxxxxx"
+    return !value || /^(09\d{9})$/.test(value);
+}, 'Mobile number must be 11 characters long and follow the format "09xxxxxxxxx" when provided.');
+
 
 // Rule for legal age
 $.validator.addMethod('employee_age', function(value, element, min) {

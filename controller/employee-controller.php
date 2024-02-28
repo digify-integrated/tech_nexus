@@ -331,13 +331,13 @@ class EmployeeController {
         $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -419,8 +419,9 @@ class EmployeeController {
     
         $userID = $_SESSION['user_id'];
         $contactInformationID = isset($_POST['contact_information_id']) ? htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8') : null;
-        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $contactInformationTypeID = htmlspecialchars($_POST['contact_information_type_id'], ENT_QUOTES, 'UTF-8');
+        $facebook = htmlspecialchars($_POST['contact_information_facebook'], ENT_QUOTES, 'UTF-8');
         $email = htmlspecialchars($_POST['contact_information_email'], ENT_QUOTES, 'UTF-8');
         $mobile = htmlspecialchars($_POST['contact_information_mobile'], ENT_QUOTES, 'UTF-8');
         $telephone = htmlspecialchars($_POST['contact_information_telephone'], ENT_QUOTES, 'UTF-8');
@@ -432,17 +433,17 @@ class EmployeeController {
             exit;
         }
     
-        $checkContactInformationExist = $this->employeeModel->checkContactInformationExist($contactInformationID);
+        $checkContactInformationExist = $this->customerModel->checkContactInformationExist($contactInformationID);
         $total = $checkContactInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactInformation($contactInformationID, $employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+            $this->customerModel->updateContactInformation($contactInformationID, $customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertContactInformation($employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $userID);
+            $this->customerModel->insertContactInformation($customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -516,7 +517,7 @@ class EmployeeController {
     
         $userID = $_SESSION['user_id'];
         $contactIdentificationID = isset($_POST['contact_identification_id']) ? htmlspecialchars($_POST['contact_identification_id'], ENT_QUOTES, 'UTF-8') : null;
-        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $idTypeID = htmlspecialchars($_POST['id_type_id'], ENT_QUOTES, 'UTF-8');
         $idNumber = htmlspecialchars($_POST['id_number'], ENT_QUOTES, 'UTF-8');
 
@@ -526,18 +527,150 @@ class EmployeeController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $idImageFileName = $_FILES['id_image']['name'];
+        $idImageFileSize = $_FILES['id_image']['size'];
+        $idImageFileError = $_FILES['id_image']['error'];
+        $idImageTempName = $_FILES['id_image']['tmp_name'];
+        $idImageFileExtension = explode('.', $idImageFileName);
+        $idImageActualFileExtension = strtolower(end($idImageFileExtension));
     
-        $checkContactIdentificationExist = $this->employeeModel->checkContactIdentificationExist($contactIdentificationID);
+        $checkContactIdentificationExist = $this->customerModel->checkContactIdentificationExist($contactIdentificationID);
         $total = $checkContactIdentificationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updateContactIdentification($contactIdentificationID, $employeeID, $idTypeID, $idNumber, $userID);
+            $this->customerModel->updateContactIdentification($contactIdentificationID, $customerID, $idTypeID, $idNumber, $userID);
+
+            if(!empty($idImageFileName)){
+                $contactIdentificationDetails = $this->employeeModel->getContactIdentification($contactIdentificationID);
+                $idImage = !empty($contactIdentificationDetails['id_image']) ? '.' . $contactIdentificationDetails['id_image'] : null;
+            
+                if(file_exists($idImage)){
+                    if (!unlink($idImage)) {
+                        echo json_encode(['success' => false, 'message' => 'Transmittal image cannot be deleted due to an error.']);
+                        exit;
+                    }
+                }
+
+                $uploadSetting = $this->uploadSettingModel->getUploadSetting(10);
+                $maxFileSize = $uploadSetting['max_file_size'];
+        
+                $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(10);
+                $allowedFileExtensions = [];
+        
+                foreach ($uploadSettingFileExtension as $row) {
+                    $fileExtensionID = $row['file_extension_id'];
+                    $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                    $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+                }
+        
+                if (!in_array($idImageActualFileExtension, $allowedFileExtensions)) {
+                    $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                    echo json_encode($response);
+                    exit;
+                }
+                    
+                if(empty($idImageTempName)){
+                    echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                    exit;
+                }
+                    
+                if($idImageFileError){
+                    echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                    exit;
+                }
+                    
+                if($idImageFileSize > ($maxFileSize * 1048576)){
+                    echo json_encode(['success' => false, 'message' => 'The employee ID exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                    exit;
+                }
+        
+                $fileName = $this->securityModel->generateFileName();
+                $fileNew = $fileName . '.' . $idImageActualFileExtension;
+        
+                $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_id/';
+                $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_id/' . $fileNew;
+                $filePath = $directory . $fileNew;
+        
+                $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+        
+                if(!$directoryChecker){
+                    echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                    exit;
+                }
+        
+                if(!move_uploaded_file($idImageTempName, $fileDestination)){
+                    echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                    exit;
+                }
+        
+                $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
+            }
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertContactIdentification($employeeID, $idTypeID, $idNumber, $userID);
+            $contactIdentificationID = $this->customerModel->insertContactIdentification($customerID, $idTypeID, $idNumber, $userID);
+
+            if(empty($idImageFileName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the ID image.']);
+                exit;
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(10);
+            $maxFileSize = $uploadSetting['max_file_size'];
+    
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(10);
+            $allowedFileExtensions = [];
+    
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+    
+            if (!in_array($idImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+                
+            if(empty($idImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                exit;
+            }
+                
+            if($idImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+                
+            if($idImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The employee ID exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+    
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $idImageActualFileExtension;
+    
+            $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_id/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_id/' . $fileNew;
+            $filePath = $directory . $fileNew;
+    
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+    
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+    
+            if(!move_uploaded_file($idImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+    
+            $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;

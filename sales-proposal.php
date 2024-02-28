@@ -72,6 +72,9 @@
     $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
     $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
     $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+    $creditAdvice = $salesProposalDetails['credit_advice'];
+    $clientConfirmation = $salesProposalDetails['client_confirmation'];
+    $transactionType = $salesProposalDetails['transaction_type'];
     $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
   }
   else{

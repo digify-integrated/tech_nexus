@@ -23,19 +23,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-2" data-bs-toggle="tab" href="#accessories-tab" role="tab" aria-controls="accessories-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
-              <div class="media align-items-center">
-                <div class="avtar avtar-s">
-                  <i class="ti ti-briefcase"></i>
-                </div>
-                <div class="media-body ms-2">
-                  <h5 class="mb-0">Accessories</h5>
-                </div>
-              </div>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#job-order-tab" role="tab" aria-controls="job-order-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+            <a class="nav-link" id="sales-proposal-tab-2" data-bs-toggle="tab" href="#job-order-tab" role="tab" aria-controls="job-order-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
               <div class="media align-items-center">
                 <div class="avtar avtar-s">
                   <i class="ti ti-clipboard"></i>
@@ -47,7 +35,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-4" data-bs-toggle="tab" href="#other-charges-tab" role="tab" aria-controls="other-charges-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+            <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#other-charges-tab" role="tab" aria-controls="other-charges-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
               <div class="media align-items-center">
                 <div class="avtar avtar-s">
                   <i class="ti ti-credit-card"></i>
@@ -59,7 +47,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#additional-job-order-tab" role="tab" aria-controls="additional-job-order-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+            <a class="nav-link" id="sales-proposal-tab-4" data-bs-toggle="tab" href="#additional-job-order-tab" role="tab" aria-controls="additional-job-order-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
               <div class="media align-items-center">
                 <div class="avtar avtar-s">
                   <i class="ti ti-file-plus"></i>
@@ -71,7 +59,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="tab" href="#summary-tab" role="tab" aria-controls="summary-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+            <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#summary-tab" role="tab" aria-controls="summary-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
               <div class="media align-items-center">
                 <div class="avtar avtar-s">
                   <i class="ti ti-printer"></i>
@@ -108,6 +96,14 @@
                         }
                         else{
                           echo '<button type="button" class="btn btn-primary" id="next-step-1-normal">Next</button>';
+                        }
+
+                        if($salesProposalSatus == 'For Final Approval'){
+                          echo '<button class="btn btn-success m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
+
+                          if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
+                            echo '<button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
+                          }
                         }
                       ?>
                     </div>
@@ -148,12 +144,41 @@
                                 </div>
                               </div>
                               <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">Product : <span class="text-danger">*</span></label>
+                                <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <select class="form-control select2" name="product_type" id="product_type">
+                                    <option value="">--</option>
+                                    <option value="Unit">Unit</option>
+                                    <option value="Fuel">Fuel</option>
+                                    <option value="Refinancing">Refinancing</option>
+                                    <option value="Real Estate">Real Estate</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="form-group row d-none" id="stock-row">
+                                <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                   <select class="form-control select2" name="product_id" id="product_id">
                                     <option value="">--</option>
                                     '. $productModel->generateInStockProductOptions() .'
                                   </select>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Transaction Type : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <select class="form-control select2" name="transaction_type" id="transaction_type">
+                                    <option value="">--</option>
+                                    <option value="COD">COD</option>
+                                    <option value="Installment Sales">Installment Sales</option>
+                                    <option value="Bank Financing">Bank Financing</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="form-group row d-none" id="financing-institution-row">
+                                <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                <input type="text" class="form-control" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -166,7 +191,7 @@
                                 </div>
                               </div>
                               <div class="form-group row">
-                                <label class="col-lg-4 col-form-label">Referred By : <span class="text-danger">*</span></label>
+                                <label class="col-lg-4 col-form-label">Referred By :</label>
                                 <div class="col-lg-8">
                                   <input type="text" class="form-control" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
                                 </div>
@@ -272,6 +297,32 @@
                                 </div>
                               </div>
                               <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
+                                  <select class="form-control select2" name="for_change_color" id="for_change_color">
+                                    <option value="">--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                </div>
+                                <div class="col-lg-5">
+                                  <input type="text" class="form-control" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
+                                <div class="col-lg-3">
+                                  <select class="form-control select2" name="for_change_body" id="for_change_body">
+                                    <option value="">--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                </div>
+                                <div class="col-lg-5">
+                                  <input type="text" class="form-control" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
+                                </div>
+                              </div>
+                              <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Remarks :</label>
                                 <div class="col-lg-8">
                                   <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
@@ -291,10 +342,28 @@
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Product :</label>
+                              <label class="col-lg-4 col-form-label">Product Type :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="product_type_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Stock :</label>
                               <div class="col-lg-8">
                                 <label class="col-form-label" id="product_id_label"></label>
                                 <label class="col-form-label d-none" id="product_id_details"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Transaction Type :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="transaction_type_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Financing Institution :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="financing_institution_label"></label>
                               </div>
                             </div>
                             <div class="form-group row">
@@ -371,6 +440,24 @@
                               <label class="col-lg-4 col-form-label">For Transfer? :</label>
                               <div class="col-lg-8">
                                 <label class="col-form-label" id="for_transfer_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">For Change Color? :</label>
+                              <div class="col-lg-3">
+                                <label class="col-form-label" id="for_change_color_label"></label>
+                              </div>
+                              <div class="col-lg-5">
+                                <label class="col-form-label">New Color: <span id="new_color_label"></span></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">For Change Body? :</label>
+                              <div class="col-lg-3">
+                                <label class="col-form-label" id="for_change_body_label"></label>
+                              </div>
+                              <div class="col-lg-5">
+                                <label class="col-form-label">New Body: <span id="new_body_label"></span></label>
                               </div>
                             </div>
                             <div class="form-group row">
@@ -666,11 +753,43 @@
                   </ul>
                 </div>
               </div>
+              <div class="card">
+                <div class="card-body py-2">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                      <h5 class="mb-0">Client Confirmation </h5>
+                    </li>
+                    <li class="list-group-item px-0">
+                      <div class="row align-items-center mb-3">
+                        <div class="col-sm-12 mb-sm-0">
+                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Client Confirmation Image" id="client-confirmation-image" class="img-fluid rounded">
+                        </div>                      
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-body py-2">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                      <h5 class="mb-0">Credit Advice </h5>
+                    </li>
+                    <li class="list-group-item px-0">
+                      <div class="row align-items-center mb-3">
+                        <div class="col-sm-12 mb-sm-0">
+                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Credit Advice Image" id="credit-advice-image" class="img-fluid rounded">
+                        </div>                      
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="tab-pane" id="accessories-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-2">
+      <div class="tab-pane" id="job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-2">
         <div class="row">
           <div class="col-xl-12">
             <div class="card">
@@ -687,71 +806,6 @@
                   <div class="col-auto">
                     <button class="btn btn-warning" id="prev-step-2">Previous</button>
                     <button class="btn btn-primary" id="next-step-2">Next</button>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body border-bottom">
-                <div class="row align-items-center">
-                  <div class="col">
-                    <h5 class="mb-0">Accessories</h5>
-                  </div>
-                  <div class="col-auto">
-                    <?php
-                      if($salesProposalSatus == 'Draft'){
-                        echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-accessories-offcanvas" aria-controls="sales-proposal-accessories-offcanvas" id="add-sales-proposal-accessories">Add Accessories</button>';
-                      }
-                    ?>
-                            
-                  </div>
-                </div>
-              </div>
-              <div class="card-body p-0 table-body mb-4">
-                <div class="table-responsive">
-                  <table id="sales-proposal-accessories-table" class="table table-hover nowrap w-100">
-                    <thead>
-                      <tr>
-                        <th>Accessories</th>
-                        <th>Cost</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-body py-2">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item px-0">
-                    <div class="float-end">
-                      <h5 class="mb-0" id="sales-proposal-accessories-total">--</h5>
-                    </div>
-                    <h5 class="mb-0 d-inline-block">Total</h5>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="tab-pane" id="job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-3">
-        <div class="row">
-          <div class="col-xl-12">
-            <div class="card">
-              <div class="card-header">
-                <div class="row align-items-center my-2">
-                  <div class="col">
-                    <div class="progress" style="height: 6px">
-                      <div class="progress-bar bg-primary" style="width: 33.32%"></div>
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <p class="mb-0 h6">Step 3</p>
-                  </div>
-                  <div class="col-auto">
-                    <button class="btn btn-warning" id="prev-step-3">Previous</button>
-                    <button class="btn btn-primary" id="next-step-3">Next</button>
                   </div>
                 </div>
               </div>
@@ -799,7 +853,7 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane" id="other-charges-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-4">
+      <div class="tab-pane" id="other-charges-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-3">
         <div class="row">
           <div class="col-xl-12">
             <div class="card">
@@ -811,16 +865,16 @@
                     </div>
                   </div>
                   <div class="col-auto">
-                    <p class="mb-0 h6">Step 4</p>
+                    <p class="mb-0 h6">Step 3</p>
                   </div>
                   <div class="col-auto">
-                    <button class="btn btn-warning" id="prev-step-4">Previous</button>     
+                    <button class="btn btn-warning" id="prev-step-3">Previous</button>     
                     <?php
                       if($salesProposalSatus == 'Draft'){
-                        echo ' <button type="submit" for="sales-proposal-pricing-computation-form" class="btn btn-primary" id="next-step-4">Next</button>';
+                        echo ' <button type="submit" for="sales-proposal-pricing-computation-form" class="btn btn-primary" id="next-step-3">Next</button>';
                       }
                       else{
-                        echo ' <button type="button" class="btn btn-primary" id="next-step-4-normal">Next</button>';
+                        echo ' <button type="button" class="btn btn-primary" id="next-step-3-normal">Next</button>';
                       }
                     ?>
                   </div>
@@ -851,62 +905,62 @@
                   if($salesProposalSatus == 'Draft'){
                     echo '<form id="sales-proposal-pricing-computation-form" method="post" action="#">
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="delivery_price" name="delivery_price" step="0.01" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Cost of Accessories :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Cost of Accessories :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="cost_of_accessories" name="cost_of_accessories" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Reconditioning Cost :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Reconditioning Cost :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="reconditioning_cost" name="reconditioning_cost" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Sub-Total :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Sub-Total :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Downpayment :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Downpayment :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="downpayment" name="downpayment" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Outstanding Balance :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Outstanding Balance :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="outstanding_balance" name="outstanding_balance" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
                             <div class="form-group row d-none">
-                              <label class="col-lg-4 col-form-label">Amount Financed :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Amount Financed :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="amount_financed" name="amount_financed" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">PN Amount :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">PN Amount :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="pn_amount" name="pn_amount" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Repayment Amount :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Repayment Amount :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="repayment_amount" name="repayment_amount" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
@@ -914,62 +968,62 @@
                   }
                   else{
                     echo '<div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="delivery_price_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="interest_rate_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Cost of Accessories :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Cost of Accessories :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="cost_of_accessories_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Reconditioning Cost :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Reconditioning Cost :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="reconditioning_cost_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Sub-Total :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Sub-Total :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="subtotal_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Downpayment :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Downpayment :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="downpayment_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Outstanding Balance :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Outstanding Balance :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="outstanding_balance_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Amount Financed :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Amount Financed :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="amount_financed_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">PN Amount :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">PN Amount :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="pn_amount_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Repayment Amount :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Repayment Amount :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="repayment_amount_label"></label>
                             </div>
                           </div>';
@@ -999,50 +1053,50 @@
                   if($salesProposalSatus == 'Draft'){
                     echo '<form id="sales-proposal-other-charges-form" method="post" action="#">
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Insurance Coverage :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="insurance_coverage" name="insurance_coverage" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Insurance Premium :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Insurance Premium :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="insurance_premium" name="insurance_premium" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Handling Fee :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Handling Fee :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="handling_fee" name="handling_fee" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Transfer Fee :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Transfer Fee :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="transfer_fee" name="transfer_fee" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Registration Fee :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Registration Fee :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="registration_fee" name="registration_fee" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Doc. Stamp Tax :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Doc. Stamp Tax :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="doc_stamp_tax" name="doc_stamp_tax" step="0.01" value="0" min="0">
                               </div>
                             </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Transaction Fee :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Transaction Fee :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="transaction_fee" name="transaction_fee" step="0.01" value="0" min="0">
                               </div>
                               </div>
                             <div class="form-group row">
-                              <label class="col-lg-4 col-form-label">Total :</label>
-                              <div class="col-lg-8">
+                              <label class="col-lg-5 col-form-label">Total :</label>
+                              <div class="col-lg-7">
                                 <input type="number" class="form-control" id="total_other_charges" name="total_other_charges" step="0.01" value="0" min="0" readonly>
                               </div>
                             </div>
@@ -1050,50 +1104,50 @@
                   }
                   else{
                     echo '<div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Insurance Coverage :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="insurance_coverage_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Insurance Premium :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Insurance Premium :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="insurance_premium_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Handling Fee :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Handling Fee :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="handling_fee_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Transfer Fee :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Transfer Fee :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="transfer_fee_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Registration Fee :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Registration Fee :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="registration_fee_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Doc. Stamp Tax :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Doc. Stamp Tax :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="doc_stamp_tax_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Transaction Fee :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Transaction Fee :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="transaction_fee_label"></label>
                             </div>
                             </div>
                           <div class="form-group row">
-                            <label class="col-lg-4 col-form-label">Total :</label>
-                            <div class="col-lg-8">
+                            <label class="col-lg-5 col-form-label">Total :</label>
+                            <div class="col-lg-7">
                               <label class="col-form-label" id="total_other_charges_label"></label>
                             </div>
                           </div>';
@@ -1227,7 +1281,7 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane" id="additional-job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
+      <div class="tab-pane" id="additional-job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-4">
         <div class="row">
           <div class="col-xl-12">
             <div class="card">
@@ -1239,11 +1293,11 @@
                     </div>
                   </div>
                   <div class="col-auto">
-                    <p class="mb-0 h6">Step 5</p>
+                    <p class="mb-0 h6">Step 4</p>
                   </div>
                   <div class="col-auto">
-                    <button class="btn btn-warning" id="prev-step-5">Previous</button>
-                    <button class="btn btn-primary" id="next-step-5">Next</button>
+                    <button class="btn btn-warning" id="prev-step-4">Previous</button>
+                    <button class="btn btn-primary" id="next-step-4">Next</button>
                   </div>
                 </div>
               </div>
@@ -1254,7 +1308,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalSatus != 'Rejected' && $salesProposalSatus != 'Cancelled'){
                         echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>';
                       }
                     ?>
@@ -1293,7 +1347,7 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane" id="summary-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-6">
+      <div class="tab-pane" id="summary-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
         <div class="row">
           <div class="col-xl-12">
             <div class="card">
@@ -1305,10 +1359,10 @@
                     </div>
                   </div>
                   <div class="col-auto">
-                    <p class="mb-0 h6">Step 6</p>
+                    <p class="mb-0 h6">Step 5</p>
                   </div>
                   <div class="col-auto">
-                    <button class="btn btn-warning" id="prev-step-6">Previous</button>
+                    <button class="btn btn-warning" id="prev-step-5">Previous</button>
                     <a href="javascript:window.print()" class="btn btn-outline-info me-1">Print</a>
                     <?php
                       if($salesProposalSatus == 'Draft' && $forInitialApproval['total'] > 0){
@@ -1319,8 +1373,10 @@
                         echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>';
                       }
 
-                      if(($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id){
-                        echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>';
+                      if(($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id && !empty($clientConfirmation)){
+                        if($transactionType == 'COD' || $transactionType == 'Installment Sales' || ($transactionType == 'Bank Financing' && !empty($creditAdvice))){
+                          echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>';
+                        }
                       }
 
                       if((($salesProposalSatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
@@ -1372,26 +1428,25 @@
                             <tr>
                               <td colspan="2"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
                               <td colspan="2"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
-                              <td colspan="2"><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
-                              <td colspan="2"><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
+                              <td><small style="color:#c60206"><b>PRODUCT TYPE</b></small><br/><span id="summary-product-type"></span></td>
+                              <td><small style="color:#c60206"><b>TANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
+                              <td><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
+                              <td><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
                             </tr>
                             <tr>
                               <td colspan="2"><small style="color:#c60206"><b>STOCK NO.</b></small><br/><span id="summary-stock-no"></span></td>
                               <td><small style="color:#c60206"><b>ENGINE NO.</b></small><br/><span id="summary-engine-no"></span></td>
                               <td><small style="color:#c60206"><b>CHASSIS NO.</b></small><br/><span id="summary-chassis-no"></span></td>
-                              <td><small style="color:#c60206"><b>PLATE NO.</b></small><br/><span id="summary-plate-no"></span></td>
+                              <td style="vertical-align: top !important;"><small style="color:#c60206;:"><b>PLATE NO.</b></small><br/><span id="summary-plate-no"></span></td>
                               <td><small style="color:#c60206"><b>FOR REGISTRATION?</b></small><br/><span id="summary-for-registration"></span></td>
                               <td><small style="color:#c60206"><b>WITH CR?</b></small><br/><span id="summary-with-cr"></span></td>
                               <td><small style="color:#c60206"><b>FOR TRANSFER?</b></small><br/><span id="summary-for-transfer"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="8" style="padding-bottom:0 !important;"><small><b><span style="color:#c60206; margin-right: 20px;">ACCESSORIES</span> TOTAL COST <span id="summary-accessories-total"></span></b></small><br/><br/>
-                                <div class="row pb-0 mb-0">
-                                  <div class="col-lg-12">
-                                    <div class="table-responsive" id="summary-accessories-table"></div>
-                                  </div>
-                                </div>
-                              </td>
+                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>FOR CHANGE COLOR?</b></small><br/><span id="summary-for-change-color"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>NEW COLOR?</b></small><br/><span id="summary-new-color"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>FOR CHANGE BODY?</b></small><br/><span id="summary-for-body-change"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>NEW BODY?</b></small><br/><span id="summary-new-body"></span></td>
                             </tr>
                             <tr>
                               <td colspan="8" style="padding-bottom:0 !important;"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
@@ -1414,11 +1469,7 @@
                                             <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-deliver-price"></td>
                                           </tr>
                                           <tr>
-                                            <td>ADD: COST OF ACCESSORIES</td>
-                                            <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-cost-of-accessories"></td>
-                                          </tr>
-                                          <tr>
-                                            <td>RECONDITIONING COST</td>
+                                            <td>ADD: RECONDITIONING COST</td>
                                             <td style="border-bottom: 1px solid black !important; text-align: right!important;" id="summary-reconditioning-cost"></td>
                                           </tr>
                                           <tr>
@@ -1942,6 +1993,64 @@
                   <div class="row">
                       <div class="col-lg-12">
                           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-proceed" form="sales-proposal-final-approval-form">Submit</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </di>
+                  </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <div>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-client-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
+              <div class="offcanvas-header">
+                  <h2 id="sales-proposal-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                  <div class="row">
+                      <div class="col-lg-12">
+                      <form id="sales-proposal-client-confirmation-form" method="post" action="#">
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
+                                  <input type="file" class="form-control" id="client_confirmation_image" name="client_confirmation_image">
+                              </div>
+                          </div>
+                      </form>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </di>
+                  </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <div>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-credit-advice-offcanvas" aria-labelledby="sales-proposal-credit-advice-offcanvas-label">
+              <div class="offcanvas-header">
+                  <h2 id="sales-proposal-credit-advice-offcanvas-label" style="margin-bottom:-0.5rem">Credit Advice</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                  <div class="row">
+                      <div class="col-lg-12">
+                      <form id="sales-proposal-credit-advice-form" method="post" action="#">
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
+                                  <input type="file" class="form-control" id="credit_advice_image" name="credit_advice_image">
+                              </div>
+                          </div>
+                      </form>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-credit-advice" form="sales-proposal-credit-advice-form">Submit</button>
                           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                       </di>
                   </div>

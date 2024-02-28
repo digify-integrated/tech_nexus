@@ -13,13 +13,18 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
     
-  $viewSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 116);
+  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 72, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
   $updateSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
   $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
   $forInitialApproval = $userModel->checkSystemActionAccessRights($user_id, 122);
+  $cancelSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 123);
+  $initialApproveSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 124);
+  $forCISalesProposal = $userModel->checkSystemActionAccessRights($user_id, 125);
+  $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
+  $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
 
-  if ($viewSalesProposal['total'] == 0) {
+  if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
@@ -67,6 +72,9 @@
     $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
     $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
     $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+    $creditAdvice = $salesProposalDetails['credit_advice'];
+    $clientConfirmation = $salesProposalDetails['client_confirmation'];
+    $transactionType = $salesProposalDetails['transaction_type'];
     $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
   }
   else{

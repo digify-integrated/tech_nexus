@@ -39,10 +39,16 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Business/Corporate Name</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="corporate_name" name="corporate_name" maxlength="300" autocomplete="off">
+            </div>
             <label class="col-lg-2 col-form-label">Nickname</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="nickname" name="nickname" maxlength="100" autocomplete="off">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Birthday <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <div class="input-group date">
@@ -52,12 +58,12 @@
                 </span>
               </div>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Birth Place <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Gender <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="gender" id="gender">
@@ -65,8 +71,6 @@
                 <?php echo $genderModel->generateGenderOptions(); ?>
               </select>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Civil Status <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="civil_status" id="civil_status">
@@ -74,6 +78,8 @@
                 <?php echo $civilStatusModel->generateCivilStatusOptions(); ?>
               </select>
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Religion</label>
             <div class="col-lg-4">
               <select class="form-control select2" name="religion" id="religion">
@@ -81,8 +87,6 @@
                 <?php echo $religionModel->generateReligionOptions(); ?>
               </select>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Blood Type</label>
             <div class="col-lg-4">
               <select class="form-control select2" name="blood_type" id="blood_type">
@@ -90,6 +94,8 @@
                 <?php echo $bloodTypeModel->generateBloodTypeOptions(); ?>
               </select>
             </div>
+          </div>
+          <div class="form-group row">            
             <label class="col-lg-2 col-form-label">Height</label>
             <div class="col-lg-4">
               <div class="input-group">
@@ -97,8 +103,6 @@
                 <span class="input-group-text">cm</span>
               </div>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Weight</label>
             <div class="col-lg-4">
               <div class="input-group">

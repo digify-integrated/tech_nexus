@@ -588,12 +588,14 @@ class ProductController {
             $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
 
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+            $fullStockNumber = $productSubcategoryCode . $productDetails['stock_number'];
 
             $response = [
                 'success' => true,
                 'productSubcategoryID' => $productSubategoryID,
                 'companyID' => $productDetails['company_id'],
                 'stockNumber' => $stockNumber,
+                'fullStockNumber' => $fullStockNumber,
                 'engineNumber' => $productDetails['engine_number'],
                 'chassisNumber' => $productDetails['chassis_number'],
                 'plateNumber' => $productDetails['plate_number'],

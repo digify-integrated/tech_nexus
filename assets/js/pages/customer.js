@@ -1464,11 +1464,15 @@ function contactInformationForm(){
             contact_information_type_id: {
                 required: true
             },
+            contact_information_facebook: {
+                required: true
+            },
             contact_information_email: {
                 contactInformationRequired: true
             },
             contact_information_mobile: {
-                contactInformationRequired: true
+                contactInformationRequired: true,
+                mobile_number_format: true
             },
             contact_information_telephone: {
                 contactInformationRequired: true
@@ -1477,6 +1481,9 @@ function contactInformationForm(){
         messages: {
             contact_information_type_id: {
                 required: 'Please choose the contact information type'
+            },
+            contact_information_facebook: {
+                required: 'Please enter the Facebook account'
             }
         },
         errorPlacement: function (error, element) {
@@ -1707,11 +1714,17 @@ function customerIdentificationForm(){
         submitHandler: function(form) {
             const customer_id = $('#customer-id').text();
             const transaction = 'save contact identification';
+    
+            var formData = new FormData(form);
+            formData.append('customer_id', customer_id);
+            formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/customer-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&customer_id=' + customer_id,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-contact-identification');
@@ -2035,6 +2048,7 @@ function displayDetails(transaction){
                         $('#middle_name').val(response.middleName);
                         $('#suffix').val(response.suffix);
                         $('#nickname').val(response.nickname);
+                        $('#corporate_name').val(response.corporateName);
                         $('#birthday').val(response.birthday);
                         $('#birth_place').val(response.birthPlace);
                         $('#height').val(response.height);

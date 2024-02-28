@@ -481,19 +481,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'contact information summary':
-            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+            if(isset($_POST['customer_id']) && !empty($_POST['customer_id'])){
                 $details = '';
-                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+                $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateContactInformationSummary(:employeeID)');
-                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactInformationSummary(:customerID)');
+                $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
                 
                 $count = count($options);
 
-                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
                 $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 33);
                 $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 34);
                 $tagEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 35);
@@ -504,6 +504,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $mobile = $row['mobile'];
                     $telephone = $row['telephone'];
                     $email = $row['email'];
+                    $facebook = $row['facebook'];
                     $isPrimary = $row['is_primary'];
 
                     $isPrimaryBadge = $isPrimary ? '<span class="badge bg-light-success mt-3">Primary</span>' : '<span class="badge bg-light-info mt-3">Alternate</span>';
@@ -513,14 +514,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $mobile = !empty($mobile) ? '<p class="mb-0"><i class="ti ti-device-mobile me-2"></i> ' . $mobile . '</p>' : '';
                     $email = !empty($email) ? '<p class="mb-0"><i class="ti ti-mail me-2"></i> ' . $email . '</p>' : '';
                     $telephone = !empty($telephone) ? '<p class="mb-0"><i class="ti ti-phone me-2"></i> ' . $telephone . '</p>' : '';
+                    $facebook = !empty($facebook) ? '<p class="mb-0"><i class="ti ti-brand-facebook me-2"></i> ' . $facebook . '</p>' : '';
 
                     $dropdown = '';
-                    if ($employeeWriteAccess['total'] > 0) {
-                        $update = ($employeeWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-information" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="' . $contactInformationID . '">Edit</a>' : '';
+                    if ($customerWriteAccess['total'] > 0) {
+                        $update = ($customerWriteAccess['total'] > 0 && $updateEmployeeContactInformation['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-information" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" data-contact-information-id="' . $contactInformationID . '">Edit</a>' : '';
                     
-                        $tag = ($employeeWriteAccess['total'] > 0 && $tagEmployeeContactInformation['total'] > 0 && !$isPrimary) ? '<a href="javascript:void(0);" class="dropdown-item tag-contact-information-as-primary" data-contact-information-id="' . $contactInformationID . '">Tag As Primary</a>' : '';
+                        $tag = ($customerWriteAccess['total'] > 0 && $tagEmployeeContactInformation['total'] > 0 && !$isPrimary) ? '<a href="javascript:void(0);" class="dropdown-item tag-contact-information-as-primary" data-contact-information-id="' . $contactInformationID . '">Tag As Primary</a>' : '';
                     
-                        $delete = ($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactInformation['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-contact-information" data-contact-information-id="' . $contactInformationID . '">Delete</a>' : '';
+                        $delete = ($customerWriteAccess['total'] > 0 && $deleteEmployeeContactInformation['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-contact-information" data-contact-information-id="' . $contactInformationID . '">Delete</a>' : '';
                     
                         $dropdown = ($update || $tag || $delete) ? '<div class="dropdown">
                             <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -540,6 +542,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     <div class="d-flex align-items-start">
                                         <div class="flex-grow-1 me-2">
                                             <p class="mb-1 text-primary"><b>'. $contactInformationTypeName .'</b></p>
+                                            '. $facebook .'
                                             '. $email .'
                                             '. $mobile .'
                                             '. $telephone .'

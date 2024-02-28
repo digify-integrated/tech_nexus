@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-lg-12">
+  <div class="col-lg-8">
     <div class="card">
       <div class="card-header">
         <div class="row align-items-center">
@@ -85,6 +85,12 @@
                               </div>
                           </div>
                       </div>
+                      <div class="form-group row d-none form-edit">
+                        <label class="col-lg-2 col-form-label">Transmittal Image</label>
+                        <div class="col-lg-10">
+                          <input type="file" class="form-control" id="transmittal_file" name="transmittal_file">
+                        </div>
+                      </div>
                       <div class="form-group row">
                         <label class="col-lg-2 col-form-label">Description <span class="text-danger d-none form-edit">*</span></label>
                           <div class="col-lg-10">
@@ -114,6 +120,20 @@
             ?>
           </form>
         </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h5>Tramsmittal Image</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Transmittal Image" id="transmittal-image" class="img-fluid rounded">
       </div>
     </div>
   </div>

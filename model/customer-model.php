@@ -43,8 +43,8 @@ class CustomerModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+    public function updatePersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_corporate_name, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_corporate_name, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
@@ -52,6 +52,7 @@ class CustomerModel {
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_suffix', $p_suffix, PDO::PARAM_STR);
         $stmt->bindValue(':p_nickname', $p_nickname, PDO::PARAM_STR);
+        $stmt->bindValue(':p_corporate_name', $p_corporate_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_bio', $p_bio, PDO::PARAM_STR);
         $stmt->bindValue(':p_civil_status_id', $p_civil_status_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_gender_id', $p_gender_id, PDO::PARAM_INT);
@@ -149,14 +150,15 @@ class CustomerModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateContactInformation($p_contact_information_id, $p_contact_id, $p_contact_information_type_id, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateContactInformation (:p_contact_information_id, :p_contact_id, :p_contact_information_type_id, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+    public function updateContactInformation($p_contact_information_id, $p_contact_id, $p_contact_information_type_id, $p_mobile, $p_telephone, $p_email, $p_facebook, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactInformation (:p_contact_information_id, :p_contact_id, :p_contact_information_type_id, :p_mobile, :p_telephone, :p_email, :p_facebook, :p_last_log_by)');
         $stmt->bindValue(':p_contact_information_id', $p_contact_information_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_information_type_id', $p_contact_information_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
         $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_facebook', $p_facebook, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -379,6 +381,28 @@ class CustomerModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactIdentificationImage
+    # Description: Updates the customer status.
+    #
+    # Parameters:
+    # - $p_contact_identification_id (int): The contact ID.
+    # - $p_id_image (string): The contact status.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactIdentificationImage($p_contact_identification_id, $p_id_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactIdentificationImage (:p_contact_identification_id, :p_id_image, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_id_image', $p_id_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -492,8 +516,8 @@ class CustomerModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertPersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+    public function insertPersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_corporate_name, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :v, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
@@ -501,6 +525,7 @@ class CustomerModel {
         $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_suffix', $p_suffix, PDO::PARAM_STR);
         $stmt->bindValue(':p_nickname', $p_nickname, PDO::PARAM_STR);
+        $stmt->bindValue(':p_corporate_name', $p_corporate_name, PDO::PARAM_STR);
         $stmt->bindValue(':p_bio', $p_bio, PDO::PARAM_STR);
         $stmt->bindValue(':p_civil_status_id', $p_civil_status_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_gender_id', $p_gender_id, PDO::PARAM_INT);
@@ -575,13 +600,14 @@ class CustomerModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertContactInformation($p_contact_id, $p_contact_information_type_id, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertContactInformation (:p_contact_id, :p_contact_information_type_id, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+    public function insertContactInformation($p_contact_id, $p_contact_information_type_id, $p_mobile, $p_telephone, $p_email, $p_facebook, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactInformation (:p_contact_id, :p_contact_information_type_id, :p_mobile, :p_telephone, :p_email, :p_facebook, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_contact_information_type_id', $p_contact_information_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_mobile', $p_mobile, PDO::PARAM_STR);
         $stmt->bindValue(':p_telephone', $p_telephone, PDO::PARAM_STR);
         $stmt->bindValue(':p_email', $p_email, PDO::PARAM_STR);
+        $stmt->bindValue(':p_facebook', $p_facebook, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -628,12 +654,17 @@ class CustomerModel {
     #
     # -------------------------------------------------------------
     public function insertContactIdentification($p_contact_id, $p_id_type_id, $p_id_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertContactIdentification (:p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactIdentification(:p_contact_id, :p_id_type_id, :p_id_number, :p_last_log_by, @p_contact_identification_id)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_type_id', $p_id_type_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_id_number', $p_id_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_contact_identification_id AS p_contact_identification_id");
+        $p_contact_identification_id = $result->fetch(PDO::FETCH_ASSOC)['p_contact_identification_id'];
+
+        return $p_contact_identification_id;
     }
     # -------------------------------------------------------------
 
