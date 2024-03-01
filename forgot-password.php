@@ -28,7 +28,7 @@
     <div class="auth-main">
         <div class="auth-wrapper v2">
             <div class="auth-sidecontent">
-                <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
+            <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
             </div>
             <form class="auth-form" id="forgot-password-form" method="post" action="#">
                 <div class="card my-5">

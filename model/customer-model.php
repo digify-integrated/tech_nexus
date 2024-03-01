@@ -517,7 +517,7 @@ class CustomerModel {
     #
     # -------------------------------------------------------------
     public function insertPersonalInformation($p_contact_id, $p_file_as, $p_first_name, $p_middle_name, $p_last_name, $p_suffix, $p_nickname, $p_corporate_name, $p_bio, $p_civil_status_id, $p_gender_id, $p_religion_id, $p_blood_type_id, $p_birthday, $p_birth_place, $p_height, $p_weight, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :v, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
+        $stmt = $this->db->getConnection()->prepare('CALL insertPersonalInformation(:p_contact_id, :p_file_as, :p_first_name, :p_middle_name, :p_last_name, :p_suffix, :p_nickname, :p_corporate_name, :p_bio, :p_civil_status_id, :p_gender_id, :p_religion_id, :p_blood_type_id, :p_birthday, :p_birth_place, :p_height, :p_weight, :p_last_log_by)');
         $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_file_as', $p_file_as, PDO::PARAM_STR);
         $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);

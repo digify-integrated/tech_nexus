@@ -6,12 +6,15 @@ if($productWriteAccess['total'] > 0){
                                 <div class="d-grid">
                                     <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-offcanvas" aria-controls="update-product-offcanvas" id="update-product">Update Product</button>
                                 </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="d-grid">
-                                  <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-image-offcanvas" aria-controls="update-product-image-offcanvas" id="update-product-image">Update Image</button>
-                                </div>
                             </div>';
+}
+
+if($updateProductImage['total'] > 0){
+  $updateProductImageButton = '<div class="col-4">
+                                  <div class="d-grid">
+                                    <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-image-offcanvas" aria-controls="update-product-image-offcanvas" id="update-product-image">Update Image</button>
+                                  </div>
+                              </div>';
 }
 
 if($productDeleteAccess['total'] > 0){
@@ -42,9 +45,9 @@ if($productDeleteAccess['total'] > 0){
                             <li class="mb-2">Product Subcategory:  <?php echo $productSubcategoryName; ?></li>
                             <li class="mb-2">Company:  <?php echo $companyName; ?></li>
                         </ul>
-                        <h5 class="mb-4"><b>Price: <?php echo $productPrice; ?> Php</b></h5>
+                        <h5 class="mb-4"><b>Price (in thousands): <?php echo $productPrice; ?> Php</b></h5>
                         <div class="row">
-                            <?php echo $updateProductButton . $deleteProductButton; ?>
+                            <?php echo $updateProductButton . $updateProductImageButton . $deleteProductButton; ?>
                         </div>
                     </div>
                 </div>

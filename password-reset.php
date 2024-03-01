@@ -63,13 +63,13 @@
     <div class="auth-main">
         <div class="auth-wrapper v2">
             <div class="auth-sidecontent">
-                <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
+            <img src="<?php echo $login_background; ?>" alt="images" class="img-fluid img-auth-side">
             </div>
             <form class="auth-form" id="password-reset-form" method="post" action="#">
                 <div class="card my-5">
                     <div class="card-body">
                         <div class="text-center">
-                            <a href="index.php"><img src="<?php echo $login_logo; ?>" alt="img"></a>
+                            <a href="javascript:void(0);"><img src="<?php echo $login_logo; ?>" alt="img" class="w-100"></a>
                         </div>
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-end mb-2">

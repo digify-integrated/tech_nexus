@@ -595,6 +595,7 @@
 
             $(document).on('click','#add-contact-identification',function() {
                 resetModalForm("contact-identification-form");
+                $('#update').val(0);
             });
 
             $(document).on('click','.update-contact-identification',function() {
@@ -1672,6 +1673,12 @@ function customerIdentificationForm(){
             },
             id_number: {
                 required: true
+            },
+            id_image: {
+                required: function(element) {
+                    var updateValue = $("#update").val();
+                    return updateValue === "0";
+                }
             }
         },
         messages: {
@@ -1680,6 +1687,9 @@ function customerIdentificationForm(){
             },
             id_number: {
                 required: 'Please enter the ID number'
+            },
+            id_image: {
+                required: 'Please choose the ID image'
             }
         },
         errorPlacement: function (error, element) {

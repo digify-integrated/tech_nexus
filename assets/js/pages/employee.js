@@ -682,6 +682,7 @@
 
             $(document).on('click','#add-contact-identification',function() {
                 resetModalForm("contact-identification-form");
+                $('#update').val(0);
             });
 
             $(document).on('click','.update-contact-identification',function() {
@@ -2627,11 +2628,20 @@ function employeeIdentificationForm(){
             },
             id_number: {
                 required: true
+            },
+            id_image: {
+                required: function(element) {
+                    var updateValue = $("#update").val();
+                    return updateValue === "0";
+                }
             }
         },
         messages: {
             id_type_id: {
                 required: 'Please choose the ID type'
+            },
+            id_number: {
+                required: 'Please enter the ID number'
             },
             id_number: {
                 required: 'Please enter the ID number'
@@ -2667,16 +2677,16 @@ function employeeIdentificationForm(){
             }
         },
         submitHandler: function(form) {
-            const customer_id = $('#customer-id').text();
+            const employee_id = $('#employee-id').text();
             const transaction = 'save contact identification';
     
             var formData = new FormData(form);
-            formData.append('customer_id', customer_id);
+            formData.append('employee_id', employee_id);
             formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/customer-controller.php',
+                url: 'controller/employee-controller.php',
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -2710,7 +2720,7 @@ function employeeIdentificationForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-contact-identification', 'Submit');
                     $('#contact-identification-offcanvas').offcanvas('hide');
-                    customerIdentificationSummary();
+                    employeeIdentificationSummary();
                     resetModalForm('contact-identification-form');
                 }
             });

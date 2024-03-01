@@ -753,6 +753,7 @@
                                 <form id="contact-identification-form" method="post" action="#">
                                   <div class="form-group row">
                                     <div class="col-lg-12">
+                                      <input type="hidden" id="update" name="update" value="1">
                                       <label class="form-label">ID Type <span class="text-danger">*</span></label>
                                       <input type="hidden" id="contact_identification_id" name="contact_identification_id">
                                       <select class="form-control offcanvas-select2" name="id_type_id" id="id_type_id">

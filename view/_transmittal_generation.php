@@ -76,7 +76,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $transmittalStatusBadge = $transmittalModel->getTransmittalStatus($transmittalStatus);
 
                     $employeeDetails = $employeeModel->getPersonalInformation($transmitterID);
-                    $transmitterName = $employeeDetails['file_as'];
+                    $transmitterName = $employeeDetails['file_as'] ?? null;
 
                     $employeeDetails = $employeeModel->getPersonalInformation($receiverID);
                     $receiverName = $employeeDetails['file_as'] ?? 'Anyone';

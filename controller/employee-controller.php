@@ -419,7 +419,7 @@ class EmployeeController {
     
         $userID = $_SESSION['user_id'];
         $contactInformationID = isset($_POST['contact_information_id']) ? htmlspecialchars($_POST['contact_information_id'], ENT_QUOTES, 'UTF-8') : null;
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $contactInformationTypeID = htmlspecialchars($_POST['contact_information_type_id'], ENT_QUOTES, 'UTF-8');
         $facebook = htmlspecialchars($_POST['contact_information_facebook'], ENT_QUOTES, 'UTF-8');
         $email = htmlspecialchars($_POST['contact_information_email'], ENT_QUOTES, 'UTF-8');
@@ -433,17 +433,17 @@ class EmployeeController {
             exit;
         }
     
-        $checkContactInformationExist = $this->customerModel->checkContactInformationExist($contactInformationID);
+        $checkContactInformationExist = $this->employeeModel->checkContactInformationExist($contactInformationID);
         $total = $checkContactInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->customerModel->updateContactInformation($contactInformationID, $customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
+            $this->employeeModel->updateContactInformation($contactInformationID, $employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->customerModel->insertContactInformation($customerID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
+            $this->employeeModel->insertContactInformation($employeeID, $contactInformationTypeID, $mobile, $telephone, $email, $facebook, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
@@ -517,7 +517,7 @@ class EmployeeController {
     
         $userID = $_SESSION['user_id'];
         $contactIdentificationID = isset($_POST['contact_identification_id']) ? htmlspecialchars($_POST['contact_identification_id'], ENT_QUOTES, 'UTF-8') : null;
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $idTypeID = htmlspecialchars($_POST['id_type_id'], ENT_QUOTES, 'UTF-8');
         $idNumber = htmlspecialchars($_POST['id_number'], ENT_QUOTES, 'UTF-8');
 
@@ -535,11 +535,11 @@ class EmployeeController {
         $idImageFileExtension = explode('.', $idImageFileName);
         $idImageActualFileExtension = strtolower(end($idImageFileExtension));
     
-        $checkContactIdentificationExist = $this->customerModel->checkContactIdentificationExist($contactIdentificationID);
+        $checkContactIdentificationExist = $this->employeeModel->checkContactIdentificationExist($contactIdentificationID);
         $total = $checkContactIdentificationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->customerModel->updateContactIdentification($contactIdentificationID, $customerID, $idTypeID, $idNumber, $userID);
+            $this->employeeModel->updateContactIdentification($contactIdentificationID, $employeeID, $idTypeID, $idNumber, $userID);
 
             if(!empty($idImageFileName)){
                 $contactIdentificationDetails = $this->employeeModel->getContactIdentification($contactIdentificationID);
@@ -604,14 +604,14 @@ class EmployeeController {
                     exit;
                 }
         
-                $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
+                $this->employeeModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
             }
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $contactIdentificationID = $this->customerModel->insertContactIdentification($customerID, $idTypeID, $idNumber, $userID);
+            $contactIdentificationID = $this->employeeModel->insertContactIdentification($employeeID, $idTypeID, $idNumber, $userID);
 
             if(empty($idImageFileName)){
                 echo json_encode(['success' => false, 'message' => 'Please choose the ID image.']);
@@ -670,7 +670,7 @@ class EmployeeController {
                 exit;
             }
     
-            $this->customerModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
+            $this->employeeModel->updateContactIdentificationImage($contactIdentificationID, $filePath, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;

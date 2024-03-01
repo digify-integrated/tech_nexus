@@ -27,6 +27,7 @@
   $productDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'delete');
   $productDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 67, 'duplicate');
   $importProduct = $userModel->checkSystemActionAccessRights($user_id, 98);
+  $updateProductImage = $userModel->checkSystemActionAccessRights($user_id, 128);
 
   if ($productReadAccess['total'] == 0) {
     header('location: 404.php');

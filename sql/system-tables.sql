@@ -114,9 +114,7 @@ INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES (
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Human Resources', 'Access to manage HR-related functionalities and employee data.', '1', '1');
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Sales Proposal Approver', 'Access to approve or reject requests and transactions.', '1', '1');
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Accounting', 'Access to financial and accounting-related functionalities.', '1', '1');
-INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Accounting', 'Access to financial and accounting-related functionalities.', '1', '1');
 INSERT INTO role (role_name, role_description, assignable, last_log_by) VALUES ('Sales', 'Access to sales-related functionalities and customer management.', '1', '1');
-
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -187,7 +185,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Menu Item', '3', 'menu-item.php', '7', '', '13', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('System Action', '3', 'system-action.php', '7', '', '19', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '3', '', '', 'settings', '2', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Technical Configurations', '3', '', '', 'settings', '2', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Email Setting', '3', 'email-setting.php', '11', '', '5', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Type', '3', 'file-type.php', '11', '', '6', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('File Extension', '3', 'file-extension.php', '11', '', '6', '1');
@@ -236,7 +234,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal', '4', 'transmittal.php', '', 'inbox', '1', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Configurations', '5', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Doc Configurations', '5', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document Category', '5', 'document-category.php', '54', '', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Document', '5', 'document.php', '', 'file', '4', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Draft Document', '5', 'draft-document.php', '', 'file-plus', '5', '1');
@@ -254,7 +252,7 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Customer', '7', 'customer.php', '', 'users', '3', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Search Customer', '7', 'search-customer.php', '', 'search', '2', '1');
 
-INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Configurations', '7', '', '', 'settings', '20', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Sales Configurations', '7', '', '', 'settings', '20', '1');
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Approving Officer', '7', 'approving-officer.php', '70', '', '2', '1');
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '1', '1');
@@ -513,6 +511,8 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales P
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal For Proceed', '1');
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejected', '1');
 
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Product Image', '1');
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* System Action Access Right Table */
@@ -664,6 +664,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('125', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('126', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('127', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('128', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

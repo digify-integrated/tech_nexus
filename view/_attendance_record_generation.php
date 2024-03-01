@@ -66,7 +66,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $checkOutMode = $row['check_out_mode'];
 
                     $employeeDetails = $employeeModel->getPersonalInformation($contactID);
-                    $fileAs = $employeeDetails['file_as'];
+                    $fileAs = $employeeDetails['file_as'] ?? null;
 
                     $attendanceRecordIDEncrypted = $securityModel->encryptData($attendanceRecordID);
 
