@@ -3130,12 +3130,19 @@ function displayDetails(transaction){
                         $('#summary-reconditioning-cost').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#summary-downpayment').text(parseFloat(response.downpayment).toLocaleString("en-US"));
                         $('#summary-repayment-amount').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
+                        $('#summary-outstanding-balance').text(parseFloat(response.outstandingBalance).toLocaleString("en-US"));
+                        $('#summary-sub-total').text(parseFloat(response.subtotal).toLocaleString("en-US"));
 
                         $('#delivery_price_label').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
                         $('#cost_of_accessories_label').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
                         $('#reconditioning_cost_label').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#downpayment_label').text(parseFloat(response.downpayment).toLocaleString("en-US"));
-                        $('#interest_rate_label').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
+                        $('#interest_rate_label').text(parseFloat(response.interestRate).toLocaleString("en-US"));
+                        $('#subtotal_label').text(parseFloat(response.subtotal).toLocaleString("en-US"));
+                        $('#outstanding_balance_label').text(parseFloat(response.outstandingBalance).toLocaleString("en-US"));
+                        $('#amount_financed_label').text(parseFloat(response.amountFinanced).toLocaleString("en-US"));
+                        $('#pn_amount_label').text(parseFloat(response.pnAmount).toLocaleString("en-US"));
+                        $('#repayment_amount_label').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
                     } 
                     else {
                         if(response.isInactive){
@@ -3186,6 +3193,7 @@ function displayDetails(transaction){
                         $('#summary-registration-fee').text(parseFloat(response.registrationFee).toLocaleString("en-US"));
                         $('#summary-doc-stamp-tax').text(parseFloat(response.docStampTax).toLocaleString("en-US"));
                         $('#summary-transaction-fee').text(parseFloat(response.transactionFee).toLocaleString("en-US"));
+                        $('#summary-other-charges-total').text(parseFloat(response.totalOtherCharges).toLocaleString("en-US"));
 
                         $('#insurance_coverage_label').text(parseFloat(response.insuranceCoverage).toLocaleString("en-US"));
                         $('#insurance_premium_label').text(parseFloat(response.insurancePremium).toLocaleString("en-US"));
@@ -3305,6 +3313,10 @@ function displayDetails(transaction){
                         $('#summary-engine-no').text(response.engineNumber);
                         $('#summary-chassis-no').text(response.chassisNumber);
                         $('#summary-plate-no').text(response.plateNumber);
+
+                        if($('#product_cost_label').length){
+                            $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                        }                        
                     } 
                     else {
                         if(response.isInactive){
@@ -3442,9 +3454,6 @@ function calculatePricingComputation(){
     $('#amount_financed').val(outstanding_balance.toFixed(2));
     $('#pn_amount').val(pn_amount.toFixed(2));
     $('#repayment_amount').val(repayment_amount.toFixed(2));
-
-    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateTotalOtherCharges(){
@@ -3458,7 +3467,6 @@ function calculateTotalOtherCharges(){
     var total = insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
 
     $('#total_other_charges').val(total.toFixed(2));
-    $('#summary-other-charges-total').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
 }
 
 function nextStep(currentStep) {

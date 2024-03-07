@@ -50,7 +50,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $response[] = [
                         'FILE_AS' => $fileAs,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="customer.php?search&id='. $contactIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <a href="search-customer.php?search&id='. $contactIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                             <i class="ti ti-eye"></i>
                                         </a>
                                     </div>'

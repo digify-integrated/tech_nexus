@@ -5852,7 +5852,7 @@ BEGIN
         SET sql_query = CONCAT(sql_query, ' AND author IN (SELECT contact_id FROM employment_information WHERE department_id IN (', p_department_filter,'))');
     END IF;
 
-    SET sql_query = CONCAT(sql_query, ' ORDER BY document_name LIMIT ?, ?;');
+    SET sql_query = CONCAT(sql_query, ' ORDER BY publish_date DESC LIMIT ?, ?;');
 
     PREPARE stmt FROM sql_query;
     IF p_search IS NOT NULL AND p_search <> '' THEN

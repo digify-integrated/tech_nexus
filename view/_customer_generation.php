@@ -297,10 +297,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $count = count($options);
 
-                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 33);
-                $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 34);
-                $tagEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 35);
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
+                $updateEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 100);
+                $deleteEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 101);
+                $tagEmployeeContactInformation = $userModel->checkSystemActionAccessRights($user_id, 102);
 
                 foreach ($options as $index => $row) {
                     $contactInformationID = $row['contact_information_id'];
@@ -396,10 +396,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $count = count($options);
 
-                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 37);
-                $deleteEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 38);
-                $tagEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 39);
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
+                $updateEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 104);
+                $deleteEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 105);
+                $tagEmployeeAddress = $userModel->checkSystemActionAccessRights($user_id, 106);
 
                 foreach ($options as $index => $row) {
                     $contactAddressID = $row['contact_address_id'];
@@ -497,10 +497,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $count = count($options);
 
-                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 41);
-                $deleteEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 42);
-                $tagEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 43);
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
+                $updateEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 108);
+                $deleteEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 109);
+                $tagEmployeeContactIdentification = $userModel->checkSystemActionAccessRights($user_id, 110);
 
                 foreach ($options as $index => $row) {
                     $contactIdentificationID = $row['contact_identification_id'];
@@ -589,9 +589,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 
                 $count = count($options);
 
-                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
-                $updateEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 48);
-                $deleteEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 49);
+                $customerWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 69, 'write');
+                $updateEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 112);
+                $deleteEmployeeFamilyBackground = $userModel->checkSystemActionAccessRights($user_id, 113);
 
                 foreach ($options as $index => $row) {
                     $contactFamilyBackgroundID = $row['contact_family_background_id'];
@@ -703,8 +703,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
-
-        
+      
         # -------------------------------------------------------------
         #
         # Type: comaker summary

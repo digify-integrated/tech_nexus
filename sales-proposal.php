@@ -23,6 +23,7 @@
   $forCISalesProposal = $userModel->checkSystemActionAccessRights($user_id, 125);
   $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
   $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
+  $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
 
   if ($viewSalesProposal['total'] == 0) {
     header('location: 404.php');
@@ -76,6 +77,7 @@
     $clientConfirmation = $salesProposalDetails['client_confirmation'];
     $transactionType = $salesProposalDetails['transaction_type'];
     $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
+    $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
   }
   else{
     $salesProposalID = null;

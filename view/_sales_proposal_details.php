@@ -967,14 +967,25 @@
                           </form>';
                   }
                   else{
+                    $productCostField = '';
+                    if($viewSalesProposalProductCost['total'] > 0){
+                      $productCostField = '<div class="form-group row">
+                      <label class="col-lg-5 col-form-label">Product Cost :</label>
+                      <div class="col-lg-7">
+                        <label class="col-form-label" id="product_cost_label"></label>
+                      </div>
+                    </div>';
+                    }
+
                     echo '<div class="form-group row">
-                            <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
+                            <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) :</label>
                             <div class="col-lg-7">
                               <label class="col-form-label" id="delivery_price_label"></label>
                             </div>
                           </div>
+                          '. $productCostField .'
                           <div class="form-group row">
-                            <label class="col-lg-5 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
+                            <label class="col-lg-5 col-form-label">Interest Rate :</label>
                             <div class="col-lg-7">
                               <label class="col-form-label" id="interest_rate_label"></label>
                             </div>
@@ -1369,7 +1380,7 @@
                         echo '<button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>';
                       }
 
-                      if($salesProposalSatus == 'For Initial Approval' && $forInitialApproval['total'] > 0 && $initialApprovingOfficer == $contact_id){
+                      if($salesProposalSatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id){
                         echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>';
                       }
 
@@ -1391,7 +1402,7 @@
                         echo '<button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>';
                       }
 
-                      if($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI'){
+                      if($setToDraftSalesProposal['total'] > 0 && ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI')){
                         echo ' <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>';
                       }
                     ?>                                      
@@ -1404,9 +1415,9 @@
               <div class="card-body print-area">
                 <div class="row">
                   <div class="col-lg-12">
-                    <div class="table-border-style">
-                      <div class="table-responsive">
-                        <table class="table table-bordered">
+                    <div class="table-border-style mw-100">
+                      <div class="table-responsive ">
+                        <table class="table table-bordered text-uppercase text-wrap">
                           <tbody>
                             <tr>
                               <td colspan="8" class="text-center bg-danger pb-0"><h3 class="font-size-15 fw-bold text-light">SALES PROPOSAL</h3></td>
@@ -1416,40 +1427,40 @@
                               <td colspan="4" class="text-end"><b>Date: <?php echo date('d-M-Y'); ?> </b></td>
                             </tr>
                             <tr>
-                              <td colspan="4"><small style="color:#c60206"><b>NAME OF CUSTOMER</b></small><br/><?php echo $customerName;?></td>
-                              <td colspan="3"><small style="color:#c60206"><b>ADDRESS</b></small><br/><?php echo $customerAddress;?></td>
-                              <td><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><?php echo $customerMobile;?></td>
+                              <td colspan="4" class="text-wrap"><small style="color:#c60206"><b>NAME OF CUSTOMER</b></small><br/><?php echo strtoupper($customerName);?></td>
+                              <td colspan="3" class="text-wrap"><small style="color:#c60206"><b>ADDRESS</b></small><br/><?php echo strtoupper($customerAddress);?></td>
+                              <td class="text-wrap"><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><?php echo $customerMobile;?></td>
                             </tr>
                             <tr>
-                              <td colspan="4"><small style="color:#c60206"><b>CO-BORROWER/CO-MORTGAGOR/CO-MAKER</b></small><br/><span id="summary-comaker-name"></span></td>
-                              <td colspan="3"><small style="color:#c60206"><b>ADDRESS</b></small><br/><span id="summary-comaker-address"></span></td>
-                              <td><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><span id="summary-comaker-mobile"></span></td>
+                              <td colspan="4" class="text-wrap"><small style="color:#c60206"><b>CO-BORROWER/CO-MORTGAGOR/CO-MAKER</b></small><br/><span id="summary-comaker-name"></span></td>
+                              <td colspan="3" class="text-wrap"><small style="color:#c60206"><b>ADDRESS</b></small><br/><span id="summary-comaker-address"></span></td>
+                              <td class="text-wrap"><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><span id="summary-comaker-mobile"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="2"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
-                              <td colspan="2"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
-                              <td><small style="color:#c60206"><b>PRODUCT TYPE</b></small><br/><span id="summary-product-type"></span></td>
-                              <td><small style="color:#c60206"><b>TANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
-                              <td><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
-                              <td><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
+                              <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>PRODUCT TYPE</b></small><br/><span id="summary-product-type"></span></td>
+                              <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
+                              <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
+                              <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="2"><small style="color:#c60206"><b>STOCK NO.</b></small><br/><span id="summary-stock-no"></span></td>
-                              <td><small style="color:#c60206"><b>ENGINE NO.</b></small><br/><span id="summary-engine-no"></span></td>
-                              <td><small style="color:#c60206"><b>CHASSIS NO.</b></small><br/><span id="summary-chassis-no"></span></td>
-                              <td style="vertical-align: top !important;"><small style="color:#c60206;:"><b>PLATE NO.</b></small><br/><span id="summary-plate-no"></span></td>
-                              <td><small style="color:#c60206"><b>FOR REGISTRATION?</b></small><br/><span id="summary-for-registration"></span></td>
-                              <td><small style="color:#c60206"><b>WITH CR?</b></small><br/><span id="summary-with-cr"></span></td>
-                              <td><small style="color:#c60206"><b>FOR TRANSFER?</b></small><br/><span id="summary-for-transfer"></span></td>
+                              <td colspan="2" class="text-wrap"><small style="color:#c60206"><b>STOCK NO.</b></small><br/><span id="summary-stock-no"></span></td>
+                              <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>ENGINE NO.</b></small><br/><span id="summary-engine-no"></span></td>
+                              <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>CHASSIS NO.</b></small><br/><span id="summary-chassis-no"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>PLATE NO.</b></small><br/><span id="summary-plate-no"></span></td>
+                              <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>FOR REGISTRATION?</b></small><br/><span id="summary-for-registration"></span></td>
+                              <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>WITH CR?</b></small><br/><span id="summary-with-cr"></span></td>
+                              <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>FOR TRANSFER?</b></small><br/><span id="summary-for-transfer"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>FOR CHANGE COLOR?</b></small><br/><span id="summary-for-change-color"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>NEW COLOR?</b></small><br/><span id="summary-new-color"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>FOR CHANGE BODY?</b></small><br/><span id="summary-for-body-change"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small style="color:#c60206;:"><b>NEW BODY?</b></small><br/><span id="summary-new-body"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE COLOR?</b></small><br/><span id="summary-for-change-color"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW COLOR?</b></small><br/><span id="summary-new-color"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE BODY?</b></small><br/><span id="summary-for-body-change"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW BODY?</b></small><br/><span id="summary-new-body"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="8" style="padding-bottom:0 !important;"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
+                              <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
                                 <div class="row pb-0 mb-0">
                                   <div class="col-lg-12">
                                     <div class="table-responsive" id="summary-job-order-table"></div>
@@ -1458,7 +1469,7 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="4" style="vertical-align: top !important;"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
+                              <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
                                 <div class="row pb-0 mb-0">
                                   <div class="col-lg-12">
                                     <div class="table-responsive">
@@ -1490,7 +1501,7 @@
                                   </div>
                                 </div>
                               </td>
-                              <td colspan="4" style="padding-bottom:0 !important;"><small style="color:#c60206"><b>OTHER CHARGES:</b></small><br/>
+                              <td colspan="4" style="padding-bottom:0 !important;" class="text-wrap"><small style="color:#c60206"><b>OTHER CHARGES:</b></small><br/>
                                 <div class="row pb-0 mb-0">
                                   <div class="col-lg-12">
                                     <div class="table-responsive">
@@ -1536,11 +1547,11 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="4" style="vertical-align: top !important;">
+                              <td colspan="4" style="vertical-align: top !important;" class="text-wrap">
                                 <small><b>FOR REFERRAL TO FINANCING, PLEASE COMPUTE MO AMORTIZATION:</b></small><br/><br/>
                                 <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span>
                               </td>
-                              <td colspan="4" style="padding-bottom:0 !important; vertical-align: top !important;">
+                              <td colspan="4" style="padding-bottom:0 !important; vertical-align: top !important;" class="text-wrap">
                                 <small style="color:#c60206"><b>AMOUNT OF DEPOSIT:</b></small><br/><br/>
                                 <div class="row pb-0 mb-0">
                                   <div class="col-lg-12">
@@ -1550,7 +1561,7 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="4" style="padding-bottom:0 !important;">
+                              <td colspan="4" style="padding-bottom:0 !important;" class="text-wrap">
                                 <div class="row pb-0 mb-0">
                                   <div class="col-lg-12">
                                     <div class="table-responsive">
@@ -1586,10 +1597,10 @@
                                   </div>
                                 </div>
                               </td>
-                              <td colspan="4" style="vertical-align: top !important;"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
+                              <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REMARKS</b></small><br/><br/><span id="summary-remarks" class="text-sm"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="8" style="padding-bottom:0 !important;">
+                              <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap">
                                 <small style="color:#c60206"><b>REQUIREMENTS:</b></small><br/><br/>
                                 <div class="row">
                                   <div class="col-6">
@@ -1619,7 +1630,7 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="8" style="padding-bottom:0 !important;">
+                              <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap">
                                 <small style="color:#c60206"><b>REMINDERS:</b></small><br/>
                                 <div class="row">
                                   <div class="col-lg-12">
@@ -1638,9 +1649,9 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="2" style="vertical-align: top !important;"><small><b>PREPARED BY:</b></small><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-initial-approval-by" class="text-sm"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-final-approval-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>PREPARED BY:</b></small><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-initial-approval-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-final-approval-by" class="text-sm"></span></td>
                               <td colspan="2" style="vertical-align: top !important;"><small><b>WITH MY CONFORMITY:</b><br/><br/><br/>CUSTOMER'S PRINTED NAME OVER SIGNATURE</small></td>
                             </tr>
                           </tbody>

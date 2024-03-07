@@ -512,6 +512,7 @@ INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales P
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Tag Sales Proposal As Rejected', '1');
 
 INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Update Product Image', '1');
+INSERT INTO system_action (system_action_name, last_log_by) VALUES ('Set To Draft Sales Proposal', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -665,6 +666,7 @@ INSERT INTO system_action_access_rights (system_action_id, role_id, role_access,
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('126', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('127', '1', '1', '1');
 INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('128', '1', '1', '1');
+INSERT INTO system_action_access_rights (system_action_id, role_id, role_access, last_log_by) VALUES ('129', '1', '1', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

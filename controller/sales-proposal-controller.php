@@ -547,6 +547,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -564,7 +565,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'For Initial Approval', '', $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -587,6 +588,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
@@ -604,7 +606,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'For CI', '', $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -627,6 +629,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $initialApprovalRemarks = htmlspecialchars($_POST['initial_approval_remarks'], ENT_QUOTES, 'UTF-8');
     
@@ -645,7 +648,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'For Final Approval', $initialApprovalRemarks, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Final Approval', $initialApprovalRemarks, $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -668,6 +671,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $finalApprovalRemarks = htmlspecialchars($_POST['final_approval_remarks'], ENT_QUOTES, 'UTF-8');
     
@@ -686,7 +690,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'Proceed', $finalApprovalRemarks, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Proceed', $finalApprovalRemarks, $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -709,6 +713,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $setToDraftReason = htmlspecialchars($_POST['set_to_draft_reason'], ENT_QUOTES, 'UTF-8');
     
@@ -727,7 +732,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'Draft', $setToDraftReason, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Draft', $setToDraftReason, $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -750,6 +755,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $cancellationReason = htmlspecialchars($_POST['cancellation_reason'], ENT_QUOTES, 'UTF-8');
     
@@ -768,7 +774,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'Cancelled', $cancellationReason, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Cancelled', $cancellationReason, $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -791,6 +797,7 @@ class SalesProposalController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $rejectionReason = htmlspecialchars($_POST['rejection_reason'], ENT_QUOTES, 'UTF-8');
     
@@ -809,7 +816,7 @@ class SalesProposalController {
             exit;
         }
     
-        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $userID, 'Rejected', $rejectionReason, $userID);
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Rejected', $rejectionReason, $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -1682,6 +1689,10 @@ class SalesProposalController {
                 'downpayment' => $salesProposalPricingComputationDetails['downpayment'] ?? 0,
                 'interestRate' => $salesProposalPricingComputationDetails['interest_rate'] ?? 0,
                 'repaymentAmount' => $salesProposalPricingComputationDetails['repayment_amount'] ?? 0,
+                'pnAmount' => $salesProposalPricingComputationDetails['pn_amount'] ?? 0,
+                'subtotal' => $salesProposalPricingComputationDetails['subtotal'] ?? 0,
+                'outstandingBalance' => $salesProposalPricingComputationDetails['outstanding_balance'] ?? 0,
+                'amountFinanced' => $salesProposalPricingComputationDetails['amount_financed'] ?? 0,
             ];
 
             echo json_encode($response);
@@ -1727,6 +1738,7 @@ class SalesProposalController {
                 'transferFee' => $salesProposalOtherChargesDetails['transfer_fee'] ?? 0,
                 'registrationFee' => $salesProposalOtherChargesDetails['registration_fee'] ?? 0,
                 'docStampTax' => $salesProposalOtherChargesDetails['doc_stamp_tax'] ?? 0,
+                'totalOtherCharges' => $salesProposalOtherChargesDetails['total_other_charges'] ?? 0,
                 'transactionFee' => $salesProposalOtherChargesDetails['transaction_fee'] ?? 0
             ];
 

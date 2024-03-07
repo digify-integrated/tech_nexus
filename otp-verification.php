@@ -64,7 +64,7 @@
                         <h3 class="mb-2"><b>Enter One-Time Password (OTP)</b></h3>
                         <p class="">We`ve sent a OTP to your email - <?php echo $emailObscure; ?></p>
                         <div class="form-group mb-3">
-                            <input type="hidden" id="user_id" name="user_id" value="<?php echo $id; ?>>">
+                            <input type="hidden" id="user_id" name="user_id" value="<?php echo $id; ?>">
                             <input type="text" class="form-control" id="otp" name="otp" placeholder="Verification Code" autocomplete="off">
                         </div>
                         <div class="d-grid mt-4">

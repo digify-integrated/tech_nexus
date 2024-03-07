@@ -238,8 +238,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $cost = number_format($row['cost'], 2);
 
                     $table .= '<tr>
-                                <td>'. $accessories .'</td>
-                                <td>'. $cost .'</td>
+                                <td class="text-wrap">'. $accessories .'</td>
+                                <td class="text-wrap">'. $cost .'</td>
                             </tr>';
                 }
 
@@ -336,8 +336,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $cost = number_format($row['cost'], 2);
 
                     $table .= '<tr>
-                                <td>'. $jobOrder .'</td>
-                                <td>'. $cost .'</td>
+                                <td class="text-wrap">'. $jobOrder .'</td>
+                                <td class="text-wrap">'. $cost .'</td>
                             </tr>';
                 }
 
@@ -449,10 +449,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         $cost = number_format($row['cost'], 2);
     
                         $table .= '<tr>
-                            <td style="text-align: center !important;">'. $jobOrderNumber .'</td>
-                            <td style="text-align: center !important;">'. $jobOrderDate .'</td>
-                            <td style="text-align: center !important;">'. $particulars .'</td>
-                            <td style="text-align: center !important;">'. $cost .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $jobOrderNumber .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $jobOrderDate .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $particulars .'</td>
+                            <td style="text-align: center !important;" class="text-wrap">'. $cost .'</td>
                         </tr>';
                     }
                 }
@@ -556,9 +556,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $depositAmount = number_format($row['deposit_amount'], 2);
 
                     $table .= '<tr>
-                                <td style="text-align: center !important;">'. $depositDate .'</td>
-                                <td style="text-align: center !important;">'. $referenceNumber .'</td>
-                                <td style="text-align: center !important;">'. $depositAmount .'</td>
+                                <td style="text-align: center !important;" class="text-wrap">'. $depositDate .'</td>
+                                <td style="text-align: center !important;" class="text-wrap">'. $referenceNumber .'</td>
+                                <td style="text-align: center !important;" class="text-wrap">'. $depositAmount .'</td>
                             </tr>';
                 }
 

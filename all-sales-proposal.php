@@ -23,6 +23,8 @@
   $forCISalesProposal = $userModel->checkSystemActionAccessRights($user_id, 125);
   $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
   $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
+  $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
+  $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -54,7 +56,7 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: seach-customer.php');
+      header('location: all-sales-proposal.php');
       exit;
     }
 
@@ -135,7 +137,7 @@
           </div>
         </div>
         <?php
-         if(!empty($salesProposalID) && !empty($customerID) && $updateSalesProposal['total'] > 0){
+         if(!empty($salesProposalID) && !empty($customerID)){
             require_once('view/_sales_proposal_details.php');
           }
           else{
