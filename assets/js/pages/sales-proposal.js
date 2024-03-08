@@ -121,6 +121,7 @@
 
             $(document).on('change','#delivery_price',function() {
                 calculatePricingComputation();
+                calculateRenewalAmount();
             });
 
             $(document).on('change','#cost_of_accessories',function() {
@@ -441,6 +442,18 @@
             if($('#sales-proposal-renewal-amount-form').length){
                 salesProposalRenewalAmountForm();
             }
+
+            $(document).on('change','#compute_second_year',function() {
+                calculateRenewalAmount();
+            });
+
+            $(document).on('change','#compute_third_year',function() {
+                calculateRenewalAmount();
+            });
+
+            $(document).on('change','#compute_fourth_year',function() {
+                calculateRenewalAmount();
+            });
         }
 
         $(document).on('change','#product_type',function() {
@@ -709,6 +722,7 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'SALES_PROPOSAL_NUMBER' },
         { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
@@ -718,9 +732,10 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '14%', 'aTargets': 1 },
         { 'width': '25%', 'aTargets': 2 },
-        { 'width': '30%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -772,6 +787,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'SALES_PROPOSAL_NUMBER' },
         { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
@@ -781,9 +797,10 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '14%', 'aTargets': 1 },
         { 'width': '25%', 'aTargets': 2 },
-        { 'width': '30%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2835,6 +2852,18 @@ function displayDetails(transaction){
                         checkOptionExist('#for_change_body', response.forChangeBody, '');
                         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
                         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
+
+                        if(parseFloat($("#insurance_coverage_second_year").val()) > 0 && parseFloat($("#insurance_premium_second_year").val()) > 0){
+                            $('#compute_second_year').prop('checked', true);
+                        }
+
+                        if(parseFloat($("#insurance_coverage_third_year").val()) > 0 && parseFloat($("#insurance_premium_third_year").val()) > 0){
+                            $('#compute_third_year').prop('checked', true);
+                        }
+
+                        if(parseFloat($("#insurance_coverage_fourth_year").val()) > 0 && parseFloat($("#insurance_premium_fourth_year").val()) > 0){
+                            $('#compute_fourth_year').prop('checked', true);
+                        }
                     } 
                     else {
                         if(response.isInactive){
@@ -3294,47 +3323,50 @@ function displayDetails(transaction){
             else{
                 product_id = $('#product_id').val();
             }
-            
-            $.ajax({
-                url: 'controller/product-controller.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    product_id : product_id, 
-                    transaction : transaction
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#product_engine_number').text(response.engineNumber);
-                        $('#product_chassis_number').text(response.chassisNumber);
-                        $('#product_plate_number').text(response.plateNumber);
 
-                        $('#summary-stock-no').text(response.fullStockNumber);
-                        $('#summary-engine-no').text(response.engineNumber);
-                        $('#summary-chassis-no').text(response.chassisNumber);
-                        $('#summary-plate-no').text(response.plateNumber);
-
-                        if($('#product_cost_label').length){
-                            $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
-                        }                        
-                    } 
-                    else {
-                        if(response.isInactive){
-                            window.location = 'logout.php?logout';
+            if(product_id != '' && product_id != 0){
+                $.ajax({
+                    url: 'controller/product-controller.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        product_id : product_id, 
+                        transaction : transaction
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#product_engine_number').text(response.engineNumber);
+                            $('#product_chassis_number').text(response.chassisNumber);
+                            $('#product_plate_number').text(response.plateNumber);
+                            $('#product_category').val(response.productCategoryID);
+    
+                            $('#summary-stock-no').text(response.summaryStockNumber);
+                            $('#summary-engine-no').text(response.engineNumber);
+                            $('#summary-chassis-no').text(response.chassisNumber);
+                            $('#summary-plate-no').text(response.plateNumber);
+    
+                            if($('#product_cost_label').length){
+                                $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                            }                        
+                        } 
+                        else {
+                            if(response.isInactive){
+                                window.location = 'logout.php?logout';
+                            }
+                            else{
+                                showNotification('Get Product Details Error', response.message, 'danger');
+                            }
                         }
-                        else{
-                            showNotification('Get Product Details Error', response.message, 'danger');
+                    },
+                    error: function(xhr, status, error) {
+                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                        if (xhr.responseText) {
+                            fullErrorMessage += ', Response: ${xhr.responseText}';
                         }
+                        showErrorDialog(fullErrorMessage);
                     }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                    if (xhr.responseText) {
-                        fullErrorMessage += ', Response: ${xhr.responseText}';
-                    }
-                    showErrorDialog(fullErrorMessage);
-                }
-            });
+                });
+            }
             break;
         case 'get comaker details':
             var comaker_id;
@@ -3467,6 +3499,92 @@ function calculateTotalOtherCharges(){
     var total = insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
 
     $('#total_other_charges').val(total.toFixed(2));
+}
+
+function calculateRenewalAmount(){
+    var product_category = $('#product_category').val();
+    var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+
+    if(delivery_price > 0){
+        if($('#compute_second_year').is(':checked')) {
+            var current_coverage = delivery_price * 0.8;
+            $('#insurance_coverage_second_year').val(current_coverage);
+    
+            if(product_category == '1'){
+                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+    
+                $('#insurance_premium_second_year').val(premium.toFixed(2));
+            }
+            else if(product_category == '2'){
+                var premium = (current_coverage * 0.025) * 1.2526;
+    
+                $('#insurance_premium_second_year').val(premium.toFixed(2));
+            }
+            else{
+                $('#insurance_premium_second_year').val(0);
+            }
+        }
+        else{
+            $('#insurance_coverage_second_year').val(0);
+            $('#insurance_premium_second_year').val(0);
+        }
+    
+        if($('#compute_third_year').is(':checked')) {
+            var current_coverage = delivery_price * 0.7;
+            $('#insurance_coverage_third_year').val(current_coverage);
+    
+            if(product_category == '1'){
+                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+    
+                $('#insurance_premium_third_year').val(premium.toFixed(2));
+            }
+            else if(product_category == '2'){
+                var premium = (current_coverage * 0.025) * 1.2526;
+    
+                $('#insurance_premium_third_year').val(premium.toFixed(2));
+            }
+            else{
+                $('#insurance_premium_third_year').val(0);
+            }
+        }
+        else{
+            $('#insurance_coverage_third_year').val(0);
+            $('#insurance_premium_third_year').val(0);
+        }
+    
+        if($('#compute_fourth_year').is(':checked')) {
+            var current_coverage = delivery_price * 0.6;
+            $('#insurance_coverage_fourth_year').val(current_coverage);
+    
+            if(product_category == '1'){
+                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+    
+                $('#insurance_premium_fourth_year').val(premium.toFixed(2));
+            }
+            else if(product_category == '2'){
+                var premium = (current_coverage * 0.025) * 1.2526;
+    
+                $('#insurance_premium_fourth_year').val(premium.toFixed(2));
+            }
+            else{
+                $('#insurance_premium_fourth_year').val(0);
+            }
+        }
+        else{
+            $('#insurance_coverage_fourth_year').val(0);
+            $('#insurance_premium_fourth_year').val(0);
+        }
+    }
+    else{
+        $('#insurance_coverage_second_year').val(0);
+        $('#insurance_premium_second_year').val(0);
+        $('#insurance_coverage_third_year').val(0);
+        $('#insurance_premium_third_year').val(0);
+        $('#insurance_coverage_fourth_year').val(0);
+        $('#insurance_premium_fourth_year').val(0);
+    }
+    
+    $("#sales-proposal-renewal-amount-form").submit();
 }
 
 function nextStep(currentStep) {

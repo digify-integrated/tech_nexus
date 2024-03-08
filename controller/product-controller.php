@@ -586,6 +586,7 @@ class ProductController {
             
             $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
             $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+            $productCategoryID = $productSubcategoryDetails['product_category_id'] ?? null;
 
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
             $fullStockNumber = $productSubcategoryCode . $productDetails['stock_number'];
@@ -596,6 +597,8 @@ class ProductController {
                 'companyID' => $productDetails['company_id'],
                 'stockNumber' => $stockNumber,
                 'fullStockNumber' => $fullStockNumber,
+                'productCategoryID' => $productCategoryID,
+                'summaryStockNumber' => $productDetails['stock_number'],
                 'engineNumber' => $productDetails['engine_number'],
                 'chassisNumber' => $productDetails['chassis_number'],
                 'plateNumber' => $productDetails['plate_number'],

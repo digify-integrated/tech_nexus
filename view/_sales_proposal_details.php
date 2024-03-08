@@ -98,7 +98,7 @@
                           echo '<button type="button" class="btn btn-primary" id="next-step-1-normal">Next</button>';
                         }
 
-                        if($salesProposalSatus == 'For Final Approval'){
+                        if($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'Draft'){
                           echo '<button class="btn btn-success m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
 
                           if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
@@ -1186,6 +1186,7 @@
                 </div>
               </div>
               <div class="card-body">
+                <input type="hidden" id="product_category">
                 <?php
                   if($salesProposalSatus == 'Draft'){
                     echo '<form id="sales-proposal-renewal-amount-form" method="post" action="#">
@@ -1200,6 +1201,21 @@
                               </thead>
                               <tbody>
                                 <tr>
+                                  <td></td>
+                                  <td style="horizontal-align: center !important"><div class="form-check form-switch mb-2 text-center">
+                                        <input type="checkbox" class="form-check-input input-primary" id="compute_second_year">
+                                      </div>
+                                  </td>
+                                  <td style="horizontal-align: center !important"><div class="form-check form-switch mb-2 text-center">
+                                        <input type="checkbox" class="form-check-input input-primary" id="compute_third_year">
+                                      </div>
+                                  </td>
+                                  <td style="horizontal-align: center !important"><div class="form-check form-switch mb-2 text-center">
+                                        <input type="checkbox" class="form-check-input input-primary" id="compute_fourth_year">
+                                      </div>
+                                  </td>
+                                </tr>
+                                <tr>
                                   <td>Registration</td>
                                   <td><input type="number" class="form-control" id="registration_second_year" name="registration_second_year" step="0.01" value="0" min="0"></td>
                                   <td><input type="number" class="form-control" id="registration_third_year" name="registration_third_year" step="0.01" value="0" min="0"></td>
@@ -1207,15 +1223,15 @@
                                 </tr>
                                 <tr>
                                   <td>Ins. Coverage</td>
-                                  <td><input type="number" class="form-control" id="insurance_coverage_second_year" name="insurance_coverage_second_year" step="0.01" value="0" min="0"></td>
-                                  <td><input type="number" class="form-control" id="insurance_coverage_third_year" name="insurance_coverage_third_year" step="0.01" value="0" min="0"></td>
-                                  <td><input type="number" class="form-control" id="insurance_coverage_fourth_year" name="insurance_coverage_fourth_year" step="0.01" value="0" min="0"></td>
+                                  <td><input type="number" class="form-control" id="insurance_coverage_second_year" name="insurance_coverage_second_year" step="0.01" value="0" readonly></td>
+                                  <td><input type="number" class="form-control" id="insurance_coverage_third_year" name="insurance_coverage_third_year" step="0.01" value="0" readonly></td>
+                                  <td><input type="number" class="form-control" id="insurance_coverage_fourth_year" name="insurance_coverage_fourth_year" step="0.01" value="0" readonly></td>
                                 </tr>
                                 <tr>
                                     <td>Ins. Premium</td>
-                                    <td><input type="number" class="form-control" id="insurance_premium_second_year" name="insurance_premium_second_year" step="0.01" value="0" min="0"></td>
-                                    <td><input type="number" class="form-control" id="insurance_premium_third_year" name="insurance_premium_third_year" step="0.01" value="0" min="0"></td>
-                                    <td><input type="number" class="form-control" id="insurance_premium_fourth_year" name="insurance_premium_fourth_year" step="0.01" value="0" min="0"></td>
+                                    <td><input type="number" class="form-control" id="insurance_premium_second_year" name="insurance_premium_second_year" step="0.01" value="0" readonly></td>
+                                    <td><input type="number" class="form-control" id="insurance_premium_third_year" name="insurance_premium_third_year" step="0.01" value="0" readonly></td>
+                                    <td><input type="number" class="form-control" id="insurance_premium_fourth_year" name="insurance_premium_fourth_year" step="0.01" value="0" readonly></td>
                                 </tr>
                               </tbody>
                             </table>
@@ -1701,7 +1717,6 @@
 </div>
 
 <?php
-
     echo '<div>
             <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-accessories-offcanvas" aria-labelledby="sales-proposal-accessories-offcanvas-label">
               <div class="offcanvas-header">

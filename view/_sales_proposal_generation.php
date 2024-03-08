@@ -53,14 +53,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 foreach ($options as $row) {
                     $salesProposalID = $row['sales_proposal_id'];
                     $salesProposalNumber = $row['sales_proposal_number'];
+                    $productType = $row['product_type'];
                     $productID = $row['product_id'];
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
 
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
 
                     $productDetails = $productModel->getProduct($productID);
-                    $productName = $productDetails['description'];
-                    $stockNumber = $productDetails['stock_number'];
+                    $productName = $productDetails['description'] ?? null;
+                    $stockNumber = $productDetails['stock_number'] ?? null;
 
                     $delete = '';
                     if($deleteSalesProposal['total'] > 0){
@@ -71,8 +72,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                        'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+                        'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                        '. $salesProposalNumber .'
+                                                    </a>',
                         'CUSTOMER' => $customerName,
+                        'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber . ' - ' . $productName,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">
@@ -116,14 +120,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $salesProposalID = $row['sales_proposal_id'];
                     $customerID = $row['customer_id'];
                     $salesProposalNumber = $row['sales_proposal_number'];
+                    $productType = $row['product_type'];
                     $productID = $row['product_id'];
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
 
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
 
                     $productDetails = $productModel->getProduct($productID);
-                    $productName = $productDetails['description'];
-                    $stockNumber = $productDetails['stock_number'];
+                    $productName = $productDetails['description'] ?? null;
+                    $stockNumber = $productDetails['stock_number'] ?? null;
 
                     $customerDetails = $customerModel->getPersonalInformation($customerID);
                     $customerName = $customerDetails['file_as'] ?? null;
@@ -137,8 +142,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $response[] = [
                         'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                        'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+                        'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                        '. $salesProposalNumber .'
+                                                    </a>',
                         'CUSTOMER' => $customerName,
+                        'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber . ' - ' . $productName,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">

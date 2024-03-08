@@ -105,7 +105,7 @@
           <div class="card-body">
             <div class="table-responsive dt-responsive">
               <input type="hidden" id="customer_id" value="<?php echo $customerID; ?>">
-              <table id="all-sales-proposal-table" class="table table-hover nowrap w-100">
+              <table id="all-sales-proposal-table" class="table table-hover nowrap w-100 text-uppercase">
                 <thead>
                   <tr>
                     <th class="all">
@@ -115,7 +115,8 @@
                     </th>
                     <th>Sales Proposal Number</th>
                     <th>Customer</th>
-                    <th>Product</th>
+                    <th>Product Type</th>
+                    <th>Stock</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
