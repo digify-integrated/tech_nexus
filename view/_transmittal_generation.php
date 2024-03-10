@@ -38,22 +38,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $filterTransmmittalDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_start_date'], '', 'Y-m-d', '');
                 $filterTransmmittalDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transmittal_date_end_date'], '', 'Y-m-d', '');
                 $filterTransmittalStatus = $_POST['transmittal_status_filter'];
+                $contactID = $_SESSION['contact_id'];
+                $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+                $contactDepartment = $employmentDetails['department_id'] ?? '';
 
                 $viewOwnTransmittal = $userModel->checkSystemActionAccessRights($user_id, 88);
 
-                if($viewOwnTransmittal['total'] > 0){
-                    $contactID = $_SESSION['contact_id'];
-                    $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
-                    $contactDepartment = $employmentDetails['department_id'] ?? '';
-                    
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnTransmittalTable(:contactID, :contactDepartment, :filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
-                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
-                    $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
-                }
-                else{
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
-                }
-                
+                $sql = $databaseModel->getConnection()->prepare('CALL generateAllTransmittalTable(:filterTransmmittalDateStartDate, :filterTransmmittalDateEndDate, :filterTransmittalStatus)');
                 $sql->bindValue(':filterTransmmittalDateStartDate', $filterTransmmittalDateStartDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterTransmmittalDateEndDate', $filterTransmmittalDateEndDate, PDO::PARAM_STR);
                 $sql->bindValue(':filterTransmittalStatus', $filterTransmittalStatus, PDO::PARAM_STR);
@@ -93,26 +84,30 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                     }
 
-                    $response[] = [
-                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $transmittalID .'">',
-                        'TRANSMITTAL_DESCRIPTION' => $transmittalDescription,
-                        'TRANSMITTED_FROM' => '<div class="col">
-                                                    <h6 class="mb-0">'. $transmitterName .'</h6>
-                                                    <p class="f-12 mb-0">'. $transmitterDepartmentName .'</p>
+                    if(($viewOwnTransmittal['total'] > 0 && ($createdBy == $contactID || ($transmitterID == $contactID && $transmitterDepartment == $contactDepartment) || ($receiverDepartment == $contactDepartment && !empty($receiverID) && !empty($receiverDepartment) && $receiverID == $contactID) || (empty($receiverID) && $receiverDepartment == $contactDepartment))) || $viewOwnTransmittal['total'] == 0){
+                        $response[] = [
+                            'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $transmittalID .'">',
+                            'TRANSMITTAL_DESCRIPTION' => $transmittalDescription,
+                            'TRANSMITTED_FROM' => '<div class="col">
+                                                        <h6 class="mb-0">'. $transmitterName .'</h6>
+                                                        <p class="f-12 mb-0">'. $transmitterDepartmentName .'</p>
+                                                    </div>',
+                            'TRANSMITTED_TO' => '<div class="col">
+                                                    <h6 class="mb-0">'. $receiverName .'</h6>
+                                                    <p class="f-12 mb-0">'. $receiverDepartmentName .'</p>
                                                 </div>',
-                        'TRANSMITTED_TO' => '<div class="col">
-                                                <h6 class="mb-0">'. $receiverName .'</h6>
-                                                <p class="f-12 mb-0">'. $receiverDepartmentName .'</p>
-                                            </div>',
-                        'TRANSMITTAL_DATE' => $transmittalDate,
-                        'STATUS' => $transmittalStatusBadge,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <a href="transmittal.php?id='. $transmittalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
-                                            <i class="ti ti-eye"></i>
-                                        </a>
-                                        '. $delete .'
-                                    </div>'
-                        ];
+                            'TRANSMITTAL_DATE' => $transmittalDate,
+                            'STATUS' => $transmittalStatusBadge,
+                            'ACTION' => '<div class="d-flex gap-2">
+                                            <a href="transmittal.php?id='. $transmittalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                                <i class="ti ti-eye"></i>
+                                            </a>
+                                            '. $delete .'
+                                        </div>'
+                            ];
+                    }
+
+                    
                 }
 
                 echo json_encode($response);

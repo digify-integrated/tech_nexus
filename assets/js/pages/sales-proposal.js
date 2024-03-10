@@ -3475,6 +3475,12 @@ function calculatePricingComputation(){
     var reconditioning_cost = parseFloat($("#reconditioning_cost").val()) || 0;
     var downpayment = parseFloat($("#downpayment").val()) || 0;
 
+    var payment_frequency = $('#payment_frequency').val();
+
+    if(payment_frequency == 'Lumpsum'){
+        term_length = 1;
+    }
+
     var subtotal = delivery_price + cost_of_accessories + reconditioning_cost;
     var outstanding_balance = subtotal - downpayment;
     var pn_amount = outstanding_balance * (1 + (interest_rate/100));
