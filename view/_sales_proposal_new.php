@@ -25,13 +25,35 @@
               </select>
             </div>
           </div>
-          <div class="form-group row d-none" id="stock-row">
+          <div class="form-group row d-none unit-row">
             <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="product_id" id="product_id">
                 <option value="">--</option>
                 <?php echo $productModel->generateInStockProductOptions(); ?>
               </select>
+            </div>
+          </div>
+          <div class="form-group row d-none fuel-row">
+            <label class="col-lg-4 col-form-label">Fuel Type : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="fuel_type" id="fuel_type">
+                <option value="">--</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Regular">Regular</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row d-none fuel-row">
+            <label class="col-lg-4 col-form-label">Fuel Quantity : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <div class="form-group">
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="fuel_quantity" name="fuel_quantity" step="0.01" min="0.01">
+                    <span class="input-group-text">lt</span>
+                  </div>
+                </div>
             </div>
           </div>
           <div class="form-group row">
@@ -48,7 +70,7 @@
           <div class="form-group row d-none" id="financing-institution-row">
             <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="text" class="form-control" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
@@ -63,7 +85,7 @@
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Referred By :</label>
             <div class="col-lg-8">
-              <input type="text" class="form-control" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
+              <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
@@ -115,7 +137,7 @@
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">First Due Date : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="text" class="form-control" id="first_due_date" name="first_due_date" readonly>
+              <input type="text" class="form-control text-uppercase" id="first_due_date" name="first_due_date" readonly>
             </div>
           </div>
           <div class="form-group row">
@@ -168,28 +190,50 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
               <select class="form-control select2" name="for_change_color" id="for_change_color">
                 <option value="">--</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
               </select>
             </div>
-            <div class="col-lg-5">
-              <input type="text" class="form-control" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
+            </div>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
               <select class="form-control select2" name="for_change_body" id="for_change_body">
                 <option value="">--</option>
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
               </select>
             </div>
-            <div class="col-lg-5">
-              <input type="text" class="form-control" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
+            </div>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
+            <div class="col-lg-2">
+              <select class="form-control select2" name="for_change_engine" id="for_change_engine">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
+            </div>
+            <div class="col-lg-3">
+              <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">

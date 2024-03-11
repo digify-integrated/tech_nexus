@@ -99,6 +99,9 @@
                         }
 
                         if($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'Draft'){
+                          
+                          echo '<button class="btn btn-info m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-client-confirmation">New Engine Stencil</button>';
+                          
                           echo '<button class="btn btn-success m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
 
                           if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
@@ -155,13 +158,35 @@
                                   </select>
                                 </div>
                               </div>
-                              <div class="form-group row d-none" id="stock-row">
+                              <div class="form-group row d-none unit-row">
                                 <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
                                   <select class="form-control select2" name="product_id" id="product_id">
                                     <option value="">--</option>
                                     '. $productModel->generateInStockProductOptions() .'
                                   </select>
+                                </div>
+                              </div>
+                              <div class="form-group row d-none fuel-row">
+                                <label class="col-lg-4 col-form-label">Fuel Type : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <select class="form-control select2" name="fuel_type" id="fuel_type">
+                                    <option value="">--</option>
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Premium">Premium</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="form-group row d-none fuel-row">
+                                <label class="col-lg-4 col-form-label">Fuel Quantity : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <div class="form-group">
+                                      <div class="input-group">
+                                        <input type="number" class="form-control" id="fuel_quantity" name="fuel_quantity" step="0.01" min="0.01">
+                                        <span class="input-group-text">lt</span>
+                                      </div>
+                                    </div>
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -178,7 +203,7 @@
                               <div class="form-group row d-none" id="financing-institution-row">
                                 <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                <input type="text" class="form-control" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -193,7 +218,7 @@
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Referred By :</label>
                                 <div class="col-lg-8">
-                                  <input type="text" class="form-control" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -234,7 +259,7 @@
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Number of Payments : <span class="text-danger">*</span></label>
                                 <div class="col-lg-4">
-                                  <input type="text" class="form-control" id="number_of_payments" name="number_of_payments" autocomplete="off" readonly>
+                                  <input type="text" class="form-control text-uppercase" id="number_of_payments" name="number_of_payments" autocomplete="off" readonly>
                                 </div>
                                 <div class="col-lg-4">
                                   <select class="form-control select2" name="payment_frequency" id="payment_frequency">
@@ -245,7 +270,7 @@
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">First Due Date : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                  <input type="text" class="form-control" id="first_due_date" name="first_due_date" readonly>
+                                  <input type="text" class="form-control text-uppercase" id="first_due_date" name="first_due_date" readonly>
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -298,28 +323,50 @@
                               </div>
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-                                <div class="col-lg-3">
+                                <div class="col-lg-2">
                                   <select class="form-control select2" name="for_change_color" id="for_change_color">
                                     <option value="">--</option>
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                   </select>
                                 </div>
-                                <div class="col-lg-5">
-                                  <input type="text" class="form-control" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
+                                </div>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
                                 </div>
                               </div>
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-                                <div class="col-lg-3">
+                                <div class="col-lg-2">
                                   <select class="form-control select2" name="for_change_body" id="for_change_body">
                                     <option value="">--</option>
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                   </select>
                                 </div>
-                                <div class="col-lg-5">
-                                  <input type="text" class="form-control" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
+                                </div>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
+                                <div class="col-lg-2">
+                                  <select class="form-control select2" name="for_change_engine" id="for_change_engine">
+                                    <option value="">--</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                  </select>
+                                </div>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
+                                </div>
+                                <div class="col-lg-3">
+                                  <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -352,6 +399,18 @@
                               <div class="col-lg-8">
                                 <label class="col-form-label" id="product_id_label"></label>
                                 <label class="col-form-label d-none" id="product_id_details"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Fuel Type :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="fuel_type_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Fuel Quantity :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="fuel_quantity_label"></label>
                               </div>
                             </div>
                             <div class="form-group row">
@@ -444,20 +503,38 @@
                             </div>
                             <div class="form-group row">
                               <label class="col-lg-4 col-form-label">For Change Color? :</label>
-                              <div class="col-lg-3">
+                              <div class="col-lg-2">
                                 <label class="col-form-label" id="for_change_color_label"></label>
                               </div>
-                              <div class="col-lg-5">
-                                <label class="col-form-label">New Color: <span id="new_color_label"></span></label>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">Old Color:<br/> <span id="old_color_label"></span></label>
+                              </div>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">New Color:<br/> <span id="new_color_label"></span></label>
                               </div>
                             </div>
                             <div class="form-group row">
                               <label class="col-lg-4 col-form-label">For Change Body? :</label>
-                              <div class="col-lg-3">
+                              <div class="col-lg-2">
                                 <label class="col-form-label" id="for_change_body_label"></label>
                               </div>
-                              <div class="col-lg-5">
-                                <label class="col-form-label">New Body: <span id="new_body_label"></span></label>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">Old Body:<br/> <span id="old_body_label"></span></label>
+                              </div>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">New Body:<br/> <span id="new_body_label"></span></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">For Change Engine? :</label>
+                              <div class="col-lg-2">
+                                <label class="col-form-label" id="for_change_engine_label"></label>
+                              </div>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">Old Engine:<br/> <span id="old_engine_label"></span></label>
+                              </div>
+                              <div class="col-lg-3">
+                                <label class="col-form-label">New Engine:<br/> <span id="new_engine_label"></span></label>
                               </div>
                             </div>
                             <div class="form-group row">
@@ -749,6 +826,22 @@
                           --
                         </div>
                        </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-body py-2">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                      <h5 class="mb-0">New Engine Stencil </h5>
+                    </li>
+                    <li class="list-group-item px-0">
+                      <div class="row align-items-center mb-3">
+                        <div class="col-sm-12 mb-sm-0">
+                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Engine Stencil Image" id="new-engine-stencil-image" class="img-fluid rounded">
+                        </div>                      
+                      </div>
                     </li>
                   </ul>
                 </div>
@@ -1470,10 +1563,14 @@
                               <td class="text-wrap" style="vertical-align: top !important;"><small style="color:#c60206"><b>FOR TRANSFER?</b></small><br/><span id="summary-for-transfer"></span></td>
                             </tr>
                             <tr>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE COLOR?</b></small><br/><span id="summary-for-change-color"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW COLOR?</b></small><br/><span id="summary-new-color"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE BODY?</b></small><br/><span id="summary-for-body-change"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW BODY?</b></small><br/><span id="summary-new-body"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FUEL TYPE</b></small><br/><span id="summary-fuel-type"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FUEL QUANTITY</b></small><br/><span id="summary-fuel-quantity"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE COLOR?</b></small><br/><span id="summary-for-change-color"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW COLOR</b></small><br/><span id="summary-new-color"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE BODY?</b></small><br/><span id="summary-for-change-body"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW BODY</b></small><br/><span id="summary-new-body"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>FOR CHANGE ENGINE?</b></small><br/><span id="summary-for-change-engine"></span></td>
+                              <td style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;:"><b>NEW ENGINE</b></small><br/><span id="summary-new-engine"></span></td>
                             </tr>
                             <tr>
                               <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
@@ -1731,7 +1828,7 @@
                               <div class="col-lg-12">
                                   <label class="form-label">Accessories <span class="text-danger">*</span></label>
                                   <input type="hidden" id="sales_proposal_accessories_id" name="sales_proposal_accessories_id">
-                                  <input type="text" class="form-control" id="accessories" name="accessories" maxlength="500" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="accessories" name="accessories" maxlength="500" autocomplete="off">
                               </div>
                           </div>
                           <div class="form-group row">
@@ -1766,7 +1863,7 @@
                               <div class="col-lg-12">
                                   <label class="form-label">Job Order <span class="text-danger">*</span></label>
                                   <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
-                                  <input type="text" class="form-control" id="job_order" name="job_order" maxlength="500" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off">
                               </div>
                           </div>
                           <div class="form-group row">
@@ -1801,7 +1898,7 @@
                               <div class="col-lg-12">
                                   <label class="form-label">Job Order Number <span class="text-danger">*</span></label>
                                   <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
-                                  <input type="text" class="form-control" id="job_order_number" name="job_order_number" maxlength="500" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="job_order_number" name="job_order_number" maxlength="500" autocomplete="off">
                               </div>
                           </div>
                           <div class="form-group row">
@@ -1818,7 +1915,7 @@
                           <div class="form-group row">
                               <div class="col-lg-12 mt-3 mt-lg-0">
                                   <label class="form-label">Particulars <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="particulars" name="particulars" maxlength="1000" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="particulars" name="particulars" maxlength="1000" autocomplete="off">
                               </div>
                           </div>
                           <div class="form-group row">
@@ -1864,7 +1961,7 @@
                           <div class="form-group row">
                               <div class="col-lg-12">
                                   <label class="form-label">Reference Number <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
+                                  <input type="text" class="form-control text-uppercase" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
                               </div>
                           </div>
                           <div class="form-group row">
@@ -2048,6 +2145,35 @@
                   <div class="row">
                       <div class="col-lg-12">
                           <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </di>
+                  </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <div>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-new-engine-stencil-offcanvas" aria-labelledby="sales-proposal-engine-stencil-offcanvas-label">
+              <div class="offcanvas-header">
+                  <h2 id="sales-proposal-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                  <div class="row">
+                      <div class="col-lg-12">
+                      <form id="sales-proposal-engine-stencil-form" method="post" action="#">
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label">New Engine Stencil Image <span class="text-danger">*</span></label>
+                                  <input type="file" class="form-control" id="new_engine_stencil_image" name="new_engine_stencil_image">
+                              </div>
+                          </div>
+                      </form>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-engine-stencil" form="sales-proposal-engine-stencil-form">Submit</button>
                           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                       </di>
                   </div>

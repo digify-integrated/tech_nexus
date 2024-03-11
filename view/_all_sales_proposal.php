@@ -96,9 +96,6 @@
                 <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>
-                <button type="button" class="d-none d-xxl-inline-flex btn btn-warning" data-bs-toggle="collapse" data-bs-target="#filter-canvas">
-                  Filter
-                </button>
               </div>
             </div>
           </div>
@@ -113,7 +110,7 @@
                         <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                       </div>
                     </th>
-                    <th>Sales Proposal Number</th>
+                    <th>OS Number</th>
                     <th>Customer</th>
                     <th>Product Type</th>
                     <th>Stock</th>

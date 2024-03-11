@@ -257,6 +257,10 @@ INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, 
 
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('All Sales Proposal', '7', 'all-sales-proposal.php', '', 'file-text', '1', '1');
 
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('SP Change Request', '7', 'sales-proposal-change-request.php', '', 'file-text', '1', '1');
+INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('SP For CI', '7', 'sales-proposal-for-ci.php', '', 'file', '1', '1');
+
+
 INSERT INTO menu_item (menu_item_name, menu_group_id, menu_item_url, parent_id, menu_item_icon, order_sequence, last_log_by) VALUES ('Transmittal Summary', '4', 'transmittal-summary.php', '', 'file-text', '2', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -365,6 +369,9 @@ INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_ac
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('71', '1', '1', '1', '1', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('72', '1', '1', '1', '0', '1', '1', '1');
 INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('73', '1', '1', '0', '0', '0', '0', '1');
+
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('74', '1', '1', '0', '0', '0', '0', '1');
+INSERT INTO menu_item_access_right (menu_item_id, role_id, read_access, write_access, create_access, delete_access, duplicate_access, last_log_by) VALUES ('75', '1', '1', '0', '0', '0', '0', '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -871,6 +878,7 @@ INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Contact ID', 'Sets the upload setting on uploading contact identification.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Sales Proposal Client Confirmation', 'Sets the upload setting on uploading sales proposal client confirmation.', 5, '1');
 INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Sales Proposal Credit Advice', 'Sets the upload setting on uploading sales proposal credit advice.', 5, '1');
+INSERT INTO upload_setting (upload_setting_name, upload_setting_description, max_file_size, last_log_by) VALUES ('Sales Proposal New Engine Stencil', 'Sets the upload setting on uploading sales proposal new engine stencil.', 5, '1');
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -943,6 +951,13 @@ INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id)
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 66);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 69);
 INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('12', 60);
+
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 61);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 62);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 63);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 66);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 69);
+INSERT INTO upload_setting_file_extension (upload_setting_id, file_extension_id) VALUES ('13', 60);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
@@ -5002,6 +5017,12 @@ CREATE TABLE sales_proposal(
 	new_color VARCHAR(100),
 	for_change_body VARCHAR(5),
 	new_body VARCHAR(100),
+	for_change_engine VARCHAR(5) NULL,
+	new_engine VARCHAR(100) NULL,
+	new_engine_stencil VARCHAR(500) NULL,
+	fuel_type VARCHAR(100) NULL,
+	fuel_quantity DOUBLE NULL,
+	change_request_status VARCHAR(100) NULL,
 	remarks VARCHAR(500),
 	created_by INT UNSIGNED NOT NULL,
 	sales_proposal_status VARCHAR(50) DEFAULT 'Draft',

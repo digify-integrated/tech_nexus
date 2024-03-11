@@ -174,6 +174,9 @@ class SalesProposalController {
                 case 'save sales proposal credit advice':
                     $this->saveSalesProposalCreditAdvice();
                     break;
+                case 'save sales proposal new engine stencil':
+                    $this->saveSalesProposalNewEngineStencil();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -208,6 +211,8 @@ class SalesProposalController {
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $fuelType = htmlspecialchars($_POST['fuel_type'], ENT_QUOTES, 'UTF-8');
+        $fuelQuantity = htmlspecialchars($_POST['fuel_quantity'], ENT_QUOTES, 'UTF-8');
         $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
         $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
         $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
@@ -226,6 +231,8 @@ class SalesProposalController {
         $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
         $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
         $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
+        $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
+        $newEngine  = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
         $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
@@ -241,7 +248,7 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -249,7 +256,7 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $newBody, $forChangeBody, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -373,6 +380,118 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: saveSalesProposalNewEngineStencil
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalNewEngineStencil() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $stencilImageFileName = $_FILES['new_engine_stencil_image']['name'];
+            $stencilImageFileSize = $_FILES['new_engine_stencil_image']['size'];
+            $stencilImageFileError = $_FILES['new_engine_stencil_image']['error'];
+            $stencilImageTempName = $_FILES['new_engine_stencil_image']['tmp_name'];
+            $stencilImageFileExtension = explode('.', $stencilImageFileName);
+            $stencilImageActualFileExtension = strtolower(end($stencilImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientstencilImage = !empty($salesProposalDetails['new_engine_stencil']) ? '.' . $salesProposalDetails['new_engine_stencil'] : null;
+    
+            if(file_exists($clientstencilImage)){
+                if (!unlink($clientstencilImage)) {
+                    echo json_encode(['success' => false, 'message' => 'New engine stencil image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(13);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(13);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($stencilImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($stencilImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the new engine stencil image.']);
+                exit;
+            }
+            
+            if($stencilImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($stencilImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The new engine stencil image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $stencilImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/new_engine_stencil/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/new_engine_stencil/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($stencilImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalStencil($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: saveSalesProposalCreditAdvice
     # Description: 
     # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
@@ -419,10 +538,10 @@ class SalesProposalController {
                 }
             }
 
-            $uploadSetting = $this->uploadSettingModel->getUploadSetting(11);
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(12);
             $maxFileSize = $uploadSetting['max_file_size'];
 
-            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(11);
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(12);
             $allowedFileExtensions = [];
 
             foreach ($uploadSettingFileExtension as $row) {
@@ -564,6 +683,16 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        /*$salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
+        $newEngineStencil = $salesProposalDetails['new_engine_stencil'] ?? null;
+        $clientstencilImage = !empty($newEngineStencil) ? '.' . $newEngineStencil : null;
+
+        if($forChangeEngine == 'Yes' && (empty($newEngineStencil) || (!empty($newEngineStencil) && !file_exists($clientstencilImage)))){            
+            echo json_encode(['success' => false, 'emptyStencil' => true]);
+            exit;
+        }*/
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
             
@@ -1364,9 +1493,14 @@ class SalesProposalController {
                 'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
                 'forChangeColor' => $salesProposalDetails['for_change_color'] ?? null,
                 'forChangeBody' => $salesProposalDetails['for_change_body'] ?? null,
+                'forChangeEngine' => $salesProposalDetails['for_change_engine'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'newColor' => $salesProposalDetails['new_color'] ?? null,
                 'newBody' => $salesProposalDetails['new_body'] ?? null,
+                'newEngine' => $salesProposalDetails['new_engine'] ?? null,
+                'fuelType' => $salesProposalDetails['fuel_type'] ?? null,
+                'fuelQuantity' => $salesProposalDetails['fuel_quantity'] ?? 0,
+                'changeRequestStatus' => $salesProposalDetails['change_request_status'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
@@ -1381,6 +1515,7 @@ class SalesProposalController {
                 'cancellationDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['cancellation_date'], '', 'm/d/Y', ''),
                 'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
                 'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
+                'newEngineStencil' => $this->systemModel->checkImage($salesProposalDetails['new_engine_stencil'], 'default'),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],

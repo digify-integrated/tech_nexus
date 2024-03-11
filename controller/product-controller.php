@@ -583,6 +583,8 @@ class ProductController {
     
             $productDetails = $this->productModel->getProduct($productID);
             $productSubategoryID = $productDetails['product_subcategory_id'];
+            $bodyTypeID = $productDetails['body_type_id'];
+            $colorID = $productDetails['color_id'];
             
             $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
             $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
@@ -590,6 +592,12 @@ class ProductController {
 
             $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
             $fullStockNumber = $productSubcategoryCode . $productDetails['stock_number'];
+
+            $getBodyType = $this->bodyTypeModel->getBodyType($bodyTypeID);
+            $bodyTypeName = $getBodyType['body_type_name'];
+
+            $getColor = $this->colorModel->getColor($colorID);
+            $colorName = $getColor['color_name'];
 
             $response = [
                 'success' => true,
@@ -604,12 +612,14 @@ class ProductController {
                 'plateNumber' => $productDetails['plate_number'],
                 'description' => $productDetails['description'],
                 'warehouseID' => $productDetails['warehouse_id'],
-                'bodyTypeID' => $productDetails['body_type_id'],
+                'bodyTypeID' => $bodyTypeID,
+                'bodyTypeName' => $bodyTypeName,
                 'length' => $productDetails['length'],
                 'lengthUnit' => $productDetails['length_unit'],
                 'runningHours' => $productDetails['running_hours'],
                 'mileage' => $productDetails['mileage'],
-                'colorID' => $productDetails['color_id'],
+                'colorID' => $colorID,
+                'colorName' => $colorName,
                 'productCost' => $productDetails['product_cost'],
                 'productPrice' => $productDetails['product_price'],
                 'remarks' => $productDetails['remarks']

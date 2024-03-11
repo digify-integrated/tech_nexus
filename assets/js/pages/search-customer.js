@@ -162,7 +162,7 @@ function searchCustomerForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Save');
+                    enableFormSubmitButton('submit-data', 'Seach');
                     $('#search-results').removeClass('d-none');
                 }
             });

@@ -100,9 +100,6 @@
                 <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>
-                <button type="button" class="d-none d-xxl-inline-flex btn btn-warning" data-bs-toggle="collapse" data-bs-target="#filter-canvas">
-                  Filter
-                </button>
               </div>
             </div>
           </div>

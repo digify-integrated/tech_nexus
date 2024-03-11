@@ -18,6 +18,14 @@
             allSalesProposalTable('#all-sales-proposal-table');
         }
 
+        if($('#sales-proposal-change-request-table').length){
+            salesProposalChangeRequestTable('#sales-proposal-change-request-table');
+        }
+
+        if($('#sales-proposal-for-ci-table').length){
+            salesProposalForCITable('#sales-proposal-for-ci-table');
+        }
+
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal details');
             displayDetails('get sales proposal accessories total details');
@@ -37,6 +45,10 @@
 
             if($('#sales-proposal-credit-advice-form').length){
                 salesProposalCreditAdviceForm();
+            }
+
+            if($('#sales-proposal-engine-stencil-form').length){
+                salesProposalEngineStencilForm();
             }
 
             if($('#sales-proposal-initial-approval-form').length){
@@ -458,11 +470,25 @@
 
         $(document).on('change','#product_type',function() {
             if($(this).val() == 'Unit'){
-                $('#stock-row').removeClass('d-none'); 
+                $('.unit-row').removeClass('d-none'); 
+
+                $('.fuel-row').addClass('d-none'); 
+                checkOptionExist('#fuel_type', '', '');
+                $('#fuel_quantity').val(''); 
+            }
+            else if($(this).val() == 'Fuel'){
+                $('.fuel-row').removeClass('d-none'); 
+
+                $('.unit-row').addClass('d-none'); 
+                checkOptionExist('#product_id', '', '');
             }
             else{
-                $('#stock-row').addClass('d-none'); 
+                $('.unit-row').addClass('d-none'); 
                 checkOptionExist('#product_id', '', '');
+
+                $('.fuel-row').addClass('d-none'); 
+                checkOptionExist('#fuel_type', '', '');
+                $('#fuel_quantity').val(''); 
             }
         });
 
@@ -496,7 +522,17 @@
             }
         });
 
-        $(document).on('change','#product_id',function() {
+        $(document).on('change','#for_change_engine',function() {
+            if($(this).val() == 'Yes'){
+                $("#new_engine").attr("readonly", false); 
+            }
+            else{
+                $('#new_engine').val('');
+                $("#new_engine").attr("readonly", true); 
+            }
+        });
+
+        $(document).on('change','#product_id',function() {  
             if($(this).val() != ''){
                 displayDetails('get product details');
             }
@@ -504,6 +540,9 @@
                 $('#product_engine_number').text('--');
                 $('#product_chassis_number').text('--');
                 $('#product_plate_number').text('--');
+                $('#old_color').val('');
+                $('#old_body').val('');
+                $('#old_engine').val('');
             }
         });
         
@@ -555,6 +594,9 @@
         $(document).on('click','#next-step-3',function() {
             if($('#delivery_price').valid()){
                 nextStep(3);
+                $("#sales-proposal-pricing-computation-form").submit();
+                $("#sales-proposal-other-charges-form").submit();
+                $("#sales-proposal-renewal-amount-form").submit();
             }
             else{
                 showNotification('Form Required', 'Kindly fill-out all of the required fields before proceeding.', 'warning');
@@ -633,6 +675,9 @@
                                     setNotification('User Inactive', response.message, 'danger');
                                     window.location = 'logout.php?logout';
                                 }
+                        else if (response.emptyStencil) {
+                            showNotification('For Initial Approval Error', 'Please upload the new engine stencil first.', 'danger');
+                        } 
                                 else if (response.notExist) {
                                     window.location = '404.php';
                                 }
@@ -796,7 +841,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '14%', 'aTargets': 1 },
-        { 'width': '25%', 'aTargets': 2 },
+        { 'width': '15%', 'aTargets': 2 },
         { 'width': '15%', 'aTargets': 3 },
         { 'width': '25%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
@@ -821,6 +866,134 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
             }
         },
         'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalChangeRequestTable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal change request table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'PROCEED_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalForCITable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal for ci table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'FOR_CI_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -1145,6 +1318,20 @@ function addSalesProposalForm(){
                     }
                 }
             },
+            fuel_type: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Fuel';
+                    }
+                }
+            },
+            fuel_quantity: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Fuel';
+                    }
+                }
+            },
             transaction_type: {
                 required: true
             },
@@ -1218,6 +1405,16 @@ function addSalesProposalForm(){
                     }
                 }
             },
+            for_change_engine: {
+                required: true
+            },
+            new_engine: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_engine']").val() === 'Yes';
+                    }
+                }
+            },
         },
         messages: {
             product_type: {
@@ -1225,6 +1422,12 @@ function addSalesProposalForm(){
             },
             product_id: {
                 required: 'Please choose the stock'
+            },
+            fuel_type: {
+                required: 'Please choose the fuel type'
+            },
+            fuel_quantity: {
+                required: 'Please choose the fuel quantity'
             },
             transaction_type: {
                 required: 'Please choose the transaction type'
@@ -1352,8 +1555,41 @@ function salesProposalForm(){
                 required: true
             },
             product_id: {
-                required: function(element) {
-                    return $("input[name='product_type']:checked").val() === 'Unit';
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Unit';
+                    }
+                }
+            },
+            fuel_type: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Fuel';
+                    }
+                }
+            },
+            fuel_quantity: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Fuel';
+                    }
+                }
+            },
+            transaction_type: {
+                required: true
+            },
+            financing_institution: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='transaction_type']").val() === 'Bank Financing';
+                    }
+                }
+            },
+            comaker_id: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='transaction_type']").val() === 'Installment Sales';
+                    }
                 }
             },
             release_date: {
@@ -1392,6 +1628,36 @@ function salesProposalForm(){
             for_transfer: {
                 required: true
             },
+            for_change_color: {
+                required: true
+            },
+            new_color: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_color']").val() === 'Yes';
+                    }
+                }
+            },
+            for_change_body: {
+                required: true
+            },
+            new_body: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_body']").val() === 'Yes';
+                    }
+                }
+            },
+            for_change_engine: {
+                required: true
+            },
+            new_engine: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='for_change_engine']").val() === 'Yes';
+                    }
+                }
+            },
         },
         messages: {
             product_type: {
@@ -1399,6 +1665,21 @@ function salesProposalForm(){
             },
             product_id: {
                 required: 'Please choose the stock'
+            },
+            fuel_type: {
+                required: 'Please choose the fuel type'
+            },
+            fuel_quantity: {
+                required: 'Please choose the fuel quantity'
+            },
+            transaction_type: {
+                required: 'Please choose the transaction type'
+            },
+            financing_institution: {
+                required: 'Please enter the financing institution'
+            },
+            comaker_id: {
+                required: 'Please choose the comaker'
             },
             release_date: {
                 required: 'Please choose the estimated date of release'
@@ -1426,6 +1707,12 @@ function salesProposalForm(){
             },
             final_approving_officer: {
                 required: 'Please choose the final approving officer'
+            },
+            new_color: {
+                required: 'Please enter the new color'
+            },
+            new_body: {
+                required: 'Please enter the new body'
             },
         },
         errorPlacement: function (error, element) {
@@ -1965,10 +2252,7 @@ function salesProposalPricingComputationForm(){
                     disableFormSubmitButton('submit-pricing-computation-data');
                 },
                 success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Pricing Computation Success', 'The pricing computation has been updated successfully.', 'success');
-                    }
-                    else{
+                    if (!response.success) {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
@@ -2039,10 +2323,7 @@ function salesProposalOtherChargesForm(){
                     disableFormSubmitButton('submit-other-charges-data');
                 },
                 success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Other Charges Success', 'The other charges has been updated successfully.', 'success');
-                    }
-                    else{
+                    if (!response.success) {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
@@ -2110,13 +2391,10 @@ function salesProposalRenewalAmountForm(){
                 data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
                 dataType: 'json',
                 beforeSend: function() {
-                    disableFormSubmitButton('submit-renewal-data');
+                    disableFormSubmitButton('submit-renewal-amount-data');
                 },
                 success: function (response) {
-                    if (response.success) {
-                        showNotification('Update Renewal Amount Success', 'The renewal amount has been updated successfully.', 'success');
-                    }
-                    else{
+                    if (!response.success) {
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
@@ -2133,7 +2411,7 @@ function salesProposalRenewalAmountForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-renewal-data', 'Submit');
+                    enableFormSubmitButton('submit-renewal-amount-data', 'Submit');
                     displayDetails('get sales proposal renewal amount details');
                 }
             });
@@ -2205,7 +2483,8 @@ function salesProposalInitalApprovalForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        } 
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -2750,6 +3029,97 @@ function salesProposalCreditAdviceForm(){
     });
 }
 
+function salesProposalEngineStencilForm(){
+    $('#sales-proposal-engine-stencil-form').validate({
+        rules: {
+            new_engine_stencil_image: {
+                required: true
+            },
+        },
+        messages: {
+            new_engine_stencil_image: {
+                required: 'Please choose the new engine stencil image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal new engine stencil';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('engine-stencil');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('New Engine Stencil Upload Success', 'The new engine stencil has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('engine-stencil', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get sales proposal details':
@@ -2776,6 +3146,8 @@ function displayDetails(transaction){
                         $('#financing_institution').val(response.financingInstitution);
                         $('#new_color').val(response.newColor);
                         $('#new_body').val(response.newBody);
+                        $('#new_engine').val(response.newEngine);
+                        $('#fuel_quantity').val(response.fuelQuantity);
 
                         $('#summary-sales-proposal-number').text(response.salesProposalNumber);
                         $('#summary-referred-by').text(response.referredBy);
@@ -2793,8 +3165,12 @@ function displayDetails(transaction){
                         $('#summary-transaction-type').text(response.transactionType);
                         $('#summary-for-change-color').text(response.forChangeColor);
                         $('#summary-new-color').text(response.newColor);
-                        $('#summary-for-body-change').text(response.forChangeBody);
+                        $('#summary-for-change-body').text(response.forChangeBody);
                         $('#summary-new-body').text(response.newBody);
+                        $('#summary-for-change-engine').text(response.forChangeEngine);
+                        $('#summary-new-engine').text(response.newEngine);
+                        $('#summary-fuel-type').text(response.fuelType);
+                        $('#summary-fuel-quantity').text(response.fuelQuantity + ' lt');
 
                         $('#product_id_label').text(response.productName);
                         $('#comaker_id_label').text(response.comakerName);
@@ -2834,10 +3210,15 @@ function displayDetails(transaction){
                         $('#for_change_color_label').text(response.forChangeColor);
                         $('#new_color_label').text(response.newColor);
                         $('#for_change_body_label').text(response.forChangeBody);
+                        $('#for_change_engine_label').text(response.forChangeEngine);
+                        $('#fuel_type_label').text(response.fuelType);
+                        $('#fuel_quantity_label').text(response.fuelQuantity + ' lt');
                         $('#new_body_label').text(response.newBody);
+                        $('#new_engine_label').text(response.newEngine);
 
                         document.getElementById('client-confirmation-image').src = response.clientConfirmation;
                         document.getElementById('credit-advice-image').src = response.creditAdvice;
+                        document.getElementById('new-engine-stencil-image').src = response.newEngineStencil;
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#product_type', response.productType, '');
@@ -2850,6 +3231,8 @@ function displayDetails(transaction){
                         checkOptionExist('#for_transfer', response.forTransfer, '');
                         checkOptionExist('#for_change_color', response.forChangeColor, '');
                         checkOptionExist('#for_change_body', response.forChangeBody, '');
+                        checkOptionExist('#for_change_engine', response.forChangeEngine, '');
+                        checkOptionExist('#fuel_type', response.fuelType, '');
                         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
                         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
 
@@ -3339,6 +3722,14 @@ function displayDetails(transaction){
                             $('#product_chassis_number').text(response.chassisNumber);
                             $('#product_plate_number').text(response.plateNumber);
                             $('#product_category').val(response.productCategoryID);
+
+                            $('#old_color').val(response.colorName);
+                            $('#old_body').val(response.bodyTypeName);
+                            $('#old_engine').val(response.engineNumber);
+
+                            $('#old_color_label').text(response.colorName);
+                            $('#old_body_label').text(response.bodyTypeName);
+                            $('#old_engine_label').text(response.engineNumber);
     
                             $('#summary-stock-no').text(response.summaryStockNumber);
                             $('#summary-engine-no').text(response.engineNumber);
@@ -3512,17 +3903,20 @@ function calculateRenewalAmount(){
     var delivery_price = parseFloat($("#delivery_price").val()) || 0;
 
     if(delivery_price > 0){
+        var second_year_coverage = delivery_price * 0.8;
+        var third_year_coverage = second_year_coverage * 0.9;
+        var fourth_year_coverage = third_year_coverage * 0.9;
+        
         if($('#compute_second_year').is(':checked')) {
-            var current_coverage = delivery_price * 0.8;
-            $('#insurance_coverage_second_year').val(current_coverage);
+            $('#insurance_coverage_second_year').val(second_year_coverage.toFixed(2));
     
             if(product_category == '1'){
-                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = (((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
     
                 $('#insurance_premium_second_year').val(premium.toFixed(2));
             }
             else if(product_category == '2'){
-                var premium = (current_coverage * 0.025) * 1.2526;
+                var premium = (second_year_coverage * 0.025) * 1.2526;
     
                 $('#insurance_premium_second_year').val(premium.toFixed(2));
             }
@@ -3536,16 +3930,15 @@ function calculateRenewalAmount(){
         }
     
         if($('#compute_third_year').is(':checked')) {
-            var current_coverage = delivery_price * 0.7;
-            $('#insurance_coverage_third_year').val(current_coverage);
+            $('#insurance_coverage_third_year').val(third_year_coverage.toFixed(2));
     
             if(product_category == '1'){
-                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = (((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
     
                 $('#insurance_premium_third_year').val(premium.toFixed(2));
             }
             else if(product_category == '2'){
-                var premium = (current_coverage * 0.025) * 1.2526;
+                var premium = (third_year_coverage * 0.025) * 1.2526;
     
                 $('#insurance_premium_third_year').val(premium.toFixed(2));
             }
@@ -3559,16 +3952,15 @@ function calculateRenewalAmount(){
         }
     
         if($('#compute_fourth_year').is(':checked')) {
-            var current_coverage = delivery_price * 0.6;
-            $('#insurance_coverage_fourth_year').val(current_coverage);
+            $('#insurance_coverage_fourth_year').val(fourth_year_coverage.toFixed(2));
     
             if(product_category == '1'){
-                var premium = (((current_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = (((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
     
                 $('#insurance_premium_fourth_year').val(premium.toFixed(2));
             }
             else if(product_category == '2'){
-                var premium = (current_coverage * 0.025) * 1.2526;
+                var premium = (fourth_year_coverage * 0.025) * 1.2526;
     
                 $('#insurance_premium_fourth_year').val(premium.toFixed(2));
             }
