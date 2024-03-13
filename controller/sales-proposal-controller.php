@@ -213,6 +213,8 @@ class SalesProposalController {
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $fuelType = htmlspecialchars($_POST['fuel_type'], ENT_QUOTES, 'UTF-8');
         $fuelQuantity = htmlspecialchars($_POST['fuel_quantity'], ENT_QUOTES, 'UTF-8');
+        $pricePerLiter = htmlspecialchars($_POST['price_per_liter'], ENT_QUOTES, 'UTF-8');
+        $commissionAmount = htmlspecialchars($_POST['commission_amount'], ENT_QUOTES, 'UTF-8');
         $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
         $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
         $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
@@ -248,7 +250,7 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -256,7 +258,7 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -1500,6 +1502,8 @@ class SalesProposalController {
                 'newEngine' => $salesProposalDetails['new_engine'] ?? null,
                 'fuelType' => $salesProposalDetails['fuel_type'] ?? null,
                 'fuelQuantity' => $salesProposalDetails['fuel_quantity'] ?? 0,
+                'pricePerLiter' => $salesProposalDetails['price_per_liter'] ?? 0,
+                'commissionAmount' => $salesProposalDetails['commission_amount'] ?? 0,
                 'changeRequestStatus' => $salesProposalDetails['change_request_status'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'approvalByName' => $approvalByName,

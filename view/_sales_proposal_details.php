@@ -153,6 +153,7 @@
                                     <option value="">--</option>
                                     <option value="Unit">Unit</option>
                                     <option value="Fuel">Fuel</option>
+                                    <option value="Repair">Repair</option>
                                     <option value="Refinancing">Refinancing</option>
                                     <option value="Real Estate">Real Estate</option>
                                   </select>
@@ -189,6 +190,12 @@
                                     </div>
                                 </div>
                               </div>
+                              <div class="form-group row d-none fuel-row">
+                                <label class="col-lg-4 col-form-label">Price/Liter : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <input type="number" class="form-control" id="price_per_liter" name="price_per_liter" step="0.01" min="0.01">
+                                </div>
+                              </div>
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Transaction Type : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
@@ -219,6 +226,12 @@
                                 <label class="col-lg-4 col-form-label">Referred By :</label>
                                 <div class="col-lg-8">
                                   <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Commission Amount : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <input type="number" class="form-control" id="commission_amount" name="commission_amount" step="0.01" min="0">
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -414,6 +427,12 @@
                               </div>
                             </div>
                             <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Price Per Liter :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="price_per_liter_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
                               <label class="col-lg-4 col-form-label">Transaction Type :</label>
                               <div class="col-lg-8">
                                 <label class="col-form-label" id="transaction_type_label"></label>
@@ -436,6 +455,12 @@
                               <label class="col-lg-4 col-form-label">Referred By :</label>
                               <div class="col-lg-8">
                                 <label class="col-form-label" id="referred_by_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Commission Amount :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="commission_amount_label"></label>
                               </div>
                             </div>
                             <div class="form-group row">

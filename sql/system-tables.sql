@@ -5022,6 +5022,8 @@ CREATE TABLE sales_proposal(
 	new_engine_stencil VARCHAR(500) NULL,
 	fuel_type VARCHAR(100) NULL,
 	fuel_quantity DOUBLE NULL,
+	price_per_liter DOUBLE NULL,
+	commission_amount DOUBLE NULL,
 	change_request_status VARCHAR(100) NULL,
 	remarks VARCHAR(500),
 	created_by INT UNSIGNED NOT NULL,

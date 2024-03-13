@@ -594,10 +594,10 @@ class ProductController {
             $fullStockNumber = $productSubcategoryCode . $productDetails['stock_number'];
 
             $getBodyType = $this->bodyTypeModel->getBodyType($bodyTypeID);
-            $bodyTypeName = $getBodyType['body_type_name'];
+            $bodyTypeName = $getBodyType['body_type_name'] ?? null;
 
             $getColor = $this->colorModel->getColor($colorID);
-            $colorName = $getColor['color_name'];
+            $colorName = $getColor['color_name'] ?? null;
 
             $response = [
                 'success' => true,

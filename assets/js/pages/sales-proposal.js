@@ -1575,6 +1575,13 @@ function salesProposalForm(){
                     }
                 }
             },
+            price_per_liter: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Fuel';
+                    }
+                }
+            },
             transaction_type: {
                 required: true
             },
@@ -1593,6 +1600,9 @@ function salesProposalForm(){
                 }
             },
             release_date: {
+                required: true
+            },
+            commission_amount: {
                 required: true
             },
             start_date: {
@@ -1671,6 +1681,12 @@ function salesProposalForm(){
             },
             fuel_quantity: {
                 required: 'Please choose the fuel quantity'
+            },
+            price_per_liter: {
+                required: 'Please enter the price per liter'
+            },
+            commission_amount: {
+                required: 'Please enter the commission amount'
             },
             transaction_type: {
                 required: 'Please choose the transaction type'
@@ -3148,6 +3164,8 @@ function displayDetails(transaction){
                         $('#new_body').val(response.newBody);
                         $('#new_engine').val(response.newEngine);
                         $('#fuel_quantity').val(response.fuelQuantity);
+                        $('#price_per_liter').val(response.pricePerLiter);
+                        $('#commission_amount').val(response.commissionAmount);
 
                         $('#summary-sales-proposal-number').text(response.salesProposalNumber);
                         $('#summary-referred-by').text(response.referredBy);
@@ -3215,6 +3233,8 @@ function displayDetails(transaction){
                         $('#fuel_quantity_label').text(response.fuelQuantity + ' lt');
                         $('#new_body_label').text(response.newBody);
                         $('#new_engine_label').text(response.newEngine);
+                        $('#price_per_liter_label').text(response.pricePerLiter);
+                        $('#commission_amount_label').text(response.commissionAmount);
 
                         document.getElementById('client-confirmation-image').src = response.clientConfirmation;
                         document.getElementById('credit-advice-image').src = response.creditAdvice;
