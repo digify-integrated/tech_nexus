@@ -42,8 +42,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $customerName = $customerDetails['file_as'] ?? null;
 
                 $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
+                $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalTable(:customerID, :salesProposalStatusFilter)');
+                if($viewOwnSalesProposal['total'] > 0){
+                    $contactID = $_SESSION['contact_id'];
+
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnCustomerSalesProposalTable(:customerID, :contactID, :salesProposalStatusFilter)');
+                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_STR);
+                }
+                else{
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalTable(:customerID, :salesProposalStatusFilter)');
+                }
+
+                
                 $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
                 $sql->bindValue(':salesProposalStatusFilter', $salesProposalStatusFilter, PDO::PARAM_STR);
                 $sql->execute();
@@ -109,8 +120,19 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $salesProposalStatusFilter = htmlspecialchars($_POST['sales_proposal_status_filter'], ENT_QUOTES, 'UTF-8');
 
                 $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
+                $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
 
-                $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:salesProposalStatusFilter)');
+                if($viewOwnSalesProposal['total'] > 0){
+                    $contactID = $_SESSION['contact_id'];
+
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :salesProposalStatusFilter)');
+                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_STR);
+                }
+                else{
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:salesProposalStatusFilter)');
+                }
+
+              
                 $sql->bindValue(':salesProposalStatusFilter', $salesProposalStatusFilter, PDO::PARAM_STR);
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -201,7 +223,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                    'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                    'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-change-request.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
                     'CUSTOMER' => $customerName,
@@ -210,7 +232,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PROCEED_DATE' => $proceedDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="sales-proposal-change-request-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
@@ -258,7 +280,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                    'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                    'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
                     'CUSTOMER' => $customerName,
@@ -267,7 +289,65 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'FOR_CI_DATE' => $forCIDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+        
+        # -------------------------------------------------------------
+        #
+        # Type: approved sales proposal table
+        # Description:
+        # Generates the sales proposal table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'approved sales proposal table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateApprovedSalesProposalTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+
+                $proceedDate = $systemModel->checkDate('summary', $row['approval_date'], '', 'm/d/Y h:i:s A', '');
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
+                    'SALES_PROPOSAL_NUMBER' => '<a href="approved-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => $customerName,
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'PROCEED_DATE' => $proceedDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="approved-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

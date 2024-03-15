@@ -13,23 +13,24 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
   if($addCustomerAddress['total'] > 0){
     $customerAddressAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" id="add-contact-address"><i class="ti ti-plus"></i></button>';
   }
-
-  if($addCustomerContactInformation['total'] > 0){
-    $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';
-  }
-
-  if($addCustomerIdentification['total'] > 0){
-    $customerIdentificationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification"><i class="ti ti-plus"></i></button>';
-  }
-
-  if($addCustomerFamilyBackground['total'] > 0){
-    $customerFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
-  }
-
-  if($addCustomerComaker['total'] > 0){
-    $customerComakerAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-offcanvas" aria-controls="contact-comaker-offcanvas" id="add-contact-comaker"><i class="ti ti-plus"></i></button>';
-  }
 }
+
+if($addCustomerContactInformation['total'] > 0){
+  $contactInformationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-information-offcanvas" aria-controls="contact-information-offcanvas" id="add-contact-information"><i class="ti ti-plus"></i></button>';
+}
+
+if($addCustomerIdentification['total'] > 0){
+  $customerIdentificationAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-identification-offcanvas" aria-controls="contact-identification-offcanvas" id="add-contact-identification"><i class="ti ti-plus"></i></button>';
+}
+
+if($addCustomerFamilyBackground['total'] > 0){
+  $customerFamilyBackgroundAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-family-background-offcanvas" aria-controls="contact-family-background-offcanvas" id="add-contact-family-background"><i class="ti ti-plus"></i></button>';
+}
+
+if($addCustomerComaker['total'] > 0){
+  $customerComakerAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-comaker-offcanvas" aria-controls="contact-comaker-offcanvas" id="add-contact-comaker"><i class="ti ti-plus"></i></button>';
+}
+
 ?>
 
 <div class="row">
@@ -62,9 +63,7 @@ if($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customer
                                   $dropdown .= '<li><button type="button" class="dropdown-item" id="change-status-to-for-updating">For Updating</button></li>';
                                 }
 
-                                if ($customerStatus == 'Draft' || $customerStatus == 'For Updating') {
-                                    $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-image-offcanvas" aria-controls="contact-image-offcanvas">Update Customer Image</button></li>';
-                                }
+                                $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-image-offcanvas" aria-controls="contact-image-offcanvas">Update Customer Image</button></li>';
                                         
                                 $dropdown .= '</ul>
                                             </div>';

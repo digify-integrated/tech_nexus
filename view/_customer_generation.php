@@ -388,6 +388,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $details = '';
                 $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
 
+                $customerDetails = $customerModel->getCustomer($customerID);
+                $customerStatus = $customerDetails['contact_status'];
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateContactAddressSummary(:customerID)');
                 $sql->bindValue(':customerID', $customerID, PDO::PARAM_INT);
                 $sql->execute();
@@ -425,7 +428,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $addressTypeName = $addressTypeModel->getAddressType($addressTypeID)['address_type_name'] ?? null;
 
                     $dropdown = '';
-                    if ($customerWriteAccess['total'] > 0) {
+                    if ($customerWriteAccess['total'] > 0 && ($customerStatus == 'Draft' || $customerStatus == 'For Updating')) {
                         $update = ($customerWriteAccess['total'] > 0 && $updateEmployeeAddress['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item update-contact-address" data-bs-toggle="offcanvas" data-bs-target="#contact-address-offcanvas" aria-controls="contact-address-offcanvas" data-contact-address-id="'. $contactAddressID . '">Edit</a>' : '';
                     
                         $tag = ($customerWriteAccess['total'] > 0 && $tagEmployeeAddress['total'] > 0 && !$isPrimary) ? '<a href="javascript:void(0);" class="dropdown-item tag-contact-address-as-primary" data-contact-address-id="'. $contactAddressID . '">Tag As Primary</a>' : '';

@@ -72,18 +72,33 @@ function searchCustomerForm(){
     $('#search-customer-form').validate({
         rules: {
             first_name: {
-                required: true
+                required: true,
+                minlength: 3
             },
             last_name: {
-                required: true
+                required: true,
+                minlength: 3
+            },
+            middle_name: {
+                minlength: {
+                    depends: function(element) {
+                        return $('#middle_name').val().trim().length > 0; // Check if middle name is not null
+                    },
+                    param: 3 // Minimum character length of 3 for the middle name
+                }
             }
         },
         messages: {
             first_name: {
-                required: 'Please enter the first name'
+                required: 'Please enter the first name',
+                minlength: 'The first name must be at least 3 characters long'
             },
             last_name: {
-                required: 'Please enter the last name'
+                required: 'Please enter the last name',
+                minlength: 'The last name must be at least 3 characters long'
+            },
+            middle_name: {
+                minlength: 'The middle name must be at least 3 characters long'
             }
         },
         errorPlacement: function (error, element) {

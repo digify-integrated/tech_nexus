@@ -22,6 +22,10 @@
             salesProposalChangeRequestTable('#sales-proposal-change-request-table');
         }
 
+        if($('#approved-sales-proposal-table').length){
+            approvedSalesProposalTable('#approved-sales-proposal-table');
+        }
+
         if($('#sales-proposal-for-ci-table').length){
             salesProposalForCITable('#sales-proposal-for-ci-table');
         }
@@ -579,6 +583,18 @@
             nextStep(1);
         });
         
+        $(document).on('click','#next-step-1-modified',function() {
+            nextStep(1);
+        });
+
+        $(document).on('click','#prev-step-2-modified',function() {
+            prevStep(2);
+        });
+        
+        $(document).on('click','#next-step-1',function() {
+            $("#sales-proposal-form").submit();
+        });
+        
         $(document).on('click','#prev-step-2',function() {
             prevStep(2);
         });
@@ -800,7 +816,7 @@ function salesProposalTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -865,7 +881,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 1, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -889,6 +905,70 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
 
 function salesProposalChangeRequestTable(datatable_name, buttons = false, show_all = false){
     const type = 'sales proposal change request table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'PROCEED_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function approvedSalesProposalTable(datatable_name, buttons = false, show_all = false){
+    const type = 'approved sales proposal table';
 
     var settings;
 
@@ -1770,9 +1850,6 @@ function salesProposalForm(){
                 url: 'controller/sales-proposal-controller.php',
                 data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id + '&customer_id=' + customer_id,
                 dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-data');           
-                },
                 success: function (response) {
                     if (response.success) {
                         if(response.insertRecord){
@@ -1798,9 +1875,8 @@ function salesProposalForm(){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function() {
-                    enableFormSubmitButton('submit-data', 'Submit');
-                    nextStep(1);
                     displayDetails('get sales proposal details');
+                    nextStep(1);
                 }
             });
         

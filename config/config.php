@@ -21,8 +21,8 @@ date_default_timezone_set('Asia/Manila');
 # -------------------------------------------------------------
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'nexusdb');
-define('DB_USER', 'nexus');
+define('DB_NAME', 'nexusdb2');
+define('DB_USER', 'cgmi');
 define('DB_PASS', 'qKHJpbkgC6t93nQr');
 
 # -------------------------------------------------------------

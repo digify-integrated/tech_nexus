@@ -1454,6 +1454,9 @@ class CustomerController {
     
         $userID = $_SESSION['user_id'];
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $contactImage = $customerDetails['contact_image'];
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -1469,6 +1472,12 @@ class CustomerController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        if(empty($contactImage)){
+            echo json_encode(['success' => false, 'noContactImage' =>  true]);
+            exit;
+        }
+    
     
         $checkCustomerPrimaryAddress = $this->customerModel->checkCustomerPrimaryAddress($customerID);
         $total = $checkCustomerPrimaryAddress['total'] ?? 0;

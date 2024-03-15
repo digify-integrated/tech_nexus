@@ -6890,19 +6890,6 @@ BEGIN
     WHERE contact_id = p_contact_id AND is_primary = 1;
 END //
 
-CREATE PROCEDURE checkCustomerSearch(IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300))
-BEGIN
-    IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
-        SELECT COUNT(*) AS total
-        FROM personal_information
-        WHERE first_name = p_first_name AND middle_name = p_middle_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
-    ELSE
-        SELECT COUNT(*) AS total
-        FROM personal_information
-        WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
-    END IF;
-END //
-
 CREATE PROCEDURE checkCustomerComakerSearch(IN p_contact_id INT, IN p_first_name VARCHAR(300), IN p_last_name VARCHAR(300))
 BEGIN
     SELECT COUNT(*) AS total
@@ -7002,11 +6989,24 @@ BEGIN
    IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
         SELECT contact_id, file_as
         FROM personal_information
-        WHERE first_name = p_first_name AND middle_name = p_middle_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
+        WHERE first_name LIKE CONCAT('%', p_first_name, '%') AND middle_name LIKE CONCAT('%', p_middle_name, '%') AND last_name LIKE CONCAT('%', p_last_name, '%') AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
     ELSE
         SELECT contact_id, file_as
         FROM personal_information
-        WHERE first_name = p_first_name AND last_name = p_last_name AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
+        WHERE first_name LIKE CONCAT('%', p_first_name, '%') AND last_name LIKE CONCAT('%', p_last_name, '%') AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1);
+    END IF;
+END //
+
+CREATE PROCEDURE checkCustomerSearch(IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+    IF p_middle_name IS NOT NULL AND p_middle_name <> '' THEN
+        SELECT COUNT(*) AS total
+        FROM personal_information
+        WHERE first_name LIKE CONCAT('%', p_first_name, '%') AND middle_name LIKE CONCAT('%', p_middle_name, '%') AND last_name LIKE CONCAT('%', p_last_name, '%') AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
+    ELSE
+        SELECT COUNT(*) AS total
+        FROM personal_information
+        WHERE first_name LIKE CONCAT('%', p_first_name, '%') AND last_name LIKE CONCAT('%', p_last_name, '%') AND contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = 'Active');
     END IF;
 END //
 
@@ -7231,6 +7231,31 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateOwnCustomerSalesProposalTable(IN p_customer_id INT, IN p_contact_id INT, IN p_sales_proposal_status VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM sales_proposal';
+    
+    SET conditionList = ' WHERE customer_id = ';
+    SET conditionList = CONCAT(conditionList, p_customer_id);
+    SET conditionList = CONCAT(conditionList, ' AND created_by =');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+
+    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateAllSalesProposalTable(IN p_sales_proposal_status VARCHAR(50))
 BEGIN
     DECLARE query VARCHAR(1000);
@@ -7253,9 +7278,38 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_sales_proposal_status VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM sales_proposal';
+
+    SET conditionList = '';
+    SET conditionList = CONCAT(conditionList, ' WHERE created_by =');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+
+    IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_sales_proposal_status));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
 CREATE PROCEDURE generateSalesProposalChangeRequestTable()
 BEGIN
    SELECT * FROM sales_proposal WHERE sales_proposal_status = 'Proceed' AND (for_registration = 'Yes' OR for_transfer = 'Yes' OR for_change_color = 'Yes' OR for_change_body = 'Yes' OR for_change_engine = 'Yes');
+END //
+
+CREATE PROCEDURE generateApprovedSalesProposalTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On Process', 'Ready For Release', 'For DR');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()

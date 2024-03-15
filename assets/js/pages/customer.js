@@ -823,6 +823,9 @@
                                         setNotification('User Inactive', response.message, 'danger');
                                         window.location = 'logout.php?logout';
                                     }
+                                    else if (response.noContactImage) {
+                                        showNotification('Customer Status Activation Error', 'There is no customer image set.', 'danger');
+                                    }
                                     else if (response.noPrimaryAddress) {
                                         showNotification('Customer Status Activation Error', 'There is no primary address set.', 'danger');
                                     }

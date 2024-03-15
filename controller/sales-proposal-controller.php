@@ -75,7 +75,7 @@ class SalesProposalController {
     # -------------------------------------------------------------
     public function handleRequest(){
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
+            $transaction = isset($_POST['transaction']) ? trim($_POST['transaction']) : null;
 
             switch ($transaction) {
                 case 'save sales proposal':
@@ -202,13 +202,14 @@ class SalesProposalController {
     # -------------------------------------------------------------
     public function saveSalesProposal() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
         }
     
         $userID = $_SESSION['user_id'];
         $contactID = $_SESSION['contact_id'] ?? 1;
-        $salesProposalID = isset($_POST['sales_proposal_id']) ? htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8') : null;
-        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
+        $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
+        $customerID = $_POST['customer_id'];
         $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
         $fuelType = htmlspecialchars($_POST['fuel_type'], ENT_QUOTES, 'UTF-8');

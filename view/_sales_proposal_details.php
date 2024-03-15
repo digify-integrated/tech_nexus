@@ -92,7 +92,7 @@
                     <div class="col-auto">
                       <?php
                         if($salesProposalSatus == 'Draft'){
-                          echo '<button type="submit" form="sales-proposal-form" class="btn btn-primary" id="next-step-1">Next</button>';
+                          echo '<button type="button" class="btn btn-primary" id="next-step-1">Next</button>';
                         }
                         else{
                           echo '<button type="button" class="btn btn-primary" id="next-step-1-normal">Next</button>';
@@ -124,11 +124,6 @@
                       <h5 class="mb-0">Details</h5>
                     </div>
                     <div class="col-auto">
-                      <?php
-                        if($salesProposalSatus == 'Draft'){
-                          echo '<button type="submit" form="sales-proposal-form" class="btn btn-success" id="submit-data">Submit</button>';
-                        }
-                      ?>
                     </div>
                   </div>
                 </div>
@@ -1536,7 +1531,7 @@
                         echo '<button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>';
                       }
 
-                      if($setToDraftSalesProposal['total'] > 0 && ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI')){
+                      if($setToDraftSalesProposal['total'] > 0 && ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI' || $salesProposalSatus == 'Rejected')){
                         echo ' <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>';
                       }
                     ?>                                      
