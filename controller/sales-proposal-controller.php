@@ -123,6 +123,15 @@ class SalesProposalController {
                 case 'sales proposal set to draft':
                     $this->tagSalesProposalSetToDraft();
                     break;
+                case 'tag on process':
+                    $this->tagSalesProposalOnProcess();
+                    break;
+                case 'tag ready for release':
+                    $this->tagSalesProposalReadyForRelease();
+                    break;
+                case 'tag for DR':
+                    $this->tagSalesProposalForDR();
+                    break;
                 case 'delete sales proposal accessories':
                     $this->deleteSalesProposalAccessories();
                     break;
@@ -170,6 +179,15 @@ class SalesProposalController {
                     break;
                 case 'save sales proposal client confirmation':
                     $this->saveSalesProposalClientConfirmation();
+                    break;
+                case 'save sales proposal quality control form':
+                    $this->saveSalesProposalQualityControlForm();
+                    break;
+                case 'save sales proposal outgoing checklist':
+                    $this->saveSalesProposalOutgoingChecklist();
+                    break;
+                case 'save sales proposal unit image':
+                    $this->saveSalesProposalUnitImage();
                     break;
                 case 'save sales proposal credit advice':
                     $this->saveSalesProposalCreditAdvice();
@@ -370,6 +388,342 @@ class SalesProposalController {
             }
 
             $this->salesProposalModel->updateSalesProposalClientConfirmation($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalQualityControlForm
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalQualityControlForm() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $qualityControlImageFileName = $_FILES['quality_control_image']['name'];
+            $qualityControlImageFileSize = $_FILES['quality_control_image']['size'];
+            $qualityControlImageFileError = $_FILES['quality_control_image']['error'];
+            $qualityControlImageTempName = $_FILES['quality_control_image']['tmp_name'];
+            $qualityControlImageFileExtension = explode('.', $qualityControlImageFileName);
+            $qualityControlImageActualFileExtension = strtolower(end($qualityControlImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientqualityControlImage = !empty($salesProposalDetails['quality_control_form']) ? '.' . $salesProposalDetails['quality_control_form'] : null;
+    
+            if(file_exists($clientqualityControlImage)){
+                if (!unlink($clientqualityControlImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Quality control form image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(14);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(14);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($qualityControlImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($qualityControlImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the quality control form image.']);
+                exit;
+            }
+            
+            if($qualityControlImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($qualityControlImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The quality control form image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $qualityControlImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/quality_control_form/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/quality_control_form/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($qualityControlImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalQualityControlForm($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalOutgoingChecklist
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalOutgoingChecklist() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['outgoing_checklist_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['outgoing_checklist_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['outgoing_checklist_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['outgoing_checklist_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['outgoing_checklist']) ? '.' . $salesProposalDetails['outgoing_checklist'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Outgoing checklist form image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the outgoing checklist image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The outgoing checklist image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/outgoing_checklist/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/outgoing_checklist/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalOutgoingChecklist($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalUnitImage
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalUnitImage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['unit_image_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['unit_image_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['unit_image_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['unit_image_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['unit_image']) ? '.' . $salesProposalDetails['unit_image'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(15);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(15);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/unit_image/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/unit_image/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalUnitImage($salesProposalID, $filePath, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -865,6 +1219,129 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Draft', $setToDraftReason, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagSalesProposalOnProcess
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalOnProcess() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'On-Process', '', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagSalesProposalReadyForRelease
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalReadyForRelease() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Ready For Release', '', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagSalesProposalForDR
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalForDR() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For DR', '', $userID);
             
         echo json_encode(['success' => true]);
     }
@@ -1521,6 +1998,9 @@ class SalesProposalController {
                 'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
                 'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
                 'newEngineStencil' => $this->systemModel->checkImage($salesProposalDetails['new_engine_stencil'], 'default'),
+                'qualityControlForm' => $this->systemModel->checkImage($salesProposalDetails['quality_control_form'], 'default'),
+                'outgoingChecklist' => $this->systemModel->checkImage($salesProposalDetails['outgoing_checklist'], 'default'),
+                'unitImage' => $this->systemModel->checkImage($salesProposalDetails['unit_image'], 'default'),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],

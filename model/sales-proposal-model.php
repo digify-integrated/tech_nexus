@@ -157,6 +157,72 @@ class SalesProposalModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateSalesProposalQualityControlForm
+    # Description: Updates the sales proposal client confirmation.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_client_confirmation (string): The sales proposal client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalQualityControlForm($p_sales_proposal_id, $p_quality_control_form, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalQualityControlForm(:p_sales_proposal_id, :p_quality_control_form, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_quality_control_form', $p_quality_control_form, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalOutgoingChecklist
+    # Description: Updates the sales proposal client confirmation.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_client_confirmation (string): The sales proposal client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalOutgoingChecklist($p_sales_proposal_id, $p_outgoing_checklist, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOutgoingChecklist(:p_sales_proposal_id, :p_outgoing_checklist, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_outgoing_checklist', $p_outgoing_checklist, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalUnitImage
+    # Description: Updates the sales proposal client confirmation.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_client_confirmation (string): The sales proposal client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalUnitImage($p_sales_proposal_id, $p_unit_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnitImage(:p_sales_proposal_id, :p_unit_image, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_unit_image', $p_unit_image, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateSalesProposalCreditAdvice
     # Description: Updates the sales proposal client confirmation.
     #

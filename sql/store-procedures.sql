@@ -7159,6 +7159,24 @@ BEGIN
         final_approval_remarks = p_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'On-Process' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        on_process_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'Ready For Release' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        ready_for_release_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'For DR' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        for_dr_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
     ELSEIF p_sales_proposal_status = 'Draft' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7177,6 +7195,30 @@ CREATE PROCEDURE updateSalesProposalClientConfirmation(IN p_sales_proposal_id IN
 BEGIN
       UPDATE sales_proposal
         SET client_confirmation = p_client_confirmation,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalQualityControlForm(IN p_sales_proposal_id INT, IN p_quality_control_form VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET quality_control_form = p_quality_control_form,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalOutgoingChecklist(IN p_sales_proposal_id INT, IN p_outgoing_checklist VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET outgoing_checklist = p_outgoing_checklist,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalUnitImage(IN p_sales_proposal_id INT, IN p_unit_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET unit_image = p_unit_image,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //

@@ -79,6 +79,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $documentName = $row['document_name'];
                     $documentCategoryID = $row['document_category_id'];
                     $documentExtension = $row['document_extension'];
+                    $publishDate = $systemModel->checkDate('empty', $row['publish_date'], '', 'F j, Y h:i:s A', '');
                     $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
 
                     $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
@@ -94,9 +95,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                             <img src="'. $documentIcon .'" alt="img" class="img-fluid" />
                                                         </div>
                                                         <div class="d-flex align-items-center justify-content-between mt-4">
-                                                            <div class="w-100 text-truncate">
+                                                            <div class="w-100 text-wrap">
                                                                 <h6 class="mb-0"><span class="text-primary">'. $documentName .'</span></h6>
                                                                 <p class="mb-0 text-muted"><small>'. $documentCategoryName .'</small></p>
+                                                                <p class="mb-0 text-muted"><small>'. $publishDate .'</small></p>
                                                             </div>
                                                         </div>
                                                     </div>

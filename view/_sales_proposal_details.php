@@ -1,6 +1,6 @@
 <?php
   $tabDisabled = '';
-  if($salesProposalSatus == 'Draft'){
+  if($salesProposalStatus == 'Draft'){
     $tabDisabled = 'disabled';
   }
 ?>
@@ -59,7 +59,19 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#summary-tab" role="tab" aria-controls="summary-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+            <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#image-tab" role="tab" aria-controls="image-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
+              <div class="media align-items-center">
+                <div class="avtar avtar-s">
+                  <i class="ti ti-photo"></i>
+                </div>
+                <div class="media-body ms-2">
+                  <h5 class="mb-0">Images</h5>
+                </div>
+              </div>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="tab" href="#summary-tab" role="tab" aria-controls="summary-tab" aria-selected="true" <?php echo $tabDisabled; ?>>
               <div class="media align-items-center">
                 <div class="avtar avtar-s">
                   <i class="ti ti-printer"></i>
@@ -91,22 +103,11 @@
                     </div>
                     <div class="col-auto">
                       <?php
-                        if($salesProposalSatus == 'Draft'){
+                        if($salesProposalStatus == 'Draft'){
                           echo '<button type="button" class="btn btn-primary" id="next-step-1">Next</button>';
                         }
                         else{
                           echo '<button type="button" class="btn btn-primary" id="next-step-1-normal">Next</button>';
-                        }
-
-                        if($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'Draft'){
-                          
-                          echo '<button class="btn btn-info m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-client-confirmation">New Engine Stencil</button>';
-                          
-                          echo '<button class="btn btn-success m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
-
-                          if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
-                            echo '<button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
-                          }
                         }
                       ?>
                     </div>
@@ -129,7 +130,7 @@
                 </div>
                 <div class="card-body">
                   <?php
-                    if($salesProposalSatus == 'Draft'){
+                    if($salesProposalStatus == 'Draft'){
                       echo '<form id="sales-proposal-form" method="post" action="#">
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Sales Proposal Number :</label>
@@ -138,7 +139,7 @@
                               <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Sales Proposal Status : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                  '. $salesProposalSatusBadge .'
+                                  '. $salesProposalStatusBadge .'
                                 </div>
                               </div>
                               <div class="form-group row">
@@ -393,7 +394,7 @@
                             <div class="form-group row">
                               <label class="col-lg-4 col-form-label">Sales Proposal Status :</label>
                               <div class="col-lg-8">
-                                '. $salesProposalSatusBadge .'
+                                '. $salesProposalStatusBadge .'
                               </div>
                             </div>
                             <div class="form-group row">
@@ -850,54 +851,6 @@
                   </ul>
                 </div>
               </div>
-              <div class="card">
-                <div class="card-body py-2">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item px-0">
-                      <h5 class="mb-0">New Engine Stencil </h5>
-                    </li>
-                    <li class="list-group-item px-0">
-                      <div class="row align-items-center mb-3">
-                        <div class="col-sm-12 mb-sm-0">
-                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Engine Stencil Image" id="new-engine-stencil-image" class="img-fluid rounded">
-                        </div>                      
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-body py-2">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item px-0">
-                      <h5 class="mb-0">Client Confirmation </h5>
-                    </li>
-                    <li class="list-group-item px-0">
-                      <div class="row align-items-center mb-3">
-                        <div class="col-sm-12 mb-sm-0">
-                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Client Confirmation Image" id="client-confirmation-image" class="img-fluid rounded">
-                        </div>                      
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-body py-2">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item px-0">
-                      <h5 class="mb-0">Credit Advice </h5>
-                    </li>
-                    <li class="list-group-item px-0">
-                      <div class="row align-items-center mb-3">
-                        <div class="col-sm-12 mb-sm-0">
-                          <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Credit Advice Image" id="credit-advice-image" class="img-fluid rounded">
-                        </div>                      
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -910,7 +863,7 @@
                 <div class="row align-items-center my-2">
                   <div class="col">
                     <div class="progress" style="height: 6px">
-                      <div class="progress-bar bg-primary" style="width: 33.32%"></div>
+                      <div class="progress-bar bg-primary" style="width: 33.33%"></div>
                     </div>
                   </div>
                   <div class="col-auto">
@@ -929,7 +882,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>';
                       }
                     ?>
@@ -974,7 +927,7 @@
                 <div class="row align-items-center my-2">
                   <div class="col">
                     <div class="progress" style="height: 6px">
-                      <div class="progress-bar bg-primary" style="width: 66.64%"></div>
+                      <div class="progress-bar bg-primary" style="width: 49.99%"></div>
                     </div>
                   </div>
                   <div class="col-auto">
@@ -983,7 +936,7 @@
                   <div class="col-auto">
                     <button class="btn btn-warning" id="prev-step-3">Previous</button>     
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo ' <button type="submit" for="sales-proposal-pricing-computation-form" class="btn btn-primary" id="next-step-3">Next</button>';
                       }
                       else{
@@ -1006,7 +959,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo '<button type="submit" form="sales-proposal-pricing-computation-form" class="btn btn-success" id="submit-pricing-computation-data">Submit</button>';
                       }
                     ?>  
@@ -1015,7 +968,7 @@
               </div>
               <div class="card-body">
                 <?php
-                  if($salesProposalSatus == 'Draft'){
+                  if($salesProposalStatus == 'Draft'){
                     echo '<form id="sales-proposal-pricing-computation-form" method="post" action="#">
                             <div class="form-group row">
                               <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
@@ -1165,7 +1118,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo '<button type="submit" form="sales-proposal-other-charges-form" class="btn btn-success" id="submit-other-charges-data">Submit</button>';
                       }
                     ?>
@@ -1174,7 +1127,7 @@
               </div>
               <div class="card-body">
                 <?php
-                  if($salesProposalSatus == 'Draft'){
+                  if($salesProposalStatus == 'Draft'){
                     echo '<form id="sales-proposal-other-charges-form" method="post" action="#">
                             <div class="form-group row">
                               <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
@@ -1291,7 +1244,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo '<button type="submit" form="sales-proposal-renewal-amount-form" class="btn btn-success" id="submit-renewal-amount-data">Submit</button>';
                       }
                     ?>
@@ -1301,7 +1254,7 @@
               <div class="card-body">
                 <input type="hidden" id="product_category">
                 <?php
-                  if($salesProposalSatus == 'Draft'){
+                  if($salesProposalStatus == 'Draft'){
                     echo '<form id="sales-proposal-renewal-amount-form" method="post" action="#">
                             <table class="table table-borderless table-xl">
                               <thead>
@@ -1395,7 +1348,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus == 'Draft'){
+                      if($salesProposalStatus == 'Draft'){
                         echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>';
                       }
                     ?>
@@ -1429,7 +1382,7 @@
                 <div class="row align-items-center my-2">
                   <div class="col">
                     <div class="progress" style="height: 6px">
-                      <div class="progress-bar bg-primary" style="width: 83.30%"></div>
+                      <div class="progress-bar bg-primary" style="width: 66.65%"></div>
                     </div>
                   </div>
                   <div class="col-auto">
@@ -1448,7 +1401,7 @@
                   </div>
                   <div class="col-auto">
                     <?php
-                      if($salesProposalSatus != 'Rejected' && $salesProposalSatus != 'Cancelled'){
+                      if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled'){
                         echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>';
                       }
                     ?>
@@ -1487,7 +1440,176 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane" id="summary-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
+      <div class="tab-pane" id="image-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
+        <div class="row">
+          <div class="col-xl-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center my-2">
+                  <div class="col">
+                    <div class="progress" style="height: 6px">
+                      <div class="progress-bar bg-primary" style="width: 83.31%"></div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <p class="mb-0 h6">Step 5</p>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-warning" id="prev-step-5">Previous</button>
+                    <button type="button" class="btn btn-primary" id="next-step-5">Next</button>
+
+                    <?php
+                      if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                          
+                        echo '<button class="btn btn-info m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-client-confirmation">New Engine Stencil</button>';
+                        
+                        echo '<button class="btn btn-success m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
+
+                        if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
+                          echo '<button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
+                        }
+                      }
+                    ?>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">New Engine Stencil </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Engine Stencil Image" id="new-engine-stencil-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Client Confirmation </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Client Confirmation Image" id="client-confirmation-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Credit Advice </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Credit Advice Image" id="credit-advice-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Credit Advice </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Credit Advice Image" id="credit-advice-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Quality Control Form </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Quality Control Form Image" id="quality-control-form-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Outgoing Checklist Form </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Outgoing Checklist Image" id="outgoing-checklist-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Unit Image </h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-12 mb-sm-0">
+                        <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Unit Image" id="unit-image" class="img-fluid rounded">
+                      </div>                      
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane" id="summary-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-6">
         <div class="row">
           <div class="col-xl-12">
             <div class="card">
@@ -1499,39 +1621,39 @@
                     </div>
                   </div>
                   <div class="col-auto">
-                    <p class="mb-0 h6">Step 5</p>
+                    <p class="mb-0 h6">Step 6</p>
                   </div>
                   <div class="col-auto">
-                    <button class="btn btn-warning" id="prev-step-5">Previous</button>
+                    <button class="btn btn-warning" id="prev-step-6">Previous</button>
                     <a href="javascript:window.print()" class="btn btn-outline-info me-1">Print</a>
                     <?php
-                      if($salesProposalSatus == 'Draft' && $forInitialApproval['total'] > 0){
+                      if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0){
                         echo '<button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>';
                       }
 
-                      if($salesProposalSatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id){
+                      if($salesProposalStatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id){
                         echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>';
                       }
 
-                      if(($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id && !empty($clientConfirmation)){
+                      if(($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id && !empty($clientConfirmation)){
                         if($transactionType == 'COD' || $transactionType == 'Installment Sales' || ($transactionType == 'Bank Financing' && !empty($creditAdvice))){
                           echo '<button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>';
                         }
                       }
 
-                      if((($salesProposalSatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
+                      if((($salesProposalStatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
                         echo '<button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>';
                       }
 
-                      if(($salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For CI') && $cancelSalesProposal['total'] > 0){
+                      if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
                         echo ' <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>';
                       }
 
-                      if($salesProposalSatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
+                      if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
                         echo '<button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>';
                       }
 
-                      if($setToDraftSalesProposal['total'] > 0 && ($salesProposalSatus == 'For Final Approval' || $salesProposalSatus == 'For Initial Approval' || $salesProposalSatus == 'For CI' || $salesProposalSatus == 'Rejected')){
+                      if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'Rejected')){
                         echo ' <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>';
                       }
                     ?>                                      
@@ -1782,10 +1904,19 @@
                               </td>
                             </tr>
                             <tr>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>PREPARED BY:</b></small><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-initial-approval-by" class="text-sm"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><span id="summary-final-approval-by" class="text-sm"></span></td>
-                              <td colspan="2" style="vertical-align: top !important;"><small><b>WITH MY CONFORMITY:</b><br/><br/><br/>CUSTOMER'S PRINTED NAME OVER SIGNATURE</small></td>
+                              
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>PREPARED BY:</b></small><br/><br/><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><small><?php
+                                  if(!empty($initialApprovalDate)){
+                                    echo 'APPROVED THRU SYSTEM<br/>' . $initialApprovalDate;
+                                  }
+                                ?></small><br/><span id="summary-initial-approval-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><small><?php
+                                  if(!empty($approvalDate)){
+                                    echo 'APPROVED THRU SYSTEM<br/>' . $approvalDate;
+                                  }
+                                ?></small><br/><span id="summary-final-approval-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;"><small><b>WITH MY CONFORMITY:</b><br/><br/><br/><br/><br/>CUSTOMER'S PRINTED NAME OVER SIGNATURE</small></td>
                             </tr>
                           </tbody>
                         </table>

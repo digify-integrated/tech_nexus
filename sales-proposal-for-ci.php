@@ -71,13 +71,15 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
-    $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
+    $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
     $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
     $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
     $creditAdvice = $salesProposalDetails['credit_advice'];
     $clientConfirmation = $salesProposalDetails['client_confirmation'];
     $transactionType = $salesProposalDetails['transaction_type'];
-    $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
+    $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y g:i:s a', '');
+    $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y g:i:s a', '');
+    $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
   }
   else{
     $salesProposalID = null;

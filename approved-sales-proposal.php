@@ -25,6 +25,9 @@
   $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
   $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
   $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
+  $tagSalesProposalForOnProcess = $userModel->checkSystemActionAccessRights($user_id, 132);
+  $tagSalesProposalReadyForRelease = $userModel->checkSystemActionAccessRights($user_id, 133);
+  $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -71,13 +74,17 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
-    $salesProposalSatus = $salesProposalDetails['sales_proposal_status'];
+    $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
     $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
     $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
     $creditAdvice = $salesProposalDetails['credit_advice'];
     $clientConfirmation = $salesProposalDetails['client_confirmation'];
     $transactionType = $salesProposalDetails['transaction_type'];
-    $salesProposalSatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalSatus);
+    $qualityControlForm = $salesProposalDetails['quality_control_form'];
+    $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
+    $unitImage = $salesProposalDetails['unit_image'];
+    $productType = $salesProposalDetails['product_type'];
+    $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
   }
   else{
     $salesProposalID = null;

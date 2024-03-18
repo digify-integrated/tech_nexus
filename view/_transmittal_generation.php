@@ -84,7 +84,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </button>';
                     }
 
-                    if(($viewOwnTransmittal['total'] > 0 && ($createdBy == $contactID || ($transmitterID == $contactID && $transmitterDepartment == $contactDepartment) || ($receiverDepartment == $contactDepartment && !empty($receiverID) && !empty($receiverDepartment) && $receiverID == $contactID) || (empty($receiverID) && $receiverDepartment == $contactDepartment))) || $viewOwnTransmittal['total'] == 0){
+                    if(($viewOwnTransmittal['total'] > 0 && ($createdBy == $contactID || ($transmitterID == $contactID && $transmitterDepartment == $contactDepartment) || (($receiverDepartment == $contactDepartment && !empty($receiverID) && !empty($receiverDepartment) && $receiverID == $contactID) && ($transmittalStatus != 'Draft' || $transmittalStatus != 'Cancelled')) || (empty($receiverID) && $receiverDepartment == $contactDepartment))) || $viewOwnTransmittal['total'] == 0){
                         $response[] = [
                             'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $transmittalID .'">',
                             'TRANSMITTAL_DESCRIPTION' => $transmittalDescription,
