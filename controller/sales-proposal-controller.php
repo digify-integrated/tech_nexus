@@ -108,6 +108,9 @@ class SalesProposalController {
                 case 'tag for ci':
                     $this->tagSalesProposalForCI();
                     break;
+                case 'complete ci':
+                    $this->tagCIAsComplete();
+                    break;
                 case 'sales proposal initial approval':
                     $this->tagSalesProposalInitialApproval();
                     break;
@@ -1093,6 +1096,46 @@ class SalesProposalController {
         }
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For CI', '', $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagCIAsComplete
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagCIAsComplete() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalCIStatus($salesProposalID, 'Completed', $userID);
             
         echo json_encode(['success' => true]);
     }

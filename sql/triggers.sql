@@ -4502,6 +4502,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Created By: ", OLD.created_by, " -> ", NEW.created_by, "<br/>");
     END IF;
 
+    IF NEW.created_date <> OLD.created_date THEN
+        SET audit_log = CONCAT(audit_log, "Created Date: ", OLD.created_date, " -> ", NEW.created_date, "<br/>");
+    END IF;
+
     IF NEW.sales_proposal_status <> OLD.sales_proposal_status THEN
         SET audit_log = CONCAT(audit_log, "Sales Proposal Status: ", OLD.sales_proposal_status, " -> ", NEW.sales_proposal_status, "<br/>");
     END IF;
@@ -4560,6 +4564,46 @@ BEGIN
 
     IF NEW.cancellation_date <> OLD.cancellation_date THEN
         SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.for_change_engine <> OLD.for_change_engine THEN
+        SET audit_log = CONCAT(audit_log, "For Change Engine: ", OLD.for_change_engine, " -> ", NEW.for_change_engine, "<br/>");
+    END IF;
+
+    IF NEW.new_engine <> OLD.new_engine THEN
+        SET audit_log = CONCAT(audit_log, "New Engine: ", OLD.new_engine, " -> ", NEW.new_engine, "<br/>");
+    END IF;
+
+    IF NEW.fuel_type <> OLD.fuel_type THEN
+        SET audit_log = CONCAT(audit_log, "Fuel Type: ", OLD.fuel_type, " -> ", NEW.fuel_type, "<br/>");
+    END IF;
+
+    IF NEW.on_process_date <> OLD.on_process_date THEN
+        SET audit_log = CONCAT(audit_log, "On-Process Date: ", OLD.on_process_date, " -> ", NEW.on_process_date, "<br/>");
+    END IF;
+
+    IF NEW.ready_for_release_date <> OLD.ready_for_release_date THEN
+        SET audit_log = CONCAT(audit_log, "Ready For Release Date: ", OLD.ready_for_release_date, " -> ", NEW.ready_for_release_date, "<br/>");
+    END IF;
+
+    IF NEW.for_dr_date <> OLD.for_dr_date THEN
+        SET audit_log = CONCAT(audit_log, "For DR Date: ", OLD.for_dr_date, " -> ", NEW.for_dr_date, "<br/>");
+    END IF;
+
+    IF NEW.price_per_liter <> OLD.price_per_liter THEN
+        SET audit_log = CONCAT(audit_log, "Price Per Liter: ", OLD.price_per_liter, " -> ", NEW.price_per_liter, "<br/>");
+    END IF;
+
+    IF NEW.commission_amount <> OLD.commission_amount THEN
+        SET audit_log = CONCAT(audit_log, "Commission Amount: ", OLD.commission_amount, " -> ", NEW.commission_amount, "<br/>");
+    END IF;
+
+    IF NEW.ci_status <> OLD.ci_status THEN
+        SET audit_log = CONCAT(audit_log, "CI Status: ", OLD.ci_status, " -> ", NEW.ci_status, "<br/>");
+    END IF;
+
+    IF NEW.ci_completion_date <> OLD.ci_completion_date THEN
+        SET audit_log = CONCAT(audit_log, "CI Completion Date: ", OLD.ci_completion_date, " -> ", NEW.ci_completion_date, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -4670,6 +4714,10 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Created By: ", NEW.created_by);
     END IF;
 
+    IF NEW.created_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Created Date: ", NEW.created_date);
+    END IF;
+
     IF NEW.sales_proposal_status <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Sales Proposal Status: ", NEW.sales_proposal_status);
     END IF;
@@ -4680,6 +4728,50 @@ BEGIN
 
     IF NEW.final_approving_officer <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Final Approving Officer: ", NEW.final_approving_officer);
+    END IF;
+
+    IF NEW.for_change_engine <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Change Engine: ", NEW.for_change_engine);
+    END IF;
+
+    IF NEW.new_engine <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>New Engine: ", NEW.new_engine);
+    END IF;
+
+    IF NEW.fuel_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Fuel Type: ", NEW.fuel_type);
+    END IF;
+
+    IF NEW.fuel_quantity <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Fuel Quantity: ", NEW.fuel_quantity);
+    END IF;
+
+    IF NEW.on_process_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On-Process Date: ", NEW.on_process_date);
+    END IF;
+
+    IF NEW.ready_for_release_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Ready For Release Date: ", NEW.ready_for_release_date);
+    END IF;
+
+    IF NEW.for_dr_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For DR Date: ", NEW.for_dr_date);
+    END IF;
+
+    IF NEW.price_per_liter <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Price Per Liter: ", NEW.price_per_liter);
+    END IF;
+
+    IF NEW.commission_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Commission Amount: ", NEW.commission_amount);
+    END IF;
+
+    IF NEW.ci_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>CI Status: ", NEW.ci_status);
+    END IF;
+
+    IF NEW.ci_completion_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>CI Completion Date: ", NEW.ci_completion_date);
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 

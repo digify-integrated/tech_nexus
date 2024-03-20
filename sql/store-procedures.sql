@@ -7078,8 +7078,8 @@ END //
 
 CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_fuel_type VARCHAR(100), IN p_fuel_quantity DOUBLE, IN p_price_per_liter DOUBLE, IN p_commission_amount DOUBLE, IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, product_type, fuel_type, fuel_quantity, price_per_liter, commission_amount, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, for_change_color, new_color, for_change_body, new_body, for_change_engine, new_engine, remarks, created_by, initial_approving_officer, final_approving_officer, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_product_type, p_fuel_type, p_fuel_quantity, p_price_per_liter, p_commission_amount, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_for_change_color, p_new_color, p_for_change_body, p_new_body, p_for_change_engine, p_new_engine, p_remarks, p_created_by, p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, product_type, fuel_type, fuel_quantity, price_per_liter, commission_amount, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, for_change_color, new_color, for_change_body, new_body, for_change_engine, new_engine, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_product_type, p_fuel_type, p_fuel_quantity, p_price_per_liter, p_commission_amount, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_for_change_color, p_new_color, p_for_change_body, p_new_body, p_for_change_engine, p_new_engine, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
@@ -7189,6 +7189,15 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     END IF;
+END //
+
+CREATE PROCEDURE updateSalesProposalCIStatus(IN p_sales_proposal_id INT, IN p_ci_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal
+    SET ci_status = p_ci_status,
+    ci_completion_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE updateSalesProposalClientConfirmation(IN p_sales_proposal_id INT, IN p_client_confirmation VARCHAR(500), IN p_last_log_by INT)
@@ -7356,7 +7365,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For CI';
+   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status = 'Proceed' AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -803,6 +803,61 @@
             });
         });
 
+        $(document).on('click','#complete-ci',function() {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'complete ci';
+    
+            Swal.fire({
+                title: 'Confirm Tagging of Credit Investigation As Complete',
+                text: 'Are you sure you want to tag the credit investigation as complete?',
+                icon: 'info',
+                showCancelButton: !0,
+                confirmButtonText: 'Complete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-info mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_id : sales_proposal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag Credit Investigation As Complete Success', 'The credit investigation has been tagged as complete successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag Credit Investigation As Complete Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
         $(document).on('click','#on-process-sales-proposal',function() {
             const sales_proposal_id = $('#sales-proposal-id').text();
             const transaction = 'tag on process';

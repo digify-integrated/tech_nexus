@@ -24,6 +24,8 @@
   $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
   $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
   $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
+  $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
+  $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
 
   if ($viewSalesProposal['total'] == 0) {
     header('location: 404.php');
@@ -76,8 +78,18 @@
     $creditAdvice = $salesProposalDetails['credit_advice'];
     $clientConfirmation = $salesProposalDetails['client_confirmation'];
     $transactionType = $salesProposalDetails['transaction_type'];
-    $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y g:i:s a', '');
-    $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y g:i:s a', '');
+    $ciStatus = $salesProposalDetails['ci_status'];
+    $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
+    $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
+    $forCIDate = $systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y h:i:s a', '');
+
+    if(!empty($salesProposalDetails['created_date'])){
+      $createdDate = $systemModel->checkDate('empty', $salesProposalDetails['created_date'], '', 'm/d/Y h:i:s a', '');
+    }
+    else{
+      $createdDate = $systemModel->checkDate('empty', date('m/d/Y h:i:s a'), '', 'm/d/Y h:i:s a', '');
+    }
+    
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
     $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
   }

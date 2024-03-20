@@ -1656,6 +1656,10 @@
                       if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'Rejected')){
                         echo ' <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>';
                       }
+
+                      if(($salesProposalStatus == 'For CI' || ($salesProposalStatus == 'Proceed' && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
+                        echo '<button class="btn btn-info" id="complete-ci">Complete CI</button>';
+                      }
                     ?>                                      
                   </div>
                 </div>
@@ -1905,7 +1909,11 @@
                             </tr>
                             <tr>
                               
-                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>PREPARED BY:</b></small><br/><br/><br/><br/><br/><span id="summary-created-by" class="text-sm"></span></td>
+                              <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>PREPARED BY:</b></small><br/><br/><br/><small><?php
+                                  if(!empty($createdDate)){
+                                    echo 'CREATED THRU SYSTEM<br/>' . $createdDate;
+                                  }
+                                ?></small><br/><span id="summary-created-by" class="text-sm"></span></td>
                               <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>INITIAL APPROVAL BY:</b></small><br/><br/><br/><small><?php
                                   if(!empty($initialApprovalDate)){
                                     echo 'APPROVED THRU SYSTEM<br/>' . $initialApprovalDate;

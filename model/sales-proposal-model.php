@@ -135,6 +135,30 @@ class SalesProposalModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateSalesProposalCIStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalCIStatus($p_sales_proposal_id, $p_ci_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalCIStatus(:p_sales_proposal_id, :p_ci_status, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_ci_status', $p_ci_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateSalesProposalClientConfirmation
     # Description: Updates the sales proposal client confirmation.
     #
