@@ -299,6 +299,60 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: sales proposal for dr table
+        # Description:
+        # Generates the sales proposal table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'sales proposal for dr table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalForDRTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $forDRDate = $systemModel->checkDate('summary', $row['for_dr_date'], '', 'm/d/Y h:i:s A', '');
+
+                $response[] = [
+                    'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+                    'CUSTOMER' => $customerName,
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'FOR_DR_DATE' => $forDRDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="sales-proposal-for-dr.php?&sales_proposal_id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
         
         # -------------------------------------------------------------
         #
@@ -691,6 +745,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
                 $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
 
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
                 $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalDepositAmountTable(:salesProposalID)');
                 $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
                 $sql->execute();
@@ -703,18 +760,25 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $referenceNumber = $row['reference_number'];
                     $depositAmount = number_format($row['deposit_amount'], 2);
 
+                    if($salesProposalStatus == 'Draft'){
+                        $action = '<div class="d-flex gap-2">
+                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-deposit-amount" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Update Amount of Deposit">
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-deposit-amount" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Delete Amount of Deposit">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+                    else{
+                        $action = '';
+                    }
+
                     $response[] = [
                         'DEPOSIT_DATE' => $depositDate,
                         'REFERENCE_NUMBER' => $referenceNumber,
                         'DEPOSIT_AMOUNT' => $depositAmount,
-                        'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-success update-sales-proposal-deposit-amount" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Update Amount of Deposit">
-                                            <i class="ti ti-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-deposit-amount" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Delete Amount of Deposit">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>'
+                        'ACTION' => $action
                         ];
                 }
 

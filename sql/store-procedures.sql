@@ -7368,6 +7368,20 @@ BEGIN
    SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status = 'Proceed' AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
 END //
 
+CREATE PROCEDURE generateSalesProposalForDRTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR';
+END //
+
+CREATE PROCEDURE generateForDrSalesProposalOptions()
+BEGIN
+	SELECT sales_proposal_id, sales_proposal_number, file_as
+    FROM sales_proposal
+    LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
+    WHERE sales_proposal_status = 'For DR'
+    ORDER BY sales_proposal_number ASC;
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Sales Proposal Accessories Table Stored Procedures */
@@ -7735,6 +7749,8 @@ BEGIN
     ORDER BY approving_officer_id;
 END //
 
+
+
 CREATE PROCEDURE generateApprovingOfficerOptions(IN p_approving_officer_type VARCHAR(10))
 BEGIN
     IF p_approving_officer_type IS NOT NULL AND p_approving_officer_type <> '' THEN
@@ -7744,6 +7760,41 @@ BEGIN
         SELECT contact_id, file_as FROM personal_information 
         WHERE contact_id IN (SELECT contact_id FROM approving_officer);
     END IF;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Sales Proposal Pricing Other Charges Table Stored Procedures */
+
+CREATE PROCEDURE checkSalesProposalOtherProductDetailsExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_other_product_details
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, last_log_by) 
+	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal_other_product_details
+    SET year_model = p_year_model,
+    cr_no = p_cr_no,
+    mv_file_no = p_mv_file_no,
+    make = p_make,
+    product_description = p_product_description,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE getSalesProposalOtherProductDetails(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT * FROM sales_proposal_other_product_details
+    WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -482,6 +482,35 @@ class SalesProposalModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalOtherProductDetails
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mv_file_no', $p_mv_file_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_make', $p_make, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Insert methods
@@ -771,6 +800,35 @@ class SalesProposalModel {
     }
     # -------------------------------------------------------------
 
+     # -------------------------------------------------------------
+    #
+    # Function: insertSalesProposalOtherProductDetails
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_mv_file_no', $p_mv_file_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_make', $p_make, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
     # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
@@ -922,6 +980,25 @@ class SalesProposalModel {
     public function checkSalesProposalDepositAmountExist($p_sales_proposal_deposit_amount_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalDepositAmountExist(:p_sales_proposal_deposit_amount_id)');
         $stmt->bindValue(':p_sales_proposal_deposit_amount_id', $p_sales_proposal_deposit_amount_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkSalesProposalOtherProductDetailsExist
+    # Description: Checks if a sales proposal renewal amount exists.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSalesProposalOtherProductDetailsExist($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalOtherProductDetailsExist(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -1224,6 +1301,26 @@ class SalesProposalModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalOtherProductDetails
+    # Description: Retrieves the details of a sales proposal renewal amount.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns:
+    # - An array containing the sales proposal details.
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalOtherProductDetails($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalOtherProductDetails(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
     
     # -------------------------------------------------------------
     #
@@ -1273,6 +1370,38 @@ class SalesProposalModel {
         $class = $statusClasses[$p_sales_proposal_status] ?? $defaultClass;
         
         return '<span class="badge bg-' . $class . '">' . $p_sales_proposal_status . '</span>';
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Generate methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateForDrSalesProposalOptions
+    # Description: Generates the sales proposal tagged for DR.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateForDrSalesProposalOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateForDrSalesProposalOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $salesProposalID = $row['sales_proposal_id'];
+            $salesProposalNumber = $row['sales_proposal_number'];
+            $fileAs = strtoupper($row['file_as']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($salesProposalNumber, ENT_QUOTES) . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+        }
+
+        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

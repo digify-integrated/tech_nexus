@@ -96,6 +96,9 @@ class SalesProposalController {
                 case 'save sales proposal other charges':
                     $this->saveSalesProposalOtherCharges();
                     break;
+                case 'save sales proposal other product details':
+                    $this->saveSalesProposalOtherProductDetails();
+                    break;
                 case 'save sales proposal renewal amount':
                     $this->saveSalesProposalRenewalAmount();
                     break;
@@ -176,6 +179,9 @@ class SalesProposalController {
                     break;
                 case 'get sales proposal other charges details':
                     $this->getSalesProposalOtherChargesDetails();
+                    break;
+                case 'get sales proposal other product details':
+                    $this->getSalesProposalOtherProductDetails();
                     break;
                 case 'get sales proposal renewal amount details':
                     $this->getSalesProposalRenewalAmountDetails();
@@ -1678,6 +1684,55 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: saveSalesProposalOtherProductDetails
+    # Description: 
+    # Updates the existing sales proposal other charges if it exists; otherwise, inserts a new sales proposal other charges.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalOtherProductDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $yearModel = htmlspecialchars($_POST['year_model'], ENT_QUOTES, 'UTF-8');
+        $crNo = htmlspecialchars($_POST['cr_no'], ENT_QUOTES, 'UTF-8');
+        $mvFileNo = htmlspecialchars($_POST['mv_file_no'], ENT_QUOTES, 'UTF-8');
+        $make = htmlspecialchars($_POST['make'], ENT_QUOTES, 'UTF-8');
+        $productDescription = htmlspecialchars($_POST['product_description'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalOtherProductDetailsExist = $this->salesProposalModel->checkSalesProposalOtherProductDetailsExist($salesProposalID);
+        $total = $checkSalesProposalOtherProductDetailsExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: saveSalesProposalRenewalAmount
     # Description: 
     # Updates the existing sales proposal other charges if it exists; otherwise, inserts a new sales proposal other charges.
@@ -2403,6 +2458,50 @@ class SalesProposalController {
                 'docStampTax' => $salesProposalOtherChargesDetails['doc_stamp_tax'] ?? 0,
                 'totalOtherCharges' => $salesProposalOtherChargesDetails['total_other_charges'] ?? 0,
                 'transactionFee' => $salesProposalOtherChargesDetails['transaction_fee'] ?? 0
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalOtherProductDetails
+    # Description: 
+    # Handles the retrieval of sales proposal other charges details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalOtherProductDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalOtherChargesDetails = $this->salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'yearModel' => $salesProposalOtherChargesDetails['year_model'] ?? null,
+                'crNo' => $salesProposalOtherChargesDetails['cr_no'] ?? null,
+                'mvFileNo' => $salesProposalOtherChargesDetails['mv_file_no'] ?? null,
+                'make' => $salesProposalOtherChargesDetails['make'] ?? null,
+                'productDescription' => $salesProposalOtherChargesDetails['product_description'] ?? null,
             ];
 
             echo json_encode($response);

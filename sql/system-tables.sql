@@ -5216,6 +5216,20 @@ CREATE INDEX approving_officer_contact_id ON approving_officer(contact_id);
 
 /*  Table */
 
+CREATE TABLE sales_proposal_other_product_details(
+	other_product_details_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	year_model VARCHAR(20),
+	cr_no VARCHAR(100),
+	mv_file_no VARCHAR(100),
+	make VARCHAR(100),
+	product_description VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
 
+CREATE INDEX other_product_details_index_other_product_details_id ON sales_proposal_other_product_details(other_product_details_id);
+CREATE INDEX other_product_details_index_sales_proposal_id ON sales_proposal_other_product_details(sales_proposal_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
