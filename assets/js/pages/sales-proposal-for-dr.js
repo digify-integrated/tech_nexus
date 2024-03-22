@@ -2,12 +2,20 @@
     'use strict';
 
     $(function() {
+        if($('#other-charges-rows').length){
+            salesProposalSummaryPDCManualInputTable();
+        }
+
         if($('#sales-proposal-for-dr-table').length){
             salesProposalForDRTable('#sales-proposal-for-dr-table');
         }
 
         if($('#sales-proposal-deposit-amount-table').length){
             salesProposalDepositAmountTable('#sales-proposal-deposit-amount-table');
+        }
+
+        if($('#sales-proposal-pdc-manual-input-table').length){
+            salesProposalPDCManualInputTable('#sales-proposal-pdc-manual-input-table');
         }
 
         if($('#product_id').length){
@@ -17,11 +25,127 @@
         if($('#sales-proposal-other-product-details-form').length){
             salesProposalOtherProductDetailsForm();
             displayDetails('get sales proposal other product details');
+            displayDetails('get sales proposal details');
             
             displayDetails('get sales proposal pricing computation details');
             displayDetails('get sales proposal other charges details');
             displayDetails('get sales proposal renewal amount details');
         }
+
+        if($('#sales-proposal-pdc-manual-input-form').length){
+            salesProposalPDCManualInputForm();
+        }
+
+        $(document).on('click','.delete-sales-proposal-manual-pdc-input',function() {
+            const sales_proposal_manual_pdc_input_id = $(this).data('sales-proposal-manual-pdc-input-id');
+            const transaction = 'delete sales proposal pdc manual input';
+    
+            Swal.fire({
+                title: 'Confirm PDC Manual Input Deletion',
+                text: 'Are you sure you want to delete this pdc manual input?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_manual_pdc_input_id : sales_proposal_manual_pdc_input_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete PDC Manual Input Success', 'The PDC manula input has been deleted successfully.', 'success');
+                                reloadDatatable('#sales-proposal-pdc-manual-input-table');
+                                salesProposalSummaryPDCManualInputTable();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete PDC Manual Input Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-as-released',function() {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'tag for release';
+    
+            Swal.fire({
+                title: 'Confirm Tagging For Release',
+                text: 'Are you sure you want to tag this as released?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Release',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/sales-proposal-controller.php',
+                        dataType: 'json',
+                        data: {
+                            sales_proposal_id : sales_proposal_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Tag For Release Success', 'This has been tagged for released successfully.', 'success');
+                                window.location = 'sales-proposal-for-dr.php';
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Tag For Release Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
     });
 })(jQuery);
 
@@ -147,8 +271,86 @@ function salesProposalDepositAmountTable(datatable_name, buttons = false, show_a
     $(datatable_name).dataTable(settings);
 }
 
+function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_all = false){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'sales proposal pdc manual input table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'BANK_BRANCH' },
+        { 'data' : 'CHECK_DATE' },
+        { 'data' : 'CHECK_NUMBER' },
+        { 'data' : 'PAYMENT_FOR' },
+        { 'data' : 'GROSS_AMOUNT' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '17%', 'aTargets': 0 },
+        { 'width': '17%', 'aTargets': 1 },
+        { 'width': '17%', 'aTargets': 2 },
+        { 'width': '17%', 'aTargets': 3 },
+        { 'width': '17%', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'sales_proposal_id' : sales_proposal_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function salesProposalOtherProductDetailsForm(){
     $('#sales-proposal-other-product-details-form').validate({
+        rules: {
+            dr_number: {
+                required: true
+            },
+            start_date: {
+                required: true
+            },
+        },
+        messages: {
+            dr_number: {
+                required: 'Please eneter the DR number'
+            },
+            start_date: {
+                required: 'Please choose the actual start date'
+            },
+        },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
               error.insertAfter(element.next('.select2-container'));
@@ -199,6 +401,9 @@ function salesProposalOtherProductDetailsForm(){
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
+                    else{
+                        window.location.reload();
+                    }
                 },
                 error: function(xhr, status, error) {
                     var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -218,8 +423,226 @@ function salesProposalOtherProductDetailsForm(){
     });
 }
 
+function salesProposalSummaryPDCManualInputTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary pdc manual input table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            if($('#other-charges-rows').length){
+                document.getElementById('other-charges-rows').innerHTML = result[0].table;
+            }
+        }
+    });
+}
+
+function salesProposalPDCManualInputForm(){
+    $('#sales-proposal-pdc-manual-input-form').validate({
+        rules: {
+            payment_frequency: {
+                required: true
+            },
+            payment_for: {
+                required: true
+            },
+            bank_branch: {
+                required: true
+            },
+            no_of_payments: {
+                required: true
+            },
+            first_check_number: {
+                required: true
+            },
+            first_check_date: {
+                required: true
+            },
+            amount_due: {
+                required: true
+            },
+        },
+        messages: {
+            payment_frequency: {
+                required: 'Please choose the payment frequency'
+            },
+            payment_for: {
+                required: 'Please choose the payment for'
+            },
+            bank_branch: {
+                required: 'Please enter the bank/branch'
+            },
+            no_of_payments: {
+                required: 'Please enter the number of payments'
+            },
+            first_check_number: {
+                required: 'Please enter the first check number'
+            },
+            first_check_date: {
+                required: 'Please choose the first check date'
+            },
+            amount_due: {
+                required: 'Please enter the gross amount'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal pdc manual input';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-pdc-manual-input');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        reloadDatatable('#sales-proposal-pdc-manual-input-table');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-pdc-manual-input', 'Submit');
+                    salesProposalSummaryPDCManualInputTable();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
+        case 'get sales proposal details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+            
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#start_date').val(response.actualStartDate);
+                        $('#dr_number').val(response.drNumber);
+                        $('#sales_proposal_number').text(response.salesProposalNumber);
+
+                        $('#product_id_label').text(response.productName);
+                        $('#comaker_id_label').text(response.comakerName);
+                        $('#created-by').text(response.createdByName);
+                        $('#product_type_label').text(response.productType);
+                        $('#transaction_type_label').text(response.transactionType);
+                        $('#financing_institution_label').text(response.financingInstitution);
+
+                        $('#initial-approval-by').text(response.initialApprovalByName);
+                        $('#initial-approval-remarks').text(response.initialApprovalRemarks);
+                        $('#initial-approval-date').text(response.initialApprovalDate);
+                        $('#approval-by').text(response.approvalByName);
+                        $('#final-approval-remarks').text(response.finalApprovalRemarks);
+                        $('#final-approval-date').text(response.approvalDate);
+                        $('#for-ci-date').text(response.forCIDate);
+                        $('#rejection-reason').text(response.rejectionReason);
+                        $('#rejection-date').text(response.rejectionDate);
+                        $('#cancellation-reason').text(response.cancellationReason);
+                        $('#cancellation-date').text(response.cancellationDate);
+                        $('#set-to-draft-reason').text(response.setToDraftReason);
+                        
+                        $('#comaker_id_details').text(response.comakerID);
+                        $('#product_id_details').text(response.productID);
+                        $('#referred_by_label').text(response.referredBy);
+                        $('#release_date_label').text(response.releaseDate);
+                        $('#start_date_label').text(response.startDate);
+                        $('#term_length_label').text(response.termLength + ' ' + response.termType);
+                        $('#number_of_payments_label').text(response.numberOfPayments);
+                        $('#payment_frequency_label').text('Frequency of Payment: ' + response.paymentFrequency);
+                        $('#first_due_date_label').text(response.firstDueDate);
+                        $('#for_registration_label').text(response.forRegistration);
+                        $('#with_cr_label').text(response.withCR);
+                        $('#for_transfer_label').text(response.forTransfer);
+                        $('#remarks_label').text(response.remarks);
+                        $('#initial_approving_officer_label').text(response.initialApprovingOfficerName);
+                        $('#final_approving_officer_label').text(response.finalApprovingOfficerName);
+                        $('#for_change_color_label').text(response.forChangeColor);
+                        $('#new_color_label').text(response.newColor);
+                        $('#for_change_body_label').text(response.forChangeBody);
+                        $('#for_change_engine_label').text(response.forChangeEngine);
+                        $('#fuel_type_label').text(response.fuelType);
+                        $('#fuel_quantity_label').text(response.fuelQuantity + ' lt');
+                        $('#new_body_label').text(response.newBody);
+                        $('#new_engine_label').text(response.newEngine);
+                        $('#price_per_liter_label').text(response.pricePerLiter);
+                        $('#commission_amount_label').text(response.commissionAmount);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+            });
+            break;
         case 'get product details':
             var product_id = $('#product_id').val();
 
@@ -351,9 +774,6 @@ function displayDetails(transaction){
                             fullErrorMessage += ', Response: ${xhr.responseText}';
                         }
                         showErrorDialog(fullErrorMessage);
-                    },
-                    complete: function(){
-                        calculatePricingComputation();
                     }
                 });
                 break;
@@ -410,9 +830,6 @@ function displayDetails(transaction){
                             fullErrorMessage += ', Response: ${xhr.responseText}';
                         }
                         showErrorDialog(fullErrorMessage);
-                    },
-                    complete: function(){
-                        calculateTotalOtherCharges();
                     }
                 });
                 break;

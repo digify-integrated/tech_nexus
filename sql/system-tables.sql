@@ -5233,3 +5233,23 @@ CREATE INDEX other_product_details_index_other_product_details_id ON sales_propo
 CREATE INDEX other_product_details_index_sales_proposal_id ON sales_proposal_other_product_details(sales_proposal_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Table */
+
+CREATE TABLE sales_proposal_manual_pdc_input(
+	manual_pdc_input_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	sales_proposal_id INT UNSIGNED,
+	bank_branch VARCHAR(200) NOT NULL,
+	check_date DATE NOT NULL,
+	check_number INT NOT NULL,
+	payment_for VARCHAR(200) NOT NULL,
+	gross_amount DOUBLE NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (sales_proposal_id) REFERENCES sales_proposal(sales_proposal_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX manual_pdc_input_index_manual_pdc_input_id ON sales_proposal_manual_pdc_input(manual_pdc_input_id);
+CREATE INDEX manual_pdc_input_index_sales_proposal_id ON sales_proposal_manual_pdc_input(sales_proposal_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

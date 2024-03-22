@@ -204,6 +204,17 @@ class SalesProposalController {
                 case 'save sales proposal new engine stencil':
                     $this->saveSalesProposalNewEngineStencil();
                     break;
+
+                   
+                case 'save sales proposal pdc manual input':
+                    $this->saveSalesProposalPDCManualInput();
+                    break; 
+                case 'delete sales proposal pdc manual input':
+                    $this->deleteSalesProposalPDCManualInput();
+                    break;
+                case 'tag for release':
+                    $this->tagSalesProposalAsReleased();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -1398,6 +1409,51 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: tagSalesProposalAsReleased
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalAsReleased() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $loanNumber = $this->systemSettingModel->getSystemSetting(7)['value'] + 1;
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $userID);
+
+        $this->systemSettingModel->updateSystemSettingValue(7, $loanNumber, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: tagSalesProposalCancel
     # Description: 
     # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
@@ -1705,6 +1761,8 @@ class SalesProposalController {
         $mvFileNo = htmlspecialchars($_POST['mv_file_no'], ENT_QUOTES, 'UTF-8');
         $make = htmlspecialchars($_POST['make'], ENT_QUOTES, 'UTF-8');
         $productDescription = htmlspecialchars($_POST['product_description'], ENT_QUOTES, 'UTF-8');
+        $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
+        $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -1715,6 +1773,8 @@ class SalesProposalController {
     
         $checkSalesProposalOtherProductDetailsExist = $this->salesProposalModel->checkSalesProposalOtherProductDetailsExist($salesProposalID);
         $total = $checkSalesProposalOtherProductDetailsExist['total'] ?? 0;
+
+        $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $startDate, $userID);
     
         if ($total > 0) {
             $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
@@ -1831,6 +1891,75 @@ class SalesProposalController {
         }
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalPDCManualInput
+    # Description: 
+    # Updates the existing sales proposal deposit amount if it exists; otherwise, inserts a new sales proposal deposit amount.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalPDCManualInput() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
+        $paymentFor = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
+        $bankBranch = htmlspecialchars($_POST['bank_branch'], ENT_QUOTES, 'UTF-8');
+        $noOfPayments = htmlspecialchars($_POST['no_of_payments'], ENT_QUOTES, 'UTF-8');
+        $firstCheckNumber = htmlspecialchars($_POST['first_check_number'], ENT_QUOTES, 'UTF-8');
+        $firstCheckDate = $this->systemModel->checkDate('empty', $_POST['first_check_date'], '', 'Y-m-d', '');
+        $amountDue = htmlspecialchars($_POST['amount_due'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        for ($i = 0; $i < $noOfPayments; $i++) {
+            $dueDate = $this->calculateDueDate($firstCheckDate, $paymentFrequency, $i);
+
+            if($i > 0){
+                $firstCheckNumber = $firstCheckNumber + 1;
+            }
+
+            $this->salesProposalModel->insertSalesProposalManualPDCInput($salesProposalID, $bankBranch, $dueDate, $firstCheckNumber, $paymentFor, $amountDue, $userID);
+        }
+    
+        
+
+        echo json_encode(['success' => true, 'insertRecord' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    private function calculateDueDate($startDate, $frequency, $iteration) {
+        $date = new DateTime($startDate);
+        switch ($frequency) {
+            case 'Monthly':
+                $date->modify("+$iteration months");
+                break;
+            case 'Yearly':
+                $date->modify("+$iteration years");
+                break;
+            case 'Daily':
+                $date->modify("+$iteration days");
+                break;
+            default:
+                break;
+        }
+        return $date->format('Y-m-d');
+    }
+    
 
     # -------------------------------------------------------------
     #   Delete methods
@@ -2001,6 +2130,47 @@ class SalesProposalController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteSalesProposalPDCManualInput
+    # Description: 
+    # Delete the sales proposal deposit amount if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteSalesProposalPDCManualInput() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $salesProposalManualPDCInputID = htmlspecialchars($_POST['sales_proposal_manual_pdc_input_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalManualPDCInputExist = $this->salesProposalModel->checkSalesProposalManualPDCInputExist($salesProposalManualPDCInputID);
+        $total = $checkSalesProposalManualPDCInputExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->deleteSalesProposalManualPDCInput($salesProposalManualPDCInputID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -2085,8 +2255,10 @@ class SalesProposalController {
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'referredBy' => $salesProposalDetails['referred_by'],
+                'drNumber' => $salesProposalDetails['dr_number'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
+                'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'firstDueDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['first_due_date'], '', 'm/d/Y', ''),
                 'initialApprovalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y', ''),
                 'approvalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y', ''),

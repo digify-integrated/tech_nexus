@@ -789,6 +789,64 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: sales proposal pdc manual input table
+        # Description:
+        # Generates the sales proposal pdc manual input table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'sales proposal pdc manual input table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalPDCManualInputTable(:salesProposalID)');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $manualPDCInputID = $row['manual_pdc_input_id'];
+                    $bankBranch = $row['bank_branch'];
+                    $checkDate = $systemModel->checkDate('summary', $row['check_date'], '', 'F d, Y', '');
+                    $checkNumber = $row['check_number'];
+                    $paymentFor = $row['payment_for'];
+                    $grossAmount = number_format($row['gross_amount'], 2);
+
+                    if($salesProposalStatus == 'For DR'){
+                        $action = '
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-manual-pdc-input" data-sales-proposal-manual-pdc-input-id="'. $manualPDCInputID .'" title="Delete PDC Input">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+                    else{
+                        $action = '';
+                    }
+
+                    $response[] = [
+                        'BANK_BRANCH' => $bankBranch,
+                        'CHECK_DATE' => $checkDate,
+                        'CHECK_NUMBER' => $checkNumber,
+                        'PAYMENT_FOR' => $paymentFor,
+                        'GROSS_AMOUNT' => $grossAmount,
+                        'ACTION' => $action
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: summary deposit amount table
         # Description:
         # Generates the summary deposit amount table.
@@ -830,6 +888,56 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 $table .= '</tbody></table>';
+
+                $response[] = [
+                    'table' => $table
+                ];
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: summary pdc manual input table
+        # Description:
+        # Generates the summary pdc manual input table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'summary pdc manual input table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalPDCManualInputTable(:salesProposalID)');
+                $sql->bindValue(':salesProposalID', $salesProposalID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                $table = '';
+
+                foreach ($options as $row) {
+                    $manualPDCInputID = $row['manual_pdc_input_id'];
+                    $bankBranch = $row['bank_branch'];
+                    $checkDate = $systemModel->checkDate('summary', $row['check_date'], '', 'd-M-Y', '');
+                    $checkNumber = $row['check_number'];
+                    $paymentFor = $row['payment_for'];
+                    $grossAmount = number_format($row['gross_amount'], 2);
+
+                    $table .= '<tr>
+                                    <td>'. $checkDate .'</td>
+                                    <td>'. $grossAmount .'</td>
+                                    <td>'. $paymentFor .'</td>
+                                </tr>';
+                }
 
                 $response[] = [
                     'table' => $table

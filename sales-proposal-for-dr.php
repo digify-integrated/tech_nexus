@@ -43,6 +43,10 @@
     $productID = $salesProposalDetails['product_id'] ?? null;
     $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
     $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
+    $startDate = $salesProposalDetails['actual_start_date'] ?? null;
+    $drNumber = $salesProposalDetails['dr_number'] ?? null;
+    $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
+    $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
 
     $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
     $pnAmount = $pricingComputationDetails['pn_amount'] ?? 0;
@@ -95,7 +99,14 @@
     }
 
     $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
-    $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+
+    if(!empty($comakerPrimaryAddress['address'])){
+      $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+    }
+    else{
+      $comakerAddress = '';
+    }
+    
 
     $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
     $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';

@@ -7248,6 +7248,24 @@ BEGIN
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE updateSalesProposalActualStartDate(IN p_sales_proposal_id INT, IN p_dr_number VARCHAR(50), IN p_actual_start_date DATE, IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET actual_start_date = p_actual_start_date,
+        dr_number = p_dr_number,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalAsReleased(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_sales_proposal_status VARCHAR(50), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET loan_number = p_loan_number,
+        sales_proposal_status = p_sales_proposal_status,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE deleteSalesProposal(IN p_sales_proposal_id INT)
 BEGIN
     DELETE FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id;
@@ -7703,6 +7721,34 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id
     ORDER BY sales_proposal_id;
 END //
+
+CREATE PROCEDURE generateSalesProposalPDCManualInputTable(IN p_sales_proposal_id INT)
+BEGIN
+    SELECT *
+    FROM sales_proposal_manual_pdc_input
+    WHERE sales_proposal_id = p_sales_proposal_id
+    ORDER BY payment_for asc, check_date asc;
+END //
+
+CREATE PROCEDURE insertSalesProposalManualPDCInput(IN p_sales_proposal_id INT, IN p_bank_branch VARCHAR(200), IN p_check_date DATE, IN p_check_number INT, IN p_payment_for VARCHAR(200), IN p_gross_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO sales_proposal_manual_pdc_input (sales_proposal_id, bank_branch, check_date, check_number, payment_for, gross_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_bank_branch, p_check_date, p_check_number, p_payment_for, p_gross_amount, p_last_log_by);
+END //
+
+CREATE PROCEDURE checkSalesProposalManualPDCInputExist (IN p_manual_pdc_input_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_manual_pdc_input
+    WHERE manual_pdc_input_id = p_manual_pdc_input_id;
+END //
+
+CREATE PROCEDURE deleteSalesProposalManualPDCInput(IN p_manual_pdc_input_id INT)
+BEGIN
+    DELETE FROM sales_proposal_manual_pdc_input WHERE manual_pdc_input_id = p_manual_pdc_input_id;
+END //
+
+
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 

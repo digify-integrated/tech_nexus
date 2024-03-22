@@ -28,7 +28,19 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#other-charges-tab" role="tab" aria-controls="other-charges-tab" aria-selected="true">
+                        <a class="nav-link" id="sales-proposal-tab-3" data-bs-toggle="tab" href="#os-details-tab" role="tab" aria-controls="os-details-tab" aria-selected="true">
+                            <div class="media align-items-center">
+                                <div class="avtar avtar-s">
+                                    <i class="ti ti-file-invoice"></i>
+                                </div>
+                                <div class="media-body ms-2">
+                                    <h5 class="mb-0">Sales Proposal Details</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="tab" href="#other-charges-tab" role="tab" aria-controls="other-charges-tab" aria-selected="true">
                             <div class="media align-items-center">
                                 <div class="avtar avtar-s">
                                     <i class="ti ti-credit-card"></i>
@@ -40,7 +52,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="sales-proposal-tab-4" data-bs-toggle="tab" href="#other-charges-tab" role="tab" aria-controls="other-charges-tab" aria-selected="true">
+                        <a class="nav-link" id="sales-proposal-tab-7" data-bs-toggle="tab" href="#pdc-manual-input-tab" role="tab" aria-controls="pdc-manual-input-tab" aria-selected="true">
                             <div class="media align-items-center">
                                 <div class="avtar avtar-s">
                                     <i class="ti ti-credit-card"></i>
@@ -52,17 +64,47 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#printable-reports-tab" role="tab" aria-controls="printable-reports-tab" aria-selected="true">
+                        <a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="tab" href="#release-details-tab" role="tab" aria-controls="release-details-tab" aria-selected="true">
+                            <div class="media align-items-center">
+                                <div class="avtar avtar-s">
+                                    <i class="ti ti-file-check"></i>
+                                </div>
+                                <div class="media-body ms-2">
+                                    <h5 class="mb-0">Release Details</h5>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sales-proposal-tab-8" data-bs-toggle="tab" href="#printable-reports-tab" role="tab" aria-controls="printable-reports-tab" aria-selected="true">
                             <div class="media align-items-center">
                                 <div class="avtar avtar-s">
                                     <i class="ti ti-printer"></i>
                                 </div>
                                 <div class="media-body ms-2">
-                                <h5 class="mb-0">Printable Reports</h5>
+                                    <h5 class="mb-0">Printable Reports</h5>
                                 </div>
                             </div>
                         </a>
                     </li>
+
+                    <?php
+                        if(!empty($startDate) && !empty($drNumber)){
+                            echo '
+                            <li class="nav-item">
+                                <a class="nav-link" id="tag-as-released" href="javascript:void(0);">
+                                    <div class="media align-items-center">
+                                        <div class="avtar avtar-s">
+                                            <i class="ti ti-check"></i>
+                                        </div>
+                                        <div class="media-body ms-2">
+                                            <h5 class="mb-0">Tag As Released</h5>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>';
+                        }
+                    ?>
                 </ul>
             </div>
         </div>
@@ -147,56 +189,7 @@
             <div class="tab-pane" id="stock-details-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-2">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h5 class="mb-0">Other Product Details</h5>
-                                        </div>
-                                        <div class="col-auto">
-                                            <button type="submit" form="sales-proposal-other-product-details-form" class="btn btn-success" id="submit-other-product-details-data">Submit</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <input type="hidden" id="product_id" value="<?php echo $productID ?>">
-                                    <form id="sales-proposal-other-product-details-form" method="post" action="#">
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Year Model :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="year_model" name="year_model" maxlength="20" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">CR No :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="cr_no" name="cr_no" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">MV File No :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="mv_file_no" name="mv_file_no" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Make :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="make" name="make" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Product Description :</label>
-                                            <div class="col-lg-7">
-                                                <textarea class="form-control text-uppercase" id="product_description" name="product_description" maxlength="500"></textarea>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4">
+                        <div class="col-xl-12">
                             <div class="card">
                                 <div class="card-body py-2">
                                     <ul class="list-group list-group-flush">
@@ -270,7 +263,298 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane" id="other-charges-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-3">
+            <div class="tab-pane" id="os-details-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-body py-2">
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label">Sales Proposal Number :</label>
+                                        <label class="col-lg-8 col-form-label" id="sales_proposal_number">--</label>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Sales Proposal Status :</label>
+                                    <div class="col-lg-8">
+                                        <?php echo $salesProposalStatusBadge ?>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Product Type :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="product_type_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Stock :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="product_id_label"></label>
+                                        <label class="col-form-label d-none" id="product_id_details"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Fuel Type :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="fuel_type_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Fuel Quantity :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="fuel_quantity_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Price Per Liter :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="price_per_liter_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Transaction Type :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="transaction_type_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Financing Institution :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="financing_institution_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Co-Maker :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="comaker_id_label"></label>
+                                        <label class="col-form-label d-none" id="comaker_id_details"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Referred By :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="referred_by_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Commission Amount :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="commission_amount_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Estimated Date of Release :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="release_date_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Start Date :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="start_date_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Term :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="term_length_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Number of Payments :</label>
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label" id="number_of_payments_label"></label>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label class="col-form-label" id="payment_frequency_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">First Due Date :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="first_due_date_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Initial Approving Officer :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="initial_approving_officer_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Final Approving Officer :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="final_approving_officer_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">For Registration? :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="for_registration_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">With CR? :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="with_cr_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">For Transfer? :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="for_transfer_label"></label>
+                                    </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label">For Change Color? :</label>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" id="for_change_color_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">Old Color:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="old_color_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">New Color:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="new_color_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label">For Change Body? :</label>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" id="for_change_color_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">Old Body:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="old_body_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">New Body:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="new_body_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-lg-4 col-form-label">For Change Engine? :</label>
+                                        <div class="col-lg-2">
+                                            <label class="col-form-label" id="for_change_color_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">Old Engine:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="old_engine_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label">New Engine:</label>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label class="col-form-label" id="new_engine_label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                    <label class="col-lg-4 col-form-label">Remarks :</label>
+                                    <div class="col-lg-8">
+                                        <label class="col-form-label" id="remarks_label"></label>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="release-details-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h5 class="mb-0">Release Details</h5>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" form="sales-proposal-other-product-details-form" class="btn btn-success" id="submit-other-product-details-data">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <input type="hidden" id="product_id" value="<?php echo $productID ?>">
+                                    <form id="sales-proposal-other-product-details-form" method="post" action="#">
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">DR Number : <span class="text-danger">*</span></label>
+                                            <div class="col-lg-7">
+                                                <input type="text" class="form-control text-uppercase" id="dr_number" name="dr_number" maxlength="50" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">Actual Start Date : <span class="text-danger">*</span></label>
+                                            <div class="col-lg-7">
+                                                <div class="input-group date">
+                                                    <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
+                                                    <span class="input-group-text">
+                                                        <i class="feather icon-calendar"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">Year Model :</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" class="form-control text-uppercase" id="year_model" name="year_model" maxlength="20" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">CR No :</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" class="form-control text-uppercase" id="cr_no" name="cr_no" maxlength="100" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">MV File No :</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" class="form-control text-uppercase" id="mv_file_no" name="mv_file_no" maxlength="100" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">Make :</label>
+                                            <div class="col-lg-7">
+                                                <input type="text" class="form-control text-uppercase" id="make" name="make" maxlength="100" autocomplete="off">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-lg-5 col-form-label">Product Description :</label>
+                                            <div class="col-lg-7">
+                                                <textarea class="form-control text-uppercase" id="product_description" name="product_description" maxlength="500"></textarea>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="other-charges-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-4">
                 <div class="row">
                     <div class="col-xl-6">
                         <div class="card">
@@ -480,6 +764,41 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane" id="pdc-manual-input-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-2">
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body border-bottom">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h5 class="mb-0">PDC Manual Input</h5>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0 table-body mb-4">
+                                <div class="table-responsive">
+                                <table id="sales-proposal-pdc-manual-input-table" class="table table-hover nowrap w-100">
+                                    <thead>
+                                    <tr>
+                                        <th>Bank/Branch</th>
+                                        <th>Check Date</th>
+                                        <th>Check Number</th>
+                                        <th>Payment For</th>
+                                        <th>Gross Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="tab-pane" id="printable-reports-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-5">
                 <div class="row g-4">
                     <div class="col-md-3 col-sm-12">
@@ -587,7 +906,7 @@
                                                 <p style="text-align: justify !important;">Signed this ____ day of ___________________, 20___  at_______________________________, Philippines.</p>
                                                 <div class="row mt-5">
                                                     <div class="col-5">
-                                                        <p class="text-center mb-0"><?php echo $fileAs; ?></p>
+                                                        <p class="text-center mb-0"><?php echo $customerName; ?></p>
                                                         <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">MAKER</p>
                                                     </div>
                                                     <div class="col-2"></div>
@@ -634,7 +953,7 @@
                             </div>
                             <div class="tab-pane fade" id="v-disclosure" role="tabpanel" aria-labelledby="v-disclosure-tab">
                                 <div class="card">
-                                    <div class="card-body print-area2">
+                                    <div class="card-body print-area3">
                                         <div class="row">
                                             <div class="col-lg-12">
                                                 <h5 class="text-center fw-8"><b>DISCLOSURE STATEMENT ON CREDIT SALES TRANSACTION</b></h5>
@@ -644,7 +963,7 @@
                                                         <p class="text-left">NAME OF BUYER</p>
                                                     </div>
                                                     <div class="col-9 mb-0">
-                                                        <p class="text-left"><?php echo $fileAs ?></p>
+                                                        <p class="text-left"><?php echo $customerName ?></p>
                                                     </div>
                                                 </div>
                                                 <div class="row">
@@ -777,10 +1096,23 @@
                                                         <p class="text-start ">c. Liquidated damages- further sum of 20% in addition to costs and other litigation expenses</p>
                                                     </div>
                                                 </div>
-                                                <div class="pagebreak"></div>
                                                 <div class="row">
                                                     <div class="col-12">
-                                                        <p class="text-left ">6. SCHEDULE OF PAYMENTS</p>
+                                                        <p class="text-left ">6. OTHER CHARGES</p>
+                                                    </div>
+                                                </div>
+                                                <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
+                                                    <tr>
+                                                        <td>DUE DATE</td>
+                                                        <td>AMOUNT DUE</td>
+                                                        <td>PAYMENT FOR</td>
+                                                    </tr>
+                                                    <tbody id="other-charges-rows"></tbody>
+                                                </table>
+                                                <div class="pagebreak mt-0"></div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <p class="text-left ">7. SCHEDULE OF PAYMENTS</p>
                                                     </div>
                                                 </div>
                                                 <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
@@ -797,8 +1129,22 @@
                                                         <td><?php echo number_format($pnAmount, 2); ?></td>
                                                     </tr>
                                                     <?php
-                                                        $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
-                                                        $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
+                                                        for ($i = 0; $i < $numberOfPayments; $i++) {
+                                                            $pnAmount = $pnAmount - $repaymentAmount;
+
+                                                            if($pnAmount <= 0){
+                                                                $pnAmount = 0;
+                                                            }
+
+                                                            $dueDate = calculateDueDate($startDate, $paymentFrequency, $i + 1);
+
+                                                            echo '<tr>
+                                                                    <td>'. $dueDate .'</td>
+                                                                    <td>'. number_format($repaymentAmount, 2) .'</td>
+                                                                    <td>ACCT AMORT</td>
+                                                                    <td>'. number_format($pnAmount, 2) .'</td>
+                                                                  </tr>';
+                                                        }
                                                     ?>
                                                 </table>
                                                 <p style="text-align: justify !important;"><b>I ACKNOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE CREDIT SALES TRANSACTION AND THAT I UNDERSTAND AND FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.</b></p><br/>
@@ -820,3 +1166,120 @@
         </div>
     </div>
 </div>
+
+<div>
+          <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-pdc-manual-input-offcanvas" aria-labelledby="sales-proposal-pdc-manual-input-offcanvas-label">
+              <div class="offcanvas-header">
+                  <h2 id="sales-proposal-pdc-manual-input-offcanvas-label" style="margin-bottom:-0.5rem">PDC Manual Input</h2>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                  <div class="row">
+                      <div class="col-lg-12">
+                      <form id="sales-proposal-pdc-manual-input-form" method="post" action="#">
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                <div class="form-group">
+                                    <label class="form-label">Payment Frequency <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="payment_frequency" id="payment_frequency">
+                                        <option value="">--</option>
+                                        <option value="Daily">Daily</option>
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Yearly">Yearly</option>
+                                    </select>
+                                </div>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                <div class="form-group">
+                                    <label class="form-label">Payment For <span class="text-danger">*</span></label>
+                                    <select class="form-control offcanvas-select2" name="payment_for" id="payment_for">
+                                        <option value="">--</option>
+                                        <option value="Acct Amort">Acct Amort</option>
+                                        <option value="Acct Amort W/ OC">Acct Amort W/ OC</option>
+                                        <option value="Advances">Advances</option>
+                                        <option value="Collateral Check">Collateral Check</option>
+                                        <option value="Deposit">Deposit</option>
+                                        <option value="Downpayment">Downpayment</option>
+                                        <option value="Insurance">Insurance</option>
+                                        <option value="Insurance Renewal">Insurance Renewal</option>
+                                        <option value="Other Charges">Other Charges</option>
+                                        <option value="Parts">Parts</option>
+                                        <option value="Registration">Registration</option>
+                                        <option value="Registration Renewal">Registration Renewal</option>
+                                        <option value="Transaction Fee">Transaction Fee</option>
+                                        <option value="Transfer Fee">Transfer Fee</option>
+                                    </select>
+                                </div>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12">
+                                  <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
+                                  <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label" for="no_of_payments">Number of payments <span class="text-danger">*</span></label>
+                                  <input type="number" class="form-control" id="no_of_payments" name="no_of_payments" min="1" step="1">
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
+                                  <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12">
+                                    <label class="form-label">First Check Date <span class="text-danger">*</span></label>
+                                    <div class="input-group date">
+                                        <input type="text" class="form-control regular-datepicker" id="first_check_date" name="first_check_date" autocomplete="off">
+                                        <span class="input-group-text">
+                                            <i class="feather icon-calendar"></i>
+                                        </span>
+                                    </div>
+                              </div>
+                          </div>
+                          <div class="form-group row">
+                              <div class="col-lg-12 mt-3 mt-lg-0">
+                                  <label class="form-label" for="amount_due">Gross Amount <span class="text-danger">*</span></label>
+                                  <input type="number" class="form-control" id="amount_due" name="amount_due" min="1" step="0.01">
+                              </div>
+                          </div>
+                      </form>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-lg-12">
+                          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pdc-manual-input" form="sales-proposal-pdc-manual-input-form">Submit</button>
+                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                      </di>
+                  </div>
+              </div>
+          </div>
+        </div>
+
+<?php
+function calculateDueDate($startDate, $frequency, $iteration) {
+    $date = new DateTime($startDate);
+    switch ($frequency) {
+        case 'Monthly':
+            $date->modify("+$iteration months");
+            break;
+        case 'Quarterly':
+            $date->modify("+$iteration months")->modify('+2 months');
+            break;
+        case 'Semi-Annual':
+            $date->modify("+$iteration months")->modify('+5 months');
+            break;
+        default:
+            break;
+    }
+    return $date->format('d-M-Y');
+}
+
+
+?>

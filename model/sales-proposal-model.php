@@ -511,6 +511,58 @@ class SalesProposalModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalActualStartDate
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalActualStartDate($p_sales_proposal_id, $p_dr_number, $p_actual_start_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalActualStartDate(:p_sales_proposal_id, :p_dr_number, :p_actual_start_date, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_dr_number', $p_dr_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_actual_start_date', $p_actual_start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalAsReleased
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalAsReleased($p_sales_proposal_id, $p_loan_number, $p_sales_proposal_status, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAsReleased(:p_sales_proposal_id, :p_loan_number, :p_sales_proposal_status, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_sales_proposal_status', $p_sales_proposal_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Insert methods
@@ -830,6 +882,35 @@ class SalesProposalModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertSalesProposalManualPDCInput
+    # Description: Inserts the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_job_order_number (string): The job order number.
+    # - $p_job_order_date (string): The job order date.
+    # - $p_particulars (string): The particulars.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertSalesProposalManualPDCInput($p_sales_proposal_id, $p_bank_branch, $p_check_date, $p_check_number, $p_payment_for, $p_gross_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalManualPDCInput(:p_sales_proposal_id, :p_bank_branch, :p_check_date, :p_check_number, :p_payment_for, :p_gross_amount, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
+        $stmt->bindValue(':p_gross_amount', $p_gross_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -1005,6 +1086,25 @@ class SalesProposalModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkSalesProposalManualPDCInputExist
+    # Description: Checks if a sales proposal renewal amount exists.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSalesProposalManualPDCInputExist($p_manual_pdc_input_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalManualPDCInputExist(:p_manual_pdc_input_id)');
+        $stmt->bindValue(':p_manual_pdc_input_id', $p_manual_pdc_input_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 
@@ -1094,6 +1194,24 @@ class SalesProposalModel {
     public function deleteSalesProposalDepositAmount($p_sales_proposal_deposit_amount_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteSalesProposalDepositAmount(:p_sales_proposal_deposit_amount_id)');
         $stmt->bindValue(':p_sales_proposal_deposit_amount_id', $p_sales_proposal_deposit_amount_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteSalesProposalManualPDCInput
+    # Description: Deletes the sales proposal deposit amount.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteSalesProposalManualPDCInput($p_manual_pdc_input_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteSalesProposalManualPDCInput(:p_manual_pdc_input_id)');
+        $stmt->bindValue(':p_manual_pdc_input_id', $p_manual_pdc_input_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -1358,8 +1476,12 @@ class SalesProposalModel {
         $statusClasses = [
             'Draft' => 'secondary',
             'For Initial Approval' => 'info',
+            'For DR' => 'info',
             'For Final Approval' => 'success',
+            'Released' => 'success',
+            'On-Process' => 'info',
             'For CI' => 'info',
+            'Ready For Release' => 'warning',
             'Cancelled' => 'warning',
             'Rejected' => 'danger',
             'Proceed' => 'success'
