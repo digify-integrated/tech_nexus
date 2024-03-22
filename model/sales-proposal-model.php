@@ -1481,7 +1481,7 @@ class SalesProposalModel {
             'Released' => 'success',
             'On-Process' => 'info',
             'For CI' => 'info',
-            'Ready For Release' => 'warning',
+            'Ready For Release ' => 'warning',
             'Cancelled' => 'warning',
             'Rejected' => 'danger',
             'Proceed' => 'success'
