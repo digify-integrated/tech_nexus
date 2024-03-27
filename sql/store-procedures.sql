@@ -720,27 +720,27 @@ BEGIN
     IF p_access_type = 'read' THEN
         UPDATE menu_item_access_right
         SET read_access = p_access,
-        last_log_by = p_last_log_by
+            last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'write' THEN
         UPDATE menu_item_access_right
         SET write_access = p_access,
-        last_log_by = p_last_log_by
+            last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'create' THEN
         UPDATE menu_item_access_right
         SET create_access = p_access,
-        last_log_by = p_last_log_by
+            last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSEIF p_access_type = 'delete' THEN
       UPDATE menu_item_access_right
         SET delete_access = p_access,
-        last_log_by = p_last_log_by
+            last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     ELSE
         UPDATE menu_item_access_right
         SET duplicate_access = p_access,
-        last_log_by = p_last_log_by
+            last_log_by = p_last_log_by
         WHERE menu_item_id = p_menu_item_id AND role_id = p_role_id;
     END IF;
 END //
@@ -7076,15 +7076,15 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_fuel_type VARCHAR(100), IN p_fuel_quantity DOUBLE, IN p_price_per_liter DOUBLE, IN p_commission_amount DOUBLE, IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_fuel_type VARCHAR(100), IN p_fuel_quantity DOUBLE, IN p_price_per_liter DOUBLE, IN p_commission_amount DOUBLE, IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, product_type, fuel_type, fuel_quantity, price_per_liter, commission_amount, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, for_change_color, new_color, for_change_body, new_body, for_change_engine, new_engine, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_product_type, p_fuel_type, p_fuel_quantity, p_price_per_liter, p_commission_amount, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_for_change_color, p_new_color, p_for_change_body, p_new_body, p_for_change_engine, p_new_engine, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_id, product_type, fuel_type, fuel_quantity, price_per_liter, commission_amount, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, for_registration, with_cr, for_transfer, for_change_color, new_color, for_change_body, new_body, for_change_engine, new_engine, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_id, p_product_type, p_fuel_type, p_fuel_quantity, p_price_per_liter, p_commission_amount, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_for_registration, p_with_cr, p_for_transfer, p_for_change_color, p_new_color, p_for_change_body, p_new_body, p_for_change_engine, p_new_engine, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_fuel_type VARCHAR(100), IN p_fuel_quantity DOUBLE, IN p_price_per_liter DOUBLE, IN p_commission_amount DOUBLE, IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_id INT, IN p_product_type VARCHAR(100), IN p_fuel_type VARCHAR(100), IN p_fuel_quantity DOUBLE, IN p_price_per_liter DOUBLE, IN p_commission_amount DOUBLE, IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal
     SET customer_id = p_customer_id,
@@ -7117,6 +7117,7 @@ BEGIN
     remarks = p_remarks,
     initial_approving_officer = p_initial_approving_officer,
     final_approving_officer = p_final_approving_officer,
+    renewal_tag = p_renewal_tag,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7257,11 +7258,12 @@ BEGIN
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalAsReleased(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_sales_proposal_status VARCHAR(50), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalAsReleased(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_sales_proposal_status VARCHAR(50), IN p_release_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE sales_proposal
         SET loan_number = p_loan_number,
         sales_proposal_status = p_sales_proposal_status,
+        release_remarks = p_release_remarks,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7569,13 +7571,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_nominal_discount DOUBLE, IN p_total_delivery_price DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_pricing_computation (sales_proposal_id, delivery_price, cost_of_accessories, reconditioning_cost, subtotal, downpayment, outstanding_balance, amount_financed, pn_amount, repayment_amount, interest_rate, last_log_by) 
-	VALUES(p_sales_proposal_id, p_delivery_price, p_cost_of_accessories, p_reconditioning_cost, p_subtotal, p_downpayment, p_outstanding_balance, p_amount_financed, p_pn_amount, p_repayment_amount, p_interest_rate, p_last_log_by);
+    INSERT INTO sales_proposal_pricing_computation (sales_proposal_id, delivery_price, cost_of_accessories, reconditioning_cost, subtotal, downpayment, outstanding_balance, amount_financed, pn_amount, repayment_amount, interest_rate, nominal_discount, total_delivery_price, last_log_by) 
+	VALUES(p_sales_proposal_id, p_delivery_price, p_cost_of_accessories, p_reconditioning_cost, p_subtotal, p_downpayment, p_outstanding_balance, p_amount_financed, p_pn_amount, p_repayment_amount, p_interest_rate, p_nominal_discount, p_total_delivery_price, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalPricingComputation(IN p_sales_proposal_id INT, IN p_delivery_price DOUBLE, IN p_cost_of_accessories DOUBLE, IN p_reconditioning_cost DOUBLE, IN p_subtotal DOUBLE, IN p_downpayment DOUBLE, IN p_outstanding_balance DOUBLE, IN p_amount_financed DOUBLE, IN p_pn_amount DOUBLE, IN p_repayment_amount DOUBLE, IN p_interest_rate DOUBLE, IN p_nominal_discount DOUBLE, IN p_total_delivery_price DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_pricing_computation
     SET delivery_price = p_delivery_price,
@@ -7588,6 +7590,8 @@ BEGIN
     pn_amount = p_pn_amount,
     repayment_amount = p_repayment_amount,
     interest_rate = p_interest_rate,
+    nominal_discount = p_nominal_discount,
+    total_delivery_price = p_total_delivery_price,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //

@@ -20,9 +20,20 @@
                 <option value="">--</option>
                 <option value="Unit">Unit</option>
                 <option value="Fuel">Fuel</option>
+                <option value="Parts">Parts</option>
                 <option value="Repair">Repair</option>
                 <option value="Refinancing">Refinancing</option>
                 <option value="Real Estate">Real Estate</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="renewal_tag" id="renewal_tag">
+                <option value="">--</option>
+                <option value="New">New</option>
+                <option value="Renewal">Renewal</option>
               </select>
             </div>
           </div>

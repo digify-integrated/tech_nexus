@@ -114,6 +114,7 @@
                     <th>Customer</th>
                     <th>Product Type</th>
                     <th>Stock</th>
+                    <th>Created Date</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>

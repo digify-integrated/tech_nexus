@@ -41,11 +41,14 @@
     $customerID = $salesProposalDetails['customer_id'];
     $comakerID = $salesProposalDetails['comaker_id'];
     $productID = $salesProposalDetails['product_id'] ?? null;
+    $productType = $salesProposalDetails['product_type'] ?? null;
+    $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
     $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
     $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
     $startDate = $salesProposalDetails['actual_start_date'] ?? null;
     $drNumber = $salesProposalDetails['dr_number'] ?? null;
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
+    $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
 
     $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);

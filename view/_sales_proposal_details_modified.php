@@ -52,7 +52,34 @@
     <div class="tab-content">
       <div class="tab-pane show active" id="job-order-tab" role="tabpanel" aria-labelledby="sales-proposal-tab-1">
         <div class="row">
-          <div class="col-xl-12">
+          <div class="col-xl-4">
+            <div class="card">
+              <div class="card-body py-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item px-0">
+                    <h5 class="mb-0">Sales Proposal Details</h5>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-6 mb-sm-0">
+                        <p class="mb-0">Created By</p>
+                      </div>
+                      <div class="col-sm-6" id="created-by"></div>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center mb-3">
+                      <div class="col-sm-6 mb-sm-0">
+                        <p class="mb-0">Proceed Date</p>
+                      </div>
+                      <div class="col-sm-6" id="final-approval-date"></div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-8">
             <div class="card">
               <div class="card-header">
                 <div class="row align-items-center my-2">

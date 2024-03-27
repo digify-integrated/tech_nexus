@@ -149,9 +149,20 @@
                                     <option value="">--</option>
                                     <option value="Unit">Unit</option>
                                     <option value="Fuel">Fuel</option>
+                                    <option value="Parts">Parts</option>
                                     <option value="Repair">Repair</option>
                                     <option value="Refinancing">Refinancing</option>
                                     <option value="Real Estate">Real Estate</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <select class="form-control select2" name="renewal_tag" id="renewal_tag">
+                                    <option value="">--</option>
+                                    <option value="New">New</option>
+                                    <option value="Renewal">Renewal</option>
                                   </select>
                                 </div>
                               </div>
@@ -403,6 +414,12 @@
                                 <label class="col-form-label" id="product_type_label"></label>
                               </div>
                             </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Renewal Tag : </label>
+                                <div class="col-lg-8">
+                                <label class="col-form-label" id="renewal_tag_label"></label>
+                                </div>
+                              </div>
                             <div class="form-group row">
                               <label class="col-lg-4 col-form-label">Stock :</label>
                               <div class="col-lg-8">
@@ -957,13 +974,6 @@
                   <div class="col">
                     <h5 class="mb-0">Pricing Computation</h5>
                   </div>
-                  <div class="col-auto">
-                    <?php
-                      if($salesProposalStatus == 'Draft'){
-                        echo '<button type="submit" form="sales-proposal-pricing-computation-form" class="btn btn-success" id="submit-pricing-computation-data">Submit</button>';
-                      }
-                    ?>  
-                  </div>
                 </div>
               </div>
               <div class="card-body">
@@ -973,7 +983,19 @@
                             <div class="form-group row">
                               <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
                               <div class="col-lg-7">
-                                <input type="number" class="form-control" id="delivery_price" name="delivery_price" step="0.01" min="0">
+                                <input type="number" class="form-control" id="delivery_price" name="delivery_price" step="0.01" min="0.01">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-5 col-form-label">Nominal Discount : <span class="text-danger">*</span></label>
+                              <div class="col-lg-7">
+                                <input type="number" class="form-control" id="nominal_discount" name="nominal_discount" step="0.01" min="0">
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-5 col-form-label">Total Delivery Price : <span class="text-danger">*</span></label>
+                              <div class="col-lg-7">
+                                <input type="number" class="form-control" id="total_delivery_price" name="total_delivery_price" step="0.01" min="0.01" readonly>
                               </div>
                             </div>
                             <div class="form-group row">
@@ -1049,6 +1071,18 @@
                               <label class="col-form-label" id="delivery_price_label"></label>
                             </div>
                           </div>
+                          <div class="form-group row">
+                            <label class="col-lg-5 col-form-label">Nominal Discount :</label>
+                            <div class="col-lg-7">
+                              <label class="col-form-label" id="nominal_discount_label"></label>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-lg-5 col-form-label">Total Delivery Price :</label>
+                            <div class="col-lg-7">
+                              <label class="col-form-label" id="total_delivery_price_label"></label>
+                            </div>
+                          </div>
                           '. $productCostField .'
                           <div class="form-group row">
                             <label class="col-lg-5 col-form-label">Interest Rate :</label>
@@ -1115,13 +1149,6 @@
                 <div class="row align-items-center">
                   <div class="col">
                     <h5 class="mb-0">Other Charges</h5>
-                  </div>
-                  <div class="col-auto">
-                    <?php
-                      if($salesProposalStatus == 'Draft'){
-                        echo '<button type="submit" form="sales-proposal-other-charges-form" class="btn btn-success" id="submit-other-charges-data">Submit</button>';
-                      }
-                    ?>
                   </div>
                 </div>
               </div>
@@ -1241,13 +1268,6 @@
                 <div class="row align-items-center">
                   <div class="col">
                     <h5 class="mb-0">Renewal Amount</h5>
-                  </div>
-                  <div class="col-auto">
-                    <?php
-                      if($salesProposalStatus == 'Draft'){
-                        echo '<button type="submit" form="sales-proposal-renewal-amount-form" class="btn btn-success" id="submit-renewal-amount-data">Submit</button>';
-                      }
-                    ?>
                   </div>
                 </div>
               </div>

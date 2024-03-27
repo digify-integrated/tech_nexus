@@ -193,6 +193,10 @@
                 calculateTotalOtherCharges();
             });
 
+            $(document).on('change','#nominal_discount',function() {
+                calculateTotalDeliveryPrice();
+            });
+
             $(document).on('click','#add-sales-proposal-accessories',function() {
                 resetModalForm("sales-proposal-accessories-form");
             });
@@ -511,6 +515,17 @@
                 checkOptionExist('#fuel_type', '', '');
                 $('#fuel_quantity').val(''); 
             }
+
+            if($(this).val() == 'Unit' || $(this).val() == 'Fuel'){
+                if($('#delivery_price').length){
+                    $('#delivery_price').prop('readonly', true);
+                }
+            }
+            else{
+                if($('#delivery_price').length){
+                    $('#delivery_price').prop('readonly', false);
+                }
+            }
         });
 
         $(document).on('change','#transaction_type',function() {
@@ -551,6 +566,14 @@
                 $('#new_engine').val('');
                 $("#new_engine").attr("readonly", true); 
             }
+        });
+
+        $(document).on('change','#fuel_quantity',function() {
+            calculateTotalFuelDeliveryPrice();
+        });
+
+        $(document).on('change','#price_per_liter',function() {
+            calculateTotalFuelDeliveryPrice();
         });
 
         $(document).on('change','#product_id',function() {  
@@ -633,7 +656,7 @@
         });
         
         $(document).on('click','#next-step-3',function() {
-            if($('#delivery_price').valid()){
+            if($('#delivery_price').valid() && $('#nominal_discount').valid() ){
                 nextStep(3);
                 $("#sales-proposal-pricing-computation-form").submit();
                 $("#sales-proposal-other-charges-form").submit();
@@ -1103,6 +1126,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'data' : 'CUSTOMER' },
         { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'STATUS' },
         { 'data' : 'ACTION' }
     ];
@@ -1112,9 +1136,10 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'width': '14%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '15%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
-        { 'width': '10%', 'aTargets': 5 },
-        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+        { 'width': '15%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5},
+        { 'width': '10%', 'aTargets': 6 },
+        { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -1674,6 +1699,9 @@ function addSalesProposalForm(){
             transaction_type: {
                 required: true
             },
+            renewal_tag: {
+                required: true
+            },
             financing_institution: {
                 required: {
                     depends: function(element) {
@@ -1770,6 +1798,9 @@ function addSalesProposalForm(){
             },
             transaction_type: {
                 required: 'Please choose the transaction type'
+            },
+            renewal_tag: {
+                required: 'Please choose the renewal tag'
             },
             financing_institution: {
                 required: 'Please enter the financing institution'
@@ -1924,6 +1955,9 @@ function salesProposalForm(){
             transaction_type: {
                 required: true
             },
+            renewal_tag: {
+                required: true
+            },
             financing_institution: {
                 required: {
                     depends: function(element) {
@@ -2029,6 +2063,9 @@ function salesProposalForm(){
             },
             transaction_type: {
                 required: 'Please choose the transaction type'
+            },
+            renewal_tag: {
+                required: 'Please choose the renewal tag'
             },
             financing_institution: {
                 required: 'Please enter the financing institution'
@@ -2554,12 +2591,18 @@ function salesProposalPricingComputationForm(){
         rules: {
             delivery_price: {
                 required: true
+            },
+            nominal_discount: {
+                required: true
             }
         },
         messages: {
             delivery_price: {
                 required: 'Please enter the delivery price'
-            }
+            },
+            nominal_discount: {
+                required: 'Please enter the nominal discount'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -3822,6 +3865,7 @@ function displayDetails(transaction){
                         $('#product_id_details').text(response.productID);
                         $('#referred_by_label').text(response.referredBy);
                         $('#release_date_label').text(response.releaseDate);
+                        $('#renewal_tag_label').text(response.renewalTag);
                         $('#start_date_label').text(response.startDate);
                         $('#term_length_label').text(response.termLength + ' ' + response.termType);
                         $('#number_of_payments_label').text(response.numberOfPayments);
@@ -3862,6 +3906,7 @@ function displayDetails(transaction){
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#product_type', response.productType, '');
+                        checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
                         checkOptionExist('#comaker_id', response.comakerID, '');
                         checkOptionExist('#term_type', response.termType, '');
@@ -4174,6 +4219,7 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#delivery_price').val(response.deliveryPrice);
+                        $('#nominal_discount').val(response.nominalDiscount);
                         $('#cost_of_accessories').val(response.costOfAccessories);
                         $('#reconditioning_cost').val(response.reconditioningCost);
                         $('#downpayment').val(response.downpayment);
@@ -4188,6 +4234,7 @@ function displayDetails(transaction){
                         $('#summary-sub-total').text(parseFloat(response.subtotal).toLocaleString("en-US"));
 
                         $('#delivery_price_label').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
+                        $('#nominal_discount_label').text(parseFloat(response.nominalDiscount).toLocaleString("en-US"));
                         $('#cost_of_accessories_label').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
                         $('#reconditioning_cost_label').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#downpayment_label').text(parseFloat(response.downpayment).toLocaleString("en-US"));
@@ -4215,6 +4262,10 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
+                    calculateTotalDeliveryPrice();
+                    if($('#product_type').val() == 'Fuel'){
+                        calculateTotalFuelDeliveryPrice();
+                    }
                     calculatePricingComputation();
                 }
             });
@@ -4365,6 +4416,9 @@ function displayDetails(transaction){
                             $('#product_plate_number').text(response.plateNumber);
                             $('#product_category').val(response.productCategoryID);
 
+                            $('#delivery_price_label').text(parseFloat(response.productPrice * 1000).toLocaleString("en-US"));
+                            $('#delivery_price').text(response.productPrice);
+
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);
                             $('#old_engine').val(response.engineNumber);
@@ -4380,6 +4434,10 @@ function displayDetails(transaction){
     
                             if($('#product_cost_label').length){
                                 $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                            }                        
+    
+                            if($('#product_cost_label').length){
+                                
                             }                        
                         } 
                         else {
@@ -4503,7 +4561,7 @@ function calculateFirstDueDate(){
 function calculatePricingComputation(){
     var term_length = parseFloat($("#term_length").val()) || 0;
     var interest_rate = parseFloat($("#interest_rate").val()) || 0;
-    var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+    var delivery_price = parseFloat($("#total_delivery_price").val()) || 0;
     var cost_of_accessories = parseFloat($("#cost_of_accessories").val()) || 0;
     var reconditioning_cost = parseFloat($("#reconditioning_cost").val()) || 0;
     var downpayment = parseFloat($("#downpayment").val()) || 0;
@@ -4538,6 +4596,36 @@ function calculateTotalOtherCharges(){
     var total = insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
 
     $('#total_other_charges').val(total.toFixed(2));
+}
+
+function calculateTotalDeliveryPrice(){
+    var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+    var nominal_discount = parseFloat($("#nominal_discount").val()) || 0;
+
+    var total = delivery_price - nominal_discount;
+
+    if(total <= 0){
+        total = 0;
+    }
+
+    $('#total_delivery_price').val(total.toFixed(2));
+    $('#total_delivery_price_label').val(total.toFixed(2));
+    calculatePricingComputation();
+}
+
+function calculateTotalFuelDeliveryPrice(){
+    var fuel_quantity = parseFloat($("#fuel_quantity").val()) || 0;
+    var price_per_liter = parseFloat($("#price_per_liter").val()) || 0;
+
+    var total = fuel_quantity * price_per_liter;
+
+    if(total <= 0){
+        total = 0;
+    }
+
+    $('#delivery_price').val(total.toFixed(2));
+    calculateTotalDeliveryPrice();
+    calculatePricingComputation();
 }
 
 function calculateRenewalAmount(){

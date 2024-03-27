@@ -1,7 +1,7 @@
 (function($) {
     'use strict';
 
-    $(function() {
+    $(function() {        
         if($('#other-charges-rows').length){
             salesProposalSummaryPDCManualInputTable();
         }
@@ -22,14 +22,21 @@
             displayDetails('get product details');
         }
 
+        if($('#sales-proposal-tag-as-released-form').length){
+            salesProposalReleaseForm();
+        }
+
         if($('#sales-proposal-other-product-details-form').length){
-            salesProposalOtherProductDetailsForm();
-            displayDetails('get sales proposal other product details');
-            displayDetails('get sales proposal details');
+            salesProposalOtherProductDetailsForm();            
             
             displayDetails('get sales proposal pricing computation details');
             displayDetails('get sales proposal other charges details');
             displayDetails('get sales proposal renewal amount details');
+        }
+
+        if($('#sales-proposal-tab-1').length){
+            displayDetails('get sales proposal other product details');
+            displayDetails('get sales proposal details');
         }
 
         if($('#sales-proposal-pdc-manual-input-form').length){
@@ -76,61 +83,6 @@
                                 }
                                 else {
                                     showNotification('Delete PDC Manual Input Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#tag-as-released',function() {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'tag for release';
-    
-            Swal.fire({
-                title: 'Confirm Tagging For Release',
-                text: 'Are you sure you want to tag this as released?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Release',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/sales-proposal-controller.php',
-                        dataType: 'json',
-                        data: {
-                            sales_proposal_id : sales_proposal_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Tag For Release Success', 'This has been tagged for released successfully.', 'success');
-                                window.location = 'sales-proposal-for-dr.php';
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Tag For Release Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -313,6 +265,9 @@ function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_
         },
         'order': [[ 0, 'asc' ]],
         'columns' : column,
+        'fnDrawCallback': function( oSettings ) {
+            readjustDatatableColumn();
+        },
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
         'language': {
@@ -339,16 +294,22 @@ function salesProposalOtherProductDetailsForm(){
             dr_number: {
                 required: true
             },
-            start_date: {
+            actual_start_date: {
+                required: true
+            },
+            product_description: {
                 required: true
             },
         },
         messages: {
             dr_number: {
-                required: 'Please eneter the DR number'
+                required: 'Please enter the DR number'
             },
-            start_date: {
+            actual_start_date: {
                 required: 'Please choose the actual start date'
+            },
+            product_description: {
+                required: 'Please enter the product description'
             },
         },
         errorPlacement: function (error, element) {
@@ -383,6 +344,90 @@ function salesProposalOtherProductDetailsForm(){
         submitHandler: function(form) {
             const sales_proposal_id = $('#sales-proposal-id').text();
             const transaction = 'save sales proposal other product details';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-other-product-details-data');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-other-product-details-data', 'Submit');
+                    displayDetails('get sales proposal other product details');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function salesProposalReleaseForm(){
+    $('#sales-proposal-tag-as-released-form').validate({
+        rules: {
+            release_remarks: {
+                required: true
+            },
+        },
+        messages: {
+            release_remarks: {
+                required: 'Please eneter the release remarks'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'tag for release';
         
             $.ajax({
                 type: 'POST',
@@ -575,8 +620,10 @@ function displayDetails(transaction){
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#start_date').val(response.actualStartDate);
+                        $('#actual_start_date').val(response.actualStartDate);
+                        $('#actual_start_date_label').text(response.actualStartDate);
                         $('#dr_number').val(response.drNumber);
+                        $('#dr_number_label').text(response.drNumber);
                         $('#sales_proposal_number').text(response.salesProposalNumber);
 
                         $('#product_id_label').text(response.productName);
@@ -661,6 +708,8 @@ function displayDetails(transaction){
                             $('#body-type-summary').text(response.bodyTypeName);
     
                             $('#stock-number-summary').text(response.summaryStockNumber);
+                            $('#unit_id_gatepass').text(response.summaryStockNumber);
+                            $('#unit_id_gatepass2').text(response.summaryStockNumber);
                             $('#engine-number-summary').text(response.engineNumber);
                             $('#chassis-number-summary').text(response.chassisNumber);
                             $('#plate-number-summary').text(response.plateNumber);    
@@ -698,10 +747,17 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#year_model').val(response.yearModel);
+                        $('#year_model_label').text(response.yearModel);
                         $('#cr_no').val(response.crNo);
+                        $('#cr_no_label').text(response.crNo);
                         $('#mv_file_no').val(response.mvFileNo);
+                        $('#mv_file_no_label').text(response.mvFileNo);
                         $('#make').val(response.make);
+                        $('#make_label').text(response.make);
                         $('#product_description').val(response.productDescription);
+                        $('#product_description_label').text(response.productDescription);
+                        $('#product_description_gatepass').text(response.productDescription);
+                        $('#product_description_gatepass2').text(response.productDescription);
                     } 
                     else {
                         if(response.isInactive){

@@ -4230,6 +4230,60 @@ BEGIN
     VALUES ('product_subcategory', NEW.product_subcategory_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE TRIGGER sales_proposal_additional_job_order_trigger_update
+AFTER UPDATE ON sales_proposal_additional_job_order
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.job_order_number <> OLD.job_order_number THEN
+        SET audit_log = CONCAT(audit_log, "Job Order Number: ", OLD.job_order_number, " -> ", NEW.job_order_number, "<br/>");
+    END IF;
+
+    IF NEW.job_order_date <> OLD.job_order_date THEN
+        SET audit_log = CONCAT(audit_log, "Job Order Date: ", OLD.job_order_date, " -> ", NEW.job_order_date, "<br/>");
+    END IF;
+
+    IF NEW.particulars <> OLD.particulars THEN
+        SET audit_log = CONCAT(audit_log, "Particulars: ", OLD.particulars, " -> ", NEW.particulars, "<br/>");
+    END IF;
+
+    IF NEW.cost <> OLD.cost THEN
+        SET audit_log = CONCAT(audit_log, "Cost: ", OLD.cost, " -> ", NEW.cost, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_additional_job_order_trigger_insert
+AFTER INSERT ON sales_proposal_additional_job_order
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Additional Job Order created. <br/>';
+
+    IF NEW.job_order_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Job Order Number: ", NEW.job_order_number);
+    END IF;
+
+    IF NEW.job_order_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product Subcategory Code: ", NEW.job_order_date);
+    END IF;
+
+    IF NEW.particulars <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Particulars: ", NEW.particulars);
+    END IF;
+
+    IF NEW.cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cost: ", NEW.cost);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 /* Product Table Triggers */

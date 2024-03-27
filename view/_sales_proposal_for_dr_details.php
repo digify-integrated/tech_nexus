@@ -89,10 +89,10 @@
                     </li>
 
                     <?php
-                        if(!empty($startDate) && !empty($drNumber)){
+                        if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
                             echo '
                             <li class="nav-item">
-                                <a class="nav-link" id="tag-as-released" href="javascript:void(0);">
+                                <a class="nav-link" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-tag-as-released-offcanvas" aria-controls="sales-proposal-tag-as-released-offcanvas" href="javascript:void(0);">
                                     <div class="media align-items-center">
                                         <div class="avtar avtar-s">
                                             <i class="ti ti-check"></i>
@@ -493,61 +493,113 @@
                                             <h5 class="mb-0">Release Details</h5>
                                         </div>
                                         <div class="col-auto">
-                                            <button type="submit" form="sales-proposal-other-product-details-form" class="btn btn-success" id="submit-other-product-details-data">Submit</button>
+                                            <?php
+                                                if($salesProposalStatus == 'For DR'){
+                                                    echo '<button type="submit" form="sales-proposal-other-product-details-form" class="btn btn-success" id="submit-other-product-details-data">Submit</button>';
+                                                }
+                                            ?>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     <input type="hidden" id="product_id" value="<?php echo $productID ?>">
-                                    <form id="sales-proposal-other-product-details-form" method="post" action="#">
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">DR Number : <span class="text-danger">*</span></label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="dr_number" name="dr_number" maxlength="50" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Actual Start Date : <span class="text-danger">*</span></label>
-                                            <div class="col-lg-7">
-                                                <div class="input-group date">
-                                                    <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
-                                                    <span class="input-group-text">
-                                                        <i class="feather icon-calendar"></i>
-                                                    </span>
+                                    <?php
+                                        if($salesProposalStatus == 'For DR'){
+                                            echo '<form id="sales-proposal-other-product-details-form" method="post" action="#">
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">DR Number : <span class="text-danger">*</span></label>
+                                                        <div class="col-lg-7">
+                                                            <input type="text" class="form-control text-uppercase" id="dr_number" name="dr_number" maxlength="50" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">Actual Start Date : <span class="text-danger">*</span></label>
+                                                        <div class="col-lg-7">
+                                                            <div class="input-group date">
+                                                                <input type="text" class="form-control regular-datepicker" id="actual_start_date" name="actual_start_date" autocomplete="off">
+                                                                <span class="input-group-text">
+                                                                    <i class="feather icon-calendar"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">Year Model :</label>
+                                                        <div class="col-lg-7">
+                                                            <input type="text" class="form-control text-uppercase" id="year_model" name="year_model" maxlength="20" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">CR No :</label>
+                                                        <div class="col-lg-7">
+                                                            <input type="text" class="form-control text-uppercase" id="cr_no" name="cr_no" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">MV File No :</label>
+                                                        <div class="col-lg-7">
+                                                            <input type="text" class="form-control text-uppercase" id="mv_file_no" name="mv_file_no" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">Make :</label>
+                                                        <div class="col-lg-7">
+                                                            <input type="text" class="form-control text-uppercase" id="make" name="make" maxlength="100" autocomplete="off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <label class="col-lg-5 col-form-label">Product Description : <span class="text-danger">*</span></label>
+                                                        <div class="col-lg-7">
+                                                            <textarea class="form-control text-uppercase" id="product_description" name="product_description" maxlength="500"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </form>';
+                                        }
+                                        else{
+                                            echo '<div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">DR Number : <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="dr_number_label"></label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Year Model :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="year_model" name="year_model" maxlength="20" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">CR No :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="cr_no" name="cr_no" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">MV File No :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="mv_file_no" name="mv_file_no" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Make :</label>
-                                            <div class="col-lg-7">
-                                                <input type="text" class="form-control text-uppercase" id="make" name="make" maxlength="100" autocomplete="off">
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-lg-5 col-form-label">Product Description :</label>
-                                            <div class="col-lg-7">
-                                                <textarea class="form-control text-uppercase" id="product_description" name="product_description" maxlength="500"></textarea>
-                                            </div>
-                                        </div>
-                                    </form>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">Actual Start Date : <span class="text-danger">*</span></label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="actual_start_date_label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">Year Model :</label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="year_model_label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">CR No :</label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="cr_no_label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">MV File No :</label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="mv_file_no_label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">Make :</label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="make_label"></label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-lg-5 col-form-label">Product Description :</label>
+                                                    <div class="col-lg-7">
+                                                        <label class="col-form-label" id="product_description_label"></label>
+                                                    </div>
+                                                </div>';
+                                        }
+                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -774,7 +826,11 @@
                                         <h5 class="mb-0">PDC Manual Input</h5>
                                     </div>
                                     <div class="col-auto">
-                                        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
+                                        <?php
+                                            if($salesProposalStatus == 'For DR'){
+                                                echo '<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>';
+                                            }
+                                        ?>
                                     </div>
                                 </div>
                             </div>
@@ -809,6 +865,11 @@
                                     <li><a class="nav-link" id="v-authorization-undertaking-tab" data-bs-toggle="pill" href="#v-authorization-undertaking" role="tab" aria-controls="v-authorization-undertaking" aria-selected="false">Authorization & Undertaking</a></li>
                                     <li><a class="nav-link" id="v-promisory-note-tab" data-bs-toggle="pill" href="#v-promisory-note" role="tab" aria-controls="v-promisory-note" aria-selected="false">Promissory Note</a></li>
                                     <li><a class="nav-link" id="v-disclosure-tab" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false">Disclosure</a></li>
+                                    <?php
+                                        if($salesProposalStatus == 'Released'){
+                                            echo '<li><a class="nav-link" id="v-gatepass-tab" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false">Gate Pass</a></li>';
+                                        }
+                                    ?>
                                 </ul>
                             </div>
                         </div>
@@ -1159,6 +1220,88 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="tab-pane fade" id="v-gatepass" role="tabpanel" aria-labelledby="v-gatepass-tab">
+                                <div class="card">
+                                    <div class="card-body print-area5">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <h5 class="text-center"><b>GATE PASS - UNIT</b></h5>
+                                            </div>
+                                            <div class="col-4">
+                                                <h6 class="text-center"><b>NO : <?php echo $drNumber; ?></b></h6>
+                                            </div>
+                                            <div class="col-4">
+                                                <h6 class="text-center"><b>DATE : <?php echo date('d-M-Y'); ?></b></h6>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-lg-12">
+                                                <div class="table-border-style mw-100">
+                                                    <div class="table-border-style mw-100">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-xs text-uppercase">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td colspan="2"><small>Customer Name</small></td>
+                                                                        <td colspan="3"><small><?php echo $customerName; ?></small></td>
+                                                                        <td rowspan="4" class="text-center">
+                                                                            <img src="<?php echo $unitImage; ?>" width="100">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="2"><small>Contact Number</small></td>
+                                                                        <td colspan="3"><small><?php echo $customerMobile; ?></small></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="2"><small>Address</small></td>
+                                                                        <td colspan="3"><small><?php echo $customerAddress; ?></small></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="2"><small>DR No.</small></td>
+                                                                        <td><small><?php echo $drNumber; ?></small></td>
+                                                                        <td><small>DR Date</small></td>
+                                                                        <td><small><?php echo date('d-M-Y'); ?></small></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="6">
+                                                                           <p class="text-center"><small>PARTICULARS</small></p>
+                                                                           <?php
+                                                                                if($productType == 'Unit'){
+                                                                                    echo '<p class="text-danger"><b><u><small id="unit_id_gatepass"></small></u></b></p>';
+                                                                                }
+                                                                                else{
+                                                                                    echo '<p class="text-danger"><b><u><small>'. $productType . $salesProposalNumber .'</small></u></b></p>';
+                                                                                }
+                                                                           ?>
+                                                                           <p><small id="product_description_gatepass"></small></p><br/>
+                                                                           <small class="text-danger">REMINDER:</small><br/>
+                                                                            <small >GATE PASS SHALL ALWAYS BE ACCOMPANIED BY DULY APPROVED DELIVERY RECEIPT</small>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="3" style="vertical-align: top !important;" class="text-nowrap">
+                                                                            <small>RELEASED BY:</small><br/><br/><br/>
+                                                                            <small>CUSTOMER/AUTHORIZED REPRESENTATIVE</small>
+                                                                        </td>
+                                                                        <td colspan="2" style="vertical-align: top !important;" class="text-nowrap">
+                                                                            <small>RELEASED APPROVED BY:</small><br/><br/><br/>
+                                                                            <small>CHRISTIAN EDWARD C. BAGUISA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PAOLO EDUARDO C. BAGUISA</small>
+                                                                        </td>
+                                                                        <td style="vertical-align: top !important;" class="text-wrap">
+                                                                            <small>INSPECTED BY/DATE:</small><br/><br/><br/>
+                                                                            <small>GUARD ON DUTY</small>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table><br/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1168,17 +1311,17 @@
 </div>
 
 <div>
-          <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-pdc-manual-input-offcanvas" aria-labelledby="sales-proposal-pdc-manual-input-offcanvas-label">
-              <div class="offcanvas-header">
-                  <h2 id="sales-proposal-pdc-manual-input-offcanvas-label" style="margin-bottom:-0.5rem">PDC Manual Input</h2>
-                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-              </div>
-              <div class="offcanvas-body">
-                  <div class="row">
-                      <div class="col-lg-12">
-                      <form id="sales-proposal-pdc-manual-input-form" method="post" action="#">
-                          <div class="form-group row">
-                              <div class="col-lg-12 mt-3 mt-lg-0">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-pdc-manual-input-offcanvas" aria-labelledby="sales-proposal-pdc-manual-input-offcanvas-label">
+        <div class="offcanvas-header">
+            <h2 id="sales-proposal-pdc-manual-input-offcanvas-label" style="margin-bottom:-0.5rem">PDC Manual Input</h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="sales-proposal-pdc-manual-input-form" method="post" action="#">
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
                                 <div class="form-group">
                                     <label class="form-label">Payment Frequency <span class="text-danger">*</span></label>
                                     <select class="form-control offcanvas-select2" name="payment_frequency" id="payment_frequency">
@@ -1188,10 +1331,10 @@
                                         <option value="Yearly">Yearly</option>
                                     </select>
                                 </div>
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12 mt-3 mt-lg-0">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
                                 <div class="form-group">
                                     <label class="form-label">Payment For <span class="text-danger">*</span></label>
                                     <select class="form-control offcanvas-select2" name="payment_for" id="payment_for">
@@ -1212,55 +1355,84 @@
                                         <option value="Transfer Fee">Transfer Fee</option>
                                     </select>
                                 </div>
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12">
-                                  <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
-                                  <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12 mt-3 mt-lg-0">
-                                  <label class="form-label" for="no_of_payments">Number of payments <span class="text-danger">*</span></label>
-                                  <input type="number" class="form-control" id="no_of_payments" name="no_of_payments" min="1" step="1">
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12 mt-3 mt-lg-0">
-                                  <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
-                                  <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12">
-                                    <label class="form-label">First Check Date <span class="text-danger">*</span></label>
-                                    <div class="input-group date">
-                                        <input type="text" class="form-control regular-datepicker" id="first_check_date" name="first_check_date" autocomplete="off">
-                                        <span class="input-group-text">
-                                            <i class="feather icon-calendar"></i>
-                                        </span>
-                                    </div>
-                              </div>
-                          </div>
-                          <div class="form-group row">
-                              <div class="col-lg-12 mt-3 mt-lg-0">
-                                  <label class="form-label" for="amount_due">Gross Amount <span class="text-danger">*</span></label>
-                                  <input type="number" class="form-control" id="amount_due" name="amount_due" min="1" step="0.01">
-                              </div>
-                          </div>
-                      </form>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-lg-12">
-                          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pdc-manual-input" form="sales-proposal-pdc-manual-input-form">Submit</button>
-                          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-                      </di>
-                  </div>
-              </div>
-          </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="no_of_payments">Number of payments <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="no_of_payments" name="no_of_payments" min="1" step="1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">First Check Date <span class="text-danger">*</span></label>
+                                <div class="input-group date">
+                                    <input type="text" class="form-control regular-datepicker" id="first_check_date" name="first_check_date" autocomplete="off">
+                                    <span class="input-group-text">
+                                        <i class="feather icon-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="amount_due">Gross Amount <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="amount_due" name="amount_due" min="1" step="0.01">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pdc-manual-input" form="sales-proposal-pdc-manual-input-form">Submit</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+            </div>
         </div>
+    </div>
+<div>
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-tag-as-released-offcanvas" aria-labelledby="sales-proposal-tag-as-released-offcanvas-label">
+        <div class="offcanvas-header">
+            <h2 id="sales-proposal-tag-as-released-offcanvas-label" style="margin-bottom:-0.5rem">Tag As Released </h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="sales-proposal-tag-as-released-form" method="post" action="#">
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="release_remarks">Release Remarks <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="release_remarks" name="release_remarks" maxlength="500"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-sales-proposal-tag-as-released" form="sales-proposal-tag-as-released-form">Submit</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <?php
 function calculateDueDate($startDate, $frequency, $iteration) {

@@ -40,6 +40,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
 
                 $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
                 $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
@@ -86,7 +87,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                         '. $salesProposalNumber .'
                                                     </a>',
-                        'CUSTOMER' => $customerName,
+                    'CUSTOMER' => '<div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div>',
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber . ' - ' . $productName,
                         'STATUS' => $salesProposalStatus,
@@ -144,6 +148,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $salesProposalNumber = $row['sales_proposal_number'];
                     $productType = $row['product_type'];
                     $productID = $row['product_id'];
+                    $createdDate = $systemModel->checkDate('summary', $row['created_date'], '', 'm/d/Y h:i:s A', '');
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
 
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
@@ -154,6 +159,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $customerDetails = $customerModel->getPersonalInformation($customerID);
                     $customerName = $customerDetails['file_as'] ?? null;
+                    $corporateName = $customerDetails['corporate_name'] ?? null;
 
                     $delete = '';
                     if($deleteSalesProposal['total'] > 0){
@@ -167,9 +173,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                         '. $salesProposalNumber .'
                                                     </a>',
-                        'CUSTOMER' => $customerName,
+                                                    'CUSTOMER' => '<div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div>',
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber,
+                        'CREATED_DATE' => $createdDate,
                         'STATUS' => $salesProposalStatus,
                         'ACTION' => '<div class="d-flex gap-2">
                                         <a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
@@ -218,6 +228,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
 
                 $proceedDate = $systemModel->checkDate('summary', $row['approval_date'], '', 'm/d/Y h:i:s A', '');
 
@@ -226,7 +237,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-change-request.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
-                    'CUSTOMER' => $customerName,
+                                                'CUSTOMER' => '<div class="col">
+                                                <h6 class="mb-0">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                            </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'PROCEED_DATE' => $proceedDate,
@@ -276,6 +290,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
                 $forCIDate = $systemModel->checkDate('summary', $row['for_ci_date'], '', 'm/d/Y h:i:s A', '');
 
                 $response[] = [
@@ -283,7 +298,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
-                    'CUSTOMER' => $customerName,
+                    'CUSTOMER' => '<div class="col">
+                                        <h6 class="mb-0">'. $customerName .'</h6>
+                                        <p class="f-12 mb-0">'. $corporateName .'</p>
+                                    </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'FOR_CI_DATE' => $forCIDate,
@@ -333,11 +351,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
                 $forDRDate = $systemModel->checkDate('summary', $row['for_dr_date'], '', 'm/d/Y h:i:s A', '');
 
                 $response[] = [
                     'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
-                    'CUSTOMER' => $customerName,
+                    'CUSTOMER' => '<div class="col">
+                                        <h6 class="mb-0">'. $customerName .'</h6>
+                                        <p class="f-12 mb-0">'. $corporateName .'</p>
+                                    </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'FOR_DR_DATE' => $forDRDate,
@@ -387,6 +409,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
 
                 $proceedDate = $systemModel->checkDate('summary', $row['approval_date'], '', 'm/d/Y h:i:s A', '');
 
@@ -395,7 +418,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'SALES_PROPOSAL_NUMBER' => '<a href="approved-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
-                    'CUSTOMER' => $customerName,
+                    'CUSTOMER' => '<div class="col">
+                                                <h6 class="mb-0">'. $customerName .'</h6>
+                                                <p class="f-12 mb-0">'. $corporateName .'</p>
+                                            </div>',
                     'PRODUCT_TYPE' => $productType,
                     'PRODUCT' => $stockNumber,
                     'PROCEED_DATE' => $proceedDate,
