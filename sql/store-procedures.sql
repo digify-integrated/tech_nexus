@@ -7233,6 +7233,14 @@ BEGIN
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE updateSalesProposalAdditionalJobOrderConfirmationImage(IN p_sales_proposal_id INT, IN p_additional_job_order_confirmation VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET additional_job_order_confirmation = p_additional_job_order_confirmation,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE updateSalesProposalCreditAdvice(IN p_sales_proposal_id INT, IN p_credit_advice VARCHAR(500), IN p_last_log_by INT)
 BEGIN
       UPDATE sales_proposal
@@ -7390,7 +7398,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR';
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND outgoing_checklist IS NOT NULL;
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()
@@ -7515,6 +7523,13 @@ BEGIN
 	SELECT COUNT(*) AS total
     FROM sales_proposal_additional_job_order
     WHERE sales_proposal_additional_job_order_id = p_sales_proposal_additional_job_order_id;
+END //
+
+CREATE PROCEDURE countSalesProposalAdditionalJobOrder (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_additional_job_order
+    WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE insertSalesProposalAdditionalJobOrder(IN p_sales_proposal_id INT, IN p_job_order_number VARCHAR(500), IN p_job_order_date DATE, IN p_particulars VARCHAR(1000), IN p_cost DOUBLE, IN p_last_log_by INT)

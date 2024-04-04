@@ -49,12 +49,11 @@
           <div class="form-group row d-none fuel-row">
             <label class="col-lg-4 col-form-label">Fuel Type : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <select class="form-control select2" name="fuel_type" id="fuel_type">
-                <option value="">--</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Regular">Regular</option>
-                <option value="Premium">Premium</option>
-              </select>
+              <select class="form-control select2" multiple="multiple" name="fuel_type[]" id="fuel_type">
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Premium">Premium</option>
+                                  </select>
             </div>
           </div>
           <div class="form-group row d-none fuel-row">

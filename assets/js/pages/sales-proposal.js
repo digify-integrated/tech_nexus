@@ -10,6 +10,10 @@
             salesProposalForm();
         }
 
+        if($('#sales-proposal-ob-order-confirmation-form').length){
+            salesProposalAdditionalJobOrderConfirmationImageForm();
+        }
+
         if($('#sales-proposal-table').length){
             salesProposalTable('#sales-proposal-table');
         }
@@ -3787,6 +3791,97 @@ function salesProposalUnitImageForm(){
     });
 }
 
+function salesProposalAdditionalJobOrderConfirmationImageForm(){
+    $('#sales-proposal-ob-order-confirmation-form').validate({
+        rules: {
+            additional_job_order_confirmation_image: {
+                required: true
+            },
+        },
+        messages: {
+            additional_job_order_confirmation_image: {
+                required: 'Please choose the additional job order confimation image'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'save sales proposal additional job order confirmation';
+    
+            var formData = new FormData(form);
+            formData.append('sales_proposal_id', sales_proposal_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-additional-job-order-confirmation');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Additional Job Order Confirmation Upload Success', 'The additional job order confirmation has been uploaded successfully', 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-sales-proposal-additional-job-order-confirmation', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get sales proposal details':
@@ -3899,10 +3994,23 @@ function displayDetails(transaction){
                         if($('#new-engine-stencil-image').length){
                             document.getElementById('new-engine-stencil-image').src = response.newEngineStencil;
                         }
+
+                        if($('#additional-job-order-confirmation-image').length){
+                            document.getElementById('additional-job-order-confirmation-image').src = response.additionalJobOrderConfirmationImage;
+                        }
                 
                         document.getElementById('quality-control-form-image').src = response.qualityControlForm;
                         document.getElementById('outgoing-checklist-image').src = response.outgoingChecklist;
                         document.getElementById('unit-image').src = response.unitImage;
+
+
+                        var savedValues = response.fuelType[0].split(',').map(function(item) {
+                            return item.trim(); // Trim whitespace
+                        });
+                        
+                        // Preselect saved values in Select2
+                        $('#fuel_type').val(savedValues).trigger('change');
+                        
 
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#product_type', response.productType, '');
@@ -3917,7 +4025,6 @@ function displayDetails(transaction){
                         checkOptionExist('#for_change_color', response.forChangeColor, '');
                         checkOptionExist('#for_change_body', response.forChangeBody, '');
                         checkOptionExist('#for_change_engine', response.forChangeEngine, '');
-                        checkOptionExist('#fuel_type', response.fuelType, '');
                         checkOptionExist('#initial_approving_officer', response.initialApprovingOfficer, '');
                         checkOptionExist('#final_approving_officer', response.finalApprovingOfficer, '');
 
@@ -4266,6 +4373,11 @@ function displayDetails(transaction){
                     if($('#product_type').val() == 'Fuel'){
                         calculateTotalFuelDeliveryPrice();
                     }
+
+                    if($('#product_type').val() == 'unit'){
+                        displayDetails('get product details');
+                    }
+
                     calculatePricingComputation();
                 }
             });
@@ -4417,7 +4529,7 @@ function displayDetails(transaction){
                             $('#product_category').val(response.productCategoryID);
 
                             $('#delivery_price_label').text(parseFloat(response.productPrice * 1000).toLocaleString("en-US"));
-                            $('#delivery_price').text(response.productPrice);
+                            $('#delivery_price').val(response.productPrice * 1000);
 
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);

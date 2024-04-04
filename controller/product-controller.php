@@ -272,23 +272,23 @@ class ProductController {
             $chassisNumber = htmlspecialchars($row[7], ENT_QUOTES, 'UTF-8');
             $plateNumber = htmlspecialchars($row[8], ENT_QUOTES, 'UTF-8');
             $description = htmlspecialchars($row[9], ENT_QUOTES, 'UTF-8');
-            $warehouseID = htmlspecialchars($row[10], ENT_QUOTES, 'UTF-8');
-            $bodyTypeID = htmlspecialchars($row[11], ENT_QUOTES, 'UTF-8');
-            $length = htmlspecialchars($row[12], ENT_QUOTES, 'UTF-8');
-            $lengthUnit = htmlspecialchars($row[13], ENT_QUOTES, 'UTF-8');
-            $runningHours = htmlspecialchars($row[14], ENT_QUOTES, 'UTF-8');
-            $mileage = htmlspecialchars($row[15], ENT_QUOTES, 'UTF-8');
-            $colorID = htmlspecialchars($row[16], ENT_QUOTES, 'UTF-8');
-            $productCost = htmlspecialchars($row[17], ENT_QUOTES, 'UTF-8');
-            $productPrice = htmlspecialchars($row[18], ENT_QUOTES, 'UTF-8');
-            $remarks = htmlspecialchars($row[19], ENT_QUOTES, 'UTF-8');
+            $warehouseID = $row[10];
+            $bodyTypeID = $row[11];
+            $length = $row[12];
+            $lengthUnit = $row[13];
+            $runningHours = $row[14];
+            $mileage = $row[15];
+            $colorID = $row[16];
+            $productCost = $row[17];
+            $productPrice = $row[18];
+            $remarks = $row[19];
 
             $checkProductCategoryExist = $this->productCategoryModel->checkProductCategoryExist($productCategoryID)['total'];
             $checkProductSubcategoryExist = $this->productSubcategoryModel->checkProductSubcategoryExist($productSubcategoryID)['total'];
-            $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID)['total'];
-            $checkWarehouseExist = $this->warehouseModel->checkWarehouseExist($warehouseID)['total'];
-            $checkBodyTypeExist = $this->bodyTypeModel->checkBodyTypeExist($bodyTypeID)['total'];
-            $checkColorExist = $this->colorModel->checkColorExist($colorID)['total'];
+            $checkCompanyExist = $this->companyModel->checkCompanyExist($companyID)['total'] ?? 0;
+            $checkWarehouseExist = $this->warehouseModel->checkWarehouseExist($warehouseID)['total'] ?? 0;
+            $checkBodyTypeExist = $this->bodyTypeModel->checkBodyTypeExist($bodyTypeID)['total'] ?? 0;
+            $checkColorExist = $this->colorModel->checkColorExist($colorID)['total'] ?? 0;
 
             if($checkProductCategoryExist == 0){
                 $productSubCategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);

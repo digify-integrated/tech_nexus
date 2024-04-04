@@ -248,6 +248,28 @@ class SalesProposalModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateSalesProposalAdditionalJobOrderConfirmationImage
+    # Description: Updates the sales proposal client confirmation.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_client_confirmation (string): The sales proposal client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalAdditionalJobOrderConfirmationImage($p_sales_proposal_id, $p_additional_job_order_confirmation, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalAdditionalJobOrderConfirmationImage(:p_sales_proposal_id, :p_additional_job_order_confirmation, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_additional_job_order_confirmation', $p_additional_job_order_confirmation, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateSalesProposalCreditAdvice
     # Description: Updates the sales proposal client confirmation.
     #
@@ -1106,6 +1128,25 @@ class SalesProposalModel {
     public function checkSalesProposalManualPDCInputExist($p_manual_pdc_input_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalManualPDCInputExist(:p_manual_pdc_input_id)');
         $stmt->bindValue(':p_manual_pdc_input_id', $p_manual_pdc_input_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: countSalesProposalAdditionalJobOrder
+    # Description: Checks if a sales proposal renewal amount exists.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function countSalesProposalAdditionalJobOrder($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL countSalesProposalAdditionalJobOrder(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

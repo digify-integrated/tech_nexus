@@ -198,6 +198,9 @@ class SalesProposalController {
                 case 'save sales proposal unit image':
                     $this->saveSalesProposalUnitImage();
                     break;
+                case 'save sales proposal additional job order confirmation':
+                    $this->saveSalesProposalAdditionalJobOrderConfirmationImage();
+                    break;
                 case 'save sales proposal credit advice':
                     $this->saveSalesProposalCreditAdvice();
                     break;
@@ -248,10 +251,10 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $customerID = $_POST['customer_id'];
+        $fuelTypes = $_POST['fuel_type'];
         $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $fuelType = htmlspecialchars($_POST['fuel_type'], ENT_QUOTES, 'UTF-8');
         $fuelQuantity = htmlspecialchars($_POST['fuel_quantity'], ENT_QUOTES, 'UTF-8');
         $pricePerLiter = htmlspecialchars($_POST['price_per_liter'], ENT_QUOTES, 'UTF-8');
         $commissionAmount = htmlspecialchars($_POST['commission_amount'], ENT_QUOTES, 'UTF-8');
@@ -278,6 +281,16 @@ class SalesProposalController {
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
         $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
+
+        $fuelType = '';
+        $counter = 1;
+        foreach ($fuelTypes as $fuelTypez) {
+            $fuelType .= $fuelTypez;
+            if ($counter < count($fuelTypes)) {
+                $fuelType .= ", ";
+            }
+            $counter++;
+        }
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -745,6 +758,118 @@ class SalesProposalController {
             }
 
             $this->salesProposalModel->updateSalesProposalUnitImage($salesProposalID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The sales proposal does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalAdditionalJobOrderConfirmationImage
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalAdditionalJobOrderConfirmationImage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['additional_job_order_confirmation_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['additional_job_order_confirmation_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['additional_job_order_confirmation_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['additional_job_order_confirmation_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $clientoutgoingChecklistImage = !empty($salesProposalDetails['additional_job_order_confirmation']) ? '.' . $salesProposalDetails['additional_job_order_confirmation'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Additional job order confirmation cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(16);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(16);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/additional_job_order_confirmation/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/additional_job_order_confirmation/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->salesProposalModel->updateSalesProposalAdditionalJobOrderConfirmationImage($salesProposalID, $filePath, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -2235,6 +2360,10 @@ class SalesProposalController {
             $finalApprovingOfficerDetails = $this->customerModel->getPersonalInformation($finalApprovingOfficer);
             $finalApprovingOfficerName = strtoupper($finalApprovingOfficerDetails['file_as'] ?? null);
 
+            $selectedOptions = array();
+            $selectedOptions[] = $salesProposalDetails["fuel_type"];
+
+
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -2251,7 +2380,7 @@ class SalesProposalController {
                 'newColor' => $salesProposalDetails['new_color'] ?? null,
                 'newBody' => $salesProposalDetails['new_body'] ?? null,
                 'newEngine' => $salesProposalDetails['new_engine'] ?? null,
-                'fuelType' => $salesProposalDetails['fuel_type'] ?? null,
+                'fuelType' => $selectedOptions,
                 'fuelQuantity' => $salesProposalDetails['fuel_quantity'] ?? 0,
                 'pricePerLiter' => $salesProposalDetails['price_per_liter'] ?? 0,
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? 0,
@@ -2276,6 +2405,7 @@ class SalesProposalController {
                 'qualityControlForm' => $this->systemModel->checkImage($salesProposalDetails['quality_control_form'], 'default'),
                 'outgoingChecklist' => $this->systemModel->checkImage($salesProposalDetails['outgoing_checklist'], 'default'),
                 'unitImage' => $this->systemModel->checkImage($salesProposalDetails['unit_image'], 'default'),
+                'additionalJobOrderConfirmationImage' => $this->systemModel->checkImage($salesProposalDetails['additional_job_order_confirmation'], 'default'),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],

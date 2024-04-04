@@ -26,6 +26,7 @@
   $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
   $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
   $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
+  $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -79,6 +80,9 @@
     $clientConfirmation = $salesProposalDetails['client_confirmation'];
     $transactionType = $salesProposalDetails['transaction_type'];
     $ciStatus = $salesProposalDetails['ci_status'];
+    $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
+    $unitImage = $salesProposalDetails['unit_image'];
+    $productType = $salesProposalDetails['product_type'];
     $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
     $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
     $forCIDate = $systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y h:i:s a', '');

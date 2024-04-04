@@ -668,7 +668,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
 
                     $action = '';
-                    if($salesProposalStatus == 'Draft'){
+                    if($salesProposalStatus != 'For DR'){
                         $action = '<div class="d-flex gap-2">
                         <button type="button" class="btn btn-icon btn-success update-sales-proposal-additional-job-order" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" data-sales-proposal-additional-job-order-id="'. $salesProposalAdditionalJobOrderID .'" title="Update Additional Job Order">
                             <i class="ti ti-edit"></i>

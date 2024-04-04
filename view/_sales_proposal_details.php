@@ -178,8 +178,7 @@
                               <div class="form-group row d-none fuel-row">
                                 <label class="col-lg-4 col-form-label">Fuel Type : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
-                                  <select class="form-control select2" name="fuel_type" id="fuel_type">
-                                    <option value="">--</option>
+                                  <select class="form-control select2" multiple="multiple" name="fuel_type[]" id="fuel_type">
                                     <option value="Diesel">Diesel</option>
                                     <option value="Regular">Regular</option>
                                     <option value="Premium">Premium</option>
@@ -1679,6 +1678,13 @@
 
                       if(($salesProposalStatus == 'For CI' || ($salesProposalStatus == 'Proceed' && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
                         echo '<button class="btn btn-info" id="complete-ci">Complete CI</button>';
+                      }
+
+                      if($salesProposalStatus == 'Ready For Release'){
+                        if($tagSalesProposalForDR['total'] > 0 && !empty($outgoingChecklist)){
+                          if((($productType == 'Unit' || $productType == 'Repair') && !empty($unitImage)) || (($productType != 'Unit' && $productType != 'Repair')))
+                          echo '<button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>';
+                        }
                       }
                     ?>                                      
                   </div>

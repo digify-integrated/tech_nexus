@@ -42,6 +42,7 @@
     
     $customerDetails = $customerModel->getPersonalInformation($customerID);
     $customerName = $customerDetails['file_as'] ?? null;
+    $corporateName = $customerDetails['corporate_name'] ?? '--';
 
     $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
     $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
@@ -84,7 +85,10 @@
     $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
     $unitImage = $salesProposalDetails['unit_image'];
     $productType = $salesProposalDetails['product_type'];
+    $additionalJobOrderConfirmation = $salesProposalDetails['additional_job_order_confirmation'] ?? null;
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+
+    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
   }
   else{
     $salesProposalID = null;
