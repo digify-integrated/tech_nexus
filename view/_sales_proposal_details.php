@@ -166,6 +166,24 @@
                                   </select>
                                 </div>
                               </div>
+                              <div class="form-group row d-none refinancing-row">
+                                <label class="col-lg-4 col-form-label">Engine Number : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <input type="text" class="form-control text-uppercase" id="ref_engine_no" name="ref_engine_no" maxlength="100" autocomplete="off">
+                                </div>
+                              </div>
+                              <div class="form-group row d-none refinancing-row">
+                                <label class="col-lg-4 col-form-label">Chassis Number : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <input type="text" class="form-control text-uppercase" id="ref_chassis_no" name="ref_chassis_no" maxlength="100" autocomplete="off">
+                                </div>
+                              </div>
+                              <div class="form-group row d-none refinancing-row">
+                                <label class="col-lg-4 col-form-label">Plate Number : <span class="text-danger">*</span></label>
+                                <div class="col-lg-8">
+                                  <input type="text" class="form-control text-uppercase" id="ref_plate_no" name="ref_plate_no" maxlength="100" autocomplete="off">
+                                </div>
+                              </div>
                               <div class="form-group row d-none unit-row">
                                 <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
                                 <div class="col-lg-8">
@@ -419,6 +437,24 @@
                                 <label class="col-form-label" id="renewal_tag_label"></label>
                                 </div>
                               </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Engine Number :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="ref_engine_no_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Chassis Number :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="ref_chassis_no_label"></label>
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label class="col-lg-4 col-form-label">Plate Number :</label>
+                              <div class="col-lg-8">
+                                <label class="col-form-label" id="ref_plate_no_label"></label>
+                              </div>
+                            </div>
                             <div class="form-group row">
                               <label class="col-lg-4 col-form-label">Stock :</label>
                               <div class="col-lg-8">
@@ -986,6 +1022,12 @@
                               </div>
                             </div>
                             <div class="form-group row">
+                              <label class="col-lg-5 col-form-label">Add-On : <span class="text-danger">*</span></label>
+                              <div class="col-lg-7">
+                                <input type="number" class="form-control" id="add_on_charge" name="add_on_charge" step="0.01" min="0" value="0">
+                              </div>
+                            </div>
+                            <div class="form-group row">
                               <label class="col-lg-5 col-form-label">Nominal Discount : <span class="text-danger">*</span></label>
                               <div class="col-lg-7">
                                 <input type="number" class="form-control" id="nominal_discount" name="nominal_discount" step="0.01" min="0">
@@ -1068,6 +1110,12 @@
                             <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) :</label>
                             <div class="col-lg-7">
                               <label class="col-form-label" id="delivery_price_label"></label>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-lg-5 col-form-label">Add-On :</label>
+                            <div class="col-lg-7">
+                              <label class="col-form-label" id="add_on_charge_label"></label>
                             </div>
                           </div>
                           <div class="form-group row">
@@ -1834,7 +1882,8 @@
                             <tr>
                               <td colspan="4" style="vertical-align: top !important;" class="text-wrap">
                                 <small><b>FOR REFERRAL TO FINANCING, PLEASE COMPUTE MO AMORTIZATION:</b></small><br/><br/>
-                                <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span>
+                                <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span><br/><br/>
+                                <small style="color:#c60206"><b>INTEREST RATE</b></small><br/><span class="text-sm" id="summary-interest-rate"></span>
                               </td>
                               <td colspan="4" style="padding-bottom:0 !important; vertical-align: top !important;" class="text-wrap">
                                 <small style="color:#c60206"><b>AMOUNT OF DEPOSIT:</b></small><br/><br/>

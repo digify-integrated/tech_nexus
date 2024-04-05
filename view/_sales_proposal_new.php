@@ -37,6 +37,24 @@
               </select>
             </div>
           </div>
+          <div class="form-group row d-none refinancing-row">
+            <label class="col-lg-4 col-form-label">Engine Number : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" class="form-control text-uppercase" id="ref_engine_no" name="ref_engine_no" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row d-none refinancing-row">
+            <label class="col-lg-4 col-form-label">Chassis Number : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" class="form-control text-uppercase" id="ref_chassis_no" name="ref_chassis_no" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row d-none refinancing-row">
+            <label class="col-lg-4 col-form-label">Plate Number : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" class="form-control text-uppercase" id="ref_plate_no" name="ref_plate_no" maxlength="100" autocomplete="off">
+            </div>
+          </div>
           <div class="form-group row d-none unit-row">
             <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
             <div class="col-lg-8">

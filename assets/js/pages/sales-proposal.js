@@ -197,6 +197,10 @@
                 calculateTotalOtherCharges();
             });
 
+            $(document).on('change','#add_on_charge',function() {
+                calculateTotalDeliveryPrice();
+            });
+
             $(document).on('change','#nominal_discount',function() {
                 calculateTotalDeliveryPrice();
             });
@@ -501,6 +505,11 @@
             if($(this).val() == 'Unit'){
                 $('.unit-row').removeClass('d-none'); 
 
+                $('.refinancing-row').addClass('d-none'); 
+                $('#ref_engine_no').val(''); 
+                $('#ref_chassis_no').val(''); 
+                $('#ref_plate_no').val(''); 
+
                 $('.fuel-row').addClass('d-none'); 
                 checkOptionExist('#fuel_type', '', '');
                 $('#fuel_quantity').val(''); 
@@ -508,10 +517,30 @@
             else if($(this).val() == 'Fuel'){
                 $('.fuel-row').removeClass('d-none'); 
 
+                $('.refinancing-row').addClass('d-none'); 
+                $('#ref_engine_no').val(''); 
+                $('#ref_chassis_no').val(''); 
+                $('#ref_plate_no').val(''); 
+
                 $('.unit-row').addClass('d-none'); 
                 checkOptionExist('#product_id', '', '');
             }
+            else if($(this).val() == 'Refinancing'){
+                $('.refinancing-row').removeClass('d-none'); 
+
+                $('.unit-row').addClass('d-none'); 
+                checkOptionExist('#product_id', '', '');
+
+                $('.fuel-row').addClass('d-none'); 
+                checkOptionExist('#fuel_type', '', '');
+                $('#fuel_quantity').val(''); 
+            }
             else{
+                $('.refinancing-row').addClass('d-none'); 
+                $('#ref_engine_no').val(''); 
+                $('#ref_chassis_no').val(''); 
+                $('#ref_plate_no').val(''); 
+
                 $('.unit-row').addClass('d-none'); 
                 checkOptionExist('#product_id', '', '');
 
@@ -1700,6 +1729,27 @@ function addSalesProposalForm(){
                     }
                 }
             },
+            ref_engine_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
+            ref_chassis_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
+            ref_plate_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
             transaction_type: {
                 required: true
             },
@@ -1802,6 +1852,15 @@ function addSalesProposalForm(){
             },
             transaction_type: {
                 required: 'Please choose the transaction type'
+            },
+            ref_engine_no: {
+                required: 'Please enter the engine number'
+            },
+            ref_chassis_no: {
+                required: 'Please enter the chassis number'
+            },
+            ref_plate_no: {
+                required: 'Please enter the plate number'
             },
             renewal_tag: {
                 required: 'Please choose the renewal tag'
@@ -1956,6 +2015,27 @@ function salesProposalForm(){
                     }
                 }
             },
+            ref_engine_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
+            ref_chassis_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
+            ref_plate_no: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='product_type']").val() === 'Refinancing';
+                    }
+                }
+            },
             transaction_type: {
                 required: true
             },
@@ -2076,6 +2156,15 @@ function salesProposalForm(){
             },
             comaker_id: {
                 required: 'Please choose the comaker'
+            },
+            ref_engine_no: {
+                required: 'Please enter the engine number'
+            },
+            ref_chassis_no: {
+                required: 'Please enter the chassis number'
+            },
+            ref_plate_no: {
+                required: 'Please enter the plate number'
             },
             release_date: {
                 required: 'Please choose the estimated date of release'
@@ -3912,6 +4001,16 @@ function displayDetails(transaction){
                         $('#fuel_quantity').val(response.fuelQuantity);
                         $('#price_per_liter').val(response.pricePerLiter);
                         $('#commission_amount').val(response.commissionAmount);
+                        $('#ref_chassis_no').val(response.refChassisNo);
+                        $('#ref_plate_no').val(response.refPlateNo);
+                        $('#ref_engine_no').val(response.refEngineNo);
+
+                        if($('#product_type').val() == 'Refinancing'){
+                            $('#summary-stock-no').text(response.refStockNo);
+                            $('#summary-engine-no').text(response.refEngineNo);
+                            $('#summary-chassis-no').text(response.refChassisNo);
+                            $('#summary-plate-no').text(response.refPlateNo);
+                        }
 
                         $('#summary-sales-proposal-number').text(response.salesProposalNumber);
                         $('#summary-referred-by').text(response.referredBy);
@@ -4058,12 +4157,16 @@ function displayDetails(transaction){
                 },
                 complete: function(){
                     if($('#details-tab').length){
-                        displayDetails('get product details');
-                    calculateFirstDueDate();
-                    
-                    if($('#comaker_id_details').length && $('#comaker_id_details').text() != '' && $('#comaker_id_details').text() != '0'){
-                        displayDetails('get comaker details');
-                    }
+                        
+                        if($('#product_type').val() == 'Unit'){
+                          displayDetails('get product details');
+                        }
+                        
+                        calculateFirstDueDate();
+                        
+                        if($('#comaker_id_details').length && $('#comaker_id_details').text() != '' && $('#comaker_id_details').text() != '0'){
+                            displayDetails('get comaker details');
+                        }
                     }
                 }
             });
@@ -4327,21 +4430,24 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#delivery_price').val(response.deliveryPrice);
                         $('#nominal_discount').val(response.nominalDiscount);
+                        $('#add_on_charge').val(response.addOnCharge);
                         $('#cost_of_accessories').val(response.costOfAccessories);
                         $('#reconditioning_cost').val(response.reconditioningCost);
                         $('#downpayment').val(response.downpayment);
                         $('#interest_rate').val(response.interestRate);
 
-                        $('#summary-deliver-price').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
+                        $('#summary-deliver-price').text(parseFloat(response.totalDeliveryPrice).toLocaleString("en-US"));
                         $('#summary-cost-of-accessories').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
                         $('#summary-reconditioning-cost').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#summary-downpayment').text(parseFloat(response.downpayment).toLocaleString("en-US"));
                         $('#summary-repayment-amount').text(parseFloat(response.repaymentAmount).toLocaleString("en-US"));
+                        $('#summary-interest-rate').text(parseFloat(response.interestRate).toLocaleString("en-US") + '%');
                         $('#summary-outstanding-balance').text(parseFloat(response.outstandingBalance).toLocaleString("en-US"));
                         $('#summary-sub-total').text(parseFloat(response.subtotal).toLocaleString("en-US"));
 
                         $('#delivery_price_label').text(parseFloat(response.deliveryPrice).toLocaleString("en-US"));
                         $('#nominal_discount_label').text(parseFloat(response.nominalDiscount).toLocaleString("en-US"));
+                        $('#add_on_charge_label').text(parseFloat(response.addOnCharge).toLocaleString("en-US"));
                         $('#cost_of_accessories_label').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
                         $('#reconditioning_cost_label').text(parseFloat(response.reconditioningCost).toLocaleString("en-US"));
                         $('#downpayment_label').text(parseFloat(response.downpayment).toLocaleString("en-US"));
@@ -4712,9 +4818,10 @@ function calculateTotalOtherCharges(){
 
 function calculateTotalDeliveryPrice(){
     var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+    var add_on_charge = parseFloat($("#add_on_charge").val()) || 0;
     var nominal_discount = parseFloat($("#nominal_discount").val()) || 0;
 
-    var total = delivery_price - nominal_discount;
+    var total = (delivery_price + add_on_charge) - nominal_discount;
 
     if(total <= 0){
         total = 0;

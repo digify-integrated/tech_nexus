@@ -251,7 +251,7 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $customerID = $_POST['customer_id'];
-        $fuelTypes = $_POST['fuel_type'];
+        $fuelTypes = $_POST['fuel_type'] ?? null;
         $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
@@ -281,15 +281,20 @@ class SalesProposalController {
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
         $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
         $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
+        $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
+        $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+        $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
 
         $fuelType = '';
-        $counter = 1;
-        foreach ($fuelTypes as $fuelTypez) {
-            $fuelType .= $fuelTypez;
-            if ($counter < count($fuelTypes)) {
-                $fuelType .= ", ";
+        if(!empty($fuelTypes)){
+            $counter = 1;
+            foreach ($fuelTypes as $fuelTypez) {
+                $fuelType .= $fuelTypez;
+                if ($counter < count($fuelTypes)) {
+                    $fuelType .= ", ";
+                }
+                $counter++;
             }
-            $counter++;
         }
     
         $user = $this->userModel->getUserByID($userID);
@@ -303,7 +308,14 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $userID);
+            $refStockNo = '';
+            if($productType == 'Refinancing'){
+                $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+                
+                $refStockNo = 'REF' . $salesProposalDetails['sales_proposal_number'];
+            }
+            
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $refStockNo, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -311,7 +323,12 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $userID);
+            $refStockNo = '';
+            if($productType == 'Refinancing'){
+                $refStockNo = 'REF' . $salesProposalNumber;
+            }
+
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $refStockNo, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -1779,6 +1796,7 @@ class SalesProposalController {
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $deliverPrice = htmlspecialchars($_POST['delivery_price'], ENT_QUOTES, 'UTF-8');
         $nominalDiscount = htmlspecialchars($_POST['nominal_discount'], ENT_QUOTES, 'UTF-8');
+        $addOnCharge = htmlspecialchars($_POST['add_on_charge'], ENT_QUOTES, 'UTF-8');
         $totalDeliveryPrice = htmlspecialchars($_POST['total_delivery_price'], ENT_QUOTES, 'UTF-8');
         $costOfAccessories = htmlspecialchars($_POST['cost_of_accessories'], ENT_QUOTES, 'UTF-8');
         $reconditioningCost = htmlspecialchars($_POST['reconditioning_cost'], ENT_QUOTES, 'UTF-8');
@@ -1801,13 +1819,13 @@ class SalesProposalController {
         $total = $checkSalesProposalPricingComputationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $userID);
+            $this->salesProposalModel->updateSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $userID);
+            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -2376,6 +2394,10 @@ class SalesProposalController {
                 'forChangeBody' => $salesProposalDetails['for_change_body'] ?? null,
                 'forChangeEngine' => $salesProposalDetails['for_change_engine'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
+                'refStockNo' => $salesProposalDetails['ref_stock_no'] ?? null,
+                'refEngineNo' => $salesProposalDetails['ref_engine_no'] ?? null,
+                'refChassisNo' => $salesProposalDetails['ref_chassis_no'] ?? null,
+                'refPlateNo' => $salesProposalDetails['ref_plate_no'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
                 'newColor' => $salesProposalDetails['new_color'] ?? null,
                 'newBody' => $salesProposalDetails['new_body'] ?? null,
@@ -2710,6 +2732,8 @@ class SalesProposalController {
                 'success' => true,
                 'deliveryPrice' => $salesProposalPricingComputationDetails['delivery_price'] ?? '',
                 'nominalDiscount' => $salesProposalPricingComputationDetails['nominal_discount'] ?? '',
+                'totalDeliveryPrice' => $salesProposalPricingComputationDetails['total_delivery_price'] ?? 0,
+                'addOnCharge' => $salesProposalPricingComputationDetails['add_on_charge'] ?? 0,
                 'costOfAccessories' => $salesProposalPricingComputationDetails['cost_of_accessories'] ?? 0,
                 'reconditioningCost' => $salesProposalPricingComputationDetails['reconditioning_cost'] ?? 0,
                 'downpayment' => $salesProposalPricingComputationDetails['downpayment'] ?? 0,
