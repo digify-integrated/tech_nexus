@@ -79,6 +79,26 @@ class UserModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getContactByContactID
+    # Description: Retrieves the details of a contact based on their user ID.
+    #
+    # Parameters:
+    # - $p_user_id (int): The user ID.
+    #
+    # Returns:
+    # - An array containing the user details.
+    #
+    # -------------------------------------------------------------
+    public function getContactByContactID($p_contact_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getContactByContactID(:p_contact_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getUserByRememberToken
     # Description: Retrieves the details of a user based on their remember token.
     #

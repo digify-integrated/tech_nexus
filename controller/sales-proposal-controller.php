@@ -16,9 +16,13 @@ class SalesProposalController {
     private $salesProposalModel;
     private $customerModel;
     private $productModel;
+    private $productCategoryModel;
+    private $productSubcategoryModel;
     private $userModel;
     private $systemSettingModel;
     private $companyModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
     private $systemModel;
@@ -46,15 +50,18 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
         $this->productModel = $productModel;
+        $this->productSubcategoryModel = $productSubcategoryModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
         $this->companyModel = $companyModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->systemModel = $systemModel;
         $this->securityModel = $securityModel;
     }
@@ -1204,8 +1211,29 @@ class SalesProposalController {
             exit;
         }
 
-        /*$salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-        $forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $inititialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+        $productType = $salesProposalDetails['product_type'];
+        $productID = $salesProposalDetails['product_id'];
+        $customerID = $salesProposalDetails['customer_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $productSubategoryID = $productDetails['product_subcategory_id'];
+
+        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
+        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
+        
+        $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
+        $approverEmail = $approverDetails['email'];
+
+        /*$forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
         $newEngineStencil = $salesProposalDetails['new_engine_stencil'] ?? null;
         $clientstencilImage = !empty($newEngineStencil) ? '.' . $newEngineStencil : null;
 
@@ -1215,6 +1243,7 @@ class SalesProposalController {
         }*/
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
+        $this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
             
         echo json_encode(['success' => true]);
     }
@@ -1336,8 +1365,32 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
+        
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $inititialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+        $productType = $salesProposalDetails['product_type'];
+        $productID = $salesProposalDetails['product_id'];
+        $customerID = $salesProposalDetails['customer_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $productSubategoryID = $productDetails['product_subcategory_id'];
+
+        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
+        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
+        
+        $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
+        $approverEmail = $approverDetails['email'];
+
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Final Approval', $initialApprovalRemarks, $userID);
+        $this->sendFinalApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        
             
         echo json_encode(['success' => true]);
     }
@@ -2931,6 +2984,140 @@ class SalesProposalController {
         }
     }
     # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Send methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendInitialApproval($email, $sales_proposal_number, $client_name, $product_type, $stock_number) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(3);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $product_type, $emailBody);
+        $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($email);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendFinalApproval($email, $sales_proposal_number, $client_name, $product_type, $stock_number) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(4);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $product_type, $emailBody);
+        $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($email);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #   Configure methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: configureSMTP
+    # Description: 
+    # Sets the SMTP configuration
+    #
+    # Parameters: 
+    # - $mailer (array): The PHP mailer.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
+    }
+    # -------------------------------------------------------------
 }
 # -------------------------------------------------------------
 
@@ -2938,15 +3125,22 @@ require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
+require_once '../model/product-category-model.php';
+require_once '../model/product-subcategory-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/user-model.php';
 require_once '../model/company-model.php';
 require_once '../model/system-setting-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
+require_once '../model/notification-setting-model.php';
+require_once '../model/email-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

@@ -95,6 +95,13 @@ BEGIN
 	WHERE user_id = p_user_id;
 END //
 
+
+CREATE PROCEDURE getContactByContactID(IN p_contact_id INT)
+BEGIN
+	SELECT * FROM users
+	WHERE user_id IN (SELECT user_id FROM contact WHERE contact_id = p_contact_id);
+END //
+
 CREATE PROCEDURE getUserByID(IN p_user_id INT)
 BEGIN
 	SELECT * FROM users
@@ -7396,7 +7403,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On Process', 'Ready For Release', 'For DR');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -7406,7 +7413,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND outgoing_checklist IS NOT NULL;
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair') );
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()

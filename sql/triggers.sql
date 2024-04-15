@@ -4460,6 +4460,8 @@ FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT '';
 
+    SET time_zone = '+08:00';
+
     IF NEW.sales_proposal_number <> OLD.sales_proposal_number THEN
         SET audit_log = CONCAT(audit_log, "Sales Proposal Number: ", OLD.sales_proposal_number, " -> ", NEW.sales_proposal_number, "<br/>");
     END IF;
@@ -4671,6 +4673,9 @@ AFTER INSERT ON sales_proposal
 FOR EACH ROW
 BEGIN
     DECLARE audit_log TEXT DEFAULT 'Sales proposal created. <br/>';
+
+    
+    SET time_zone = '+08:00';
 
     IF NEW.sales_proposal_number <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Sales Proposal Number: ", NEW.sales_proposal_number);

@@ -47,6 +47,18 @@
                                 <label class="form-check-label" for="sales-proposal-proceed">Proceed</label>
                               </div>
                               <div class="form-check my-2">
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-on-process" value="On-Process" />
+                                <label class="form-check-label" for="sales-proposal-on-process">On-Process</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-ready-for-release" value="Ready For Release" />
+                                <label class="form-check-label" for="sales-proposal-ready-for-release">Ready For Release</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-for-dr" value="For DR" />
+                                <label class="form-check-label" for="sales-proposal-for-dr">For DR</label>
+                              </div>
+                              <div class="form-check my-2">
                                 <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-rejected" value="Rejected" />
                                 <label class="form-check-label" for="sales-proposal-rejected">Rejected</label>
                               </div>
