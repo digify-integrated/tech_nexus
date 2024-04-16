@@ -14,6 +14,16 @@
       <div class="card-body">
         <form id="add-sales-proposal-form" method="post" action="#">
           <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
+            <div class="col-lg-8 mt-2">
+              <select class="form-control select2" name="renewal_tag" id="renewal_tag">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="product_type" id="product_type">
@@ -28,70 +38,6 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" name="renewal_tag" id="renewal_tag">
-                <option value="">--</option>
-                <option value="New">New</option>
-                <option value="Renewal">Renewal</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row d-none refinancing-row">
-            <label class="col-lg-4 col-form-label">Engine Number : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <input type="text" class="form-control text-uppercase" id="ref_engine_no" name="ref_engine_no" maxlength="100" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row d-none refinancing-row">
-            <label class="col-lg-4 col-form-label">Chassis Number : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <input type="text" class="form-control text-uppercase" id="ref_chassis_no" name="ref_chassis_no" maxlength="100" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row d-none refinancing-row">
-            <label class="col-lg-4 col-form-label">Plate Number : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <input type="text" class="form-control text-uppercase" id="ref_plate_no" name="ref_plate_no" maxlength="100" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row d-none unit-row">
-            <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" name="product_id" id="product_id">
-                <option value="">--</option>
-                <?php echo $productModel->generateInStockProductOptions(); ?>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row d-none fuel-row">
-            <label class="col-lg-4 col-form-label">Fuel Type : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" multiple="multiple" name="fuel_type[]" id="fuel_type">
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Regular">Regular</option>
-                                    <option value="Premium">Premium</option>
-                                  </select>
-            </div>
-          </div>
-          <div class="form-group row d-none fuel-row">
-            <label class="col-lg-4 col-form-label">Fuel Quantity : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <div class="form-group">
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="fuel_quantity" name="fuel_quantity" step="0.01" min="0.01">
-                    <span class="input-group-text">lt</span>
-                  </div>
-                </div>
-            </div>
-          </div>
-          <div class="form-group row d-none fuel-row">
-            <label class="col-lg-4 col-form-label">Price/Liter : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <input type="number" class="form-control" id="price_per_liter" name="price_per_liter" step="0.01" min="0.01">
-            </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Transaction Type : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="transaction_type" id="transaction_type">
@@ -102,8 +48,8 @@
               </select>
             </div>
           </div>
-          <div class="form-group row d-none" id="financing-institution-row">
-            <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Financing Institution :</label>
             <div class="col-lg-8">
               <input type="text" class="form-control text-uppercase" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
             </div>
@@ -113,7 +59,7 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="comaker_id" id="comaker_id">
                 <option value="">--</option>
-                <?php echo $customerModel->generateComakerOptions($customerID); ?>
+                <?php $customerModel->generateComakerOptions($customerID); ?>
               </select>
             </div>
           </div>
@@ -153,10 +99,10 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Term : <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
+            <div class="col-lg-2">
               <input type="number" class="form-control" id="term_length" name="term_length" step="1" value="1" min="1">
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <select class="form-control select2" name="term_type" id="term_type">
                 <option value="">--</option>
                 <option value="Days">Days</option>
@@ -166,10 +112,10 @@
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Number of Payments : <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-              <input type="number" class="form-control" id="number_of_payments" name="number_of_payments" step="1" value="0" min="1" readonly>
+            <div class="col-lg-2">
+              <input type="text" class="form-control text-uppercase" id="number_of_payments" name="number_of_payments" autocomplete="off" readonly>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <select class="form-control select2" name="payment_frequency" id="payment_frequency">
                 <option value="">--</option>
               </select>
@@ -186,7 +132,7 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
                 <option value="">--</option>
-                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
+                <?php $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
               </select>
             </div>
           </div>
@@ -195,86 +141,8 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
                 <option value="">--</option>
-                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
+                <?php $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
               </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" name="for_registration" id="for_registration">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" name="with_cr" id="with_cr">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <select class="form-control select2" name="for_transfer" id="for_transfer">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-            <div class="col-lg-2">
-              <select class="form-control select2" name="for_change_color" id="for_change_color">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-            <div class="col-lg-2">
-              <select class="form-control select2" name="for_change_body" id="for_change_body">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
-            <div class="col-lg-2">
-              <select class="form-control select2" name="for_change_engine" id="for_change_engine">
-                <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
-            </div>
-            <div class="col-lg-3">
-              <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
             </div>
           </div>
           <div class="form-group row">

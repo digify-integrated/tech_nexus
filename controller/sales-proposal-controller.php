@@ -157,8 +157,8 @@ class SalesProposalController {
                 case 'delete sales proposal deposit amount':
                     $this->deleteSalesProposalDepositAmount();
                     break;
-                case 'get sales proposal details':
-                    $this->getSalesProposalDetails();
+                case 'get sales proposal basic details':
+                    $this->getSalesProposalBasicDetails();
                     break;
                 case 'get sales proposal accessories details':
                     $this->getSalesProposalAccessoriesDetails();
@@ -258,51 +258,23 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $customerID = $_POST['customer_id'];
-        $fuelTypes = $_POST['fuel_type'] ?? null;
-        $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
-        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $fuelQuantity = htmlspecialchars($_POST['fuel_quantity'], ENT_QUOTES, 'UTF-8');
-        $pricePerLiter = htmlspecialchars($_POST['price_per_liter'], ENT_QUOTES, 'UTF-8');
-        $commissionAmount = htmlspecialchars($_POST['commission_amount'], ENT_QUOTES, 'UTF-8');
+        $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
         $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
         $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
         $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
+        $commissionAmount = htmlspecialchars($_POST['commission_amount'], ENT_QUOTES, 'UTF-8');
         $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
         $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
-        $firstDueDate = $this->systemModel->checkDate('empty', $_POST['first_due_date'], '', 'Y-m-d', '');
         $termLength = htmlspecialchars($_POST['term_length'], ENT_QUOTES, 'UTF-8');
         $termType = htmlspecialchars($_POST['term_type'], ENT_QUOTES, 'UTF-8');
         $numberOfPayments = htmlspecialchars($_POST['number_of_payments'], ENT_QUOTES, 'UTF-8');
         $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
-        $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
-        $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
-        $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
-        $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
-        $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
-        $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
-        $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
-        $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
-        $newEngine  = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
-        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $firstDueDate = $this->systemModel->checkDate('empty', $_POST['first_due_date'], '', 'Y-m-d', '');
         $initialApprovingOfficer = htmlspecialchars($_POST['initial_approving_officer'], ENT_QUOTES, 'UTF-8');
         $finalApprovingOfficer = htmlspecialchars($_POST['final_approving_officer'], ENT_QUOTES, 'UTF-8');
-        $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
-        $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
-        $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
-
-        $fuelType = '';
-        if(!empty($fuelTypes)){
-            $counter = 1;
-            foreach ($fuelTypes as $fuelTypez) {
-                $fuelType .= $fuelTypez;
-                if ($counter < count($fuelTypes)) {
-                    $fuelType .= ", ";
-                }
-                $counter++;
-            }
-        }
+        $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -314,15 +286,8 @@ class SalesProposalController {
         $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
         $total = $checkSalesProposalExist['total'] ?? 0;
     
-        if ($total > 0) {
-            $refStockNo = '';
-            if($productType == 'Refinancing'){
-                $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-                
-                $refStockNo = 'REF' . $salesProposalDetails['sales_proposal_number'];
-            }
-            
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $refStockNo, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
+        if ($total > 0) {            
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -330,12 +295,7 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $refStockNo = '';
-            if($productType == 'Refinancing'){
-                $refStockNo = 'REF' . $salesProposalNumber;
-            }
-
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productID, $productType, $fuelType, $fuelQuantity, $pricePerLiter, $commissionAmount, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $remarks, $contactID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $refStockNo, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -2376,7 +2336,7 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
-    # Function: getSalesProposalDetails
+    # Function: getSalesProposalBasicDetails
     # Description: 
     # Handles the retrieval of product subcategory details such as product subcategory name, etc.
     #
@@ -2385,7 +2345,7 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getSalesProposalDetails() {
+    public function getSalesProposalBasicDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }

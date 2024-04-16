@@ -1,19 +1,25 @@
+<?php
+  $disabled = '';
+  if($salesProposalStatus == 'Draft'){
+    $disabled = 'disabled';       
+  }
+?>
 <div class="row">
   <div class="col-md-3">
     <div class="card">
       <div class="card-body">
         <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-          <li><a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true">Basic Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-2" data-bs-toggle="pill" href="#v-unit-details" role="tab" aria-controls="v-unit-details" aria-selected="false">Unit Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-3" data-bs-toggle="pill" href="#v-fuel-details" role="tab" aria-controls="v-fuel-details" aria-selected="false">Fuel Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-4" data-bs-toggle="pill" href="#v-refinancing-details" role="tab" aria-controls="v-refinancing-details" aria-selected="false">Refinancing Details</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="pill" href="#v-job-order" role="tab" aria-controls="v-job-order" aria-selected="false">Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="pill" href="#v-pricing-computation" role="tab" aria-controls="v-pricing-computation" aria-selected="false">Pricing Computation</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-7" data-bs-toggle="pill" href="#v-other-charges" role="tab" aria-controls="v-other-charges" aria-selected="false">Other Charges</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-8" data-bs-toggle="pill" href="#v-renewal-amount" role="tab" aria-controls="v-renewal-amount" aria-selected="false">Renewal Amount</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false">Amount of Deposit</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false">Additional Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false">Summary</a></li>
+          <li><a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true" <?php echo $disabled; ?>>Basic Details</a></li>
+          <li><a class="nav-link d-none" id="sales-proposal-tab-2" data-bs-toggle="pill" href="#v-unit-details" role="tab" aria-controls="v-unit-details" aria-selected="false" <?php echo $disabled; ?>>Unit Details</a></li>
+          <li><a class="nav-link d-none" id="sales-proposal-tab-3" data-bs-toggle="pill" href="#v-fuel-details" role="tab" aria-controls="v-fuel-details" aria-selected="false" <?php echo $disabled; ?>>Fuel Details</a></li>
+          <li><a class="nav-link d-none" id="sales-proposal-tab-4" data-bs-toggle="pill" href="#v-refinancing-details" role="tab" aria-controls="v-refinancing-details" aria-selected="false" <?php echo $disabled; ?>>Refinancing Details</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="pill" href="#v-job-order" role="tab" aria-controls="v-job-order" aria-selected="false" <?php echo $disabled; ?>>Job Order</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="pill" href="#v-pricing-computation" role="tab" aria-controls="v-pricing-computation" aria-selected="false" <?php echo $disabled; ?>>Pricing Computation</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-7" data-bs-toggle="pill" href="#v-other-charges" role="tab" aria-controls="v-other-charges" aria-selected="false" <?php echo $disabled; ?>>Other Charges</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-8" data-bs-toggle="pill" href="#v-renewal-amount" role="tab" aria-controls="v-renewal-amount" aria-selected="false" <?php echo $disabled; ?>>Renewal Amount</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false" <?php echo $disabled; ?>>Amount of Deposit</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" <?php echo $disabled; ?>>Additional Job Order</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" <?php echo $disabled; ?>>Summary</a></li>
         </ul>
       </div>
     </div>
@@ -24,26 +30,26 @@
         <div class="tab-content">
           <div class="d-flex wizard justify-content-between mb-3">
             <div class="first">
-              <a href="javascript:void(0);" id="first-step" class="btn btn-secondary">First</a>
+              <a href="javascript:void(0);" id="first-step" class="btn btn-secondary disabled">First</a>
             </div>
             <div class="d-flex">
               <div class="previous me-2">
-                <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary">Back To Previous</a>
+                <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
               </div>
               <div class="next">
                 <a href="javascript:void(0);" id="next-step" class="btn btn-secondary mt-3 mt-md-0">Next Step</a>
               </div>
             </div>
             <?php
-              if($salesProposalStatus == 'Draft'){
-                echo '<div class="last d-none">
+              if($salesProposalStatus != 'Draft'){
+                echo '<div class="last">
                         <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Finish</a>
                       </div>';
               }
             ?>
           </div>
           <div id="bar" class="progress mb-3" style="height: 7px;">
-            <div class="bar progress-bar progress-bar-striped progress-bar-animated bg-success"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
           </div>
           <div class="tab-pane show active" id="v-basic-details">
             <form id="sales-proposal-form" method="post" action="#">
@@ -54,14 +60,11 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
                 <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="renewal_tag" value="New" id="renewal_tag_new">
-                    <label class="form-check-label" for="renewal_tag_new">New</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="renewal_tag" value="Renewal" id="renewal_tag_renewal">
-                    <label class="form-check-label" for="renewal_tag_renewal">Renewal</label>
-                  </div>
+                  <select class="form-control select2" name="renewal_tag" id="renewal_tag">
+                    <option value="">--</option>
+                    <option value="New">New</option>
+                    <option value="Renewal">Renewal</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
@@ -90,7 +93,7 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Financing Institution : <span class="text-danger">*</span></label>
+                <label class="col-lg-4 col-form-label">Financing Institution :</label>
                 <div class="col-lg-8">
                   <input type="text" class="form-control text-uppercase" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
                 </div>
@@ -173,7 +176,7 @@
                 <div class="col-lg-8">
                   <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
                     <option value="">--</option>
-                    <?php $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
+                    <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
                   </select>
                 </div>
               </div>
@@ -182,7 +185,7 @@
                 <div class="col-lg-8">
                   <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
                     <option value="">--</option>
-                    <?php $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
+                    <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
                   </select>
                 </div>
               </div>

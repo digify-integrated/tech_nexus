@@ -43,17 +43,12 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposal($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_product_id, $p_product_type, $p_fuel_type, $p_fuel_quantity, $p_price_per_liter, $p_commission_amount, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_for_change_color, $p_new_color, $p_for_change_body, $p_new_body, $p_for_change_engine, $p_new_engine, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_ref_stock_no, $p_ref_engine_no, $p_ref_chassis_no, $p_ref_plate_no, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_product_id, :p_product_type, :p_fuel_type, :p_fuel_quantity, :p_price_per_liter, :p_commission_amount, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_for_change_color, :p_new_color, :p_for_change_body, :p_new_body, :p_for_change_engine, :p_new_engine, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_ref_stock_no, :p_ref_engine_no, :p_ref_chassis_no, :p_ref_plate_no, :p_last_log_by)');
+    public function updateSalesProposal($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_commission_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_commission_amount, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_type', $p_product_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_fuel_type', $p_fuel_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_fuel_quantity', $p_fuel_quantity, PDO::PARAM_STR);
-        $stmt->bindValue(':p_price_per_liter', $p_price_per_liter, PDO::PARAM_STR);
-        $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_financing_institution', $p_financing_institution, PDO::PARAM_STR);
         $stmt->bindValue(':p_referred_by', $p_referred_by, PDO::PARAM_STR);
@@ -64,23 +59,11 @@ class SalesProposalModel {
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_number_of_payments', $p_number_of_payments, PDO::PARAM_INT);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_registration', $p_for_registration, PDO::PARAM_STR);
-        $stmt->bindValue(':p_with_cr', $p_with_cr, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_transfer', $p_for_transfer, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_color', $p_for_change_color, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_color', $p_new_color, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_body', $p_for_change_body, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_body', $p_new_body, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_engine', $p_for_change_engine, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_engine', $p_new_engine, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_STR);
         $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_stock_no', $p_ref_stock_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_engine_no', $p_ref_engine_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_chassis_no', $p_ref_chassis_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_plate_no', $p_ref_plate_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -627,17 +610,12 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_id, $p_product_type, $p_fuel_type, $p_fuel_quantity, $p_price_per_liter, $p_commission_amount, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_for_registration, $p_with_cr, $p_for_transfer, $p_for_change_color, $p_new_color, $p_for_change_body, $p_new_body, $p_for_change_engine, $p_new_engine, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_ref_stock_no, $p_ref_engine_no, $p_ref_chassis_no, $p_ref_plate_no, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_id, :p_product_type, :p_fuel_type, :p_fuel_quantity, :p_price_per_liter, :p_commission_amount, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_for_registration, :p_with_cr, :p_for_transfer, :p_for_change_color, :p_new_color, :p_for_change_body, :p_new_body, :p_for_change_engine, :p_new_engine, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_ref_stock_no, :p_ref_engine_no, :p_ref_chassis_no, :p_ref_plate_no, :p_last_log_by, @p_sales_proposal_id)');
+    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_commission_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_commission_amount, :p_last_log_by, @p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_type', $p_product_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_fuel_type', $p_fuel_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_price_per_liter', $p_price_per_liter, PDO::PARAM_STR);
-        $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
-        $stmt->bindValue(':p_fuel_quantity', $p_fuel_quantity, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_type', $p_transaction_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_financing_institution', $p_financing_institution, PDO::PARAM_STR);
         $stmt->bindValue(':p_referred_by', $p_referred_by, PDO::PARAM_STR);
@@ -648,24 +626,12 @@ class SalesProposalModel {
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_number_of_payments', $p_number_of_payments, PDO::PARAM_INT);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_registration', $p_for_registration, PDO::PARAM_STR);
-        $stmt->bindValue(':p_with_cr', $p_with_cr, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_transfer', $p_for_transfer, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_color', $p_for_change_color, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_color', $p_new_color, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_body', $p_for_change_body, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_body', $p_new_body, PDO::PARAM_STR);
-        $stmt->bindValue(':p_for_change_engine', $p_for_change_engine, PDO::PARAM_STR);
-        $stmt->bindValue(':p_new_engine', $p_new_engine, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_created_by', $p_created_by, PDO::PARAM_INT);
         $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_INT);
         $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_INT);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_stock_no', $p_ref_stock_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_engine_no', $p_ref_engine_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_chassis_no', $p_ref_chassis_no, PDO::PARAM_STR);
-        $stmt->bindValue(':p_ref_plate_no', $p_ref_plate_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
