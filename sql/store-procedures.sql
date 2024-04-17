@@ -7122,6 +7122,53 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE updateSalesProposalUnit(IN p_sales_proposal_id INT, IN p_product_id INT, IN p_for_registration VARCHAR(5), IN p_with_cr VARCHAR(5), IN p_for_transfer VARCHAR(5), IN p_for_change_color VARCHAR(5), IN p_new_color VARCHAR(100), IN p_for_change_body VARCHAR(5), IN p_new_body VARCHAR(100), IN p_for_change_engine VARCHAR(5), IN p_new_engine VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+    SET product_id = p_product_id,
+    for_registration = p_for_registration,
+    with_cr = p_with_cr,
+    for_transfer = p_for_transfer,
+    for_change_color = p_for_change_color,
+    new_color = p_new_color,
+    for_change_body = p_for_change_body,
+    new_body = p_new_body,
+    for_change_engine = p_for_change_engine,
+    new_engine = p_new_engine,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalFuel(IN p_sales_proposal_id INT, IN p_diesel_fuel_quantity DOUBLE, IN p_diesel_price_per_liter DOUBLE, IN p_regular_fuel_quantity DOUBLE, IN p_regular_price_per_liter DOUBLE, IN p_premium_fuel_quantity DOUBLE, IN p_premium_price_per_liter DOUBLE, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+    SET diesel_fuel_quantity = p_diesel_fuel_quantity,
+    diesel_price_per_liter = p_diesel_price_per_liter,
+    regular_fuel_quantity = p_regular_fuel_quantity,
+    regular_price_per_liter = p_regular_price_per_liter,
+    premium_fuel_quantity = p_premium_fuel_quantity,
+    premium_price_per_liter = p_premium_price_per_liter,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalRefinancing(IN p_sales_proposal_id INT, IN p_ref_stock_no VARCHAR(100), IN p_ref_engine_no VARCHAR(100), IN p_ref_chassis_no VARCHAR(100), IN p_ref_plate_no VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+    SET ref_stock_no = p_ref_stock_no,
+    ref_engine_no = p_ref_engine_no,
+    ref_chassis_no = p_ref_chassis_no,
+    ref_plate_no = p_ref_plate_no,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     IF p_sales_proposal_status = 'For Final Approval' THEN
@@ -7383,7 +7430,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalChangeRequestTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'Proceed' AND (for_registration = 'Yes' OR for_transfer = 'Yes' OR for_change_color = 'Yes' OR for_change_body = 'Yes' OR for_change_engine = 'Yes');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND (for_registration = 'Yes' OR for_transfer = 'Yes' OR for_change_color = 'Yes' OR for_change_body = 'Yes' OR for_change_engine = 'Yes');
 END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()

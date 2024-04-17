@@ -16,9 +16,11 @@ class SalesProposalController {
     private $salesProposalModel;
     private $customerModel;
     private $productModel;
+    private $bodyTypeModel;
+    private $colorModel;
+    private $userModel;
     private $productCategoryModel;
     private $productSubcategoryModel;
-    private $userModel;
     private $systemSettingModel;
     private $companyModel;
     private $emailSettingModel;
@@ -50,10 +52,12 @@ class SalesProposalController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, ProductSubcategoryModel $productSubcategoryModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
+    public function __construct(SalesProposalModel $salesProposalModel, CustomerModel $customerModel, ProductModel $productModel, BodyTypeModel $bodyTypeModel, ColorModel $colorModel, ProductSubcategoryModel $productSubcategoryModel, UserModel $userModel, CompanyModel $companyModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SystemModel $systemModel, SecurityModel $securityModel) {
         $this->salesProposalModel = $salesProposalModel;
         $this->customerModel = $customerModel;
         $this->productModel = $productModel;
+        $this->bodyTypeModel = $bodyTypeModel;
+        $this->colorModel = $colorModel;
         $this->productSubcategoryModel = $productSubcategoryModel;
         $this->userModel = $userModel;
         $this->systemSettingModel = $systemSettingModel;
@@ -87,6 +91,15 @@ class SalesProposalController {
             switch ($transaction) {
                 case 'save sales proposal':
                     $this->saveSalesProposal();
+                    break;
+                case 'save sales proposal unit':
+                    $this->saveSalesProposalUnit();
+                    break;
+                case 'save sales proposal fuel':
+                    $this->saveSalesProposalFuel();
+                    break;
+                case 'save sales proposal refinancing':
+                    $this->saveSalesProposalRefinancing();
                     break;
                 case 'save sales proposal accessories':
                     $this->saveSalesProposalAccessories();
@@ -160,6 +173,15 @@ class SalesProposalController {
                 case 'get sales proposal basic details':
                     $this->getSalesProposalBasicDetails();
                     break;
+                case 'get sales proposal unit details':
+                    $this->getSalesProposalUnitDetails();
+                    break;
+                case 'get sales proposal fuel details':
+                    $this->getSalesProposalFuelDetails();
+                    break;
+                case 'get sales proposal refinancing details':
+                    $this->getSalesProposalRefinancingDetails();
+                    break;
                 case 'get sales proposal accessories details':
                     $this->getSalesProposalAccessoriesDetails();
                     break;
@@ -213,9 +235,7 @@ class SalesProposalController {
                     break;
                 case 'save sales proposal new engine stencil':
                     $this->saveSalesProposalNewEngineStencil();
-                    break;
-
-                   
+                    break;                   
                 case 'save sales proposal pdc manual input':
                     $this->saveSalesProposalPDCManualInput();
                     break; 
@@ -302,6 +322,149 @@ class SalesProposalController {
             echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalUnit
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalUnit() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
+        $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
+        $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
+        $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+        $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
+        $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
+        $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
+        $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
+        $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {            
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalFuel
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalFuel() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
+        $dieselFuelQuantity = htmlspecialchars($_POST['diesel_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+        $dieselPricePerLiter = htmlspecialchars($_POST['diesel_price_per_liter'], ENT_QUOTES, 'UTF-8');
+        $regularFuelQuantity = htmlspecialchars($_POST['regular_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+        $regularPricePerliter = htmlspecialchars($_POST['regular_price_per_liter'], ENT_QUOTES, 'UTF-8');
+        $premiumFuelQuantity = htmlspecialchars($_POST['premium_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+        $premiumPricePerliter = htmlspecialchars($_POST['premium_price_per_liter'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {            
+            $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveSalesProposalRefinancing
+    # Description: 
+    # Updates the existing sales proposal if it exists; otherwise, inserts a new sales proposal.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveSalesProposalRefinancing() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
+            exit;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
+        $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
+        $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+        $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if ($total > 0) {            
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+            $stockNumber = 'REF'. $salesProposalNumber;
+
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
+            
+            echo json_encode(['success' => true, 'insertRecord' => false]);
+            exit;
+        } 
     }
     # -------------------------------------------------------------
 
@@ -2394,7 +2557,6 @@ class SalesProposalController {
             $selectedOptions = array();
             $selectedOptions[] = $salesProposalDetails["fuel_type"];
 
-
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -2403,62 +2565,184 @@ class SalesProposalController {
                 'productID' => $productID,
                 'productType' => $salesProposalDetails['product_type'] ?? null,
                 'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
-                'forChangeColor' => $salesProposalDetails['for_change_color'] ?? null,
-                'forChangeBody' => $salesProposalDetails['for_change_body'] ?? null,
-                'forChangeEngine' => $salesProposalDetails['for_change_engine'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
-                'refStockNo' => $salesProposalDetails['ref_stock_no'] ?? null,
-                'refEngineNo' => $salesProposalDetails['ref_engine_no'] ?? null,
-                'refChassisNo' => $salesProposalDetails['ref_chassis_no'] ?? null,
-                'refPlateNo' => $salesProposalDetails['ref_plate_no'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
-                'newColor' => $salesProposalDetails['new_color'] ?? null,
-                'newBody' => $salesProposalDetails['new_body'] ?? null,
-                'newEngine' => $salesProposalDetails['new_engine'] ?? null,
-                'fuelType' => $selectedOptions,
-                'fuelQuantity' => $salesProposalDetails['fuel_quantity'] ?? 0,
-                'pricePerLiter' => $salesProposalDetails['price_per_liter'] ?? 0,
-                'commissionAmount' => $salesProposalDetails['commission_amount'] ?? 0,
-                'changeRequestStatus' => $salesProposalDetails['change_request_status'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'referredBy' => $salesProposalDetails['referred_by'],
-                'drNumber' => $salesProposalDetails['dr_number'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
-                'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'firstDueDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['first_due_date'], '', 'm/d/Y', ''),
-                'initialApprovalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y', ''),
-                'approvalDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y', ''),
-                'forCIDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y', ''),
-                'rejectionDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['rejection_date'], '', 'm/d/Y', ''),
-                'cancellationDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['cancellation_date'], '', 'm/d/Y', ''),
-                'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
-                'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
-                'newEngineStencil' => $this->systemModel->checkImage($salesProposalDetails['new_engine_stencil'], 'default'),
-                'qualityControlForm' => $this->systemModel->checkImage($salesProposalDetails['quality_control_form'], 'default'),
-                'outgoingChecklist' => $this->systemModel->checkImage($salesProposalDetails['outgoing_checklist'], 'default'),
-                'unitImage' => $this->systemModel->checkImage($salesProposalDetails['unit_image'], 'default'),
-                'additionalJobOrderConfirmationImage' => $this->systemModel->checkImage($salesProposalDetails['additional_job_order_confirmation'], 'default'),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],
                 'paymentFrequency' => $salesProposalDetails['payment_frequency'],
-                'forRegistration' => $salesProposalDetails['for_registration'],
-                'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'],
-                'finalApprovalRemarks' => $salesProposalDetails['final_approval_remarks'],
-                'rejectionReason' => $salesProposalDetails['rejection_reason'],
-                'cancellationReason' => $salesProposalDetails['cancellation_reason'],
-                'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'],
-                'withCR' => $salesProposalDetails['with_cr'],
-                'forTransfer' => $salesProposalDetails['for_transfer'],
                 'remarks' => $salesProposalDetails['remarks'],
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
-                'createdByName' => $createdByName,
-                'initialApprovingOfficerName' => $initialApprovingOfficerName,
-                'finalApprovingOfficerName' => $finalApprovingOfficerName,
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalUnitDetails
+    # Description: 
+    # Handles the retrieval of product subcategory details such as product subcategory name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalUnitDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $comakerID = $salesProposalDetails['comaker_id'];
+            $productID = $salesProposalDetails['product_id'];
+            $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+            $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+            $initialApprovalBy = $salesProposalDetails['initial_approval_by'];
+            $approvalBy = $salesProposalDetails['approval_by'];
+
+            $createdByDetails = $this->customerModel->getPersonalInformation($salesProposalDetails['created_by']);
+            $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
+            $productDetails = $this->productModel->getProduct($productID);
+            $stockNumber = $productDetails['stock_number'] ?? null;
+            $productDescription = $productDetails['description'] ?? null;
+            $bodyTypeID = $productDetails['body_type_id'];
+            $colorID = $productDetails['color_id'];
+            $engineNumber = $productDetails['engine_number'];
+
+            $getBodyType = $this->bodyTypeModel->getBodyType($bodyTypeID);
+            $bodyTypeName = $getBodyType['body_type_name'] ?? null;
+
+            $getColor = $this->colorModel->getColor($colorID);
+            $colorName = $getColor['color_name'] ?? null;
+
+            $response = [
+                'success' => true,
+                'productID' => $productID,
+                'forRegistration' => $salesProposalDetails['for_registration'],
+                'withCR' => $salesProposalDetails['with_cr'],
+                'forTransfer' => $salesProposalDetails['for_transfer'],
+                'forChangeColor' => $salesProposalDetails['for_change_color'] ?? null,
+                'forChangeBody' => $salesProposalDetails['for_change_body'] ?? null,
+                'forChangeEngine' => $salesProposalDetails['for_change_engine'] ?? null,
+                'oldColor' => $colorName,
+                'newColor' => $salesProposalDetails['new_color'] ?? null,
+                'oldBody' => $bodyTypeName,
+                'newBody' => $salesProposalDetails['new_body'] ?? null,
+                'oldEngine' => $engineNumber,
+                'newEngine' => $salesProposalDetails['new_engine'] ?? null,
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalFuelDetails
+    # Description: 
+    # Handles the retrieval of product subcategory details such as product subcategory name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalFuelDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'dieselFuelQuantity' => $salesProposalDetails['diesel_fuel_quantity'] ?? 0,
+                'dieselPricePerLiter' => $salesProposalDetails['diesel_price_per_liter'] ?? 0,
+                'regularFuelQuantity' => $salesProposalDetails['regular_fuel_quantity'] ?? 0,
+                'regularPricePerLiter' => $salesProposalDetails['regular_price_per_liter'] ?? 0,
+                'premiumFuelQuantity' => $salesProposalDetails['premium_fuel_quantity'] ?? 0,
+                'premiumPricePerLiter' => $salesProposalDetails['premium_price_per_liter'] ?? 0,
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalRefinancingDetails
+    # Description: 
+    # Handles the retrieval of product subcategory details such as product subcategory name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalRefinancingDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'refStockNo' => $salesProposalDetails['ref_stock_no'] ?? '--',
+                'refEngineNo' => $salesProposalDetails['ref_engine_no'] ?? 0,
+                'refChassisNo' => $salesProposalDetails['ref_chassis_no'] ?? 0,
+                'refPlateNo' => $salesProposalDetails['ref_plate_no'] ?? 0
             ];
 
             echo json_encode($response);
@@ -3094,6 +3378,8 @@ require_once '../model/system-setting-model.php';
 require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/notification-setting-model.php';
+require_once '../model/body-type-model.php';
+require_once '../model/color-model.php';
 require_once '../model/email-setting-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
@@ -3101,6 +3387,6 @@ require '../assets/libs/PHPMailer/src/PHPMailer.php';
 require '../assets/libs/PHPMailer/src/Exception.php';
 require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
+$controller = new SalesProposalController(new SalesProposalModel(new DatabaseModel), new CustomerModel(new DatabaseModel), new ProductModel(new DatabaseModel), new BodyTypeModel(new DatabaseModel), new ColorModel(new DatabaseModel), new ProductSubcategoryModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new CompanyModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SystemModel(), new SecurityModel());
 $controller->handleRequest();
 ?>

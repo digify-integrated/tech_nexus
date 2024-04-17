@@ -246,7 +246,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'PROCEED_DATE' => $proceedDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="sales-proposal-change-request-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="sales-proposal-change-request.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

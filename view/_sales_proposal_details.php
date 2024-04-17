@@ -33,6 +33,13 @@
               <a href="javascript:void(0);" id="first-step" class="btn btn-secondary disabled">First</a>
             </div>
             <div class="d-flex">
+              <?php
+                if($salesProposalStatus == 'Draft'){
+                  echo '  <div class="previous me-2">
+                  <button class="btn btn-primary me-2 d-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
+                </div>';
+                }
+              ?>
               <div class="previous me-2">
                 <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
               </div>
@@ -59,7 +66,7 @@
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
+                <div class="col-lg-8">
                   <select class="form-control select2" name="renewal_tag" id="renewal_tag">
                     <option value="">--</option>
                     <option value="New">New</option>
@@ -211,53 +218,41 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_registration" value="Yes" id="for_registration_yes">
-                    <label class="form-check-label" for="for_registration_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_registration" value="No" id="for_registration_no">
-                    <label class="form-check-label" for="for_registration_no">No</label>
-                  </div>
+                  <select class="form-control select2" name="for_registration" id="for_registration">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="with_cr" value="Yes" id="with_cr_yes">
-                    <label class="form-check-label" for="with_cr_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="with_cr" value="No" id="with_cr_no">
-                                <label class="form-check-label" for="with_cr_no">No</label>
-                  </div>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="with_cr" id="with_cr">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_transfer" value="Yes" id="for_transfer_yes">
-                    <label class="form-check-label" for="for_transfer_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_transfer" value="No" id="for_transfer_no">
-                    <label class="form-check-label" for="for_transfer_no">No</label>
-                  </div>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_transfer" id="for_transfer">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_color" value="Yes" id="for_change_color_yes">
-                    <label class="form-check-label" for="for_change_color_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_color" value="No" id="for_change_color_no">
-                    <label class="form-check-label" for="for_change_color_no">No</label>
-                  </div>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_change_color" id="for_change_color">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
@@ -274,15 +269,12 @@
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_body" value="Yes" id="for_change_body_yes">
-                    <label class="form-check-label" for="for_change_body_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_body" value="No" id="for_change_body_no">
-                    <label class="form-check-label" for="for_change_body_no">No</label>
-                  </div>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="for_change_body" id="for_change_body">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
@@ -300,14 +292,11 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
                 <div class="col-lg-8 mt-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_engine" value="Yes" id="for_change_engine_yes">
-                    <label class="form-check-label" for="for_change_engine_yes">Yes</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="for_change_engine" value="No" id="for_change_engine_no">
-                    <label class="form-check-label" for="for_change_engine_no">No</label>
-                  </div>
+                  <select class="form-control select2" name="for_change_engine" id="for_change_engine">
+                    <option value="">--</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group row">
@@ -330,7 +319,7 @@
                 <label class="col-lg-4 col-form-label">Diesel Fuel Quantity : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <div class="input-group">
-                    <input type="number" class="form-control" id="diesel_fuel_quantity" name="diesel_fuel_quantity" step="0.01" min="0.01">
+                    <input type="number" class="form-control" id="diesel_fuel_quantity" name="diesel_fuel_quantity" step="0.01" min="0">
                     <span class="input-group-text">lt</span>
                   </div>
                 </div>
@@ -338,14 +327,14 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Diesel Price/Liter : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="number" class="form-control" id="diesel_price_per_liter" name="diesel_price_per_liter" step="0.01" min="0.01">
+                  <input type="number" class="form-control" id="diesel_price_per_liter" name="diesel_price_per_liter" step="0.01" min="0">
                 </div>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Regular Fuel Quantity : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <div class="input-group">
-                    <input type="number" class="form-control" id="regular_fuel_quantity" name="regular_fuel_quantity" step="0.01" min="0.01">
+                    <input type="number" class="form-control" id="regular_fuel_quantity" name="regular_fuel_quantity" step="0.01" min="0">
                     <span class="input-group-text">lt</span>
                   </div>
                 </div>
@@ -353,14 +342,14 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Regular Price/Liter : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="number" class="form-control" id="regular_price_per_liter" name="regular_price_per_liter" step="0.01" min="0.01">
+                  <input type="number" class="form-control" id="regular_price_per_liter" name="regular_price_per_liter" step="0.01" min="0">
                 </div>
               </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Premium Fuel Quantity : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
                   <div class="input-group">
-                    <input type="number" class="form-control" id="premium_fuel_quantity" name="premium_fuel_quantity" step="0.01" min="0.01">
+                    <input type="number" class="form-control" id="premium_fuel_quantity" name="premium_fuel_quantity" step="0.01" min="0">
                     <span class="input-group-text">lt</span>
                   </div>
                 </div>
@@ -368,13 +357,17 @@
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Premium Price/Liter : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
-                  <input type="number" class="form-control" id="premium_price_per_liter" name="premium_price_per_liter" step="0.01" min="0.01">
+                  <input type="number" class="form-control" id="premium_price_per_liter" name="premium_price_per_liter" step="0.01" min="0">
                 </div>
               </div>
             </form>
           </div>
           <div class="tab-pane" id="v-refinancing-details">
             <form id="sales-proposal-refinancing-details-form" method="post" action="#">
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Stock Number :</label>
+                <label class="col-lg-8 col-form-label" id="ref_stock_no">--</label>
+              </div>
               <div class="form-group row">
                 <label class="col-lg-4 col-form-label">Engine Number : <span class="text-danger">*</span></label>
                 <div class="col-lg-8">
@@ -626,6 +619,42 @@
               </table>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-offcanvas" aria-labelledby="sales-proposal-job-order-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Job Order</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="sales-proposal-job-order-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12">
+                <label class="form-label">Job Order <span class="text-danger">*</span></label>
+                <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
+                <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order" form="sales-proposal-job-order-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
     </div>

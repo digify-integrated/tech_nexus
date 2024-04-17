@@ -15,7 +15,7 @@
         <form id="add-sales-proposal-form" method="post" action="#">
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
-            <div class="col-lg-8 mt-2">
+            <div class="col-lg-8">
               <select class="form-control select2" name="renewal_tag" id="renewal_tag">
                 <option value="">--</option>
                 <option value="Yes">Yes</option>

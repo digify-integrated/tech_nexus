@@ -71,6 +71,83 @@ class SalesProposalModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateSalesProposalUnit
+    # Description: Updates the sales proposal.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalUnit($p_sales_proposal_id, $p_product_id, $p_for_registration, $p_with_cr, $p_for_transfer, $p_for_change_color, $p_new_color, $p_for_change_body, $p_new_body, $p_for_change_engine, $p_new_engine, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalUnit(:p_sales_proposal_id, :p_product_id, :p_for_registration, :p_with_cr, :p_for_transfer, :p_for_change_color, :p_new_color, :p_for_change_body, :p_new_body, :p_for_change_engine, :p_new_engine, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_for_registration', $p_for_registration, PDO::PARAM_STR);
+        $stmt->bindValue(':p_with_cr', $p_with_cr, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_transfer', $p_for_transfer, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_change_color', $p_for_change_color, PDO::PARAM_STR);
+        $stmt->bindValue(':p_new_color', $p_new_color, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_change_body', $p_for_change_body, PDO::PARAM_STR);
+        $stmt->bindValue(':p_new_body', $p_new_body, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_change_engine', $p_for_change_engine, PDO::PARAM_STR);
+        $stmt->bindValue(':p_new_engine', $p_new_engine, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalFuel
+    # Description: Updates the sales proposal.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalFuel($p_sales_proposal_id, $p_diesel_fuel_quantity, $p_diesel_price_per_liter, $p_regular_fuel_quantity, $p_regular_price_per_liter, $p_premium_fuel_quantity, $p_premium_price_per_liter, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalFuel(:p_sales_proposal_id, :p_diesel_fuel_quantity, :p_diesel_price_per_liter, :p_regular_fuel_quantity, :p_regular_price_per_liter, :p_premium_fuel_quantity, :p_premium_price_per_liter, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_diesel_fuel_quantity', $p_diesel_fuel_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_diesel_price_per_liter', $p_diesel_price_per_liter, PDO::PARAM_STR);
+        $stmt->bindValue(':p_regular_fuel_quantity', $p_regular_fuel_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_regular_price_per_liter', $p_regular_price_per_liter, PDO::PARAM_STR);
+        $stmt->bindValue(':p_premium_fuel_quantity', $p_premium_fuel_quantity, PDO::PARAM_STR);
+        $stmt->bindValue(':p_premium_price_per_liter', $p_premium_price_per_liter, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesProposalRefinancing
+    # Description: Updates the sales proposal.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalRefinancing($p_sales_proposal_id, $p_ref_stock_no, $p_ref_engine_no, $p_ref_chassis_no, $p_ref_plate_no, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalRefinancing(:p_sales_proposal_id, :p_ref_stock_no, :p_ref_engine_no, :p_ref_chassis_no, :p_ref_plate_no, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_ref_stock_no', $p_ref_stock_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ref_engine_no', $p_ref_engine_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ref_chassis_no', $p_ref_chassis_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_ref_plate_no', $p_ref_plate_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateSalesProposalAccessories
     # Description: Updates the sales proposal accessories.
     #
