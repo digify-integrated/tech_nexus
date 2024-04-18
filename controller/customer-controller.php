@@ -2323,7 +2323,7 @@ class CustomerController {
             return;
         }
     
-        if (isset($_POST['comaker_id']) && !empty($_POST['comaker_id'])) {
+        if (isset($_POST['comaker_id']) ) {
             $userID = $_SESSION['user_id'];
             $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
     
@@ -2338,7 +2338,14 @@ class CustomerController {
             $comakerName = $comakerDetails['file_as'] ?? null;
 
             $comakerPrimaryAddress = $this->customerModel->getcustomerPrimaryAddress($comakerID);
-            $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+            $address = $comakerPrimaryAddress['address'] ?? null;
+            
+            if(!empty($address)){
+                $comakerAddress = $address . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+            }
+            else{
+                $comakerAddress = null;
+            }           
 
             $comakerContactInformation = $this->customerModel->getcustomerPrimaryContactInformation($comakerID);
             $comakerMobile = !empty($comakerContactInformation['mobile']) ? $comakerContactInformation['mobile'] : '--';

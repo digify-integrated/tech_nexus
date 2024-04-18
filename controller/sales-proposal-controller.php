@@ -215,6 +215,9 @@ class SalesProposalController {
                 case 'get sales proposal renewal amount details':
                     $this->getSalesProposalRenewalAmountDetails();
                     break;
+                case 'get sales proposal confirmation details':
+                    $this->getSalesProposalConfirmationDetails();
+                    break;
                 case 'save sales proposal client confirmation':
                     $this->saveSalesProposalClientConfirmation();
                     break;
@@ -2525,7 +2528,6 @@ class SalesProposalController {
             }
     
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-            $comakerID = $salesProposalDetails['comaker_id'];
             $productID = $salesProposalDetails['product_id'];
             $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
             $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
@@ -2545,9 +2547,6 @@ class SalesProposalController {
             $initialApprovalByDetails = $this->customerModel->getPersonalInformation($initialApprovalBy);
             $initialApprovalByName = $initialApprovalByDetails['file_as'] ?? null;
 
-            $comakerDetails = $this->customerModel->getPersonalInformation($comakerID);
-            $comakerName = $comakerDetails['file_as'] ?? null;
-
             $initialApprovingOfficerDetails = $this->customerModel->getPersonalInformation($initialApprovingOfficer);
             $initialApprovingOfficerName = strtoupper($initialApprovingOfficerDetails['file_as'] ?? null);
 
@@ -2560,14 +2559,14 @@ class SalesProposalController {
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
-                'comakerID' => $comakerID,
-                'comakerName' => $comakerName,
                 'productID' => $productID,
                 'productType' => $salesProposalDetails['product_type'] ?? null,
                 'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
+                'initialApprovingOfficerName' => $initialApprovingOfficerName,
+                'finalApprovingOfficerName' => $finalApprovingOfficerName,
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'referredBy' => $salesProposalDetails['referred_by'],
@@ -2700,6 +2699,52 @@ class SalesProposalController {
                 'regularPricePerLiter' => $salesProposalDetails['regular_price_per_liter'] ?? 0,
                 'premiumFuelQuantity' => $salesProposalDetails['premium_fuel_quantity'] ?? 0,
                 'premiumPricePerLiter' => $salesProposalDetails['premium_price_per_liter'] ?? 0,
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalConfirmationDetails
+    # Description: 
+    # Handles the retrieval of product subcategory details such as product subcategory name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalConfirmationDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+
+            $response = [
+                'success' => true,
+                'creditAdvice' => $this->systemModel->checkImage($salesProposalDetails['credit_advice'], 'default'),
+                'clientConfirmation' => $this->systemModel->checkImage($salesProposalDetails['client_confirmation'], 'default'),
+                'newEngineStencil' => $this->systemModel->checkImage($salesProposalDetails['new_engine_stencil'], 'default'),
+                'qualityControlForm' => $this->systemModel->checkImage($salesProposalDetails['quality_control_form'], 'default'),
+                'outgoingChecklist' => $this->systemModel->checkImage($salesProposalDetails['outgoing_checklist'], 'default'),
+                'unitImage' => $this->systemModel->checkImage($salesProposalDetails['unit_image'], 'default'),
+                'additionalJobOrderConfirmationImage' => $this->systemModel->checkImage($salesProposalDetails['additional_job_order_confirmation'], 'default'),
             ];
 
             echo json_encode($response);
