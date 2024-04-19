@@ -318,7 +318,7 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -371,6 +371,8 @@ class SalesProposalController {
     
         if ($total > 0) {            
             $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
+            $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -417,6 +419,8 @@ class SalesProposalController {
     
         if ($total > 0) {            
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -464,6 +468,8 @@ class SalesProposalController {
             $stockNumber = 'REF'. $salesProposalNumber;
 
             $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
+            $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -2236,7 +2242,7 @@ class SalesProposalController {
     
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
+        $paymentFrequency = htmlspecialchars($_POST['pdc_payment_frequency'], ENT_QUOTES, 'UTF-8');
         $paymentFor = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
         $bankBranch = htmlspecialchars($_POST['bank_branch'], ENT_QUOTES, 'UTF-8');
         $noOfPayments = htmlspecialchars($_POST['no_of_payments'], ENT_QUOTES, 'UTF-8');
@@ -2261,8 +2267,6 @@ class SalesProposalController {
             $this->salesProposalModel->insertSalesProposalManualPDCInput($salesProposalID, $bankBranch, $dueDate, $firstCheckNumber, $paymentFor, $amountDue, $userID);
         }
     
-        
-
         echo json_encode(['success' => true, 'insertRecord' => true]);
         exit;
     }
@@ -2286,7 +2290,6 @@ class SalesProposalController {
         return $date->format('Y-m-d');
     }
     
-
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
@@ -2553,9 +2556,6 @@ class SalesProposalController {
             $finalApprovingOfficerDetails = $this->customerModel->getPersonalInformation($finalApprovingOfficer);
             $finalApprovingOfficerName = strtoupper($finalApprovingOfficerDetails['file_as'] ?? null);
 
-            $selectedOptions = array();
-            $selectedOptions[] = $salesProposalDetails["fuel_type"];
-
             $response = [
                 'success' => true,
                 'salesProposalNumber' => $salesProposalDetails['sales_proposal_number'],
@@ -2564,11 +2564,14 @@ class SalesProposalController {
                 'transactionType' => $salesProposalDetails['transaction_type'] ?? null,
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
+                'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'initialApprovingOfficerName' => $initialApprovingOfficerName,
                 'finalApprovingOfficerName' => $finalApprovingOfficerName,
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
+                'drNumber' => $salesProposalDetails['dr_number'],
+                'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
@@ -2629,9 +2632,9 @@ class SalesProposalController {
             $productDetails = $this->productModel->getProduct($productID);
             $stockNumber = $productDetails['stock_number'] ?? null;
             $productDescription = $productDetails['description'] ?? null;
-            $bodyTypeID = $productDetails['body_type_id'];
-            $colorID = $productDetails['color_id'];
-            $engineNumber = $productDetails['engine_number'];
+            $bodyTypeID = $productDetails['body_type_id'] ?? null;
+            $colorID = $productDetails['color_id'] ?? null;
+            $engineNumber = $productDetails['engine_number'] ?? null;
 
             $getBodyType = $this->bodyTypeModel->getBodyType($bodyTypeID);
             $bodyTypeName = $getBodyType['body_type_name'] ?? null;

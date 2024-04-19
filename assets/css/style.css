@@ -28643,48 +28643,8 @@ div.dataTables_wrapper div.dataTables_paginate {
   body * {
     visibility: hidden;
   }
-
-  .print-area2, .print-area2 * {
+  .print-area, .print-area *, .print-summary, .print-summary *, .print-area-online, .print-area-online *, .print-area-autorization, .print-area-autorization *, .print-area-promissory-note, .print-area-promissory-note *, .print-area-disclosure, .print-area-disclosure *, .print-area-gatepass, .print-area-gatepass * {
     visibility: visible;
-  }
-
-  .print-area5, .print-area5 * {
-    visibility: visible;
-  }
-
-  .print-area3, .print-area3 * {
-    visibility: visible;
-  }
-
-  .print-area, .print-area * {
-    visibility: visible;
-  }
-
-  .print-area2 {
-    position: absolute;
-    background-color: white;
-    margin: 0 !important;
-    padding: 0 !important;
-    left: 0 !important;
-    margin-top: -90% !important;
-  }
-
-  .print-area3 {
-    position: absolute;
-    background-color: white;
-    margin: 0 !important;
-    padding: 0 !important;
-    left: 0 !important;
-    margin-top: -100% !important;
-  }
-
-  .print-area5 {
-    position: absolute;
-    background-color: white;
-    margin: 0 !important;
-    padding: 0 !important;
-    left: 0 !important;
-    margin-top: -65% !important;
   }
 
   .print-area {
@@ -28696,19 +28656,49 @@ div.dataTables_wrapper div.dataTables_paginate {
     margin-top: -85% !important;
   }
 
+  .print-area-online, .print-area-autorization, .print-area-promissory-note, .print-area-disclosure, .print-area-gatepass {
+    position: absolute;
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    margin-top: -155% !important;
+  }
+
+  .print-summary {
+    position: absolute;
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    margin-top: -110% !important;
+  }
+
+  .print-area-gatepass {
+    position: absolute;
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    margin-top: -100% !important;
+  }
+
   body, html {
     margin: 0 !important;
     padding: 0 !important;
+    display: block!important
   }
 
   * {
     page-break-before: auto;
     page-break-after: auto;
+    clear: both;
   }
 
   .pagebreak {
     clear: both;
     page-break-after: always;
+    margin-top:0!important;
   }
 }
 

@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-xl-8">
+  <div class="col-xl-12">
     <div class="card">
       <div class="card-body border-bottom">
         <div class="row align-items-center">
@@ -14,12 +14,36 @@
       <div class="card-body">
         <form id="add-sales-proposal-form" method="post" action="#">
           <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Client ID :</label>
+            <label class="col-lg-8 col-form-label" id="customer-id"> <?php echo $customerID; ?></label>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Client Name :</label>
+            <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerName); ?></label>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Address :</label>
+            <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerAddress); ?></label>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Email :</label>
+            <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerEmail); ?></label>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Mobile :</label>
+            <label class="col-lg-8 col-form-label"> <?php echo $customerMobile; ?></label>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Telephone :</label>
+            <label class="col-lg-8 col-form-label"> <?php echo $customerTelephone; ?></label>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <select class="form-control select2" name="renewal_tag" id="renewal_tag">
                 <option value="">--</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
+                <option value="New">New</option>
+                <option value="Renewal">Renewal</option>
               </select>
             </div>
           </div>
@@ -132,7 +156,7 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
                 <option value="">--</option>
-                <?php $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
+                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
               </select>
             </div>
           </div>
@@ -141,7 +165,7 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
                 <option value="">--</option>
-                <?php $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
+                <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
               </select>
             </div>
           </div>
@@ -152,175 +176,6 @@
             </div>
           </div>
         </form>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-4">
-    <div class="card">
-      <div class="card-body py-2">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item px-0">
-            <h5 class="mb-0">Customer Details</h5>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Customer ID</p>
-              </div>
-              <div class="col-sm-6" id="customer-id">
-                <?php echo $customerID; ?>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Full Name</p>
-              </div>
-              <div class="col-sm-6">
-                <?php echo $customerName; ?>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Address</p>
-              </div>
-              <div class="col-sm-6">
-                <?php echo $customerAddress; ?>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Email</p>
-              </div>
-              <div class="col-sm-6">
-                <?php echo $customerEmail; ?>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Mobile</p>
-              </div>
-              <div class="col-sm-6">
-                <?php echo $customerMobile; ?>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Telephone</p>
-              </div>
-              <div class="col-sm-6">
-                <?php echo $customerTelephone; ?>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body py-2">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item px-0">
-            <h5 class="mb-0">Co-Maker Details</h5>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Full Name</p>
-              </div>
-              <div class="col-sm-6" id="comaker_file_as">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Address</p>
-              </div>
-              <div class="col-sm-6" id="comaker_address">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Email</p>
-              </div>
-              <div class="col-sm-6" id="comaker_email">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Mobile</p>
-              </div>
-              <div class="col-sm-6" id="comaker_mobile">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Telephone</p>
-              </div>
-              <div class="col-sm-6" id="comaker_telephone">
-                --
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-body py-2">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item px-0">
-            <h5 class="mb-0">Product Details </h5>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Engine Number</p>
-              </div>
-              <div class="col-sm-6" id="product_engine_number">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Chassis Number</p>
-              </div>
-              <div class="col-sm-6" id="product_chassis_number">
-                --
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item px-0">
-            <div class="row align-items-center mb-3">
-              <div class="col-sm-6 mb-sm-0">
-                <p class="mb-0">Plate Number</p>
-              </div>
-              <div class="col-sm-6" id="product_plate_number">
-                --
-              </div>
-            </div>
-          </li>
-        </ul>
       </div>
     </div>
   </div>

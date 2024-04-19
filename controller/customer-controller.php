@@ -1456,7 +1456,7 @@ class CustomerController {
         $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
 
         $customerDetails = $this->customerModel->getPersonalInformation($customerID);
-        $contactImage = $customerDetails['contact_image'];
+        $contactImage = $customerDetails['contact_image'] ?? null;
     
         $user = $this->userModel->getUserByID($userID);
     

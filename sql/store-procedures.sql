@@ -7435,7 +7435,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type != 'Refinancing';
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()

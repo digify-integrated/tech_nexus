@@ -108,7 +108,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         # -------------------------------------------------------------
 
-        # -------------------------------------------------------------
+        # ------------------------------------------------------------
         #
         # Type: all sales proposal table
         # Description:
@@ -365,7 +365,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'FOR_DR_DATE' => $forDRDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="sales-proposal-for-dr.php?&sales_proposal_id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="sales-proposal-for-dr.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'
