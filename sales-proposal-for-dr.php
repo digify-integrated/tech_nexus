@@ -89,6 +89,7 @@
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
     $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+    $createdDate = $systemModel->checkDate('summary', $salesProposalDetails['created_date'], '', 'd-M-Y', '');
 
     $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
     $pnAmount = $pricingComputationDetails['pn_amount'] ?? 0;

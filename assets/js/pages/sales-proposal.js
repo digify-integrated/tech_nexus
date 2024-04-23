@@ -88,10 +88,6 @@
             if($('#sales-proposal-renewal-amount-form').length){
                 salesProposalRenewalAmountForm();
             }
-    
-            if($('#sales-proposal-deposit-amount-form').length){
-                salesProposalDepositAmountForm();
-            }
         }
         else{
             if($('#sales-proposal-form').length){
@@ -121,20 +117,24 @@
             if($('#sales-proposal-renewal-amount-form').length){
                 disableFormAndSelect2('sales-proposal-renewal-amount-form');
             }
-    
-            if($('#sales-proposal-deposit-amount-form').length){
-                disableFormAndSelect2('sales-proposal-deposit-amount-form');
-            }
         }
 
         if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
             if($('#sales-proposal-other-charges-form').length){
                 salesProposalOtherChargesForm();
             }
+    
+            if($('#sales-proposal-deposit-amount-form').length){
+                salesProposalDepositAmountForm();
+            }
         }
         else{
             if($('#sales-proposal-other-charges-form').length){
                 disableFormAndSelect2('sales-proposal-other-charges-form');
+            }
+    
+            if($('#sales-proposal-deposit-amount-form').length){
+                disableFormAndSelect2('sales-proposal-deposit-amount-form');
             }
         }
 
@@ -444,6 +444,16 @@
         $(document).on('click','#last-step',function() {
             traverseTabs('last');
         });
+
+        $(document).on('click','#last-step2',function() {
+            traverseTabs('last');
+        });
+
+        if(sales_proposal_status != 'Draft'){
+            if($('#last-step').length){
+                $("#last-step")[0].click();
+            }
+        }
 
         $(document).on('click','#add-sales-proposal-job-order',function() {
             resetModalForm("sales-proposal-job-order-form");
@@ -1666,6 +1676,7 @@ function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_
     var settings;
 
     const column = [ 
+        { 'data' : 'ACCOUNT_NUMBER' },
         { 'data' : 'BANK_BRANCH' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'CHECK_NUMBER' },
@@ -1675,11 +1686,11 @@ function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_
     ];
 
     const column_definition = [
-        { 'width': '17%', 'aTargets': 0 },
-        { 'width': '17%', 'aTargets': 1 },
-        { 'width': '17%', 'aTargets': 2 },
-        { 'width': '17%', 'aTargets': 3 },
-        { 'width': '17%', 'aTargets': 4 },
+        { 'width': '14.16%', 'aTargets': 0 },
+        { 'width': '14.16%', 'aTargets': 1 },
+        { 'width': '14.16%', 'aTargets': 2 },
+        { 'width': '14.16%', 'aTargets': 3 },
+        { 'width': '14.16%', 'aTargets': 4 },
         { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
@@ -4083,6 +4094,9 @@ function salesProposalPDCManualInputForm(){
             payment_for: {
                 required: true
             },
+            account_number: {
+                required: true
+            },
             bank_branch: {
                 required: true
             },
@@ -4102,6 +4116,9 @@ function salesProposalPDCManualInputForm(){
         messages: {
             pdc_payment_frequency: {
                 required: 'Please choose the payment frequency'
+            },
+            account_number: {
+                required: 'Please enter the account number'
             },
             payment_for: {
                 required: 'Please choose the payment for'
@@ -5376,17 +5393,6 @@ function traverseTabs(direction) {
                 $('#add-sales-proposal-job-order-button').addClass('d-none');
             }
         }
-    
-        if (nextIndex == 8) {
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
-            }
-        }
     }
 
     if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
@@ -5395,6 +5401,17 @@ function traverseTabs(direction) {
                 $('#sales-proposal-other-charges-form').submit();
             } else {
                 return;
+            }
+        }
+
+        if (nextIndex == 8) {
+            if($('#add-sales-proposal-deposit-amount-button').length){
+                $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
+            }
+        }
+        else{
+            if($('#add-sales-proposal-deposit-amount-button').length){
+                $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
             }
         }
     }
@@ -5533,9 +5550,80 @@ function traverseTabs(direction) {
         }
     }
 
-    if(nextIndex == 11 || nextIndex == 14 || nextIndex == 15 || nextIndex == 16 || nextIndex == 17 || nextIndex == 18){
-        if($('#print-button').length){
-            $('#print-button').removeClass('d-none');
+    if(nextIndex == 11){
+        if($('#summary-print-button').length){
+            $('#summary-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#summary-print-button').length){
+            $('#summary-print-button').addClass('d-none');
+        }
+    }
+
+    if(nextIndex == 18){
+        if($('#gatepass-print-button').length){
+            $('#gatepass-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#gatepass-print-button').length){
+            $('#gatepass-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 14){
+        if($('#online-print-button').length){
+            $('#online-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#online-print-button').length){
+            $('#online-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 15){
+        if($('#authorization-print-button').length){
+            $('#authorization-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#authorization-print-button').length){
+            $('#authorization-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 16){
+        if($('#pn-print-button').length){
+            $('#pn-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#pn-print-button').length){
+            $('#pn-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 17){
+        if($('#disclosure-print-button').length){
+            $('#disclosure-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#disclosure-print-button').length){
+            $('#disclosure-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 14 ||  nextIndex == 15 ||  nextIndex == 16 || nextIndex == 17){
+        if($('#dr-receipt-print-button').length){
+            $('#dr-receipt-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#dr-receipt-print-button').length){
+            $('#dr-receipt-print-button').addClass('d-none');
         }
     }
 

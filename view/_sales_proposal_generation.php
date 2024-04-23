@@ -839,6 +839,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $manualPDCInputID = $row['manual_pdc_input_id'];
+                    $accountNumber = $row['account_number'];
                     $bankBranch = $row['bank_branch'];
                     $checkDate = $systemModel->checkDate('summary', $row['check_date'], '', 'F d, Y', '');
                     $checkNumber = $row['check_number'];
@@ -857,6 +858,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     }
 
                     $response[] = [
+                        'ACCOUNT_NUMBER' => $accountNumber,
                         'BANK_BRANCH' => $bankBranch,
                         'CHECK_DATE' => $checkDate,
                         'CHECK_NUMBER' => $checkNumber,
@@ -952,6 +954,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 foreach ($options as $row) {
                     $manualPDCInputID = $row['manual_pdc_input_id'];
+                    $accountNumber = $row['account_number'];
                     $bankBranch = $row['bank_branch'];
                     $checkDate = $systemModel->checkDate('summary', $row['check_date'], '', 'd-M-Y', '');
                     $checkNumber = $row['check_number'];
@@ -959,6 +962,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $grossAmount = number_format($row['gross_amount'], 2);
 
                     $table .= '<tr>
+                                    <td>'. $accountNumber .'</td>
                                     <td>'. $checkDate .'</td>
                                     <td>'. $grossAmount .'</td>
                                     <td>'. $paymentFor .'</td>

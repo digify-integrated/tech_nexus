@@ -29,7 +29,7 @@
                     <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
                     <?php
                         if($salesProposalStatus == 'Released'){
-                            echo '<li><a class="nav-link" id="sales-proposal-tab-19" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>';
+                            echo '<li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>';
                         }
                     ?>
                 </ul>
@@ -50,17 +50,49 @@
                                     echo '<div class="previous me-2 d-none" id="add-sales-proposal-pdc-manual-input-button">
                                             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
                                         </div>';
+
+                                    echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
+                                        <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
+                                      </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="summary-print-button">
+                                        <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
+                                    </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="online-print-button">
+                                        <a href="online-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
+                                    </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="authorization-print-button">
+                                        <a href="authorization-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
+                                    </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="pn-print-button">
+                                        <a href="pn-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
+                                    </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="disclosure-print-button">
+                                        <a href="disclosure-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
+                                    </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="dr-receipt-print-button">
+                                            <a href="dr-receipt-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-warning me-1" id="dr-receipt-print">Print DR Receipt</a>
+                                        </div>';
                                 }
+
+                                
 
                                 if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
                                     echo '<div class="previous me-2">
                                             <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-tag-as-released-offcanvas" aria-controls="sales-proposal-tag-as-released-offcanvas" >Release</button>
                                         </div>';
                                 }
-                                
-                                echo '<div class="previous me-2 d-none" id="print-button">
+
+                                if($salesProposalStatus == 'Released'){
+                                    echo '<div class="previous me-2 d-none" id="gatepass-print-button">
                                         <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
                                     </div>';
+                                }
                             ?>
                             <div class="previous me-2">
                                 <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
@@ -70,9 +102,9 @@
                             </div>
                         </div>
                         <?php
-                        if($salesProposalStatus != 'Draft'){
+                        if($salesProposalStatus == 'Released'){
                             echo '<div class="last">
-                                    <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Finish</a>
+                                    <a href="javascript:void(0);" id="last-step2" class="btn btn-secondary mt-3 mt-md-0">Last</a>
                                 </div>';
                         }
                         ?>
@@ -1154,6 +1186,7 @@
                             <table id="sales-proposal-pdc-manual-input-table" class="table table-hover nowrap w-100">
                                 <thead>
                                     <tr>
+                                        <th>Account Number</th>
                                         <th>Bank/Branch</th>
                                         <th>Check Date</th>
                                         <th>Check Number</th>
@@ -1358,7 +1391,7 @@
                                             <p class="text-left">NAME OF BUYER</p>
                                         </div>
                                         <div class="col-9 mb-0">
-                                            <p class="text-left"><?php echo $customerName ?></p>
+                                            <p class="text-left"><?php echo strtoupper($customerName); ?></p>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1498,6 +1531,7 @@
                                     </div>
                                     <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
                                         <tr>
+                                            <td>ACCOUNT NUMBER</td>
                                             <td>DUE DATE</td>
                                             <td>AMOUNT DUE</td>
                                             <td>PAYMENT FOR</td>
@@ -1631,6 +1665,82 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <h5 class="text-center"><b>GATE PASS - UNIT</b></h5>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="text-center"><b>NO : <?php echo $drNumber; ?></b></h6>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="text-center"><b>DATE : <?php echo date('d-M-Y'); ?></b></h6>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-lg-12">
+                                    <div class="table-border-style mw-100">
+                                        <div class="table-border-style mw-100">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-xs text-uppercase">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td colspan="2"><small>Customer Name</small></td>
+                                                            <td colspan="3"><small><?php echo $customerName; ?></small></td>
+                                                            <td rowspan="4" class="text-center">
+                                                                <img src="<?php echo $unitImage; ?>" width="100">
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2"><small>Contact Number</small></td>
+                                                            <td colspan="3"><small><?php echo $customerMobile; ?></small></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2"><small>Address</small></td>
+                                                            <td colspan="3"><small><?php echo strtoupper($customerAddress); ?></small></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="2"><small>DR No.</small></td>
+                                                            <td><small><?php echo $drNumber; ?></small></td>
+                                                            <td><small>DR Date</small></td>
+                                                            <td><small><?php echo date('d-M-Y'); ?></small></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="6">
+                                                                <p class="text-center"><small>PARTICULARS</small></p>
+                                                                <?php
+                                                                    if($productType == 'Unit'){
+                                                                        echo '<p class="text-danger"><b><u><small id="unit_id_gatepass"></small></u></b></p>';
+                                                                        }
+                                                                        else{
+                                                                            echo '<p class="text-danger"><b><u><small>'. $productType . $salesProposalNumber .'</small></u></b></p>';
+                                                                        }
+                                                                    ?>
+                                                                    <p><small id="product_description_gatepass"></small></p><br/>
+                                                                    <small class="text-danger">REMINDER:</small><br/>
+                                                                    <small >GATE PASS SHALL ALWAYS BE ACCOMPANIED BY DULY APPROVED DELIVERY RECEIPT</small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                            <td colspan="3" style="vertical-align: top !important;" class="text-nowrap">
+                                                                <small>RELEASED BY:</small><br/><br/><br/>
+                                                                <small>CUSTOMER/AUTHORIZED REPRESENTATIVE</small>
+                                                            </td>
+                                                            <td colspan="2" style="vertical-align: top !important;" class="text-nowrap">
+                                                                <small>RELEASED APPROVED BY:</small><br/><br/><br/>
+                                                                <small>CHRISTIAN EDWARD C. BAGUISA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PAOLO EDUARDO C. BAGUISA</small>
+                                                            </td>
+                                                            <td style="vertical-align: top !important;" class="text-wrap">
+                                                                <small>INSPECTED BY/DATE:</small><br/><br/><br/>
+                                                                <small>GUARD ON DUTY</small>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table><br/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1684,6 +1794,12 @@
                                         <option value="Transfer Fee">Transfer Fee</option>
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="account_number" name="account_number" maxlength="100" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -1763,6 +1879,51 @@
     </div>
 </div>
 
+<div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-deposit-amount-offcanvas" aria-labelledby="sales-proposal-deposit-amount-offcanvas-label">
+    <div class="offcanvas-header">
+      <h2 id="sales-proposal-deposit-amount-offcanvas-label" style="margin-bottom:-0.5rem">Amount of Deposit</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="row">
+      <div class="col-lg-12">
+        <form id="sales-proposal-deposit-amount-form" method="post" action="#">
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label">Deposit Date <span class="text-danger">*</span></label>
+              <input type="hidden" id="sales_proposal_deposit_amount_id" name="sales_proposal_deposit_amount_id">
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off">
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-12">
+              <label class="form-label">Reference Number <span class="text-danger">*</span></label>
+              <input type="text" class="form-control text-uppercase" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-lg-12 mt-3 mt-lg-0">
+              <label class="form-label" for="deposit_amount">Deposit Amount <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="deposit_amount" name="deposit_amount" min="0" step="0.01">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12">
+        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-deposit-amount" form="sales-proposal-deposit-amount-form">Submit</button>
+        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <?php
 function calculateDueDate($startDate, $frequency, $iteration) {

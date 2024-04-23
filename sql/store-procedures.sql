@@ -7797,10 +7797,10 @@ BEGIN
     ORDER BY payment_for asc, check_date asc;
 END //
 
-CREATE PROCEDURE insertSalesProposalManualPDCInput(IN p_sales_proposal_id INT, IN p_bank_branch VARCHAR(200), IN p_check_date DATE, IN p_check_number INT, IN p_payment_for VARCHAR(200), IN p_gross_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalManualPDCInput(IN p_sales_proposal_id INT, IN p_account_number VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_check_date DATE, IN p_check_number INT, IN p_payment_for VARCHAR(200), IN p_gross_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_manual_pdc_input (sales_proposal_id, bank_branch, check_date, check_number, payment_for, gross_amount, last_log_by) 
-	VALUES(p_sales_proposal_id, p_bank_branch, p_check_date, p_check_number, p_payment_for, p_gross_amount, p_last_log_by);
+    INSERT INTO sales_proposal_manual_pdc_input (sales_proposal_id, account_number, bank_branch, check_date, check_number, payment_for, gross_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_account_number, p_bank_branch, p_check_date, p_check_number, p_payment_for, p_gross_amount, p_last_log_by);
 END //
 
 CREATE PROCEDURE checkSalesProposalManualPDCInputExist (IN p_manual_pdc_input_id INT)

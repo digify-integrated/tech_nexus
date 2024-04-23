@@ -66,6 +66,10 @@
                                 <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-cancelled" value="Cancelled" />
                                 <label class="form-check-label" for="sales-proposal-cancelled">Cancelled</label>
                               </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-released" value="Released" />
+                                <label class="form-check-label" for="sales-proposal-released">Released</label>
+                              </div>
                             </div>
                           </div>
                         </div>

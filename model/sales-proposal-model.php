@@ -979,9 +979,10 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalManualPDCInput($p_sales_proposal_id, $p_bank_branch, $p_check_date, $p_check_number, $p_payment_for, $p_gross_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalManualPDCInput(:p_sales_proposal_id, :p_bank_branch, :p_check_date, :p_check_number, :p_payment_for, :p_gross_amount, :p_last_log_by)');
+    public function insertSalesProposalManualPDCInput($p_sales_proposal_id, $p_account_number, $p_bank_branch, $p_check_date, $p_check_number, $p_payment_for, $p_gross_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalManualPDCInput(:p_sales_proposal_id, :p_account_number, :p_bank_branch, :p_check_date, :p_check_number, :p_payment_for, :p_gross_amount, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_INT);
@@ -1625,6 +1626,30 @@ class SalesProposalModel {
         }
 
         return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateForDrSalesProposalOptions
+    # Description: Generates the sales proposal tagged for DR.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateAmortizationSchedule() {
+        $response = '
+        <table border="0.5" width="100%" cellpadding="2" align="center">
+            <thead>
+                <tr>
+                    <th width="33.33%"><b>DUE DATE</b></th>
+                    <th width="33.33%"><b>AMOUNT DUE</b></th>
+                    <th width="33.33%"><b>OUTSTANDING BALANCE</b></th>
+                </tr>
+            </thead>
+            <tbody>';
     }
     # -------------------------------------------------------------
 }

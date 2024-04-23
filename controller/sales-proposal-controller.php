@@ -2243,6 +2243,7 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $paymentFrequency = htmlspecialchars($_POST['pdc_payment_frequency'], ENT_QUOTES, 'UTF-8');
+        $accountNumber = htmlspecialchars($_POST['account_number'], ENT_QUOTES, 'UTF-8');
         $paymentFor = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
         $bankBranch = htmlspecialchars($_POST['bank_branch'], ENT_QUOTES, 'UTF-8');
         $noOfPayments = htmlspecialchars($_POST['no_of_payments'], ENT_QUOTES, 'UTF-8');
@@ -2264,7 +2265,7 @@ class SalesProposalController {
                 $firstCheckNumber = $firstCheckNumber + 1;
             }
 
-            $this->salesProposalModel->insertSalesProposalManualPDCInput($salesProposalID, $bankBranch, $dueDate, $firstCheckNumber, $paymentFor, $amountDue, $userID);
+            $this->salesProposalModel->insertSalesProposalManualPDCInput($salesProposalID, $accountNumber, $bankBranch, $dueDate, $firstCheckNumber, $paymentFor, $amountDue, $userID);
         }
     
         echo json_encode(['success' => true, 'insertRecord' => true]);

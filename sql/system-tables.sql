@@ -5253,3 +5253,13 @@ CREATE INDEX manual_pdc_input_index_manual_pdc_input_id ON sales_proposal_manual
 CREATE INDEX manual_pdc_input_index_sales_proposal_id ON sales_proposal_manual_pdc_input(sales_proposal_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TABLE Lessees (
+    lessee_id INT AUTO_INCREMENT PRIMARY KEY,
+    lessee__name VARCHAR(1000) NOT NULL,
+    phone VARCHAR(20),
+	mobile VARCHAR(20),
+	telephone VARCHAR(20),
+	email VARCHAR(100),
+    date_joined DATE NOT NULL DEFAULT CURRENT_DATE
+);
