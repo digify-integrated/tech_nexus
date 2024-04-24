@@ -117,7 +117,7 @@
             <?php
               if($salesProposalStatus != 'Draft'){
                 echo '<div class="last">
-                        <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Finish</a>
+                        <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Last</a>
                       </div>';
               }
             ?>
@@ -209,7 +209,7 @@
                 <div class="col-lg-8">
                   <select class="form-control select2" name="comaker_id" id="comaker_id">
                     <option value="">--</option>
-                    <?php $customerModel->generateComakerOptions($customerID); ?>
+                    <?php echo $customerModel->generateComakerOptions($customerID); ?>
                   </select>
                 </div>
               </div>
@@ -532,6 +532,16 @@
           </div>
           <div class="tab-pane" id="v-pricing-computation">
             <form id="sales-proposal-pricing-computation-form" method="post" action="#">
+            <?php
+                if($viewSalesProposalProductCost['total'] > 0){
+                  echo '<div class="form-group row">
+                  <label class="col-lg-5 col-form-label">Product Cost :</label>
+                  <div class="col-lg-7">
+                    <label class="col-form-label" id="product_cost_label"></label>
+                  </div>
+                </div>';
+                }
+              ?>
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
                 <div class="col-lg-7">
@@ -1199,6 +1209,26 @@
     </div>
   </div>
 </div>
+
+<?php
+    echo '<div class="row"><div class="col-lg-12">
+            <div class="card">
+              <div class="card-header">
+                <div class="row align-items-center">
+                  <div class="col-sm-6">
+                    <h5>Log Notes</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
+                <div class="card-body p-b-0">
+                  '. $userModel->generateLogNotes('sales_proposal', $salesProposalID) .'
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>';
+  ?>
 
 <div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-offcanvas" aria-labelledby="sales-proposal-job-order-offcanvas-label">

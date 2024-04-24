@@ -78,6 +78,10 @@
                                     echo '<div class="previous me-2 d-none" id="dr-receipt-print-button">
                                             <a href="dr-receipt-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-warning me-1" id="dr-receipt-print">Print DR Receipt</a>
                                         </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="schedule-print-button">
+                                            <a href="schedule-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="dr-receipt-print">Print Schedule</a>
+                                        </div>';
                                 }
 
                                 
@@ -1261,7 +1265,7 @@
                                     <p style="text-align: justify !important;">KUNIN LAMANG PO ANG AMING BANK ACCOUNTS KAY MR. CHRISTIAN EDWARD BAGUISA SA CELLPHONE NO. 0919-062-6563.</p>
                                     <p class="text-danger"><b>TAMANG PARAAN NG PAGBABAYAD SA BANGKO</b></p>
                                     <p style="text-align: justify !important;">ISULAT SA DEPOSIT SLIP, INYONG KOPYA AT KOPYA NG BANGKO, ANG INYONG PANGALAN PARA MAIPROSESO NAMIN NG TAMA ANG INYONG BAYAD.</p>
-                                    <p style="text-align: justify !important;">PAGKATAPOS I-TEXT, PAKI-SCAN AT PAKI-EMAIL ANG DEPOSIT SLIP SA v.reyes@christianmotors.ph SA ARAW NG PAGKAKADEPOSITO O SA SUSUNOD NA ARAW.</p>
+                                    <p style="text-align: justify !important;">PAGKATAPOS I-TEXT, PAKI-SCAN AT PAKI-EMAIL ANG DEPOSIT SLIP SA collections@christianmotors.ph SA ARAW NG PAGKAKADEPOSITO O SA SUSUNOD NA ARAW.</p>
                                     <p style="text-align: justify !important;">PAKITAGO ANG DEPOSIT SLIP AT PAKIDALA ANG ORIHINAL NA KOPYA SA AMING KUMPANYA. MANGHINGI PO NG OFFICIAL RECEIPT SA AMING KAHERA KAPALIT ANG ORIHINAL NA DEPOSIT SLIP.</p>
                                     <p style="text-align: justify !important;">KUNG SAKALI PO NA HINDI KAYO MAKAKAPUNTA SA AMING OPISINA, SIGURADUHIN PO NA ANG INYONG DEPOSIT SLIPS AY NAKATAGO PARA MAGAMIT NA BATAYAN NG INYONG PAGKAKABAYAD SA HINAHARAP.</p>
                                     <p class="text-danger"><b>BABALA</b></p>
@@ -1286,7 +1290,7 @@
                                     <p class="text-danger"><b>PROCEDURES IN MAKING ON-LINE PAYMENTS THRU BANKS</b></p>
                                     <p style="text-align: justify !important;">KINDLY INDICATE IN THE BANK DEPOSIT SLIP, BOTH IN DEPOSITOR’S COPY AND BANK COPY YOUR NAME FOR PROPER POSTING OF PAYMENT.</p>
                                     <p style="text-align: justify !important;">PLEASE TEXT YOUR NAME, NAME OF BANK AND BRANCH WHERE THE ON-LINE DEPOSIT WAS MADE, AMOUNT OF DEPOSIT AND DATE OF PAYMENT TO CELLPHONE NOS. 0916-062-6563/0962-098-4672.</p>
-                                    <p style="text-align: justify !important;">AFTER TEXTING, KINDLY SCAN AND E-MAIL THE DEPOSIT SLIP TO v.reyes@christianmotors.ph ON THE SAME DAY THE DEPOSIT IS MADE OR THE FOLLOWING DAY.</p>
+                                    <p style="text-align: justify !important;">AFTER TEXTING, KINDLY SCAN AND E-MAIL THE DEPOSIT SLIP TO collections@christianmotors.ph ON THE SAME DAY THE DEPOSIT IS MADE OR THE FOLLOWING DAY.</p>
                                     <p style="text-align: justify !important;">KINDLY SAFEKEEP THE BANK DEPOSIT SLIP AND BRING THE ORIGINAL COPY UPON VISIT TO OUR COMPANY. REQUEST THE CORRESPONDING OFFICIAL RECEIPT ONLY TO OUR DESIGNATED CASHIER UPON SURRENDER OF BANK DEPOSIT SLIP.</p>
                                     <p style="text-align: justify !important;">IN CASE YOU WILL NOT BE ABLE TO VISIT OUR COMPANY, PLEASE ENSURE THAT ALL YOUR BANK DEPOSIT SLIPS ARE SAFEKEPT FOR FUTURE REFERENCE.</p>
                                     <p class="text-danger"><b>WARNINGS</b></p>
@@ -1326,8 +1330,8 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <h4 class="text-center fw-8"><b>PROMISSORY NOTE</b></h4>
-                                    <p class="text-left fw-8"><b><?php echo number_format($pnAmount, 2); ?></b></p>
-                                    <p style="text-align: justify !important; font-size:12px;">For value received, I/we jointly and severally promise to pay without need of demand to the order of Christian General Motors Incorporated at its principal office at Km 112, Maharlika Highway, Brgy Hermogenes Concepcion, Cabanatuan City, Nueva Ecija, Philippines, the sum of <b><?php echo strtoupper($amountInWords->format($pnAmount)) . ' PESOS'; ?> <?php echo '(' .number_format($pnAmount, 2) . ')'; ?></b> payable based on the <b>SCHEDULE OF PAYMENTS</b> as stipulated in the <b>Disclosure Statement on Credit Sales Transaction</b> which I/we duly received, agreed and understood.</p>
+                                    <p class="text-left fw-8"><b><?php echo number_format($totalPn, 2); ?></b></p>
+                                    <p style="text-align: justify !important; font-size:12px;">For value received, I/we jointly and severally promise to pay without need of demand to the order of Christian General Motors Incorporated at its principal office at Km 112, Maharlika Highway, Brgy Hermogenes Concepcion, Cabanatuan City, Nueva Ecija, Philippines, the sum of <b><?php echo strtoupper($amountInWords->format($totalPn)) . ' PESOS'; ?> <?php echo '(' .number_format($totalPn, 2) . ')'; ?></b> payable based on the <b>SCHEDULE OF PAYMENTS</b> as stipulated in the <b>Disclosure Statement on Credit Sales Transaction</b> which I/we duly received, agreed and understood.</p>
                                     <p style="text-align: justify !important; font-size:12px;">Time is declared of the essence hereof and in case of default in the payment of any installment due, all the other instalments shall automatically become due and demandable and shall make me liable for the additional sum equivalent to <b>THREE percent (3%) per month</b> based on the total amount due and demandable as penalty, compounded monthly until fully paid; and in case it becomes necessary to collect this note through any Attorney-at-Law, the further sum of <b>TWENTY percent (20%)</b> thereof and <b>ATTORNEY'S FEES of THIRTY percent (30%)</b> of total amount due , exclusive of costs and judicial/extra-judicial expenses; Moreover, I further empower the holder or any of his authorized representative(s), at his option, to hold as security therefore any real or personal property which may be in my possession or control by virtue of any other contract.</p>
                                     <p style="text-align: justify !important; font-size:12px;">In case of extraordinary change in value of the peso due to extraordinary inflation or deflation or any other reason, the basis of payment for this note shall be the value of the peso at the time the obligation was incurred as provided in Article 1250 of the New Civil Code.</p>
                                     <p style="text-align: justify !important; font-size:12px;">DEMAND AND NOTICE OF DISHONOR WAIVED. I hereby waive any diligence, presentment, demand, protests or notice of non-payment or dishonor pertaining to this note, or any extension or renewal therefore. Holder(s) may accept partial payment(s) and grant renewals or extensions of payment reserving its/their rights against each and all indorsers, and all parties to this note. Acceptance by holder(s) of any partial payment(s) after due date shall not be considered as extending the time for payment or as a modification of any conditions hereof.</p>
@@ -1340,7 +1344,7 @@
                                         </div>
                                         <div class="col-2"></div>
                                         <div class="col-5">
-                                            <?php echo strtoupper($comakerLabel); ?>
+                                            <?php echo $comakerLabel; ?>
                                             <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">CO-MAKER</p>
                                         </div>
                                     </div>
@@ -1366,16 +1370,6 @@
                                             <p class="text-center text-uppercase border-top" style="border-color: #000 !important;"></p>
                                         </div>
                                     </div>
-                                    <div class="pagebreak mt-0"></div>
-                                    <p style="text-align: justify !important; font-size:12px;">SUBSCRIBED AND SWORN TO before me this ____ day of ______, 20__, affiants having shown to me their competent evidence of identity as follows:</p>
-                                    <table class="w-100" style=" font-size:12px;">
-                                        <tr class="text-center">
-                                            <td>Name</td>
-                                            <td>Competent Evidence of Identity</td>
-                                            <td>Date/Place Issued</td>
-                                        </tr>
-                                    </table><br/><br/><br/><br/>
-                                    <p style="text-align: justify !important; font-size:12px;">Doc. No. __________<br/>Page No. __________<br/>Book No. __________<br/>Series of __________</p>
                                 </div>
                             </div>
                         </div>
@@ -1407,7 +1401,7 @@
                                             <p class="text-left ">1. TOTAL PRICE OF ITEM PURCHASED</p>
                                         </div>
                                         <div class="col-4">
-                                            <p class="text-end "><?php echo number_format($pnAmount, 2); ?></p>
+                                            <p class="text-end "><?php echo number_format($totalPn2, 2); ?></p>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1468,7 +1462,7 @@
                                         </div>
                                         <div class="col-2"></div>
                                         <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($transactionFee, 2); ?></p>
+                                            <p class="text-start "><?php echo number_format(($transactionFee + $docStampTax), 2); ?></p>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -1531,7 +1525,6 @@
                                     </div>
                                     <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
                                         <tr>
-                                            <td>ACCOUNT NUMBER</td>
                                             <td>DUE DATE</td>
                                             <td>AMOUNT DUE</td>
                                             <td>PAYMENT FOR</td>
@@ -1548,11 +1541,9 @@
                                         <tr>
                                             <td>DUE DATE</td>
                                             <td>AMOUNT DUE</td>
-                                            <td>PAYMENT FOR</td>
                                             <td>OUTSTANDING BALANCE</td>
                                         </tr>
                                     <tr>
-                                        <td>--</td>
                                         <td>--</td>
                                         <td>--</td>
                                         <td><?php echo number_format($pnAmount, 2); ?></td>
@@ -1570,7 +1561,6 @@
                                             echo '<tr>
                                                     <td>'. $dueDate .'</td>
                                                     <td>'. number_format($repaymentAmount, 2) .'</td>
-                                                    <td>ACCT AMORT</td>
                                                     <td>'. number_format($pnAmount, 2) .'</td>
                                                 </tr>';
                                         }
@@ -1665,7 +1655,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row mt-5">
                                 <div class="col-4">
                                     <h5 class="text-center"><b>GATE PASS - UNIT</b></h5>
                                 </div>
@@ -1798,13 +1788,13 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
-                                <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                                <label class="form-label">Account Number </label>
                                 <input type="text" class="form-control text-uppercase" id="account_number" name="account_number" maxlength="100" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
-                                <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
+                                <label class="form-label">Bank/Branch</label>
                                 <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
                             </div>
                         </div>

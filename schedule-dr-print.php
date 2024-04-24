@@ -93,8 +93,22 @@
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;
     
+        if(!empty($comakerName)){
+            $comakerLabel = '<p class="text-center mb-0 text-white"></p>';
+        }
+        else{
+            $comakerLabel = '<p class="text-center mb-0">'. $comakerName .'</p>';
+        }
+    
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
+    
+        if(!empty($comakerName)){
+            $comakerAddressLabel = '<p class="text-center mb-0 text-white"></p>';
+        }
+        else{
+            $comakerAddressLabel = '<p class="text-center mb-0">'. $comakerName .'</p>';
+        }
     
         $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
     
@@ -142,94 +156,18 @@
     $pdf->AddPage();
 
     // Add content
-    $pdf->SetFont('times', '', 10.5);
-    $pdf->MultiCell(0, 0, '<b>DISCLOSURE STATEMENT ON CREDIT SALES TRANSACTION</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(1);
-    $pdf->MultiCell(0, 0, '(As Required under R.A. 3765, Truth in Lending Act)', 0, 'C', 0, 1, '', '', true, 0, false, true, 0);
-    $pdf->Ln(3);
-    $pdf->Cell(40, 8, 'NAME OF BUYER', 0, 0, 'L');
-    $pdf->Cell(120, 8, strtoupper($customerName), 0, 0, 'L');
-    $pdf->Ln(5);
-    $pdf->Cell(40, 8, 'ADDRESS', 0, 0, 'L');
-    $pdf->Cell(130, 8, strtoupper($customerAddress), 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(10);
-    $pdf->Cell(130, 8, '1. TOTAL PRICE OF ITEM PURCHASED', 0, 0, 'L');
-    $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
-    $pdf->Cell(70, 8,  number_format($totalPn, 2), 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(130, 8, '2. DOWNPAYMENT AND/OR TRADE-IN VALUE', 0, 0, 'L');
-    $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
-    $pdf->Cell(70, 8,  number_format($downpayment, 2), 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(130, 8, '3. UNPAID BALANCE OF TOTAL PRICE', 0, 0, 'L');
-    $pdf->Cell(20, 8, 'P   ', 0, 0, 'L');
-    $pdf->Cell(70, 8, number_format($pnAmount, 2), 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(130, 8, '4. OTHER CHARGES (TO BE COLLECTED SEPARATELY TO BUYER)', 0, 0, 'L');
-    $pdf->Cell(70, 8, '', 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'a. Insurance'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($insurancePremium, 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'b. Handling Fee'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($handlingFee, 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'c. Transfer Fee' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($transferFee, 2), 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'd. Miscellaneous/Transaction Fee' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format(($transactionFee + $docStampTax), 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'e. Insurance Renewal' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($totalInsuranceFee, 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'f. Registration Renewal' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($totalRenewalFee, 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, 'TOTAL OTHER CHARGES' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format($totalCharges, 2) , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(130, 8, '5. CONDITIONAL CHARGES MAYBE IMPOSED', 0, 0, 'L');
-    $pdf->Cell(70, 8, '', 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(100, 8, 'a. Late payment penalty of straight 3% per month based on unpaid installments due.' , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, "b. Attorney's fee - 30% of total amount due; liquidated damages- further sum of 20% in addition" , 0, 0, 'L', '', 1);
-    $pdf->Ln(5);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(80, 8, "to costs and other litigation expenses." , 0, 0, 'L', '', 1);
-    $pdf->Ln(8);
-    $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
-    $pdf->Cell(100, 8, "c. Liquidated damages- further sum of 20% in addition to costs and other litigation expenses." , 0, 0, 'L');
-    $pdf->Ln(8);
-    $pdf->Cell(130, 8, '6. OTHER CHARGES', 0, 0, 'L');
+    $pdf->SetFont('times', '', 12);
+    $pdf->Cell(130, 8, 'OTHER CHARGES', 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->writeHTML($othercharges, true, false, true, false, '');
-    $pdf->Cell(130, 8, '7. SCHEDULE OF PAYMENTS', 0, 0, 'L');
+    
+    $pdf->AddPage();
+    $pdf->Cell(130, 8, 'SCHEDULE OF PAYMENTS', 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->writeHTML($amortSched, true, false, true, false, '');
-    $pdf->Ln(2);
-    $pdf->MultiCell(0, 0, "<b>I ACKNOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE CREDIT SALES TRANSACTION AND THAT I UNDERSTAND AND FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.</b>", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(10);
-    $pdf->Cell(185, 4, '', 'B', 0 , 'C');
-    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Ln(5);
-    $pdf->Cell(185, 8, 'SIGNATURE OF BUYER OVER PRINTED NAME', 0, 0, 'C');
-    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Ln(10);
-    $pdf->MultiCell(0, 0, "<b>This is a system-generated Disclosure Statement on Credit Sales Transaction and does not require a signature from Christian General Motors Inc.</b>", 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
 
     // Output the PDF to the browser
-    $pdf->Output('disclosure.pdf', 'I');
+    $pdf->Output('repayment.pdf', 'I');
     ob_flush();
 
 
@@ -237,9 +175,9 @@
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
         <thead>
             <tr>
-                <th width="33.33%"><b>DUE DATE</b></th>
-                <th width="33.33%"><b>AMOUNT DUE</b></th>
-                <th width="33.33%"><b>PAYMENT FOR</b></th>
+                <th width="25%"><b>DUE DATE</b></th>
+                <th width="25%"><b>AMOUNT DUE</b></th>
+                <th width="25%"><b>PAYMENT FOR</b></th>
             </tr>
         </thead>
         <tbody>';

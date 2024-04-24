@@ -83,7 +83,7 @@
             <div class="col-lg-8">
               <select class="form-control select2" name="comaker_id" id="comaker_id">
                 <option value="">--</option>
-                <?php $customerModel->generateComakerOptions($customerID); ?>
+                <?php echo $customerModel->generateComakerOptions($customerID); ?>
               </select>
             </div>
           </div>

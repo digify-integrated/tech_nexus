@@ -156,7 +156,8 @@
     $pdf->SetTextColor(0, 0, 0);
     $pdf->Image($unitImage, 80, 67, 45, 45, $extension, '', '', true, 150, '', false, false, 1, false, false, false);
     $pdf->Ln(5);
-    $pdf->MultiCell(85, 4, $productDescription, 0, 'L', false, 0, '', '', true);
+    $pdf->MultiCell(60, 4, $productDescription, 0, 'L', false, 0, '', '', true);
+    $pdf->MultiCell(20, 4, '', 0, 'L', false, 0, '', '', true);
     $pdf->Cell(35, 4, '', 0, 0, 'L', false);
     $pdf->MultiCell(20, 4, $engineNumber, 0, 'L', false, 0, '', '', true);
     $pdf->Cell(2, 4, '', 0, 0, 'L', false);

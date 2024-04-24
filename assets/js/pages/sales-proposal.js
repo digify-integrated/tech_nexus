@@ -170,6 +170,10 @@
         if($('#sales-proposal-final-approval-form').length){
             salesProposalFinalApprovalForm();
         }
+
+        if($('#sales-proposal-initial-approval-form').length){
+            salesProposalInitalApprovalForm();
+        }
         
         if($('#sales-proposal-reject-form').length){
             salesProposalRejectForm();
@@ -1053,6 +1057,16 @@
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');    
         }
+
+        $(document).on('click','#apply-filter',function() {
+            if($('#sales-proposal-table').length){
+                salesProposalTable('#sales-proposal-table');
+            }
+    
+            if($('#all-sales-proposal-table').length){
+                allSalesProposalTable('#all-sales-proposal-table');
+            }
+        });
     });
 })(jQuery);
 
@@ -1130,12 +1144,12 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'SALES_PROPOSAL_NUMBER' },
         { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
-        { 'data' : 'CREATED_DATE' },
         { 'data' : 'STATUS' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'CREATED_DATE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -1143,10 +1157,10 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '14%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
+        { 'width': '10%', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5},
-        { 'width': '10%', 'aTargets': 6 },
+        { 'width': '15%', 'aTargets': 6 },
         { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
@@ -1171,6 +1185,12 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
+        'searching': true, // Enable searching
+        'search': {
+            'search': '',
+            'placeholder': 'Search...', // Placeholder text for the search input
+            'position': 'top', // Position the search bar to the left
+        },
         'language': {
             'emptyTable': 'No data found',
             'searchPlaceholder': 'Search...',
@@ -4094,12 +4114,6 @@ function salesProposalPDCManualInputForm(){
             payment_for: {
                 required: true
             },
-            account_number: {
-                required: true
-            },
-            bank_branch: {
-                required: true
-            },
             no_of_payments: {
                 required: true
             },
@@ -4117,14 +4131,8 @@ function salesProposalPDCManualInputForm(){
             pdc_payment_frequency: {
                 required: 'Please choose the payment frequency'
             },
-            account_number: {
-                required: 'Please enter the account number'
-            },
             payment_for: {
                 required: 'Please choose the payment for'
-            },
-            bank_branch: {
-                required: 'Please enter the bank/branch'
             },
             no_of_payments: {
                 required: 'Please enter the number of payments'
@@ -5027,6 +5035,10 @@ function displayDetails(transaction){
                             $('#summary-engine-no').text(response.engineNumber);
                             $('#summary-chassis-no').text(response.chassisNumber);
                             $('#summary-plate-no').text(response.plateNumber);
+
+                            if($('#product_cost_label').length){
+                                $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
+                            }
                         } 
                         else {
                             if(response.isInactive){
@@ -5620,10 +5632,18 @@ function traverseTabs(direction) {
         if($('#dr-receipt-print-button').length){
             $('#dr-receipt-print-button').removeClass('d-none');
         }
+
+        if($('#schedule-print-button').length){
+            $('#schedule-print-button').removeClass('d-none');
+        }
     }
     else{
         if($('#dr-receipt-print-button').length){
             $('#dr-receipt-print-button').addClass('d-none');
+        }
+
+        if($('#schedule-print-button').length){
+            $('#schedule-print-button').addClass('d-none');
         }
     }
 

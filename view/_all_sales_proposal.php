@@ -126,12 +126,12 @@
                         <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                       </div>
                     </th>
-                    <th>OS Number</th>
                     <th>Customer</th>
-                    <th>Product Type</th>
                     <th>Stock</th>
-                    <th>Created Date</th>
                     <th>Status</th>
+                    <th>OS Number</th>
+                    <th>Product Type</th>
+                    <th>Created Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>

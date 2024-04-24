@@ -17,8 +17,8 @@
                 <th>Customer</th>
                 <th>Product Type</th>
                 <th>Stock</th>
-                <th>Status</th>
                 <th>For DR Date</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>

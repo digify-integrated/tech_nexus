@@ -1,8 +1,4 @@
 <?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-
-
     // Include TCPDF library
     require('assets/libs/tcpdf2/tcpdf.php');
 
@@ -58,7 +54,7 @@
     $pdf->MultiCell(0, 0, 'PANGALAN PARA MAIPROSESO NAMIN NG TAMA ANG INYONG BAYAD.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'PAGKATAPOS I-TEXT, PAKI-SCAN AT PAKI-EMAIL ANG DEPOSIT SLIP SA', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
-    $pdf->MultiCell(0, 0, 'v.reyes@christianmotors.ph SA ARAW NG PAGKAKADEPOSITO O SA SUSUNOD NA ARAW.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
+    $pdf->MultiCell(0, 0, 'collections@christianmotors.ph SA ARAW NG PAGKAKADEPOSITO O SA SUSUNOD NA ARAW.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'PAKITAGO ANG DEPOSIT SLIP AT PAKIDALA ANG ORIHINAL NA KOPYA SA AMING', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->MultiCell(0, 0, 'KUMPANYA. MANGHINGI PO NG OFFICIAL RECEIPT SA AMING KAHERA KAPALIT ANG ORIHINAL NA DEPOSIT SLIP.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
@@ -116,7 +112,7 @@
     $pdf->MultiCell(0, 0, 'PLEASE TEXT YOUR NAME, NAME OF BANK AND BRANCH WHERE THE ON-LINE DEPOSIT ,', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->MultiCell(0, 0, 'WAS MADE AMOUNT OF DEPOSIT AND DATE OF PAYMENT TO CELLPHONE NOS. 0916-062-6563/0962-098-4672.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'AFTER TEXTING, KINDLY SCAN AND E-MAIL THE DEPOSIT SLIP TO v.reyes@christianmotors.ph', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
+    $pdf->MultiCell(0, 0, 'AFTER TEXTING, KINDLY SCAN AND E-MAIL THE DEPOSIT SLIP TO collections@christianmotors.ph', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->MultiCell(0, 0, 'ON THE SAME DAY THE DEPOSIT IS MADE OR THE FOLLOWING DAY.', 0, 'L', 0, 1, '', '', true, 0, false, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'KINDLY SAFEKEEP THE BANK DEPOSIT SLIP AND BRING THE ORIGINAL COPY UPON VISIT TO OUR COMPANY. REQUEST THE CORRESPONDING OFFICIAL RECEIPT ONLY TO OUR', 0, 'J', 0, 1, '', '', true, 0, false, true, 0);

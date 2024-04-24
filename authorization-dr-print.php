@@ -1,9 +1,4 @@
-<?php
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-
-
-    // Include TCPDF library
+<?php    // Include TCPDF library
     require('assets/libs/tcpdf2/tcpdf.php');
 
     // Create TCPDF instance

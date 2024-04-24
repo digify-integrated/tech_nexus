@@ -1460,6 +1460,25 @@ class SalesProposalModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    # -------------------------------------------------------------
+    #
+    # Function: getSalesProposalAdditionalJobOrderTotal
+    # Description: Retrieves the details of a sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns:
+    # - An array containing the sales proposal details.
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalAmountOfDepositTotal($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getSalesProposalAmountOfDepositTotal(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------

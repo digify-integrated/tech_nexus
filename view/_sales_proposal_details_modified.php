@@ -46,7 +46,7 @@
               </div>
             </div>
             <div class="last">
-              <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Finish</a>
+              <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Last</a>
             </div>
           </div>
           <div id="bar" class="progress mb-3" style="height: 7px;">

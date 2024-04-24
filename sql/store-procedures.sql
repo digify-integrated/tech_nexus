@@ -7614,6 +7614,12 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE getSalesProposalAmountOfDepositTotal(IN p_sales_proposal_id INT)
+BEGIN
+	SELECT SUM(deposit_amount) AS total FROM sales_proposal_deposit_amount
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE generateSalesProposalAdditionalJobOrderTable(IN p_sales_proposal_id INT)
 BEGIN
     SELECT *

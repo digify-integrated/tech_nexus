@@ -28680,7 +28680,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     margin: 0 !important;
     padding: 0 !important;
     left: 0 !important;
-    margin-top: -120% !important;
+    margin-top: -100% !important;
   }
 
   body, html {

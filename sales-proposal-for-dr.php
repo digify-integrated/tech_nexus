@@ -78,7 +78,7 @@
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
     $customerID = $salesProposalDetails['customer_id'];
-    $comakerID = $salesProposalDetails['comaker_id'];
+    $comakerID = $salesProposalDetails['comaker_id'] ?? null;
     $productID = $salesProposalDetails['product_id'] ?? null;
     $productType = $salesProposalDetails['product_type'] ?? null;
     $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -92,16 +92,17 @@
     $createdDate = $systemModel->checkDate('summary', $salesProposalDetails['created_date'], '', 'd-M-Y', '');
 
     $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
-    $pnAmount = $pricingComputationDetails['pn_amount'] ?? 0;
     $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
     $amountFinanced = $pricingComputationDetails['amount_financed'] ?? 0;
     $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
+    $pnAmount = $repaymentAmount * $numberOfPayments;
 
     $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
     $insurancePremium = $otherChargesDetails['insurance_premium'] ?? 0;
     $handlingFee = $otherChargesDetails['handling_fee'] ?? 0;
     $transferFee = $otherChargesDetails['transfer_fee'] ?? 0;
     $transactionFee = $otherChargesDetails['transaction_fee'] ?? 0;
+    $docStampTax = $otherChargesDetails['doc_stamp_tax'] ?? 0;
 
     $renewalAmountDetails = $salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
     $registrationSecondYear = $renewalAmountDetails['registration_second_year'] ?? 0;
@@ -114,7 +115,12 @@
     $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
     $totalInsuranceFee = $registrationSecondYear + $registrationThirdYear + $registrationFourthYear;
 
-    $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee;
+    $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
+        
+    $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
+
+    $totalPn = $pnAmount + $totalCharges + $totalDeposit['total'];
+    $totalPn2 = $pnAmount + $totalDeposit['total'];
 
     $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 
@@ -122,34 +128,28 @@
     $customerName = strtoupper($customerDetails['file_as']) ?? null;
 
     $comakerDetails = $customerModel->getPersonalInformation($comakerID);
-    $comakerName = strtoupper($comakerDetails['file_as']) ?? null;
+    $comakerName = $comakerDetails['file_as'] ?? null;
 
     if(!empty($comakerName)){
-        $comakerLabel = '<p class="text-center mb-0 text-white"></p>';
+        $comakerLabel = '<p class="text-center mb-0">'. strtoupper($comakerName) .'</p>';
     }
     else{
-        $comakerLabel = '<p class="text-center mb-0">'. $comakerName .'</p>';
+      $comakerLabel = '';
     }
 
     $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
     $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
 
-    if(!empty($comakerName)){
-        $comakerAddressLabel = '<p class="text-center mb-0 text-white"></p>';
-    }
-    else{
-        $comakerAddressLabel = '<p class="text-center mb-0">'. $comakerName .'</p>';
-    }
+   
 
     $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
-
-    if(!empty($comakerPrimaryAddress['address'])){
-      $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
+    
+    if(!empty($comakerName)){
+      $comakerAddressLabel = '<small class="text-left mb-0">'.  $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'] .'</small>';
     }
     else{
-      $comakerAddress = '';
+      $comakerAddressLabel = '';
     }
-    
 
     $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
     $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';

@@ -962,7 +962,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $grossAmount = number_format($row['gross_amount'], 2);
 
                     $table .= '<tr>
-                                    <td>'. $accountNumber .'</td>
                                     <td>'. $checkDate .'</td>
                                     <td>'. $grossAmount .'</td>
                                     <td>'. $paymentFor .'</td>
