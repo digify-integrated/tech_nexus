@@ -1225,6 +1225,26 @@ class CustomerModel {
 
     # -------------------------------------------------------------
     #
+    # Function: checkCustomerNameExist
+    # Description: Checks if a customer exists.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkCustomerNameExist($p_first_name, $p_last_name) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkCustomerNameExist(:p_first_name, :p_last_name)');
+        $stmt->bindValue(':p_first_name', $p_first_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_name', $p_last_name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: checkPersonalInformationExist
     # Description: Checks if a personal information exists.
     #

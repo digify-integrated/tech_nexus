@@ -6876,6 +6876,13 @@ BEGIN
     WHERE contact_id = p_contact_id AND is_customer = 1;
 END //
 
+CREATE PROCEDURE checkCustomerNameExist (IN p_first_name VARCHAR(300), IN p_last_name VARCHAR(300))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM personal_information
+    WHERE first_name = p_first_name AND last_name = p_last_name;
+END //
+
 CREATE PROCEDURE checkCustomerPrimaryAddress (IN p_contact_id INT)
 BEGIN
 	SELECT COUNT(*) AS total

@@ -84,10 +84,6 @@
             if($('#sales-proposal-pricing-computation-form').length){
                 salesProposalPricingComputationForm();
             }
-    
-            if($('#sales-proposal-renewal-amount-form').length){
-                salesProposalRenewalAmountForm();
-            }
         }
         else{
             if($('#sales-proposal-form').length){
@@ -113,10 +109,6 @@
             if($('#sales-proposal-pricing-computation-form').length){
                 disableFormAndSelect2('sales-proposal-pricing-computation-form');
             }
-    
-            if($('#sales-proposal-renewal-amount-form').length){
-                disableFormAndSelect2('sales-proposal-renewal-amount-form');
-            }
         }
 
         if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
@@ -127,6 +119,10 @@
             if($('#sales-proposal-deposit-amount-form').length){
                 salesProposalDepositAmountForm();
             }
+    
+            if($('#sales-proposal-renewal-amount-form').length){
+                salesProposalRenewalAmountForm();
+            }
         }
         else{
             if($('#sales-proposal-other-charges-form').length){
@@ -135,6 +131,10 @@
     
             if($('#sales-proposal-deposit-amount-form').length){
                 disableFormAndSelect2('sales-proposal-deposit-amount-form');
+            }
+    
+            if($('#sales-proposal-renewal-amount-form').length){
+                disableFormAndSelect2('sales-proposal-renewal-amount-form');
             }
         }
 
@@ -4441,6 +4441,7 @@ function displayDetails(transaction){
                         $('#summary-remarks').text(response.remarks);
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
+                        $('#summary-created-by').text(response.createdByName);
                     } 
                     else {
                         if(response.isInactive){
@@ -5387,13 +5388,6 @@ function traverseTabs(direction) {
                 return;
             }
         }
-        else if (currentIndex == 7 && direction === 'next') {
-            if ($('#sales-proposal-renewal-amount-form').valid()) {
-                $('#sales-proposal-renewal-amount-form').submit();
-            } else {
-                return;
-            }
-        }
 
         if (nextIndex == 4) {
             if($('#add-sales-proposal-job-order-button').length){
@@ -5424,6 +5418,14 @@ function traverseTabs(direction) {
         else{
             if($('#add-sales-proposal-deposit-amount-button').length){
                 $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
+            }
+        }
+        
+        if (currentIndex == 7 && direction === 'next') {
+            if ($('#sales-proposal-renewal-amount-form').valid()) {
+                $('#sales-proposal-renewal-amount-form').submit();
+            } else {
+                return;
             }
         }
     }

@@ -36,7 +36,13 @@
                     </div>';
                     }
                   }
+
+                  echo '<div class="previous me-2 d-none" id="add-sales-proposal-additional-job-order-button">
+                    <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>
+                  </div>';
                 }
+
+               
               ?>
               <div class="previous me-2">
                 <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>

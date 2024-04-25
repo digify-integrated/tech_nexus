@@ -2566,6 +2566,7 @@ class SalesProposalController {
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
+                'comakerID' => $salesProposalDetails['comaker_id'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'initialApprovingOfficerName' => $initialApprovingOfficerName,
                 'finalApprovingOfficerName' => $finalApprovingOfficerName,
@@ -2584,6 +2585,7 @@ class SalesProposalController {
                 'remarks' => $salesProposalDetails['remarks'],
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
+                'createdByName' => $createdByName,
             ];
 
             echo json_encode($response);

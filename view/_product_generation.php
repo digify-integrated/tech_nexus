@@ -115,7 +115,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'productCard' => '<div class="col-md-3">
                                             <div class="card product-card">
                                                 <div class="card-img-top">
-                                                    <a href="product.php?id='. $productIDEncrypted .'"">
+                                                    <a href="product.php?id='. $productIDEncrypted .'">
                                                         <img src="'. $productImage .'" alt="image" class="img-prod img-fluid w-100" />
                                                     </a>
                                                     <div class="card-body position-absolute end-0 top-0">
@@ -130,7 +130,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     '. $delete .'
                                                 </div>
                                                 <div class="card-body">
-                                                    <a href="product.php?id='. $productIDEncrypted .'"">
+                                                    <a href="product.php?id='. $productIDEncrypted .'">
                                                         <div class="d-flex align-items-center justify-content-between mt-2">
                                                             <h5 class="mb-0 text-truncate text-primary"><b>'. $description .'</b></h5>
                                                         </div>

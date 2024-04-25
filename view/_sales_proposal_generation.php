@@ -127,10 +127,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $viewOwnSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 131);
 
                 if($viewOwnSalesProposal['total'] > 0){
-                    $contactID = $_SESSION['contact_id'];
+                    $userID = $_SESSION['user_id'];
 
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :salesProposalStatusFilter)');
-                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_STR);
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:userID, :salesProposalStatusFilter)');
+                    $sql->bindValue(':userID', $userID, PDO::PARAM_STR);
                 }
                 else{
                     $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:salesProposalStatusFilter)');

@@ -161,7 +161,7 @@
           else if($importRecord && $importProduct['total'] > 0){
             require_once('view/_product_import.php');
           }
-          else if(!empty($productID) && $productWriteAccess['total'] > 0){
+          else if(!empty($productID)){
             require_once('view/_product_details.php');
           }
           else{

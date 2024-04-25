@@ -1318,6 +1318,14 @@ class CustomerController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
+
+        $checkCustomerNameExist = $this->customerModel->checkCustomerNameExist($firstName, $lastName);
+        $total = $checkCustomerNameExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            echo json_encode(['success' => false, 'customerNameExist' => true]);
+            exit;
+        } 
     
         $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
         $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);

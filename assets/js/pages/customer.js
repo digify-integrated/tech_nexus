@@ -1223,6 +1223,9 @@ function addCustomerForm(){
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
                         }
+                        else if (response.customerNameExist) {
+                            showNotification('Insert Customer Error', 'The customer name already exist.', 'danger');
+                        }
                         else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
