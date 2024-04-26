@@ -14,7 +14,8 @@
           <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false" disabled>Amount of Deposit</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
           <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
+          <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
         </ul>
       </div>
     </div>
@@ -95,7 +96,7 @@
                       </div>';
                 }
 
-                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && $productType == 'Refinancing')){
+                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Fuel'))){
                   if($tagSalesProposalForDR['total'] > 0){
                     echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
                             <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>
@@ -914,6 +915,44 @@
                     </ul>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="v-remarks">
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Initial Approval Remarks :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="initial_approval_remarks_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Final Approval Remarks :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="final_approval_remarks_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Release Remarks :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="release_remarks_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Set To Draft Reason :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="set_to_draft_reason_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Rejection Reason :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="rejection_reason_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Cancellation Reason :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="cancellation_reason_label"></label>
               </div>
             </div>
           </div>

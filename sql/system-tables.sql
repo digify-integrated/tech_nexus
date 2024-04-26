@@ -5254,12 +5254,31 @@ CREATE INDEX manual_pdc_input_index_sales_proposal_id ON sales_proposal_manual_p
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
-CREATE TABLE Lessees (
-    lessee_id INT AUTO_INCREMENT PRIMARY KEY,
-    lessee__name VARCHAR(1000) NOT NULL,
-    phone VARCHAR(20),
+/*  Table */
+
+CREATE TABLE tenant(
+	tenant_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	tenant_name VARCHAR(1000) NOT NULL,
+	address VARCHAR(1000) NOT NULL,
+	city_id INT NOT NULL,
+	phone VARCHAR(20),
 	mobile VARCHAR(20),
 	telephone VARCHAR(20),
 	email VARCHAR(100),
-    date_joined DATE NOT NULL DEFAULT CURRENT_DATE
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Properties */
+
+CREATE TABLE property (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_name VARCHAR(500) NOT NULL,
+    address VARCHAR(1000) NOT NULL,
+	city_id INT NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL
+);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

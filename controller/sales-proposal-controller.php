@@ -1354,12 +1354,12 @@ class SalesProposalController {
         $customerName = strtoupper($customerDetails['file_as'] ?? null);
 
         $productDetails = $this->productModel->getProduct($productID);
-        $productSubategoryID = $productDetails['product_subcategory_id'];
+        $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
 
         $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
         $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
 
-        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
         $fullStockNumber = $productSubcategoryCode . $stockNumber;
         
         $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
@@ -2566,6 +2566,12 @@ class SalesProposalController {
                 'financingInstitution' => $salesProposalDetails['financing_institution'] ?? null,
                 'renewalTag' => $salesProposalDetails['renewal_tag'] ?? null,
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
+                'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'] ?? null,
+                'finalApprovalRemarks' => $salesProposalDetails['final_approval_remarks'] ?? null,
+                'rejectionReason' => $salesProposalDetails['rejection_reason'] ?? null,
+                'cancellationReason' => $salesProposalDetails['cancellation_reason'] ?? null,
+                'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'] ?? null,
+                'releaseRemarks' => $salesProposalDetails['release_remarks'] ?? null,
                 'comakerID' => $salesProposalDetails['comaker_id'] ?? null,
                 'initialApprovalByName' => $initialApprovalByName,
                 'initialApprovingOfficerName' => $initialApprovingOfficerName,

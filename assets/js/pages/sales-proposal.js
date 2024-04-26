@@ -4442,6 +4442,13 @@ function displayDetails(transaction){
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
                         $('#summary-final-approval-by').text(response.finalApprovingOfficerName);
                         $('#summary-created-by').text(response.createdByName);
+
+                        $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
+                        $('#final_approval_remarks_label').text(response.finalApprovalRemarks);
+                        $('#rejection_reason_label').text(response.rejectionReason);
+                        $('#cancellation_reason_label').text(response.cancellationReason);
+                        $('#set_to_draft_reason_label').text(response.setToDraftReason);
+                        $('#release_remarks_label').text(response.releaseRemarks);
                     } 
                     else {
                         if(response.isInactive){
@@ -4794,9 +4801,18 @@ function displayDetails(transaction){
                         $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYear).toLocaleString("en-US"));
                         $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYear).toLocaleString("en-US"));
                         $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYear).toLocaleString("en-US"));
+                        var product_category = $('#product_category').val();
+
 
                         if(response.insurancePremiumSecondYear > 0){
                             $('#compute_second_year').prop('checked', true);
+
+                            if(product_category != '1' && product_category != '2'){
+                                $('#insurance_premium_second_year').attr('readonly', false); 
+                            }
+                            else{
+                                $('#insurance_premium_second_year').attr('readonly', true); 
+                            }
                         }
                         else{
                             $('#compute_second_year').prop('checked', false);
@@ -4804,6 +4820,13 @@ function displayDetails(transaction){
 
                         if(response.insurancePremiumThirdYear > 0){
                             $('#compute_third_year').prop('checked', true);
+
+                            if(product_category != '1' && product_category != '2'){
+                                $('#insurance_premium_third_year').attr('readonly', false); 
+                            }
+                            else{
+                                $('#insurance_premium_third_year').attr('readonly', true); 
+                            }
                         }
                         else{
                             $('#compute_third_year').prop('checked', false);
@@ -4811,6 +4834,13 @@ function displayDetails(transaction){
 
                         if(response.insurancePremiumFourthYear > 0){
                             $('#compute_fourth_year').prop('checked', true);
+
+                            if(product_category != '1' && product_category != '2'){
+                                $('#insurance_premium_fourth_year').attr('readonly', false); 
+                            }
+                            else{
+                                $('#insurance_premium_fourth_year').attr('readonly', true); 
+                            }
                         }
                         else{
                             $('#compute_fourth_year').prop('checked', false);
@@ -5233,7 +5263,7 @@ function calculateTotalOtherCharges(){
 
 function calculateRenewalAmount(){
     var product_category = $('#product_category').val();
-    var delivery_price = parseFloat($("#delivery_price").val()) || 0;
+    var delivery_price = parseFloat($('#delivery_price').val()) || 0;
 
     if(delivery_price > 0){
         var second_year_coverage = delivery_price * 0.8;
@@ -5255,11 +5285,14 @@ function calculateRenewalAmount(){
             }
             else{
                 $('#insurance_premium_second_year').val(0);
+                $('#insurance_premium_second_year').attr('readonly', false); 
             }
         }
         else{
             $('#insurance_coverage_second_year').val(0);
             $('#insurance_premium_second_year').val(0);
+            
+            $('#insurance_premium_second_year').attr('readonly', true); 
         }
     
         if($('#compute_third_year').is(':checked')) {
@@ -5277,11 +5310,13 @@ function calculateRenewalAmount(){
             }
             else{
                 $('#insurance_premium_third_year').val(0);
+                $('#insurance_premium_third_year').attr('readonly', false); 
             }
         }
         else{
             $('#insurance_coverage_third_year').val(0);
             $('#insurance_premium_third_year').val(0);
+            $('#insurance_premium_third_year').attr('readonly', true); 
         }
     
         if($('#compute_fourth_year').is(':checked')) {
@@ -5299,11 +5334,13 @@ function calculateRenewalAmount(){
             }
             else{
                 $('#insurance_premium_fourth_year').val(0);
+                $('#insurance_premium_fourth_year').attr('readonly', false); 
             }
         }
         else{
             $('#insurance_coverage_fourth_year').val(0);
             $('#insurance_premium_fourth_year').val(0);
+            $('#insurance_premium_fourth_year').attr('readonly', true); 
         }
     }
     else{
@@ -5471,7 +5508,7 @@ function traverseTabs(direction) {
     }
 
     if($('#sales-proposal-tab-12').length){
-        if (nextIndex == 11) {
+        if (nextIndex == 12) {
             if($('#tag-for-initial-approval-button').length){
                 $('#tag-for-initial-approval-button').removeClass('d-none');
             }
@@ -5506,6 +5543,10 @@ function traverseTabs(direction) {
     
             if($('#for-dr-sales-proposal-button').length){
                 $('#for-dr-sales-proposal-button').removeClass('d-none');
+            }
+
+            if($('#print-button').length){
+                $('#print-button').removeClass('d-none');
             }
         }
         else{

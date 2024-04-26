@@ -128,9 +128,11 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 if($viewOwnSalesProposal['total'] > 0){
                     $userID = $_SESSION['user_id'];
+                    $contactID = $_SESSION['contact_id'];
 
-                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:userID, :salesProposalStatusFilter)');
-                    $sql->bindValue(':userID', $userID, PDO::PARAM_STR);
+                    $sql = $databaseModel->getConnection()->prepare('CALL generateOwnSalesProposalTable(:contactID, :userID, :salesProposalStatusFilter)');
+                    $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+                    $sql->bindValue(':userID', $userID, PDO::PARAM_INT);
                 }
                 else{
                     $sql = $databaseModel->getConnection()->prepare('CALL generateAllSalesProposalTable(:salesProposalStatusFilter)');

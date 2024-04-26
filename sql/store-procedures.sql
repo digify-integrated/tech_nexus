@@ -7411,7 +7411,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_sales_proposal_status VARCHAR(50))
+CREATE PROCEDURE generateOwnSalesProposalTable(IN p_contact_id INT, IN p_user_id INT, IN p_sales_proposal_status VARCHAR(50))
 BEGIN
     DECLARE query VARCHAR(1000);
     DECLARE conditionList VARCHAR(500);
@@ -7421,6 +7421,8 @@ BEGIN
     SET conditionList = '';
     SET conditionList = CONCAT(conditionList, ' WHERE created_by =');
     SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' OR created_by =');
+    SET conditionList = CONCAT(conditionList, p_user_id);
 
     IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
         SET conditionList = CONCAT(conditionList, ' AND sales_proposal_status =');
@@ -7442,7 +7444,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type != 'Refinancing';
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -7924,3 +7926,61 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Tenant Table Stored Procedures */
+
+CREATE PROCEDURE checkTenantExist (IN p_tenant_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM tenant
+    WHERE tenant_id = p_tenant_id;
+END //
+
+CREATE PROCEDURE insertTenant(IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_tax_id VARCHAR(500), IN p_currency_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT, OUT p_tenant_id INT)
+BEGIN
+    INSERT INTO tenant (tenant_name, address, city_id, tax_id, currency_id, phone, mobile, telephone, email, website, last_log_by) 
+	VALUES(p_tenant_name, p_address, p_city_id, p_tax_id, p_currency_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+	
+    SET p_tenant_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateTenant(IN p_tenant_id INT, IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_tax_id VARCHAR(500), IN p_currency_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE tenant
+    SET tenant_name = p_tenant_name,
+    tenant_name = p_tenant_name,
+    address = p_address,
+    city_id = p_city_id,
+    tax_id = p_tax_id,
+    currency_id = p_currency_id,
+    phone = p_phone,
+    mobile = p_mobile,
+    telephone = p_telephone,
+    email = p_email,
+    website = p_website,
+    last_log_by = p_last_log_by
+    WHERE tenant_id = p_tenant_id;
+END //
+
+CREATE PROCEDURE deleteTenant(IN p_tenant_id INT)
+BEGIN
+	DELETE FROM tenant
+    WHERE tenant_id = p_tenant_id;
+END //
+
+CREATE PROCEDURE getTenant(IN p_tenant_id INT)
+BEGIN
+	SELECT * FROM tenant
+    WHERE tenant_id = p_tenant_id;
+END //
+
+CREATE PROCEDURE generateTenantTable()
+BEGIN
+   SELECT tenant_id, tenant_name, address, city_id FROM tenant;
+END //
+
+CREATE PROCEDURE generateTenantOptions()
+BEGIN
+	SELECT tenant_id, tenant_name FROM tenant
+	ORDER BY tenant_name;
+END //
