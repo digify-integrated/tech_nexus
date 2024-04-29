@@ -2538,7 +2538,7 @@ class SalesProposalController {
             $initialApprovalBy = $salesProposalDetails['initial_approval_by'];
             $approvalBy = $salesProposalDetails['approval_by'];
 
-            $createdByDetails = $this->customerModel->getPersonalInformation($salesProposalDetails['created_by']);
+            $createdByDetails = $this->userModel->getUserByID($salesProposalDetails['created_by']);
             $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
 
             $productDetails = $this->productModel->getProduct($productID);

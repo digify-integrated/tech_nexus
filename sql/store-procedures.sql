@@ -7936,28 +7936,25 @@ BEGIN
     WHERE tenant_id = p_tenant_id;
 END //
 
-CREATE PROCEDURE insertTenant(IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_tax_id VARCHAR(500), IN p_currency_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT, OUT p_tenant_id INT)
+CREATE PROCEDURE insertTenant(IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT, OUT p_tenant_id INT)
 BEGIN
-    INSERT INTO tenant (tenant_name, address, city_id, tax_id, currency_id, phone, mobile, telephone, email, website, last_log_by) 
-	VALUES(p_tenant_name, p_address, p_city_id, p_tax_id, p_currency_id, p_phone, p_mobile, p_telephone, p_email, p_website, p_last_log_by);
+    INSERT INTO tenant (tenant_name, address, city_id, phone, mobile, telephone, email, last_log_by) 
+	VALUES(p_tenant_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_last_log_by);
 	
     SET p_tenant_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateTenant(IN p_tenant_id INT, IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_tax_id VARCHAR(500), IN p_currency_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_website VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateTenant(IN p_tenant_id INT, IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE tenant
     SET tenant_name = p_tenant_name,
     tenant_name = p_tenant_name,
     address = p_address,
     city_id = p_city_id,
-    tax_id = p_tax_id,
-    currency_id = p_currency_id,
     phone = p_phone,
     mobile = p_mobile,
     telephone = p_telephone,
     email = p_email,
-    website = p_website,
     last_log_by = p_last_log_by
     WHERE tenant_id = p_tenant_id;
 END //
@@ -7983,4 +7980,107 @@ CREATE PROCEDURE generateTenantOptions()
 BEGIN
 	SELECT tenant_id, tenant_name FROM tenant
 	ORDER BY tenant_name;
+END //
+
+/* Property Table Stored Procedures */
+
+CREATE PROCEDURE checkPropertyExist (IN p_property_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM property
+    WHERE property_id = p_property_id;
+END //
+
+CREATE PROCEDURE insertProperty(IN p_property_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT, OUT p_property_id INT)
+BEGIN
+    INSERT INTO property (property_name, address, city_id, last_log_by) 
+	VALUES(p_property_name, p_address, p_city_id, p_last_log_by);
+	
+    SET p_property_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateProperty(IN p_property_id INT, IN p_property_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT)
+BEGIN
+	UPDATE property
+    SET property_name = p_property_name,
+    property_name = p_property_name,
+    address = p_address,
+    city_id = p_city_id,
+    last_log_by = p_last_log_by
+    WHERE property_id = p_property_id;
+END //
+
+CREATE PROCEDURE deleteProperty(IN p_property_id INT)
+BEGIN
+	DELETE FROM property
+    WHERE property_id = p_property_id;
+END //
+
+CREATE PROCEDURE getProperty(IN p_property_id INT)
+BEGIN
+	SELECT * FROM property
+    WHERE property_id = p_property_id;
+END //
+
+CREATE PROCEDURE generatePropertyTable()
+BEGIN
+   SELECT property_id, property_name, address, city_id FROM property;
+END //
+
+CREATE PROCEDURE generatePropertyOptions()
+BEGIN
+	SELECT property_id, property_name FROM property
+	ORDER BY property_name;
+END //
+
+/* Leasing Application Table Stored Procedures */
+
+CREATE PROCEDURE checkLeasinApplicationExist (IN p_leasing_application_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leasing_application
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE insertLeasingApplication(IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_last_log_by INT, OUT p_leasing_application_id INT)
+BEGIN
+    INSERT INTO leasing_application (leasing_application_name, address, city_id, last_log_by) 
+	VALUES(p_leasing_application_name, p_address, p_city_id, p_last_log_by);
+	
+    SET p_leasing_application_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLeasingApplication(IN p_leasing_application_id INT, IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE leasing_application
+    SET tenant_id = p_tenant_id,
+    property_id = p_property_id,
+    term_length = p_term_length,
+    term_type = p_term_type,
+    payment_frequency = p_payment_frequency,
+    start_date = p_start_date,
+    maturity_date = p_maturity_date,
+    security_deposit = p_security_deposit,
+    floor_area = p_floor_area,
+    initial_basic_rental = p_initial_basic_rental,
+    escalation_rate = p_escalation_rate,
+    last_log_by = p_last_log_by
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE deleteLeasingApplication(IN p_leasing_application_id INT)
+BEGIN
+	DELETE FROM leasing_application
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE getLeasingApplication(IN p_leasing_application_id INT)
+BEGIN
+	SELECT * FROM leasing_application
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE generateLeasingApplicationTable()
+BEGIN
+   SELECT leasing_application_id, leasing_application_name, address, city_id FROM leasing_application;
 END //

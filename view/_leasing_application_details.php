@@ -3,19 +3,10 @@
     <div class="card">
       <div class="card-body">
         <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-          <li><a class="nav-link active" id="sales-proposal-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true" disabled>Basic Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-2" data-bs-toggle="pill" href="#v-unit-details" role="tab" aria-controls="v-unit-details" aria-selected="false" disabled>Unit Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-3" data-bs-toggle="pill" href="#v-fuel-details" role="tab" aria-controls="v-fuel-details" aria-selected="false" disabled>Fuel Details</a></li>
-          <li><a class="nav-link d-none" id="sales-proposal-tab-4" data-bs-toggle="pill" href="#v-refinancing-details" role="tab" aria-controls="v-refinancing-details" aria-selected="false" disabled>Refinancing Details</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-5" data-bs-toggle="pill" href="#v-job-order" role="tab" aria-controls="v-job-order" aria-selected="false" disabled>Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-6" data-bs-toggle="pill" href="#v-pricing-computation" role="tab" aria-controls="v-pricing-computation" aria-selected="false" disabled>Pricing Computation</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-7" data-bs-toggle="pill" href="#v-other-charges" role="tab" aria-controls="v-other-charges" aria-selected="false" disabled>Other Charges</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-8" data-bs-toggle="pill" href="#v-renewal-amount" role="tab" aria-controls="v-renewal-amount" aria-selected="false" disabled>Renewal Amount</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-9" data-bs-toggle="pill" href="#v-amount-of-deposit" role="tab" aria-controls="v-amount-of-deposit" aria-selected="false" disabled>Amount of Deposit</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
-          <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
+          <li><a class="nav-link active" id="leasing-application-tab-1" data-bs-toggle="pill" href="#v-basic-details" role="tab" aria-controls="v-basic-details" aria-selected="true" disabled>Basic Details</a></li>
+          <li><a class="nav-link" id="leasing-application-tab-2" data-bs-toggle="pill" href="#v-contact" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Contract</a></li>
+          <li><a class="nav-link" id="leasing-application-tab-3" data-bs-toggle="pill" href="#v-remarks" role="tab" aria-controls="v-remarks" aria-selected="false" disabled>Remarks</a></li>
+          <li><a class="nav-link" id="leasing-application-tab-4" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
         </ul>
       </div>
     </div>
@@ -30,83 +21,30 @@
             </div>
             <div class="d-flex">
               <?php
-                if($salesProposalStatus == 'Draft'){
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-job-order-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
-                          </div>';
-
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
-                          </div>';
-                }
-
-                if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Ready For Release' && $salesProposalStatus != 'Released'){
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-additional-job-order-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>
-                          </div>';
-                }
-
-                if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="tag-for-initial-approval-button">
-                          <button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>
+               
+                if($leasingApplicationStatus == 'Draft' && $forInitialApproval['total'] > 0){
+                  echo '<div class="previous me-2 d-none" id="tag-for-approval-button">
+                          <button class="btn btn-primary" id="tag-for-approval">For Approval</button>
                         </div>';
                 }
 
-                if($salesProposalStatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-initial-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>
+                if($leasingApplicationStatus == 'For Approval' && $approveLeasingApplication['total'] > 0){
+                  echo '<div class="previous me-2 d-none" id="leasing-application-approval-button">
+                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-approval-offcanvas" aria-controls="leasing-application-approval-offcanvas" id="leasing-application-approval">Approve</button>
                         </div>';
                 }
 
-                if(($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id){
-                  if($transactionType == 'COD' || $transactionType == 'Installment Sales' || ($transactionType == 'Bank Financing' && !empty($creditAdvice))){
-                    echo '<div class="previous me-2 d-none" id="sales-proposal-final-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>
-                        </div>';
-                  }
+                if($leasingApplicationStatus == 'For Approval' && $rejectLeasingApplication['total'] > 0){
+                    echo '<div class="previous me-2 d-none" id="leasing-application-reject-button">
+                                <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-reject-offcanvas" aria-controls="leasing-application-reject-offcanvas" id="leasing-application-reject">Reject</button>
+                            </div>';
                 }
 
-                if((($salesProposalStatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-reject-button">
-                            <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>
+                if($leasingApplicationStatus == 'Draft' && $cancelLeasingApplication['total'] > 0){
+                  echo '<div class="previous me-2 d-none" id="leasing-application-cancel-button">
+                          <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-cancel-offcanvas" aria-controls="leasing-application-cancel-offcanvas" id="leasing-application-cancel">Cancel</button>
                         </div>';
                 }
-
-                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-cancel-button">
-                          <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>
-                        </div>';
-                }
-
-                if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="for-ci-sales-proposal-button">
-                          <button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>
-                        </div>';
-                }
-
-                if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus != 'Released')){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-set-to-draft-button">
-                          <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>
-                      </div>';
-                }
-
-                if(($salesProposalStatus == 'For CI' || ($salesProposalStatus == 'Proceed' && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
-                  echo '<div class="previous me-2 d-none" id="complete-ci-button">
-                          <button class="btn btn-info" id="complete-ci">Complete CI</button>
-                      </div>';
-                }
-
-                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Fuel'))){
-                  if($tagSalesProposalForDR['total'] > 0){
-                    echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
-                            <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>
-                        </div>';
-                  }
-                }
-
-                echo '<div class="previous me-2 d-none" id="print-button">
-                          <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
-                      </div>';
               ?>
               <div class="previous me-2">
                 <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
@@ -116,7 +54,7 @@
               </div>
             </div>
             <?php
-              if($salesProposalStatus != 'Draft'){
+              if($leasingApplicationStatus != 'Draft'){
                 echo '<div class="last">
                         <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Last</a>
                       </div>';
@@ -127,638 +65,117 @@
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
           </div>
           <div class="tab-pane show active" id="v-basic-details">
-            <form id="sales-proposal-form" method="post" action="#">
-              <input type="hidden" id="sales_proposal_status" value="<?php echo $salesProposalStatus; ?>">
-              <input type="hidden" id="sales_proposal_type" value="details">
+            <form id="leasing-application-form" method="post" action="#">
+              <input type="hidden" id="leasing_application_status" value="<?php echo $leasingApplicationStatus; ?>">
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Sales Proposal Number :</label>
-                <label class="col-lg-8 col-form-label" id="sales_proposal_number">--</label>
+                <label class="col-lg-4 col-form-label">Leasing Application Number :</label>
+                <label class="col-lg-8 col-form-label" id="leasing_application_number">--</label>
               </div>
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Sales Proposal Status :</label>
+                <label class="col-lg-4 col-form-label">Leasing Application Status :</label>
                 <div class="col-lg-8 mt-3">
-                  <?php echo $salesProposalStatusBadge; ?>
+                  <?php echo $leasingApplicationStatusBadge; ?>
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Client ID :</label>
-                <label class="col-lg-8 col-form-label" id="customer-id"> <?php echo $customerID; ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Client Name :</label>
-                <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerName); ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Address :</label>
-                <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerAddress); ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Email :</label>
-                <label class="col-lg-8 col-form-label"> <?php echo strtoupper($customerEmail); ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Mobile :</label>
-                <label class="col-lg-8 col-form-label"> <?php echo $customerMobile; ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Telephone :</label>
-                <label class="col-lg-8 col-form-label"> <?php echo $customerTelephone; ?></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="renewal_tag" id="renewal_tag">
-                    <option value="">--</option>
-                    <option value="New">New</option>
-                    <option value="Renewal">Renewal</option>
-                  </select>
+                    <label class="col-lg-4 col-form-label">Renewal Tag : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <select class="form-control select2" name="renewal_tag" id="renewal_tag">
+                        <option value="">--</option>
+                        <option value="New">New</option>
+                        <option value="Renewal">Renewal</option>
+                    </select>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="product_type" id="product_type">
-                    <option value="">--</option>
-                    <option value="Unit">Unit</option>
-                    <option value="Fuel">Fuel</option>
-                    <option value="Parts">Parts</option>
-                    <option value="Repair">Repair</option>
-                    <option value="Refinancing">Refinancing</option>
-                    <option value="Real Estate">Real Estate</option>
-                  </select>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Tenant : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <select class="form-control select2" name="tenant_id" id="tenant_id">
+                        <option value="">--</option>
+                        <?php echo $tenantModel->generateTenantOptions(); ?>
+                    </select>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Transaction Type : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="transaction_type" id="transaction_type">
-                    <option value="">--</option>
-                    <option value="COD">COD</option>
-                    <option value="Installment Sales">Installment Sales</option>
-                    <option value="Bank Financing">Bank Financing</option>
-                  </select>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Property : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <select class="form-control select2" name="property_id" id="property_id">
+                        <option value="">--</option>
+                        <?php echo $propertyModel->generatePropertyOptions(); ?>
+                    </select>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Financing Institution :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="financing_institution" name="financing_institution" maxlength="200" autocomplete="off">
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Start Date : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <div class="input-group date">
+                        <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
+                        <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                        </span>
+                    </div>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Co-Maker :</label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="comaker_id" id="comaker_id">
-                    <option value="">--</option>
-                    <?php echo $customerModel->generateComakerOptions($customerID); ?>
-                  </select>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Maturity Date : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <input type="text" class="form-control text-uppercase" id="maturity_date" name="maturity_date" readonly>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Referred By :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Term : <span class="text-danger">*</span></label>
+                    <div class="col-lg-2">
+                    <input type="number" class="form-control" id="term_length" name="term_length" step="1" value="1" min="1">
+                    </div>
+                    <div class="col-lg-6">
+                    <select class="form-control select2" name="term_type" id="term_type">
+                        <option value="">--</option>
+                        <option value="Months">Months</option>
+                    </select>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Commission Amount : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="number" class="form-control" id="commission_amount" name="commission_amount" step="0.01" min="0">
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Payment Frequency : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <select class="form-control select2" name="payment_frequency" id="payment_frequency">
+                        <option value="">--</option>
+                        <option value="Monthly">Monthly</option>
+                    </select>
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Estimated Date of Release : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="release_date" name="release_date" autocomplete="off">
-                    <span class="input-group-text">
-                      <i class="feather icon-calendar"></i>
-                    </span>
-                  </div>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Initial Basic Rental : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <input type="number" class="form-control" id="initial_basic_rental" name="initial_basic_rental" step="0.01" value="0" min="0">
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Start Date : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
-                    <span class="input-group-text">
-                      <i class="feather icon-calendar"></i>
-                    </span>
-                  </div>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Escalation Rate : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <input type="number" class="form-control" id="escalation_rate" name="escalation_rate" step="0.01" value="0" min="0">
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Term : <span class="text-danger">*</span></label>
-                <div class="col-lg-2">
-                  <input type="number" class="form-control" id="term_length" name="term_length" step="1" value="1" min="1">
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Security Deposit : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <input type="number" class="form-control" id="security_deposit" name="security_deposit" step="0.01" value="0" min="0">
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                  <select class="form-control select2" name="term_type" id="term_type">
-                    <option value="">--</option>
-                    <option value="Days">Days</option>
-                    <option value="Months">Months</option>
-                  </select>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Floor Area : <span class="text-danger">*</span></label>
+                    <div class="col-lg-8">
+                    <input type="number" class="form-control" id="floor_area" name="floor_area" step="0.01" value="0" min="0">
+                    </div>
                 </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Number of Payments : <span class="text-danger">*</span></label>
-                <div class="col-lg-2">
-                  <input type="text" class="form-control text-uppercase" id="number_of_payments" name="number_of_payments" autocomplete="off" readonly>
+                <div class="form-group row">
+                    <label class="col-lg-4 col-form-label">Remarks :</label>
+                    <div class="col-lg-8">
+                    <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                  <select class="form-control select2" name="payment_frequency" id="payment_frequency">
-                    <option value="">--</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">First Due Date : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="first_due_date" name="first_due_date" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Initial Approving Officer : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="initial_approving_officer" id="initial_approving_officer">
-                    <option value="">--</option>
-                    <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Initial'); ?>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Final Approving Officer : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="final_approving_officer" id="final_approving_officer">
-                    <option value="">--</option>
-                    <?php echo $approvingOfficerModel->generateApprovingOfficerOptions('Final'); ?>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Remarks :</label>
-                <div class="col-lg-8">
-                  <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
-                </div>
-              </div>
             </form>
           </div>
-          <div class="tab-pane" id="v-unit-details">
-            <form id="sales-proposal-unit-details-form" method="post" action="#">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Stock : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="product_id" id="product_id">
-                    <option value="">--</option>
-                    <?php echo $productModel->generateInStockProductOptions(); ?>
-                  </select>
-                </div>
-              </div>
-              <input type="hidden" id="product_category">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Engine Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_engine_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Chassis Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_chassis_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Plate Number :</label>
-                <label class="col-lg-8 col-form-label" id="product_plate_number"></label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Registration? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <select class="form-control select2" name="for_registration" id="for_registration">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">With CR? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="with_cr" id="with_cr">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Transfer? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="for_transfer" id="for_transfer">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Color? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="for_change_color" id="for_change_color">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Color :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_color" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Color :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_color" name="new_color" maxlength="100" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Body? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <select class="form-control select2" name="for_change_body" id="for_change_body">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Body :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_body" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Body :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_body" name="new_body" maxlength="100" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">For Change Engine? : <span class="text-danger">*</span></label>
-                <div class="col-lg-8 mt-2">
-                  <select class="form-control select2" name="for_change_engine" id="for_change_engine">
-                    <option value="">--</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Old Engine :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="old_engine" autocomplete="off" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">New Engine :</label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="new_engine" name="new_engine" maxlength="100" autocomplete="off" readonly>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-fuel-details">
-            <form id="sales-proposal-fuel-details-form" method="post" action="#">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Diesel Fuel Quantity : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="diesel_fuel_quantity" name="diesel_fuel_quantity" step="0.01" min="0">
-                    <span class="input-group-text">lt</span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Diesel Price/Liter : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="number" class="form-control" id="diesel_price_per_liter" name="diesel_price_per_liter" step="0.01" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Sub-Total :</label>
-                <label class="col-lg-8 col-form-label" id="diesel_total">--</label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Regular Fuel Quantity : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="regular_fuel_quantity" name="regular_fuel_quantity" step="0.01" min="0">
-                    <span class="input-group-text">lt</span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Regular Price/Liter : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="number" class="form-control" id="regular_price_per_liter" name="regular_price_per_liter" step="0.01" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Sub-Total :</label>
-                <label class="col-lg-8 col-form-label" id="regular_total">--</label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Premium Fuel Quantity : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <div class="input-group">
-                    <input type="number" class="form-control" id="premium_fuel_quantity" name="premium_fuel_quantity" step="0.01" min="0">
-                    <span class="input-group-text">lt</span>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Premium Price/Liter : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="number" class="form-control" id="premium_price_per_liter" name="premium_price_per_liter" step="0.01" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Sub-Total :</label>
-                <label class="col-lg-8 col-form-label" id="premium_total">--</label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Total :</label>
-                <label class="col-lg-8 col-form-label" id="fuel_total">--</label>
-              </div>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-refinancing-details">
-            <form id="sales-proposal-refinancing-details-form" method="post" action="#">
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Stock Number :</label>
-                <label class="col-lg-8 col-form-label" id="ref_stock_no">--</label>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Engine Number : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="ref_engine_no" name="ref_engine_no" maxlength="100" autocomplete="off">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Chassis Number : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="ref_chassis_no" name="ref_chassis_no" maxlength="100" autocomplete="off">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-4 col-form-label">Plate Number : <span class="text-danger">*</span></label>
-                <div class="col-lg-8">
-                  <input type="text" class="form-control text-uppercase" id="ref_plate_no" name="ref_plate_no" maxlength="100" autocomplete="off">
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-job-order">
-            <div class="table-responsive">
-              <table id="sales-proposal-job-order-table" class="table table-hover nowrap w-100">
-                <thead>
-                  <tr>
-                    <th>Job Order</th>
-                    <th>Cost</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane" id="v-pricing-computation">
-            <form id="sales-proposal-pricing-computation-form" method="post" action="#">
-            <?php
-                if($viewSalesProposalProductCost['total'] > 0){
-                  echo '<div class="form-group row">
-                  <label class="col-lg-5 col-form-label">Product Cost :</label>
-                  <div class="col-lg-7">
-                    <label class="col-form-label" id="product_cost_label"></label>
-                  </div>
-                </div>';
-                }
-              ?>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Deliver Price (AS/IS) : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="delivery_price" name="delivery_price" step="0.01" min="0.01">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Add-On : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="add_on_charge" name="add_on_charge" step="0.01" min="0" value="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Nominal Discount : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="nominal_discount" name="nominal_discount" step="0.01" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Total Delivery Price : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="total_delivery_price" name="total_delivery_price" step="0.01" min="0.01" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Interest Rate : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Cost of Accessories :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="cost_of_accessories" name="cost_of_accessories" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Reconditioning Cost :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="reconditioning_cost" name="reconditioning_cost" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Sub-Total :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="subtotal" name="subtotal" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Downpayment :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="downpayment" name="downpayment" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Outstanding Balance :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="outstanding_balance" name="outstanding_balance" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-              <div class="form-group row d-none">
-                <label class="col-lg-5 col-form-label">Amount Financed :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="amount_financed" name="amount_financed" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">PN Amount :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="pn_amount" name="pn_amount" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Repayment Amount :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="repayment_amount" name="repayment_amount" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-other-charges">
-            <form id="sales-proposal-other-charges-form" method="post" action="#">
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="insurance_coverage" name="insurance_coverage" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Insurance Premium :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="insurance_premium" name="insurance_premium" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Handling Fee :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="handling_fee" name="handling_fee" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Transfer Fee :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="transfer_fee" name="transfer_fee" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Registration Fee :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="registration_fee" name="registration_fee" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Doc. Stamp Tax :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="doc_stamp_tax" name="doc_stamp_tax" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Transaction Fee :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="transaction_fee" name="transaction_fee" step="0.01" value="0" min="0">
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Total :</label>
-                <div class="col-lg-7">
-                  <input type="number" class="form-control" id="total_other_charges" name="total_other_charges" step="0.01" value="0" min="0" readonly>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-renewal-amount">
-            <form id="sales-proposal-renewal-amount-form" method="post" action="#">
-              <table class="table table-borderless table-xl">
-                <thead>
-                  <tr class="text-center">
-                    <th></th>
-                    <th>2nd Year</th>
-                    <th>3rd Year</th>
-                    <th>4th Year</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td style="horizontal-align: center !important">
-                    <div class="form-check form-switch mb-2 text-center">
-                        <input type="checkbox" class="form-check-input input-primary" id="compute_second_year">
-                      </div>
-                    </td>
-                    <td style="horizontal-align: center !important">
-                      <div class="form-check form-switch mb-2 text-center">
-                        <input type="checkbox" class="form-check-input input-primary" id="compute_third_year">
-                      </div>
-                    </td>
-                    <td style="horizontal-align: center !important">
-                      <div class="form-check form-switch mb-2 text-center">
-                        <input type="checkbox" class="form-check-input input-primary" id="compute_fourth_year">
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Registration</td>
-                    <td><input type="number" class="form-control" id="registration_second_year" name="registration_second_year" step="0.01" value="0" min="0"></td>
-                    <td><input type="number" class="form-control" id="registration_third_year" name="registration_third_year" step="0.01" value="0" min="0"></td>
-                    <td><input type="number" class="form-control" id="registration_fourth_year" name="registration_fourth_year" step="0.01" value="0" min="0"></td>
-                  </tr>
-                  <tr>
-                    <td>Ins. Coverage</td>
-                    <td><input type="number" class="form-control" id="insurance_coverage_second_year" name="insurance_coverage_second_year" step="0.01" value="0" readonly></td>
-                    <td><input type="number" class="form-control" id="insurance_coverage_third_year" name="insurance_coverage_third_year" step="0.01" value="0" readonly></td>
-                    <td><input type="number" class="form-control" id="insurance_coverage_fourth_year" name="insurance_coverage_fourth_year" step="0.01" value="0" readonly></td>
-                  </tr>
-                  <tr>
-                    <td>Ins. Premium</td>
-                    <td><input type="number" class="form-control" id="insurance_premium_second_year" name="insurance_premium_second_year" step="0.01" value="0" readonly></td>
-                    <td><input type="number" class="form-control" id="insurance_premium_third_year" name="insurance_premium_third_year" step="0.01" value="0" readonly></td>
-                    <td><input type="number" class="form-control" id="insurance_premium_fourth_year" name="insurance_premium_fourth_year" step="0.01" value="0" readonly></td>
-                  </tr>
-                </tbody>
-              </table>
-            </form>
-          </div>
-          <div class="tab-pane" id="v-amount-of-deposit">
-            <div class="table-responsive">
-              <table id="sales-proposal-deposit-amount-table" class="table table-hover nowrap w-100">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Reference No.</th>
-                    <th>Amount</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane" id="v-additional-job-order">
-            <div class="table-responsive">
-              <table id="sales-proposal-additional-job-order-table" class="table table-hover nowrap w-100">
-                <thead>
-                  <tr>
-                    <th>Job Order Number</th>
-                    <th>Job Order Date</th>
-                    <th>Particulars</th>
-                    <th>Cost</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane" id="v-confirmations">
+          <div class="tab-pane" id="v-contract">
             <div class="row">
               <div class="col-xl-6">
                 <div class="card">
@@ -767,8 +184,8 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">New Engine Stencil </h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
-                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
+                          if($leasingApplicationStatus == 'For Final Approval' || $leasingApplicationStatus == 'For CI' || $leasingApplicationStatus == 'For Initial Approval' || $leasingApplicationStatus == 'Draft'){
+                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-new-engine-stencil-offcanvas" aria-controls="leasing-application-new-engine-stencil-offcanvas" id="leasing-application-new-engine-stencil">New Engine Stencil</button>';
                           }
                         ?>
                       </li>
@@ -790,8 +207,8 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Client Confirmation </h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
-                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
+                          if($leasingApplicationStatus == 'For Final Approval' || $leasingApplicationStatus == 'For CI' || $leasingApplicationStatus == 'For Initial Approval' || $leasingApplicationStatus == 'Draft'){
+                            echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-client-confirmation-offcanvas" aria-controls="leasing-application-client-confirmation-offcanvas" id="leasing-application-client-confirmation">Client Confirmation</button>';
                           }
                         ?>
                       </li>
@@ -815,9 +232,9 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Credit Advice</h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                          if($leasingApplicationStatus == 'For Final Approval' || $leasingApplicationStatus == 'For CI' || $leasingApplicationStatus == 'For Initial Approval' || $leasingApplicationStatus == 'Draft'){
                             if(!empty($clientConfirmation) && $transactionType == 'Bank Financing'){
-                              echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
+                              echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-credit-advice-offcanvas" aria-controls="leasing-application-credit-advice-offcanvas" id="leasing-application-credit-advice">Credit Advice</button>';
                             }
                           }
                         ?>
@@ -898,9 +315,9 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Additional Job Order Confirmation</h5>
                         <?php
-                          if($salesProposalStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
+                          if($leasingApplicationStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
                             echo '<div class="previous me-2 d-none" id="sales- proposal-job-order-confirmation-button">
-                                    <button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales- proposal-job-order-confirmation-offcanvas" aria-controls="sales-proposal-job-order-confirmation-offcanvas" id="sales- proposal-job-order-confirmation">Additional Job Order Confirmation</button>
+                                    <button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales- proposal-job-order-confirmation-offcanvas" aria-controls="leasing-application-job-order-confirmation-offcanvas" id="sales- proposal-job-order-confirmation">Additional Job Order Confirmation</button>
                                   </div>';
                           }
                         ?>
@@ -968,7 +385,7 @@
                                                         <td colspan="8" class="text-center bg-danger pb-0"><h3 class="font-size-15 fw-bold text-light">SALES PROPOSAL</h3></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="4"><b>No. <span id="summary-sales-proposal-number"></span></b></td>
+                                                        <td colspan="4"><b>No. <span id="summary-leasing-application-number"></span></b></td>
                                                         <td colspan="4" class="text-end"><b>Date: <?php echo date('d-M-Y'); ?> </b></td>
                                                     </tr>
                                                     <tr>
@@ -1213,7 +630,7 @@
                                                             if(!empty($initialApprovalDate)){
                                                                 echo 'APPROVED THRU SYSTEM<br/>' . $initialApprovalDate;
                                                             }
-                                                            ?></small><br/><span id="summary-initial-approval-by" class="text-sm"></span>
+                                                            ?></small><br/><span id="summary-approval-by" class="text-sm"></span>
                                                         </td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small><b>FINAL APPROVAL BY:</b></small><br/><br/><br/><small><?php
                                                             if(!empty($approvalDate)){
@@ -1261,7 +678,7 @@
               </div>
               <div class="log-notes-scroll" style="max-height: 450px; position: relative;">
                 <div class="card-body p-b-0">
-                  '. $userModel->generateLogNotes('sales_proposal', $salesProposalID) .'
+                  '. $userModel->generateLogNotes('leasing_application', $leasingApplicationID) .'
                 </div>
               </div>
             </div>
@@ -1270,19 +687,19 @@
   ?>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-offcanvas" aria-labelledby="sales-proposal-job-order-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-job-order-offcanvas" aria-labelledby="leasing-application-job-order-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Job Order</h2>
+      <h2 id="leasing-application-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Job Order</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-job-order-form" method="post" action="#">
+          <form id="leasing-application-job-order-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12">
                 <label class="form-label">Job Order <span class="text-danger">*</span></label>
-                <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
+                <input type="hidden" id="leasing_application_job_order_id" name="leasing_application_job_order_id">
                 <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off">
               </div>
             </div>
@@ -1297,7 +714,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order" form="sales-proposal-job-order-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-job-order" form="leasing-application-job-order-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1306,19 +723,19 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-deposit-amount-offcanvas" aria-labelledby="sales-proposal-deposit-amount-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-deposit-amount-offcanvas" aria-labelledby="leasing-application-deposit-amount-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-deposit-amount-offcanvas-label" style="margin-bottom:-0.5rem">Amount of Deposit</h2>
+      <h2 id="leasing-application-deposit-amount-offcanvas-label" style="margin-bottom:-0.5rem">Amount of Deposit</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <div class="row">
       <div class="col-lg-12">
-        <form id="sales-proposal-deposit-amount-form" method="post" action="#">
+        <form id="leasing-application-deposit-amount-form" method="post" action="#">
           <div class="form-group row">
             <div class="col-lg-12 mt-3 mt-lg-0">
               <label class="form-label">Deposit Date <span class="text-danger">*</span></label>
-              <input type="hidden" id="sales_proposal_deposit_amount_id" name="sales_proposal_deposit_amount_id">
+              <input type="hidden" id="leasing_application_deposit_amount_id" name="leasing_application_deposit_amount_id">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off">
                 <span class="input-group-text">
@@ -1344,7 +761,7 @@
     </div>
     <div class="row">
       <div class="col-lg-12">
-        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-deposit-amount" form="sales-proposal-deposit-amount-form">Submit</button>
+        <button type="submit" class="btn btn-primary" id="submit-leasing-application-deposit-amount" form="leasing-application-deposit-amount-form">Submit</button>
         <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
       </div>
     </div>
@@ -1352,19 +769,19 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-additional-job-order-offcanvas" aria-labelledby="sales-proposal-additional-job-order-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-additional-job-order-offcanvas" aria-labelledby="leasing-application-additional-job-order-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-additional-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Additional Job Order</h2>
+      <h2 id="leasing-application-additional-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Additional Job Order</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-additional-job-order-form" method="post" action="#">
+          <form id="leasing-application-additional-job-order-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12">
                 <label class="form-label">Job Order Number <span class="text-danger">*</span></label>
-                <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
+                <input type="hidden" id="leasing_application_additional_job_order_id" name="leasing_application_additional_job_order_id">
                 <input type="text" class="form-control text-uppercase" id="job_order_number" name="job_order_number" maxlength="500" autocomplete="off">
               </div>
             </div>
@@ -1396,7 +813,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order" form="sales-proposal-additional-job-order-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-additional-job-order" form="leasing-application-additional-job-order-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1404,15 +821,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-client-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-client-confirmation-offcanvas" aria-labelledby="leasing-application-client-confirmation-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+      <h2 id="leasing-application-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-client-confirmation-form" method="post" action="#">
+          <form id="leasing-application-client-confirmation-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
@@ -1424,7 +841,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-client-confirmation" form="leasing-application-client-confirmation-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1433,15 +850,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-new-engine-stencil-offcanvas" aria-labelledby="sales-proposal-engine-stencil-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-new-engine-stencil-offcanvas" aria-labelledby="leasing-application-engine-stencil-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
+      <h2 id="leasing-application-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-engine-stencil-form" method="post" action="#">
+          <form id="leasing-application-engine-stencil-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">New Engine Stencil Image <span class="text-danger">*</span></label>
@@ -1453,7 +870,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-engine-stencil" form="sales-proposal-engine-stencil-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-engine-stencil" form="leasing-application-engine-stencil-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1462,15 +879,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-credit-advice-offcanvas" aria-labelledby="sales-proposal-credit-advice-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-credit-advice-offcanvas" aria-labelledby="leasing-application-credit-advice-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-credit-advice-offcanvas-label" style="margin-bottom:-0.5rem">Credit Advice</h2>
+      <h2 id="leasing-application-credit-advice-offcanvas-label" style="margin-bottom:-0.5rem">Credit Advice</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-credit-advice-form" method="post" action="#">
+          <form id="leasing-application-credit-advice-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
@@ -1482,7 +899,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-credit-advice" form="sales-proposal-credit-advice-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-credit-advice" form="leasing-application-credit-advice-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1491,15 +908,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-initial-approval-offcanvas" aria-labelledby="sales-proposal-initial-approval-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-approval-offcanvas" aria-labelledby="leasing-application-approval-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-initial-approval-offcanvas-label" style="margin-bottom:-0.5rem">Initial Approve Sales Proposal</h2>
+      <h2 id="leasing-application-approval-offcanvas-label" style="margin-bottom:-0.5rem">Initial Approve Leasing Application</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-initial-approval-form" method="post" action="#">
+          <form id="leasing-application-approval-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
@@ -1511,7 +928,7 @@
       </div>
       <div class="row">
       <div class="col-lg-12">
-        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-initial-approval" form="sales-proposal-initial-approval-form">Submit</button>
+        <button type="submit" class="btn btn-primary" id="submit-leasing-application-approval" form="leasing-application-approval-form">Submit</button>
         <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
       </div>
     </div>
@@ -1519,15 +936,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-reject-offcanvas" aria-labelledby="sales-proposal-reject-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-reject-offcanvas" aria-labelledby="leasing-application-reject-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-reject-offcanvas-label" style="margin-bottom:-0.5rem">Reject Sales Proposal</h2>
+      <h2 id="leasing-application-reject-offcanvas-label" style="margin-bottom:-0.5rem">Reject Leasing Application</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-reject-form" method="post" action="#">
+          <form id="leasing-application-reject-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Rejection Reason <span class="text-danger">*</span></label>
@@ -1539,22 +956,22 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-reject" form="sales-proposal-reject-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-reject" form="leasing-application-reject-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
     </div>
   </div>
   <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-cancel-offcanvas" aria-labelledby="sales-proposal-cancel-offcanvas-label">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-cancel-offcanvas" aria-labelledby="leasing-application-cancel-offcanvas-label">
       <div class="offcanvas-header">
-        <h2 id="sales-proposal-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Sales Proposal</h2>
+        <h2 id="leasing-application-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Leasing Application</h2>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-cancel-form" method="post" action="#">
+          <form id="leasing-application-cancel-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
@@ -1566,7 +983,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-cancel" form="sales-proposal-cancel-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-cancel" form="leasing-application-cancel-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1575,15 +992,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-set-to-draft-offcanvas" aria-labelledby="sales-proposal-set-to-draft-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-set-to-draft-offcanvas" aria-labelledby="leasing-application-set-to-draft-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-set-to-draft-offcanvas-label" style="margin-bottom:-0.5rem">Set Sales Proposal To Draft</h2>
+      <h2 id="leasing-application-set-to-draft-offcanvas-label" style="margin-bottom:-0.5rem">Set Leasing Application To Draft</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-set-to-draft-form" method="post" action="#">
+          <form id="leasing-application-set-to-draft-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
@@ -1595,7 +1012,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-set-to-draft" form="sales-proposal-set-to-draft-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-set-to-draft" form="leasing-application-set-to-draft-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
@@ -1604,15 +1021,15 @@
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-final-approval-offcanvas" aria-labelledby="sales-proposal-final-approval-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="leasing-application-final-approval-offcanvas" aria-labelledby="leasing-application-final-approval-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-final-approval-offcanvas-label" style="margin-bottom:-0.5rem">Proceed Sales Proposal</h2>
+      <h2 id="leasing-application-final-approval-offcanvas-label" style="margin-bottom:-0.5rem">Proceed Leasing Application</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-final-approval-form" method="post" action="#">
+          <form id="leasing-application-final-approval-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
@@ -1624,7 +1041,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-proceed" form="sales-proposal-final-approval-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leasing-application-proceed" form="leasing-application-final-approval-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

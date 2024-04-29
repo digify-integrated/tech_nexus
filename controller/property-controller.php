@@ -3,17 +3,17 @@ session_start();
 
 # -------------------------------------------------------------
 #
-# Function: TenantController
+# Function: PropertyController
 # Description: 
-# The TenantController class handles tenant related operations and interactions.
+# The PropertyController class handles property related operations and interactions.
 #
 # Parameters: None
 #
 # Returns: None
 #
 # -------------------------------------------------------------
-class TenantController {
-    private $tenantModel;
+class PropertyController {
+    private $propertyModel;
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
@@ -28,11 +28,11 @@ class TenantController {
     #
     # Function: __construct
     # Description: 
-    # The constructor initializes the object with the provided TenantModel, UserModel and SecurityModel instances.
-    # These instances are used for tenant related, user related operations and security related operations, respectively.
+    # The constructor initializes the object with the provided PropertyModel, UserModel and SecurityModel instances.
+    # These instances are used for property related, user related operations and security related operations, respectively.
     #
     # Parameters:
-    # - @param TenantModel $tenantModel     The TenantModel instance for tenant related operations.
+    # - @param PropertyModel $propertyModel     The PropertyModel instance for property related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
     # - @param UploadSettingModel $uploadSettingModel     The UploadSettingModel instance for upload setting related operations.
     # - @param FileExtensionModel $fileExtensionModel     The FileExtensionModel instance for file extension related operations.
@@ -46,8 +46,8 @@ class TenantController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(TenantModel $tenantModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
-        $this->tenantModel = $tenantModel;
+    public function __construct(PropertyModel $propertyModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
+        $this->propertyModel = $propertyModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
@@ -78,17 +78,17 @@ class TenantController {
             $transaction = isset($_POST['transaction']) ? $_POST['transaction'] : null;
 
             switch ($transaction) {
-                case 'save tenant':
-                    $this->saveTenant();
+                case 'save property':
+                    $this->saveProperty();
                     break;
-                case 'get tenant details':
-                    $this->getTenantDetails();
+                case 'get property details':
+                    $this->getPropertyDetails();
                     break;
-                case 'delete tenant':
-                    $this->deleteTenant();
+                case 'delete property':
+                    $this->deleteProperty();
                     break;
-                case 'delete multiple tenant':
-                    $this->deleteMultipleTenant();
+                case 'delete multiple property':
+                    $this->deleteMultipleProperty();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -104,29 +104,25 @@ class TenantController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveTenant
+    # Function: saveProperty
     # Description: 
-    # Updates the existing tenant if it exists; otherwise, inserts a new tenant.
+    # Updates the existing property if it exists; otherwise, inserts a new property.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveTenant() {
+    public function saveProperty() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $tenantID = isset($_POST['tenant_id']) ? htmlspecialchars($_POST['tenant_id'], ENT_QUOTES, 'UTF-8') : null;
-        $tenantName = htmlspecialchars($_POST['tenant_name'], ENT_QUOTES, 'UTF-8');
+        $propertyID = isset($_POST['property_id']) ? htmlspecialchars($_POST['property_id'], ENT_QUOTES, 'UTF-8') : null;
+        $propertyName = htmlspecialchars($_POST['property_name'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
         $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
-        $phone = htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8');
-        $mobile = htmlspecialchars($_POST['mobile'], ENT_QUOTES, 'UTF-8');
-        $telephone = htmlspecialchars($_POST['telephone'], ENT_QUOTES, 'UTF-8');
-        $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -135,19 +131,19 @@ class TenantController {
             exit;
         }
     
-        $checkTenantExist = $this->tenantModel->checkTenantExist($tenantID);
-        $total = $checkTenantExist['total'] ?? 0;
+        $checkPropertyExist = $this->propertyModel->checkPropertyExist($propertyID);
+        $total = $checkPropertyExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->tenantModel->updateTenant($tenantID, $tenantName, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
+            $this->propertyModel->updateProperty($propertyID, $propertyName, $address, $cityID, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'tenantID' => $this->securityModel->encryptData($tenantID)]);
+            echo json_encode(['success' => true, 'insertRecord' => false, 'propertyID' => $this->securityModel->encryptData($propertyID)]);
             exit;
         } 
         else {
-            $tenantID = $this->tenantModel->insertTenant($tenantName, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
+            $propertyID = $this->propertyModel->insertProperty($propertyName, $address, $cityID, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'tenantID' => $this->securityModel->encryptData($tenantID)]);
+            echo json_encode(['success' => true, 'insertRecord' => true, 'propertyID' => $this->securityModel->encryptData($propertyID)]);
             exit;
         }
     }
@@ -159,22 +155,22 @@ class TenantController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteTenant
+    # Function: deleteProperty
     # Description: 
-    # Delete the tenant if it exists; otherwise, return an error message.
+    # Delete the property if it exists; otherwise, return an error message.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteTenant() {
+    public function deleteProperty() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $tenantID = htmlspecialchars($_POST['tenant_id'], ENT_QUOTES, 'UTF-8');
+        $propertyID = htmlspecialchars($_POST['property_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -183,25 +179,25 @@ class TenantController {
             exit;
         }
     
-        $checkTenantExist = $this->tenantModel->checkTenantExist($tenantID);
-        $total = $checkTenantExist['total'] ?? 0;
+        $checkPropertyExist = $this->propertyModel->checkPropertyExist($propertyID);
+        $total = $checkPropertyExist['total'] ?? 0;
 
         if($total === 0){
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
 
-        $tenantDetails = $this->tenantModel->getTenant($tenantID);
-        $tenantLogo = !empty($tenantDetails['tenant_logo']) ? '.' . $tenantDetails['tenant_logo'] : null;
+        $propertyDetails = $this->propertyModel->getProperty($propertyID);
+        $propertyLogo = !empty($propertyDetails['property_logo']) ? '.' . $propertyDetails['property_logo'] : null;
 
-        if(file_exists($tenantLogo)){
-            if (!unlink($tenantLogo)) {
+        if(file_exists($propertyLogo)){
+            if (!unlink($propertyLogo)) {
                 echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                 exit;
             }
         }
     
-        $this->tenantModel->deleteTenant($tenantID);
+        $this->propertyModel->deleteProperty($propertyID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -210,22 +206,22 @@ class TenantController {
 
     # -------------------------------------------------------------
     #
-    # Function: deleteMultipleTenant
+    # Function: deleteMultipleProperty
     # Description: 
-    # Delete the selected tenants if it exists; otherwise, skip it.
+    # Delete the selected propertys if it exists; otherwise, skip it.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function deleteMultipleTenant() {
+    public function deleteMultipleProperty() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
         $userID = $_SESSION['user_id'];
-        $tenantIDs = $_POST['tenant_id'];
+        $propertyIDs = $_POST['property_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -234,18 +230,18 @@ class TenantController {
             exit;
         }
 
-        foreach($tenantIDs as $tenantID){
-            $tenantDetails = $this->tenantModel->getTenant($tenantID);
-            $tenantLogo = !empty($tenantDetails['tenant_logo']) ? '.' . $tenantDetails['tenant_logo'] : null;
+        foreach($propertyIDs as $propertyID){
+            $propertyDetails = $this->propertyModel->getProperty($propertyID);
+            $propertyLogo = !empty($propertyDetails['property_logo']) ? '.' . $propertyDetails['property_logo'] : null;
 
-            if(file_exists($tenantLogo)){
-                if (!unlink($tenantLogo)) {
+            if(file_exists($propertyLogo)){
+                if (!unlink($propertyLogo)) {
                     echo json_encode(['success' => false, 'message' => 'File cannot be deleted due to an error.']);
                     exit;
                 }
             }
             
-            $this->tenantModel->deleteTenant($tenantID);
+            $this->propertyModel->deleteProperty($propertyID);
         }
             
         echo json_encode(['success' => true]);
@@ -259,23 +255,23 @@ class TenantController {
 
     # -------------------------------------------------------------
     #
-    # Function: getTenantDetails
+    # Function: getPropertyDetails
     # Description: 
-    # Handles the retrieval of tenant details such as tenant name, etc.
+    # Handles the retrieval of property details such as property name, etc.
     #
     # Parameters: None
     #
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function getTenantDetails() {
+    public function getPropertyDetails() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
     
-        if (isset($_POST['tenant_id']) && !empty($_POST['tenant_id'])) {
+        if (isset($_POST['property_id']) && !empty($_POST['property_id'])) {
             $userID = $_SESSION['user_id'];
-            $tenantID = $_POST['tenant_id'];
+            $propertyID = $_POST['property_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -284,8 +280,8 @@ class TenantController {
                 exit;
             }
     
-            $tenantDetails = $this->tenantModel->getTenant($tenantID);
-            $cityID = $tenantDetails['city_id'];
+            $propertyDetails = $this->propertyModel->getProperty($propertyID);
+            $cityID = $propertyDetails['city_id'];
 
             $cityDetails = $this->cityModel->getCity($cityID);
             $cityName = $cityDetails['city_name'];
@@ -300,14 +296,10 @@ class TenantController {
 
             $response = [
                 'success' => true,
-                'tenantName' => $tenantDetails['tenant_name'],
-                'address' => $tenantDetails['address'],
+                'propertyName' => $propertyDetails['property_name'],
+                'address' => $propertyDetails['address'],
                 'cityID' => $cityID,
-                'cityName' => $cityName,
-                'phone' => $tenantDetails['phone'],
-                'mobile' => $tenantDetails['mobile'],
-                'telephone' => $tenantDetails['telephone'],
-                'email' => $tenantDetails['email']
+                'cityName' => $cityName
             ];
 
             echo json_encode($response);
@@ -320,7 +312,7 @@ class TenantController {
 
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/tenant-model.php';
+require_once '../model/property-model.php';
 require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
@@ -331,6 +323,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new TenantController(new TenantModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PropertyController(new PropertyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

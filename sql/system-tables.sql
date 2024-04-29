@@ -5042,6 +5042,9 @@ CREATE TABLE sales_proposal(
 	for_ci_date DATETIME,
 	rejection_date DATETIME,
 	cancellation_date DATETIME,
+	rejection_reason VARCHAR(500),
+	cancellation_reason VARCHAR(500),
+	approval_remarks VARCHAR(500),
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
@@ -5278,6 +5281,41 @@ CREATE TABLE property (
     property_name VARCHAR(500) NOT NULL,
     address VARCHAR(1000) NOT NULL,
 	city_id INT NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL
+);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/*  Leasing Application */
+
+CREATE TABLE leasing_application (
+    leasing_application_id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_proposal_number VARCHAR(100) NOT NULL,
+    tenant_id INT UNSIGNED NOT NULL,
+    property_id INT UNSIGNED NOT NULL,
+	term_length INT UNSIGNED NOT NULL,
+	term_type VARCHAR(20) NOT NULL,
+    payment_frequency VARCHAR(20) NOT NULL,
+    renewal_tag VARCHAR(10) NOT NULL,
+    remarks VARCHAR(500),
+    start_date DATE NOT NULL,
+    maturity_date DATE NOT NULL,
+    security_deposit DOUBLE NOT NULL,
+    floor_area DOUBLE NOT NULL,
+    initial_basic_rental DOUBLE NOT NULL,
+    escalation_rate DOUBLE NOT NULL,
+    application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    for_approval_date DATETIME,
+    approval_date DATETIME,
+    rejection_date DATETIME,
+	cancellation_date DATETIME,
+	rejection_reason VARCHAR(500),
+	cancellation_reason VARCHAR(500),
+	approval_remarks VARCHAR(500),
+	approval_by INT UNSIGNED,
+	rejection_by INT UNSIGNED,
+	cancelled_by INT UNSIGNED,
+    application_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
     last_log_by INT UNSIGNED NOT NULL
 );
 

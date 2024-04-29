@@ -4839,6 +4839,136 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+
+/* Tenant Table Triggers */
+
+CREATE TRIGGER tenant_trigger_update
+AFTER UPDATE ON tenant
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.tenant_name <> OLD.tenant_name THEN
+        SET audit_log = CONCAT(audit_log, "Tenant Name: ", OLD.tenant_name, " -> ", NEW.tenant_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_id <> OLD.city_id THEN
+        SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
+    END IF;
+
+    IF NEW.phone <> OLD.phone THEN
+        SET audit_log = CONCAT(audit_log, "Phone: ", OLD.phone, " -> ", NEW.phone, "<br/>");
+    END IF;
+
+    IF NEW.mobile <> OLD.mobile THEN
+        SET audit_log = CONCAT(audit_log, "Mobile: ", OLD.mobile, " -> ", NEW.mobile, "<br/>");
+    END IF;
+
+    IF NEW.telephone <> OLD.telephone THEN
+        SET audit_log = CONCAT(audit_log, "Telephone: ", OLD.telephone, " -> ", NEW.telephone, "<br/>");
+    END IF;
+
+    IF NEW.email <> OLD.email THEN
+        SET audit_log = CONCAT(audit_log, "Email: ", OLD.email, " -> ", NEW.email, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('tenant', NEW.tenant_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER tenant_trigger_insert
+AFTER INSERT ON tenant
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Tenant created. <br/>';
+
+    IF NEW.tenant_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Tenant Name: ", NEW.tenant_name);
+    END IF;
+
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    IF NEW.city_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>City ID: ", NEW.city_id);
+    END IF;
+
+    IF NEW.phone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Phone: ", NEW.phone);
+    END IF;
+
+    IF NEW.mobile <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mobile: ", NEW.mobile);
+    END IF;
+
+    IF NEW.telephone <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Telephone: ", NEW.telephone);
+    END IF;
+
+    IF NEW.email <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Email: ", NEW.email);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('tenant', NEW.tenant_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Property Table Triggers */
+
+CREATE TRIGGER property_trigger_update
+AFTER UPDATE ON property
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.property_name <> OLD.property_name THEN
+        SET audit_log = CONCAT(audit_log, "Property Name: ", OLD.property_name, " -> ", NEW.property_name, "<br/>");
+    END IF;
+
+    IF NEW.address <> OLD.address THEN
+        SET audit_log = CONCAT(audit_log, "Address: ", OLD.address, " -> ", NEW.address, "<br/>");
+    END IF;
+
+    IF NEW.city_id <> OLD.city_id THEN
+        SET audit_log = CONCAT(audit_log, "City ID: ", OLD.city_id, " -> ", NEW.city_id, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('property', NEW.property_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER property_trigger_insert
+AFTER INSERT ON property
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Property created. <br/>';
+
+    IF NEW.property_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Property Name: ", NEW.property_name);
+    END IF;
+
+    IF NEW.address <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Address: ", NEW.address);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('property', NEW.property_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+
 /*  Table Triggers */
 
 
