@@ -2,7 +2,7 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $start_date = $_POST["start_date"];
     $payment_frequency = $_POST["payment_frequency"];
-    $number_of_payments = $_POST["number_of_payments"];
+    $term_type = $_POST["term_type"];
     $term_length = $_POST["term_length"];
 
     if(empty($payment_frequency)){
@@ -10,27 +10,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    if($number_of_payments == 0){
+    if(empty($term_type)){
+        echo null;
+        exit;
+    }
+
+    if($term_length == 0){
         echo null;
         exit;
     }
 
     if (strtotime($start_date) === false) {
+        echo null;
         exit;
     }
 
     $start_date = new DateTime($start_date);
 
     switch ($payment_frequency) {
-        case 'Lumpsum':
-            $start_date->modify("+" . $term_length . " days");
-            $due_date = $start_date;
-            break;
         case 'Monthly':
-        case 'Quarterly':
-        case 'Semi-Annual':
-            $monthsToAdd = ($payment_frequency == 'Monthly') ? 1 : (($payment_frequency == 'Quarterly') ? 3 : 6);
-            $start_date->modify("+" . $monthsToAdd . " months");
+            $start_date->modify("+" . $term_length . " months");
             $due_date = $start_date;
             break;
         default:

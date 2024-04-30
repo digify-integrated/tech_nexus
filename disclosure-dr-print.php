@@ -42,8 +42,8 @@
         }
 
         $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
-        $customerID = $salesProposalDetails['customer_id'];
-        $comakerID = $salesProposalDetails['comaker_id'];
+        $customerID = $salesProposalDetails['customer_id'] ?? null;
+        $comakerID = $salesProposalDetails['comaker_id'] ?? null;
         $productID = $salesProposalDetails['product_id'] ?? null;
         $productType = $salesProposalDetails['product_type'] ?? null;
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
@@ -51,6 +51,8 @@
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
+        $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -77,7 +79,7 @@
         $insurancePremiumSecondYear = $renewalAmountDetails['insurance_premium_second_year'] ?? 0;
         $insurancePremiumThirdYear = $renewalAmountDetails['insurance_premium_third_year'] ?? 0;
         $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
-        $totalInsuranceFee = $registrationSecondYear + $registrationThirdYear + $registrationFourthYear;
+        $totalInsuranceFee = $insurancePremiumSecondYear + $insurancePremiumThirdYear + $insurancePremiumFourthYear;
     
         $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
         
@@ -88,7 +90,12 @@
         $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        if(!empty($releaseTo)){
+            $customerName = strtoupper($releaseTo);
+          }
+          else{
+            $customerName = strtoupper($customerDetails['file_as']) ?? null;
+          }
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;
@@ -105,7 +112,6 @@
           $comakerAddress = '';
         }
         
-    
         $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
         $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
@@ -255,13 +261,13 @@
 
         if($resultCount > 0){
             foreach ($options as $row) {
-                $manualPDCInputID = $row['manual_pdc_input_id'];
-                $accountNumber = $row['account_number'];
-                $bankBranch = $row['bank_branch'];
-                $checkDate = $systemModel->checkDate('summary', $row['check_date'], '', 'd-M-Y', '');
-                $checkNumber = $row['check_number'];
-                $paymentFor = $row['payment_for'];
-                $grossAmount = number_format($row['gross_amount'], 2);
+                $manualPDCInputID = $row['manual_pdc_input_id'] ?? null;
+                $accountNumber = $row['account_number'] ?? null;
+                $bankBranch = $row['bank_branch'] ?? null;
+                $checkDate = $systemModel->checkDate('default', $row['check_date'], '', 'd-M-Y', '');
+                $checkNumber = $row['check_number'] ?? null;
+                $paymentFor = $row['payment_for'] ?? null;
+                $grossAmount = number_format($row['gross_amount'] ?? null, 2);
     
                 $response .= '<tr>
                                 <td>'. strtoupper($checkDate) .'</td>
@@ -307,7 +313,7 @@
                 $pnAmount = 0;
             }
 
-            $dueDate = calculateDueDate($startDate, $paymentFrequency, $i + 1);
+            $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
 
             $response .= '<tr>
                     <td>'. strtoupper($dueDate) .'</td>
@@ -322,7 +328,7 @@
         return $response;
     }
 
-    function calculateDueDate($startDate, $frequency, $iteration) {
+    function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
         $date = new DateTime($startDate);
         switch ($frequency) {
             case 'Monthly':
@@ -333,6 +339,9 @@
                 break;
             case 'Semi-Annual':
                 $date->modify("+$iteration months")->modify('+5 months');
+                break;
+            case 'Lumpsum':
+                $date->modify("+$termLength days");
                 break;
             default:
                 break;

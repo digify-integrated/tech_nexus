@@ -5290,7 +5290,7 @@ CREATE TABLE property (
 
 CREATE TABLE leasing_application (
     leasing_application_id INT AUTO_INCREMENT PRIMARY KEY,
-    sales_proposal_number VARCHAR(100) NOT NULL,
+    leasing_application_number VARCHAR(100) NOT NULL,
     tenant_id INT UNSIGNED NOT NULL,
     property_id INT UNSIGNED NOT NULL,
 	term_length INT UNSIGNED NOT NULL,
@@ -5307,6 +5307,7 @@ CREATE TABLE leasing_application (
     application_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     for_approval_date DATETIME,
     approval_date DATETIME,
+    activation_date DATETIME,
     rejection_date DATETIME,
 	cancellation_date DATETIME,
 	rejection_reason VARCHAR(500),
@@ -5315,6 +5316,7 @@ CREATE TABLE leasing_application (
 	approval_by INT UNSIGNED,
 	rejection_by INT UNSIGNED,
 	cancelled_by INT UNSIGNED,
+	activated_by INT UNSIGNED,
     application_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
     last_log_by INT UNSIGNED NOT NULL
 );

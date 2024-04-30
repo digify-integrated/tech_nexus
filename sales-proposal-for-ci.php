@@ -72,6 +72,7 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
+    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
     $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
     $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];

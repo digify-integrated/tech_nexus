@@ -322,6 +322,67 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: sales proposal for bank financing table
+        # Description:
+        # Generates the sales proposal table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'sales proposal for bank financing table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalForBankFinancingTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+                $forCIDate = $systemModel->checkDate('summary', $row['for_ci_date'], '', 'm/d/Y h:i:s A', '');
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
+                    'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => '<div class="col">
+                                        <h6 class="mb-0">'. $customerName .'</h6>
+                                        <p class="f-12 mb-0">'. $corporateName .'</p>
+                                    </div>',
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'FOR_CI_DATE' => $forCIDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: sales proposal for dr table
         # Description:
         # Generates the sales proposal table.
@@ -930,6 +991,69 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: summary disclosure schedule table
+        # Description:
+        # Generates the summary disclosure schedule table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'summary disclosure schedule table':
+            if(isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])){
+                $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+
+                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
+                $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
+                $termLength = $salesProposalDetails['term_length'] ?? null;
+                $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
+
+                $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+                $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
+                $startDate = $salesProposalDetails['actual_start_date'] ?? null;
+                $pnAmount = $repaymentAmount * $numberOfPayments;
+
+                $table = ' <tr>
+                                <td>DUE DATE</td>
+                                <td>AMOUNT DUE</td>
+                                <td>OUTSTANDING BALANCE</td>
+                            </tr>
+                            <tr>
+                                <td>--</td>
+                                <td>--</td>
+                                <td>'. number_format($pnAmount, 2) .'</td>
+                            </tr>';
+
+                            for ($i = 0; $i < $numberOfPayments; $i++) {
+                                $pnAmount = $pnAmount - $repaymentAmount;
+
+                                if($pnAmount <= 0){
+                                    $pnAmount = 0;
+                                }
+
+                                $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
+
+                                $table .= '<tr>
+                                        <td>'. $dueDate .'</td>
+                                        <td>'. number_format($repaymentAmount, 2) .'</td>
+                                        <td>'. number_format($pnAmount, 2) .'</td>
+                                    </tr>';
+                            }
+
+                $response[] = [
+                    'table' => $table
+                ];
+
+                echo json_encode($response);
+
+                
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: summary pdc manual input table
         # Description:
         # Generates the summary pdc manual input table.
@@ -979,6 +1103,27 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         break;
         # -------------------------------------------------------------
     }
+}
+
+function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
+    $date = new DateTime($startDate);
+    switch ($frequency) {
+        case 'Monthly':
+            $date->modify("+$iteration months");
+            break;
+        case 'Quarterly':
+            $date->modify("+$iteration months")->modify('+2 months');
+            break;
+        case 'Semi-Annual':
+            $date->modify("+$iteration months")->modify('+5 months');
+            break;
+        case 'Lumpsum':
+            $date->modify("+$termLength days")->modify('+'. $termLength .' days');
+            break;
+        default:
+            break;
+    }
+    return $date->format('d-M-Y');
 }
 
 ?>

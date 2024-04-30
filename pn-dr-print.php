@@ -51,6 +51,7 @@
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
+        $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -83,12 +84,18 @@
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 
-        $totalPn = $pnAmount + $totalCharges + $totalDeposit['total'];
+        $totalPn = $pnAmount + $totalCharges;
     
         $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+
+        if(!empty($releaseTo)){
+          $customerName = strtoupper($releaseTo) ?? null;
+        }
+        else{
+          $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        }
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    

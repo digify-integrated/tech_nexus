@@ -1223,6 +1223,12 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Release To : </label>
+                                <div class="col-lg-7">
+                                    <input type="text" class="form-control text-uppercase" id="release_to" name="release_to" maxlength="500" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-lg-5 col-form-label">Year Model :</label>
                                 <div class="col-lg-7">
                                     <input type="text" class="form-control text-uppercase" id="year_model" name="year_model" maxlength="20" autocomplete="off">
@@ -1537,34 +1543,8 @@
                                             <p class="text-left ">7. SCHEDULE OF PAYMENTS</p>
                                         </div>
                                     </div>
-                                    <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
-                                        <tr>
-                                            <td>DUE DATE</td>
-                                            <td>AMOUNT DUE</td>
-                                            <td>OUTSTANDING BALANCE</td>
-                                        </tr>
-                                    <tr>
-                                        <td>--</td>
-                                        <td>--</td>
-                                        <td><?php echo number_format($pnAmount, 2); ?></td>
-                                    </tr>
-                                    <?php
-                                        for ($i = 0; $i < $numberOfPayments; $i++) {
-                                            $pnAmount = $pnAmount - $repaymentAmount;
-
-                                            if($pnAmount <= 0){
-                                                $pnAmount = 0;
-                                            }
-
-                                            $dueDate = calculateDueDate($startDate, $paymentFrequency, $i + 1);
-
-                                            echo '<tr>
-                                                    <td>'. $dueDate .'</td>
-                                                    <td>'. number_format($repaymentAmount, 2) .'</td>
-                                                    <td>'. number_format($pnAmount, 2) .'</td>
-                                                </tr>';
-                                        }
-                                    ?>
+                                    <table class="table table-bordered w-100 text-center" id="disclosure-schedule" style="border: 1px solid #000 !important;">
+                                        
                                     </table>
                                     <p style="text-align: justify !important;"><b>I ACKNOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE CREDIT SALES TRANSACTION AND THAT I UNDERSTAND AND FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.</b></p><br/>
                                     <div class="row mt-4">
@@ -1914,23 +1894,3 @@
     </div>
   </div>
 </div>
-
-<?php
-function calculateDueDate($startDate, $frequency, $iteration) {
-    $date = new DateTime($startDate);
-    switch ($frequency) {
-        case 'Monthly':
-            $date->modify("+$iteration months");
-            break;
-        case 'Quarterly':
-            $date->modify("+$iteration months")->modify('+2 months');
-            break;
-        case 'Semi-Annual':
-            $date->modify("+$iteration months")->modify('+5 months');
-            break;
-        default:
-            break;
-    }
-    return $date->format('d-M-Y');
-}
-?>

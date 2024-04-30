@@ -1500,7 +1500,7 @@ class SalesProposalController {
         
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
-        $inititialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+        $finalApprovingOfficer = $salesProposalDetails['final_approving_officer '];
         $productType = $salesProposalDetails['product_type'];
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];
@@ -1517,7 +1517,7 @@ class SalesProposalController {
         $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
         $fullStockNumber = $productSubcategoryCode . $stockNumber;
         
-        $approverDetails = $this->userModel->getContactByContactID($inititialApprovingOfficer);
+        $approverDetails = $this->userModel->getContactByContactID($finalApprovingOfficer);
         $approverEmail = $approverDetails['email'];
 
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Final Approval', $initialApprovalRemarks, $userID);
@@ -2092,6 +2092,7 @@ class SalesProposalController {
         $crNo = htmlspecialchars($_POST['cr_no'], ENT_QUOTES, 'UTF-8');
         $mvFileNo = htmlspecialchars($_POST['mv_file_no'], ENT_QUOTES, 'UTF-8');
         $make = htmlspecialchars($_POST['make'], ENT_QUOTES, 'UTF-8');
+        $releaseTo = htmlspecialchars($_POST['release_to'], ENT_QUOTES, 'UTF-8');
         $productDescription = htmlspecialchars($_POST['product_description'], ENT_QUOTES, 'UTF-8');
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
@@ -2106,7 +2107,7 @@ class SalesProposalController {
         $checkSalesProposalOtherProductDetailsExist = $this->salesProposalModel->checkSalesProposalOtherProductDetailsExist($salesProposalID);
         $total = $checkSalesProposalOtherProductDetailsExist['total'] ?? 0;
 
-        $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $startDate, $userID);
+        $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
             $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
@@ -2579,6 +2580,7 @@ class SalesProposalController {
                 'approvalByName' => $approvalByName,
                 'productName' => $stockNumber . ' - ' . $productDescription,
                 'drNumber' => $salesProposalDetails['dr_number'],
+                'releaseTo' => $salesProposalDetails['release_to'],
                 'actualStartDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'm/d/Y', ''),
                 'referredBy' => $salesProposalDetails['referred_by'],
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),

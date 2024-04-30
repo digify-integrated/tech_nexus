@@ -77,6 +77,7 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
+    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
     $customerID = $salesProposalDetails['customer_id'];
     $comakerID = $salesProposalDetails['comaker_id'] ?? null;
     $productID = $salesProposalDetails['product_id'] ?? null;
@@ -86,6 +87,8 @@
     $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
     $startDate = $salesProposalDetails['actual_start_date'] ?? null;
     $drNumber = $salesProposalDetails['dr_number'] ?? null;
+    $releaseTo = $salesProposalDetails['release_to'] ?? null;
+    $termLength = $salesProposalDetails['term_length'] ?? null;
     $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
     $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -113,19 +116,26 @@
     $insurancePremiumSecondYear = $renewalAmountDetails['insurance_premium_second_year'] ?? 0;
     $insurancePremiumThirdYear = $renewalAmountDetails['insurance_premium_third_year'] ?? 0;
     $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
-    $totalInsuranceFee = $registrationSecondYear + $registrationThirdYear + $registrationFourthYear;
+    $totalInsuranceFee = $insurancePremiumSecondYear + $insurancePremiumThirdYear + $insurancePremiumFourthYear;
 
     $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
         
     $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 
-    $totalPn = $pnAmount + $totalCharges + $totalDeposit['total'];
+    $totalPn = $pnAmount + $totalCharges;
     $totalPn2 = $pnAmount + $totalDeposit['total'];
 
     $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 
     $customerDetails = $customerModel->getPersonalInformation($customerID);
-    $customerName = strtoupper($customerDetails['file_as']) ?? null;
+
+    if(!empty($releaseTo)){
+      $customerName = strtoupper($releaseTo) ?? null;
+    }
+    else{
+      $customerName = strtoupper($customerDetails['file_as']) ?? null;
+    }
+    
 
     $comakerDetails = $customerModel->getPersonalInformation($comakerID);
     $comakerName = $comakerDetails['file_as'] ?? null;
@@ -140,7 +150,6 @@
     $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
     $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
 
-   
 
     $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
     

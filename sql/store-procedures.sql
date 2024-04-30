@@ -7311,11 +7311,12 @@ BEGIN
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalActualStartDate(IN p_sales_proposal_id INT, IN p_dr_number VARCHAR(50), IN p_actual_start_date DATE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalActualStartDate(IN p_sales_proposal_id INT, IN p_dr_number VARCHAR(50), IN p_release_to VARCHAR(1000), IN p_actual_start_date DATE, IN p_last_log_by INT)
 BEGIN
       UPDATE sales_proposal
         SET actual_start_date = p_actual_start_date,
         dr_number = p_dr_number,
+        release_to = p_release_to,
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7452,9 +7453,14 @@ BEGIN
    SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status = 'Proceed' AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
 END //
 
+CREATE PROCEDURE generateSalesProposalForBankFinancingTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE transaction_type = 'Bank Financing' AND sales_proposal_status = 'For Final Approval' AND credit_advice IS NULL;
+END //
+
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair') );
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Fuel', 'Refinancing') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()

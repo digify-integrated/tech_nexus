@@ -55,57 +55,67 @@
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
+        $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
-        $createdDate = $systemModel->checkDate('summary', $salesProposalDetails['created_date'], '', 'd-M-Y', '');
+        $createdDate = $systemModel->checkDate('default', $salesProposalDetails['created_date'] ?? null, '', 'd-M-Y', '');
 
         $extension = pathinfo($unitImage, PATHINFO_EXTENSION);
         
         $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
-        $productDescription = $otherProductDetails['product_description'];
+        $productDescription = $otherProductDetails['product_description'] ?? null;
         
         if($productType == 'Unit'){
             $productDetails = $productModel->getProduct($productID);
-            $productSubategoryID = $productDetails['product_subcategory_id'];
+            $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
 
             $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
             $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
             $productCategoryID = $productSubcategoryDetails['product_category_id'] ?? null;
 
-            $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+            $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
             $fullStockNumber = $productSubcategoryCode . $stockNumber;
 
             $stockNumber = $stockNumber;
-            $engineNumber = $productDetails['engine_number'];
-            $chassisNumber = $productDetails['chassis_number'];
-            $plateNumber = $productDetails['plate_number'] ?? '-';
+            $engineNumber = $productDetails['engine_number'] ??  '--';
+            $chassisNumber = $productDetails['chassis_number'] ??  '--';
+            $plateNumber = $productDetails['plate_number'] ?? '--';
         }
         else if($productType == 'Refinancing'){
-            $stockNumber = $salesProposalDetails['ref_stock_no'];
-            $engineNumber = $salesProposalDetails['ref_engine_no'];
-            $chassisNumber = $salesProposalDetails['ref_chassis_no'];
-            $plateNumber = $salesProposalDetails['ref_plate_no'];
+            $stockNumber = $salesProposalDetails['ref_stock_no'] ??  '--';
+            $engineNumber = $salesProposalDetails['ref_engine_no'] ??  '--';
+            $chassisNumber = $salesProposalDetails['ref_chassis_no'] ??  '--';
+            $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
+            $fullStockNumber ='';
         }
         else{
             $stockNumber = '';
             $engineNumber = '';
             $chassisNumber = '';
             $plateNumber = '-';
+            $fullStockNumber = '';
         }
     
-        $customerDetails = $customerModel->getPersonalInformation($customerID);
-        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+       
+        if(!empty($releaseTo)){
+            $customerName = strtoupper($releaseTo);
+          }
+          else{
+            $customerDetails = $customerModel->getPersonalInformation($customerID);
+            $customerName = strtoupper($customerDetails['file_as']) ?? null;
+          }
     
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
-        $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
-    
-        if(!empty($comakerName)){
-            $comakerAddressLabel = '<p class="text-center mb-0 text-white"></p>';
+        $address = $customerPrimaryAddress['address'] ?? null ;
+        
+        if(!empty($address)){
+            $customerAddress = $address . ', ' . $customerPrimaryAddress['city_name'] ?? null . ', ' . $customerPrimaryAddress['state_name'] ?? null . ', ' . $customerPrimaryAddress['country_name'] ?? null;
         }
         else{
-            $comakerAddressLabel = '<p class="text-center mb-0">'. $comakerName .'</p>';
+$customerAddress = '';
         }
+    
     }
 
     ob_start();

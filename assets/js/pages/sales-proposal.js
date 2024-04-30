@@ -40,6 +40,14 @@
             salesProposalForCITable('#sales-proposal-for-ci-table');
         }
 
+        if($('#sales-proposal-for-bank-financing-table').length){
+            salesProposalForBankFinancingTable('#sales-proposal-for-bank-financing-table');
+        }
+
+        if($('#disclosure-schedule').length){
+            salesProposalDisclosureScheduleTable()
+        }
+
         if($('#sales-proposal-change-request-table').length){
             salesProposalChangeRequestTable('#sales-proposal-change-request-table');
         }
@@ -1400,6 +1408,23 @@ function salesProposalSummaryDepositTable(){
     });
 }
 
+function salesProposalDisclosureScheduleTable(){
+    const sales_proposal_id = $('#sales-proposal-id').text();
+    const type = 'summary disclosure schedule table';
+
+    $.ajax({
+        type: "POST",
+        url: "view/_sales_proposal_generation.php",
+        dataType: 'json',
+        data: { type: type, sales_proposal_id: sales_proposal_id },
+        success: function (result) {
+            if($('#disclosure-schedule').length){
+                document.getElementById('disclosure-schedule').innerHTML = result[0].table;
+            }
+        }
+    });
+}
+
 function salesProposalSummaryAdditionalJobOrderTable(){
     const sales_proposal_id = $('#sales-proposal-id').text();
     const type = 'summary additional job order table';
@@ -1436,6 +1461,70 @@ function salesProposalSummaryJobOrderTable(){
 
 function salesProposalForCITable(datatable_name, buttons = false, show_all = false){
     const type = 'sales proposal for ci table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'FOR_CI_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalForBankFinancingTable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal for bank financing table';
 
     var settings;
 
@@ -2517,7 +2606,6 @@ function salesProposalJobOrderForm(){
                     $('#sales-proposal-job-order-offcanvas').offcanvas('hide');
                     reloadDatatable('#sales-proposal-job-order-table');
                     resetModalForm('sales-proposal-job-order-form');
-                    displayDetails('get sales proposal job order details');
                     salesProposalSummaryJobOrderTable();
                 }
             });
@@ -4301,6 +4389,7 @@ function salesProposalOtherProductDetailsForm(){
                 },
                 complete: function() {
                     displayDetails('get sales proposal other product details');
+                    salesProposalDisclosureScheduleTable();
                 }
             });
         
@@ -4421,6 +4510,7 @@ function displayDetails(transaction){
                         $('#first_due_date').val(response.firstDueDate);
                         $('#remarks').val(response.remarks);                        
                         $('#dr_number').val(response.drNumber);
+                        $('#release_to').val(response.releaseTo);
                         $('#actual_start_date').val(response.actualStartDate);
 
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
@@ -5142,12 +5232,13 @@ function checkIntegerDivision(dividend, divisor) {
 function calculateFirstDueDate(){
     var start_date = $('#start_date').val();
     var payment_frequency = $('#payment_frequency').val();
+    var term_length = $('#term_length').val();
     var number_of_payments = $('#number_of_payments').val();
 
     $.ajax({
         type: 'POST',
         url: './config/calculate_first_due_date.php',
-        data: { start_date: start_date, payment_frequency: payment_frequency, number_of_payments: number_of_payments },
+        data: { start_date: start_date, term_length : term_length, payment_frequency: payment_frequency, number_of_payments: number_of_payments },
         success: function (result) {
             $('#first_due_date').val(result);
         }
@@ -5216,6 +5307,7 @@ function calculateTotalDeliveryPrice(){
     }
 
     $('#total_delivery_price').val(total.toFixed(2));
+    $('#summary-deliver-price').text(parseFloat(total.toFixed(2)).toLocaleString("en-US"));
     $('#total_delivery_price_label').val(total.toFixed(2));
 
     calculatePricingComputation();
@@ -5246,6 +5338,10 @@ function calculatePricingComputation(){
     $('#amount_financed').val(outstanding_balance.toFixed(2));
     $('#pn_amount').val(pn_amount.toFixed(2));
     $('#repayment_amount').val(repayment_amount.toFixed(2));
+
+    $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
+     $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateTotalOtherCharges(){
@@ -5263,7 +5359,7 @@ function calculateTotalOtherCharges(){
 
 function calculateRenewalAmount(){
     var product_category = $('#product_category').val();
-    var delivery_price = parseFloat($('#delivery_price').val()) || 0;
+    var delivery_price = parseFloat($('#total_delivery_price').val()) || 0;
 
     if(delivery_price > 0){
         var second_year_coverage = delivery_price * 0.8;
@@ -5272,16 +5368,19 @@ function calculateRenewalAmount(){
         
         if($('#compute_second_year').is(':checked')) {
             $('#insurance_coverage_second_year').val(second_year_coverage.toFixed(2));
+            $('#summary-insurance-coverage-second-year').text(parseFloat(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
             if(product_category == '1'){
-                var premium = (((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_second_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-second-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else if(product_category == '2'){
-                var premium = (second_year_coverage * 0.025) * 1.2526;
+                var premium = Math.ceil((second_year_coverage * 0.025) * 1.2526);
     
                 $('#insurance_premium_second_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-second-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else{
                 $('#insurance_premium_second_year').val(0);
@@ -5297,16 +5396,19 @@ function calculateRenewalAmount(){
     
         if($('#compute_third_year').is(':checked')) {
             $('#insurance_coverage_third_year').val(third_year_coverage.toFixed(2));
+            $('#summary-insurance-coverage-third-year').text(parseFloat(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
             if(product_category == '1'){
-                var premium = (((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_third_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-third-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else if(product_category == '2'){
-                var premium = (third_year_coverage * 0.025) * 1.2526;
+                var premium = Math.ceil((third_year_coverage * 0.025) * 1.2526);
     
                 $('#insurance_premium_third_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-third-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else{
                 $('#insurance_premium_third_year').val(0);
@@ -5321,16 +5423,19 @@ function calculateRenewalAmount(){
     
         if($('#compute_fourth_year').is(':checked')) {
             $('#insurance_coverage_fourth_year').val(fourth_year_coverage.toFixed(2));
+            $('#summary-insurance-coverage-fourth-year').text(parseFloat(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
             if(product_category == '1'){
-                var premium = (((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300;
+                var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_fourth_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-fourth-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else if(product_category == '2'){
-                var premium = (fourth_year_coverage * 0.025) * 1.2526;
+                var premium = Math.ceil((fourth_year_coverage * 0.025) * 1.2526);
     
                 $('#insurance_premium_fourth_year').val(premium.toFixed(2));
+                $('#summary-insurance-premium-fourth-year').text(parseFloat(premium.toFixed(2)).toLocaleString("en-US"));
             }
             else{
                 $('#insurance_premium_fourth_year').val(0);
@@ -5350,6 +5455,15 @@ function calculateRenewalAmount(){
         $('#insurance_premium_third_year').val(0);
         $('#insurance_coverage_fourth_year').val(0);
         $('#insurance_premium_fourth_year').val(0);
+
+        $('#summary-insurance-coverage-second-year').text(0);
+        $('#summary-insurance-premium-second-year').text(0);
+        
+        $('#summary-insurance-coverage-third-year').text(0);
+        $('#summary-insurance-premium-third-year').text(0);
+        
+        $('#summary-insurance-coverage-fourth-year').text(0);
+        $('#summary-insurance-premium-fourth-year').text(0);
     }
 }
 

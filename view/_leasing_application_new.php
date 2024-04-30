@@ -42,23 +42,6 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Start Date : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Maturity Date : <span class="text-danger">*</span></label>
-            <div class="col-lg-8">
-              <input type="text" class="form-control text-uppercase" id="maturity_date" name="maturity_date" readonly>
-            </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Term : <span class="text-danger">*</span></label>
             <div class="col-lg-2">
               <input type="number" class="form-control" id="term_length" name="term_length" step="1" value="1" min="1">
@@ -80,27 +63,44 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Start Date : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Maturity Date : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <input type="text" class="form-control text-uppercase" id="maturity_date" name="maturity_date" readonly>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Initial Basic Rental : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="number" class="form-control" id="initial_basic_rental" name="initial_basic_rental" step="0.01" value="0" min="0">
+              <input type="number" class="form-control" id="initial_basic_rental" name="initial_basic_rental" step="0.01" min="0">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Escalation Rate : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="number" class="form-control" id="escalation_rate" name="escalation_rate" step="0.01" value="0" min="0">
+              <input type="number" class="form-control" id="escalation_rate" name="escalation_rate" step="0.01" min="0">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Security Deposit : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="number" class="form-control" id="security_deposit" name="security_deposit" step="0.01" value="0" min="0">
+              <input type="number" class="form-control" id="security_deposit" name="security_deposit" step="0.01" min="0">
             </div>
           </div>
           <div class="form-group row">
             <label class="col-lg-4 col-form-label">Floor Area : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
-              <input type="number" class="form-control" id="floor_area" name="floor_area" step="0.01" value="0" min="0">
+              <input type="number" class="form-control" id="floor_area" name="floor_area" step="0.01" min="0">
             </div>
           </div>
           <div class="form-group row">

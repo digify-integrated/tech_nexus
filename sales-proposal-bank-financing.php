@@ -6,14 +6,14 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
 
-  $pageTitle = 'Sales Proposal Change Request';
+  $pageTitle = 'Sales Proposal For Bank Financing';
   
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
     
-  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 74, 'read');
+  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 83, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
   $updateSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
   $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
@@ -150,11 +150,10 @@
         </div>
         <?php
          if(!empty($salesProposalID) && !empty($customerID)){
-            echo 'asdasd';
             require_once('view/_sales_proposal_details.php');
           }
           else{
-            require_once('view/_all_sales_proposal.php');
+            require_once('view/_sales_proposal_for_bank_financing.php');
           }
         ?>
       </div>

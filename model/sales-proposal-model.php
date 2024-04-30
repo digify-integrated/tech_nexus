@@ -618,10 +618,11 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalActualStartDate($p_sales_proposal_id, $p_dr_number, $p_actual_start_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalActualStartDate(:p_sales_proposal_id, :p_dr_number, :p_actual_start_date, :p_last_log_by)');
+    public function updateSalesProposalActualStartDate($p_sales_proposal_id, $p_dr_number, $p_release_to, $p_actual_start_date, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalActualStartDate(:p_sales_proposal_id, :p_dr_number, :p_release_to, :p_actual_start_date, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_dr_number', $p_dr_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_release_to', $p_release_to, PDO::PARAM_STR);
         $stmt->bindValue(':p_actual_start_date', $p_actual_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();

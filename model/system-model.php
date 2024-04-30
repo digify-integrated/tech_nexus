@@ -79,7 +79,7 @@ class SystemModel {
                 return $this->formatDate($format, $date, $modify);
             }
             else{
-                return $system_date;
+                return $systemDate;
             }
         }
         else if($type == 'empty'){
