@@ -154,7 +154,7 @@
             require_once('view/_sales_proposal_details.php');
           }
           else{
-            require_once('view/_all_sales_proposal.php');
+            require_once('view/_sales_proposal_change_request.php');
           }
         ?>
       </div>

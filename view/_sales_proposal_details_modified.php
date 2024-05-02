@@ -215,7 +215,7 @@
                         <h5 class="mb-0">Additional Job Order Confirmation</h5>
                         <?php
                           if($salesProposalStatus != 'For DR' && $additionalJobOrderCount['total'] > 0){
-                            echo '<div class="previous me-2 d-none" id="sales- proposal-job-order-confirmation-button">
+                            echo '<div class="previous me-2" >
                                     <button class="btn btn-warning m-l-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales- proposal-job-order-confirmation-offcanvas" aria-controls="sales-proposal-job-order-confirmation-offcanvas" id="sales- proposal-job-order-confirmation">Additional Job Order Confirmation</button>
                                   </div>';
                           }

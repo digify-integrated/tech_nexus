@@ -28,8 +28,8 @@ class LeasingApplicationModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateLeasingApplication($p_leasing_application_id, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplication(:p_leasing_application_id, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by)');
+    public function updateLeasingApplication($p_leasing_application_id, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplication(:p_leasing_application_id, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_tenant_id', $p_tenant_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
@@ -37,6 +37,7 @@ class LeasingApplicationModel {
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contract_date', $p_contract_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_start_date', $p_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_maturity_date', $p_maturity_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_security_deposit', $p_security_deposit, PDO::PARAM_STR);
@@ -44,6 +45,28 @@ class LeasingApplicationModel {
         $stmt->bindValue(':p_initial_basic_rental', $p_initial_basic_rental, PDO::PARAM_STR);
         $stmt->bindValue(':p_escalation_rate', $p_escalation_rate, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingApplicationContactImage
+    # Description: Updates the leasing application client confirmation.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The leasing application accessories ID.
+    # - $p_client_confirmation (string): The leasing application client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingApplicationContactImage($p_leasing_application_id, $p_contract_image, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationContactImage(:p_leasing_application_id, :p_contract_image, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_contract_image', $p_contract_image, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -65,8 +88,8 @@ class LeasingApplicationModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertLeasingApplication($p_leasing_application_number, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingApplication(:p_leasing_application_number, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by, @p_leasing_application_id)');
+    public function insertLeasingApplication($p_leasing_application_number, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingApplication(:p_leasing_application_number, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by, @p_leasing_application_id)');
         $stmt->bindValue(':p_leasing_application_number', $p_leasing_application_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_tenant_id', $p_tenant_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
@@ -74,6 +97,7 @@ class LeasingApplicationModel {
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contract_date', $p_contract_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_start_date', $p_start_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_maturity_date', $p_maturity_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_security_deposit', $p_security_deposit, PDO::PARAM_STR);
@@ -88,6 +112,56 @@ class LeasingApplicationModel {
         $p_leasing_application_id = $result->fetch(PDO::FETCH_ASSOC)['p_leasing_application_id'];
 
         return $p_leasing_application_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertLeasingApplicationRepayment
+    # Description: Inserts the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_name (string): The leasing application name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertLeasingApplicationRepayment($p_leasing_application_id, $p_reference, $p_due_date, $p_unpaid_rental, $p_outstanding_balance, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingApplicationRepayment(:p_leasing_application_id, :p_reference, :p_due_date, :p_unpaid_rental, :p_outstanding_balance, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference', $p_reference, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_date', $p_due_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_unpaid_rental', $p_unpaid_rental, PDO::PARAM_STR);
+        $stmt->bindValue(':p_outstanding_balance', $p_outstanding_balance, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingApplicationStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
+    # - $p_leasing_application_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingApplicationStatus($p_leasing_application_id, $p_changed_by, $p_application_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationStatus(:p_leasing_application_id, :p_changed_by, :p_application_status, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_changed_by', $p_changed_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_application_status', $p_application_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 
@@ -137,6 +211,24 @@ class LeasingApplicationModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteLeasingApplicationRepayment
+    # Description: Deletes the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLeasingApplicationRepayment($p_leasing_application_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLeasingApplicationRepayment(:p_leasing_application_id)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -161,92 +253,100 @@ class LeasingApplicationModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
-    #   Duplicate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
     #
-    # Function: duplicateLeasingApplication
-    # Description: Duplicates the leasing application.
+    # Function: getLeasingApplicationRepaymentCount
+    # Description: Retrieves the details of a leasing application.
     #
     # Parameters:
     # - $p_leasing_application_id (int): The leasing application ID.
-    # - $p_last_log_by (int): The last logged user.
     #
-    # Returns: None
+    # Returns:
+    # - An array containing the leasing application details.
     #
     # -------------------------------------------------------------
-    public function duplicateLeasingApplication($p_leasing_application_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL duplicateLeasingApplication(:p_leasing_application_id, :p_last_log_by, @p_new_leasing_application_id)');
+    public function getLeasingApplicationRepaymentCount($p_leasing_application_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingApplicationRepaymentCount(:p_leasing_application_id)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
-
-        $result = $this->db->getConnection()->query("SELECT @p_new_leasing_application_id AS leasing_application_id");
-        $leasingApplicationiD = $result->fetch(PDO::FETCH_ASSOC)['leasing_application_id'];
-
-        return $leasingApplicationiD;
-    }
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #   Generate methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: generateLeasingApplicationOptions
-    # Description: Generates the leasing application options.
-    #
-    # Parameters:None
-    #
-    # Returns: String.
-    #
-    # -------------------------------------------------------------
-    public function generateLeasingApplicationOptions() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationOptions()');
-        $stmt->execute();
-        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $htmlOptions = '';
-        foreach ($options as $row) {
-            $leasingApplicationID = $row['leasing_application_id'];
-            $leasingApplicationName = $row['leasing_application_name'];
-
-            $htmlOptions .= '<option value="' . htmlspecialchars($leasingApplicationID, ENT_QUOTES) . '">' . htmlspecialchars($leasingApplicationName, ENT_QUOTES) .'</option>';
-        }
-
-        return $htmlOptions;
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #
-    # Function: generateLeasingApplicationCheckBox
-    # Description: Generates the leasing application check box.
+    # Function: getLeasingAplicationRepaymentTotal
+    # Description: Retrieves the details of a leasing application.
     #
-    # Parameters:None
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    # - $p_transcation_type (int): The leasing application ID.
     #
-    # Returns: String.
+    # Returns:
+    # - An array containing the leasing application details.
     #
     # -------------------------------------------------------------
-    public function generateLeasingApplicationCheckBox() {
-        $stmt = $this->db->getConnection()->prepare('CALL generateLeasingApplicationOptions()');
+    public function getLeasingAplicationRepaymentTotal($p_leasing_application_id, $p_transcation_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingAplicationRepaymentTotal(:p_leasing_application_id, :p_transcation_type)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_transcation_type', $p_transcation_type, PDO::PARAM_STR);
         $stmt->execute();
-        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
 
-        $htmlOptions = '';
-        foreach ($options as $row) {
-            $leasingApplicationID = $row['leasing_application_id'];
-            $leasingApplicationName = $row['leasing_application_name'];
+    # -------------------------------------------------------------
+    #
+    # Function: getLeasingApplicationStatus
+    # Description: Retrieves the leasing application status badge.
+    #
+    # Parameters:
+    # - $p_application_status (string): The leasing application status.
+    #
+    # Returns:
+    # - An array containing the product details.
+    #
+    # -------------------------------------------------------------
+    public function getLeasingApplicationStatus($p_application_status) {
+        $statusClasses = [
+            'Draft' => 'secondary',
+            'For Approval' => 'info',
+            'Approved' => 'success',
+            'Closed' => 'warning',
+            'Active' => 'success'
+        ];
+        
+        $defaultClass = 'dark';
+        
+        $class = $statusClasses[$p_application_status] ?? $defaultClass;
+        
+        return '<span class="badge bg-' . $class . '">' . $p_application_status . '</span>';
+    }
+    # -------------------------------------------------------------
 
-            $htmlOptions .= '<div class="form-check my-2">
-                                <input class="form-check-input body-type-filter" type="checkbox" id="body-type-' . htmlspecialchars($leasingApplicationID, ENT_QUOTES) . '" value="' . htmlspecialchars($leasingApplicationID, ENT_QUOTES) . '" />
-                                <label class="form-check-label" for="body-type-' . htmlspecialchars($leasingApplicationID, ENT_QUOTES) . '">' . htmlspecialchars($leasingApplicationName, ENT_QUOTES) .'</label>
-                            </div>';
-        }
-
-        return $htmlOptions;
+    # -------------------------------------------------------------
+    #
+    # Function: getLoanApplicationRepaymentStatus
+    # Description: Retrieves the leasing application status badge.
+    #
+    # Parameters:
+    # - $p_application_status (string): The leasing application status.
+    #
+    # Returns:
+    # - An array containing the product details.
+    #
+    # -------------------------------------------------------------
+    public function getLoanApplicationRepaymentStatus($p_repayment_status) {
+        $statusClasses = [
+            'Unpaid' => 'danger',
+            'Partially Paid' => 'warning',
+            'Fully Paid' => 'success'
+        ];
+        
+        $defaultClass = 'dark';
+        
+        $class = $statusClasses[$p_repayment_status] ?? $defaultClass;
+        
+        return '<span class="badge bg-' . $class . '">' . $p_repayment_status . '</span>';
     }
     # -------------------------------------------------------------
 }

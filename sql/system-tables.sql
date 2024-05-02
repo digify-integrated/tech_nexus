@@ -5298,6 +5298,7 @@ CREATE TABLE leasing_application (
     payment_frequency VARCHAR(20) NOT NULL,
     renewal_tag VARCHAR(10) NOT NULL,
     remarks VARCHAR(500),
+    contract_date DATE NOT NULL,
     start_date DATE NOT NULL,
     maturity_date DATE NOT NULL,
     security_deposit DOUBLE NOT NULL,
@@ -5310,6 +5311,9 @@ CREATE TABLE leasing_application (
     activation_date DATETIME,
     rejection_date DATETIME,
 	cancellation_date DATETIME,
+	contract_image VARCHAR(500),
+	activation_remarks VARCHAR(500),
+	set_to_draft_reason VARCHAR(500),
 	rejection_reason VARCHAR(500),
 	cancellation_reason VARCHAR(500),
 	approval_remarks VARCHAR(500),
@@ -5318,6 +5322,24 @@ CREATE TABLE leasing_application (
 	cancelled_by INT UNSIGNED,
 	activated_by INT UNSIGNED,
     application_status VARCHAR(20) NOT NULL DEFAULT 'Draft',
+    last_log_by INT UNSIGNED NOT NULL
+);
+
+CREATE TABLE leasing_application_repayment (
+    leasing_application_repayment_id INT AUTO_INCREMENT PRIMARY KEY,
+    leasing_application_id INT UNSIGNED NOT NULL,
+    reference VARCHAR(200) NOT NULL,
+    due_date DATE NOT NULL,
+    unpaid_rental DOUBLE NOT NULL,
+    paid_rental DOUBLE NOT NULL DEFAULT 0,
+    unpaid_electricity DOUBLE NOT NULL DEFAULT 0,
+    paid_electricity DOUBLE NOT NULL DEFAULT 0,
+    unpaid_water DOUBLE NOT NULL DEFAULT 0,
+    paid_water DOUBLE NOT NULL DEFAULT 0,
+    unpaid_other_charges DOUBLE NOT NULL DEFAULT 0,
+    paid_other_charges DOUBLE NOT NULL DEFAULT 0,
+    outstanding_balance DOUBLE NOT NULL,
+    repayment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
     last_log_by INT UNSIGNED NOT NULL
 );
 

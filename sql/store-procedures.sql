@@ -7450,7 +7450,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status = 'Proceed' AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
+   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
 END //
 
 CREATE PROCEDURE generateSalesProposalForBankFinancingTable()
@@ -8041,22 +8041,28 @@ END //
 
 /* Leasing Application Table Stored Procedures */
 
-CREATE PROCEDURE checkLeasinApplicationExist (IN p_leasing_application_id INT)
+CREATE PROCEDURE checkLeasingApplicationExist (IN p_leasing_application_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
     FROM leasing_application
     WHERE leasing_application_id = p_leasing_application_id;
 END //
 
-CREATE PROCEDURE insertLeasingApplication(IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_last_log_by INT, OUT p_leasing_application_id INT)
+CREATE PROCEDURE insertLeasingApplication(IN p_leasing_application_number VARCHAR(100), IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_leasing_application_id INT)
 BEGIN
-    INSERT INTO leasing_application (leasing_application_name, address, city_id, last_log_by) 
-	VALUES(p_leasing_application_name, p_address, p_city_id, p_last_log_by);
+    INSERT INTO leasing_application (leasing_application_number, tenant_id, property_id, term_length, term_type, payment_frequency, renewal_tag, contract_date, start_date, maturity_date, security_deposit, floor_area, initial_basic_rental, escalation_rate, remarks, last_log_by) 
+	VALUES(p_leasing_application_number, p_tenant_id, p_property_id, p_term_length, p_term_type, p_payment_frequency, p_renewal_tag, p_contract_date, p_start_date, p_maturity_date, p_security_deposit, p_floor_area, p_initial_basic_rental, p_escalation_rate, p_remarks, p_last_log_by);
 	
     SET p_leasing_application_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateLeasingApplication(IN p_leasing_application_id INT, IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertLeasingApplicationRepayment(IN p_leasing_application_id INT, IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_unpaid_rental DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO leasing_application_repayment (leasing_application_id, reference, due_date, unpaid_rental, outstanding_balance, last_log_by) 
+	VALUES(p_leasing_application_id, p_reference, p_due_date, p_unpaid_rental, p_outstanding_balance, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateLeasingApplication(IN p_leasing_application_id INT, IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE leasing_application
     SET tenant_id = p_tenant_id,
@@ -8064,12 +8070,15 @@ BEGIN
     term_length = p_term_length,
     term_type = p_term_type,
     payment_frequency = p_payment_frequency,
+    renewal_tag = p_renewal_tag,
+    contract_date = p_contract_date,
     start_date = p_start_date,
     maturity_date = p_maturity_date,
     security_deposit = p_security_deposit,
     floor_area = p_floor_area,
     initial_basic_rental = p_initial_basic_rental,
     escalation_rate = p_escalation_rate,
+    remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE leasing_application_id = p_leasing_application_id;
 END //
@@ -8080,13 +8089,142 @@ BEGIN
     WHERE leasing_application_id = p_leasing_application_id;
 END //
 
+CREATE PROCEDURE deleteLeasingApplicationRepayment(IN p_leasing_application_id INT)
+BEGIN
+	DELETE FROM leasing_application_repayment
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
 CREATE PROCEDURE getLeasingApplication(IN p_leasing_application_id INT)
 BEGIN
 	SELECT * FROM leasing_application
     WHERE leasing_application_id = p_leasing_application_id;
 END //
 
+CREATE PROCEDURE getLeasingApplicationRepaymentCount(IN p_leasing_application_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leasing_application_repayment
+    WHERE leasing_application_id = p_leasing_application_id;
+END //
+
 CREATE PROCEDURE generateLeasingApplicationTable()
 BEGIN
-   SELECT leasing_application_id, leasing_application_name, address, city_id FROM leasing_application;
+   SELECT leasing_application_id, leasing_application_number, tenant_id, property_id, application_status FROM leasing_application;
+END //
+
+CREATE PROCEDURE updateLeasingApplicationContactImage(IN p_leasing_application_id INT, IN p_contract_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE leasing_application
+        SET contract_image = p_contract_image,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE updateLeasingApplicationStatus(IN p_leasing_application_id INT, IN p_changed_by INT, IN p_application_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    IF p_application_status = 'For Approval' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        for_approval_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Rejected' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        rejection_date = NOW(),
+        rejection_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Cancelled' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Approved' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        approval_date = NOW(),
+        approval_by = p_changed_by,
+        approval_remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Active' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        activation_date = NOW(),
+        activated_by = p_changed_by,
+        activation_remarks = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Draft' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        set_to_draft_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSE
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    END IF;
+END //
+
+CREATE PROCEDURE getLeasingAplicationRepaymentTotal(IN p_leasing_application_id INT, IN p_transcation_type VARCHAR(100))
+BEGIN
+    IF p_transcation_type = 'Unpaid Rental' THEN
+        SELECT SUM(unpaid_rental) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Unpaid Electricity' THEN
+        SELECT SUM(unpaid_electricity) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Unpaid Water' THEN
+        SELECT SUM(unpaid_water) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Unpaid Other Charges' THEN
+        SELECT SUM(unpaid_other_charges) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Paid Rental' THEN
+        SELECT SUM(paid_rental) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Paid Electricity' THEN
+        SELECT SUM(paid_electricity) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Paid Water' THEN
+        SELECT SUM(paid_water) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_transcation_type = 'Paid Other Charges' THEN
+        SELECT SUM(paid_other_charges) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSE
+        SELECT SUM(outstanding_balance) as total FROM leasing_application_repayment
+        WHERE leasing_application_id = p_leasing_application_id;
+    END IF;
+END //
+
+CREATE PROCEDURE generateLeasingSummaryTable(IN p_application_status VARCHAR(50))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM leasing_application';
+
+    SET conditionList = '';
+
+    IF p_application_status IS NOT NULL AND p_application_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' WHERE application_status =');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_application_status));
+   ELSE
+       SET conditionList = CONCAT(conditionList, " WHERE application_status IN ('Active', 'Closed')");
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY leasing_application_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //

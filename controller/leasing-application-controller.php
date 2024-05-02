@@ -16,6 +16,9 @@ class LeasingApplicationController {
     private $leasingApplicationModel;
     private $userModel;
     private $securityModel;
+    private $uploadSettingModel;
+    private $fileExtensionModel;
+    private $systemModel;
 
     # -------------------------------------------------------------
     #
@@ -27,15 +30,20 @@ class LeasingApplicationController {
     # Parameters:
     # - @param LeasingApplicationModel $leasingApplicationModel     The LeasingApplicationModel instance for leasing application related operations.
     # - @param UserModel $userModel     The UserModel instance for user related operations.
+    # - @param SystemSettingModel $systemSettingModel     The SystemSettingModel instance for system setting related operations.
     # - @param SecurityModel $securityModel   The SecurityModel instance for security related operations.
     #
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(LeasingApplicationModel $leasingApplicationModel, UserModel $userModel, SecurityModel $securityModel) {
+    public function __construct(LeasingApplicationModel $leasingApplicationModel, UserModel $userModel, SystemSettingModel $systemSettingModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->leasingApplicationModel = $leasingApplicationModel;
         $this->userModel = $userModel;
+        $this->systemSettingModel = $systemSettingModel;
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
         $this->securityModel = $securityModel;
+        $this->systemModel = $systemModel;
     }
     # -------------------------------------------------------------
 
@@ -69,6 +77,30 @@ class LeasingApplicationController {
                 case 'delete multiple leasing application':
                     $this->deleteMultipleLeasingApplication();
                     break;
+                case 'save leasing application contract image':
+                    $this->saveLeasingApplicationContactImage();
+                    break;
+                case 'tag for approval':
+                    $this->tagLeasingApplicationForApproval();
+                    break;
+                case 'leasing application reject':
+                    $this->tagLeasingApplicationReject();
+                    break;
+                case 'leasing application cancel':
+                    $this->tagLeasingApplicationCancel();
+                    break;
+                case 'leasing application set to draft':
+                    $this->tagLeasingApplicationSetToDraft();
+                    break;
+                case 'leasing application approval':
+                    $this->tagLeasingApplicationApprove();
+                    break;
+                case 'leasing application activation':
+                    $this->tagLeasingApplicationActive();
+                    break;
+                case 'generate schedule':
+                    $this->generateSchedule();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -98,7 +130,7 @@ class LeasingApplicationController {
         }
     
         $userID = $_SESSION['user_id'];
-        $leasingApplicationID = isset($_POST['leasing']) ? htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8') : null;
+        $leasingApplicationID = isset($_POST['leasing_application_id']) ? htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8') : null;
         $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
         $tenantID = htmlspecialchars($_POST['tenant_id'], ENT_QUOTES, 'UTF-8');
         $propertyID = htmlspecialchars($_POST['property_id'], ENT_QUOTES, 'UTF-8');
@@ -106,6 +138,7 @@ class LeasingApplicationController {
         $termType = htmlspecialchars($_POST['term_type'], ENT_QUOTES, 'UTF-8');
         $paymentFrequency = htmlspecialchars($_POST['payment_frequency'], ENT_QUOTES, 'UTF-8');
         $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
+        $contractDate = $this->systemModel->checkDate('empty', $_POST['contract_date'], '', 'Y-m-d', '');
         $maturityDate = $this->systemModel->checkDate('empty', $_POST['maturity_date'], '', 'Y-m-d', '');
         $initialBasicRental = htmlspecialchars($_POST['initial_basic_rental'], ENT_QUOTES, 'UTF-8');
         $escalationRate = htmlspecialchars($_POST['escalation_rate'], ENT_QUOTES, 'UTF-8');
@@ -124,22 +157,471 @@ class LeasingApplicationController {
         $total = $checkLeasingApplicationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->leasingApplicationModel->updateLeasingApplication($leasingApplicationID, $tenantID, $propertyID, $termLength, $termType, $paymentFrequency, $renewalTag, $startDate, $maturityDate, $securityDeposit, $floorArea, $initialBasicRental, $escalationRate, $remarks, $userID);
+            $this->leasingApplicationModel->updateLeasingApplication($leasingApplicationID, $tenantID, $propertyID, $termLength, $termType, $paymentFrequency, $renewalTag, $contractDate, $startDate, $maturityDate, $securityDeposit, $floorArea, $initialBasicRental, $escalationRate, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'leasingApplicationID' => $this->securityModel->encryptData($leasingApplicationID)]);
             exit;
         } 
         else {
-            $leasingApplicationNumber = $this->systemSettingModel->getSystemSetting(7)['value'] + 1;
+            $leasingApplicationNumber = $this->systemSettingModel->getSystemSetting(8)['value'] + 1;
 
-            $leasingApplicationID = $this->leasingApplicationModel->insertLeasingApplication($leasingApplicationNumber, $tenantID, $propertyID, $termLength, $termType, $paymentFrequency, $renewalTag, $startDate, $maturityDate, $securityDeposit, $floorArea, $initialBasicRental, $escalationRate, $remarks, $userID);
+            $leasingApplicationID = $this->leasingApplicationModel->insertLeasingApplication($leasingApplicationNumber, $tenantID, $propertyID, $termLength, $termType, $paymentFrequency, $renewalTag, $contractDate, $startDate, $maturityDate, $securityDeposit, $floorArea, $initialBasicRental, $escalationRate, $remarks, $userID);
+
+            this->systemSettingModel->updateSystemSettingValue(8, $leasingApplicationNumber, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'leasingApplicationID' => $this->securityModel->encryptData($leasingApplicationID)]);
             exit;
         }
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: saveLeasingApplicationContactImage
+    # Description: 
+    # Updates the existing leasing application if it exists; otherwise, inserts a new leasing application.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveLeasingApplicationContactImage() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'] ?? 1;
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if ($total > 0) {
+            $outgoingChecklistImageFileName = $_FILES['contract_image']['name'];
+            $outgoingChecklistImageFileSize = $_FILES['contract_image']['size'];
+            $outgoingChecklistImageFileError = $_FILES['contract_image']['error'];
+            $outgoingChecklistImageTempName = $_FILES['contract_image']['tmp_name'];
+            $outgoingChecklistImageFileExtension = explode('.', $outgoingChecklistImageFileName);
+            $outgoingChecklistImageActualFileExtension = strtolower(end($outgoingChecklistImageFileExtension));
 
+            $leasingApplicationDetails = $this->leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+            $clientoutgoingChecklistImage = !empty($leasingApplicationDetails['contract_image']) ? '.' . $leasingApplicationDetails['contract_image'] : null;
+    
+            if(file_exists($clientoutgoingChecklistImage)){
+                if (!unlink($clientoutgoingChecklistImage)) {
+                    echo json_encode(['success' => false, 'message' => 'Unit image cannot be deleted due to an error.']);
+                    exit;
+                }
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+            $maxFileSize = $uploadSetting['max_file_size'];
+
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+            $allowedFileExtensions = [];
+
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+
+            if (!in_array($outgoingChecklistImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+            
+            if(empty($outgoingChecklistImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the unit image.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+            
+            if($outgoingChecklistImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The unit image exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $outgoingChecklistImageActualFileExtension;
+
+            $directory = DEFAULT_LEASING_APPLICATION_RELATIVE_PATH_FILE.'/contract_image/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_LEASING_APPLICATION_FULL_PATH_FILE . '/contract_image/' . $fileNew;
+            $filePath = $directory . $fileNew;
+
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+
+            if(!move_uploaded_file($outgoingChecklistImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+
+            $this->leasingApplicationModel->updateLeasingApplicationContactImage($leasingApplicationID, $filePath, $userID);
+
+            echo json_encode(['success' => true]);
+            exit;
+        } 
+        else {
+            echo json_encode(['success' => false, 'message' => 'The leasing application does not exists.']);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: generateSchedule
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function generateSchedule() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->leasingApplicationModel->deleteLeasingApplicationRepayment($leasingApplicationID);
+
+        $leasingApplicationDetails = $this->leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+
+        $leasingApplicationNumber = $leasingApplicationDetails['leasing_application_number'];
+        $startDate = $this->systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'Y-m-d', '');
+        $initialBasicRental = $leasingApplicationDetails['initial_basic_rental'] ?? null;
+        $escalationRate = $leasingApplicationDetails['escalation_rate'] ?? null;
+        $escalationRateDecimal = $escalationRate / 100.0;
+        $termLength = $leasingApplicationDetails['term_length'] ?? null;
+        $paymentFrequency = $leasingApplicationDetails['payment_frequency'] ?? null;
+        $termType = $leasingApplicationDetails['term_type'] ?? null;
+
+        for ($x = 0; $x < $termLength; $x++) {
+            if (($x + 1) % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
+                $initialBasicRental *= (1 + $escalationRateDecimal);
+            }
+        
+            if($x == 0){
+                $matdt = $startDate;
+
+                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - 0' . ($x + 1), $startDate, $initialBasicRental, $initialBasicRental, $userID);
+            }
+            else{
+                # Get due dates
+                $matdt = date('Y-m-d', strtotime(getNextDuedate($matdt, $startDate, $paymentFrequency)));
+        
+                if(date('d', strtotime($matdt)) == '31'){
+                    $maturity = date('Y-m-30', strtotime($matdt));
+                }
+                else{
+                    $maturity = $matdt;
+                }
+
+                if($x >= 1 && $x <= 9){
+                    $extension = '0' . ($x + 1);
+                }
+                else{
+                    $extension = ($x + 1);
+                }
+        
+                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - ' . ($extension), $maturity, $initialBasicRental, $initialBasicRental, $userID);
+            }
+        }
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationForApproval
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationForApproval() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'For Approval', null, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationApprove
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationApprove() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $approvalRemarks = htmlspecialchars($_POST['approval_remarks'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'Approved', $approvalRemarks, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationFinalApproval
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationActive() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $activationRemarks = htmlspecialchars($_POST['activation_remarks'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'Active', $activationRemarks, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationSetToDraft
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationSetToDraft() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $setToDraftReason = htmlspecialchars($_POST['set_to_draft_reason'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'Draft', $setToDraftReason, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationCancel
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationCancel() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $cancellationReason = htmlspecialchars($_POST['cancellation_reason'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'Cancelled', $cancellationReason, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagLeasingApplicationReject
+    # Description: 
+    # Updates the existing leasing application accessories if it exists; otherwise, inserts a new leasing application accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagLeasingApplicationReject() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $rejectionReason = htmlspecialchars($_POST['rejection_reason'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingApplicationExist = $this->leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+        $total = $checkLeasingApplicationExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->updateLeasingApplicationStatus($leasingApplicationID, $contactID, 'Rejected', $rejectionReason, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+    
     # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
@@ -267,7 +749,14 @@ class LeasingApplicationController {
                 'floorArea' => $leasingApplicationDetails['floor_area'],
                 'initialBasicRental' => $leasingApplicationDetails['initial_basic_rental'],
                 'escalationRate' => $leasingApplicationDetails['escalation_rate'],
-                'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', '')
+                'activationRemarks' => $leasingApplicationDetails['activation_remarks'],
+                'setToDraftReason' => $leasingApplicationDetails['set_to_draft_reason'],
+                'rejectionReason' => $leasingApplicationDetails['rejection_reason'],
+                'cancellationReason' => $leasingApplicationDetails['cancellation_reason'],
+                'approvalRemarks' => $leasingApplicationDetails['approval_remarks'],
+                'contractImage' => $this->systemModel->checkImage($leasingApplicationDetails['contract_image'], 'default'),
+                'startDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'm/d/Y', ''),
+                'contractDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['contract_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);
@@ -278,13 +767,85 @@ class LeasingApplicationController {
 }
 # -------------------------------------------------------------
 
+
+function getNextDuedate($prevdate, $maturitydate, $frequency){
+    $matdteom = check_end_of_month($maturitydate);
+    $maturityday = date('d', strtotime($maturitydate));
+
+    $prevdate = getCalculatedDate($prevdate, 1);
+    $prevlastday = date('t', strtotime($prevdate));
+
+    if($prevlastday < $maturityday){
+        $duedate = $prevdate;
+    }
+    else{
+        $duedate = date('m', strtotime($prevdate)) . '/'. date('d', strtotime($maturitydate)) .'/' . date('Y', strtotime($prevdate));
+    }
+        
+    $flag = '1';
+
+    if($matdteom == '1' && $flag == '1'){
+        $duedate = date('m/t/Y', strtotime($duedate));
+    }
+    
+    return $duedate;
+}
+
+function check_end_of_month($date){
+    //adds 1 day to date
+    $Temp = date('m/d/Y',strtotime("+1 day", strtotime($date)));
+
+    //get the month of each date
+    $tempmonth = date('m', strtotime($Temp));
+    $datemonth = date('m', strtotime($date));
+    
+    //check if the months are equal
+    if($tempmonth != $datemonth){
+        return '1';
+    }
+    else{
+        return '0';
+    }
+}
+
+function getCalculatedDate($d1, $months){
+    $date = new DateTime($d1);
+
+    # call add_months function to add the months
+    $newDate = $date->add(add_months($months, $date));
+
+    #formats final date to m/d/Y form
+    $dateReturned = $newDate->format('m/d/Y'); 
+
+    return $dateReturned;
+}
+
+function add_months($months, DateTime $dateObject){
+    #format date to Y-m-d
+    #get the last day of the given month
+    $next = new DateTime($dateObject->format('Y-m-d'));
+    $next->modify('last day of +'.$months.' month');
+
+    #if $dateObject day is greater than the day of $next
+    #return the difference
+    #else create a new interval
+    if($dateObject->format('d') > $next->format('d')) {
+        return $dateObject->diff($next);
+    } else {
+        return new DateInterval('P'.$months.'M');
+    }
+}
+
 require_once '../config/config.php';
 require_once '../model/database-model.php';
-require_once '../model/body-type-model.php';
+require_once '../model/leasing-application-model.php';
+require_once '../model/system-setting-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new LeasingApplicationController(new LeasingApplicationModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel());
+$controller = new LeasingApplicationController(new LeasingApplicationModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SystemSettingModel(new DatabaseModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

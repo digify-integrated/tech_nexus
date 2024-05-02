@@ -9,45 +9,36 @@
   $tenantModel = new TenantModel($databaseModel);
   $propertyModel = new PropertyModel($databaseModel);
 
-  $pageTitle = 'Leasing Application';
+  $pageTitle = 'Leasing Summary';
     
-  $leasingApplicationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 81, 'read');
-  $leasingApplicationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 81, 'create');
-  $leasingApplicationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 81, 'write');
-  $leasingApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 81, 'delete');
-  $leasingApplicationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 81, 'duplicate');
-  $setToDraftLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 136);
-  $forInitialApproval = $userModel->checkSystemActionAccessRights($user_id, 137);
-  $approveLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 138);
-  $rejectLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 139);
-  $cancelLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 140);
-  $activateLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 141);
+  $leasingRepaymentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'read');
+  $leasingRepaymentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'create');
+  $leasingRepaymentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'write');
+  $leasingRepaymentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'delete');
 
-  if ($leasingApplicationReadAccess['total'] == 0) {
+  if ($leasingRepaymentReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: leasing-application.php');
+      header('location: leasing-summary.php');
       exit;
     }
 
-    $leasingApplicationID = $securityModel->decryptData($_GET['id']);
+    $leasingApplicationRepaymentID = $securityModel->decryptData($_GET['id']);
 
-    $checkLeasingApplicationExist = $leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
-    $total = $checkLeasingApplicationExist['total'] ?? 0;
+    $checkLeasingApplicationRepaymentExist = $leasingApplicationModel->checkLeasingApplicationRepaymentExist($leasingApplicationRepaymentID);
+    $total = $checkLeasingApplicationRepaymentExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
 
-    $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
-    $leasingRepaymentCount = $leasingApplicationModel->getLeasingApplicationRepaymentCount($leasingApplicationID);
-    $applicationStatus = $leasingApplicationDetails['application_status'];
-    $applicationStatusBadge = $leasingApplicationModel->getLeasingApplicationStatus($applicationStatus);
+    $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($leasingApplicationRepaymentID);
+    $summaryStatus = $leasingApplicationRepaymentDetails['summary_status'];
   }
   else{
     $leasingApplicationID = null;
@@ -85,14 +76,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Leasing</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="leasing-application.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="leasing-summary.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($leasingApplicationID)){
-                            echo '<li class="breadcrumb-item" id="leasing-application-id">'. $leasingApplicationID .'</li>';
-                        }
-
-                        if($newRecord){
-                            echo '<li class="breadcrumb-item">New</li>';
+                        if(!empty($leasingApplicationRepaymentID)){
+                            echo '<li class="breadcrumb-item" id="leasing-summary-id">'. $leasingApplicationRepaymentID .'</li>';
                         }
                   ?>
                 </ul>
@@ -106,14 +93,11 @@
           </div>
         </div>
         <?php
-          if($newRecord && $leasingApplicationCreateAccess['total'] > 0){
-            require_once('view/_leasing_application_new.php');
-          }
-          else if(!empty($leasingApplicationID) && $leasingApplicationWriteAccess['total'] > 0){
-            require_once('view/_leasing_application_details.php');
+        if(!empty($leasingApplicationRepaymentID)){
+            require_once('view/_leasing_summary_details.php');
           }
           else{
-            require_once('view/_leasing_application.php');
+            require_once('view/_leasing_summary.php');
           }
         ?>
       </div>
@@ -132,7 +116,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
-    <script src="./assets/js/pages/leasing-application.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/leasing-summary.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

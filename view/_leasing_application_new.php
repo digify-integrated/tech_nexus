@@ -63,7 +63,18 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-4 col-form-label">Start Date : <span class="text-danger">*</span></label>
+            <label class="col-lg-4 col-form-label">Contract Effectivity Date : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <div class="input-group date">
+                <input type="text" class="form-control regular-datepicker" id="contract_date" name="contract_date" autocomplete="off">
+                <span class="input-group-text">
+                  <i class="feather icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">First Rental Due : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="start_date" name="start_date" autocomplete="off">
