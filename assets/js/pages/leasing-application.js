@@ -7,6 +7,22 @@
         if($('#leasing-application-table').length){
             leasingApplicationTable('#leasing-application-table');
         }
+
+        if($('#leasing-summary-table').length){
+            leasingSummaryTable('#leasing-summary-table');
+        }
+
+        if($('#leasing-application-repayment-table').length){
+            leasingRepaymentTable('#leasing-application-repayment-table');
+        }
+
+        if($('#repayment-other-charges-table').length){
+            leasingRepaymentOtherChargesTable('#repayment-other-charges-table');
+        }
+
+        if($('#repayment-collections-table').length){
+            leasingRepaymentCollectionsTable('#repayment-collections-table');
+        }
         
         if($('#add-leasing-application-form').length){
             addLeasingApplicationForm();
@@ -36,8 +52,24 @@
             leasingApplicationActivationForm();
         }
 
+        if($('#leasing-application-other-charges-form').length){
+            leasingApplicationOtherChargesForm();
+        }
+
+        if($('#leasing-application-rental-form').length){
+            leasingApplicationRentalPaymentForm();
+        }
+
+        if($('#leasing-other-charges-payment-form').length){
+            leasingApplicationOtherChargesPaymentForm();
+        }
+
         if($('#leasing-application-id').length){
             displayDetails('get leasing application details');
+        }
+
+        if($('#leasing-application-repayment-id').length){
+            displayDetails('get leasing application repayment details');
         }
 
         if(leasing_application_status == 'Draft'){
@@ -177,6 +209,120 @@
             });
         });
 
+        $(document).on('click','.delete-leasing-other-charges',function() {
+            const leasing_other_charges_id = $(this).data('leasing-other-charges-id');
+            const transaction = 'delete leasing other charges';
+    
+            Swal.fire({
+                title: 'Confirm Other Charge Deletion',
+                text: 'Are you sure you want to delete this other charge?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/leasing-application-controller.php',
+                        dataType: 'json',
+                        data: {
+                            leasing_other_charges_id : leasing_other_charges_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Other Charge Success', 'The other charge has been deleted successfully.', 'success');
+                                reloadDatatable('#repayment-other-charges-table');
+                                displayDetails('get leasing application repayment details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Delete Other Charge Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.delete-leasing-collections',function() {
+            const leasing_collections_id = $(this).data('leasing-collections-id');
+            const transaction = 'delete leasing collections';
+    
+            Swal.fire({
+                title: 'Confirm Payment Deletion',
+                text: 'Are you sure you want to delete this payment?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-danger mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/leasing-application-controller.php',
+                        dataType: 'json',
+                        data: {
+                            leasing_collections_id : leasing_collections_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                showNotification('Delete Payment Success', 'The payment has been deleted successfully.', 'success');
+                                reloadDatatable('#repayment-collections-table');
+                                displayDetails('get leasing application repayment details');
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else {
+                                    showNotification('Delete Other Charge Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','.pay-leasing-other-charges',function() {
+            const paymentID = $(this).data('leasing-other-charges-id');
+            const paymentFor = $(this).data('leasing-other-charges-type');
+
+            $('#payment_for').val(paymentFor);
+            $('#payment_id').val(paymentID);
+        });
+
         $(document).on('click','#next-step',function() {
             traverseTabs('next');
         });
@@ -198,12 +344,8 @@
         });
 
         $(document).on('click','#apply-filter',function() {
-            if($('#leasing-application-table').length){
-                leasingApplicationTable('#leasing-application-table');
-            }
-    
-            if($('#all-leasing-application-table').length){
-                allLeasingApplicationTable('#all-leasing-application-table');
+            if($('#leasing-summary-table').length){
+                leasingSummaryTable('#leasing-summary-table');
             }
         });
     });
@@ -262,6 +404,302 @@ function leasingApplicationTable(datatable_name, buttons = false, show_all = fal
             'loadingRecords': 'Just a moment while we fetch your data...'
         }
     }
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
+    const type = 'leasing summary table';
+    var leasing_application_status_filter = $('.leasing-application-status-filter:checked').val();
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TENANT_NAME' },
+        { 'data' : 'PROPERTY_NAME' },
+        { 'data' : 'FLOOR_AREA' },
+        { 'data' : 'TERM' },
+        { 'data' : 'INCEPTION_DATE' },
+        { 'data' : 'MATURITY_DATE' },
+        { 'data' : 'SECURITY_DEPOSIT' },
+        { 'data' : 'ESCALATION_RATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'INITIAL_BASIC_RENTAL' },
+        { 'data' : 'UNPAID_RENTAL' },
+        { 'data' : 'UNPAID_ELECTRICITY' },
+        { 'data' : 'UNPAID_WATER' },
+        { 'data' : 'UNPAID_OTHER_CHARGES' },
+        { 'data' : 'OUTSTANDING_BALANCE' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': 'auto', 'aTargets': 13 },
+        { 'width': 'auto', 'aTargets': 14 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leasing_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'leasing_application_status_filter' : leasing_application_status_filter
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leasingRepaymentTable(datatable_name, buttons = false, show_all = false){
+    const leasing_application_id = $('#leasing-application-id').text();
+    const type = 'leasing repayment table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'REFERENCE' },
+        { 'data' : 'DUE_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'PAID_RENTAL' },
+        { 'data' : 'UNPAID_RENTAL' },
+        { 'data' : 'PAID_ELECTRICITY' },
+        { 'data' : 'UNPAID_ELECTRICITY' },
+        { 'data' : 'PAID_WATER' },
+        { 'data' : 'UNPAID_WATER' },
+        { 'data' : 'PAID_OTHER_CHARGES' },
+        { 'data' : 'UNPAID_OTHER_CHARGES' },
+        { 'data' : 'OUTSTANDING_BALANCE' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'aTargets': 8 },
+        { 'width': 'auto', 'aTargets': 9 },
+        { 'width': 'auto', 'aTargets': 10 },
+        { 'width': 'auto', 'aTargets': 11 },
+        { 'width': '10%','bSortable': false, 'aTargets': 12 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leasing_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'leasing_application_id' : leasing_application_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leasingRepaymentOtherChargesTable(datatable_name, buttons = false, show_all = false){
+    const leasing_application_id = $('#leasing-application-id').text();
+    const type = 'leasing repayment other charges table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'OTHER_CHARGES_TYPE' },
+        { 'data' : 'REFERENCE_NUMBER' },
+        { 'data' : 'DUE_DATE' },
+        { 'data' : 'DUE_AMOUNT' },
+        { 'data' : 'PAID_AMOUNT' },
+        { 'data' : 'OUTSTANDING_BALANCE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '10%','bSortable': false, 'aTargets': 7 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leasing_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'leasing_application_id' : leasing_application_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leasingRepaymentCollectionsTable(datatable_name, buttons = false, show_all = false){
+    const leasing_application_id = $('#leasing-application-id').text();
+    const type = 'leasing repayment collections table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'PAYMENT_FOR' },
+        { 'data' : 'REFERENCE_NUMBER' },
+        { 'data' : 'PAYMENT_MODE' },
+        { 'data' : 'PAYMENT_DATE' },
+        { 'data' : 'PAYMENT_AMOUNT' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '10%','bSortable': false, 'aTargets': 5 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leasing_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type,
+                'leasing_application_id' : leasing_application_id
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 0, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
 
     if (buttons) {
         settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
@@ -1088,6 +1526,312 @@ function leasingApplicationActivationForm(){
     });
 }
 
+function leasingApplicationOtherChargesForm(){
+    $('#leasing-application-other-charges-form').validate({
+        rules: {
+            other_charges_type: {
+                required: true
+            },
+            other_charges_due_amount: {
+                required: true
+            },
+            other_charges_due_date: {
+                required: true
+            }
+        },
+        messages: {
+            other_charges_type: {
+                required: 'Please choose the other charges type'
+            },
+            other_charges_due_amount: {
+                required: 'Please enter the due amount'
+            },
+            other_charges_due_date: {
+                required: 'Please enter the due date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const leasing_application_id = $('#leasing-application-id').text();
+            const leasing_application_repayment_id = $('#leasing-application-repayment-id').text();
+            const transaction = 'save leasing other charges';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/leasing-application-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&leasing_application_id=' + leasing_application_id + '&leasing_application_repayment_id=' + leasing_application_repayment_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-leasing-application-other-charges');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Saving Other Charges Success', 'The other charges has been saved successfully.', 'success');
+                        displayDetails('get leasing application repayment details');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-leasing-application-other-charges', 'Submit');
+                    $('#leasing-application-other-charges-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function leasingApplicationRentalPaymentForm(){
+    $('#leasing-application-rental-form').validate({
+        rules: {
+            rental_payment_mode: {
+                required: true
+            },
+            rental_reference_number: {
+                required: true
+            },
+            rental_payment_amount: {
+                required: true
+            },
+            rental_payment_date: {
+                required: true
+            },
+        },
+        messages: {
+            rental_payment_mode: {
+                required: 'Please choose the payment mode'
+            },
+            rental_reference_number: {
+                required: 'Please enter the reference number'
+            },
+            rental_payment_amount: {
+                required: 'Please enter the payment amount'
+            },
+            rental_payment_date: {
+                required: 'Please choose the payment date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const leasing_application_id = $('#leasing-application-id').text();
+            const leasing_application_repayment_id = $('#leasing-application-repayment-id').text();
+            const transaction = 'save leasing rental payment';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/leasing-application-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&leasing_application_id=' + leasing_application_id + '&leasing_application_repayment_id=' + leasing_application_repayment_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-leasing-application-rental');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Saving Rental Payment Success', 'The rental payment has been saved successfully.', 'success');
+                        displayDetails('get leasing application repayment details');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-leasing-application-rental', 'Submit');
+                    $('#leasing-application-rental-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function leasingApplicationOtherChargesPaymentForm(){
+    $('#leasing-other-charges-payment-form').validate({
+        rules: {
+            other_charges_payment_mode: {
+                required: true
+            },
+            other_charges_reference_number: {
+                required: true
+            },
+            other_charges_payment_amount: {
+                required: true
+            },
+            other_charges_payment_date: {
+                required: true
+            },
+        },
+        messages: {
+            other_charges_payment_mode: {
+                required: 'Please choose the payment mode'
+            },
+            other_charges_reference_number: {
+                required: 'Please enter the reference number'
+            },
+            other_charges_payment_amount: {
+                required: 'Please enter the payment amount'
+            },
+            other_charges_payment_date: {
+                required: 'Please choose the payment date'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const leasing_application_id = $('#leasing-application-id').text();
+            const leasing_application_repayment_id = $('#leasing-application-repayment-id').text();
+            const transaction = 'save leasing other charges payment';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/leasing-application-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&leasing_application_id=' + leasing_application_id + '&leasing_application_repayment_id=' + leasing_application_repayment_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-leasing-other-charges-payment-form');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification('Saving Other Charges Payment Success', 'The other charges payment has been saved successfully.', 'success');
+                        displayDetails('get leasing application repayment details');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-leasing-other-charges-payment-form', 'Submit');
+                    $('#leasing-other-charges-payment-offcanvas').offcanvas('hide');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function displayDetails(transaction){
     switch (transaction) {
         case 'get leasing application details':
@@ -1130,6 +1874,26 @@ function displayDetails(transaction){
                         if($('#contract-image').length){
                             document.getElementById('contract-image').src = response.contractImage;
                         }
+
+                        if($('#total-unpaid-rental').length){
+                            $('#total-unpaid-rental').text(response.unpaidRental);
+                        }
+
+                        if($('#total-unpaid-electricity').length){
+                            $('#total-unpaid-electricity').text(response.unpaidElectricity);
+                        }
+
+                        if($('#total-unpaid-water').length){
+                            $('#total-unpaid-water').text(response.unpaidWater);
+                        }
+
+                        if($('#total-unpaid-other-charges').length){
+                            $('#total-unpaid-other-charges').text(response.unpaidOtherCharges);
+                        }
+
+                        if($('#total-outstanding-balance').length){
+                            $('#total-outstanding-balance').text(response.outstandingBalance);
+                        }
                     } 
                     else {
                         if(response.isInactive){
@@ -1150,6 +1914,85 @@ function displayDetails(transaction){
                 complete: function(){
                     calculateMaturityDate();
                     leasingApplicationRepaymentTable();
+                }
+            });
+            break;
+        case 'get leasing application repayment details':
+            var leasing_application_repayment_id = $('#leasing-application-repayment-id').text();
+            
+            $.ajax({
+                url: 'controller/leasing-application-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    leasing_application_repayment_id : leasing_application_repayment_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if($('#repayment-due-date').length){
+                            $('#repayment-due-date').text(response.dueDate);
+                        }
+
+                        if($('#repayment-status').length){
+                            $('#repayment-status').text(response.unpaidElectricity);
+                        }
+
+                        if($('#total-repayment-paid-rental').length){
+                            $('#total-repayment-paid-rental').text(response.paidRental);
+                        }
+
+                        if($('#total-repayment-unpaid-rental').length){
+                            $('#total-repayment-unpaid-rental').text(response.unpaidRental);
+                        }
+
+                        if($('#total-repayment-paid-electricity').length){
+                            $('#total-repayment-paid-electricity').text(response.paidElectricity);
+                        }
+
+                        if($('#total-repayment-unpaid-electricity').length){
+                            $('#total-repayment-unpaid-electricity').text(response.unpaidElectricity);
+                        }
+
+                        if($('#total-repayment-paid-water').length){
+                            $('#total-repayment-paid-water').text(response.paidWater);
+                        }
+
+                        if($('#total-repayment-unpaid-water').length){
+                            $('#total-repayment-unpaid-water').text(response.unpaidWater);
+                        }
+
+                        if($('#total-repayment-paid-other-charges').length){
+                            $('#total-repayment-paid-other-charges').text(response.paidOtherCharges);
+                        }
+
+                        if($('#total-repayment-unpaid-other-charges').length){
+                            $('#total-repayment-unpaid-other-charges').text(response.unpaidOtherCharges);
+                        }
+
+                        if($('#total-repayment-outstanding-balance').length){
+                            $('#total-repayment-outstanding-balance').text(response.outstandingBalance);
+                        }
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Leasing Application Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    reloadDatatable('#repayment-collections-table');
+                    reloadDatatable('#repayment-other-charges-table');
                 }
             });
             break;

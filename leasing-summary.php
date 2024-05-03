@@ -27,21 +27,35 @@
       exit;
     }
 
-    $leasingApplicationRepaymentID = $securityModel->decryptData($_GET['id']);
+    $leasingApplicationID = $securityModel->decryptData($_GET['id']);
+    $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
 
-    $checkLeasingApplicationRepaymentExist = $leasingApplicationModel->checkLeasingApplicationRepaymentExist($leasingApplicationRepaymentID);
-    $total = $checkLeasingApplicationRepaymentExist['total'] ?? 0;
+    $checkLeasingApplicationExist = $leasingApplicationModel->checkLeasingApplicationExist($leasingApplicationID);
+    $total = $checkLeasingApplicationExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
 
-    $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($leasingApplicationRepaymentID);
-    $summaryStatus = $leasingApplicationRepaymentDetails['summary_status'];
+    $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+    $applicationStatus = $leasingApplicationDetails['application_status'];
+    $applicationStatusBadge = $leasingApplicationModel->getLeasingApplicationStatus($applicationStatus);
   }
   else{
     $leasingApplicationID = null;
+  }
+
+  if(isset($_GET['repayment_id'])){
+    if(empty($_GET['repayment_id'])){
+      header('location: leasing-summary.php');
+      exit;
+    }
+
+    $leasingApplicationRepaymentID = $securityModel->decryptData($_GET['repayment_id']);
+  }
+  else{
+    $leasingApplicationRepaymentID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -78,10 +92,16 @@
                     <li class="breadcrumb-item">Leasing</li>
                     <li class="breadcrumb-item" aria-current="page"><a href="leasing-summary.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!empty($leasingApplicationRepaymentID)){
-                            echo '<li class="breadcrumb-item" id="leasing-summary-id">'. $leasingApplicationRepaymentID .'</li>';
+                        if(!empty($leasingApplicationID) && empty($leasingApplicationRepaymentID)){
+                          echo '<li class="breadcrumb-item" id="leasing-application-id">'. $leasingApplicationID .'</li>';
                         }
-                  ?>
+
+                        if(!empty($leasingApplicationID) && !empty($leasingApplicationRepaymentID)){
+                          echo '<li class="breadcrumb-item" id="leasing-application-id">'. $leasingApplicationID .'</li>';
+                          echo '<li class="breadcrumb-item" aria-current="page"><a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">Leasing Rental</a></li>';
+                          echo '<li class="breadcrumb-item" id="leasing-application-repayment-id">'. $leasingApplicationRepaymentID .'</li>';
+                        }
+                    ?>
                 </ul>
               </div>
               <div class="col-md-12">
@@ -93,8 +113,11 @@
           </div>
         </div>
         <?php
-        if(!empty($leasingApplicationRepaymentID)){
+          if(!empty($leasingApplicationID) && empty($leasingApplicationRepaymentID)){
             require_once('view/_leasing_summary_details.php');
+          }
+          else if(!empty($leasingApplicationID) && !empty($leasingApplicationRepaymentID)){
+            require_once('view/_leasing_summary_repayment_details.php');
           }
           else{
             require_once('view/_leasing_summary.php');
@@ -116,7 +139,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
-    <script src="./assets/js/pages/leasing-summary.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/leasing-application.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

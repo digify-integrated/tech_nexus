@@ -175,7 +175,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SALES_PROPOSAL_NUMBER' => '<a href="all-sales-proposal.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                         '. $salesProposalNumber .'
                                                     </a>',
-                                                    'CUSTOMER' => '<div class="col">
+                        'CUSTOMER' => '<div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
                                                 </div>',

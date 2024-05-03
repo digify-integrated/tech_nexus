@@ -125,7 +125,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Outstanding Balance')['total'];
 
                     $response[] = [
-                        'TENANT_NAME' => $tenantName,
+                        'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
+                            '. $tenantName .'
+                        </a>',
                         'PROPERTY_NAME' => $propertyName,
                         'FLOOR_AREA' => number_format($floorArea, 0),
                         'TERM' => $termLength . ' ' . $termType,
@@ -133,13 +135,197 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'MATURITY_DATE' => $maturityDate,
                         'SECURITY_DEPOSIT' => number_format($securityDeposit, 2),
                         'ESCALATION_RATE' => number_format($escalationRate, 2) . '%',
-                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2),
                         'STATUS' => $leasingApplicationStatus,
+                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2),
                         'UNPAID_RENTAL' => number_format($unpaidRental, 2),
                         'UNPAID_ELECTRICITY' => number_format($unpaidElectricity, 2),
                         'UNPAID_WATER' => number_format($unpaidWater, 2),
                         'UNPAID_OTHER_CHARGES' => number_format($unpaidOtherCharges, 2),
                         'OUTSTANDING_BALANCE' => number_format($outstandingBalance, 2)
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: leasing repayment table
+        # Description:
+        # Generates the leasing repayment table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'leasing repayment table':
+            if(isset($_POST['leasing_application_id'])){
+                $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+                $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingRepaymentTable(:leasingApplicationID)');
+                $sql->bindValue(':leasingApplicationID', $leasingApplicationID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $leasingApplicationRepaymentID = $row['leasing_application_repayment_id'];
+                    $reference = $row['reference'];
+                    $unpaidRental = number_format($row['unpaid_rental'], 2);
+                    $paidRental = number_format($row['paid_rental'], 2);
+                    $unpaidElectricity = number_format($row['unpaid_electricity'], 2);
+                    $paidElectricity = number_format($row['paid_electricity'], 2);
+                    $unpaidWater = number_format($row['unpaid_water'], 2);
+                    $paidWater = number_format($row['paid_water'], 2);
+                    $unpaidOtherCharges = number_format($row['unpaid_other_charges'], 2);
+                    $paidOtherCharges = number_format($row['paid_other_charges'], 2);
+                    $outstandingBalance = number_format($row['outstanding_balance'], 2);
+                    $dueDate = $systemModel->checkDate('summary', $row['due_date'], '', 'm/d/Y', '');
+
+                    $leasingApplicationRepaymentIDEncrypted = $securityModel->encryptData($leasingApplicationRepaymentID);
+
+                    $repaymentStatus = $leasingApplicationModel->getLoanApplicationRepaymentStatus($row['repayment_status']);
+
+                    $response[] = [
+                        'REFERENCE' =>  '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'&repayment_id='. $leasingApplicationRepaymentIDEncrypted .'">
+                            '. $reference .'
+                        </a>',
+                        'DUE_DATE' => $dueDate,
+                        'STATUS' => $repaymentStatus,
+                        'PAID_RENTAL' => $paidRental,
+                        'UNPAID_RENTAL' => $unpaidRental,
+                        'PAID_ELECTRICITY' => $paidElectricity,
+                        'UNPAID_ELECTRICITY' => $unpaidElectricity,
+                        'PAID_WATER' => $paidWater,
+                        'UNPAID_WATER' => $unpaidWater,
+                        'PAID_OTHER_CHARGES' => $paidOtherCharges,
+                        'UNPAID_OTHER_CHARGES' => $unpaidOtherCharges,
+                        'OUTSTANDING_BALANCE' => $outstandingBalance,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'&repayment_id='. $leasingApplicationRepaymentIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: leasing repayment other charges table
+        # Description:
+        # Generates the leasing repayment other charges table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'leasing repayment other charges table':
+            if(isset($_POST['leasing_application_id'])){
+                $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+                $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingRepaymentOtherChargesTable(:leasingApplicationID)');
+                $sql->bindValue(':leasingApplicationID', $leasingApplicationID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $leasingOtherChargesID = $row['leasing_other_charges_id'];
+                    $otherChargesType = $row['other_charges_type'];
+                    $dueAmount = number_format($row['due_amount'], 2);
+                    $duePaid = number_format($row['due_paid'], 2);
+                    $referenceNumber = $row['reference_number'];
+                    $outstandingBalance = number_format($row['outstanding_balance'], 2);
+                    $dueDate = $systemModel->checkDate('summary', $row['due_date'], '', 'm/d/Y', '');
+
+                    $status = $leasingApplicationModel->getLoanApplicationRepaymentStatus($row['payment_status']);
+
+                    $payment = '';
+                    if($row['outstanding_balance'] > 0){
+                        $payment = '<button type="button" class="btn btn-icon btn-success pay-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" data-leasing-other-charges-type="'. $otherChargesType .'" data-bs-toggle="offcanvas" data-bs-target="#leasing-other-charges-payment-offcanvas" aria-controls="leasing-other-charges-payment-offcanvas" title="Pay Other Charges">
+                        <i class="ti ti-check"></i>
+                    </button>';
+                    }
+
+                    $delete = '';
+                    if($row['due_paid'] == 0){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" title="Delete Other Charges">
+                        <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
+                    $response[] = [
+                        'OTHER_CHARGES_TYPE' => $otherChargesType,
+                        'REFERENCE_NUMBER' => $referenceNumber,
+                        'DUE_DATE' => $dueDate,
+                        'DUE_AMOUNT' => $dueAmount,
+                        'PAID_AMOUNT' => $duePaid,
+                        'OUTSTANDING_BALANCE' => $outstandingBalance,
+                        'STATUS' => $status,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        '. $payment .'
+                                        '. $delete .'
+                                    </div>'
+                    ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: leasing repayment collections table
+        # Description:
+        # Generates the leasing repayment collections table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'leasing repayment collections table':
+            if(isset($_POST['leasing_application_id'])){
+                $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+                $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingRepaymentCollectionsTable(:leasingApplicationID)');
+                $sql->bindValue(':leasingApplicationID', $leasingApplicationID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $leasingCollectionsID = $row['leasing_collections_id'];
+                    $paymentFor = $row['payment_for'];
+                    $referenceNumber = $row['reference_number'];
+                    $paymentMode = $row['payment_mode'];
+                    $paymentAmount = number_format($row['payment_amount'], 2);
+                    $paymentDate = $systemModel->checkDate('summary', $row['payment_date'], '', 'm/d/Y', '');
+
+                    $response[] = [
+                        'PAYMENT_FOR' => $paymentFor,
+                        'REFERENCE_NUMBER' => $referenceNumber,
+                        'PAYMENT_MODE' => $paymentMode,
+                        'PAYMENT_DATE' => $paymentDate,
+                        'PAYMENT_AMOUNT' => $paymentAmount,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
+                                        <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>'
                     ];
                 }
 

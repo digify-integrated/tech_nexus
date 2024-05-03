@@ -8173,6 +8173,45 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE updateLeasingOtherChargesStatus()
+BEGIN
+   UPDATE leasing_other_charges
+    SET payment_status = 
+    CASE 
+         WHEN outstanding_balance = due_amount AND due_paid = 0 THEN 'Unpaid'
+        WHEN outstanding_balance = due_amount AND (due_paid > 0 AND due_amount > 0) THEN 'Partially Paid'
+        ELSE 'Fully Paid'
+    END;
+END //
+
+CREATE PROCEDURE updateLeasingApplicationRepaymentStatus()
+BEGIN
+    UPDATE leasing_application_repayment
+    SET repayment_status = 
+        CASE 
+            WHEN outstanding_balance = unpaid_rental + unpaid_electricity + unpaid_water + unpaid_other_charges AND paid_rental = 0 THEN 'Unpaid'
+            WHEN outstanding_balance = unpaid_rental + unpaid_electricity + unpaid_water + unpaid_other_charges AND (paid_rental > 0 OR paid_electricity > 0 OR paid_water > 0 OR paid_other_charges > 0) THEN 'Partially Paid'
+            ELSE 'Fully Paid'
+        END;
+END //
+
+CREATE PROCEDURE updateLeasingApplicationStatusToClosed()
+BEGIN
+     UPDATE leasing_application
+    SET application_status = 'Closed',
+        closed_date = CURRENT_TIMESTAMP
+    WHERE leasing_application_id IN (
+        SELECT lar.leasing_application_id
+        FROM leasing_application_repayment lar
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM leasing_application_repayment lar2
+            WHERE lar2.leasing_application_id = lar.leasing_application_id
+            AND (lar2.repayment_status <> 'Fully Paid' OR lar2.outstanding_balance <> 0)
+        )
+    );
+END //
+
 CREATE PROCEDURE getLeasingAplicationRepaymentTotal(IN p_leasing_application_id INT, IN p_transcation_type VARCHAR(100))
 BEGIN
     IF p_transcation_type = 'Unpaid Rental' THEN
@@ -8227,4 +8266,246 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateLeasingRepaymentTable(IN p_leasing_application_id INT)
+BEGIN
+   SELECT * FROM leasing_application_repayment WHERE leasing_application_id = p_leasing_application_id ;
+END //
+
+CREATE PROCEDURE generateLeasingRepaymentOtherChargesTable(IN p_leasing_application_id INT)
+BEGIN
+   SELECT * FROM leasing_other_charges WHERE leasing_application_id = p_leasing_application_id ;
+END //
+
+CREATE PROCEDURE generateLeasingRepaymentCollectionsTable(IN p_leasing_application_id INT)
+BEGIN
+   SELECT * FROM leasing_collections WHERE leasing_application_id = p_leasing_application_id ;
+END //
+
+CREATE PROCEDURE checkLeasingOtherChargesExist (IN p_leasing_other_charges_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leasing_other_charges
+    WHERE leasing_other_charges_id = p_leasing_other_charges_id;
+END //
+
+CREATE PROCEDURE insertLeasingOtherCharges(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE, IN p_due_paid DOUBLE, IN p_due_date DATE, IN p_outstanding_balance DOUBLE, IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+     IF p_other_charges_type = 'Electricity' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_electricity = (unpaid_electricity + p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+    ELSEIF p_other_charges_type = 'Water' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_water = (unpaid_water + p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+    ELSE
+        UPDATE leasing_application_repayment
+        SET unpaid_other_charges = (unpaid_other_charges + p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+    END IF;
+
+	INSERT INTO leasing_other_charges (leasing_application_repayment_id, leasing_application_id, other_charges_type, due_amount, due_paid, due_date, outstanding_balance, reference_number, last_log_by) 
+	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_other_charges_type, p_due_amount, p_due_paid, p_due_date, p_outstanding_balance, p_reference_number, p_last_log_by);
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE deleteLeasingOtherCharges(IN p_leasing_other_charges_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_other_charges_type = 'Electricity' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_electricity = (unpaid_electricity - p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE p_leasing_other_charges_id = p_leasing_other_charges_id;
+    ELSEIF p_other_charges_type = 'Water' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_water = (unpaid_water - p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    ELSE
+        UPDATE leasing_application_repayment
+        SET unpaid_other_charges = (unpaid_other_charges - p_due_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
+    END IF;
+
+	DELETE FROM leasing_other_charges
+    WHERE leasing_other_charges_id = p_leasing_other_charges_id;
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE checkLeasingCollectionExist (IN p_leasing_collections_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leasing_collections
+    WHERE leasing_collections_id = p_leasing_collections_id;
+END //
+
+CREATE PROCEDURE insertLeasingRentalPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE leasing_application_repayment
+    SET unpaid_rental = (unpaid_rental - p_payment_amount),
+    paid_rental = (paid_rental + p_payment_amount),
+    outstanding_balance = (outstanding_balance - p_payment_amount),
+    last_log_by = p_last_log_by
+    WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+	INSERT INTO leasing_collections (leasing_application_repayment_id, leasing_application_id, payment_for, payment_id, reference_number, payment_mode, payment_date, payment_amount, last_log_by) 
+	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_payment_for, p_payment_id, p_reference_number, p_payment_mode, p_payment_date, p_payment_amount, p_last_log_by);
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE insertLeasingOtherChargesPayment(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_reference_number VARCHAR(500), IN p_payment_mode VARCHAR(50), IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_payment_for = 'Electricity' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_electricity = (unpaid_electricity - p_payment_amount),
+        paid_electricity = (paid_electricity + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+        UPDATE leasing_other_charges
+        SET due_amount = (due_amount - p_payment_amount),
+        due_paid = (due_paid + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    ELSEIF p_payment_for = 'Water' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_water = (unpaid_water - p_payment_amount),
+        paid_water = (paid_water + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+          UPDATE leasing_other_charges
+        SET due_amount = (due_amount - p_payment_amount),
+        due_paid = (due_paid + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    ELSE
+        UPDATE leasing_application_repayment
+        SET unpaid_other_charges = (unpaid_other_charges - p_payment_amount),
+        paid_other_charges = (paid_other_charges + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+        UPDATE leasing_other_charges
+        SET due_amount = (due_amount - p_payment_amount),
+        due_paid = (due_paid + p_payment_amount),
+        outstanding_balance = (outstanding_balance - p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    END IF;
+
+	INSERT INTO leasing_collections (leasing_application_repayment_id, leasing_application_id, payment_for, payment_id, reference_number, payment_mode, payment_date, payment_amount, last_log_by) 
+	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_payment_for, p_payment_id, p_reference_number, p_payment_mode, p_payment_date, p_payment_amount, p_last_log_by);
+
+    COMMIT;
+END //
+
+CREATE PROCEDURE getLeasingCollections(IN p_leasing_collections_id INT)
+BEGIN
+	SELECT * FROM leasing_collections
+    WHERE leasing_collections_id = p_leasing_collections_id;
+END //
+
+CREATE PROCEDURE getLeasingApplicationRepayment(IN p_leasing_application_repayment_id INT)
+BEGIN
+	SELECT * FROM leasing_application_repayment
+    WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+END //
+
+CREATE PROCEDURE deleteLeasingCollections(IN p_leasing_collections_id INT, IN p_leasing_application_repayment_id INT, IN p_payment_for VARCHAR(50), IN p_payment_id INT, IN p_payment_amount DOUBLE)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    IF p_payment_for = 'Rent' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_rental = (unpaid_rental + p_payment_amount),
+        paid_rental = (paid_rental - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+    ELSEIF p_payment_for = 'Electricity' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_electricity = (unpaid_electricity + p_payment_amount),
+        paid_electricity = (paid_electricity - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+        UPDATE leasing_other_charges
+        SET due_amount = (due_amount + p_payment_amount),
+        due_paid = (due_paid - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    ELSEIF p_payment_for = 'Water' THEN
+        UPDATE leasing_application_repayment
+        SET unpaid_water = (unpaid_water + p_payment_amount),
+        paid_water = (paid_water - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+        UPDATE leasing_other_charges
+        SET due_amount = (due_amount + p_payment_amount),
+        due_paid = (due_paid - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    ELSE
+        UPDATE leasing_application_repayment
+        SET unpaid_other_charges = (unpaid_other_charges + p_payment_amount),
+        paid_other_charges = (paid_other_charges - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+
+        UPDATE leasing_other_charges
+        SET due_amount = (due_amount + p_payment_amount),
+        due_paid = (due_paid - p_payment_amount),
+        outstanding_balance = (outstanding_balance + p_payment_amount)
+        WHERE leasing_other_charges_id = p_payment_id;
+    END IF;
+
+	DELETE FROM leasing_collections
+    WHERE leasing_collections_id = p_leasing_collections_id;
+
+    COMMIT;
 END //

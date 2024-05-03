@@ -5311,6 +5311,7 @@ CREATE TABLE leasing_application (
     activation_date DATETIME,
     rejection_date DATETIME,
 	cancellation_date DATETIME,
+	closed_date DATETIME,
 	contract_image VARCHAR(500),
 	activation_remarks VARCHAR(500),
 	set_to_draft_reason VARCHAR(500),
@@ -5340,6 +5341,33 @@ CREATE TABLE leasing_application_repayment (
     paid_other_charges DOUBLE NOT NULL DEFAULT 0,
     outstanding_balance DOUBLE NOT NULL,
     repayment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    last_log_by INT UNSIGNED NOT NULL
+);
+
+CREATE TABLE leasing_other_charges (
+    leasing_other_charges_id INT AUTO_INCREMENT PRIMARY KEY,
+    leasing_application_repayment_id INT,
+    leasing_application_id INT UNSIGNED NOT NULL,
+    other_charges_type VARCHAR(50) NOT NULL,
+    due_amount DOUBLE NOT NULL,
+    due_paid DOUBLE NOT NULL,
+    due_date DOUBLE,
+    outstanding_balance DOUBLE NOT NULL,
+    reference_number VARCHAR(100),
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    last_log_by INT UNSIGNED NOT NULL
+);
+
+CREATE TABLE leasing_collections (
+    leasing_collections_id INT AUTO_INCREMENT PRIMARY KEY,
+    leasing_application_repayment_id INT,
+    leasing_application_id INT UNSIGNED NOT NULL,
+    payment_for VARCHAR(50) NOT NULL,
+    payment_id INT NOT NULL,
+    reference_number VARCHAR(500) NOT NULL,
+    payment_mode VARCHAR(50) NOT NULL,
+    payment_date DATE NOT NULL,
+    payment_amount DOUBLE NOT NULL,
     last_log_by INT UNSIGNED NOT NULL
 );
 

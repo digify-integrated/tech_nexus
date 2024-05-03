@@ -71,6 +71,95 @@ class LeasingApplicationModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingApplicationStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
+    # - $p_leasing_application_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingApplicationStatus($p_leasing_application_id, $p_changed_by, $p_application_status, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationStatus(:p_leasing_application_id, :p_changed_by, :p_application_status, :p_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_changed_by', $p_changed_by, PDO::PARAM_INT);
+        $stmt->bindValue(':p_application_status', $p_application_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingOtherChargesStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
+    # - $p_leasing_application_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingOtherChargesStatus() {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingOtherChargesStatus()');
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingApplicationRepaymentStatus
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
+    # - $p_leasing_application_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingApplicationRepaymentStatus() {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationRepaymentStatus()');
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateLeasingApplicationStatusToClosed
+    # Description: Updates the sales proposal accessories.
+    #
+    # Parameters:
+    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
+    # - $p_leasing_application_id (int): The sales proposal ID.
+    # - $p_accessories (string): The accessories.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLeasingApplicationStatusToClosed() {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationStatusToClosed()');
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Insert methods
@@ -141,25 +230,80 @@ class LeasingApplicationModel {
 
     # -------------------------------------------------------------
     #
-    # Function: updateLeasingApplicationStatus
-    # Description: Updates the sales proposal accessories.
+    # Function: insertLeasingOtherCharges
+    # Description: Inserts the leasing application.
     #
     # Parameters:
-    # - $p_leasing_application_accessories_id (int): The sales proposal accessories ID.
-    # - $p_leasing_application_id (int): The sales proposal ID.
-    # - $p_accessories (string): The accessories.
-    # - $p_cost (double): The cost.
+    # - $p_leasing_application_name (string): The leasing application name.
     # - $p_last_log_by (int): The last logged user.
     #
-    # Returns: None
+    # Returns: String
     #
     # -------------------------------------------------------------
-    public function updateLeasingApplicationStatus($p_leasing_application_id, $p_changed_by, $p_application_status, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplicationStatus(:p_leasing_application_id, :p_changed_by, :p_application_status, :p_remarks, :p_last_log_by)');
+    public function insertLeasingOtherCharges($p_leasing_application_repayment_id, $p_leasing_application_id, $p_other_charges_type, $p_due_amount, $p_due_paid, $p_due_date, $p_outstanding_balance, $p_reference_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherCharges(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_other_charges_type, :p_due_amount, :p_due_paid, :p_due_date, :p_outstanding_balance, :p_reference_number, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
-        $stmt->bindValue(':p_changed_by', $p_changed_by, PDO::PARAM_INT);
-        $stmt->bindValue(':p_application_status', $p_application_status, PDO::PARAM_STR);
-        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_other_charges_type', $p_other_charges_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_amount', $p_due_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_paid', $p_due_paid, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_date', $p_due_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_outstanding_balance', $p_outstanding_balance, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertLeasingRentalPayment
+    # Description: Inserts the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_name (string): The leasing application name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertLeasingRentalPayment($p_leasing_application_repayment_id, $p_leasing_application_id, $p_payment_for, $p_payment_id, $p_reference_number, $p_payment_mode, $p_payment_date, $p_payment_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingRentalPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_id', $p_payment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_mode', $p_payment_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertLeasingOtherChargesPayment
+    # Description: Inserts the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_name (string): The leasing application name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertLeasingOtherChargesPayment($p_leasing_application_repayment_id, $p_leasing_application_id, $p_payment_for, $p_payment_id, $p_reference_number, $p_payment_mode, $p_payment_date, $p_payment_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherChargesPayment(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_payment_for, :p_payment_id, :p_reference_number, :p_payment_mode, :p_payment_date, :p_payment_amount, :p_last_log_by)');
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_id', $p_payment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_mode', $p_payment_mode, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -183,6 +327,44 @@ class LeasingApplicationModel {
     public function checkLeasingApplicationExist($p_leasing_application_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkLeasingApplicationExist(:p_leasing_application_id)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkLeasingOtherChargesExist
+    # Description: Checks if a leasing application exists.
+    #
+    # Parameters:
+    # - $p_leasing_other_charges_id (int): The leasing application ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkLeasingOtherChargesExist($p_leasing_other_charges_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkLeasingOtherChargesExist(:p_leasing_other_charges_id)');
+        $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkLeasingCollectionExist
+    # Description: Checks if a leasing application exists.
+    #
+    # Parameters:
+    # - $p_leasing_other_charges_id (int): The leasing application ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkLeasingCollectionExist($p_leasing_collections_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkLeasingCollectionExist(:p_leasing_collections_id)');
+        $stmt->bindValue(':p_leasing_collections_id', $p_leasing_collections_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -229,6 +411,46 @@ class LeasingApplicationModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: deleteLeasingOtherCharges
+    # Description: Deletes the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_other_charges_id (int): The leasing application ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLeasingOtherCharges($p_leasing_other_charges_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLeasingOtherCharges(:p_leasing_other_charges_id)');
+        $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteLeasingCollections
+    # Description: Deletes the leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_other_charges_id (int): The leasing application ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteLeasingCollections($p_leasing_collections_id, $p_leasing_application_repayment_id, $p_payment_for, $p_payment_id, $p_payment_amount) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLeasingCollections(:p_leasing_collections_id, :p_leasing_application_repayment_id, :p_payment_for, :p_payment_id, :p_payment_amount)');
+        $stmt->bindValue(':p_leasing_collections_id', $p_leasing_collections_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_for', $p_payment_for, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_id', $p_payment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get methods
     # -------------------------------------------------------------
 
@@ -254,6 +476,26 @@ class LeasingApplicationModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getLeasingCollections
+    # Description: Retrieves the details of a leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    #
+    # Returns:
+    # - An array containing the leasing application details.
+    #
+    # -------------------------------------------------------------
+    public function getLeasingCollections($p_leasing_collections_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingCollections(:p_leasing_collections_id)');
+        $stmt->bindValue(':p_leasing_collections_id', $p_leasing_collections_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getLeasingApplicationRepaymentCount
     # Description: Retrieves the details of a leasing application.
     #
@@ -267,6 +509,26 @@ class LeasingApplicationModel {
     public function getLeasingApplicationRepaymentCount($p_leasing_application_id) {
         $stmt = $this->db->getConnection()->prepare('CALL getLeasingApplicationRepaymentCount(:p_leasing_application_id)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getLeasingApplicationRepayment
+    # Description: Retrieves the details of a leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    #
+    # Returns:
+    # - An array containing the leasing application details.
+    #
+    # -------------------------------------------------------------
+    public function getLeasingApplicationRepayment($p_leasing_application_repayment_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingApplicationRepayment(:p_leasing_application_repayment_id)');
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

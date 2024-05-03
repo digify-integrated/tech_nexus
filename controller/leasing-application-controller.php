@@ -68,11 +68,29 @@ class LeasingApplicationController {
                 case 'save leasing application':
                     $this->saveLeasingApplication();
                     break;
+                case 'save leasing other charges':
+                    $this->saveLeasingOtherCharges();
+                    break;
+                case 'save leasing rental payment':
+                    $this->saveLeasingRentalPayment();
+                    break;
+                case 'save leasing other charges payment':
+                    $this->saveLeasingOtherChargesPayment();
+                    break;
                 case 'get leasing application details':
                     $this->getLeasingApplicationDetails();
                     break;
+                case 'get leasing application repayment details':
+                    $this->getLeasingApplicationRepaymentDetails();
+                    break;
                 case 'delete leasing application':
                     $this->deleteLeasingApplication();
+                    break;
+                case 'delete leasing other charges':
+                    $this->deleteLeasingOtherCharges();
+                    break;
+                case 'delete leasing collections':
+                    $this->deleteLeasingCollections();
                     break;
                 case 'delete multiple leasing application':
                     $this->deleteMultipleLeasingApplication();
@@ -167,11 +185,131 @@ class LeasingApplicationController {
 
             $leasingApplicationID = $this->leasingApplicationModel->insertLeasingApplication($leasingApplicationNumber, $tenantID, $propertyID, $termLength, $termType, $paymentFrequency, $renewalTag, $contractDate, $startDate, $maturityDate, $securityDeposit, $floorArea, $initialBasicRental, $escalationRate, $remarks, $userID);
 
-            this->systemSettingModel->updateSystemSettingValue(8, $leasingApplicationNumber, $userID);
+            $this->systemSettingModel->updateSystemSettingValue(8, $leasingApplicationNumber, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'leasingApplicationID' => $this->securityModel->encryptData($leasingApplicationID)]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveLeasingOtherCharges
+    # Description: 
+    # Updates the existing leasing application if it exists; otherwise, inserts a new leasing application.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveLeasingOtherCharges() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leasingOtherChargesID = isset($_POST['leasing_other_charges_id']) ? htmlspecialchars($_POST['leasing_other_charges_id'], ENT_QUOTES, 'UTF-8') : null;
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $leasingApplicationRepaymentID = htmlspecialchars($_POST['leasing_application_repayment_id'], ENT_QUOTES, 'UTF-8');
+        $otherChargesReferenceNumber = htmlspecialchars($_POST['other_charges_reference_number'], ENT_QUOTES, 'UTF-8');
+        $otherChargesType = htmlspecialchars($_POST['other_charges_type'], ENT_QUOTES, 'UTF-8');
+        $otherChargesDueAmount = htmlspecialchars($_POST['other_charges_due_amount'], ENT_QUOTES, 'UTF-8');
+        $otherChargesDueDate = $this->systemModel->checkDate('empty', $_POST['other_charges_due_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->insertLeasingOtherCharges($leasingApplicationRepaymentID, $leasingApplicationID, $otherChargesType, $otherChargesDueAmount, 0, $otherChargesDueDate, $otherChargesDueAmount, $otherChargesReferenceNumber, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveLeasingRentalPayment
+    # Description: 
+    # Updates the existing leasing application if it exists; otherwise, inserts a new leasing application.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveLeasingRentalPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $leasingApplicationRepaymentID = htmlspecialchars($_POST['leasing_application_repayment_id'], ENT_QUOTES, 'UTF-8');
+        $rentPaymentMode = htmlspecialchars($_POST['rental_payment_mode'], ENT_QUOTES, 'UTF-8');
+        $rentReferenceNumber = htmlspecialchars($_POST['rental_reference_number'], ENT_QUOTES, 'UTF-8');
+        $rentPaymentAmount = htmlspecialchars($_POST['rental_payment_amount'], ENT_QUOTES, 'UTF-8');
+        $rentPaymentDate = $this->systemModel->checkDate('empty', $_POST['rental_payment_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->insertLeasingRentalPayment($leasingApplicationRepaymentID, $leasingApplicationID, 'Rent', '', $rentReferenceNumber, $rentPaymentMode, $rentPaymentDate, $rentPaymentAmount, $userID);
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveLeasingOtherChargesPayment
+    # Description: 
+    # Updates the existing leasing application if it exists; otherwise, inserts a new leasing application.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveLeasingOtherChargesPayment() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+        $leasingApplicationRepaymentID = htmlspecialchars($_POST['leasing_application_repayment_id'], ENT_QUOTES, 'UTF-8');
+        $paymentFor = htmlspecialchars($_POST['payment_for'], ENT_QUOTES, 'UTF-8');
+        $paymentID = htmlspecialchars($_POST['payment_id'], ENT_QUOTES, 'UTF-8');
+        $otherChargesPaymentMode = htmlspecialchars($_POST['other_charges_payment_mode'], ENT_QUOTES, 'UTF-8');
+        $otherChargesReferenceNumber = htmlspecialchars($_POST['other_charges_reference_number'], ENT_QUOTES, 'UTF-8');
+        $otherChargesPaymentAmount = htmlspecialchars($_POST['other_charges_payment_amount'], ENT_QUOTES, 'UTF-8');
+        $otherChargesPaymentDate = $this->systemModel->checkDate('empty', $_POST['other_charges_payment_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasingApplicationRepaymentID, $leasingApplicationID, $paymentFor, $paymentID, $otherChargesReferenceNumber, $otherChargesPaymentMode, $otherChargesPaymentDate, $otherChargesPaymentAmount, $userID);
+        $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationStatusToClosed();
+
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
     
@@ -669,6 +807,101 @@ class LeasingApplicationController {
 
     # -------------------------------------------------------------
     #
+    # Function: deleteLeasingOtherCharges
+    # Description: 
+    # Delete the leasing application if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteLeasingOtherCharges() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leasingOtherChargesID = htmlspecialchars($_POST['leasing_other_charges_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingOtherChargesExist = $this->leasingApplicationModel->checkLeasingOtherChargesExist($leasingOtherChargesID);
+        $total = $checkLeasingOtherChargesExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->leasingApplicationModel->deleteLeasingOtherCharges($leasingOtherChargesID);
+        $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationStatusToClosed();
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteLeasingCollections
+    # Description: 
+    # Delete the leasing application if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteLeasingCollections() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $leasingCollectionsID = htmlspecialchars($_POST['leasing_collections_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeasingCollectionExist = $this->leasingApplicationModel->checkLeasingCollectionExist($leasingCollectionsID);
+        $total = $checkLeasingCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $leasingCollectionDetails = $this->leasingApplicationModel->getLeasingCollections($leasingCollectionsID);
+        $leasingApplicationRepaymentID = $leasingCollectionDetails['leasing_application_repayment_id'];
+        $paymentFor = $leasingCollectionDetails['payment_for'];
+        $paymentID = $leasingCollectionDetails['payment_id'];
+        $paymentAmount = $leasingCollectionDetails['payment_amount'];
+
+    
+        $this->leasingApplicationModel->deleteLeasingCollections($leasingCollectionsID, $leasingApplicationRepaymentID, $paymentFor, $paymentID, $paymentAmount);
+        $this->leasingApplicationModel->updateLeasingOtherChargesStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationRepaymentStatus();
+        $this->leasingApplicationModel->updateLeasingApplicationStatusToClosed();
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: deleteMultipleLeasingApplication
     # Description: 
     # Delete the selected leasing applications if it exists; otherwise, skip it.
@@ -735,6 +968,12 @@ class LeasingApplicationController {
     
             $leasingApplicationDetails = $this->leasingApplicationModel->getLeasingApplication($leasingApplicationID);
 
+            $unpaidRental = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Rental')['total'];
+            $unpaidElectricity = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Electricity')['total'];
+            $unpaidWater = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Water')['total'];
+            $unpaidOtherCharges = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Other Charges')['total'];
+            $outstandingBalance = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Outstanding Balance')['total'];
+
             $response = [
                 'success' => true,
                 'leasingApplicationNumber' => $leasingApplicationDetails['leasing_application_number'],
@@ -754,9 +993,63 @@ class LeasingApplicationController {
                 'rejectionReason' => $leasingApplicationDetails['rejection_reason'],
                 'cancellationReason' => $leasingApplicationDetails['cancellation_reason'],
                 'approvalRemarks' => $leasingApplicationDetails['approval_remarks'],
+                'unpaidRental' => number_format($unpaidRental, 2) . ' Php',
+                'unpaidElectricity' => number_format($unpaidElectricity, 2) . ' Php',
+                'unpaidWater' => number_format($unpaidWater, 2) . ' Php',
+                'unpaidOtherCharges' => number_format($unpaidOtherCharges, 2) . ' Php',
+                'outstandingBalance' => number_format($outstandingBalance, 2) . ' Php',
                 'contractImage' => $this->systemModel->checkImage($leasingApplicationDetails['contract_image'], 'default'),
                 'startDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'm/d/Y', ''),
                 'contractDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['contract_date'], '', 'm/d/Y', '')
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: getLeasingApplicationRepaymentDetails
+    # Description: 
+    # Handles the retrieval of leasing application details such as leasing application name, etc.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getLeasingApplicationRepaymentDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['leasing_application_repayment_id']) && !empty($_POST['leasing_application_repayment_id'])) {
+            $userID = $_SESSION['user_id'];
+            $leasingApplicationRepaymentID = $_POST['leasing_application_repayment_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingApplicationRepayment($leasingApplicationRepaymentID);
+
+            $response = [
+                'success' => true,
+                'unpaidRental' => number_format($leasingApplicationRepaymentDetails['unpaid_rental'], 2) . ' Php',
+                'paidRental' => number_format($leasingApplicationRepaymentDetails['paid_rental'], 2) . ' Php',
+                'unpaidElectricity' => number_format($leasingApplicationRepaymentDetails['unpaid_electricity'], 2) . ' Php',
+                'paidElectricity' => number_format($leasingApplicationRepaymentDetails['paid_electricity'], 2) . ' Php',
+                'unpaidWater' => number_format($leasingApplicationRepaymentDetails['unpaid_water'], 2) . ' Php',
+                'paidWater' => number_format($leasingApplicationRepaymentDetails['paid_water'], 2) . ' Php',
+                'unpaidOtherCharges' => number_format($leasingApplicationRepaymentDetails['unpaid_other_charges'], 2) . ' Php',
+                'paidOtherCharges' => number_format($leasingApplicationRepaymentDetails['paid_other_charges'], 2) . ' Php',
+                'outstandingBalance' => number_format($leasingApplicationRepaymentDetails['outstanding_balance'], 2) . ' Php',
+                'dueDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationRepaymentDetails['due_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);
