@@ -20,6 +20,14 @@
               <a href="javascript:void(0);" id="first-step" class="btn btn-secondary disabled">First</a>
             </div>
             <div class="d-flex">
+              <?php
+                if($applicationStatus != 'Closed' && $closeLeasingApplication['total'] > 0){
+                  echo '<div class="previous me-2">
+                          <button class="btn btn-warning" id="tag-close">Close</button>
+                        </div>';
+                }
+              ?>
+
               <div class="previous me-2">
                 <a href="javascript:void(0);" id="previous-step" class="btn btn-secondary disabled">Back To Previous</a>
               </div>
@@ -159,16 +167,21 @@
           <div class="tab-pane" id="v-contract">
             <div class="row">
               <div class="col-xl-12">
-                <div class="card">
+              <div class="card">
                   <div class="card-body py-2">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Contract </h5>
+                        <?php
+                          if($applicationStatus != 'Closed'){
+                            echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-contract-offcanvas" aria-controls="leasing-application-contract-offcanvas" id="leasing-application-contract">Contract</button>';
+                          }
+                        ?>
                       </li>
                       <li class="list-group-item px-0">
                         <div class="row align-items-center mb-3">
-                          <div class="col-sm-12 mb-sm-0">
-                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Contract Image" id="contract-image" class="img-fluid rounded">
+                          <div class="col-sm-12 mb-sm-0" >
+                            <embed id="contract-file" width="100%" height="600" type="application/pdf" />
                           </div>                      
                         </div>
                       </li>

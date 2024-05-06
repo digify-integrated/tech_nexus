@@ -15,6 +15,7 @@
   $leasingRepaymentCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'create');
   $leasingRepaymentWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'write');
   $leasingRepaymentDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 84, 'delete');
+  $closeLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 142);
 
   if ($leasingRepaymentReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -133,6 +134,7 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>

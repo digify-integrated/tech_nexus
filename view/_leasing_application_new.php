@@ -103,6 +103,26 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-4 col-form-label">VAT : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="vat" id="vat">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Witholding Tax : <span class="text-danger">*</span></label>
+            <div class="col-lg-8">
+              <select class="form-control select2" name="witholding_tax" id="witholding_tax">
+                <option value="">--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-4 col-form-label">Security Deposit : <span class="text-danger">*</span></label>
             <div class="col-lg-8">
               <input type="number" class="form-control" id="security_deposit" name="security_deposit" step="0.01" min="0">

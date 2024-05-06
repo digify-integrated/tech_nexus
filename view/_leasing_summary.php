@@ -27,7 +27,7 @@
                                 <label class="form-check-label" for="leasing-application-status-all">All</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input leasing-application-status-filter" type="radio" name="leasing-application-status-filter" id="leasing-application-status-active" value="Active" />
+                                <input class="form-check-input leasing-application-status-filter" type="radio" name="leasing-application-status-filter" id="leasing-application-status-active" value="Active" checked/>
                                 <label class="form-check-label" for="leasing-application-status-active">Active</label>
                               </div>
                               <div class="form-check my-2">
@@ -72,6 +72,11 @@
                       <tr>
                         <th>Tenant</th>
                         <th>Property</th>
+                        <th>Total Amount Due</th>
+                        <th>Unpaid Rental</th>
+                        <th>Unpaid Electricity</th>
+                        <th>Unpaid Water</th>
+                        <th>Unpaid Charges</th>
                         <th>Floor Area</th>
                         <th>Term</th>
                         <th>Inception Date</th>
@@ -80,11 +85,6 @@
                         <th>Esc. Rate</th>
                         <th>Status</th>
                         <th>Initial Basic Rental</th>
-                        <th>Unpaid Rental</th>
-                        <th>Unpaid Electricity</th>
-                        <th>Unpaid Water</th>
-                        <th>Unpaid Charges</th>
-                        <th>Total Amount Due</th>
                       </tr>
                     </thead>
                     <tbody></tbody>

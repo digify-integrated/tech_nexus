@@ -118,17 +118,22 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
 
-                    $unpaidRental = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Rental')['total'];
-                    $unpaidElectricity = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Electricity')['total'];
-                    $unpaidWater = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Water')['total'];
-                    $unpaidOtherCharges = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Unpaid Other Charges')['total'];
-                    $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, 'Outstanding Balance')['total'];
+                    $unpaidRental = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Rental')['total'];
+                    $unpaidElectricity = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Electricity')['total'];
+                    $unpaidWater = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'];
+                    $unpaidOtherCharges = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'];
+                    $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'];
 
                     $response[] = [
                         'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
                             '. $tenantName .'
                         </a>',
                         'PROPERTY_NAME' => $propertyName,
+                        'UNPAID_RENTAL' => number_format($unpaidRental, 2),
+                        'UNPAID_ELECTRICITY' => number_format($unpaidElectricity, 2),
+                        'UNPAID_WATER' => number_format($unpaidWater, 2),
+                        'UNPAID_OTHER_CHARGES' => number_format($unpaidOtherCharges, 2),
+                        'OUTSTANDING_BALANCE' => number_format($outstandingBalance, 2),
                         'FLOOR_AREA' => number_format($floorArea, 0),
                         'TERM' => $termLength . ' ' . $termType,
                         'INCEPTION_DATE' => $contractDate,
@@ -136,12 +141,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'SECURITY_DEPOSIT' => number_format($securityDeposit, 2),
                         'ESCALATION_RATE' => number_format($escalationRate, 2) . '%',
                         'STATUS' => $leasingApplicationStatus,
-                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2),
-                        'UNPAID_RENTAL' => number_format($unpaidRental, 2),
-                        'UNPAID_ELECTRICITY' => number_format($unpaidElectricity, 2),
-                        'UNPAID_WATER' => number_format($unpaidWater, 2),
-                        'UNPAID_OTHER_CHARGES' => number_format($unpaidOtherCharges, 2),
-                        'OUTSTANDING_BALANCE' => number_format($outstandingBalance, 2)
+                        'INITIAL_BASIC_RENTAL' => number_format($initialBasicRental, 2)
                     ];
                 }
 
@@ -232,7 +232,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'leasing repayment other charges table':
             if(isset($_POST['leasing_application_id'])){
                 $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
-                $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+
+                $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+                $applicationStatus = $leasingApplicationDetails['application_status'] ?? null;
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingRepaymentOtherChargesTable(:leasingApplicationID)');
                 $sql->bindValue(':leasingApplicationID', $leasingApplicationID, PDO::PARAM_INT);
@@ -252,16 +254,16 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $status = $leasingApplicationModel->getLoanApplicationRepaymentStatus($row['payment_status']);
 
                     $payment = '';
-                    if($row['outstanding_balance'] > 0){
+                    if($row['outstanding_balance'] > 0 && $applicationStatus != 'Closed'){
                         $payment = '<button type="button" class="btn btn-icon btn-success pay-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" data-leasing-other-charges-type="'. $otherChargesType .'" data-bs-toggle="offcanvas" data-bs-target="#leasing-other-charges-payment-offcanvas" aria-controls="leasing-other-charges-payment-offcanvas" title="Pay Other Charges">
-                        <i class="ti ti-check"></i>
-                    </button>';
+                            <i class="ti ti-check"></i>
+                        </button>';
                     }
 
                     $delete = '';
-                    if($row['due_paid'] == 0){
+                    if($row['due_paid'] == 0 && $applicationStatus != 'Closed'){
                         $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-other-charges" data-leasing-other-charges-id="'. $leasingOtherChargesID .'" title="Delete Other Charges">
-                        <i class="ti ti-trash"></i>
+                            <i class="ti ti-trash"></i>
                         </button>';
                     }
 
@@ -300,6 +302,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             if(isset($_POST['leasing_application_id'])){
                 $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
                 $leasingApplicationIDEncrypted = $securityModel->encryptData($leasingApplicationID);
+                
+                $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+                $applicationStatus = $leasingApplicationDetails['application_status'] ?? null;
 
                 $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingRepaymentCollectionsTable(:leasingApplicationID)');
                 $sql->bindValue(':leasingApplicationID', $leasingApplicationID, PDO::PARAM_INT);
@@ -315,6 +320,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $paymentAmount = number_format($row['payment_amount'], 2);
                     $paymentDate = $systemModel->checkDate('summary', $row['payment_date'], '', 'm/d/Y', '');
 
+                    $delete = '';
+                    if($applicationStatus != 'Closed'){
+                        $delete = '<button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
+                        <i class="ti ti-trash"></i>
+                        </button>';
+                    }
+
                     $response[] = [
                         'PAYMENT_FOR' => $paymentFor,
                         'REFERENCE_NUMBER' => $referenceNumber,
@@ -322,9 +334,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                         'PAYMENT_DATE' => $paymentDate,
                         'PAYMENT_AMOUNT' => $paymentAmount,
                         'ACTION' => '<div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-icon btn-danger delete-leasing-collections" data-leasing-collections-id="'. $leasingCollectionsID .'" title="Delete Collections">
-                                        <i class="ti ti-trash"></i>
-                                        </button>
+                                        '. $delete .'
                                     </div>'
                     ];
                 }
@@ -333,6 +343,95 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: repayment table
+        # Description:
+        # Generates the repayment table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'repayment table':
+            if(isset($_POST['leasing_application_id']) && !empty($_POST['leasing_application_id'])){
+                $leasingApplicationID = htmlspecialchars($_POST['leasing_application_id'], ENT_QUOTES, 'UTF-8');
+
+                $table = '';
+
+                $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingApplicationID);
+
+                $leasingApplicationNumber = $leasingApplicationDetails['leasing_application_number'];
+                $startDate = $systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'Y-m-d', '');
+                $initialBasicRental = $leasingApplicationDetails['initial_basic_rental'] ?? null;
+                $escalationRate = $leasingApplicationDetails['escalation_rate'] ?? null;
+                $escalationRateDecimal = $escalationRate / 100.0;
+                $termLength = $leasingApplicationDetails['term_length'] ?? null;
+                $vat = $leasingApplicationDetails['vat'] ?? 'Yes';
+                $witholdingTax = $leasingApplicationDetails['witholding_tax'] ?? 'Yes';
+                $paymentFrequency = $leasingApplicationDetails['payment_frequency'] ?? null;
+
+                if($vat == 'Yes' && $witholdingTax == 'Yes'){
+                    $initialBasicRental = $initialBasicRental + ($initialBasicRental * (0.07));
+                }
+                else if($vat == 'Yes' && $witholdingTax == 'No'){
+                    $initialBasicRental = $initialBasicRental + ($initialBasicRental * (0.12));
+                }
+                else if($vat == 'No' && $witholdingTax == 'Yes'){
+                    $initialBasicRental = $initialBasicRental - ($initialBasicRental * (0.05));
+                }
+
+                for ($x = 0; $x < $termLength; $x++) {
+                    if (($x + 1) % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
+                        $initialBasicRental *= (1 + $escalationRateDecimal);
+                    }
+                
+                    if($x == 0){
+                        $matdt = $startDate;
+        
+                        $table .= '<tr>
+                                    <td>'. ($x + 1) .'</td>       
+                                    <td>'. $matdt .'</td>       
+                                    <td>'. number_format($initialBasicRental, 2) .'</td>       
+                        </tr>';
+                    }
+                    else{
+                        # Get due dates
+                        $matdt = date('Y-m-d', strtotime(getNextDuedate($matdt, $startDate, $paymentFrequency)));
+                
+                        if(date('d', strtotime($matdt)) == '31'){
+                            $maturity = date('Y-m-30', strtotime($matdt));
+                        }
+                        else{
+                            $maturity = $matdt;
+                        }
+        
+                        if($x >= 1 && $x <= 9){
+                            $extension = '0' . ($x + 1);
+                        }
+                        else{
+                            $extension = ($x + 1);
+                        }
+                
+                        $table .= '<tr>
+                                    <td>'. ($x + 1) .'</td>       
+                                    <td>'. $maturity .'</td>       
+                                    <td>'. number_format($initialBasicRental, 2) .'</td>       
+                        </tr>';
+                    }
+                }
+
+                $response[] = [
+                    'table' => $table
+                ];
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
     }
 }
 

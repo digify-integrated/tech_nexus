@@ -332,6 +332,9 @@ function tenantForm(){
             tenant_name: {
                 required: true
             },
+            contact_person: {
+                required: true
+            },
             address: {
                 required: true
             },
@@ -342,6 +345,9 @@ function tenantForm(){
         messages: {
             tenant_name: {
                 required: 'Please enter the tenant name'
+            },
+            contact_person: {
+                required: 'Please enter the contact person'
             },
             address: {
                 required: 'Please enter the address'
@@ -446,6 +452,7 @@ function displayDetails(transaction){
                     if (response.success) {
                         $('#tenant_id').val(tenant_id);
                         $('#tenant_name').val(response.tenantName);
+                        $('#contact_person').val(response.contactPerson);
                         $('#address').val(response.address);
                         $('#phone').val(response.phone);
                         $('#mobile').val(response.mobile);
@@ -456,6 +463,7 @@ function displayDetails(transaction){
 
                         $('#city_id_label').text(response.cityName);
                         $('#tenant_name_label').text(response.tenantName);
+                        $('#contact_person_label').text(response.contactPerson);
                         $('#address_label').text(response.address);
                         $('#phone_label').text(response.phone);
                         $('#mobile_label').text(response.mobile);

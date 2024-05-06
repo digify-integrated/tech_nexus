@@ -22,6 +22,7 @@
   $rejectLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 139);
   $cancelLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 140);
   $activateLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 141);
+  $closeLeasingApplication = $userModel->checkSystemActionAccessRights($user_id, 142);
 
   if ($leasingApplicationReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -126,6 +127,7 @@
         include_once('config/_required_js.php'); 
         include_once('config/_customizer.php'); 
     ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>

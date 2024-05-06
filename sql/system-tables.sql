@@ -5296,6 +5296,8 @@ CREATE TABLE leasing_application (
 	term_length INT UNSIGNED NOT NULL,
 	term_type VARCHAR(20) NOT NULL,
     payment_frequency VARCHAR(20) NOT NULL,
+	vat VARCHAR(5) NOT NULL,
+	witholding_tax VARCHAR(5) NOT NULL,
     renewal_tag VARCHAR(10) NOT NULL,
     remarks VARCHAR(500),
     contract_date DATE NOT NULL,

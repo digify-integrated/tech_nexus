@@ -96,7 +96,7 @@
                       </div>';
                 }
 
-                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Fuel'))){
+                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Fuel' || $productType == 'Parts'))){
                   if($tagSalesProposalForDR['total'] > 0){
                     echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
                             <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>

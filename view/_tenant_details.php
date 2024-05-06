@@ -44,9 +44,14 @@
                 if($tenantWriteAccess['total'] > 0){
                   echo '<div class="form-group row">
                           <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
-                          <div class="col-lg-10">
+                          <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="tenant_name_label"></label>
                             <input type="text" class="form-control d-none form-edit" id="tenant_name" name="tenant_name" maxlength="100" autocomplete="off">
+                          </div>
+                          <label class="col-lg-2 col-form-label">Contact Person <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-4">
+                            <label class="col-form-label form-details fw-normal" id="tenant_name_label"></label>
+                            <input type="text" class="form-control d-none form-edit" id="contact_person" name="contact_person" maxlength="500" autocomplete="off">
                           </div>
                         </div>
                         <div class="form-group row">
@@ -94,8 +99,14 @@
                 else{
                   echo '<div class="form-group row">
                             <label class="col-lg-2 col-form-label">Name</label>
-                            <div class="col-lg-10">
+                            <div class="col-lg-4">
                                 <label class="col-form-label form-details fw-normal" id="tenant_name_label"></label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Contact Person</label>
+                            <div class="col-lg-4">
+                                <label class="col-form-label form-details fw-normal" id="contact_person_label"></label>
                             </div>
                         </div>
                         <div class="form-group row">

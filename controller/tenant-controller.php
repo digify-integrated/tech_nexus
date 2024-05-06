@@ -121,6 +121,7 @@ class TenantController {
         $userID = $_SESSION['user_id'];
         $tenantID = isset($_POST['tenant_id']) ? htmlspecialchars($_POST['tenant_id'], ENT_QUOTES, 'UTF-8') : null;
         $tenantName = htmlspecialchars($_POST['tenant_name'], ENT_QUOTES, 'UTF-8');
+        $contactPerson = htmlspecialchars($_POST['contact_person'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
         $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
         $phone = htmlspecialchars($_POST['phone'], ENT_QUOTES, 'UTF-8');
@@ -139,13 +140,13 @@ class TenantController {
         $total = $checkTenantExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->tenantModel->updateTenant($tenantID, $tenantName, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
+            $this->tenantModel->updateTenant($tenantID, $tenantName, $contactPerson, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'tenantID' => $this->securityModel->encryptData($tenantID)]);
             exit;
         } 
         else {
-            $tenantID = $this->tenantModel->insertTenant($tenantName, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
+            $tenantID = $this->tenantModel->insertTenant($tenantName, $contactPerson, $address, $cityID, $phone, $mobile, $telephone, $email, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'tenantID' => $this->securityModel->encryptData($tenantID)]);
             exit;
@@ -301,6 +302,7 @@ class TenantController {
             $response = [
                 'success' => true,
                 'tenantName' => $tenantDetails['tenant_name'],
+                'contactPerson' => $tenantDetails['contact_person'],
                 'address' => $tenantDetails['address'],
                 'cityID' => $cityID,
                 'cityName' => $cityName,

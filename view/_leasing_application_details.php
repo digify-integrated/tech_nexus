@@ -185,6 +185,26 @@
                     </div>
                 </div>
                 <div class="form-group row">
+                  <label class="col-lg-4 col-form-label">VAT : <span class="text-danger">*</span></label>
+                  <div class="col-lg-8">
+                    <select class="form-control select2" name="vat" id="vat">
+                      <option value="">--</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-lg-4 col-form-label">Witholding Tax : <span class="text-danger">*</span></label>
+                  <div class="col-lg-8">
+                    <select class="form-control select2" name="witholding_tax" id="witholding_tax">
+                      <option value="">--</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
                     <label class="col-lg-4 col-form-label">Security Deposit : <span class="text-danger">*</span></label>
                     <div class="col-lg-8">
                     <input type="number" class="form-control" id="security_deposit" name="security_deposit" step="0.01" value="0" min="0">
@@ -213,15 +233,15 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Contract </h5>
                         <?php
-                          if($applicationStatus == 'Draft' || $applicationStatus == 'For Approval' || $applicationStatus == 'Approved'){
+                          if($applicationStatus != 'Closed'){
                             echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#leasing-application-contract-offcanvas" aria-controls="leasing-application-contract-offcanvas" id="leasing-application-contract">Contract</button>';
                           }
                         ?>
                       </li>
                       <li class="list-group-item px-0">
                         <div class="row align-items-center mb-3">
-                          <div class="col-sm-12 mb-sm-0">
-                            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="Contract Image" id="contract-image" class="img-fluid rounded">
+                          <div class="col-sm-12 mb-sm-0" >
+                            <embed id="contract-file" width="100%" height="600" type="application/pdf" />
                           </div>                      
                         </div>
                       </li>
@@ -268,6 +288,7 @@
               <table class="table table-hover nowrap w-100">
                 <thead>
                   <tr>
+                    <th>#</th>
                     <th>Due Date</th>
                     <th>Amount Due</th>
                   </tr>

@@ -28,14 +28,16 @@ class LeasingApplicationModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateLeasingApplication($p_leasing_application_id, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplication(:p_leasing_application_id, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by)');
+    public function updateLeasingApplication($p_leasing_application_id, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_vat, $p_withholding_tax, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLeasingApplication(:p_leasing_application_id, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_vat, :p_withholding_tax, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_tenant_id', $p_tenant_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_term_length', $p_term_length, PDO::PARAM_STR);
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
+        $stmt->bindValue(':p_vat', $p_vat, PDO::PARAM_STR);
+        $stmt->bindValue(':p_withholding_tax', $p_withholding_tax, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
         $stmt->bindValue(':p_contract_date', $p_contract_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_start_date', $p_start_date, PDO::PARAM_STR);
@@ -177,14 +179,16 @@ class LeasingApplicationModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertLeasingApplication($p_leasing_application_number, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingApplication(:p_leasing_application_number, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by, @p_leasing_application_id)');
+    public function insertLeasingApplication($p_leasing_application_number, $p_tenant_id, $p_property_id, $p_term_length, $p_term_type, $p_payment_frequency, $p_vat, $p_withholding_tax, $p_renewal_tag, $p_contract_date, $p_start_date, $p_maturity_date, $p_security_deposit, $p_floor_area, $p_initial_basic_rental, $p_escalation_rate, $p_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingApplication(:p_leasing_application_number, :p_tenant_id, :p_property_id, :p_term_length, :p_term_type, :p_payment_frequency, :p_vat, :p_withholding_tax, :p_renewal_tag, :p_contract_date, :p_start_date, :p_maturity_date, :p_security_deposit, :p_floor_area, :p_initial_basic_rental, :p_escalation_rate, :p_remarks, :p_last_log_by, @p_leasing_application_id)');
         $stmt->bindValue(':p_leasing_application_number', $p_leasing_application_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_tenant_id', $p_tenant_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_term_length', $p_term_length, PDO::PARAM_STR);
         $stmt->bindValue(':p_term_type', $p_term_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_frequency', $p_payment_frequency, PDO::PARAM_STR);
+        $stmt->bindValue(':p_vat', $p_vat, PDO::PARAM_STR);
+        $stmt->bindValue(':p_withholding_tax', $p_withholding_tax, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
         $stmt->bindValue(':p_contract_date', $p_contract_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_start_date', $p_start_date, PDO::PARAM_STR);
@@ -240,14 +244,16 @@ class LeasingApplicationModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertLeasingOtherCharges($p_leasing_application_repayment_id, $p_leasing_application_id, $p_other_charges_type, $p_due_amount, $p_due_paid, $p_due_date, $p_outstanding_balance, $p_reference_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherCharges(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_other_charges_type, :p_due_amount, :p_due_paid, :p_due_date, :p_outstanding_balance, :p_reference_number, :p_last_log_by)');
+    public function insertLeasingOtherCharges($p_leasing_application_repayment_id, $p_leasing_application_id, $p_other_charges_type, $p_due_amount, $p_due_paid, $p_due_date, $p_coverage_start_date, $p_coverage_end_date, $p_outstanding_balance, $p_reference_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertLeasingOtherCharges(:p_leasing_application_repayment_id, :p_leasing_application_id, :p_other_charges_type, :p_due_amount, :p_due_paid, :p_due_date, :p_coverage_start_date, :p_coverage_end_date, :p_outstanding_balance, :p_reference_number, :p_last_log_by)');
         $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_other_charges_type', $p_other_charges_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_due_amount', $p_due_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_due_paid', $p_due_paid, PDO::PARAM_STR);
         $stmt->bindValue(':p_due_date', $p_due_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_start_date', $p_coverage_start_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_coverage_end_date', $p_coverage_end_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_outstanding_balance', $p_outstanding_balance, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -421,9 +427,13 @@ class LeasingApplicationModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function deleteLeasingOtherCharges($p_leasing_other_charges_id) {
-        $stmt = $this->db->getConnection()->prepare('CALL deleteLeasingOtherCharges(:p_leasing_other_charges_id)');
+    public function deleteLeasingOtherCharges($p_leasing_other_charges_id, $p_leasing_application_repayment_id, $p_other_charges_type, $p_due_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteLeasingOtherCharges(:p_leasing_other_charges_id, :p_leasing_application_repayment_id, :p_other_charges_type, :p_due_amount, :p_last_log_by)');
         $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_other_charges_type', $p_other_charges_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_amount', $p_due_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
@@ -536,6 +546,26 @@ class LeasingApplicationModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getLeasingOtherCharges
+    # Description: Retrieves the details of a leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    #
+    # Returns:
+    # - An array containing the leasing application details.
+    #
+    # -------------------------------------------------------------
+    public function getLeasingOtherCharges($p_leasing_other_charges_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingOtherCharges(:p_leasing_other_charges_id)');
+        $stmt->bindValue(':p_leasing_other_charges_id', $p_leasing_other_charges_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getLeasingAplicationRepaymentTotal
     # Description: Retrieves the details of a leasing application.
     #
@@ -547,9 +577,10 @@ class LeasingApplicationModel {
     # - An array containing the leasing application details.
     #
     # -------------------------------------------------------------
-    public function getLeasingAplicationRepaymentTotal($p_leasing_application_id, $p_transcation_type) {
-        $stmt = $this->db->getConnection()->prepare('CALL getLeasingAplicationRepaymentTotal(:p_leasing_application_id, :p_transcation_type)');
+    public function getLeasingAplicationRepaymentTotal($p_leasing_application_id, $p_as_of_date, $p_transcation_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL getLeasingAplicationRepaymentTotal(:p_leasing_application_id, :p_as_of_date, :p_transcation_type)');
         $stmt->bindValue(':p_leasing_application_id', $p_leasing_application_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_as_of_date', $p_as_of_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_transcation_type', $p_transcation_type, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

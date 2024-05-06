@@ -4969,8 +4969,260 @@ END //
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
 
-/*  Table Triggers */
+/* Leasing Application Table Triggers */
 
+CREATE TRIGGER leasing_application_trigger_update
+AFTER UPDATE ON leasing_application
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
 
+    IF NEW.leasing_application_number <> OLD.leasing_application_number THEN
+        SET audit_log = CONCAT(audit_log, "Leasing Application Number: ", OLD.leasing_application_number, " -> ", NEW.leasing_application_number, "<br/>");
+    END IF;
+
+    IF NEW.tenant_id <> OLD.tenant_id THEN
+        SET audit_log = CONCAT(audit_log, "Tenant ID: ", OLD.tenant_id, " -> ", NEW.tenant_id, "<br/>");
+    END IF;
+
+    IF NEW.property_id <> OLD.property_id THEN
+        SET audit_log = CONCAT(audit_log, "Property ID: ", OLD.property_id, " -> ", NEW.property_id, "<br/>");
+    END IF;
+
+    IF NEW.term_length <> OLD.term_length THEN
+        SET audit_log = CONCAT(audit_log, "Term Length: ", OLD.term_length, " -> ", NEW.term_length, "<br/>");
+    END IF;
+
+    IF NEW.term_type <> OLD.term_type THEN
+        SET audit_log = CONCAT(audit_log, "Term Type: ", OLD.term_type, " -> ", NEW.term_type, "<br/>");
+    END IF;
+
+    IF NEW.payment_frequency <> OLD.payment_frequency THEN
+        SET audit_log = CONCAT(audit_log, "Payment Frequency: ", OLD.payment_frequency, " -> ", NEW.payment_frequency, "<br/>");
+    END IF;
+
+    IF NEW.vat <> OLD.vat THEN
+        SET audit_log = CONCAT(audit_log, "VAT: ", OLD.vat, " -> ", NEW.vat, "<br/>");
+    END IF;
+
+    IF NEW.witholding_tax <> OLD.witholding_tax THEN
+        SET audit_log = CONCAT(audit_log, "Witholding Tax: ", OLD.witholding_tax, " -> ", NEW.witholding_tax, "<br/>");
+    END IF;
+
+    IF NEW.renewal_tag <> OLD.renewal_tag THEN
+        SET audit_log = CONCAT(audit_log, "Renewal Tag: ", OLD.renewal_tag, " -> ", NEW.renewal_tag, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+
+    IF NEW.contract_date <> OLD.contract_date THEN
+        SET audit_log = CONCAT(audit_log, "Contract Date: ", OLD.contract_date, " -> ", NEW.contract_date, "<br/>");
+    END IF;
+
+    IF NEW.start_date <> OLD.start_date THEN
+        SET audit_log = CONCAT(audit_log, "Start Date: ", OLD.start_date, " -> ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.maturity_date <> OLD.maturity_date THEN
+        SET audit_log = CONCAT(audit_log, "Maturity Date: ", OLD.maturity_date, " -> ", NEW.maturity_date, "<br/>");
+    END IF;
+
+    IF NEW.security_deposit <> OLD.security_deposit THEN
+        SET audit_log = CONCAT(audit_log, "Security Deposit: ", OLD.security_deposit, " -> ", NEW.security_deposit, "<br/>");
+    END IF;
+
+    IF NEW.floor_area <> OLD.floor_area THEN
+        SET audit_log = CONCAT(audit_log, "Floor Area: ", OLD.floor_area, " -> ", NEW.floor_area, "<br/>");
+    END IF;
+
+    IF NEW.initial_basic_rental <> OLD.initial_basic_rental THEN
+        SET audit_log = CONCAT(audit_log, "Initial Basic Rental: ", OLD.initial_basic_rental, " -> ", NEW.initial_basic_rental, "<br/>");
+    END IF;
+
+    IF NEW.escalation_rate <> OLD.escalation_rate THEN
+        SET audit_log = CONCAT(audit_log, "Escalation Rate: ", OLD.escalation_rate, " -> ", NEW.escalation_rate, "<br/>");
+    END IF;
+
+    IF NEW.for_approval_date <> OLD.for_approval_date THEN
+        SET audit_log = CONCAT(audit_log, "For Approval Date: ", OLD.for_approval_date, " -> ", NEW.for_approval_date, "<br/>");
+    END IF;
+
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.approval_date, " -> ", NEW.approval_date, "<br/>");
+    END IF;
+
+    IF NEW.activation_date <> OLD.activation_date THEN
+        SET audit_log = CONCAT(audit_log, "Activation Date: ", OLD.activation_date, " -> ", NEW.activation_date, "<br/>");
+    END IF;
+
+    IF NEW.rejection_date <> OLD.rejection_date THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Date: ", OLD.rejection_date, " -> ", NEW.rejection_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.closed_date <> OLD.closed_date THEN
+        SET audit_log = CONCAT(audit_log, "Closed Date: ", OLD.closed_date, " -> ", NEW.closed_date, "<br/>");
+    END IF;
+
+    IF NEW.activation_remarks <> OLD.activation_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Activation Remarks: ", OLD.activation_remarks, " -> ", NEW.activation_remarks, "<br/>");
+    END IF;
+
+    IF NEW.set_to_draft_reason <> OLD.set_to_draft_reason THEN
+        SET audit_log = CONCAT(audit_log, "Set To Draft Reason: ", OLD.set_to_draft_reason, " -> ", NEW.set_to_draft_reason, "<br/>");
+    END IF;
+
+    IF NEW.rejection_reason <> OLD.rejection_reason THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Reason: ", OLD.rejection_reason, " -> ", NEW.rejection_reason, "<br/>");
+    END IF;
+
+    IF NEW.approval_remarks <> OLD.approval_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Approval Remarks: ", OLD.approval_remarks, " -> ", NEW.approval_remarks, "<br/>");
+    END IF;
+
+    IF NEW.application_status <> OLD.application_status THEN
+        SET audit_log = CONCAT(audit_log, "Application Status: ", OLD.application_status, " -> ", NEW.application_status, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Reason: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('leasing_application', NEW.leasing_application_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER leasing_application_trigger_insert
+AFTER INSERT ON leasing_application
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Leasing application created. <br/>';
+
+     IF NEW.leasing_application_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leasing Application Number: ", NEW.leasing_application_number, "<br/>");
+    END IF;
+
+    IF NEW.tenant_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Tenant ID: ", NEW.tenant_id, "<br/>");
+    END IF;
+
+    IF NEW.property_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Property ID: ", NEW.property_id, "<br/>");
+    END IF;
+
+    IF NEW.term_length <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Term Length: ", NEW.term_length, "<br/>");
+    END IF;
+
+    IF NEW.term_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Term Type: ", NEW.term_type, "<br/>");
+    END IF;
+
+    IF NEW.payment_frequency <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Payment Frequency: ", NEW.payment_frequency, "<br/>");
+    END IF;
+
+    IF NEW.vat <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>VAT: ", NEW.vat, "<br/>");
+    END IF;
+
+    IF NEW.witholding_tax <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Witholding Tax: ", NEW.witholding_tax, "<br/>");
+    END IF;
+
+    IF NEW.renewal_tag <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Renewal Tag: ", NEW.renewal_tag, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks, "<br/>");
+    END IF;
+
+    IF NEW.contract_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contract Date: ", NEW.contract_date, "<br/>");
+    END IF;
+
+    IF NEW.start_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Start Date: ", NEW.start_date, "<br/>");
+    END IF;
+
+    IF NEW.maturity_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Maturity Date: ", NEW.maturity_date, "<br/>");
+    END IF;
+
+    IF NEW.security_deposit <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Security Deposit: ", NEW.security_deposit, "<br/>");
+    END IF;
+
+    IF NEW.floor_area <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Floor Area: ", NEW.floor_area, "<br/>");
+    END IF;
+
+    IF NEW.initial_basic_rental <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Initial Basic Rental: ", NEW.initial_basic_rental, "<br/>");
+    END IF;
+
+    IF NEW.escalation_rate <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Escalation Rate: ", NEW.escalation_rate, "<br/>");
+    END IF;
+
+    IF NEW.for_approval_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Approval Date: ", NEW.for_approval_date, "<br/>");
+    END IF;
+
+    IF NEW.approval_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Date: ", NEW.approval_date, "<br/>");
+    END IF;
+
+    IF NEW.activation_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Activation Date: ", NEW.activation_date, "<br/>");
+    END IF;
+
+    IF NEW.rejection_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rejection Date: ", NEW.rejection_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.closed_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Closed Date: ", NEW.closed_date, "<br/>");
+    END IF;
+
+    IF NEW.activation_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Activation Remarks: ", NEW.activation_remarks, "<br/>");
+    END IF;
+
+    IF NEW.set_to_draft_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Set To Draft Reason: ", NEW.set_to_draft_reason, "<br/>");
+    END IF;
+
+    IF NEW.rejection_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rejection Reason: ", NEW.rejection_reason, "<br/>");
+    END IF;
+
+    IF NEW.approval_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Remarks: ", NEW.approval_remarks, "<br/>");
+    END IF;
+
+    IF NEW.application_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Application Status: ", NEW.application_status, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Reason: ", NEW.cancellation_reason, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('leasing_application', NEW.leasing_application_id, audit_log, NEW.last_log_by, NOW());
+END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

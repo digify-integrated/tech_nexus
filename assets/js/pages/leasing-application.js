@@ -85,18 +85,30 @@
 
         $(document).on('blur','#start_date',function() {
             calculateMaturityDate();
+            leasingApplicationRepaymentTable();
         });
 
         $(document).on('change','#term_length',function() {
             calculateMaturityDate();
+            leasingApplicationRepaymentTable();
         });
 
         $(document).on('change','#term_type',function() {
             calculateMaturityDate();
+            leasingApplicationRepaymentTable();
         });
 
         $(document).on('change','#payment_frequency',function() {
             calculateMaturityDate();
+            leasingApplicationRepaymentTable();
+        });
+
+        $(document).on('change','#vat',function() {
+            leasingApplicationRepaymentTable();
+        });
+
+        $(document).on('change','#witholding_tax',function() {
+            leasingApplicationRepaymentTable();
         });
 
         $(document).on('click','#tag-for-approval',function() {
@@ -138,6 +150,61 @@
                                 }
                                 else {
                                     showNotification('Tag Leasing Application For Approval Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-close',function() {
+            const leasing_application_id = $('#leasing-application-id').text();
+            const transaction = 'tag as closed';
+    
+            Swal.fire({
+                title: 'Confirm Closing of Leasing Application',
+                text: 'Are you sure you want to close leasing application?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Close',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-warning mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/leasing-application-controller.php',
+                        dataType: 'json',
+                        data: {
+                            leasing_application_id : leasing_application_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Closing of Leasing Application Success', 'The leasing application has been closed successfully.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Closing of Leasing Application Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -348,6 +415,13 @@
                 leasingSummaryTable('#leasing-summary-table');
             }
         });
+
+        if($('#leasing-application-repayment-table').length){
+            if($('#last-step').length){
+                $("#last-step")[0].click();
+            }
+        }
+        
     });
 })(jQuery);
 
@@ -423,6 +497,11 @@ function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
     const column = [ 
         { 'data' : 'TENANT_NAME' },
         { 'data' : 'PROPERTY_NAME' },
+        { 'data' : 'UNPAID_RENTAL' },
+        { 'data' : 'UNPAID_ELECTRICITY' },
+        { 'data' : 'UNPAID_WATER' },
+        { 'data' : 'UNPAID_OTHER_CHARGES' },
+        { 'data' : 'OUTSTANDING_BALANCE' },
         { 'data' : 'FLOOR_AREA' },
         { 'data' : 'TERM' },
         { 'data' : 'INCEPTION_DATE' },
@@ -430,12 +509,7 @@ function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'SECURITY_DEPOSIT' },
         { 'data' : 'ESCALATION_RATE' },
         { 'data' : 'STATUS' },
-        { 'data' : 'INITIAL_BASIC_RENTAL' },
-        { 'data' : 'UNPAID_RENTAL' },
-        { 'data' : 'UNPAID_ELECTRICITY' },
-        { 'data' : 'UNPAID_WATER' },
-        { 'data' : 'UNPAID_OTHER_CHARGES' },
-        { 'data' : 'OUTSTANDING_BALANCE' }
+        { 'data' : 'INITIAL_BASIC_RENTAL' } 
     ];
 
     const column_definition = [
@@ -732,6 +806,12 @@ function addLeasingApplicationForm(){
             payment_frequency: {
                 required: true
             },
+            vat: {
+                required: true
+            },
+            witholding_tax: {
+                required: true
+            },
             contract_date: {
                 required: true
             },
@@ -881,6 +961,12 @@ function leasingApplicationForm(){
                 required: true
             },
             payment_frequency: {
+                required: true
+            },
+            vat: {
+                required: true
+            },
+            witholding_tax: {
                 required: true
             },
             contract_date: {
@@ -1705,7 +1791,11 @@ function leasingApplicationRentalPaymentForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else if (response.overPayment) {
+                            showNotification('Saving Rental Payment Error', 'The rental payment exceeds the amount due.', 'danger');
+                        }
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -1809,7 +1899,11 @@ function leasingApplicationOtherChargesPaymentForm(){
                         if (response.isInactive) {
                             setNotification('User Inactive', response.message, 'danger');
                             window.location = 'logout.php?logout';
-                        } else {
+                        }
+                        else if (response.overPayment) {
+                            showNotification('Saving Other Charges Payment Error', 'The other charges payment exceeds the amount due.', 'danger');
+                        } 
+                        else {
                             showNotification('Transaction Error', response.message, 'danger');
                         }
                     }
@@ -1864,6 +1958,8 @@ function displayDetails(transaction){
                         checkOptionExist('#term_type', response.termType, '');
                         checkOptionExist('#payment_frequency', response.paymentFrequency, '');
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
+                        checkOptionExist('#vat', response.vat, '');
+                        checkOptionExist('#witholding_tax', response.witholdingTax, '');
 
                         $('#initial_approval_remarks_label').text(response.approvalRemarks);
                         $('#activation_remarks_label').text(response.activationRemarks);
@@ -1871,8 +1967,8 @@ function displayDetails(transaction){
                         $('#rejection_reason_label').text(response.rejectionReason);
                         $('#cancellation_reason_label').text(response.cancellationReason);
 
-                        if($('#contract-image').length){
-                            document.getElementById('contract-image').src = response.contractImage;
+                        if($('#contract-file').length){
+                            document.getElementById('contract-file').src = response.contractFile;
                         }
 
                         if($('#total-unpaid-rental').length){

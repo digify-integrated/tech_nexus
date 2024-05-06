@@ -34,10 +34,11 @@ class TenantModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateTenant($p_tenant_id, $p_tenant_name, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateTenant(:p_tenant_id, :p_tenant_name, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
+    public function updateTenant($p_tenant_id, $p_contact_person, $p_tenant_name, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateTenant(:p_tenant_id, :p_contact_person, :p_tenant_name, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by)');
         $stmt->bindValue(':p_tenant_id', $p_tenant_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_tenant_name', $p_tenant_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contact_person', $p_contact_person, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);
@@ -92,9 +93,10 @@ class TenantModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertTenant($p_tenant_name, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertTenant(:p_tenant_name, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by, @p_tenant_id)');
+    public function insertTenant($p_tenant_name, $p_contact_person, $p_address, $p_city_id, $p_phone, $p_mobile, $p_telephone, $p_email, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertTenant(:p_tenant_name, :p_contact_person, :p_address, :p_city_id, :p_phone, :p_mobile, :p_telephone, :p_email, :p_last_log_by, @p_tenant_id)');
         $stmt->bindValue(':p_tenant_name', $p_tenant_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_contact_person', $p_contact_person, PDO::PARAM_STR);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_phone', $p_phone, PDO::PARAM_STR);

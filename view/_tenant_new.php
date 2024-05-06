@@ -18,10 +18,16 @@
       </div>
       <div class="card-body">
         <form id="tenant-form" method="post" action="#">
-        <div class="form-group row">
+          <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
                 <div class="col-lg-10">
                     <input type="text" class="form-control" id="tenant_name" name="tenant_name" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-2 col-form-label">Contact Person <span class="text-danger">*</span></label>
+                <div class="col-lg-10">
+                    <input type="text" class="form-control" id="contact_person" name="contact_person" maxlength="500" autocomplete="off">
                 </div>
             </div>
             <div class="form-group row">

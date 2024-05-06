@@ -7116,7 +7116,7 @@ BEGIN
     referred_by = p_referred_by,
     release_date = p_release_date,
     start_date = p_start_date,
-    first_due_date = p_first_due_date,
+    first_due_date <= p_first_due_date,
     term_length = p_term_length,
     term_type = p_term_type,
     number_of_payments = p_number_of_payments,
@@ -7942,19 +7942,20 @@ BEGIN
     WHERE tenant_id = p_tenant_id;
 END //
 
-CREATE PROCEDURE insertTenant(IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT, OUT p_tenant_id INT)
+CREATE PROCEDURE insertTenant(IN p_tenant_name VARCHAR(100), IN p_contact_person VARCHAR(500), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT, OUT p_tenant_id INT)
 BEGIN
-    INSERT INTO tenant (tenant_name, address, city_id, phone, mobile, telephone, email, last_log_by) 
-	VALUES(p_tenant_name, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_last_log_by);
+    INSERT INTO tenant (tenant_name, contact_person, address, city_id, phone, mobile, telephone, email, last_log_by) 
+	VALUES(p_tenant_name, p_contact_person, p_address, p_city_id, p_phone, p_mobile, p_telephone, p_email, p_last_log_by);
 	
     SET p_tenant_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateTenant(IN p_tenant_id INT, IN p_tenant_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateTenant(IN p_tenant_id INT, IN p_tenant_name VARCHAR(100), IN p_contact_person VARCHAR(500), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_phone VARCHAR(20), IN p_mobile VARCHAR(20), IN p_telephone VARCHAR(20), IN p_email VARCHAR(100), IN p_last_log_by INT)
 BEGIN
 	UPDATE tenant
     SET tenant_name = p_tenant_name,
     tenant_name = p_tenant_name,
+    contact_person = p_contact_person,
     address = p_address,
     city_id = p_city_id,
     phone = p_phone,
@@ -8048,21 +8049,15 @@ BEGIN
     WHERE leasing_application_id = p_leasing_application_id;
 END //
 
-CREATE PROCEDURE insertLeasingApplication(IN p_leasing_application_number VARCHAR(100), IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_leasing_application_id INT)
+CREATE PROCEDURE insertLeasingApplication(IN p_leasing_application_number VARCHAR(100), IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_vat VARCHAR(5), IN p_witholding_tax VARCHAR(5), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_leasing_application_id INT)
 BEGIN
-    INSERT INTO leasing_application (leasing_application_number, tenant_id, property_id, term_length, term_type, payment_frequency, renewal_tag, contract_date, start_date, maturity_date, security_deposit, floor_area, initial_basic_rental, escalation_rate, remarks, last_log_by) 
-	VALUES(p_leasing_application_number, p_tenant_id, p_property_id, p_term_length, p_term_type, p_payment_frequency, p_renewal_tag, p_contract_date, p_start_date, p_maturity_date, p_security_deposit, p_floor_area, p_initial_basic_rental, p_escalation_rate, p_remarks, p_last_log_by);
+    INSERT INTO leasing_application (leasing_application_number, tenant_id, property_id, term_length, term_type, payment_frequency, vat, witholding_tax, renewal_tag, contract_date, start_date, maturity_date, security_deposit, floor_area, initial_basic_rental, escalation_rate, remarks, last_log_by) 
+	VALUES(p_leasing_application_number, p_tenant_id, p_property_id, p_term_length, p_term_type, p_payment_frequency, p_vat, p_witholding_tax, p_renewal_tag, p_contract_date, p_start_date, p_maturity_date, p_security_deposit, p_floor_area, p_initial_basic_rental, p_escalation_rate, p_remarks, p_last_log_by);
 	
     SET p_leasing_application_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertLeasingApplicationRepayment(IN p_leasing_application_id INT, IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_unpaid_rental DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
-BEGIN
-    INSERT INTO leasing_application_repayment (leasing_application_id, reference, due_date, unpaid_rental, outstanding_balance, last_log_by) 
-	VALUES(p_leasing_application_id, p_reference, p_due_date, p_unpaid_rental, p_outstanding_balance, p_last_log_by);
-END //
-
-CREATE PROCEDURE updateLeasingApplication(IN p_leasing_application_id INT, IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateLeasingApplication(IN p_leasing_application_id INT, IN p_tenant_id INT, IN p_property_id INT, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_payment_frequency VARCHAR(20), IN p_vat VARCHAR(5), IN p_witholding_tax VARCHAR(5), IN p_renewal_tag VARCHAR(10), IN p_contract_date DATE, IN p_start_date DATE, IN p_maturity_date DATE, IN p_security_deposit DOUBLE, IN p_floor_area DOUBLE, IN p_initial_basic_rental DOUBLE, IN p_escalation_rate DOUBLE, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE leasing_application
     SET tenant_id = p_tenant_id,
@@ -8070,6 +8065,8 @@ BEGIN
     term_length = p_term_length,
     term_type = p_term_type,
     payment_frequency = p_payment_frequency,
+    vat = p_vat,
+    witholding_tax = p_witholding_tax,
     renewal_tag = p_renewal_tag,
     contract_date = p_contract_date,
     start_date = p_start_date,
@@ -8081,6 +8078,12 @@ BEGIN
     remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE leasing_application_id = p_leasing_application_id;
+END //
+
+CREATE PROCEDURE insertLeasingApplicationRepayment(IN p_leasing_application_id INT, IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_unpaid_rental DOUBLE, IN p_outstanding_balance DOUBLE, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO leasing_application_repayment (leasing_application_id, reference, due_date, unpaid_rental, outstanding_balance, last_log_by) 
+	VALUES(p_leasing_application_id, p_reference, p_due_date, p_unpaid_rental, p_outstanding_balance, p_last_log_by);
 END //
 
 CREATE PROCEDURE deleteLeasingApplication(IN p_leasing_application_id INT)
@@ -8143,6 +8146,12 @@ BEGIN
         cancellation_reason = p_remarks,
         last_log_by = p_last_log_by
         WHERE leasing_application_id = p_leasing_application_id;
+    ELSEIF p_application_status = 'Closed' THEN
+        UPDATE leasing_application
+        SET application_status = p_application_status,
+        closed_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leasing_application_id = p_leasing_application_id;
     ELSEIF p_application_status = 'Approved' THEN
         UPDATE leasing_application
         SET application_status = p_application_status,
@@ -8178,9 +8187,9 @@ BEGIN
    UPDATE leasing_other_charges
     SET payment_status = 
     CASE 
-         WHEN outstanding_balance = due_amount AND due_paid = 0 THEN 'Unpaid'
-        WHEN outstanding_balance = due_amount AND (due_paid > 0 AND due_amount > 0) THEN 'Partially Paid'
-        ELSE 'Fully Paid'
+        WHEN outstanding_balance = 0 THEN 'Fully Paid'
+        WHEN outstanding_balance != 0 AND (due_amount > 0 AND due_paid > 0) THEN 'Partially Paid'
+        ELSE 'Unpaid'
     END;
 END //
 
@@ -8189,9 +8198,9 @@ BEGIN
     UPDATE leasing_application_repayment
     SET repayment_status = 
         CASE 
-            WHEN outstanding_balance = unpaid_rental + unpaid_electricity + unpaid_water + unpaid_other_charges AND paid_rental = 0 THEN 'Unpaid'
+            WHEN outstanding_balance = 0 THEN 'Fully Paid'
             WHEN outstanding_balance = unpaid_rental + unpaid_electricity + unpaid_water + unpaid_other_charges AND (paid_rental > 0 OR paid_electricity > 0 OR paid_water > 0 OR paid_other_charges > 0) THEN 'Partially Paid'
-            ELSE 'Fully Paid'
+            ELSE 'Unpaid'
         END;
 END //
 
@@ -8212,35 +8221,80 @@ BEGIN
     );
 END //
 
-CREATE PROCEDURE getLeasingAplicationRepaymentTotal(IN p_leasing_application_id INT, IN p_transcation_type VARCHAR(100))
+CREATE PROCEDURE getLeasingAplicationRepaymentTotal(IN p_leasing_application_id INT, IN p_as_of_date DATE, IN p_transcation_type VARCHAR(100))
 BEGIN
     IF p_transcation_type = 'Unpaid Rental' THEN
-        SELECT SUM(unpaid_rental) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(unpaid_rental) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(unpaid_rental) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Unpaid Electricity' THEN
-        SELECT SUM(unpaid_electricity) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(unpaid_electricity) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(unpaid_electricity) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Unpaid Water' THEN
-        SELECT SUM(unpaid_water) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(unpaid_water) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(unpaid_water) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Unpaid Other Charges' THEN
-        SELECT SUM(unpaid_other_charges) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(unpaid_other_charges) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(unpaid_other_charges) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Paid Rental' THEN
-        SELECT SUM(paid_rental) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(paid_rental) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(paid_rental) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Paid Electricity' THEN
-        SELECT SUM(paid_electricity) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(paid_electricity) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(paid_electricity) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Paid Water' THEN
-        SELECT SUM(paid_water) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(paid_water) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(paid_water) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSEIF p_transcation_type = 'Paid Other Charges' THEN
-        SELECT SUM(paid_other_charges) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(paid_other_charges) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(paid_other_charges) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     ELSE
-        SELECT SUM(outstanding_balance) as total FROM leasing_application_repayment
-        WHERE leasing_application_id = p_leasing_application_id;
+        IF p_as_of_date IS NOT NULL AND p_as_of_date <> '' THEN
+            SELECT SUM(outstanding_balance) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id AND due_date <= p_as_of_date;
+        ELSE
+            SELECT SUM(outstanding_balance) as total FROM leasing_application_repayment
+            WHERE leasing_application_id = p_leasing_application_id;
+        END IF;
     END IF;
 END //
 
@@ -8290,7 +8344,7 @@ BEGIN
     WHERE leasing_other_charges_id = p_leasing_other_charges_id;
 END //
 
-CREATE PROCEDURE insertLeasingOtherCharges(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE, IN p_due_paid DOUBLE, IN p_due_date DATE, IN p_outstanding_balance DOUBLE, IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertLeasingOtherCharges(IN p_leasing_application_repayment_id INT, IN p_leasing_application_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE, IN p_due_paid DOUBLE, IN p_due_date DATE, IN p_coverage_start_date DATE, IN p_coverage_end_date DATE, IN p_outstanding_balance DOUBLE, IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -8302,27 +8356,30 @@ BEGIN
      IF p_other_charges_type = 'Electricity' THEN
         UPDATE leasing_application_repayment
         SET unpaid_electricity = (unpaid_electricity + p_due_amount),
+        outstanding_balance = (outstanding_balance + p_due_amount),
         last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     ELSEIF p_other_charges_type = 'Water' THEN
         UPDATE leasing_application_repayment
         SET unpaid_water = (unpaid_water + p_due_amount),
+        outstanding_balance = (outstanding_balance + p_due_amount),
         last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     ELSE
         UPDATE leasing_application_repayment
         SET unpaid_other_charges = (unpaid_other_charges + p_due_amount),
+        outstanding_balance = (outstanding_balance + p_due_amount),
         last_log_by = p_last_log_by
         WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     END IF;
 
-	INSERT INTO leasing_other_charges (leasing_application_repayment_id, leasing_application_id, other_charges_type, due_amount, due_paid, due_date, outstanding_balance, reference_number, last_log_by) 
-	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_other_charges_type, p_due_amount, p_due_paid, p_due_date, p_outstanding_balance, p_reference_number, p_last_log_by);
+	INSERT INTO leasing_other_charges (leasing_application_repayment_id, leasing_application_id, other_charges_type, due_amount, due_paid, due_date, coverage_start_date, coverage_end_date, outstanding_balance, reference_number, last_log_by) 
+	VALUES(p_leasing_application_repayment_id, p_leasing_application_id, p_other_charges_type, p_due_amount, p_due_paid, p_due_date, p_coverage_start_date, p_coverage_end_date, p_outstanding_balance, p_reference_number, p_last_log_by);
 
     COMMIT;
 END //
 
-CREATE PROCEDURE deleteLeasingOtherCharges(IN p_leasing_other_charges_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE)
+CREATE PROCEDURE deleteLeasingOtherCharges(IN p_leasing_other_charges_id INT, IN p_leasing_application_repayment_id INT, IN p_other_charges_type VARCHAR(50), IN p_due_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -8334,18 +8391,21 @@ BEGIN
     IF p_other_charges_type = 'Electricity' THEN
         UPDATE leasing_application_repayment
         SET unpaid_electricity = (unpaid_electricity - p_due_amount),
+        outstanding_balance = (outstanding_balance - p_due_amount),
         last_log_by = p_last_log_by
-        WHERE p_leasing_other_charges_id = p_leasing_other_charges_id;
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     ELSEIF p_other_charges_type = 'Water' THEN
         UPDATE leasing_application_repayment
         SET unpaid_water = (unpaid_water - p_due_amount),
+        outstanding_balance = (outstanding_balance - p_due_amount),
         last_log_by = p_last_log_by
-        WHERE leasing_application_id = p_leasing_application_id;
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     ELSE
         UPDATE leasing_application_repayment
         SET unpaid_other_charges = (unpaid_other_charges - p_due_amount),
+        outstanding_balance = (outstanding_balance - p_due_amount),
         last_log_by = p_last_log_by
-        WHERE leasing_application_id = p_leasing_application_id;
+        WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
     END IF;
 
 	DELETE FROM leasing_other_charges
@@ -8443,6 +8503,12 @@ CREATE PROCEDURE getLeasingCollections(IN p_leasing_collections_id INT)
 BEGIN
 	SELECT * FROM leasing_collections
     WHERE leasing_collections_id = p_leasing_collections_id;
+END //
+
+CREATE PROCEDURE getLeasingOtherCharges(IN p_leasing_other_charges_id INT)
+BEGIN
+	SELECT * FROM leasing_other_charges
+    WHERE leasing_other_charges_id = p_leasing_other_charges_id;
 END //
 
 CREATE PROCEDURE getLeasingApplicationRepayment(IN p_leasing_application_repayment_id INT)
