@@ -93,6 +93,9 @@
     $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
     $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
     $createdDate = $systemModel->checkDate('summary', $salesProposalDetails['created_date'], '', 'd-M-Y', '');
+    
+    $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
+    $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
 
     $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
     $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
@@ -136,7 +139,6 @@
       $customerName = strtoupper($customerDetails['file_as']) ?? null;
     }
     
-
     $comakerDetails = $customerModel->getPersonalInformation($comakerID);
     $comakerName = $comakerDetails['file_as'] ?? null;
 

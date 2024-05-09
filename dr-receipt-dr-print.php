@@ -145,7 +145,7 @@ $customerAddress = '';
 
     // Add content
     $pdf->SetFont('times', '', 11);
-    $pdf->Ln(25);
+    $pdf->Ln(15);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerName), 0, 0, 'L', 0, '', 1);
     $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);
@@ -166,7 +166,9 @@ $customerAddress = '';
     $pdf->SetTextColor(0, 0, 0);
     $pdf->Image($unitImage, 80, 67, 45, 45, $extension, '', '', true, 150, '', false, false, 1, false, false, false);
     $pdf->Ln(5);
+    $pdf->SetFont('times', '', 8);
     $pdf->MultiCell(60, 4, $productDescription, 0, 'L', false, 0, '', '', true);
+    $pdf->SetFont('times', '', 11);
     $pdf->MultiCell(20, 4, '', 0, 'L', false, 0, '', '', true);
     $pdf->Cell(35, 4, '', 0, 0, 'L', false);
     $pdf->MultiCell(20, 4, $engineNumber, 0, 'L', false, 0, '', '', true);
@@ -181,7 +183,7 @@ $customerAddress = '';
     $pdf->Cell(100, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(15, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(80, 4, 'CHECKED BY: ______________________', 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(6);
+    $pdf->Ln(18);
     $pdf->SetFont('times', '', 7);
     $pdf->SetTextColor(255, 0, 0);
     $pdf->Cell(67, 4, '', 0, 0, 'L', 0, '', 1);

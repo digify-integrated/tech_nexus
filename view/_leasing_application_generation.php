@@ -86,11 +86,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         #
         # -------------------------------------------------------------
         case 'leasing summary table':
-            if(isset($_POST['leasing_application_status_filter'])){
-                $leasingSummaryStatusFilter = htmlspecialchars($_POST['leasing_application_status_filter'], ENT_QUOTES, 'UTF-8');
-
-                $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingSummaryTable(:leasingSummaryStatusFilter)');
-                $sql->bindValue(':leasingSummaryStatusFilter', $leasingSummaryStatusFilter, PDO::PARAM_STR);
+            $sql = $databaseModel->getConnection()->prepare('CALL generateLeasingSummaryTable()');
                 $sql->execute();
                 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
                 $sql->closeCursor();
@@ -124,6 +120,26 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $unpaidOtherCharges = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'];
                     $outstandingBalance = $leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'];
 
+                    if($unpaidRental <= 0){
+                        $unpaidRental = 0;
+                    }
+
+                    if($unpaidElectricity <= 0){
+                        $unpaidElectricity = 0;
+                    }
+
+                    if($unpaidWater <= 0){
+                        $unpaidWater = 0;
+                    }
+
+                    if($unpaidOtherCharges <= 0){
+                        $unpaidOtherCharges = 0;
+                    }
+
+                    if($outstandingBalance <= 0){
+                        $outstandingBalance = 0;
+                    }
+
                     $response[] = [
                         'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
                             '. $tenantName .'
@@ -146,7 +162,6 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 echo json_encode($response);
-            }
         break;
         # -------------------------------------------------------------
 
@@ -384,7 +399,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 }
 
                 for ($x = 0; $x < $termLength; $x++) {
-                    if (($x + 1) % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
+                    if ($x % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
                         $initialBasicRental *= (1 + $escalationRateDecimal);
                     }
                 

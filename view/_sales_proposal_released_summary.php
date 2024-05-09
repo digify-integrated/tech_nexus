@@ -1,9 +1,3 @@
-<?php
-    $hidden = '';
-    if($salesProposalStatus == 'Released'){
-        $hidden = 'd-none';
-    }
-?>
 <div class="row">
     <div class="col-md-3">
         <div class="card">
@@ -21,17 +15,13 @@
                     <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-online" role="tab" aria-controls="v-online" aria-selected="false" disabled>Online</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-autorization" role="tab" aria-controls="v-autorization" aria-selected="false" disabled>Authorization & Undertaking</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-promissory-note" role="tab" aria-controls="v-promissory-note <?php echo $hidden; ?>" aria-selected="false" disabled>Promissory Note</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
-                    <?php
-                        if($salesProposalStatus == 'Released'){
-                            echo '<li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>';
-                        }
-                    ?>
+                    <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-online" role="tab" aria-controls="v-online" aria-selected="false" disabled>Online</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-autorization" role="tab" aria-controls="v-autorization" aria-selected="false" disabled>Authorization & Undertaking</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-promissory-note" role="tab" aria-controls="v-promissory-note" aria-selected="false" disabled>Promissory Note</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
+                    <li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>
                 </ul>
             </div>
         </div>
@@ -173,7 +163,6 @@
                                 <option value="Fuel">Fuel</option>
                                 <option value="Parts">Parts</option>
                                 <option value="Repair">Repair</option>
-                                <option value="Rental">Rental</option>
                                 <option value="Refinancing">Refinancing</option>
                                 <option value="Real Estate">Real Estate</option>
                             </select>

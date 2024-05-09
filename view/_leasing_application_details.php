@@ -21,7 +21,6 @@
             </div>
             <div class="d-flex">
               <?php
-               
                 if($applicationStatus == 'Approved'){
                   echo '<div class="previous me-2" id="generate-schedule-button">
                           <button class="btn btn-warning" id="generate-schedule">Generate Schedule</button>

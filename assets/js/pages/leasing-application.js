@@ -83,25 +83,33 @@
             }
         }
 
-        $(document).on('blur','#start_date',function() {
-            calculateMaturityDate();
-            leasingApplicationRepaymentTable();
-        });
+        if($('#start_date').length){
+            $(document).on('blur','#start_date',function() {
+                calculateMaturityDate();
+                leasingApplicationRepaymentTable();
+            });
+        }
 
-        $(document).on('change','#term_length',function() {
-            calculateMaturityDate();
-            leasingApplicationRepaymentTable();
-        });
+        if($('#term_length').length){
+            $(document).on('change','#term_length',function() {
+                calculateMaturityDate();
+                leasingApplicationRepaymentTable();
+            });
+        }
 
-        $(document).on('change','#term_type',function() {
-            calculateMaturityDate();
-            leasingApplicationRepaymentTable();
-        });
+        if($('#term_type').length){
+            $(document).on('change','#term_type',function() {
+                calculateMaturityDate();
+                leasingApplicationRepaymentTable();
+            });
+        }
 
-        $(document).on('change','#payment_frequency',function() {
-            calculateMaturityDate();
-            leasingApplicationRepaymentTable();
-        });
+        if($('#payment_frequency').length){
+            $(document).on('change','#payment_frequency',function() {
+                calculateMaturityDate();
+                leasingApplicationRepaymentTable();
+            });
+        }
 
         $(document).on('change','#vat',function() {
             leasingApplicationRepaymentTable();
@@ -491,17 +499,16 @@ function leasingApplicationTable(datatable_name, buttons = false, show_all = fal
 
 function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
     const type = 'leasing summary table';
-    var leasing_application_status_filter = $('.leasing-application-status-filter:checked').val();
     var settings;
 
     const column = [ 
         { 'data' : 'TENANT_NAME' },
         { 'data' : 'PROPERTY_NAME' },
+        { 'data' : 'OUTSTANDING_BALANCE' },
         { 'data' : 'UNPAID_RENTAL' },
         { 'data' : 'UNPAID_ELECTRICITY' },
         { 'data' : 'UNPAID_WATER' },
         { 'data' : 'UNPAID_OTHER_CHARGES' },
-        { 'data' : 'OUTSTANDING_BALANCE' },
         { 'data' : 'FLOOR_AREA' },
         { 'data' : 'TERM' },
         { 'data' : 'INCEPTION_DATE' },
@@ -538,8 +545,7 @@ function leasingSummaryTable(datatable_name, buttons = false, show_all = false){
             'method' : 'POST',
             'dataType': 'json',
             'data': {
-                'type' : type,
-                'leasing_application_status_filter' : leasing_application_status_filter
+                'type' : type
             },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
@@ -2008,8 +2014,10 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    calculateMaturityDate();
-                    leasingApplicationRepaymentTable();
+                    if($('#start_date').length){
+                        calculateMaturityDate();
+                        leasingApplicationRepaymentTable();
+                    }
                 }
             });
             break;

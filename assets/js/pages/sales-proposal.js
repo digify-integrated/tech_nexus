@@ -60,6 +60,10 @@
             salesProposalForDRTable('#sales-proposal-for-dr-table');
         }
 
+        if($('#sales-proposal-released-table').length){
+            salesProposalReleasedTable('#sales-proposal-released-table');
+        }
+
         if($('#sales-proposal-pdc-manual-input-table').length){
             salesProposalPDCManualInputTable('#sales-proposal-pdc-manual-input-table');
         }
@@ -226,7 +230,7 @@
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
 
-                if (productType === 'Unit') {
+                if (productType === 'Unit' || productType === 'Rental') {
                     $('#sales-proposal-tab-2').removeClass('d-none');
                     resetModalForm('sales-proposal-unit-details-form');
                 }
@@ -1074,6 +1078,10 @@
             if($('#all-sales-proposal-table').length){
                 allSalesProposalTable('#all-sales-proposal-table');
             }
+    
+            if($('#sales-proposal-released-table').length){
+                salesProposalReleasedTable('#sales-proposal-released-table');
+            }
         });
     });
 })(jQuery);
@@ -1768,6 +1776,82 @@ function salesProposalForDRTable(datatable_name, buttons = false, show_all = fal
             'loadingRecords': 'Just a moment while we fetch your data...'
         }
     };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function salesProposalReleasedTable(datatable_name, buttons = false, show_all = false){
+    const type = 'sales proposal released table';
+    var filter_release_date_start_date = $('#filter_release_date_start_date').val();
+    var filter_release_date_end_date = $('#filter_release_date_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'RELEASED_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type, 
+                'filter_release_date_start_date' : filter_release_date_start_date,
+                'filter_release_date_end_date' : filter_release_date_end_date
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'searching': true, // Enable searching
+        'search': {
+            'search': '',
+            'placeholder': 'Search...', // Placeholder text for the search input
+            'position': 'top', // Position the search bar to the left
+        },
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    }
 
     if (buttons) {
         settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
@@ -4564,7 +4648,7 @@ function displayDetails(transaction){
                     if($('#sales-proposal-tab-12').length){
                         displayDetails('get comaker details');
                     }
-
+                    
                     displayDetails('get sales proposal pricing computation details');
                     displayDetails('get sales proposal other charges details');
                     displayDetails('get sales proposal renewal amount details');
@@ -4629,7 +4713,11 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-
+                    if($('product_type') == 'Rental'){
+                        displayDetails('get sales proposal pricing computation details');
+                    }
+                    
+                    calculateRenewalAmount();
                 }
             });
             break;
@@ -5141,7 +5229,7 @@ function displayDetails(transaction){
                         transaction : transaction
                     },
                     success: function(response) {
-                        if (response.success) {        
+                        if (response.success) {
                             $('#delivery_price').val(response.productPrice * 1000);
                             $('#old_color').val(response.colorName);
                             $('#old_body').val(response.bodyTypeName);
@@ -5202,6 +5290,8 @@ function displayDetails(transaction){
                         $('#mv_file_no').val(response.mvFileNo);
                         $('#make').val(response.make);
                         $('#product_description').val(response.productDescription);
+                        $('#other-details-gatepass1').text(response.productDescription);
+                        $('#other-details-gatepass2').text(response.productDescription);
                     } 
                     else {
                         if(response.isInactive){
@@ -5370,7 +5460,7 @@ function calculateRenewalAmount(){
             $('#insurance_coverage_second_year').val(second_year_coverage.toFixed(2));
             $('#summary-insurance-coverage-second-year').text(parseFloat(second_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
-            if(product_category == '1'){
+            if(product_category == '1' || product_category == '3'){
                 var premium = Math.ceil((((second_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_second_year').val(premium.toFixed(2));
@@ -5398,7 +5488,7 @@ function calculateRenewalAmount(){
             $('#insurance_coverage_third_year').val(third_year_coverage.toFixed(2));
             $('#summary-insurance-coverage-third-year').text(parseFloat(third_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
-            if(product_category == '1'){
+            if(product_category == '1' || product_category == '3'){
                 var premium = Math.ceil((((third_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_third_year').val(premium.toFixed(2));
@@ -5425,7 +5515,7 @@ function calculateRenewalAmount(){
             $('#insurance_coverage_fourth_year').val(fourth_year_coverage.toFixed(2));
             $('#summary-insurance-coverage-fourth-year').text(parseFloat(fourth_year_coverage.toFixed(2)).toLocaleString("en-US"));
     
-            if(product_category == '1'){
+            if(product_category == '1' || product_category == '3'){
                 var premium = Math.ceil((((fourth_year_coverage * 0.025) + 2700) * 1.2526) + 1300);
     
                 $('#insurance_premium_fourth_year').val(premium.toFixed(2));

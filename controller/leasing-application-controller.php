@@ -498,17 +498,29 @@ class LeasingApplicationController {
         $escalationRateDecimal = $escalationRate / 100.0;
         $termLength = $leasingApplicationDetails['term_length'] ?? null;
         $paymentFrequency = $leasingApplicationDetails['payment_frequency'] ?? null;
+        $vat = $leasingApplicationDetails['vat'] ?? 'Yes';
+        $witholdingTax = $leasingApplicationDetails['witholding_tax'] ?? 'Yes';
         $termType = $leasingApplicationDetails['term_type'] ?? null;
 
+        if($vat == 'Yes' && $witholdingTax == 'Yes'){
+            $initialBasicRental = $initialBasicRental + ($initialBasicRental * (0.07));
+        }
+        else if($vat == 'Yes' && $witholdingTax == 'No'){
+            $initialBasicRental = $initialBasicRental + ($initialBasicRental * (0.12));
+        }
+        else if($vat == 'No' && $witholdingTax == 'Yes'){
+            $initialBasicRental = $initialBasicRental - ($initialBasicRental * (0.05));
+        }
+
         for ($x = 0; $x < $termLength; $x++) {
-            if (($x + 1) % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
+            if ($x % 12 == 0 && $x > 0) { // Increase the initial basic rental value every 12 months after the first year
                 $initialBasicRental *= (1 + $escalationRateDecimal);
             }
         
             if($x == 0){
                 $matdt = $startDate;
 
-                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - 0' . ($x + 1), $startDate, $initialBasicRental, $initialBasicRental, $userID);
+                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - 0' . ($x + 1), $startDate, round($initialBasicRental, 2), round($initialBasicRental, 2), $userID);
             }
             else{
                 # Get due dates
@@ -521,14 +533,14 @@ class LeasingApplicationController {
                     $maturity = $matdt;
                 }
 
-                if($x >= 1 && $x <= 9){
+                if(($x + 1) >= 1 && ($x + 1) <= 9){
                     $extension = '0' . ($x + 1);
                 }
                 else{
                     $extension = ($x + 1);
                 }
         
-                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - ' . ($extension), $maturity, $initialBasicRental, $initialBasicRental, $userID);
+                $this->leasingApplicationModel->insertLeasingApplicationRepayment($leasingApplicationID, $leasingApplicationNumber . ' - ' . ($extension), $maturity, round($initialBasicRental, 2), round($initialBasicRental, 2), $userID);
             }
         }
             

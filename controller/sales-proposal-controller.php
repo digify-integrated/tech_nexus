@@ -1500,7 +1500,7 @@ class SalesProposalController {
         
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
-        $finalApprovingOfficer = $salesProposalDetails['final_approving_officer '];
+        $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
         $productType = $salesProposalDetails['product_type'];
         $productID = $salesProposalDetails['product_id'];
         $customerID = $salesProposalDetails['customer_id'];

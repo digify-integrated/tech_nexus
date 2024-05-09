@@ -7327,6 +7327,7 @@ BEGIN
         SET loan_number = p_loan_number,
         sales_proposal_status = p_sales_proposal_status,
         release_remarks = p_release_remarks,
+        released_date = NOW(),
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7359,6 +7360,31 @@ BEGIN
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY sales_proposal_number');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateSalesProposalReleasedTable(IN p_filter_released_date_start_date DATE, IN p_filter_released_date_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT * FROM sales_proposal';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_filter_released_date_start_date IS NOT NULL AND p_filter_released_date_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND released_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_filter_released_date_end_date));
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' AND sales_proposal_status = "Released" ORDER BY sales_proposal_number;');
 
     PREPARE stmt FROM query;
     EXECUTE stmt;
@@ -8187,7 +8213,7 @@ BEGIN
    UPDATE leasing_other_charges
     SET payment_status = 
     CASE 
-        WHEN outstanding_balance = 0 THEN 'Fully Paid'
+        WHEN outstanding_balance <= 0 THEN 'Fully Paid'
         WHEN outstanding_balance != 0 AND (due_amount > 0 AND due_paid > 0) THEN 'Partially Paid'
         ELSE 'Unpaid'
     END;
@@ -8198,7 +8224,7 @@ BEGIN
     UPDATE leasing_application_repayment
     SET repayment_status = 
         CASE 
-            WHEN outstanding_balance = 0 THEN 'Fully Paid'
+            WHEN outstanding_balance <= 0 THEN 'Fully Paid'
             WHEN outstanding_balance = unpaid_rental + unpaid_electricity + unpaid_water + unpaid_other_charges AND (paid_rental > 0 OR paid_electricity > 0 OR paid_water > 0 OR paid_other_charges > 0) THEN 'Partially Paid'
             ELSE 'Unpaid'
         END;
@@ -8298,29 +8324,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE generateLeasingSummaryTable(IN p_application_status VARCHAR(50))
-BEGIN
-    DECLARE query VARCHAR(1000);
-    DECLARE conditionList VARCHAR(500);
-
-    SET query = 'SELECT * FROM leasing_application';
-
-    SET conditionList = '';
-
-    IF p_application_status IS NOT NULL AND p_application_status <> '' THEN
-        SET conditionList = CONCAT(conditionList, ' WHERE application_status =');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_application_status));
-   ELSE
-       SET conditionList = CONCAT(conditionList, " WHERE application_status IN ('Active', 'Closed')");
-    END IF;
-
-    SET query = CONCAT(query, conditionList);
-    SET query = CONCAT(query, ' ORDER BY leasing_application_number');
-
-    PREPARE stmt FROM query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt;
-END //
+0
 
 CREATE PROCEDURE generateLeasingRepaymentTable(IN p_leasing_application_id INT)
 BEGIN

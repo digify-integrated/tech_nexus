@@ -438,6 +438,71 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             echo json_encode($response);
         break;
         # -------------------------------------------------------------
+
+         # ------------------------------------------------------------
+        #
+        # Type: sales proposal released table
+        # Description:
+        # Generates the sales proposal released table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'sales proposal released table':
+            if(isset($_POST['filter_release_date_start_date']) && isset($_POST['filter_release_date_end_date'])){
+                $filterReleasedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_release_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterReleasedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_release_date_end_date'], '', 'Y-m-d', '', '', '');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalReleasedTable(:filterReleasedDateStartDate, :filterReleasedDateEndDate)');
+                $sql->bindValue(':filterReleasedDateStartDate', $filterReleasedDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterReleasedDateEndDate', $filterReleasedDateEndDate, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalID = $row['sales_proposal_id'];
+                    $customerID = $row['customer_id'];
+                    $salesProposalNumber = $row['sales_proposal_number'];
+                    $productType = $row['product_type'];
+                    $productID = $row['product_id'];
+                    $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+    
+                    $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+    
+                    $productDetails = $productModel->getProduct($productID);
+                    $productName = $productDetails['description'] ?? null;
+                    $stockNumber = $productDetails['stock_number'] ?? null;
+    
+                    $customerDetails = $customerModel->getPersonalInformation($customerID);
+                    $customerName = $customerDetails['file_as'] ?? null;
+                    $corporateName = $customerDetails['corporate_name'] ?? null;
+                    $forDRDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y h:i:s A', '');
+    
+                    $response[] = [
+                        'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+                        'CUSTOMER' => '<div class="col">
+                                            <h6 class="mb-0">'. $customerName .'</h6>
+                                            <p class="f-12 mb-0">'. $corporateName .'</p>
+                                        </div>',
+                        'PRODUCT_TYPE' => $productType,
+                        'PRODUCT' => $stockNumber,
+                        'RELEASED_DATE' => $forDRDate,
+                        'STATUS' => $salesProposalStatus,
+                        'ACTION' => '<div class="d-flex gap-2">
+                                        <a href="release-summary.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                            <i class="ti ti-eye"></i>
+                                        </a>
+                                    </div>'
+                        ];
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
         
         # -------------------------------------------------------------
         #
@@ -1118,7 +1183,7 @@ function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
             $date->modify("+$iteration months")->modify('+5 months');
             break;
         case 'Lumpsum':
-            $date->modify("+$termLength days")->modify('+'. $termLength .' days');
+            $date->modify("+$termLength days");
             break;
         default:
             break;

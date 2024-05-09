@@ -51,6 +51,7 @@
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -127,7 +128,7 @@
 
     }
 
-    $amortSched = generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $startDate);
+    $amortSched = generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $startDate);
     $othercharges = generateOtherCharges($databaseModel, $systemModel, $salesProposalID);
 
     ob_start();
@@ -172,12 +173,12 @@
 
 
     function generateOtherCharges($databaseModel, $systemModel, $salesProposalID){
-        $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
+        $response = '<table border="0.5" width="100%" align="center">
         <thead>
             <tr>
-                <th width="25%"><b>DUE DATE</b></th>
-                <th width="25%"><b>AMOUNT DUE</b></th>
-                <th width="25%"><b>PAYMENT FOR</b></th>
+                <th width="33.33%"><b>DUE DATE</b></th>
+                <th width="33.33%"><b>AMOUNT DUE</b></th>
+                <th width="33.33%"><b>PAYMENT FOR</b></th>
             </tr>
         </thead>
         <tbody>';
@@ -210,7 +211,7 @@
         }
         else{
             $response .= '<tr>
-            <td colspan="4">No Other Charges</td>
+            <td colspan="3">No Other Charges</td>
             </tr>';
         }
 
@@ -222,8 +223,8 @@
         return $response;
     }
 
-    function generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $startDate){
-        $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
+    function generateAmortizationSchedule($numberOfPayments, $pnAmount, $repaymentAmount, $paymentFrequency, $termLength, $startDate){
+        $response = '<table border="0.5" width="100%" align="center">
         <thead>
             <tr>
                 <th width="33.33%"><b>DUE DATE</b></th>
@@ -245,7 +246,7 @@
                 $pnAmount = 0;
             }
 
-            $dueDate = calculateDueDate($startDate, $paymentFrequency, $i + 1);
+            $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
 
             $response .= '<tr>
                     <td>'. strtoupper($dueDate) .'</td>
@@ -260,21 +261,24 @@
         return $response;
     }
 
-    function calculateDueDate($startDate, $frequency, $iteration) {
+    function calculateDueDate($startDate, $termLength, $frequency, $iteration) {
         $date = new DateTime($startDate);
-        switch ($frequency) {
-            case 'Monthly':
-                $date->modify("+$iteration months");
-                break;
-            case 'Quarterly':
-                $date->modify("+$iteration months")->modify('+2 months');
-                break;
-            case 'Semi-Annual':
-                $date->modify("+$iteration months")->modify('+5 months');
-                break;
-            default:
-                break;
-        }
-        return $date->format('d-M-Y');
+    switch ($frequency) {
+        case 'Monthly':
+            $date->modify("+$iteration months");
+            break;
+        case 'Quarterly':
+            $date->modify("+$iteration months")->modify('+2 months');
+            break;
+        case 'Semi-Annual':
+            $date->modify("+$iteration months")->modify('+5 months');
+            break;
+        case 'Lumpsum':
+            $date->modify("+$termLength days");
+            break;
+        default:
+            break;
+    }
+    return $date->format('d-M-Y');
     }
 ?>

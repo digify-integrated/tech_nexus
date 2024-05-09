@@ -46,7 +46,7 @@
                           </div>';
                 }
 
-                if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0){
+                if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0 && !empty($clientConfirmation)){
                   echo '<div class="previous me-2 d-none" id="tag-for-initial-approval-button">
                           <button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>
                         </div>';
@@ -183,6 +183,7 @@
                     <option value="Fuel">Fuel</option>
                     <option value="Parts">Parts</option>
                     <option value="Repair">Repair</option>
+                    <option value="Rental">Rental</option>
                     <option value="Refinancing">Refinancing</option>
                     <option value="Real Estate">Real Estate</option>
                   </select>
