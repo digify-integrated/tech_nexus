@@ -21,6 +21,7 @@
                     <li><a class="nav-link" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-autorization" role="tab" aria-controls="v-autorization" aria-selected="false" disabled>Authorization & Undertaking</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-promissory-note" role="tab" aria-controls="v-promissory-note" aria-selected="false" disabled>Promissory Note</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-19" data-bs-toggle="pill" href="#v-insurance-request" role="tab" aria-controls="v-insurance-request" aria-selected="false" disabled>Insurance Request</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>
                 </ul>
             </div>
@@ -36,11 +37,13 @@
                         </div>
                         <div class="d-flex">
                             <?php
-                                if($salesProposalStatus == 'For DR'){
+                                if($salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released'){
+                                    #temporary
                                     echo '<div class="previous me-2 d-none" id="add-sales-proposal-pdc-manual-input-button">
                                             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
                                         </div>';
 
+                                        
                                     echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
                                         <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
                                       </div>';
@@ -73,8 +76,6 @@
                                             <a href="schedule-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="dr-receipt-print">Print Schedule</a>
                                         </div>';
                                 }
-
-                                
 
                                 if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
                                     echo '<div class="previous me-2">
@@ -163,6 +164,7 @@
                                 <option value="Fuel">Fuel</option>
                                 <option value="Parts">Parts</option>
                                 <option value="Repair">Repair</option>
+                                <option value="Financing Brand New">Financing Brand New</option>
                                 <option value="Refinancing">Refinancing</option>
                                 <option value="Real Estate">Real Estate</option>
                             </select>
@@ -1749,6 +1751,7 @@
                                         <option value="Insurance">Insurance</option>
                                         <option value="Insurance Renewal">Insurance Renewal</option>
                                         <option value="Other Charges">Other Charges</option>
+                                        <option value="Additional Job Order">Additional Job Order</option>
                                         <option value="Parts">Parts</option>
                                         <option value="Registration">Registration</option>
                                         <option value="Registration Renewal">Registration Renewal</option>

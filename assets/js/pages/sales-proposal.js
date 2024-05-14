@@ -128,23 +128,44 @@
                 salesProposalOtherChargesForm();
             }
     
-            if($('#sales-proposal-deposit-amount-form').length){
+            /*if($('#sales-proposal-deposit-amount-form').length){
                 salesProposalDepositAmountForm();
             }
     
             if($('#sales-proposal-renewal-amount-form').length){
                 salesProposalRenewalAmountForm();
-            }
+            }*/
         }
         else{
             if($('#sales-proposal-other-charges-form').length){
                 disableFormAndSelect2('sales-proposal-other-charges-form');
             }
     
-            if($('#sales-proposal-deposit-amount-form').length){
+            /*if($('#sales-proposal-deposit-amount-form').length){
                 disableFormAndSelect2('sales-proposal-deposit-amount-form');
             }
     
+            if($('#sales-proposal-renewal-amount-form').length){
+                disableFormAndSelect2('sales-proposal-renewal-amount-form');
+            }*/
+        }
+
+        // temporary
+        if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR' || sales_proposal_status == 'Released'){
+    
+            if($('#sales-proposal-deposit-amount-form').length){
+                salesProposalDepositAmountForm();
+            }
+
+            if($('#sales-proposal-renewal-amount-form').length){
+                salesProposalRenewalAmountForm();
+            }
+        }
+        else{    
+            if($('#sales-proposal-deposit-amount-form').length){
+                disableFormAndSelect2('sales-proposal-deposit-amount-form');
+            }
+
             if($('#sales-proposal-renewal-amount-form').length){
                 disableFormAndSelect2('sales-proposal-renewal-amount-form');
             }
@@ -238,7 +259,7 @@
                     $('#sales-proposal-tab-3').removeClass('d-none');
                     resetModalForm('sales-proposal-fuel-details-form');
                 }
-                else if (productType === 'Refinancing') {
+                else if (productType === 'Refinancing' || productType === 'Financing Brand New') {
                     $('#sales-proposal-tab-4').removeClass('d-none');
                     resetModalForm('sales-proposal-refinancing-details-form');
                 }
@@ -5651,7 +5672,7 @@ function traverseTabs(direction) {
             }
         }
 
-        if (nextIndex == 8) {
+        /*if (nextIndex == 8) {
             if($('#add-sales-proposal-deposit-amount-button').length){
                 $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
             }
@@ -5662,6 +5683,29 @@ function traverseTabs(direction) {
             }
         }
         
+        if (currentIndex == 7 && direction === 'next') {
+            if ($('#sales-proposal-renewal-amount-form').valid()) {
+                $('#sales-proposal-renewal-amount-form').submit();
+            } else {
+                return;
+            }
+        }*/
+    }
+
+    // temporary
+    if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR' || sales_proposal_status == 'Released'){
+        
+        if (nextIndex == 8) {
+            if($('#add-sales-proposal-deposit-amount-button').length){
+                $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
+            }
+        }
+        else{
+            if($('#add-sales-proposal-deposit-amount-button').length){
+                $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
+            }
+        }
+
         if (currentIndex == 7 && direction === 'next') {
             if ($('#sales-proposal-renewal-amount-form').valid()) {
                 $('#sales-proposal-renewal-amount-form').submit();
@@ -5820,7 +5864,7 @@ function traverseTabs(direction) {
         }
     }
 
-    if(nextIndex == 18){
+    if(nextIndex == 19){
         if($('#gatepass-print-button').length){
             $('#gatepass-print-button').removeClass('d-none');
         }
@@ -5875,7 +5919,18 @@ function traverseTabs(direction) {
         }
     }
 
-    if( nextIndex == 14 ||  nextIndex == 15 ||  nextIndex == 16 || nextIndex == 17){
+    if( nextIndex == 18){
+        if($('#insurance-request-print-button').length){
+            $('#insurance-request-print-button').removeClass('d-none');
+        }
+    }
+    else{
+        if($('#insurance-request-print-button').length){
+            $('#insurance-request-print-button').addClass('d-none');
+        }
+    }
+
+    if( nextIndex == 14 ||  nextIndex == 15 ||  nextIndex == 16 || nextIndex == 17 || nextIndex == 18){
         if($('#dr-receipt-print-button').length){
             $('#dr-receipt-print-button').removeClass('d-none');
         }

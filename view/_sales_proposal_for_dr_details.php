@@ -27,6 +27,7 @@
                     <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-autorization" role="tab" aria-controls="v-autorization" aria-selected="false" disabled>Authorization & Undertaking</a></li>
                     <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-promissory-note" role="tab" aria-controls="v-promissory-note <?php echo $hidden; ?>" aria-selected="false" disabled>Promissory Note</a></li>
                     <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-19" data-bs-toggle="pill" href="#v-insurance-request" role="tab" aria-controls="v-insurance-request" aria-selected="false" disabled>Insurance Request</a></li>
                     <?php
                         if($salesProposalStatus == 'Released'){
                             echo '<li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>';
@@ -74,6 +75,10 @@
                                     echo '<div class="previous me-2 d-none" id="disclosure-print-button">
                                         <a href="disclosure-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
                                     </div>';
+
+                                    echo '<div class="previous me-2 d-none" id="insurance-request-print-button">
+                                            <a href="insurance-request-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
+                                        </div>';
 
                                     echo '<div class="previous me-2 d-none" id="dr-receipt-print-button">
                                             <a href="dr-receipt-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-warning me-1" id="dr-receipt-print">Print DR Receipt</a>
@@ -174,6 +179,7 @@
                                 <option value="Parts">Parts</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Rental">Rental</option>
+                                <option value="Financing Brand New">Financing Brand New</option>
                                 <option value="Refinancing">Refinancing</option>
                                 <option value="Real Estate">Real Estate</option>
                             </select>
@@ -1760,6 +1766,7 @@
                                         <option value="Insurance">Insurance</option>
                                         <option value="Insurance Renewal">Insurance Renewal</option>
                                         <option value="Other Charges">Other Charges</option>
+                                        <option value="Additional Job Order">Additional Job Order</option>
                                         <option value="Parts">Parts</option>
                                         <option value="Registration">Registration</option>
                                         <option value="Registration Renewal">Registration Renewal</option>

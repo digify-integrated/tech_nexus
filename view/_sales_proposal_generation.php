@@ -974,7 +974,18 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $paymentFor = $row['payment_for'];
                     $grossAmount = number_format($row['gross_amount'], 2);
 
-                    if($salesProposalStatus == 'For DR'){
+                    /*if($salesProposalStatus == 'For DR'){
+                        $action = '
+                        <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-manual-pdc-input" data-sales-proposal-manual-pdc-input-id="'. $manualPDCInputID .'" title="Delete PDC Input">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>';
+                    }
+                    else{
+                        $action = '';
+                    }*/
+
+                    if($salesProposalStatus == 'For DR' ||$salesProposalStatus == 'Released'){
                         $action = '
                         <button type="button" class="btn btn-icon btn-danger delete-sales-proposal-manual-pdc-input" data-sales-proposal-manual-pdc-input-id="'. $manualPDCInputID .'" title="Delete PDC Input">
                             <i class="ti ti-trash"></i>
