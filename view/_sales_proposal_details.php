@@ -998,6 +998,12 @@
               </div>
             </div>
             <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Installment Sales Approval Remarks :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="installment_sales_approval_remarks_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
               <label class="col-lg-5 col-form-label">Release Remarks :</label>
               <div class="col-lg-7">
                 <label class="col-form-label" id="release_remarks_label"></label>

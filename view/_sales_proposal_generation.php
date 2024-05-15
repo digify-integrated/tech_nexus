@@ -564,6 +564,67 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # ------------------------------------------------------------
+        #
+        # Type: schedule of payments table
+        # Description:
+        # Generates the sales proposal released table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'schedule of payments table':
+            if(isset($_POST['filter_release_date_start_date']) && isset($_POST['filter_release_date_end_date'])){
+                $filterReleasedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_release_date_start_date'], '', 'Y-m-d', '', '', '');
+                $filterReleasedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_release_date_end_date'], '', 'Y-m-d', '', '', '');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateSalesProposalReleasedTable(:filterReleasedDateStartDate, :filterReleasedDateEndDate)');
+                $sql->bindValue(':filterReleasedDateStartDate', $filterReleasedDateStartDate, PDO::PARAM_STR);
+                $sql->bindValue(':filterReleasedDateEndDate', $filterReleasedDateEndDate, PDO::PARAM_STR);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $salesProposalID = $row['sales_proposal_id'];
+                    $salesProposalNumber = $row['sales_proposal_number'];
+                    $numberOfPayments = $row['number_of_payments'] ?? null;
+                    $releasedDate = $systemModel->checkDate('summary', $row['released_date'], '', 'm/d/Y', '');
+
+                    $pricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+                    $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
+
+                    $paymentFrequency = $row['payment_frequency'] ?? null;
+                    $startDate = $row['actual_start_date'] ?? null;
+                    $termLength = $row['term_length'] ?? null;
+
+                    for ($i = 0; $i < $numberOfPayments; $i++) {            
+                        $dueDate = calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
+
+                            if(($i + 1) <= 9){
+                                $iteration = '0'. ($i + 1);
+                            }
+                            else{
+                                $iteration = ($i + 1);
+                            }
+
+                            $response[] = [
+                                'NUMBER' => $iteration,
+                                'SALES_PROPOSAL_NUMBER' => $salesProposalNumber . ' - ' . $iteration,
+                                'RELEASE_DATE' => $releasedDate,
+                                'DUE_DATE' => $systemModel->checkDate('summary', $dueDate, '', 'm/d/Y', ''),
+                                'AMOUNT_DUE' => number_format($repaymentAmount, 2)
+                            ];
+                    }
+                }
+
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
         
         # -------------------------------------------------------------
         #

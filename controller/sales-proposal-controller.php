@@ -218,6 +218,9 @@ class SalesProposalController {
                 case 'get sales proposal renewal amount details':
                     $this->getSalesProposalRenewalAmountDetails();
                     break;
+                case 'get sales proposal insurance request details':
+                    $this->getSalesProposalInsuranceRequestDetails();
+                    break;
                 case 'get sales proposal confirmation details':
                     $this->getSalesProposalConfirmationDetails();
                     break;
@@ -2620,6 +2623,7 @@ class SalesProposalController {
                 'commissionAmount' => $salesProposalDetails['commission_amount'] ?? null,
                 'initialApprovalRemarks' => $salesProposalDetails['initial_approval_remarks'] ?? null,
                 'finalApprovalRemarks' => $salesProposalDetails['final_approval_remarks'] ?? null,
+                'installmentSalesApprovalRemarks' => $salesProposalDetails['installment_sales_approval_remarks'] ?? null,
                 'rejectionReason' => $salesProposalDetails['rejection_reason'] ?? null,
                 'cancellationReason' => $salesProposalDetails['cancellation_reason'] ?? null,
                 'setToDraftReason' => $salesProposalDetails['set_to_draft_reason'] ?? null,
@@ -2637,6 +2641,7 @@ class SalesProposalController {
                 'releaseDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['release_date'], '', 'm/d/Y', ''),
                 'startDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['start_date'], '', 'm/d/Y', ''),
                 'firstDueDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['first_due_date'], '', 'm/d/Y', ''),
+                'maturityDate' =>  date('F d, Y', strtotime("+". $salesProposalDetails['term_length'] ." " . $salesProposalDetails['term_type'] , strtotime($salesProposalDetails['actual_start_date']))),
                 'termLength' => $salesProposalDetails['term_length'],
                 'termType' => $salesProposalDetails['term_type'],
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],
@@ -3160,6 +3165,73 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: getSalesProposalInsuranceRequestDetails
+    # Description: 
+    # Handles the retrieval of sales proposal pricing computation details.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function getSalesProposalInsuranceRequestDetails() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        if (isset($_POST['sales_proposal_id']) && !empty($_POST['sales_proposal_id'])) {
+            $userID = $_SESSION['user_id'];
+            $salesProposalID = $_POST['sales_proposal_id'];
+    
+            $user = $this->userModel->getUserByID($userID);
+    
+            if (!$user || !$user['is_active']) {
+                echo json_encode(['success' => false, 'isInactive' => true]);
+                exit;
+            }
+    
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $productID = $salesProposalDetails['product_id'];
+
+            $productDetails = $this->productModel->getProduct($productID);
+            $productPrice = $productDetails['product_price'] * 1000;
+            $productSubategoryID = $productDetails['product_subcategory_id'];
+
+            $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
+            $productCategory = $productSubcategoryDetails['product_category_id'] ?? null;
+
+            if($productCategory == '1' || $productCategory == '3'){
+                $odRate = 2.4;
+            }
+            else{
+                $odRate = 1.25;
+            }
+
+            $odTheftPremium = $productPrice * ($odRate/100);
+            $vatPremium = $odTheftPremium * (12/100);
+            $docStamps = $odTheftPremium * (12.5/100);
+            $localGovtTax = $odTheftPremium * (0.5/100);
+            $gross = $odTheftPremium + $vatPremium + $docStamps + $localGovtTax;
+
+            $response = [
+                'success' => true,
+                'odTheft' => number_format($productPrice, 2),
+                'odRate' => number_format($odRate, 2) . '%',
+                'odTheftPremium' => number_format($odTheftPremium, 2),
+                'vatPremium' => number_format($vatPremium, 2),
+                'docStamps' => number_format($docStamps, 2),
+                'localGovtTax' => number_format($localGovtTax, 2),
+                'gross' => number_format($gross, 2),
+            ];
+
+            echo json_encode($response);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getSalesProposalOtherChargesDetails
     # Description: 
     # Handles the retrieval of sales proposal other charges details.
@@ -3275,8 +3347,31 @@ class SalesProposalController {
                 echo json_encode(['success' => false, 'isInactive' => true]);
                 exit;
             }
+
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
     
             $salesProposalRenewalAmountDetails = $this->salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
+
+            if($salesProposalRenewalAmountDetails['insurance_coverage_second_year'] > 0){
+                $secondYearInsuranceDate = date('F d, Y', strtotime("+1 year" , strtotime($salesProposalDetails['actual_start_date'])));
+            }
+            else{
+                $secondYearInsuranceDate = '';
+            }
+
+            if($salesProposalRenewalAmountDetails['insurance_coverage_third_year'] > 0){
+                $thirdYearInsuranceDate = date('F d, Y', strtotime("+2 year" , strtotime($salesProposalDetails['actual_start_date'])));
+            }
+            else{
+                $thirdYearInsuranceDate = '';
+            }
+
+            if($salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] > 0){
+                $fourthYearInsuranceDate = date('F d, Y', strtotime("+3 year" , strtotime($salesProposalDetails['actual_start_date'])));
+            }
+            else{
+                $fourthYearInsuranceDate = '';
+            }
 
             $response = [
                 'success' => true,
@@ -3288,7 +3383,20 @@ class SalesProposalController {
                 'insuranceCoverageFourthYear' => $salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] ?? 0,
                 'insurancePremiumSecondYear' => $salesProposalRenewalAmountDetails['insurance_premium_second_year'] ?? 0,
                 'insurancePremiumThirdYear' => $salesProposalRenewalAmountDetails['insurance_premium_third_year'] ?? 0,
-                'insurancePremiumFourthYear' => $salesProposalRenewalAmountDetails['insurance_premium_fourth_year'] ?? 0
+                'insurancePremiumFourthYear' => $salesProposalRenewalAmountDetails['insurance_premium_fourth_year'] ?? 0,
+                'secondYearInsuranceDate' => $secondYearInsuranceDate,
+                'thirdYearInsuranceDate' => $thirdYearInsuranceDate,
+                'fourthYearInsuranceDate' => $fourthYearInsuranceDate,
+
+                'registrationSecondYearSummary' => number_format($salesProposalRenewalAmountDetails['registration_second_year'] ?? 0, 2),
+                'registrationThirdYearSummary' => number_format($salesProposalRenewalAmountDetails['registration_third_year'] ?? 0, 2),
+                'registrationFourthYearSummary' => number_format($salesProposalRenewalAmountDetails['registration_fourth_year'] ?? 0, 2),
+                'insuranceCoverageSecondYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_coverage_second_year'] ?? 0, 2),
+                'insuranceCoverageThirdYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_coverage_third_year'] ?? 0, 2),
+                'insuranceCoverageFourthYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] ?? 0, 2),
+                'insurancePremiumSecondYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_premium_second_year'] ?? 0, 2),
+                'insurancePremiumThirdYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_premium_third_year'] ?? 0, 2),
+                'insurancePremiumFourthYearSummary' => number_format($salesProposalRenewalAmountDetails['insurance_premium_fourth_year'] ?? 0, 2)
             ];
 
             echo json_encode($response);

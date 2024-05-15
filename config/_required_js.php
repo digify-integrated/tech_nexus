@@ -1,4 +1,4 @@
-<script src="./assets/js/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="./assets/js/plugins/popper.min.js"></script>
 <script src="./assets/js/plugins/simplebar.min.js"></script>
 <script src="./assets/js/plugins/bootstrap.min.js"></script>

@@ -40,6 +40,10 @@
             salesProposalForCITable('#sales-proposal-for-ci-table');
         }
 
+        if($('#schedule-of-payments-table').length){
+            scheduleOfPaymentsTable('#schedule-of-payments-table');
+        }
+
         if($('#installment-sales-approval-table').length){
             installmentSalesApprovalTable('#installment-sales-approval-table');
         }
@@ -65,7 +69,7 @@
         }
 
         if($('#sales-proposal-released-table').length){
-            salesProposalReleasedTable('#sales-proposal-released-table');
+            salesProposalReleasedTable('#sales-proposal-released-table', true);
         }
 
         if($('#sales-proposal-pdc-manual-input-table').length){
@@ -186,6 +190,10 @@
                 disableFormAndSelect2('sales-proposal-other-product-details-form');
                 displayDetails('get sales proposal other product details');   
             }
+        }
+
+        if($('#v-insurance-request').length){
+            displayDetails('get sales proposal insurance request details');   
         }
 
         if($('#sales-proposal-additional-job-order-form').length){
@@ -1124,7 +1132,11 @@
             }
     
             if($('#sales-proposal-released-table').length){
-                salesProposalReleasedTable('#sales-proposal-released-table');
+                salesProposalReleasedTable('#sales-proposal-released-table', true);
+            }
+    
+            if($('#schedule-of-payments-table').length){
+                scheduleOfPaymentsTable('#schedule-of-payments-table');
             }
         });
     });
@@ -1639,6 +1651,92 @@ function installmentSalesApprovalTable(datatable_name, buttons = false, show_all
     $(datatable_name).dataTable(settings);
 }
 
+function scheduleOfPaymentsTable(datatable_name, buttons = false, show_all = false){
+    const type = 'schedule of payments table';
+    var filter_release_date_start_date = $('#filter_release_date_start_date').val();
+    var filter_release_date_end_date = $('#filter_release_date_end_date').val();
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'NUMBER' },
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'RELEASE_DATE' },
+        { 'data' : 'DUE_DATE' },
+        { 'data' : 'AMOUNT_DUE' }
+    ];
+
+    const column_definition = [
+        { 'width': '5%', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[-1], ['All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {
+                'type' : type, 
+                'filter_release_date_start_date' : filter_release_date_start_date,
+                'filter_release_date_end_date' : filter_release_date_end_date
+            },
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-6'l><'col-sm-6'B>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = [
+            {
+                extend: "copyHtml5",
+                exportOptions: {
+                    columns: [0, ":visible"],
+                },
+            },
+            {
+                extend: "excelHtml5",
+                exportOptions: {
+                    columns: ":visible",
+                },
+            },
+            {
+                extend: "pdfHtml5",
+                exportOptions: {
+                    columns: ":visible",
+                },
+            },
+            "colvis",
+        ];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
 function salesProposalForBankFinancingTable(datatable_name, buttons = false, show_all = false){
     const type = 'sales proposal for bank financing table';
 
@@ -1962,7 +2060,7 @@ function salesProposalReleasedTable(datatable_name, buttons = false, show_all = 
     }
 
     if (buttons) {
-        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.dom = "Bfrtip";
         settings.buttons = ['csv', 'excel', 'pdf'];
     }
 
@@ -4846,6 +4944,8 @@ function displayDetails(transaction){
                         $('#summary-product-type').text(response.productType);
                         $('#summary-transaction-type').text(response.transactionType);
                         $('#summary-term').text(response.termLength + ' ' + response.termType);
+                        $('#insurance_term').text(response.termLength + ' ' + response.termType);
+                        $('#insurance_maturity').text(response.maturityDate);
                         $('#summary-no-payments').text(response.numberOfPayments);
                         $('#summary-remarks').text(response.remarks);
                         $('#summary-initial-approval-by').text(response.initialApprovingOfficerName);
@@ -4854,6 +4954,7 @@ function displayDetails(transaction){
 
                         $('#initial_approval_remarks_label').text(response.initialApprovalRemarks);
                         $('#final_approval_remarks_label').text(response.finalApprovalRemarks);
+                        $('#installment_sales_approval_remarks_label').text(response.installmentSalesApprovalRemarks);
                         $('#rejection_reason_label').text(response.rejectionReason);
                         $('#cancellation_reason_label').text(response.cancellationReason);
                         $('#set_to_draft_reason_label').text(response.setToDraftReason);
@@ -5010,6 +5111,11 @@ function displayDetails(transaction){
                         $('#summary-engine-no').text(response.refEngineNo);
                         $('#summary-chassis-no').text(response.refChassisNo);
                         $('#summary-plate-no').text(response.refPlateNo);
+
+                        $('#insurance_unit_no').text(response.refStockNo);
+                        $('#insurance_engine_no').text(response.refEngineNo);
+                        $('#insurance_chassis_no').text(response.refChassisNo);
+                        $('#insurance_plate_no').text(response.refPlateNo);
                     } 
                     else {
                         if(response.isInactive){
@@ -5148,7 +5254,9 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#insurance_coverage').val(response.insuranceCoverage);
+                        $('#insurance_request_coverage_1').text(response.insuranceCoverage);
                         $('#insurance_premium').val(response.insurancePremium);
+                        $('#insurance_request_premium_1').text(response.insurancePremium);
                         $('#handling_fee').val(response.handlingFee);
                         $('#transfer_fee').val(response.transferFee);
                         $('#registration_fee').val(response.registrationFee);
@@ -5208,15 +5316,25 @@ function displayDetails(transaction){
                         $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
                         $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
 
-                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYear).toLocaleString("en-US"));
-                        $('#summary-registration-third-year').text(parseFloat(response.registrationThirdYear).toLocaleString("en-US"));
-                        $('#summary-registration-fourth-year').text(parseFloat(response.registrationFourthYear).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-second-year').text(parseFloat(response.insuranceCoverageSecondYear).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-third-year').text(parseFloat(response.insuranceCoverageThirdYear).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-fourth-year').text(parseFloat(response.insuranceCoverageFourthYear).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYear).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYear).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYear).toLocaleString("en-US"));
+                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYearSummary).toLocaleString("en-US"));
+                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYearSummary).toLocaleString("en-US"));
+                        $('#summary-registration-third-year').text(parseFloat(response.registrationThirdYearSummary).toLocaleString("en-US"));
+                        $('#summary-registration-fourth-year').text(parseFloat(response.registrationFourthYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-second-year').text(parseFloat(response.insuranceCoverageSecondYearSummary).toLocaleString("en-US"));
+                        $('#2nd_year_coverage').text(parseFloat(response.insuranceCoverageSecondYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-third-year').text(parseFloat(response.insuranceCoverageThirdYearSummary).toLocaleString("en-US"));
+                        $('#3rd_year_coverage').text(parseFloat(response.insuranceCoverageThirdYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-coverage-fourth-year').text(parseFloat(response.insuranceCoverageFourthYearSummary).toLocaleString("en-US"));
+                        $('#4th_year_coverage').text(parseFloat(response.insuranceCoverageFourthYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYearSummary).toLocaleString("en-US"));
+                        $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYearSummary).toLocaleString("en-US"));
+
+                        
+                        $('#2nd_year_date').text(response.secondYearInsuranceDate);
+                        $('#3rd_year_date').text(response.thirdYearInsuranceDate);
+                        $('#4th_year_date').text(response.fourthYearInsuranceDate);
+
                         var product_category = $('#product_category').val();
 
 
@@ -5483,6 +5601,12 @@ function displayDetails(transaction){
                             $('#summary-chassis-no').text(response.chassisNumber);
                             $('#summary-plate-no').text(response.plateNumber);
 
+                            $('#insurance_unit_no').text(response.summaryStockNumber);
+                            $('#insurance_engine_no').text(response.engineNumber);
+                            $('#insurance_chassis_no').text(response.chassisNumber);
+                            $('#insurance_plate_no').text(response.plateNumber);
+                            $('#insurance_color').text(response.colorName);
+
                             if($('#product_cost_label').length){
                                 $('#product_cost_label').text(parseFloat(response.productCost * 1000).toLocaleString("en-US"));
                             }
@@ -5523,13 +5647,57 @@ function displayDetails(transaction){
                 success: function(response) {
                     if (response.success) {
                         $('#year_model').val(response.yearModel);
+                        $('#insurance_year_model').text(response.yearModel);
                         $('#cr_no').val(response.crNo);
                         $('#cr_no_label').text(response.crNo);
                         $('#mv_file_no').val(response.mvFileNo);
+                        $('#insurance_mv_file_no').text(response.mvFileNo);
                         $('#make').val(response.make);
+                        $('#insurance_make').text(response.make);
                         $('#product_description').val(response.productDescription);
                         $('#other-details-gatepass1').text(response.productDescription);
                         $('#other-details-gatepass2').text(response.productDescription);
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Other Product Details Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                    showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
+        case 'get sales proposal insurance request details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+    
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#od_theft').text(response.odTheft);
+                        $('#od_rate').text(response.odRate);
+                        $('#od_theft_premium').text(response.odTheftPremium);
+                        $('#total_premium').text(response.odTheftPremium);
+                        $('#vat_premium').text(response.vatPremium);
+                        $('#doc_stamps').text(response.docStamps);
+                        $('#local_govt_tax').text(response.localGovtTax);
+                        $('#gross').text(response.gross);
+                        $('#1st_year_coverage').text(response.odTheft);
                     } 
                     else {
                         if(response.isInactive){

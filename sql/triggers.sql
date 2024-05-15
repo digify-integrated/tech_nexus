@@ -5218,3 +5218,69 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Directory Table Triggers */
+
+CREATE TRIGGER contact_directory_trigger_update
+AFTER UPDATE ON contact_directory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contact_name <> OLD.contact_name THEN
+        SET audit_log = CONCAT(audit_log, "Contact Name: ", OLD.contact_name, " -> ", NEW.contact_name, "<br/>");
+    END IF;
+
+    IF NEW.position <> OLD.position THEN
+        SET audit_log = CONCAT(audit_log, "Position: ", OLD.position, " -> ", NEW.position, "<br/>");
+    END IF;
+
+    IF NEW.location <> OLD.location THEN
+        SET audit_log = CONCAT(audit_log, "Location: ", OLD.location, " -> ", NEW.location, "<br/>");
+    END IF;
+
+    IF NEW.directory_type <> OLD.directory_type THEN
+        SET audit_log = CONCAT(audit_log, "Directory Type: ", OLD.directory_type, " -> ", NEW.directory_type, "<br/>");
+    END IF;
+
+    IF NEW.contact_information <> OLD.contact_information THEN
+        SET audit_log = CONCAT(audit_log, "Contact Information: ", OLD.contact_information, " -> ", NEW.contact_information, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('contact_directory', NEW.contact_directory_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER contact_directory_trigger_insert
+AFTER INSERT ON contact_directory
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Contact directory created. <br/>';
+
+     IF NEW.contact_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact Name: ", NEW.contact_name, "<br/>");
+    END IF;
+
+    IF NEW.position <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Position: ", NEW.position, "<br/>");
+    END IF;
+
+    IF NEW.location <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Location: ", NEW.location, "<br/>");
+    END IF;
+
+    IF NEW.directory_type <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Directory Type: ", NEW.directory_type, "<br/>");
+    END IF;
+
+    IF NEW.contact_information <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact Information: ", NEW.contact_information, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('contact_directory', NEW.contact_directory_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

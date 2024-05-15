@@ -68,6 +68,10 @@
                                         <a href="disclosure-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
                                     </div>';
 
+                                    echo '<div class="previous me-2 d-none" id="insurance-request-print-button">
+                                    <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
+                                        </div>';
+
                                     echo '<div class="previous me-2 d-none" id="dr-receipt-print-button">
                                             <a href="dr-receipt-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-warning me-1" id="dr-receipt-print">Print DR Receipt</a>
                                         </div>';
@@ -1546,6 +1550,236 @@
                                     </div>
                                     <p style="text-align: justify !important;"><b>This is a system-generated Disclosure Statement on Credit Sales Transaction and does not require a signature from Christian General Motors Inc.</b></p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="v-insurance-request">
+                        <div class="print-area-insurance-request2">
+                            <div class="row" style="font-size:12px !important;">
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">STM NUMBER</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left"><?php echo strtoupper($drNumber); ?></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-0">
+                                        <p class="text-left"><b>CHRISTIAN GENERAL MOTORS, INC.</b></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">NAME:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left"><?php echo strtoupper($customerName); ?></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">ADDRESS:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left"><?php echo strtoupper($customerAddress); ?></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">INCEPTION:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left"><?php echo strtoupper(date('F d, Y', strtotime($startDate))); ?></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">UNIT NO.:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_unit_no"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">YR/MODEL:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_year_model"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">COLOR:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left text-uppercase" id="insurance_color"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">MAKE/TYPE:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_make"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">PLATE NO.:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_plate_no"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">CHASSIS NO.:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_chassis_no"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">ENGINE NO.:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left" id="insurance_engine_no"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">MV FILE NO.:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                    <p class="text-left" id="insurance_mv_file_no"></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 mb-0">
+                                        <p class="text-left">MORTGAGEE:</p>
+                                    </div>
+                                    <div class="col-9 mb-0">
+                                        <p class="text-left">CGMI</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-0">
+                                        <p class="text-left"><b>CHRISTIAN GENERAL MOTORS, INC.</b></p>
+                                    </div>
+                                </div>
+                                <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
+                                    <tr>
+                                        <td><b>RISK</b></td>
+                                        <td><b>COVERAGE</b></td>
+                                        <td><b>RATE</b></td>
+                                        <td><b>PREMIUM</b></td>
+                                    </tr>
+                                    <tbody>
+                                        <tr>
+                                            <td><b>CTPL</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>OD/Theft</b></td>
+                                            <td id="od_theft"></td>
+                                            <td id="od_rate"></td>
+                                            <td id="od_theft_premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>AON</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>TPBI</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>TPPD</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><b>PAR</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <div class="pagebreak"></div>
+                                        <tr>
+                                            <td></td>
+                                            <td><b>Total Premium</b></td>
+                                            <td></td>
+                                            <td id="total_premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>VAT/PREMIUM TAX</td>
+                                            <td></td>
+                                            <td id="vat_premium"></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>DOC. STAMPS</td>
+                                            <td></td>
+                                            <td id="doc_stamps"></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>LOCAL GOV'T TAX</td>
+                                            <td></td>
+                                            <td id="local_govt_tax"></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td><b>Gross</b></td>
+                                            <td></td>
+                                            <td id="gross"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
+                                    <tbody>
+                                        <tr>
+                                            <td>TERM</td>
+                                            <td class="text-uppercase" id="insurance_term"></td>
+                                            <td rowspan="2"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>MATURITY</td>
+                                            <td class="text-uppercase" id="insurance_maturity"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>1st YEAR COV</td>
+                                            <td id="1st_year_coverage"></td>
+                                            <td><?php echo strtoupper(date('F d, Y', strtotime($startDate))); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>2nd YEAR COV</td>
+                                            <td id="2nd_year_coverage"></td>
+                                            <td id="2nd_year_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>3rd YEAR COV</td>
+                                            <td id="3rd_year_coverage"></td>
+                                            <td id="3rd_year_date"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>4th YEAR COV</td>
+                                            <td id="4th_year_coverage"></td>
+                                            <td id="4th_year_date"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

@@ -8618,3 +8618,52 @@ BEGIN
 
     COMMIT;
 END //
+
+/* Contact Directory Table Stored Procedures */
+
+CREATE PROCEDURE checkContactDirectoryExist (IN p_contact_directory_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_directory
+    WHERE contact_directory_id = p_contact_directory_id;
+END //
+
+CREATE PROCEDURE insertContactDirectory(IN p_contact_name VARCHAR(200), IN p_position VARCHAR(200), IN p_location VARCHAR(200), IN p_directory_type VARCHAR(200), IN p_contact_information VARCHAR(500), IN p_last_log_by INT, OUT p_contact_directory_id INT)
+BEGIN
+    INSERT INTO contact_directory (contact_name, position, location, directory_type, contact_information, last_log_by) 
+	VALUES(p_contact_name, p_position, p_location, p_directory_type, p_contact_information, p_last_log_by);
+	
+    SET p_contact_directory_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateContactDirectory(IN p_contact_directory_id INT, IN p_contact_name VARCHAR(200), IN p_position VARCHAR(200), IN p_location VARCHAR(200), IN p_directory_type VARCHAR(200), IN p_contact_information VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_directory
+    SET contact_name = p_contact_name,
+    position = p_position,
+    location = p_location,
+    directory_type = p_directory_type,
+    contact_information = p_contact_information,
+    last_log_by = p_last_log_by
+    WHERE contact_directory_id = p_contact_directory_id;
+END //
+
+CREATE PROCEDURE deleteContactDirectory(IN p_contact_directory_id INT)
+BEGIN
+    DELETE FROM contact_directory WHERE contact_directory_id = p_contact_directory_id;
+END //
+
+CREATE PROCEDURE getContactDirectory(IN p_contact_directory_id INT)
+BEGIN
+	SELECT * FROM contact_directory
+    WHERE contact_directory_id = p_contact_directory_id;
+END //
+
+CREATE PROCEDURE generateContactDirectoryTable()
+BEGIN
+    SELECT *
+    FROM contact_directory
+    ORDER BY contact_directory_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

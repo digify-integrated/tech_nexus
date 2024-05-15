@@ -28643,7 +28643,8 @@ div.dataTables_wrapper div.dataTables_paginate {
   body * {
     visibility: hidden;
   }
-  .print-area, .print-area *, .print-summary, .print-summary *, .print-area-online, .print-area-online *, .print-area-autorization, .print-area-autorization *, .print-area-promissory-note, .print-area-promissory-note *, .print-area-disclosure, .print-area-disclosure *, .print-area-gatepass, .print-area-gatepass * {
+  
+  .print-area, .print-area *, .print-summary, .print-summary *, .print-area-online, .print-area-online *, .print-area-autorization, .print-area-autorization *, .print-area-promissory-note, .print-area-promissory-note *, .print-area-disclosure, .print-area-disclosure *, .print-area-gatepass, .print-area-gatepass *, .print-area-insurance-request, .print-area-insurance-request *, .print-area-insurance-request2, .print-area-insurance-request2 * {
     visibility: visible;
   }
 
@@ -28681,6 +28682,24 @@ div.dataTables_wrapper div.dataTables_paginate {
     padding: 0 !important;
     left: 0 !important;
     margin-top: -130% !important;
+  }
+
+  .print-area-insurance-request {
+    position: absolute;
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    margin-top: -155% !important;
+  }
+
+  .print-area-insurance-request2 {
+    position: absolute;
+    background-color: white;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    margin-top: -170% !important;
   }
 
   body, html {

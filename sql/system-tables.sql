@@ -5374,3 +5374,20 @@ CREATE TABLE leasing_collections (
 );
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Directory Table */
+
+CREATE TABLE contact_directory(
+	contact_directory_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	contact_name VARCHAR(200) NOT NULL,
+	position VARCHAR(200) NOT NULL,
+	location VARCHAR(200) NOT NULL,
+	directory_type VARCHAR(100) NOT NULL,
+	contact_information VARCHAR(500) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_directory_index_contact_directory_id ON contact_directory(contact_directory_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
