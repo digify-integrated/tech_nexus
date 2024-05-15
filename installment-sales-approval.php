@@ -6,16 +6,15 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
 
-  $pageTitle = 'Sales Proposal For Bank Financing';
+  $pageTitle = 'Installment Sales Approval';
   
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
     
-  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 83, 'read');
+  $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 75, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
-  $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -24,11 +23,6 @@
 
   if(isset($_GET['customer'])){
     $customerID = $securityModel->decryptData($_GET['customer']);
-
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
   }
 
   if(isset($_GET['id'])){
@@ -76,7 +70,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Sales Proposal</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal-bank-financing.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="installment-sales-approval.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($salesProposalID)){
                       echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';
@@ -98,10 +92,10 @@
         </div>
         <?php
          if(!empty($salesProposalID) && !empty($customerID)){
-            require_once('view/_sales_proposal_details.php');
+            require_once('view/_installment_sales_approval_details.php');
           }
           else{
-            require_once('view/_sales_proposal_for_bank_financing.php');
+            require_once('view/_installment_sales_approval.php');
           }
         ?>
       </div>

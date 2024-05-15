@@ -143,6 +143,9 @@ class SalesProposalController {
                 case 'sales proposal reject':
                     $this->tagSalesProposalReject();
                     break;
+                case 'sales installment approval':
+                    $this->tagSalesInstallmentApprove();
+                    break;
                 case 'sales proposal cancel':
                     $this->tagSalesProposalCancel();
                     break;
@@ -1867,6 +1870,54 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: tagSalesInstallmentApprove
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesInstallmentApprove() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $installmentSalesApprovalRemarks = htmlspecialchars($_POST['installment_sales_approval_remarks'], ENT_QUOTES, 'UTF-8');
+        $termLength = htmlspecialchars($_POST['term_length_2'], ENT_QUOTES, 'UTF-8');
+        $addOnCharge = htmlspecialchars($_POST['add_on_charge_2'], ENT_QUOTES, 'UTF-8');
+        $nominalDiscount = htmlspecialchars($_POST['nominal_discount_2'], ENT_QUOTES, 'UTF-8');
+        $interestRate = htmlspecialchars($_POST['interest_rate_2'], ENT_QUOTES, 'UTF-8');
+        $downpayment = htmlspecialchars($_POST['downpayment_2'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->salesProposalModel->updateSaleProposalValues($salesProposalID, $termLength, $addOnCharge, $nominalDiscount, $interestRate, $downpayment, $userID);
+        $this->salesProposalModel->updateSalesInstallmentStatus($salesProposalID, 'Approved', $installmentSalesApprovalRemarks, $userID);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: saveSalesProposalJobOrder
     # Description: 
     # Updates the existing sales proposal job order if it exists; otherwise, inserts a new sales proposal job order.
@@ -2093,7 +2144,7 @@ class SalesProposalController {
         $mvFileNo = htmlspecialchars($_POST['mv_file_no'], ENT_QUOTES, 'UTF-8');
         $make = htmlspecialchars($_POST['make'], ENT_QUOTES, 'UTF-8');
         $releaseTo = htmlspecialchars($_POST['release_to'], ENT_QUOTES, 'UTF-8');
-        $productDescription = htmlspecialchars($_POST['product_description'], ENT_QUOTES, 'UTF-8');
+        $productDescription = $_POST['product_description'];
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
     

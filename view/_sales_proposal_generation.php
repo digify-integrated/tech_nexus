@@ -322,6 +322,67 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: installment sales approval table
+        # Description:
+        # Generates the installment sales approval table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'installment sales approval table':
+            $sql = $databaseModel->getConnection()->prepare('CALL generateInstallmentSalesApprovalTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $salesProposalID = $row['sales_proposal_id'];
+                $customerID = $row['customer_id'];
+                $salesProposalNumber = $row['sales_proposal_number'];
+                $productType = $row['product_type'];
+                $productID = $row['product_id'];
+                $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
+
+                $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+                $forCIDate = $systemModel->checkDate('summary', $row['for_ci_date'], '', 'm/d/Y h:i:s A', '');
+
+                $response[] = [
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
+                    'SALES_PROPOSAL_NUMBER' => '<a href="installment-sales-approval.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                                                    '. $salesProposalNumber .'
+                                                </a>',
+                    'CUSTOMER' => '<div class="col">
+                                        <h6 class="mb-0">'. $customerName .'</h6>
+                                        <p class="f-12 mb-0">'. $corporateName .'</p>
+                                    </div>',
+                    'PRODUCT_TYPE' => $productType,
+                    'PRODUCT' => $stockNumber,
+                    'FOR_CI_DATE' => $forCIDate,
+                    'STATUS' => $salesProposalStatus,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="installment-sales-approval.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: sales proposal for bank financing table
         # Description:
         # Generates the sales proposal table.
@@ -358,7 +419,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $salesProposalID .'">',
-                    'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
+                    'SALES_PROPOSAL_NUMBER' => '<a href="sales-proposal-bank-financing.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a>',
                     'CUSTOMER' => '<div class="col">
@@ -370,7 +431,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'FOR_CI_DATE' => $forCIDate,
                     'STATUS' => $salesProposalStatus,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="sales-proposal-bank-financing.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

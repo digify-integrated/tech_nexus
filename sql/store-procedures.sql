@@ -7195,6 +7195,7 @@ BEGIN
     ELSEIF p_sales_proposal_status = 'Rejected' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
+        installment_sales_status = p_sales_proposal_status,
         rejection_date = NOW(),
         rejection_reason = p_remarks,
         last_log_by = p_last_log_by
@@ -7253,6 +7254,41 @@ BEGIN
     ci_completion_date = NOW(),
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesInstallmentStatus(IN p_sales_proposal_id INT, IN p_sales_installment_status VARCHAR(100), IN p_installment_sales_approval_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal
+    SET installment_sales_status = p_sales_installment_status,
+    installment_sales_approval_date = NOW(),
+    installment_sales_approval_remarks = p_installment_sales_approval_remarks,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSaleProposalValues(IN p_sales_proposal_id INT, IN p_term_length INT, IN p_add_on_charge DOUBLE, IN p_nominal_discount DOUBLE, IN p_interest_rate DOUBLE, IN p_downpayment DOUBLE, IN p_last_log_by INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    UPDATE sales_proposal
+    SET term_length = p_term_length,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+
+    UPDATE sales_proposal_pricing_computation
+    SET add_on_charge = p_add_on_charge,
+    nominal_discount = p_nominal_discount,
+    interest_rate = p_interest_rate,
+    downpayment = p_downpayment,
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+
+    COMMIT;
 END //
 
 CREATE PROCEDURE updateSalesProposalClientConfirmation(IN p_sales_proposal_id INT, IN p_client_confirmation VARCHAR(500), IN p_last_log_by INT)
@@ -7447,8 +7483,6 @@ BEGIN
 
     SET conditionList = '';
     SET conditionList = CONCAT(conditionList, ' WHERE created_by =');
-    SET conditionList = CONCAT(conditionList, p_contact_id);
-    SET conditionList = CONCAT(conditionList, ' OR created_by =');
     SET conditionList = CONCAT(conditionList, p_user_id);
 
     IF p_sales_proposal_status IS NOT NULL AND p_sales_proposal_status <> '' THEN
@@ -7477,6 +7511,11 @@ END //
 CREATE PROCEDURE generateSalesProposalForCITable()
 BEGIN
    SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL)) AND ci_status IS NULL AND ci_completion_date IS NULL;
+END //
+
+CREATE PROCEDURE generateInstallmentSalesApprovalTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE (sales_proposal_status = 'For CI' OR (sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND for_ci_date IS NOT NULL)) AND (installment_sales_status IS NULL AND installment_sales_approval_date IS NULL) AND ((ci_status IS NULL AND ci_completion_date IS NULL) OR (ci_status IS NOT NULL AND ci_completion_date IS NOT NULL));
 END //
 
 CREATE PROCEDURE generateSalesProposalForBankFinancingTable()
@@ -8208,7 +8247,7 @@ BEGIN
     END IF;
 END //
 
-CREATE PROCEDURE updateLeasingOtherChargesStatus()
+CREATE PROCEDURE updateInstallmentStatus()
 BEGIN
    UPDATE leasing_other_charges
     SET payment_status = 

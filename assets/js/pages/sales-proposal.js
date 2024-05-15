@@ -40,6 +40,10 @@
             salesProposalForCITable('#sales-proposal-for-ci-table');
         }
 
+        if($('#installment-sales-approval-table').length){
+            installmentSalesApprovalTable('#installment-sales-approval-table');
+        }
+
         if($('#sales-proposal-for-bank-financing-table').length){
             salesProposalForBankFinancingTable('#sales-proposal-for-bank-financing-table');
         }
@@ -210,6 +214,10 @@
         
         if($('#sales-proposal-reject-form').length){
             salesProposalRejectForm();
+        }
+
+        if($('#approve-installment-sales-form').length){
+            installmentSalesApprovalForm();
         }
         
         if($('#sales-proposal-cancel-form').length){
@@ -1089,6 +1097,21 @@
 
         if($('#sales-proposal-id').length){
             displayDetails('get sales proposal basic details');    
+
+            displayDetails('get sales proposal unit details');
+            displayDetails('get sales proposal fuel details');
+            displayDetails('get sales proposal refinancing details');
+
+            if($('#sales-proposal-tab-12').length){
+                displayDetails('get comaker details');
+            }
+                    
+            displayDetails('get sales proposal pricing computation details');
+            displayDetails('get sales proposal other charges details');
+            displayDetails('get sales proposal renewal amount details');
+            displayDetails('get sales proposal confirmation details');
+                    
+            calculateRenewalAmount();
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -1490,6 +1513,70 @@ function salesProposalSummaryJobOrderTable(){
 
 function salesProposalForCITable(datatable_name, buttons = false, show_all = false){
     const type = 'sales proposal for ci table';
+
+    var settings;
+
+    const column = [ 
+        { 'data' : 'SALES_PROPOSAL_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT_TYPE' },
+        { 'data' : 'PRODUCT' },
+        { 'data' : 'FOR_CI_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': '15%', 'aTargets': 0 },
+        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'aTargets': 2 },
+        { 'width': '25%', 'aTargets': 3 },
+        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '10%', 'aTargets': 5 },
+        { 'width': '10%','bSortable': false, 'aTargets': 6 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_sales_proposal_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 4, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function installmentSalesApprovalTable(datatable_name, buttons = false, show_all = false){
+    const type = 'installment sales approval table';
 
     var settings;
 
@@ -2115,9 +2202,6 @@ function addSalesProposalForm(){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal basic details');
                 }
             });
         
@@ -2280,6 +2364,10 @@ function salesProposalForm(){
                 },
                 complete: function() {
                     displayDetails('get sales proposal basic details');
+                    displayDetails('get sales proposal unit details');
+                    displayDetails('get sales proposal fuel details');
+                    displayDetails('get sales proposal refinancing details');
+                    displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -3764,6 +3852,128 @@ function salesProposalRejectForm(){
     });
 }
 
+function installmentSalesApprovalForm(){
+    $('#approve-installment-sales-form').validate({
+        rules: {
+            installment_sales_approval_remarks: {
+                required: true
+            },
+            term_length_2: {
+                required: true
+            },
+            add_on_charge_2: {
+                required: true
+            },
+            nominal_discount_2: {
+                required: true
+            },
+            nominal_discount_2: {
+                required: true
+            },
+            interest_rate_2: {
+                required: true
+            },
+            downpayment_2: {
+                required: true
+            },
+        },
+        messages: {
+            installment_sales_approval_remarks: {
+                required: 'Please enter the approval remarks'
+            },
+            term_length_2: {
+                required: 'Please enter the term length'
+            },
+            add_on_charge_2: {
+                required: 'Please enter the add-on charge'
+            },
+            nominal_discount_2: {
+                required: 'Please enter the nominal discount'
+            },
+            interest_rate_2: {
+                required: 'Please enter the interest rate'
+            },
+            downpayment_2: {
+                required: 'Please enter the downpayment'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'sales installment approval';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-sales-proposal-reject');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setNotification('Approve Sales Installment Success', 'The sales installment has been approved successfully.', 'success');
+
+                        displayDetails('get sales proposal basic details');                                
+                        displayDetails('get sales proposal pricing computation details');
+                    }
+                    else{
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    $('#sales-proposal-pricing-computation-form').submit();
+                    enableFormSubmitButton('submit-sales-proposal-reject', 'Submit');
+                    $('#sales-proposal-reject-offcanvas').offcanvas('hide');
+                    window.location.reload();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function salesProposalCancelForm(){
     $('#sales-proposal-cancel-form').validate({
         rules: {
@@ -4617,7 +4827,11 @@ function displayDetails(transaction){
                         $('#dr_number').val(response.drNumber);
                         $('#release_to').val(response.releaseTo);
                         $('#actual_start_date').val(response.actualStartDate);
-
+                        
+                        if($('#term_length_2').length){
+                            $('#term_length_2').val(response.termLength);
+                        }
+                       
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#product_type', response.productType, '');
                         checkOptionExist('#transaction_type', response.transactionType, '');
@@ -4662,20 +4876,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    displayDetails('get sales proposal unit details');
-                    displayDetails('get sales proposal fuel details');
-                    displayDetails('get sales proposal refinancing details');
-
-                    if($('#sales-proposal-tab-12').length){
-                        displayDetails('get comaker details');
-                    }
                     
-                    displayDetails('get sales proposal pricing computation details');
-                    displayDetails('get sales proposal other charges details');
-                    displayDetails('get sales proposal renewal amount details');
-                    displayDetails('get sales proposal confirmation details');
-                    
-                    calculateRenewalAmount();
                 }
             });
             break;
@@ -4886,6 +5087,22 @@ function displayDetails(transaction){
                         $('#reconditioning_cost').val(response.reconditioningCost);
                         $('#downpayment').val(response.downpayment);
                         $('#interest_rate').val(response.interestRate);
+                        
+                        if($('#add_on_charge_2').length){
+                            $('#add_on_charge_2').val(response.addOnCharge);
+                        }
+                        
+                        if($('#nominal_discount_2').length){
+                            $('#nominal_discount_2').val(response.nominalDiscount);
+                        }
+                        
+                        if($('#interest_rate_2').length){
+                            $('#interest_rate_2').val(response.interestRate);
+                        }
+                        
+                        if($('#downpayment_2').length){
+                            $('#downpayment_2').val(response.downpayment);
+                        }
 
                         $('#summary-deliver-price').text(parseFloat(response.totalDeliveryPrice).toLocaleString("en-US"));
                         $('#summary-cost-of-accessories').text(parseFloat(response.costOfAccessories).toLocaleString("en-US"));
@@ -5452,7 +5669,7 @@ function calculatePricingComputation(){
 
     $('#summary-repayment-amount').text(parseFloat(repayment_amount.toFixed(2)).toLocaleString("en-US"));
     $('#summary-outstanding-balance').text(parseFloat(outstanding_balance.toFixed(2)).toLocaleString("en-US"));
-     $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#summary-sub-total').text(parseFloat(subtotal.toFixed(2)).toLocaleString("en-US"));
 }
 
 function calculateTotalOtherCharges(){
@@ -5792,6 +6009,10 @@ function traverseTabs(direction) {
             if($('#for-dr-sales-proposal-button').length){
                 $('#for-dr-sales-proposal-button').removeClass('d-none');
             }
+    
+            if($('#approve-installment-sales-button').length){
+                $('#approve-installment-sales-button').removeClass('d-none');
+            }
 
             if($('#print-button').length){
                 $('#print-button').removeClass('d-none');
@@ -5832,6 +6053,10 @@ function traverseTabs(direction) {
     
             if($('#for-dr-sales-proposal-button').length){
                 $('#for-dr-sales-proposal-button').addClass('d-none');
+            }
+    
+            if($('#approve-installment-sales-button').length){
+                $('#approve-installment-sales-button').addClass('d-none');
             }
     
             if($('#print-button').length){

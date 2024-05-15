@@ -655,6 +655,61 @@ class SalesProposalModel {
         $stmt->execute();
     }
     # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateSaleProposalValues
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSaleProposalValues($p_sales_proposal_id, $p_term_length, $p_add_on_charge, $p_nominal_discount, $p_interest_rate, $p_downpayment, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSaleProposalValues(:p_sales_proposal_id, :p_term_length, :p_add_on_charge, :p_nominal_discount, :p_interest_rate, :p_downpayment, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_term_length', $p_term_length, PDO::PARAM_INT);
+        $stmt->bindValue(':p_add_on_charge', $p_add_on_charge, PDO::PARAM_STR);
+        $stmt->bindValue(':p_nominal_discount', $p_nominal_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_interest_rate', $p_interest_rate, PDO::PARAM_STR);
+        $stmt->bindValue(':p_downpayment', $p_downpayment, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
+    # Function: updateSalesInstallmentStatus
+    # Description: Updates the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_deposit_amount_id (int): The sales proposal deposit amount ID.
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_deposit_date (date): The deposit date.
+    # - $p_reference_number (string): The reference number.
+    # - $p_deposit_amount (double): The particulars.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesInstallmentStatus($p_sales_proposal_id, $p_sales_installment_status, $p_installment_sales_approval_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesInstallmentStatus(:p_sales_proposal_id, :p_sales_installment_status, :p_installment_sales_approval_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_installment_status', $p_sales_installment_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_installment_sales_approval_remarks', $p_installment_sales_approval_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
 
     # -------------------------------------------------------------
     #   Insert methods

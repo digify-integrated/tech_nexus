@@ -15,17 +15,7 @@
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 75, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
-  $updateSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 118);
   $deleteSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 119);
-  $forInitialApproval = $userModel->checkSystemActionAccessRights($user_id, 122);
-  $cancelSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 123);
-  $initialApproveSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 124);
-  $forCISalesProposal = $userModel->checkSystemActionAccessRights($user_id, 125);
-  $proceedSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 126);
-  $rejectSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 127);
-  $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
-  $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
-  $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
 
   if ($allSalesProposalReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -34,20 +24,6 @@
 
   if(isset($_GET['customer'])){
     $customerID = $securityModel->decryptData($_GET['customer']);
-
-    $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
-    $total = $checkCustomerExist['total'] ?? 0;
-    
-    $customerDetails = $customerModel->getPersonalInformation($customerID);
-    $customerName = $customerDetails['file_as'] ?? null;
-
-    $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
-    $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
-
-    $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
-    $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
-    $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
-    $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
     if($total == 0){
       header('location: 404.php');
@@ -62,34 +38,6 @@
     }
 
     $salesProposalID = $securityModel->decryptData($_GET['id']);
-
-    $checkSalesProposalExist = $salesProposalModel->checkSalesProposalExist($salesProposalID);
-    $total = $checkSalesProposalExist['total'] ?? 0;
-
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
-
-    $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);  
-    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
-    $salesProposalStatus = $salesProposalDetails['sales_proposal_status'];
-    $initialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
-    $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
-    $creditAdvice = $salesProposalDetails['credit_advice'];
-    $clientConfirmation = $salesProposalDetails['client_confirmation'];
-    $transactionType = $salesProposalDetails['transaction_type'];
-    $ciStatus = $salesProposalDetails['ci_status'];
-    $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
-    $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
-    $forCIDate = $systemModel->checkDate('empty', $salesProposalDetails['for_ci_date'], '', 'm/d/Y h:i:s a', '');
-    if(!empty($salesProposalDetails['created_date'])){
-      $createdDate = $systemModel->checkDate('empty', $salesProposalDetails['created_date'], '', 'm/d/Y h:i:s a', '');
-    }
-    else{
-      $createdDate = $systemModel->checkDate('empty', date('m/d/Y h:i:s a'), '', 'm/d/Y h:i:s a', '');
-    }
-    $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
   }
   else{
     $salesProposalID = null;
@@ -128,7 +76,7 @@
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                   <li class="breadcrumb-item">Sales Proposal</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal-for-ci.php?customer=<?php echo $securityModel->encryptData($customerID); ?>"><?php echo $pageTitle; ?></a></li>
                   <?php
                     if(!$newRecord && !empty($salesProposalID)){
                       echo '<li class="breadcrumb-item" id="sales-proposal-id">'. $salesProposalID .'</li>';

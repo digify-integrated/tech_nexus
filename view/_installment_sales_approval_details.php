@@ -96,79 +96,17 @@
             </div>
             <div class="d-flex">
               <?php
-                if($salesProposalStatus == 'Draft'){
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-job-order-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-job-order-offcanvas" aria-controls="sales-proposal-job-order-offcanvas" id="add-sales-proposal-job-order">Add Job Order</button>
-                          </div>';
-
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
+                if($approveInstallmentSales['total'] > 0 && empty($installmentSalesStatus)){
+                  echo '  <div class="previous me-2 d-none" id="approve-installment-sales-button">
+                            <button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#approve-installment-sales-offcanvas" aria-controls="approve-installment-sales-offcanvas" id="approve-installment-sales">Installment Sales</button>
                           </div>';
                 }
 
-                if($salesProposalStatus != 'Rejected' && $salesProposalStatus != 'Cancelled' && $salesProposalStatus != 'Ready For Release' && $salesProposalStatus != 'Released'){
-                  echo '  <div class="previous me-2 d-none" id="add-sales-proposal-additional-job-order-button">
-                            <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-additional-job-order-offcanvas" aria-controls="sales-proposal-additional-job-order-offcanvas" id="add-sales-proposal-additional-job-order">Add Additional Job Order</button>
+                if($rejectSalesProposal['total'] > 0 && empty($installmentSalesStatus)){
+                    echo '<div class="previous me-2 d-none" id="sales-proposal-reject-button">
+                              <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>
                           </div>';
-                }
-
-                if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0 && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="tag-for-initial-approval-button">
-                          <button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>
-                        </div>';
-                }
-
-                if($salesProposalStatus == 'For Initial Approval' && $initialApproveSalesProposal['total'] > 0 && $initialApprovingOfficer == $contact_id && !empty($clientConfirmation)){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-initial-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-initial-approval-offcanvas" aria-controls="sales-proposal-initial-approval-offcanvas" id="sales-proposal-initial-approval">Approve</button>
-                        </div>';
-                }
-
-                if(($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $proceedSalesProposal['total'] > 0 && $finalApprovingOfficer == $contact_id && !empty($clientConfirmation)){
-                  if($transactionType == 'COD' || $transactionType == 'Installment Sales' || ($transactionType == 'Bank Financing' && !empty($creditAdvice))){
-                    echo '<div class="previous me-2 d-none" id="sales-proposal-final-approval-button">
-                          <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-final-approval-offcanvas" aria-controls="sales-proposal-final-approval-offcanvas" id="sales-proposal-final-approval">Proceed</button>
-                        </div>';
                   }
-                }
-
-                if((($salesProposalStatus == 'For Initial Approval' && $initialApprovingOfficer == $contact_id) || ($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $finalApprovingOfficer == $contact_id) && $rejectSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-reject-button">
-                            <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-reject-offcanvas" aria-controls="sales-proposal-reject-offcanvas" id="sales-proposal-reject">Reject</button>
-                        </div>';
-                }
-
-                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-cancel-button">
-                          <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>
-                        </div>';
-                }
-
-                if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
-                  echo '<div class="previous me-2 d-none" id="for-ci-sales-proposal-button">
-                          <button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>
-                        </div>';
-                }
-
-                if($setToDraftSalesProposal['total'] > 0 && ($salesProposalStatus != 'Released')){
-                  echo '<div class="previous me-2 d-none" id="sales-proposal-set-to-draft-button">
-                          <button class="btn btn-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-set-to-draft-offcanvas" aria-controls="sales-proposal-set-to-draft-offcanvas" id="sales-proposal-set-to-draft">Draft</button>
-                      </div>';
-                }
-
-                if(($salesProposalStatus == 'For CI' || ($salesProposalStatus == 'Proceed' && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
-                  echo '<div class="previous me-2 d-none" id="complete-ci-button">
-                          <button class="btn btn-info" id="complete-ci">Complete CI</button>
-                      </div>';
-                }
-
-                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Financing Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
-                  if($tagSalesProposalForDR['total'] > 0){
-                    echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
-                            <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>
-                        </div>';
-                  }
-                }
 
                 echo '<div class="previous me-2 d-none" id="print-button">
                           <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
@@ -181,13 +119,9 @@
                 <a href="javascript:void(0);" id="next-step" class="btn btn-secondary mt-3 mt-md-0">Next Step</a>
               </div>
             </div>
-            <?php
-              if($salesProposalStatus != 'Draft'){
-                echo '<div class="last">
-                        <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Last</a>
-                      </div>';
-              }
-            ?>
+            <div class="last">
+                <a href="javascript:void(0);" id="last-step" class="btn btn-secondary mt-3 mt-md-0">Last</a>
+            </div>
           </div>
           <div id="bar" class="progress mb-3" style="height: 7px;">
             <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
@@ -1336,284 +1270,6 @@
   ?>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-offcanvas" aria-labelledby="sales-proposal-job-order-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Job Order</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-job-order-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12">
-                <label class="form-label">Job Order <span class="text-danger">*</span></label>
-                <input type="hidden" id="sales_proposal_job_order_id" name="sales_proposal_job_order_id">
-                <input type="text" class="form-control text-uppercase" id="job_order" name="job_order" maxlength="500" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="job_order_cost">Cost <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="job_order_cost" name="job_order_cost" min="0" step="0.01">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-job-order" form="sales-proposal-job-order-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-deposit-amount-offcanvas" aria-labelledby="sales-proposal-deposit-amount-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-deposit-amount-offcanvas-label" style="margin-bottom:-0.5rem">Amount of Deposit</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <div class="row">
-      <div class="col-lg-12">
-        <form id="sales-proposal-deposit-amount-form" method="post" action="#">
-          <div class="form-group row">
-            <div class="col-lg-12 mt-3 mt-lg-0">
-              <label class="form-label">Deposit Date <span class="text-danger">*</span></label>
-              <input type="hidden" id="sales_proposal_deposit_amount_id" name="sales_proposal_deposit_amount_id">
-              <div class="input-group date">
-                <input type="text" class="form-control regular-datepicker" id="deposit_date" name="deposit_date" autocomplete="off">
-                <span class="input-group-text">
-                  <i class="feather icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-lg-12">
-              <label class="form-label">Reference Number <span class="text-danger">*</span></label>
-              <input type="text" class="form-control text-uppercase" id="reference_number" name="reference_number" maxlength="100" autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group row">
-            <div class="col-lg-12 mt-3 mt-lg-0">
-              <label class="form-label" for="deposit_amount">Deposit Amount <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="deposit_amount" name="deposit_amount" min="0" step="0.01">
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-deposit-amount" form="sales-proposal-deposit-amount-form">Submit</button>
-        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-additional-job-order-offcanvas" aria-labelledby="sales-proposal-additional-job-order-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-additional-job-order-offcanvas-label" style="margin-bottom:-0.5rem">Additional Job Order</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-additional-job-order-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12">
-                <label class="form-label">Job Order Number <span class="text-danger">*</span></label>
-                <input type="hidden" id="sales_proposal_additional_job_order_id" name="sales_proposal_additional_job_order_id">
-                <input type="text" class="form-control text-uppercase" id="job_order_number" name="job_order_number" maxlength="500" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Job Order Date <span class="text-danger">*</span></label>
-                <div class="input-group date">
-                  <input type="text" class="form-control regular-datepicker" id="job_order_date" name="job_order_date" autocomplete="off">
-                  <span class="input-group-text">
-                    <i class="feather icon-calendar"></i>
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Particulars <span class="text-danger">*</span></label>
-                <input type="text" class="form-control text-uppercase" id="particulars" name="particulars" maxlength="1000" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label" for="additional_job_order_cost">Cost <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" id="additional_job_order_cost" name="additional_job_order_cost" min="0" step="0.01">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order" form="sales-proposal-additional-job-order-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-client-confirmation-offcanvas" aria-labelledby="sales-proposal-client-confirmation-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-client-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-client-confirmation-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" id="client_confirmation_image" name="client_confirmation_image">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-client-confirmation" form="sales-proposal-client-confirmation-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-job-order-confirmation-offcanvas" aria-labelledby="sales-proposal-job-order-confirmation-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-job-order-confirmation-offcanvas-label" style="margin-bottom:-0.5rem">Additional Job Order Confirmation</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-job-order-confirmation-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Additional Job Order Confirmation Image <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" id="additional_job_order_confirmation_image" name="additional_job_order_confirmation_image">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-additional-job-order-confirmation" form="sales-proposal-job-order-confirmation-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-new-engine-stencil-offcanvas" aria-labelledby="sales-proposal-engine-stencil-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-engine-stencil-offcanvas-label" style="margin-bottom:-0.5rem">Client Confirmantion</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-engine-stencil-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">New Engine Stencil Image <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" id="new_engine_stencil_image" name="new_engine_stencil_image">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-engine-stencil" form="sales-proposal-engine-stencil-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-credit-advice-offcanvas" aria-labelledby="sales-proposal-credit-advice-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-credit-advice-offcanvas-label" style="margin-bottom:-0.5rem">Credit Advice</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-credit-advice-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Client Confirmation Image <span class="text-danger">*</span></label>
-                <input type="file" class="form-control" id="credit_advice_image" name="credit_advice_image">
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-credit-advice" form="sales-proposal-credit-advice-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-initial-approval-offcanvas" aria-labelledby="sales-proposal-initial-approval-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-initial-approval-offcanvas-label" style="margin-bottom:-0.5rem">Initial Approve Sales Proposal</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-initial-approval-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="initial_approval_remarks" name="initial_approval_remarks" maxlength="500"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-      <div class="col-lg-12">
-        <button type="submit" class="btn btn-primary" id="submit-sales-proposal-initial-approval" form="sales-proposal-initial-approval-form">Submit</button>
-        <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
   <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-reject-offcanvas" aria-labelledby="sales-proposal-reject-offcanvas-label">
     <div class="offcanvas-header">
       <h2 id="sales-proposal-reject-offcanvas-label" style="margin-bottom:-0.5rem">Reject Sales Proposal</h2>
@@ -1640,49 +1296,52 @@
       </div>
     </div>
   </div>
-  <div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-cancel-offcanvas" aria-labelledby="sales-proposal-cancel-offcanvas-label">
-      <div class="offcanvas-header">
-        <h2 id="sales-proposal-cancel-offcanvas-label" style="margin-bottom:-0.5rem">Cancel Sales Proposal</h2>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-cancel-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Cancellation Reason <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="cancellation_reason" name="cancellation_reason" maxlength="500"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-cancel" form="sales-proposal-cancel-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-set-to-draft-offcanvas" aria-labelledby="sales-proposal-set-to-draft-offcanvas-label">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="approve-installment-sales-offcanvas" aria-labelledby="approve-installment-sales-offcanvas-label">
     <div class="offcanvas-header">
-      <h2 id="sales-proposal-set-to-draft-offcanvas-label" style="margin-bottom:-0.5rem">Set Sales Proposal To Draft</h2>
+      <h2 id="approve-installment-sales-offcanvas-label" style="margin-bottom:-0.5rem">Approve Installment Sales</h2>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <div class="row">
         <div class="col-lg-12">
-          <form id="sales-proposal-set-to-draft-form" method="post" action="#">
+          <form id="approve-installment-sales-form" method="post" action="#">
             <div class="form-group row">
               <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="set_to_draft_reason" name="set_to_draft_reason" maxlength="500"></textarea>
+                <label class="form-label">Approval Reason <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="installment_sales_approval_remarks" name="installment_sales_approval_remarks" maxlength="500"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Term Length <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="term_length_2" name="term_length_2" step="1" value="1" min="1">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Add-On <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="add_on_charge_2" name="add_on_charge_2" step="0.01" min="0" value="0">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Nominal Discount <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="nominal_discount_2" name="nominal_discount_2" step="0.01" min="0" value="0">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Interest Rate <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="interest_rate_2" name="interest_rate_2" step="0.01" value="0" min="0">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Downpayment</label>
+                <input type="number" class="form-control" id="downpayment_2" name="downpayment_2" step="0.01" value="0" min="0">
               </div>
             </div>
           </form>
@@ -1690,36 +1349,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-set-to-draft" form="sales-proposal-set-to-draft-form">Submit</button>
-          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div>
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="sales-proposal-final-approval-offcanvas" aria-labelledby="sales-proposal-final-approval-offcanvas-label">
-    <div class="offcanvas-header">
-      <h2 id="sales-proposal-final-approval-offcanvas-label" style="margin-bottom:-0.5rem">Proceed Sales Proposal</h2>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <div class="row">
-        <div class="col-lg-12">
-          <form id="sales-proposal-final-approval-form" method="post" action="#">
-            <div class="form-group row">
-              <div class="col-lg-12 mt-3 mt-lg-0">
-                <label class="form-label">Approval Remarks <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="final_approval_remarks" name="final_approval_remarks" maxlength="500"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-sales-proposal-proceed" form="sales-proposal-final-approval-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-approve-installment-sales" form="approve-installment-sales-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>
