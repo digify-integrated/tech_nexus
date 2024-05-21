@@ -1,35 +1,48 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/sales-proposal-model.php');
-  require('model/customer-model.php');
-  require('model/product-model.php');
-  require('model/approving-officer-model.php');
-
-  $pageTitle = 'For Delivery Receipt Only';
+  require('model/internal-dr-model.php');
   
-  $salesProposalModel = new SalesProposalModel($databaseModel);
-  $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
-  $customerModel = new CustomerModel($databaseModel);
-  $productModel = new ProductModel($databaseModel);
-    
-  $forDeliveryReceiptOnlyReadAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'read');
+  $internalDRModel = new InternalDRModel($databaseModel);
 
-  if ($forDeliveryReceiptOnlyReadAccess['total'] == 0) {
+  $pageTitle = 'Internal DR';
+    
+  $internalDRReadAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'read');
+  $internalDRCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'create');
+  $internalDRWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'write');
+  $internalDRDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'delete');
+  $internalDRDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 78, 'duplicate');
+
+  if ($internalDRReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: sales-proposal-for-dr.php');
+      header('location: internal-dr.php');
       exit;
     }
 
-    $deliverReceiptID = $securityModel->decryptData($_GET['id']);
+    $internalDRID = $securityModel->decryptData($_GET['id']);
 
-    $checkUnitExist = $unitModel->checkUnitExist($deliverReceiptID);
-    $total = $checkUnitExist['total'] ?? 0;
+    $checkInternalDRExist = $internalDRModel->checkInternalDRExist($internalDRID);
+    $total = $checkInternalDRExist['total'] ?? 0;
+
+    $internalDRDetails = $internalDRModel->getInternalDR($internalDRID);
+    $drStatus = $internalDRDetails['dr_status'];
+    $releaseTo = $internalDRDetails['release_to'];
+    $releaseMobile = $internalDRDetails['release_mobile'];
+    $releaseAddress = $internalDRDetails['release_address'];
+    $drNumber = $internalDRDetails['dr_number'];
+    $drType = $internalDRDetails['dr_type'];
+    $stockNumber = $internalDRDetails['stock_number'];
+    $productDescription = $internalDRDetails['product_description'];
+    $engineNumber = $internalDRDetails['engine_number'];
+    $chassisNumber = $internalDRDetails['chassis_number'];
+    $plateNumber = $internalDRDetails['plate_number'];
+    $unitImage = $systemModel->checkImage($internalDRDetails['unit_image'], 'default');
+    $createdDate = $systemModel->checkDate('default', $internalDRDetails['created_date'] ?? null, '', 'd-M-Y', '');
 
     if($total == 0){
       header('location: 404.php');
@@ -37,7 +50,7 @@
     }
   }
   else{
-    $deliverReceiptID = null;
+    $internalDRID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -50,7 +63,6 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
-    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
@@ -71,11 +83,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                   <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item">Delivery Receipt</li>
-                  <li class="breadcrumb-item" aria-current="page"><a href="sales-proposal-for-dr.php"><?php echo $pageTitle; ?></a></li>
+                  <li class="breadcrumb-item">Sales Proposal</li>
+                  <li class="breadcrumb-item" aria-current="page"><a href="internal-dr.php"><?php echo $pageTitle; ?></a></li>
                   <?php
-                    if(!$newRecord && !empty($deliverReceiptID)){
-                      echo '<li class="breadcrumb-item" id="delivery-receipt-id">'. $deliverReceiptID .'</li>';
+                    if(!$newRecord && !empty($internalDRID)){
+                      echo '<li class="breadcrumb-item" id="internal-dr-id">'. $internalDRID .'</li>';
                     }
 
                     if($newRecord){
@@ -93,11 +105,14 @@
           </div>
         </div>
         <?php
-         if(!empty($deliverReceiptID)){
-            require_once('view/_sales_proposal_for_dr_details.php');
+          if($newRecord && $internalDRCreateAccess['total'] > 0){
+            require_once('view/_internal_dr_new.php');
+          }
+          else if(!empty($internalDRID) && $internalDRWriteAccess['total'] > 0){
+            require_once('view/_internal_dr_details.php');
           }
           else{
-            require_once('view/_sales_proposal_for_dr.php');
+            require_once('view/_internal_dr.php');
           }
         ?>
       </div>
@@ -114,9 +129,8 @@
     <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
-    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/sales-proposal.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/internal-dr.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

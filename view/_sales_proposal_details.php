@@ -10,6 +10,7 @@
   $setToDraftSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 129);
   $viewSalesProposalProductCost = $userModel->checkSystemActionAccessRights($user_id, 130);
   $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
+  $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
   $approveInstallmentSales = $userModel->checkSystemActionAccessRights($user_id, 143);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
@@ -162,7 +163,9 @@
                       </div>';
                 }
 
-                if($salesProposalStatus == 'Ready For Release' || ($salesProposalStatus == 'Proceed' && ($productType == 'Refinancing' || $productType == 'Financing Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
+               
+
+                if($salesProposalStatus == 'Ready For Release' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process') && ($productType == 'Refinancing' || $productType == 'Financing Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
                   if($tagSalesProposalForDR['total'] > 0){
                     echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
                             <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>

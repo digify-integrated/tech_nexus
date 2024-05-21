@@ -5391,3 +5391,32 @@ CREATE TABLE contact_directory(
 CREATE INDEX contact_directory_index_contact_directory_id ON contact_directory(contact_directory_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Internal DR Table */
+
+CREATE TABLE internal_dr(
+	internal_dr_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	release_to VARCHAR(1000) NOT NULL,
+	release_mobile VARCHAR(50) NOT NULL,
+	release_address VARCHAR(1000) NOT NULL,
+	dr_number VARCHAR(50) NOT NULL,
+	dr_status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+	dr_type VARCHAR(100) NOT NULL,
+	stock_number VARCHAR(100),
+	product_description VARCHAR(1000),
+	engine_number VARCHAR(100),
+	chassis_number VARCHAR(100),
+	plate_number VARCHAR(100),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	cancellation_date DATE NOT NULL,
+	cancellation_reason VARCHAR(500),
+	release_date DATE NOT NULL,
+	released_remarks VARCHAR(500) NOT NULL,
+	unit_image VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX internal_dr_index_internal_dr_id ON internal_dr(internal_dr_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

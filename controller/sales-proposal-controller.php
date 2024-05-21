@@ -3194,8 +3194,8 @@ class SalesProposalController {
             $productID = $salesProposalDetails['product_id'];
 
             $productDetails = $this->productModel->getProduct($productID);
-            $productPrice = $productDetails['product_price'] * 1000;
-            $productSubategoryID = $productDetails['product_subcategory_id'];
+            $productPrice = $productDetails['product_price'] ?? 0 * 1000;
+            $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
 
             $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
             $productCategory = $productSubcategoryDetails['product_category_id'] ?? null;

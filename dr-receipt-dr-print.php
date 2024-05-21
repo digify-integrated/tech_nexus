@@ -196,6 +196,6 @@ $customerAddress = '';
     $pdf->MultiCell(136, 4, '<b><i>CONSIGNOR</i></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
 
     // Output the PDF to the browser
-    $pdf->Output('disclosure.pdf', 'I');
+    $pdf->Output('dr-receipt.pdf', 'I');
     ob_flush();
 ?>

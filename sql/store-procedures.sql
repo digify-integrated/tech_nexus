@@ -7178,6 +7178,8 @@ END //
 
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
+    SET time_zone = '+08:00';
+
     IF p_sales_proposal_status = 'For Final Approval' THEN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
@@ -7505,7 +7507,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel', 'Parts', 'Financing Brand New');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -7525,7 +7527,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Fuel', 'Refinancing') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Refinancing', 'Fuel', 'Parts', 'Financing Brand New') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()
@@ -8664,6 +8666,78 @@ BEGIN
     SELECT *
     FROM contact_directory
     ORDER BY contact_directory_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Internal DR Table Stored Procedures */
+
+CREATE PROCEDURE checkInternalDRExist (IN p_internal_dr_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM internal_dr
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE insertInternalDR(IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT, OUT p_internal_dr_id INT)
+BEGIN
+    INSERT INTO internal_dr (release_to, release_mobile, release_address, dr_number, dr_type, stock_number, product_description, engine_number, chassis_number, plate_number, last_log_by) 
+	VALUES(p_release_to, p_release_mobile, p_release_address, p_dr_number, p_dr_type, p_stock_number, p_product_description, p_engine_number, p_chassis_number, p_plate_number, p_last_log_by);
+	
+    SET p_internal_dr_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateInternalDR(IN p_internal_dr_id INT, IN p_release_to VARCHAR(1000), IN p_release_mobile VARCHAR(50), IN p_release_address VARCHAR(1000), IN p_dr_number VARCHAR(50), IN p_dr_type VARCHAR(50), IN p_stock_number VARCHAR(100), IN p_product_description VARCHAR(1000), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET release_to = p_release_to,
+    release_mobile = p_release_mobile,
+    release_address = p_release_address,
+    dr_number = p_dr_number,
+    dr_type = p_dr_type,
+    stock_number = p_stock_number,
+    product_description = p_product_description,
+    engine_number = p_engine_number,
+    chassis_number = p_chassis_number,
+    plate_number = p_plate_number,
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE updateInternalDRAsReleased(IN p_internal_dr_id INT, IN p_dr_status VARCHAR(50), IN p_released_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE internal_dr
+    SET dr_status = p_dr_status,
+    released_remarks = p_released_remarks,
+    release_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE updateInternalDRUnitImage(IN p_internal_dr_id INT, IN p_unit_image VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE internal_dr
+        SET unit_image = p_unit_image,
+        last_log_by = p_last_log_by
+        WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE deleteInternalDR(IN p_internal_dr_id INT)
+BEGIN
+    DELETE FROM internal_dr WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE getInternalDR(IN p_internal_dr_id INT)
+BEGIN
+	SELECT * FROM internal_dr
+    WHERE internal_dr_id = p_internal_dr_id;
+END //
+
+CREATE PROCEDURE generateInternalDRTable()
+BEGIN
+    SELECT *
+    FROM internal_dr
+    ORDER BY internal_dr_id;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
