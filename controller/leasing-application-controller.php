@@ -271,7 +271,7 @@ class LeasingApplicationController {
         }
 
         $leasingApplicationRepaymentDetails = $this->leasingApplicationModel->getLeasingApplicationRepayment($leasingApplicationRepaymentID);
-        $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'];
+        $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'] ?? 0;
 
         if($rentPaymentAmount <= $unpaidRental){
             $this->leasingApplicationModel->insertLeasingRentalPayment($leasingApplicationRepaymentID, $leasingApplicationID, 'Rent', '', $rentReferenceNumber, $rentPaymentMode, $rentPaymentDate, $rentPaymentAmount, $userID);
@@ -322,7 +322,7 @@ class LeasingApplicationController {
         }
 
         $leasingApplicationOtherChargesDetails = $this->leasingApplicationModel->getLeasingOtherCharges($paymentID);
-        $dueAmount = $leasingApplicationOtherChargesDetails['due_amount'];
+        $dueAmount = $leasingApplicationOtherChargesDetails['due_amount'] ?? 0;
 
         if($otherChargesPaymentAmount <= $dueAmount){
             $this->leasingApplicationModel->insertLeasingOtherChargesPayment($leasingApplicationRepaymentID, $leasingApplicationID, $paymentFor, $paymentID, $otherChargesReferenceNumber, $otherChargesPaymentMode, $otherChargesPaymentDate, $otherChargesPaymentAmount, $userID);
@@ -493,10 +493,10 @@ class LeasingApplicationController {
 
         $leasingApplicationNumber = $leasingApplicationDetails['leasing_application_number'];
         $startDate = $this->systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'Y-m-d', '');
-        $initialBasicRental = $leasingApplicationDetails['initial_basic_rental'] ?? null;
-        $escalationRate = $leasingApplicationDetails['escalation_rate'] ?? null;
+        $initialBasicRental = $leasingApplicationDetails['initial_basic_rental'] ?? 0;
+        $escalationRate = $leasingApplicationDetails['escalation_rate'] ?? 0;
         $escalationRateDecimal = $escalationRate / 100.0;
-        $termLength = $leasingApplicationDetails['term_length'] ?? null;
+        $termLength = $leasingApplicationDetails['term_length'] ?? 0;
         $paymentFrequency = $leasingApplicationDetails['payment_frequency'] ?? null;
         $vat = $leasingApplicationDetails['vat'] ?? 'Yes';
         $witholdingTax = $leasingApplicationDetails['witholding_tax'] ?? 'Yes';
@@ -1051,39 +1051,39 @@ class LeasingApplicationController {
     
             $leasingApplicationDetails = $this->leasingApplicationModel->getLeasingApplication($leasingApplicationID);
 
-            $unpaidRental = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Rental')['total'];
-            $unpaidElectricity = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Electricity')['total'];
-            $unpaidWater = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'];
-            $unpaidOtherCharges = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'];
-            $outstandingBalance = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'];
+            $unpaidRental = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Rental')['total'] ?? 0;
+            $unpaidElectricity = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Electricity')['total'] ?? 0;
+            $unpaidWater = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Water')['total'] ?? 0;
+            $unpaidOtherCharges = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Unpaid Other Charges')['total'] ?? 0;
+            $outstandingBalance = $this->leasingApplicationModel->getLeasingAplicationRepaymentTotal($leasingApplicationID, date('Y-m-d'), 'Outstanding Balance')['total'] ?? 0;
 
             $response = [
                 'success' => true,
-                'leasingApplicationNumber' => $leasingApplicationDetails['leasing_application_number'],
-                'tenantID' => $leasingApplicationDetails['tenant_id'],
-                'propertyID' => $leasingApplicationDetails['property_id'],
-                'termLength' => $leasingApplicationDetails['term_length'],
-                'termType' => $leasingApplicationDetails['term_type'],
-                'paymentFrequency' => $leasingApplicationDetails['payment_frequency'],
-                'vat' => $leasingApplicationDetails['vat'],
-                'witholdingTax' => $leasingApplicationDetails['witholding_tax'],
-                'renewalTag' => $leasingApplicationDetails['renewal_tag'],
-                'remarks' => $leasingApplicationDetails['remarks'],
-                'securityDeposit' => $leasingApplicationDetails['security_deposit'],
-                'floorArea' => $leasingApplicationDetails['floor_area'],
-                'initialBasicRental' => $leasingApplicationDetails['initial_basic_rental'],
-                'escalationRate' => $leasingApplicationDetails['escalation_rate'],
-                'activationRemarks' => $leasingApplicationDetails['activation_remarks'],
-                'setToDraftReason' => $leasingApplicationDetails['set_to_draft_reason'],
-                'rejectionReason' => $leasingApplicationDetails['rejection_reason'],
-                'cancellationReason' => $leasingApplicationDetails['cancellation_reason'],
-                'approvalRemarks' => $leasingApplicationDetails['approval_remarks'],
+                'leasingApplicationNumber' => $leasingApplicationDetails['leasing_application_number'] ?? null,
+                'tenantID' => $leasingApplicationDetails['tenant_id'] ?? null,
+                'propertyID' => $leasingApplicationDetails['property_id'] ?? null,
+                'termLength' => $leasingApplicationDetails['term_length'] ?? null,
+                'termType' => $leasingApplicationDetails['term_type'] ?? null,
+                'paymentFrequency' => $leasingApplicationDetails['payment_frequency'] ?? null,
+                'vat' => $leasingApplicationDetails['vat'] ?? null,
+                'witholdingTax' => $leasingApplicationDetails['witholding_tax'] ?? null,
+                'renewalTag' => $leasingApplicationDetails['renewal_tag'] ?? null,
+                'remarks' => $leasingApplicationDetails['remarks'] ?? null,
+                'securityDeposit' => $leasingApplicationDetails['security_deposit'] ?? null,
+                'floorArea' => $leasingApplicationDetails['floor_area'] ?? null,
+                'initialBasicRental' => $leasingApplicationDetails['initial_basic_rental'] ?? null,
+                'escalationRate' => $leasingApplicationDetails['escalation_rate'] ?? null,
+                'activationRemarks' => $leasingApplicationDetails['activation_remarks'] ?? null,
+                'setToDraftReason' => $leasingApplicationDetails['set_to_draft_reason'] ?? null,
+                'rejectionReason' => $leasingApplicationDetails['rejection_reason'] ?? null,
+                'cancellationReason' => $leasingApplicationDetails['cancellation_reason'] ?? null,
+                'approvalRemarks' => $leasingApplicationDetails['approval_remarks'] ?? null,
                 'unpaidRental' => number_format($unpaidRental, 2) . ' Php',
                 'unpaidElectricity' => number_format($unpaidElectricity, 2) . ' Php',
                 'unpaidWater' => number_format($unpaidWater, 2) . ' Php',
                 'unpaidOtherCharges' => number_format($unpaidOtherCharges, 2) . ' Php',
                 'outstandingBalance' => number_format($outstandingBalance, 2) . ' Php',
-                'contractFile' => $leasingApplicationDetails['contract_image'],
+                'contractFile' => $leasingApplicationDetails['contract_image'] ?? null,
                 'startDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['start_date'], '', 'm/d/Y', ''),
                 'contractDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationDetails['contract_date'], '', 'm/d/Y', '')
             ];
@@ -1125,16 +1125,16 @@ class LeasingApplicationController {
 
             $response = [
                 'success' => true,
-                'unpaidRental' => number_format($leasingApplicationRepaymentDetails['unpaid_rental'], 2) . ' Php',
-                'paidRental' => number_format($leasingApplicationRepaymentDetails['paid_rental'], 2) . ' Php',
-                'unpaidElectricity' => number_format($leasingApplicationRepaymentDetails['unpaid_electricity'], 2) . ' Php',
-                'paidElectricity' => number_format($leasingApplicationRepaymentDetails['paid_electricity'], 2) . ' Php',
-                'unpaidWater' => number_format($leasingApplicationRepaymentDetails['unpaid_water'], 2) . ' Php',
-                'paidWater' => number_format($leasingApplicationRepaymentDetails['paid_water'], 2) . ' Php',
-                'unpaidOtherCharges' => number_format($leasingApplicationRepaymentDetails['unpaid_other_charges'], 2) . ' Php',
-                'paidOtherCharges' => number_format($leasingApplicationRepaymentDetails['paid_other_charges'], 2) . ' Php',
-                'outstandingBalance' => number_format($leasingApplicationRepaymentDetails['outstanding_balance'], 2) . ' Php',
-                'dueDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationRepaymentDetails['due_date'], '', 'm/d/Y', '')
+                'unpaidRental' => number_format($leasingApplicationRepaymentDetails['unpaid_rental'] ?? 0, 2) . ' Php',
+                'paidRental' => number_format($leasingApplicationRepaymentDetails['paid_rental'] ?? 0, 2) . ' Php',
+                'unpaidElectricity' => number_format($leasingApplicationRepaymentDetails['unpaid_electricity'] ?? 0, 2) . ' Php',
+                'paidElectricity' => number_format($leasingApplicationRepaymentDetails['paid_electricity'] ?? 0, 2) . ' Php',
+                'unpaidWater' => number_format($leasingApplicationRepaymentDetails['unpaid_water'] ?? 0, 2) . ' Php',
+                'paidWater' => number_format($leasingApplicationRepaymentDetails['paid_water'] ?? 0, 2) . ' Php',
+                'unpaidOtherCharges' => number_format($leasingApplicationRepaymentDetails['unpaid_other_charges'] ?? 0, 2) . ' Php',
+                'paidOtherCharges' => number_format($leasingApplicationRepaymentDetails['paid_other_charges'] ?? 0, 2) . ' Php',
+                'outstandingBalance' => number_format($leasingApplicationRepaymentDetails['outstanding_balance'] ?? 0, 2) . ' Php',
+                'dueDate' =>  $this->systemModel->checkDate('empty', $leasingApplicationRepaymentDetails['due_date'] ?? 0, '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);

@@ -24,15 +24,14 @@
 
   if(isset($_GET['customer'])){
     $customerID = $securityModel->decryptData($_GET['customer']);
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
+  }
+  else{
+    $customerID = null;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: all-sales-proposal.php');
+      header('location: sales-proposal-change-request.php');
       exit;
     }
 
@@ -97,7 +96,6 @@
         </div>
         <?php
          if(!empty($salesProposalID) && !empty($customerID)){
-            echo 'asdasd';
             require_once('view/_sales_proposal_details.php');
           }
           else{

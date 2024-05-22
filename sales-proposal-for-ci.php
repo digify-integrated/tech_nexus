@@ -24,16 +24,14 @@
 
   if(isset($_GET['customer'])){
     $customerID = $securityModel->decryptData($_GET['customer']);
-
-    if($total == 0){
-      header('location: 404.php');
-      exit;
-    }
+  }
+  else{
+    $customerID = null;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: all-sales-proposal.php');
+      header('location: sales-proposal-for-ci.php');
       exit;
     }
 

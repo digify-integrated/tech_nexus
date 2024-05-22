@@ -5613,12 +5613,14 @@ BEGIN
     SET conditionList = CONCAT(conditionList, p_contact_id);
     SET conditionList = CONCAT(conditionList, ' OR transmitter_id = ');
     SET conditionList = CONCAT(conditionList, p_contact_id);
-    SET conditionList = CONCAT(conditionList, ' OR receiver_id = ');
+    SET conditionList = CONCAT(conditionList, ' OR (receiver_id = ');
     SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' AND transmittal_status NOT IN ("Draft", "Cancelled")) ');
     SET conditionList = CONCAT(conditionList, ' OR transmitter_department = ');
     SET conditionList = CONCAT(conditionList, p_department_id);
-    SET conditionList = CONCAT(conditionList, ' OR receiver_department =');
+    SET conditionList = CONCAT(conditionList, ' OR (receiver_department =');
     SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ' AND transmittal_status NOT IN ("Draft", "Cancelled")) ');
     SET conditionList = CONCAT(conditionList, ')');
     
     IF p_transmittal_start_date IS NOT NULL AND p_transmittal_end_date IS NOT NULL THEN
@@ -5633,6 +5635,28 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_transmittal_status));
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transmittal_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateDashboardTransmittalTable(IN p_contact_id INT, IN p_department_id INT)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM transmittal';
+    SET conditionList = ' WHERE 1';
+    SET conditionList = CONCAT(conditionList, ' AND (receiver_id = ');
+    SET conditionList = CONCAT(conditionList, p_contact_id);
+    SET conditionList = CONCAT(conditionList, ' AND transmittal_status IN ("Transmitted", "Re-Transmitted"))');
+    SET conditionList = CONCAT(conditionList, ' OR (receiver_department =');
+    SET conditionList = CONCAT(conditionList, p_department_id);
+    SET conditionList = CONCAT(conditionList, ' AND transmittal_status IN ("Transmitted", "Re-Transmitted")) ');
 
     SET query = CONCAT(query, conditionList);
     SET query = CONCAT(query, ' ORDER BY transmittal_date DESC;');
@@ -5868,6 +5892,25 @@ BEGIN
         EXECUTE stmt USING p_offset, p_document_per_page;
     END IF;
 
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateDashboardDocumentTable(IN p_contact_id INT, IN p_department INT)
+BEGIN
+    DECLARE sql_query VARCHAR(5000);
+
+    SET sql_query = 'SELECT *
+    FROM document
+    WHERE document_status = "Published"';
+
+    IF p_contact_id IS NOT NULL AND p_contact_id <> '' AND p_department IS NOT NULL AND p_department <> '' THEN
+        SET sql_query = CONCAT(sql_query, ' AND document_id NOT IN (SELECT document_id FROM document_restriction WHERE department_id = ', p_department, ' OR contact_id = ', p_contact_id ,')');
+    END IF;
+
+    SET sql_query = CONCAT(sql_query, ' ORDER BY publish_date;');
+
+    PREPARE stmt FROM sql_query;
+    EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
 END //
 
@@ -7090,19 +7133,17 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $
-
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, commission_amount, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_commission_amount, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, commission_amount, company_id, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_commission_amount, p_company_id, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7116,7 +7157,7 @@ BEGIN
     referred_by = p_referred_by,
     release_date = p_release_date,
     start_date = p_start_date,
-    first_due_date <= p_first_due_date,
+    first_due_date = p_first_due_date,
     term_length = p_term_length,
     term_type = p_term_type,
     number_of_payments = p_number_of_payments,
@@ -7125,6 +7166,7 @@ BEGIN
     initial_approving_officer = p_initial_approving_officer,
     final_approving_officer = p_final_approving_officer,
     renewal_tag = p_renewal_tag,
+    company_id = p_company_id,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7254,6 +7296,15 @@ BEGIN
 	UPDATE sales_proposal
     SET ci_status = p_ci_status,
     ci_completion_date = NOW(),
+    last_log_by = p_last_log_by
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+CREATE PROCEDURE updateSalesProposalChangeRequestStatus(IN p_sales_proposal_id INT, IN p_change_request_status VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE sales_proposal
+    SET change_request_status = p_change_request_status,
+    change_request_completion_date = NOW(),
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -7502,7 +7553,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalChangeRequestTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND (for_registration = 'Yes' OR for_transfer = 'Yes' OR for_change_color = 'Yes' OR for_change_body = 'Yes' OR for_change_engine = 'Yes');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR', 'Released') AND (for_registration = 'Yes' OR for_transfer = 'Yes' OR for_change_color = 'Yes' OR for_change_body = 'Yes' OR for_change_engine = 'Yes') AND change_request_status IS NULL;
 END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()

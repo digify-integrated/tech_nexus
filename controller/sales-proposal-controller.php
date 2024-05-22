@@ -137,6 +137,9 @@ class SalesProposalController {
                 case 'sales proposal initial approval':
                     $this->tagSalesProposalInitialApproval();
                     break;
+                case 'tag change request as complete':
+                    $this->tagChangeRequestAsComplete();
+                    break;
                 case 'sales proposal final approval':
                     $this->tagSalesProposalFinalApproval();
                     break;
@@ -288,6 +291,7 @@ class SalesProposalController {
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $customerID = $_POST['customer_id'];
         $renewalTag = htmlspecialchars($_POST['renewal_tag'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
         $productType = htmlspecialchars($_POST['product_type'], ENT_QUOTES, 'UTF-8');
         $transactionType = htmlspecialchars($_POST['transaction_type'], ENT_QUOTES, 'UTF-8');
         $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
@@ -316,7 +320,7 @@ class SalesProposalController {
         $total = $checkSalesProposalExist['total'] ?? 0;
     
         if ($total > 0) {            
-            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
+            $this->salesProposalModel->updateSalesProposal($salesProposalID, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $companyID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -324,7 +328,7 @@ class SalesProposalController {
         else {
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
-            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $userID);
+            $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $companyID, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
 
@@ -1536,6 +1540,48 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: tagChangeRequestAsComplete
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagChangeRequestAsComplete() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->salesProposalModel->updateSalesProposalChangeRequestStatus($salesProposalID, 'Completed', $userID);
+        
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: tagSalesProposalFinalApproval
     # Description: 
     # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
@@ -2647,6 +2693,7 @@ class SalesProposalController {
                 'numberOfPayments' => $salesProposalDetails['number_of_payments'],
                 'paymentFrequency' => $salesProposalDetails['payment_frequency'],
                 'remarks' => $salesProposalDetails['remarks'],
+                'companyID' => $salesProposalDetails['company_id'],
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
                 'createdByName' => $createdByName,

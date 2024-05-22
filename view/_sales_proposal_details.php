@@ -12,6 +12,7 @@
   $tagCIAsComplete = $userModel->checkSystemActionAccessRights($user_id, 135);
   $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
   $approveInstallmentSales = $userModel->checkSystemActionAccessRights($user_id, 143);
+  $tagChangeRequestAsComplete = $userModel->checkSystemActionAccessRights($user_id, 145);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -51,6 +52,12 @@
   $outgoingChecklist = $salesProposalDetails['outgoing_checklist'];
   $unitImage = $salesProposalDetails['unit_image'];
   $productType = $salesProposalDetails['product_type'];
+  $forRegistration = $salesProposalDetails['for_registration'];
+  $forTransfer = $salesProposalDetails['for_transfer'];
+  $forChangeColor = $salesProposalDetails['for_change_color'];
+  $forChangeBody = $salesProposalDetails['for_change_body'];
+  $forChangeEngine = $salesProposalDetails['for_change_engine'];
+  $changeRequestStatus = $salesProposalDetails['change_request_status'];
   $installmentSalesStatus = $salesProposalDetails['installment_sales_status'] ?? null;
   $initialApprovalDate = $systemModel->checkDate('empty', $salesProposalDetails['initial_approval_date'], '', 'm/d/Y h:i:s a', '');
   $approvalDate = $systemModel->checkDate('empty', $salesProposalDetails['approval_date'], '', 'm/d/Y h:i:s a', '');
@@ -163,14 +170,18 @@
                       </div>';
                 }
 
-               
-
                 if($salesProposalStatus == 'Ready For Release' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process') && ($productType == 'Refinancing' || $productType == 'Financing Brand New' || $productType == 'Fuel' || $productType == 'Parts'))){
                   if($tagSalesProposalForDR['total'] > 0){
                     echo '<div class="previous me-2 d-none" id="for-dr-sales-proposal-button">
                             <button class="btn btn-success m-l-5" id="for-dr-sales-proposal">For DR</button>
                         </div>';
                   }
+                }
+                
+                if($tagChangeRequestAsComplete['total'] > 0 && ($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && ($forRegistration == 'Yes' || $forTransfer == 'Yes' || $forChangeColor == 'Yes' || $forChangeBody == 'Yes' || $forChangeEngine == 'Yes') && $changeRequestStatus != 'Completed'){
+                  echo '<div class="previous me-2" id="sales-proposal-change-request-button">
+                          <button class="btn btn-success m-l-5" id="sales-proposal-change-request">Tag As Complete</button>
+                      </div>';
                 }
 
                 echo '<div class="previous me-2 d-none" id="print-button">
@@ -240,6 +251,16 @@
                     <option value="">--</option>
                     <option value="New">New</option>
                     <option value="Renewal">Renewal</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-lg-4 col-form-label">Company : <span class="text-danger">*</span></label>
+                <div class="col-lg-8">
+                  <select class="form-control select2" name="company_id" id="company_id">
+                    <option value="">--</option>
+                    <option value="1">Christian General Motors Inc.</option>
+                    <option value="3">FUSO Tarlac</option>
                   </select>
                 </div>
               </div>

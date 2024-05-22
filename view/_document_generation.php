@@ -201,6 +201,71 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             }
         break;
         # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: dashboard document table
+        # Description:
+        # Generates the dashboard document table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'dashboard document table':
+            $contactID = $_SESSION['contact_id'];
+                $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+                $contactDepartment = $employmentDetails['department_id'];
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardDocumentTable(:contactID, :contactDepartment)');
+                $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+                $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+
+                foreach ($options as $row) {
+                    $documentID = $row['document_id'];
+                    $documentName = $row['document_name'];
+                    $documentDescription = $row['document_description'];
+                    $author = $row['author'];
+                    $documentCategoryID = $row['document_category_id'];
+                    $documentStatus = $row['document_status'];
+                    $documentExtension = $row['document_extension'];
+                    $uploadDate = $systemModel->checkDate('empty', $row['upload_date'], '', 'm/d/Y g:i:s a', '');
+                    $documentIcon = $systemModel->getFileExtensionIcon($documentExtension);
+
+                    $documentStatusBadge = $documentModel->getDocumentStatus($documentStatus);
+
+                    $documentCategoryName = $documentCategoryModel->getDocumentCategory($documentCategoryID)['document_category_name'] ?? null;
+
+                    $authorDetails = $employeeModel->getPersonalInformation($author);
+                    $authorName = $authorDetails['file_as'] ?? null;
+
+                    $documentIDEncrypted = $securityModel->encryptData($documentID);
+                    $response[] = [
+                        'DOCUMENT_NAME' => '<a href="document.php?id='. $documentIDEncrypted .'" ><div class="row">
+                                                        
+                                                            <div class="col-auto pe-0">
+                                                                <img src="'. $documentIcon .'" alt="user-image" class="wid-30 hei-30">
+                                                            </div>
+                                                            <div class="col">
+                                                                <h6 class="mb-0">'. $documentName .'</h6>
+                                                                <p class="f-12 mb-0">'. $documentDescription .'</p>
+                                                            </div>
+                                                    </div>
+                                                    </a>',
+                        'DOCUMENT_CATEGORY' => $documentCategoryName,
+                        'AUTHOR' => $authorName,
+                        'UPLOAD_DATE' => $uploadDate,
+                        'DOCUMENT_STATUS' => $documentStatusBadge
+                    ];
+                }
+
+                echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
     }
 }
 

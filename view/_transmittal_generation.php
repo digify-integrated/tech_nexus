@@ -117,6 +117,73 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: transmittal dashboard table
+        # Description:
+        # Generates the transmittal dashboard table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'transmittal dashboard table':
+            $contactID = $_SESSION['contact_id'];
+            $employmentDetails = $employeeModel->getEmploymentInformation($contactID);
+            $contactDepartment = $employmentDetails['department_id'] ?? '';
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateDashboardTransmittalTable(:contactID, :contactDepartment)');
+            $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
+            $sql->bindValue(':contactDepartment', $contactDepartment, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $transmittalID = $row['transmittal_id'];
+                $transmittalDescription = $row['transmittal_description'];
+                $transmitterID = $row['transmitter_id'];
+                $transmitterDepartment = $row['transmitter_department'];
+                $receiverID = $row['receiver_id'];
+                $receiverDepartment = $row['receiver_department'];
+                $transmittalStatus = $row['transmittal_status'];
+                $transmittalDate = $systemModel->checkDate('empty', $row['transmittal_date'], '', 'm/d/Y g:i:s a', '');
+
+                $transmittalStatusBadge = $transmittalModel->getTransmittalStatus($transmittalStatus);
+
+                $employeeDetails = $employeeModel->getPersonalInformation($transmitterID);
+                $transmitterName = $employeeDetails['file_as'] ?? null;
+
+                $employeeDetails = $employeeModel->getPersonalInformation($receiverID);
+                $receiverName = $employeeDetails['file_as'] ?? 'Anyone';
+
+                $transmitterDepartmentName = $departmentModel->getDepartment($transmitterDepartment)['department_name'] ?? null;
+                $receiverDepartmentName = $departmentModel->getDepartment($receiverDepartment)['department_name'] ?? null;
+
+                $transmittalIDEncrypted = $securityModel->encryptData($transmittalID);
+
+                $response[] = [
+                    'TRANSMITTAL_DESCRIPTION' => '<a href="transmittal.php?id='. $transmittalIDEncrypted .'">
+                                                        '. $transmittalDescription .'
+                                                    </a>',
+                    'TRANSMITTED_FROM' => '<div class="col">
+                                                    <h6 class="mb-0">'. $transmitterName .'</h6>
+                                                    <p class="f-12 mb-0">'. $transmitterDepartmentName .'</p>
+                                                </div>',
+                    'TRANSMITTED_TO' => '<div class="col">
+                                                <h6 class="mb-0">'. $receiverName .'</h6>
+                                                <p class="f-12 mb-0">'. $receiverDepartmentName .'</p>
+                                            </div>',
+                    'TRANSMITTAL_DATE' => $transmittalDate,
+                    'STATUS' => $transmittalStatusBadge
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: transmittal summary table
         # Description:
         # Generates the transmittal summary table.

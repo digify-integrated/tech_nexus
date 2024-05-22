@@ -160,6 +160,16 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Company : <span class="text-danger">*</span></label>
+                            <div class="col-lg-8">
+                            <select class="form-control select2" name="company_id" id="company_id">
+                                <option value="">--</option>
+                                <option value="1">Christian General Motors Inc.</option>
+                                <option value="3">FUSO Tarlac</option>
+                            </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label class="col-lg-4 col-form-label">Product Type : <span class="text-danger">*</span></label>
                             <div class="col-lg-8">
                             <select class="form-control select2" name="product_type" id="product_type">

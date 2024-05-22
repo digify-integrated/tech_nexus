@@ -4,6 +4,8 @@
   require('model/attendance-setting-model.php');
 
   $attendanceSettingModel = new AttendanceSettingModel($databaseModel);
+  $transmittalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 53, 'read');
+  $documentReadAccess = $userModel->checkMenuItemAccessRights($user_id, 56, 'read');
 
   $pageTitle = 'Dashboard';
 
@@ -18,6 +20,7 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <?php include_once('config/_required_css.php'); ?>
+    <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
 </head>
 
 <body data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" data-pc-theme_contrast="false" data-pc-theme="light">
@@ -47,7 +50,9 @@
           </div>
         </div>
         <?php
-          require_once('view/_dashboard_attendance.php');
+          #require_once('view/_dashboard_attendance.php');
+          require_once('view/_transmittal_dashboard.php');
+          require_once('view/_document_dashboard.php');
         ?>
       </div>
     </section>
@@ -60,6 +65,8 @@
         include_once('config/_customizer.php'); 
     ?>
     <script src="./assets/js/plugins/bootstrap-maxlength.min.js"></script>
+    <script src="./assets/js/plugins/jquery.dataTables.min.js"></script>
+    <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/pages/dashboard.js?v=<?php echo rand(); ?>"></script>
 </body>
 
