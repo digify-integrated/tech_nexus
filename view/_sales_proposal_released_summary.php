@@ -1,3 +1,6 @@
+<?php
+    $hidden = '';
+?>
 <div class="row">
     <div class="col-md-3">
         <div class="card">
@@ -15,14 +18,9 @@
                     <li><a class="nav-link" id="sales-proposal-tab-10" data-bs-toggle="pill" href="#v-additional-job-order" role="tab" aria-controls="v-additional-job-order" aria-selected="false" disabled>Additional Job Order</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-11" data-bs-toggle="pill" href="#v-confirmations" role="tab" aria-controls="v-confirmations" aria-selected="false" disabled>Confirmations</a></li>
                     <li><a class="nav-link" id="sales-proposal-tab-12" data-bs-toggle="pill" href="#v-summary" role="tab" aria-controls="v-summary" aria-selected="false" disabled>Summary</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-online" role="tab" aria-controls="v-online" aria-selected="false" disabled>Online</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-16" data-bs-toggle="pill" href="#v-autorization" role="tab" aria-controls="v-autorization" aria-selected="false" disabled>Authorization & Undertaking</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-17" data-bs-toggle="pill" href="#v-promissory-note" role="tab" aria-controls="v-promissory-note" aria-selected="false" disabled>Promissory Note</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-18" data-bs-toggle="pill" href="#v-disclosure" role="tab" aria-controls="v-disclosure" aria-selected="false" disabled>Disclosure</a></li>
-                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-19" data-bs-toggle="pill" href="#v-insurance-request" role="tab" aria-controls="v-insurance-request" aria-selected="false" disabled>Insurance Request</a></li>
-                    <li><a class="nav-link" id="sales-proposal-tab-20" data-bs-toggle="pill" href="#v-gatepass" role="tab" aria-controls="v-gatepass" aria-selected="false" disabled>Gate Pass</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-13" data-bs-toggle="pill" href="#v-pdc-manual-input" role="tab" aria-controls="v-pdc-manual-input" aria-selected="false" disabled>PDC Manual Input</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-14" data-bs-toggle="pill" href="#v-release-details" role="tab" aria-controls="v-release-details" aria-selected="false" disabled>Release Details</a></li>
+                    <li><a class="nav-link <?php echo $hidden; ?>" id="sales-proposal-tab-15" data-bs-toggle="pill" href="#v-printable-report" role="tab" aria-controls="v-printable-report" aria-selected="false" disabled>Printable Report</a></li>
                 </ul>
             </div>
         </div>
@@ -37,13 +35,11 @@
                         </div>
                         <div class="d-flex">
                             <?php
-                                if($salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released'){
-                                    #temporary
+                                if($salesProposalStatus == 'For DR'){
                                     echo '<div class="previous me-2 d-none" id="add-sales-proposal-pdc-manual-input-button">
                                             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
                                         </div>';
 
-                                        
                                     echo '  <div class="previous me-2 d-none" id="add-sales-proposal-deposit-amount-button">
                                         <button class="btn btn-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" id="add-sales-proposal-deposit-amount">Add Amount of Deposit</button>
                                       </div>';
@@ -51,34 +47,6 @@
                                     echo '<div class="previous me-2 d-none" id="summary-print-button">
                                         <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
                                     </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="online-print-button">
-                                        <a href="online-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
-                                    </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="authorization-print-button">
-                                        <a href="authorization-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
-                                    </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="pn-print-button">
-                                        <a href="pn-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
-                                    </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="disclosure-print-button">
-                                        <a href="disclosure-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="print">Print</a>
-                                    </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="insurance-request-print-button">
-                                    <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
-                                        </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="dr-receipt-print-button">
-                                            <a href="dr-receipt-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-warning me-1" id="dr-receipt-print">Print DR Receipt</a>
-                                        </div>';
-
-                                    echo '<div class="previous me-2 d-none" id="schedule-print-button">
-                                            <a href="schedule-dr-print.php?id='. $salesProposalID .'" target="_blank" class="btn btn-outline-info me-1" id="dr-receipt-print">Print Schedule</a>
-                                        </div>';
                                 }
 
                                 if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
@@ -178,6 +146,7 @@
                                 <option value="Fuel">Fuel</option>
                                 <option value="Parts">Parts</option>
                                 <option value="Repair">Repair</option>
+                                <option value="Rental">Rental</option>
                                 <option value="Financing Brand New">Financing Brand New</option>
                                 <option value="Refinancing">Refinancing</option>
                                 <option value="Real Estate">Real Estate</option>
@@ -1266,689 +1235,162 @@
                             </div>
                         </form>
                     </div>
-                    <div class="tab-pane" id="v-online">
-                        <div class="print-area-online">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <p class="text-center text-danger"><b>MAHALAGANG PAALALA</b></p>
-                                    <p class="text-danger"><b>PAGBAYAD SA BANGKO</b></p>
-                                    <p style="text-align: justify !important;">IDEPOSITO ANG INYONG BAYAD SA ITINAKDANG ACCOUNT NG AMING KUMPANYA NA NAKAPANGALAN SA “CHRISTIAN GENERAL MOTORS INC", "N E TRUCK BUILDERS CORPORATION", O “GRACE C. BAGUISA”. PAKITINGNAN PO NG MABUTI KUNG ITO ANG NAKASULAT NA PANGALAN SA INYONG DEPOSIT SLIP.</p>
-                                    <p class="text-justify text-danger">ANUMANG BAYAD SA PAMAMAGITAN NG LBC, JRS, O IBA PANG KATULAD NA KUMPANYA AY HINDI PINAHIHINTULUTAN NG AMING KUMPANYA.</p>
-                                    <p style="text-align: justify !important;">KUNIN LAMANG PO ANG AMING BANK ACCOUNTS KAY MR. CHRISTIAN EDWARD BAGUISA SA CELLPHONE NO. 0919-062-6563.</p>
-                                    <p class="text-danger"><b>TAMANG PARAAN NG PAGBABAYAD SA BANGKO</b></p>
-                                    <p style="text-align: justify !important;">ISULAT SA DEPOSIT SLIP, INYONG KOPYA AT KOPYA NG BANGKO, ANG INYONG PANGALAN PARA MAIPROSESO NAMIN NG TAMA ANG INYONG BAYAD.</p>
-                                    <p style="text-align: justify !important;">PAGKATAPOS I-TEXT, PAKI-SCAN AT PAKI-EMAIL ANG DEPOSIT SLIP SA collections@christianmotors.ph SA ARAW NG PAGKAKADEPOSITO O SA SUSUNOD NA ARAW.</p>
-                                    <p style="text-align: justify !important;">PAKITAGO ANG DEPOSIT SLIP AT PAKIDALA ANG ORIHINAL NA KOPYA SA AMING KUMPANYA. MANGHINGI PO NG OFFICIAL RECEIPT SA AMING KAHERA KAPALIT ANG ORIHINAL NA DEPOSIT SLIP.</p>
-                                    <p style="text-align: justify !important;">KUNG SAKALI PO NA HINDI KAYO MAKAKAPUNTA SA AMING OPISINA, SIGURADUHIN PO NA ANG INYONG DEPOSIT SLIPS AY NAKATAGO PARA MAGAMIT NA BATAYAN NG INYONG PAGKAKABAYAD SA HINAHARAP.</p>
-                                    <p class="text-danger"><b>BABALA</b></p>
-                                    <p style="text-align: justify !important;">MANGYARI PO LAMANG NA IPAGBIGAY ALAM SA AMING KUMPANYA KUNG MAYROONG MAG-UUTOS SA INYO NA BAYARAN ANG INYONG ACCOUNT MALIBAN SA ITINAKDANG DEPOSIT ACCOUNTS NG AMING KUMPANYA SA CELLPHONE NOS. 0919-062-6563/0962-098-4672.</p>
-                                    <p style="text-align: justify !important;">ANG AMING KUMPANYA AY WALANG PANANAGUTAN SA ANUMANG BAYAD NA INYONG IPINADALA SA IBANG PARAAN.</p>
-                                    <p style="text-align: justify !important;">MARAMING SALAMAT PO SA INYONG PATULOY NA PAGTANGKILIK.</p>
-                                    <p style="text-align: justify !important;">TINANGGAP AT LUBOS NA NAUUNAWAAN:</p><br/>
-                                    <div class="row">
-                                        <div class="col-4 border-top" style="border-color: #000 !important;">
-                                            <p class="text-center text-uppercase">Lagda / Petsa</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div><br/><br/>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <p class="text-center text-danger"><b>IMPORTANT REMINDERS</b></p>
-                                    <p class="text-danger"><b>ON-LINE DEPOSITS OR PAYMENTS</b></p>
-                                    <p style="text-align: justify !important;">FOR ALL ON-LINE PAYMENTS, KINDLY ENSURE THAT ONLY THE DESIGNATED BANK ACCOUNTS WITH ACCOUNT NAMES “CHRISTIAN GENERAL MOTORS, INC.", "N E TRUCK BUILDERS CORPORATION” OR “GRACE BAGUISA” WILL BE REFLECTED IN THE BANK DEPOSIT SLIPS.</p>
-                                    <p class="text-justify text-danger">OTHER MODE OF PAYMENTS SUCH AS BUT NOT LIMITED TO LBC, JRS OR ANY OTHER MONEY TRANSFER COMPANIES ARE NOT AUTHORIZED BY THE COMPANY.</p>
-                                    <p style="text-align: justify !important;">KINDLY SECURE THE ACCOUNT NUMBER OF THE COMPANY’S DESIGNATED BANK ACCOUNTS ONLY FROM MR. CHRISTIAN EDWARD BAGUISA WITH CONTACT NO. 0919-062-6563.</p>
-                                    <p class="text-danger"><b>PROCEDURES IN MAKING ON-LINE PAYMENTS THRU BANKS</b></p>
-                                    <p style="text-align: justify !important;">KINDLY INDICATE IN THE BANK DEPOSIT SLIP, BOTH IN DEPOSITOR’S COPY AND BANK COPY YOUR NAME FOR PROPER POSTING OF PAYMENT.</p>
-                                    <p style="text-align: justify !important;">PLEASE TEXT YOUR NAME, NAME OF BANK AND BRANCH WHERE THE ON-LINE DEPOSIT WAS MADE, AMOUNT OF DEPOSIT AND DATE OF PAYMENT TO CELLPHONE NOS. 0916-062-6563/0962-098-4672.</p>
-                                    <p style="text-align: justify !important;">AFTER TEXTING, KINDLY SCAN AND E-MAIL THE DEPOSIT SLIP TO collections@christianmotors.ph ON THE SAME DAY THE DEPOSIT IS MADE OR THE FOLLOWING DAY.</p>
-                                    <p style="text-align: justify !important;">KINDLY SAFEKEEP THE BANK DEPOSIT SLIP AND BRING THE ORIGINAL COPY UPON VISIT TO OUR COMPANY. REQUEST THE CORRESPONDING OFFICIAL RECEIPT ONLY TO OUR DESIGNATED CASHIER UPON SURRENDER OF BANK DEPOSIT SLIP.</p>
-                                    <p style="text-align: justify !important;">IN CASE YOU WILL NOT BE ABLE TO VISIT OUR COMPANY, PLEASE ENSURE THAT ALL YOUR BANK DEPOSIT SLIPS ARE SAFEKEPT FOR FUTURE REFERENCE.</p>
-                                    <p class="text-danger"><b>WARNINGS</b></p>
-                                    <p style="text-align: justify !important;">PLEASE ADVISE OUR COMPANY IMMEDIATELY IF THERE IS AN ATTEMPT TO REQUEST YOU TO ON-LINE YOUR PAYMENT TO ACCOUNTS OTHER THAN OUR DESIGNATED BANK ACCOUNTS THRU CELLPHONE NOS. 0916-062-6563/0962-098-4672.</p>
-                                    <p style="text-align: justify !important;">OUR COMPANY HAS NO RESPONSILIBITY OR LIABILITY FOR ALL YOUR PAYMENTS COURSED THRU OTHER COMPANIES OR INDIVIDUALS.</p>
-                                    <p style="text-align: justify !important;">THANK YOU VERY MUCH FOR YOUR CONTINUED SUPPORT TO OUR COMPANY.</p>
-                                    <p style="text-align: justify !important;">RECEIVED AND CLEARLY UNDERSTOOD BY:</p><br/>
-                                    <div class="row">
-                                        <div class="col-4 border-top" style="border-color: #000 !important;">
-                                            <p class="text-center text-uppercase">Signature /  Date</p>
+                    <div class="tab-pane" id="v-printable-report">
+                        <div class="row">
+                            <div class="col-lg-6 align-items-stretch">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Online</div>
+                                            <div class="d-grid"><a href="online-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="v-autorization">
-                        <div class="print-area-autorization">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <p><b>THE MANAGER<br/>CHRISTIAN GENERAL MOTORS, INC<br/>CABANATUAN CITY</b></p>
-                                    <p class="text-center"><b>AUTHORIZATION AND UNDERTAKING</b></p>
-                                    <p style="text-align: justify !important;">This is to authorize your company to deposit any of the checks I issued upon due date of my monthly installment. In case the check is dishonored by the drawee bank for whatever reason, I agreed to pay additional 3% late payment penalty.</p>
-                                    <p style="text-align: justify !important;">If my check is dishonored due to "Account Closed", I hereby undertake to replace the remaining checks to cover my monthly installment without need of demand or notice, otherwise, my entire outstanding obligation will become due and demandable. I also agreed to pay additional 3% late payment penalty.</p>
-                                    <p style="text-align: justify !important;">Finally, I hereby authorize the company to indicate any details on the face of the checks provided it is based on the agreed terms and conditions as stipulated in the Deed of Conditional Sale.</p><br/>
-                                    <div class="row">
-                                        <div class="col-6 border-top" style="border-color: #000 !important;">
-                                            <p class="text-center text-uppercase">NAME OF CUSTOMER OVER PRINTED NAME</p>
+                            <div class="col-lg-6 align-items-stretch">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Authorization & Undertaking</div>
+                                            <div class="d-grid"><a href="authorization-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="v-promissory-note">
-                        <div class="card-body print-area-promissory-note">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <h4 class="text-center fw-8"><b>PROMISSORY NOTE</b></h4>
-                                    <p class="text-left fw-8"><b><?php echo number_format($totalPn, 2); ?></b></p>
-                                    <p style="text-align: justify !important; font-size:12px;">For value received, I/we jointly and severally promise to pay without need of demand to the order of Christian General Motors Incorporated at its principal office at Km 112, Maharlika Highway, Brgy Hermogenes Concepcion, Cabanatuan City, Nueva Ecija, Philippines, the sum of <b><?php echo strtoupper($amountInWords->format($totalPn)) . ' PESOS'; ?> <?php echo '(' .number_format($totalPn, 2) . ')'; ?></b> payable based on the <b>SCHEDULE OF PAYMENTS</b> as stipulated in the <b>Disclosure Statement on Credit Sales Transaction</b> which I/we duly received, agreed and understood.</p>
-                                    <p style="text-align: justify !important; font-size:12px;">Time is declared of the essence hereof and in case of default in the payment of any installment due, all the other instalments shall automatically become due and demandable and shall make me liable for the additional sum equivalent to <b>THREE percent (3%) per month</b> based on the total amount due and demandable as penalty, compounded monthly until fully paid; and in case it becomes necessary to collect this note through any Attorney-at-Law, the further sum of <b>TWENTY percent (20%)</b> thereof and <b>ATTORNEY'S FEES of THIRTY percent (30%)</b> of total amount due , exclusive of costs and judicial/extra-judicial expenses; Moreover, I further empower the holder or any of his authorized representative(s), at his option, to hold as security therefore any real or personal property which may be in my possession or control by virtue of any other contract.</p>
-                                    <p style="text-align: justify !important; font-size:12px;">In case of extraordinary change in value of the peso due to extraordinary inflation or deflation or any other reason, the basis of payment for this note shall be the value of the peso at the time the obligation was incurred as provided in Article 1250 of the New Civil Code.</p>
-                                    <p style="text-align: justify !important; font-size:12px;">DEMAND AND NOTICE OF DISHONOR WAIVED. I hereby waive any diligence, presentment, demand, protests or notice of non-payment or dishonor pertaining to this note, or any extension or renewal therefore. Holder(s) may accept partial payment(s) and grant renewals or extensions of payment reserving its/their rights against each and all indorsers, and all parties to this note. Acceptance by holder(s) of any partial payment(s) after due date shall not be considered as extending the time for payment or as a modification of any conditions hereof.</p>
-                                    <p style="text-align: justify !important; font-size:12px;">All actions arising from or connected with this note shall be brought exclusively in the proper courts of CABANATUAN CITY, Philippines; and in case of judicial execution of this obligation or any part of it, the debtor waives all rights under the provisions of Rule 39 Sec. 13, of the Rules of the Court.</p>
-                                    <p style="text-align: justify !important; font-size:12px;">Signed this ____ day of ___________________, 20___  at_______________________________, Philippines.</p>
-                                    <div class="row mt-5">
-                                        <div class="col-5">
-                                            <p class="text-center mb-0"><?php echo strtoupper($customerName); ?></p>
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">MAKER</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5">
-                                            <?php echo $comakerLabel; ?>
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">CO-MAKER</p>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-3">
-                                        <div class="col-5">
-                                            <small class="text-left mb-0"><?php echo strtoupper($customerAddress); ?></small>
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">ADDRESS</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5">
-                                            <?php echo strtoupper($comakerAddressLabel); ?>
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">ADDRESS</p>
-                                        </div>
-                                    </div>
-                                    <p class="text-center fw-8"><b>SIGNED IN THE PRESENCE OF:</b></p>
-
-                                    <div class="row mt-4">
-                                        <div class="col-5">
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;"></p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-5">
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;"></p>
+                            <div class="col-lg-6 align-items-stretch">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Promissory Note</div>
+                                            <div class="d-grid"><a href="pn-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="v-disclosure">
-                        <div class="print-area-disclosure">
-                            <div class="row">
-                                <div class="col-lg-12" style="font-size:12px !important;">
-                                    <h5 class="text-center fw-8"><b>DISCLOSURE STATEMENT ON CREDIT SALES TRANSACTION</b></h5>
-                                    <h5 class="text-center fw-8"><b>(As required under R. A. 3765 Truth in Lending Act)</b></h5><br/>
-                                    <div class="row">
-                                        <div class="col-3 mb-0">
-                                            <p class="text-left">NAME OF BUYER</p>
-                                        </div>
-                                        <div class="col-9 mb-0">
-                                            <p class="text-left"><?php echo strtoupper($customerName); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-3">
-                                            <p class="text-left mb-3">ADDRESS</p>
-                                        </div>
-                                        <div class="col-9">
-                                            <p class="text-left mb-3"><?php echo strtoupper($customerAddress); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <p class="text-left ">1. TOTAL PRICE OF ITEM PURCHASED</p>
-                                        </div>
-                                        <div class="col-4">
-                                            <p class="text-end "><?php echo number_format($totalPn2, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <p class="text-left ">2. DOWNPAYMENT AND/OR TRADE-IN VALUE</p>
-                                        </div>
-                                        <div class="col-4">
-                                            <p class="text-end "><?php echo number_format($downpayment, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <p class="text-left ">3. UNPAID BALANCE OF TOTAL PRICE</p>
-                                        </div>
-                                        <div class="col-4">
-                                            <p class="text-end "><?php echo number_format($pnAmount, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="text-left ">4. OTHER CHARGES (TO BE COLLECTED SEPARATELY TO BUYER)</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">a. Insurance</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($insurancePremium, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">b. Handling Fee</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($handlingFee, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">c. Transfer Fee</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($transferFee, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">d. Miscellaneous/Transaction Fee</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format(($transactionFee + $docStampTax), 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">e. Insurance Renewal</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($totalInsuranceFee, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start ">f. Registration Renewal</p>
-                                        </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($totalRenewalFee, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><b>TOTAL OTHER CHARGES</b></p>
-                                         </div>
-                                        <div class="col-2"></div>
-                                        <div class="col-4">
-                                            <p class="text-start "><?php echo number_format($totalCharges, 2); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="text-left ">5. CONDITIONAL CHARGES MAYBE IMPOSED</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-10">
-                                            <p class="text-start ">a. Late payment penalty of straight 3% per month based on unpaid installments due. </p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-10">
-                                            <p class="text-start ">b. Attorney's fee - 30% of total amount due; liquidated damages- further sum of 20% in addition to costs and other litigation expenses;</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-2"></div>
-                                        <div class="col-10">
-                                            <p class="text-start ">c. Liquidated damages- further sum of 20% in addition to costs and other litigation expenses</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="text-left ">6. OTHER CHARGES</p>
-                                        </div>
-                                    </div>
-                                    <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
-                                        <tr>
-                                            <td>DUE DATE</td>
-                                            <td>AMOUNT DUE</td>
-                                            <td>PAYMENT FOR</td>
-                                        </tr>
-                                        <tbody id="other-charges-rows"></tbody>
-                                    </table>
-                                    <div class="pagebreak mt-0"></div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="text-left ">7. SCHEDULE OF PAYMENTS</p>
-                                        </div>
-                                    </div>
-                                    <table class="table table-bordered w-100 text-center" id="disclosure-schedule" style="border: 1px solid #000 !important;">
-                                        
-                                    </table>
-                                    <p style="text-align: justify !important;"><b>I ACKNOWLEDGE RECEIPT OF A COPY OF THIS STATEMENT PRIOR TO THE CONSUMMATION OF THE CREDIT SALES TRANSACTION AND THAT I UNDERSTAND AND FULLY AGREE TO THE TERMS AND CONDITIONS THEREOF.</b></p><br/>
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <p class="text-center text-uppercase border-top" style="border-color: #000 !important;">SIGNATURE OF BUYER OVER PRINTED NAME</p>
-                                        </div>
-                                    </div>
-                                    <p style="text-align: justify !important;"><b>This is a system-generated Disclosure Statement on Credit Sales Transaction and does not require a signature from Christian General Motors Inc.</b></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="v-insurance-request">
-                        <div class="print-area-insurance-request2">
-                            <div class="row" style="font-size:12px !important;">
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">STM NUMBER</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left"><?php echo strtoupper($drNumber); ?></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 mb-0">
-                                        <p class="text-left"><b>CHRISTIAN GENERAL MOTORS, INC.</b></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">NAME:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left"><?php echo strtoupper($customerName); ?></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">ADDRESS:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left"><?php echo strtoupper($customerAddress); ?></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">INCEPTION:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left"><?php echo strtoupper(date('F d, Y', strtotime($startDate))); ?></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">UNIT NO.:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_unit_no"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">YR/MODEL:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_year_model"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">COLOR:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left text-uppercase" id="insurance_color"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">MAKE/TYPE:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_make"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">PLATE NO.:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_plate_no"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">CHASSIS NO.:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_chassis_no"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">ENGINE NO.:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left" id="insurance_engine_no"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">MV FILE NO.:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                    <p class="text-left" id="insurance_mv_file_no"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-3 mb-0">
-                                        <p class="text-left">MORTGAGEE:</p>
-                                    </div>
-                                    <div class="col-9 mb-0">
-                                        <p class="text-left">CGMI</p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12 mb-0">
-                                        <p class="text-left"><b>CHRISTIAN GENERAL MOTORS, INC.</b></p>
-                                    </div>
-                                </div>
-                                <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
-                                    <tr>
-                                        <td><b>RISK</b></td>
-                                        <td><b>COVERAGE</b></td>
-                                        <td><b>RATE</b></td>
-                                        <td><b>PREMIUM</b></td>
-                                    </tr>
-                                    <tbody>
-                                        <tr>
-                                            <td><b>CTPL</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>OD/Theft</b></td>
-                                            <td id="od_theft"></td>
-                                            <td id="od_rate"></td>
-                                            <td id="od_theft_premium"></td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>AON</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>TPBI</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>TPPD</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td><b>PAR</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <div class="pagebreak"></div>
-                                        <tr>
-                                            <td></td>
-                                            <td><b>Total Premium</b></td>
-                                            <td></td>
-                                            <td id="total_premium"></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td>VAT/PREMIUM TAX</td>
-                                            <td></td>
-                                            <td id="vat_premium"></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td>DOC. STAMPS</td>
-                                            <td></td>
-                                            <td id="doc_stamps"></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td>LOCAL GOV'T TAX</td>
-                                            <td></td>
-                                            <td id="local_govt_tax"></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td><b>Gross</b></td>
-                                            <td></td>
-                                            <td id="gross"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <table class="table table-bordered w-100 text-center" style="border: 1px solid #000 !important;">
-                                    <tbody>
-                                        <tr>
-                                            <td>TERM</td>
-                                            <td class="text-uppercase" id="insurance_term"></td>
-                                            <td rowspan="2"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>MATURITY</td>
-                                            <td class="text-uppercase" id="insurance_maturity"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>1st YEAR COV</td>
-                                            <td id="1st_year_coverage"></td>
-                                            <td><?php echo strtoupper(date('F d, Y', strtotime($startDate))); ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td>2nd YEAR COV</td>
-                                            <td id="2nd_year_coverage"></td>
-                                            <td id="2nd_year_date"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>3rd YEAR COV</td>
-                                            <td id="3rd_year_coverage"></td>
-                                            <td id="3rd_year_date"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>4th YEAR COV</td>
-                                            <td id="4th_year_coverage"></td>
-                                            <td id="4th_year_date"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="v-gatepass">
-                        <div class="print-area-gatepass">
-                            <div class="row">
-                                <div class="col-4">
-                                    <h5 class="text-center"><b>GATE PASS - UNIT</b></h5>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="text-center"><b>NO : <?php echo $drNumber; ?></b></h6>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="text-center"><b>DATE : <?php echo date('d-M-Y'); ?></b></h6>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-lg-12">
-                                    <div class="table-border-style mw-100">
-                                        <div class="table-border-style mw-100">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-xs text-uppercase">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td colspan="2"><small>Customer Name</small></td>
-                                                            <td colspan="3"><small><?php echo $customerName; ?></small></td>
-                                                            <td rowspan="4" class="text-center">
-                                                                <img src="<?php echo $unitImage; ?>" width="100">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>Contact Number</small></td>
-                                                            <td colspan="3"><small><?php echo $customerMobile; ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>Address</small></td>
-                                                            <td colspan="3"><small><?php echo strtoupper($customerAddress); ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>DR No.</small></td>
-                                                            <td><small><?php echo $drNumber; ?></small></td>
-                                                            <td><small>DR Date</small></td>
-                                                            <td><small><?php echo date('d-M-Y'); ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="6">
-                                                                <p class="text-center"><small>PARTICULARS</small></p>
-                                                                <p class="text-wrap"><small id="other-details-gatepass1"></small></p>
-                                                                <?php
-                                                                    if($productType == 'Unit'){
-                                                                        echo '<p class="text-danger"><b><u><small id="unit_id_gatepass"></small></u></b></p>';
-                                                                        }
-                                                                        else{
-                                                                            echo '<p class="text-danger"><b><u><small>'. $productType . $salesProposalNumber .'</small></u></b></p>';
-                                                                        }
-                                                                    ?>
-                                                                    <p><small id="product_description_gatepass"></small></p><br/>
-                                                                    <small class="text-danger">REMINDER:</small><br/>
-                                                                    <small >GATE PASS SHALL ALWAYS BE ACCOMPANIED BY DULY APPROVED DELIVERY RECEIPT</small>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                            <td colspan="3" style="vertical-align: top !important;" class="text-nowrap">
-                                                                <small>RELEASED BY:</small><br/><br/><br/>
-                                                                <small>CUSTOMER/AUTHORIZED REPRESENTATIVE</small>
-                                                            </td>
-                                                            <td colspan="2" style="vertical-align: top !important;" class="text-nowrap">
-                                                                <small>RELEASED APPROVED BY:</small><br/><br/><br/>
-                                                                <small>CHRISTIAN EDWARD C. BAGUISA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PAOLO EDUARDO C. BAGUISA</small>
-                                                            </td>
-                                                            <td style="vertical-align: top !important;" class="text-wrap">
-                                                                <small>INSPECTED BY/DATE:</small><br/><br/><br/>
-                                                                <small>GUARD ON DUTY</small>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table><br/>
-                                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Disclosure</div>
+                                            <div class="d-grid"><a href="disclosure-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row mt-3">
-                                <div class="col-4">
-                                    <h5 class="text-center"><b>GATE PASS - UNIT</b></h5>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="text-center"><b>NO : <?php echo $drNumber; ?></b></h6>
-                                </div>
-                                <div class="col-4">
-                                    <h6 class="text-center"><b>DATE : <?php echo date('d-M-Y'); ?></b></h6>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-lg-12">
-                                    <div class="table-border-style mw-100">
-                                        <div class="table-border-style mw-100">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-xs text-uppercase">
-                                                    <tbody>
-                                                        <tr>
-                                                            <td colspan="2"><small>Customer Name</small></td>
-                                                            <td colspan="3"><small><?php echo $customerName; ?></small></td>
-                                                            <td rowspan="4" class="text-center">
-                                                                <img src="<?php echo $unitImage; ?>" width="100">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>Contact Number</small></td>
-                                                            <td colspan="3"><small><?php echo $customerMobile; ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>Address</small></td>
-                                                            <td colspan="3"><small><?php echo strtoupper($customerAddress); ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="2"><small>DR No.</small></td>
-                                                            <td><small><?php echo $drNumber; ?></small></td>
-                                                            <td><small>DR Date</small></td>
-                                                            <td><small><?php echo date('d-M-Y'); ?></small></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td colspan="6">
-                                                                <p class="text-center"><small>PARTICULARS</small></p>
-                                                                <p class="text-wrap"><small id="other-details-gatepass2"></small></p>
-                                                                <?php
-                                                                    if($productType == 'Unit'){
-                                                                        echo '<p class="text-danger"><b><u><small id="unit_id_gatepass"></small></u></b></p>';
-                                                                        }
-                                                                        else{
-                                                                            echo '<p class="text-danger"><b><u><small>'. $productType . $salesProposalNumber .'</small></u></b></p>';
-                                                                        }
-                                                                    ?>
-                                                                    <p><small id="product_description_gatepass"></small></p><br/>
-                                                                    <small class="text-danger">REMINDER:</small><br/>
-                                                                    <small >GATE PASS SHALL ALWAYS BE ACCOMPANIED BY DULY APPROVED DELIVERY RECEIPT</small>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                            <td colspan="3" style="vertical-align: top !important;" class="text-nowrap">
-                                                                <small>RELEASED BY:</small><br/><br/><br/>
-                                                                <small>CUSTOMER/AUTHORIZED REPRESENTATIVE</small>
-                                                            </td>
-                                                            <td colspan="2" style="vertical-align: top !important;" class="text-nowrap">
-                                                                <small>RELEASED APPROVED BY:</small><br/><br/><br/>
-                                                                <small>CHRISTIAN EDWARD C. BAGUISA &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; PAOLO EDUARDO C. BAGUISA</small>
-                                                            </td>
-                                                            <td style="vertical-align: top !important;" class="text-wrap">
-                                                                <small>INSPECTED BY/DATE:</small><br/><br/><br/>
-                                                                <small>GUARD ON DUTY</small>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table><br/>
-                                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Insurance Request</div>
+                                            <div class="d-grid"><a class="btn btn-outline-info mt-4" href="insurance-request-dr-print.php?id=<?php echo $salesProposalID; ?>" target="_blank">Print</a></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">DR Receipt</div>
+                                            <div class="d-grid"><a href="dr-receipt-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Repayment Schedule</div>
+                                            <div class="d-grid"><a href="schedule-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Voluntary Surrender</div>
+                                            <div class="d-grid"><a href="voluntary-surrender-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Sinumpaang Salaysay</div>
+                                            <div class="d-grid"><a href="sinumpaang-salaysay-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Deed of Absolute Sale</div>
+                                            <div class="d-grid"><a href="deed-of-absolute-sale-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Deed of Conditional Sale</div>
+                                            <div class="d-grid"><a href="deed-of-conditional-sale-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Chattel Mortgage</div>
+                                            <div class="d-grid"><a href="chattel-mortgage-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Sales Invoice (FUSO Only)</div>
+                                            <div class="d-grid"><a href="sales-invoice-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card price-card">
+                                    <div class="card-body">
+                                        <div class="price-head">
+                                            <div class="price-price">Service Invoice (FUSO Only)</div>
+                                            <div class="d-grid"><a href="service-invoice-dr-print.php?id=<?php echo $salesProposalID; ?>" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                                if($salesProposalStatus == 'Released'){
+                                    echo '<div class="col-lg-6">
+                                                <div class="card price-card">
+                                                    <div class="card-body">
+                                                        <div class="price-head">
+                                                            <div class="price-price">Gatepass</div>
+                                                            <div class="d-grid"><a href="gatepass-dr-print.php?id='. $salesProposalID .'" class="btn btn-outline-info mt-4" target="_blank">Print</a></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>';
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>

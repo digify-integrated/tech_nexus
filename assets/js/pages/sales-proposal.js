@@ -136,49 +136,27 @@
                 salesProposalOtherChargesForm();
             }
     
-            /*if($('#sales-proposal-deposit-amount-form').length){
+            if($('#sales-proposal-deposit-amount-form').length){
                 salesProposalDepositAmountForm();
             }
     
             if($('#sales-proposal-renewal-amount-form').length){
                 salesProposalRenewalAmountForm();
-            }*/
+            }
         }
         else{
             if($('#sales-proposal-other-charges-form').length){
                 disableFormAndSelect2('sales-proposal-other-charges-form');
             }
     
-            /*if($('#sales-proposal-deposit-amount-form').length){
+            if($('#sales-proposal-deposit-amount-form').length){
                 disableFormAndSelect2('sales-proposal-deposit-amount-form');
             }
     
             if($('#sales-proposal-renewal-amount-form').length){
                 disableFormAndSelect2('sales-proposal-renewal-amount-form');
-            }*/
-        }
-
-        // temporary
-        if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR' || sales_proposal_status == 'Released'){
-    
-            if($('#sales-proposal-deposit-amount-form').length){
-                salesProposalDepositAmountForm();
-            }
-
-            if($('#sales-proposal-renewal-amount-form').length){
-                salesProposalRenewalAmountForm();
             }
         }
-        else{    
-            if($('#sales-proposal-deposit-amount-form').length){
-                disableFormAndSelect2('sales-proposal-deposit-amount-form');
-            }
-
-            if($('#sales-proposal-renewal-amount-form').length){
-                disableFormAndSelect2('sales-proposal-renewal-amount-form');
-            }
-        }
-
         if(sales_proposal_status == 'For DR'){
             if($('#sales-proposal-other-product-details-form').length){
                 salesProposalOtherProductDetailsForm(); 
@@ -270,14 +248,17 @@
                 if (productType === 'Unit' || productType === 'Rental') {
                     $('#sales-proposal-tab-2').removeClass('d-none');
                     resetModalForm('sales-proposal-unit-details-form');
+                    displayDetails('get sales proposal unit details');
                 }
                 else if (productType === 'Fuel') {
                     $('#sales-proposal-tab-3').removeClass('d-none');
                     resetModalForm('sales-proposal-fuel-details-form');
+                    displayDetails('get sales proposal fuel details');
                 }
                 else if (productType === 'Refinancing' || productType === 'Financing Brand New') {
                     $('#sales-proposal-tab-4').removeClass('d-none');
                     resetModalForm('sales-proposal-refinancing-details-form');
+                    displayDetails('get sales proposal refinancing details');
                 }
             }
 
@@ -5104,9 +5085,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    if($('product_type') == 'Rental'){
-                        displayDetails('get sales proposal pricing computation details');
-                    }
+                    displayDetails('get sales proposal pricing computation details');
                     
                     calculateRenewalAmount();
                 }
@@ -5153,6 +5132,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
+                    displayDetails('get sales proposal pricing computation details');
                     calculateFuelTotal();
                 }
             });
@@ -5202,7 +5182,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-
+                    displayDetails('get sales proposal pricing computation details');
                 }
             });
             break;
@@ -5384,29 +5364,27 @@ function displayDetails(transaction){
                         $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
                         $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
 
-                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYearSummary).toLocaleString("en-US"));
-                        $('#summary-registration-second-year').text(parseFloat(response.registrationSecondYearSummary).toLocaleString("en-US"));
-                        $('#summary-registration-third-year').text(parseFloat(response.registrationThirdYearSummary).toLocaleString("en-US"));
-                        $('#summary-registration-fourth-year').text(parseFloat(response.registrationFourthYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-second-year').text(parseFloat(response.insuranceCoverageSecondYearSummary).toLocaleString("en-US"));
-                        $('#2nd_year_coverage').text(parseFloat(response.insuranceCoverageSecondYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-third-year').text(parseFloat(response.insuranceCoverageThirdYearSummary).toLocaleString("en-US"));
-                        $('#3rd_year_coverage').text(parseFloat(response.insuranceCoverageThirdYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-coverage-fourth-year').text(parseFloat(response.insuranceCoverageFourthYearSummary).toLocaleString("en-US"));
-                        $('#4th_year_coverage').text(parseFloat(response.insuranceCoverageFourthYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-second-year').text(parseFloat(response.insurancePremiumSecondYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-third-year').text(parseFloat(response.insurancePremiumThirdYearSummary).toLocaleString("en-US"));
-                        $('#summary-insurance-premium-fourth-year').text(parseFloat(response.insurancePremiumFourthYearSummary).toLocaleString("en-US"));
+                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
+                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
+                        $('#summary-registration-third-year').text(response.registrationThirdYearSummary);
+                        $('#summary-registration-fourth-year').text(response.registrationFourthYearSummary);
+                        $('#summary-insurance-coverage-second-year').text(response.insuranceCoverageSecondYearSummary);
+                        $('#2nd_year_coverage').text(response.insuranceCoverageSecondYearSummary);
+                        $('#summary-insurance-coverage-third-year').text(response.insuranceCoverageThirdYearSummary);
+                        $('#3rd_year_coverage').text(response.insuranceCoverageThirdYearSummary);
+                        $('#summary-insurance-coverage-fourth-year').text(response.insuranceCoverageFourthYearSummary);
+                        $('#4th_year_coverage').text(response.insuranceCoverageFourthYearSummary);
+                        $('#summary-insurance-premium-second-year').text(response.insurancePremiumSecondYearSummary);
+                        $('#summary-insurance-premium-third-year').text(response.insurancePremiumThirdYearSummary);
+                        $('#summary-insurance-premium-fourth-year').text(response.insurancePremiumFourthYearSummary);
 
-                        
                         $('#2nd_year_date').text(response.secondYearInsuranceDate);
                         $('#3rd_year_date').text(response.thirdYearInsuranceDate);
                         $('#4th_year_date').text(response.fourthYearInsuranceDate);
 
                         var product_category = $('#product_category').val();
 
-
-                        if(response.insurancePremiumSecondYear > 0){
+                        if(response.insuranceCoverageSecondYear != 0){
                             $('#compute_second_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
@@ -5420,7 +5398,7 @@ function displayDetails(transaction){
                             $('#compute_second_year').prop('checked', false);
                         }
 
-                        if(response.insurancePremiumThirdYear > 0){
+                        if(response.insuranceCoverageThirdYear != 0){
                             $('#compute_third_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
@@ -5434,7 +5412,7 @@ function displayDetails(transaction){
                             $('#compute_third_year').prop('checked', false);
                         }
 
-                        if(response.insurancePremiumFourthYear > 0){
+                        if(response.insuranceCoverageFourthYear != 0){
                             $('#compute_fourth_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
@@ -6125,29 +6103,6 @@ function traverseTabs(direction) {
             }
         }
 
-        /*if (nextIndex == 8) {
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
-            }
-        }
-        else{
-            if($('#add-sales-proposal-deposit-amount-button').length){
-                $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
-            }
-        }
-        
-        if (currentIndex == 7 && direction === 'next') {
-            if ($('#sales-proposal-renewal-amount-form').valid()) {
-                $('#sales-proposal-renewal-amount-form').submit();
-            } else {
-                return;
-            }
-        }*/
-    }
-
-    // temporary
-    if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR' || sales_proposal_status == 'Released'){
-        
         if (nextIndex == 8) {
             if($('#add-sales-proposal-deposit-amount-button').length){
                 $('#add-sales-proposal-deposit-amount-button').removeClass('d-none');
@@ -6158,7 +6113,7 @@ function traverseTabs(direction) {
                 $('#add-sales-proposal-deposit-amount-button').addClass('d-none');
             }
         }
-
+        
         if (currentIndex == 7 && direction === 'next') {
             if ($('#sales-proposal-renewal-amount-form').valid()) {
                 $('#sales-proposal-renewal-amount-form').submit();

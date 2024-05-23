@@ -152,7 +152,7 @@
                         </div>';
                 }
 
-                if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0){
+                if($salesProposalStatus == 'For Final Approval' && $forCISalesProposal['total'] > 0 && $transactionType != 'COD' && $transactionType != 'Bank Financing'){
                   echo '<div class="previous me-2 d-none" id="for-ci-sales-proposal-button">
                           <button class="btn btn-info" id="for-ci-sales-proposal">For CI</button>
                         </div>';
@@ -164,7 +164,7 @@
                       </div>';
                 }
 
-                if(($salesProposalStatus == 'For CI' || ($salesProposalStatus == 'Proceed' && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
+                if(($salesProposalStatus == 'For CI' || (($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'On-Process' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released') && !empty($forCIDate))) && $tagCIAsComplete['total'] > 0 && empty($ciStatus)) {
                   echo '<div class="previous me-2 d-none" id="complete-ci-button">
                           <button class="btn btn-info" id="complete-ci">Complete CI</button>
                       </div>';

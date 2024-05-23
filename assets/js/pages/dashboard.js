@@ -236,7 +236,7 @@ function dashboardDocumentTable(datatable_name, buttons = false, show_all = fals
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 2, 'desc' ]],
+        'order': [[ 3, 'desc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
