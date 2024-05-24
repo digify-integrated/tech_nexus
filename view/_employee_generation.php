@@ -759,6 +759,83 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
         # -------------------------------------------------------------
         #
+        # Type: contact document summary
+        # Description:
+        # Generates the contact document summary.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'contact document summary':
+            if(isset($_POST['employee_id']) && !empty($_POST['employee_id'])){
+                $details = '';
+                $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+
+                $sql = $databaseModel->getConnection()->prepare('CALL generateContactDocumentSummary(:employeeID)');
+                $sql->bindValue(':employeeID', $employeeID, PDO::PARAM_INT);
+                $sql->execute();
+                $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+                $sql->closeCursor();
+                
+                $count = count($options);
+
+                $employeeWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 48, 'write');
+                $deleteEmployeeContactDocument= $userModel->checkSystemActionAccessRights($user_id, 147);
+
+                foreach ($options as $index => $row) {
+                    $contactDocumentID = $row['contact_document_id'];
+                    $documentName = $row['document_name'];
+                    $documentType = $row['document_type'];
+                    $documentFile = $row['document_file'];
+
+                    $dropdown = '';
+                    if ($employeeWriteAccess['total'] > 0) {                    
+                        $delete = ($employeeWriteAccess['total'] > 0 && $deleteEmployeeContactDocument['total'] > 0) ? '<a href="javascript:void(0);" class="dropdown-item delete-contact-document" data-contact-document-id="'. $contactDocumentID . '">Delete</a>' : '';
+                    
+                        $dropdown = ($delete) ? '<div class="dropdown">
+                            <a class="avtar avtar-s btn-link-primary dropdown-toggle arrow-none" href="javascript:void(0);" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ti ti-dots-vertical f-18"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                ' . $delete . '
+                            </div>
+                        </div>' : '';
+                    }
+
+                    $listMargin = ($index === 0) ? 'pt-0' : '';
+
+                    $details .= ' <li class="list-group-item '. $listMargin .'">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1 me-2">
+                                            <a href="'. $documentFile .'" target="_blank">
+                                                <p class="mb-2 text-primary"><b>'. $documentName .'</b></p>
+                                                <p class="mb-2 text-primary"><b>'. $documentType .'</b></p>
+                                            </a>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            '. $dropdown .'
+                                        </div>
+                                    </div>
+                                </li>';
+                }
+
+                if(empty($details)){
+                    $details = 'No employee document found.';
+                }
+
+                $response[] = [
+                    'contactDocumentSummary' => $details
+                ];
+    
+                echo json_encode($response);
+            }
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
         # Type: contact educational background summary
         # Description:
         # Generates the contact educational background summary.

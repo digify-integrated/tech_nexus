@@ -12,6 +12,7 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/product-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -19,6 +20,7 @@
     // Initialize system model
     $systemModel = new SystemModel();
 
+    $productModel = new ProductModel($databaseModel);
     // Initialize sales proposal model
     $salesProposalModel = new SalesProposalModel($databaseModel);
 
@@ -90,12 +92,7 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -111,11 +108,21 @@
         else{
           $comakerAddress = '';
         }
+
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $yearModel = $otherProductDetails['year_model'] ??  '--';
+        $crNo = $otherProductDetails['cr_no'] ??  '--';
+        $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
+        $make = $otherProductDetails['make'] ??  '--';
         
         $customerContactInformation = $customerModel->getCustomerPrimaryContactInformation($customerID);
         $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
+
+        $productDetails = $productModel->getProduct($productID);
+        $engineNumber = $productDetails['engine_number'] ?? null;
+        $chassisNumber = $productDetails['chassis_number'] ?? null;
 
     }
 
@@ -150,23 +157,23 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'KNOW ALL MEN BY THESE PRESENTS:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; That I, ______________________________________________________________________, of legal age and a resident of ___________________________________________________________________________, have this day voluntarily surrender unto __________________________________________________________________ a certain personal property which is more particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '&nbsp; &nbsp; That I, <b><u>'. $customerName .'</u></b>, of legal age and a resident of <b><u>'. strtoupper($customerAddress) .'</u></b>, have this day voluntarily surrender unto __________________________________________________________________ a certain personal property which is more particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'MAKE'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $make, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'MODEL'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $yearModel, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'MOTOR NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $engineNumber , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'SERIAL NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $chassisNumber, 0, 0, 'L');
     $pdf->Ln(15);
     $pdf->MultiCell(0, 0, 'of which I am the lawful possessor _____________________________________________________________ () Owner,', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->MultiCell(0, 0, '(  ) Successor-in-Interest;             (  )  Lessee;              (  ) Pledge                       (  ) Trustee                     (  ) Usufructuary

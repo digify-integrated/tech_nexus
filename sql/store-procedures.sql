@@ -4408,6 +4408,41 @@ END //
 
 /* Contact Identification Table Stored Procedures */
 
+CREATE PROCEDURE checkContactDocumentExist (IN p_contact_document_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM contact_document
+    WHERE contact_document_id = p_contact_document_id;
+END //
+
+CREATE PROCEDURE insertContactDocument(IN p_contact_id INT, IN p_document_name VARCHAR(100), IN p_document_type VARCHAR(100), IN p_last_log_by INT, OUT p_contact_document_id INT)
+BEGIN
+    INSERT INTO contact_document (contact_id, document_name, document_type, last_log_by) 
+	VALUES(p_contact_id, p_document_name, p_document_type, p_last_log_by);
+
+     SET p_contact_document_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateContactDocumentFile(IN p_contact_document_id INT, IN p_document_file VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+	UPDATE contact_document
+    SET document_file = p_document_file,
+    last_log_by = p_last_log_by
+    WHERE contact_document_id = p_contact_document_id;
+END //
+
+CREATE PROCEDURE deleteContactDocument(IN p_contact_document_id INT)
+BEGIN
+    DELETE FROM contact_document WHERE contact_document_id = p_contact_document_id;
+END //
+
+CREATE PROCEDURE generateContactDocumentSummary(IN p_contact_id INT)
+BEGIN
+	SELECT *
+    FROM contact_document
+    WHERE contact_id = p_contact_id;
+END //
+
 CREATE PROCEDURE checkContactIdentificationExist (IN p_contact_identification_id INT)
 BEGIN
 	SELECT COUNT(*) AS total

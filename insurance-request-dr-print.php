@@ -78,6 +78,9 @@
         $crNo = $otherProductDetails['cr_no'] ??  '--';
         $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
         $make = $otherProductDetails['make'] ??  '--';
+
+        $salesProposalPricingComputationDetails = $salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+        $totalDeliveryPrice = $salesProposalPricingComputationDetails['total_delivery_price'] ?? 0;
         
         if($productType == 'Unit'){
             $productDetails = $productModel->getProduct($productID);
@@ -99,7 +102,7 @@
             $chassisNumber = $productDetails['chassis_number'] ??  '--';
             $plateNumber = $productDetails['plate_number'] ?? '--';
 
-            $productPrice = $productDetails['product_price'] * 1000;
+            $productPrice = $totalDeliveryPrice;
 
             if($productCategoryID == '1' || $productCategoryID == '3'){
                 $odRate = 2.4;

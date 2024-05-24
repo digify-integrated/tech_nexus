@@ -90,12 +90,7 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -156,8 +151,8 @@
     $pdf->Ln(0);
     $pdf->MultiCell(0, 0, '(Buyer'. "'" .'s Undertaking)', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'Ako, si _______________________________________________________may sapat na gulang, Pilipino,
-    binata/may-asawa, at naninirahan sa______________________________________________________,
+    $pdf->MultiCell(0, 0, 'Ako, si  <b><u>'. $customerName .'</u></b> sapat na gulang, Pilipino,
+    binata/may-asawa, at naninirahan sa <b><u>'. strtoupper($customerAddress) .'</u></b>,
     matapos na makapanumpa nang naayon sa batas, ay nagsasaad ng mga sumusunod:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng                                                                                        Cabanatuan City (kinakatawan ni_______________________________________________________) sa Conditional Sales Agreement ng isang _____________________________________________________

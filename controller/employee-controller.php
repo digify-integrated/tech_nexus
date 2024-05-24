@@ -125,6 +125,9 @@ class EmployeeController {
                 case 'tag contact address as primary':
                     $this->tagContactAddressAsPrimary();
                     break;
+                case 'save contact document':
+                    $this->saveContactDocument();
+                    break;
                 case 'save contact identification':
                     $this->saveContactIdentification();
                     break;
@@ -226,6 +229,9 @@ class EmployeeController {
                     break;
                 case 'delete contact address':
                     $this->deleteContactAddress();
+                    break;
+                case 'delete contact document':
+                    $this->deleteContactDocument();
                     break;
                 case 'delete contact identification':
                     $this->deleteContactIdentification();
@@ -517,7 +523,7 @@ class EmployeeController {
     
         $userID = $_SESSION['user_id'];
         $contactIdentificationID = isset($_POST['contact_identification_id']) ? htmlspecialchars($_POST['contact_identification_id'], ENT_QUOTES, 'UTF-8') : null;
-        $employeeID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $contactID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
         $idTypeID = htmlspecialchars($_POST['id_type_id'], ENT_QUOTES, 'UTF-8');
         $idNumber = htmlspecialchars($_POST['id_number'], ENT_QUOTES, 'UTF-8');
 
@@ -675,6 +681,107 @@ class EmployeeController {
             echo json_encode(['success' => true, 'insertRecord' => true]);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveContactDocument
+    # Description: 
+    # Updates the existing contact document if it exists; otherwise, inserts a new contact document.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveContactDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = htmlspecialchars($_POST['employee_id'], ENT_QUOTES, 'UTF-8');
+        $employeeDocumentName = htmlspecialchars($_POST['employee_document_name'], ENT_QUOTES, 'UTF-8');
+        $employeeDocumentType = htmlspecialchars($_POST['employee_document_type'], ENT_QUOTES, 'UTF-8');
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $idImageFileName = $_FILES['employee_document']['name'];
+        $idImageFileSize = $_FILES['employee_document']['size'];
+        $idImageFileError = $_FILES['employee_document']['error'];
+        $idImageTempName = $_FILES['employee_document']['tmp_name'];
+        $idImageFileExtension = explode('.', $idImageFileName);
+        $idImageActualFileExtension = strtolower(end($idImageFileExtension));
+    
+        $contactDocumentID = $this->employeeModel->insertContactDocument($contactID, $employeeDocumentName, $employeeDocumentType, $userID);
+
+            if(empty($idImageFileName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the employee document.']);
+                exit;
+            }
+
+            $uploadSetting = $this->uploadSettingModel->getUploadSetting(18);
+            $maxFileSize = $uploadSetting['max_file_size'];
+    
+            $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(18);
+            $allowedFileExtensions = [];
+    
+            foreach ($uploadSettingFileExtension as $row) {
+                $fileExtensionID = $row['file_extension_id'];
+                $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+                $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+            }
+    
+            if (!in_array($idImageActualFileExtension, $allowedFileExtensions)) {
+                $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+                echo json_encode($response);
+                exit;
+            }
+                
+            if(empty($idImageTempName)){
+                echo json_encode(['success' => false, 'message' => 'Please choose the document file.']);
+                exit;
+            }
+                
+            if($idImageFileError){
+                echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+                exit;
+            }
+                
+            if($idImageFileSize > ($maxFileSize * 1048576)){
+                echo json_encode(['success' => false, 'message' => 'The employee document exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+                exit;
+            }
+    
+            $fileName = $this->securityModel->generateFileName();
+            $fileNew = $fileName . '.' . $idImageActualFileExtension;
+    
+            $directory = DEFAULT_EMPLOYEE_RELATIVE_PATH_FILE . $contactID .'/employee_document/';
+            $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_EMPLOYEE_FULL_PATH_FILE . $contactID . '/employee_document/' . $fileNew;
+            $filePath = $directory . $fileNew;
+    
+            $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+    
+            if(!$directoryChecker){
+                echo json_encode(['success' => false, 'message' => $directoryChecker]);
+                exit;
+            }
+    
+            if(!move_uploaded_file($idImageTempName, $fileDestination)){
+                echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+                exit;
+            }
+    
+            $this->employeeModel->updateContactDocumentFile($contactDocumentID, $filePath, $userID);
+
+            echo json_encode(['success' => true, 'insertRecord' => true]);
+            exit;
     }
     # -------------------------------------------------------------
 
@@ -1653,6 +1760,47 @@ class EmployeeController {
         }
     
         $this->employeeModel->deleteContactIdentification($contactIdentificationID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactDocument
+    # Description: 
+    # Delete the contact identification if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function deleteContactDocument() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactDocumentID = htmlspecialchars($_POST['contact_document_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkContactDocumentExist = $this->employeeModel->checkContactDocumentExist($contactDocumentID);
+        $total = $checkContactDocumentExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->employeeModel->deleteContactDocument($contactDocumentID);
             
         echo json_encode(['success' => true]);
         exit;

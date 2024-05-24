@@ -3948,6 +3948,24 @@ CREATE INDEX contact_address_index_city_id ON contact_address(city_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+/* Contact Document Table */
+
+CREATE TABLE contact_document (
+    contact_document_id INT AUTO_INCREMENT PRIMARY KEY,
+    contact_id INT UNSIGNED NOT NULL,
+    document_name VARCHAR(100) NOT NULL,
+    document_type VARCHAR(100) NOT NULL,
+    document_file VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (contact_id) REFERENCES contact(contact_id),
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX contact_document_index_contact_document_id ON contact_document(contact_document_id);
+CREATE INDEX contact_document_index_contact_id ON contact_document(contact_id);
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 /* Contact Identification Table */
 
 CREATE TABLE contact_identification (

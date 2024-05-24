@@ -226,8 +226,16 @@
                 employeeIdentificationForm();
             }
 
+            if($('#contact-document-form').length){
+                employeeDocumentForm();
+            }
+
             if($('#contact-identification-summary').length){
                 employeeIdentificationSummary();
+            }
+
+            if($('#contact-document-summary').length){
+                employeeDocumentSummary();
             }
 
             if($('#contact-educational-background-form').length){
@@ -778,6 +786,61 @@
                                 if (response.success) {
                                     showNotification('Delete Employee Identification Success', 'The employee identification has been deleted successfully.', 'success');
                                     employeeIdentificationSummary();
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else if (response.notExist) {
+                                        window.location = '404.php';
+                                    }
+                                    else {
+                                        showNotification('Delete Employee Identification Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+
+            $(document).on('click','.delete-contact-document',function() {
+                const contact_document_id = $(this).data('contact-document-id');
+                const transaction = 'delete contact document';
+        
+                Swal.fire({
+                    title: 'Confirm Employee Identification Deletion',
+                    text: 'Are you sure you want to delete this employee identification?',
+                    icon: 'warning',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-danger mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/employee-controller.php',
+                            dataType: 'json',
+                            data: {
+                                contact_document_id : contact_document_id, 
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Delete Employee Document Success', 'The employee document has been deleted successfully.', 'success');
+                                    employeeDocumentSummary();
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -1771,6 +1834,31 @@ function employeeIdentificationSummary(){
     });
 }
 
+function employeeDocumentSummary(){
+    const type = 'contact document summary';
+    var employee_id = $('#employee-id').text();
+            
+    $.ajax({
+        url: 'view/_employee_generation.php',
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            employee_id : employee_id, 
+            type : type
+        },
+        success: function(response) {
+            document.getElementById('contact-document-summary').innerHTML = response[0].contactDocumentSummary;
+        },
+        error: function(xhr, status, error) {
+            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+            if (xhr.responseText) {
+                fullErrorMessage += `, Response: ${xhr.responseText}`;
+            }
+            showErrorDialog(fullErrorMessage);
+        }
+    });
+}
+
 function employeeEducationalBackgroundSummary(){
     const type = 'contact educational background summary';
     var employee_id = $('#employee-id').text();
@@ -2729,6 +2817,108 @@ function employeeIdentificationForm(){
         }
     });
 }
+
+function employeeDocumentForm(){
+    $('#contact-document-form').validate({
+        rules: {
+            employee_document_type: {
+                required: true
+            },
+            employee_document: {
+                required: true
+            }
+        },
+        messages: {
+            employee_document_type: {
+                required: 'Please choose the document type'
+            },
+            employee_document: {
+                required: 'Please choose the employee document'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const employee_id = $('#employee-id').text();
+            const transaction = 'save contact document';
+    
+            var formData = new FormData(form);
+            formData.append('employee_id', employee_id);
+            formData.append('transaction', transaction);
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/employee-controller.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-contact-document');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = response.insertRecord ? 'Insert Employee Document Success' : 'Update Employee Document Success';
+                        const notificationDescription = response.insertRecord ? 'The employee document has been inserted successfully.' : 'The employee document has been updated successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        } else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-contact-document', 'Submit');
+                    $('#contact-employee-document-offcanvas').offcanvas('hide');
+                    employeeDocumentSummary();
+                    resetModalForm('contact-document-form');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 
 function employeeEducationalBackgroundForm(){
     $('#contact-educational-background-form').validate({

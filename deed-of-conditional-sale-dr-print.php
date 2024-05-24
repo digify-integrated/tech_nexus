@@ -12,11 +12,13 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/product-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
 
     // Initialize system model
+    $productModel = new ProductModel($databaseModel);
     $systemModel = new SystemModel();
 
     // Initialize sales proposal model
@@ -52,6 +54,8 @@
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
+        $termType = $salesProposalDetails['term_type'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -90,12 +94,7 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -117,6 +116,16 @@
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $yearModel = $otherProductDetails['year_model'] ??  '--';
+        $crNo = $otherProductDetails['cr_no'] ??  '--';
+        $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
+        $make = $otherProductDetails['make'] ??  '--';
+
+        $productDetails = $productModel->getProduct($productID);
+        $engineNumber = $productDetails['engine_number'] ?? null;
+        $chassisNumber = $productDetails['chassis_number'] ?? null;
+        $plateNumber = $productDetails['plate_number'] ?? null;
     }
 
     ob_start();
@@ -151,7 +160,7 @@
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'This deed, made and entered into this _______ day of ____________ at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(5);
+    $pdf->Ln(1);
     $pdf->MultiCell(0, 0, '______________________________________________________________________________________________.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'a corporation duly organized and existing under the laws of the Philippines with principal office at ________________________________________________________________, represented herein by its ________________________________________________________________, hereinafter referred to as the "SELLER"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
@@ -166,26 +175,28 @@
     $pdf->Ln(0);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'Make and Type'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $make, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'Motor No.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $engineNumber, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'Chassis No.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $chassisNumber, 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(40, 8, 'Plate No.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ___________________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $plateNumber, 0, 0, 'L');
     $pdf->Ln(10);
-    $pdf->MultiCell(0, 0, 'covered by Certificate of Registration No.______________________ issued by the______________________________;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'covered by Certificate of Registration No .______________________ issued by the ______________________________;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That with the SELLER'. "'" .'s consent, the BUYER/ desire'. "'" .'s to acquire the said motor vehicle, subject to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '1. That the total purchase price is_______________________________________________________________________
-    (P___________________) PESOS, Philippine currency, buyer'. "'" .'s making a down payment of_________________________ ____________________________(P_____________________) PESOS, Philippine currency, upon signing of this deed, receipt of which is hereby acknowledged by SELLER and the balance payable in equal installment for a period of _______ _______________(        ) months at the rate of ____________________________________________________________ (P__________________) per__________________, payable every_________, day of the month starting on___________ _____________________________until fully and completely paid;
+    $pdf->MultiCell(0, 0, '1. That the total purchase price is <b><u>'. strtoupper($amountInWords->format($totalPn)) .'
+    (P '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine currency, buyer'. "'" .'s making a down payment of  <b><u>'. strtoupper($amountInWords->format($downpayment)) .'
+    (P '. number_format($downpayment, 2) .')</u></b> PESOS, Philippine currency, upon signing of this deed, receipt of which is hereby acknowledged by SELLER and the balance payable in equal installment for a period of <b><u>'. strtoupper($amountInWords->format($termLength)) .' ('. number_format($termLength) .')</u></b>  months at the rate of <b><u>'. strtoupper($amountInWords->format($repaymentAmount)) .'
+    (P '. number_format($repaymentAmount, 2) .')</u></b> per <b><u>MONTH</b></u>, payable every <b><u>'. strtoupper(formatDay(date('d', strtotime($startDate)))) .'</b></u>, day of the month starting on <b><u>'. strtoupper(date('F d, Y', strtotime($startDate))) .'</b></u> until fully and completely paid;
     ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '2. That the unpaid balance of the purchase price shall be evidenced by a Promissory Note executed by the BUYER and delivered to the SELLER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
@@ -209,4 +220,16 @@
     // Output the PDF to the browser
     $pdf->Output('deed-of-conditional-sale.pdf', 'I');
     ob_end_flush();
+
+    function formatDay($day) {
+      if ($day % 10 == 1 && $day != 11) {
+          return $day . 'st';
+      } elseif ($day % 10 == 2 && $day != 12) {
+          return $day . 'nd';
+      } elseif ($day % 10 == 3 && $day != 13) {
+          return $day . 'rd';
+      } else {
+          return $day . 'th';
+      }
+  }
 ?>

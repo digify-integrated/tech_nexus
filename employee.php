@@ -80,6 +80,7 @@
     $updateEmployeeBank = $userModel->checkSystemActionAccessRights($user_id, 75);
     $grantPortalAccess = $userModel->checkSystemActionAccessRights($user_id, 77);
     $revokePortalAccess = $userModel->checkSystemActionAccessRights($user_id, 78);
+    $addEmployeeDocument = $userModel->checkSystemActionAccessRights($user_id, 146);
 
     if ($employeeReadAccess['total'] == 0) {
         header('location: 404.php');

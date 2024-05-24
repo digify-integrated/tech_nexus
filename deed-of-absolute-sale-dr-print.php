@@ -12,11 +12,14 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/sales-proposal-model.php';
+    require_once 'model/product-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
 
     // Initialize system model
+    $productModel = new ProductModel($databaseModel);
     $systemModel = new SystemModel();
 
     // Initialize sales proposal model
@@ -90,12 +93,7 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -116,6 +114,17 @@
         $customerMobile = !empty($customerContactInformation['mobile']) ? $customerContactInformation['mobile'] : '--';
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
+
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $yearModel = $otherProductDetails['year_model'] ??  '--';
+        $crNo = $otherProductDetails['cr_no'] ??  '--';
+        $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
+        $make = $otherProductDetails['make'] ??  '--';
+
+        $productDetails = $productModel->getProduct($productID);
+        $engineNumber = $productDetails['engine_number'] ?? null;
+        $chassisNumber = $productDetails['chassis_number'] ?? null;
+        $plateNumber = $productDetails['plate_number'] ?? null;
 
     }
 
@@ -150,29 +159,29 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That I_____________________________________________________________________, with postal at _________________________________________________________________for and in consideration 
-    the amount of_________________________________________________________________________  (PHP____________________) PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto ___________________________________________________________________with postal address at __________________________________________________________________his/her successors and assigns that certain motor vehicle which is particularly described as follows:
+    $pdf->MultiCell(0, 0, 'That I <b><u>'. $customerName .'</u></b>, with postal at <b><u>'. strtoupper($customerAddress) .'</u></b> for and in consideration 
+    the amount of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto ___________________________________________________________________ with postal address at __________________________________________________________________ his/her successors and assigns that certain motor vehicle which is particularly described as follows:
     ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->Cell(20, 8, 'MAKE'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $make , 0, 0, 'L');
     $pdf->Cell(40, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(30, 8, 'CHASSIS NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $chassisNumber, 0, 0, 'L');
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(20, 8, 'SERIES'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ', 0, 0, 'L');
     $pdf->Cell(40, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(30, 8, 'PLATE NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $plateNumber, 0, 0, 'L');
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->Cell(25, 8, 'ENGINE NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $engineNumber, 0, 0, 'L');
     $pdf->Cell(35, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(30, 8, 'MV FILE NO.'  , 0, 0, 'L');
-    $pdf->Cell(32, 8, ':      ____________________________', 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' . $mvFileNo, 0, 0, 'L');
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->MultiCell(0, 0, 'Of which the property said corporation is/l am the absolute owner:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);

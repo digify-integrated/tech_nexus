@@ -81,6 +81,11 @@
     if($addEmployeeBank['total'] > 0){
       $employeeBankAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-bank-offcanvas" aria-controls="contact-employee-bank-offcanvas" id="add-contact-employee-bank"><i class="ti ti-plus"></i></button>';
     }
+
+    $employeeDocumentAdd = '';
+    if($addEmployeeDocument['total'] > 0){
+      $employeeDocumentAdd = '<button class="btn btn-icon btn-link-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#contact-employee-document-offcanvas" aria-controls="contact-employee-document-offcanvas" id="add-contact-employee-document"><i class="ti ti-plus"></i></button>';
+    }
   }
 ?>
 <div class="row">
@@ -146,6 +151,7 @@
                       <li><a class="nav-link" id="v-employee-profile-address-tab" data-bs-toggle="pill" href="#v-employee-profile-address" role="tab" aria-controls="v-employee-profile-address" aria-selected="false">Address</a></li>
                       <li><a class="nav-link" id="v-employee-profile-contact-information-tab" data-bs-toggle="pill" href="#v-employee-profile-contact-information" role="tab" aria-controls="v-employee-profile-contact-information" aria-selected="false">Contact Information</a></li>
                       <li><a class="nav-link" id="v-employee-profile-employee-identification-tab" data-bs-toggle="pill" href="#v-employee-profile-employee-identification" role="tab" aria-controls="v-employee-profile-employee-identification" aria-selected="false">Employee Identification</a></li>
+                      <li><a class="nav-link" id="v-employee-profile-employee-document-tab" data-bs-toggle="pill" href="#v-employee-profile-employee-document" role="tab" aria-controls="v-employee-profile-employee-document" aria-selected="false">Employee Document</a></li>
                       <li><a class="nav-link" id="v-employee-profile-bank-account-tab" data-bs-toggle="pill" href="#v-employee-profile-bank-account" role="tab" aria-controls="v-employee-profile-bank-account" aria-selected="false">Bank Account</a></li>
                       <li><a class="nav-link" id="v-employee-profile-emergency-contact-tab" data-bs-toggle="pill" href="#v-employee-profile-emergency-contact" role="tab" aria-controls="v-employee-profile-emergency-contact" aria-selected="false">Emergency Contact</a></li>
                       <li><a class="nav-link" id="v-employee-profile-family-background-tab" data-bs-toggle="pill" href="#v-employee-profile-family-background" role="tab" aria-controls="v-employee-profile-family-background" aria-selected="false">Family Background</a></li>
@@ -217,6 +223,20 @@
                   </div>
                   <div class="card-body">
                     <ul class="list-group list-group-flush" id="contact-identification-summary">
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="v-employee-profile-employee-document" role="tabpanel" aria-labelledby="v-employee-profile-employee-document-tab">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <h5>Employee Document</h5>
+                      <?php echo $employeeDocumentAdd; ?>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-group list-group-flush" id="contact-document-summary">
                     </ul>
                   </div>
                 </div>
@@ -737,41 +757,43 @@
                         </div>';
                 }
 
-                if($addEmployeeIdentification['total'] > 0 || $updateEmployeeIdentification['total'] > 0){
-                  echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-identification-offcanvas" aria-labelledby="contact-identification-offcanvas-label">
+                if($addEmployeeDocument['total'] > 0 ){
+                  echo '<div class="offcanvas offcanvas-end" tabindex="-1" id="contact-employee-document-offcanvas" aria-labelledby="contact-employee-document-offcanvas-label">
                           <div class="offcanvas-header">
-                            <h2 id="contact-identification-offcanvas-label" style="margin-bottom:-0.5rem">Employee Identification</h2>
+                            <h2 id="contact-employee-document-offcanvas-label" style="margin-bottom:-0.5rem">Employee Document</h2>
                             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                           </div>
                           <div class="offcanvas-body">
-                            <div class="alert alert-success alert-dismissible mb-4" role="alert">
-                              The Employee Identification captures essential employee information by requesting their ID type and corresponding ID number, ensuring accurate record-keeping and identification within the organization.
-                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
                             <div class="row">
                               <div class="col-lg-12">
-                                <form id="contact-identification-form" method="post" action="#">
+                                <form id="contact-document-form" method="post" action="#">
+                                <div class="form-group row">
+                                  <div class="col-lg-12">
+                                    <label class="form-label">Document Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="employee_document_name" name="employee_document_name" maxlength="100" autocomplete="off">
+                                  </div>
+                                </div>
                                   <div class="form-group row">
                                     <div class="col-lg-12">
-                                      <input type="hidden" id="update" name="update" value="1">
-                                      <label class="form-label">ID Type <span class="text-danger">*</span></label>
-                                      <input type="hidden" id="contact_identification_id" name="contact_identification_id">
-                                      <select class="form-control offcanvas-select2" name="id_type_id" id="id_type_id">
+                                      <label class="form-label">Document Type <span class="text-danger">*</span></label>
+                                      <select class="form-control offcanvas-select2" name="employee_document_type" id="employee_document_type">
                                         <option value="">--</option>
-                                        '. $idTypeModel->generateIDTypeOptions() .'
+                                        <option value="Hiring Documents">Hiring Documents</option>
+                                        <option value="Employment-Related Agreements">Employment-Related Agreements</option>
+                                        <option value="Employment-Related Agreements">Employment-Related Agreements</option>
+                                        <option value="Performance and Development">Performance and Development</option>
+                                        <option value="Payroll & Compensation">Payroll & Compensation</option>
+                                        <option value="Benefits and Insurance">Benefits and Insurance</option>
+                                        <option value="Attendance and Leave">Attendance and Leave</option>
+                                        <option value="Safety and Compliance">Safety and Compliance</option>
+                                        <option value="Miscellaneous">Miscellaneous</option>
                                       </select>
                                     </div>
                                   </div>
                                   <div class="form-group row">
                                     <div class="col-lg-12">
-                                      <label class="form-label" for="id_number">ID Number <span class="text-danger">*</span></label>
-                                      <input type="text" class="form-control" id="id_number" name="id_number" maxlength="100" autocomplete="off">
-                                    </div>
-                                  </div>
-                                  <div class="form-group row">
-                                    <div class="col-lg-12">
-                                      <label class="form-label" for="id_image">ID Image</label>
-                                      <input type="file" class="form-control" id="id_image" name="id_image">
+                                      <label class="form-label" for="employee_document">Employee Document (PDF only) <span class="text-danger">*</span></label>
+                                      <input type="file" class="form-control" id="employee_document" name="employee_document">
                                     </div>
                                   </div>
                                 </form>
@@ -779,7 +801,7 @@
                             </div>
                             <div class="row">
                               <div class="col-lg-12">
-                                <button type="submit" class="btn btn-primary" id="submit-contact-identification" form="contact-identification-form">Submit</button>
+                                <button type="submit" class="btn btn-primary" id="submit-contact-document" form="contact-document-form">Submit</button>
                                 <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                               </div>
                             </div>

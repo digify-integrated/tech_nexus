@@ -12,6 +12,8 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/body-type-model.php';
+    require_once 'model/product-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -20,6 +22,8 @@
     $systemModel = new SystemModel();
 
     // Initialize sales proposal model
+    $productModel = new ProductModel($databaseModel);
+    $bodyTypeModel = new BodyTypeModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
 
     // Initialize customer model
@@ -52,6 +56,8 @@
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
+        $termType = $salesProposalDetails['term_type'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -90,12 +96,7 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -117,9 +118,24 @@
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $yearModel = $otherProductDetails['year_model'] ??  '--';
+        $crNo = $otherProductDetails['cr_no'] ??  '--';
+        $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
+        $make = $otherProductDetails['make'] ??  '--';
+
+        $productDetails = $productModel->getProduct($productID);
+        $bodyTypeID = $productDetails['body_type_id'];
+        $engineNumber = $productDetails['engine_number'] ?? null;
+        $chassisNumber = $productDetails['chassis_number'] ?? null;
+        $plateNumber = $productDetails['plate_number'] ?? null;
+
+        $getBodyType = $bodyTypeModel->getBodyType($bodyTypeID);
+        $bodyTypeName = $getBodyType['body_type_name'] ?? null;
+
     }
 
-    $chattelMortgageTable = generateChattelMortgageTable();
+    $chattelMortgageTable = generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName);
 
     ob_start();
 
@@ -152,8 +168,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'I, __________________________________________________________ of legal age, single/married to __________________________________________________________________with postal address at
-    ____________________________________________________________________________________
+    $pdf->MultiCell(0, 0, 'I, <b><u>'. $customerName .'</u></b> of legal age, single/married to __________________________________________________________________with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b>
     hereinafter known as she "MORTGAGOR"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
     $pdf->MultiCell(0, 0, 'and', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
@@ -163,13 +178,13 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>WITHNESSETH</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That the MORTGAGOR is indepted unto the MORTGAGEE in the sum of ___________________________ (PHP__________________), Philippine Currency, receipt of which is acknowledged by the MORTGAGOR upon the signing of this instrument, payable within a period of ______years, with interest thereon at the rate of (_________) % per annum;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That the MORTGAGOR is indepted unto the MORTGAGEE in the sum of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b>, Philippine Currency, receipt of which is acknowledged by the MORTGAGOR upon the signing of this instrument, payable within a period of <b><u>'. $termLength .' '. strtoupper($termType) .'</u></b>, with interest thereon at the rate of (_________) % per annum;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That for, and consideration of, this indebtedness, and to assure the performance of said obligation to pay, the MORTGAGOR hereby conveys by way of CHATTEL MORTGAGE unto the MORTGAGEE, his heirs and assigns, the following personality now in the possession of said MORTGAGOR', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(6);
     $pdf->writeHTML($chattelMortgageTable, true, false, true, false, '');
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That the condition of this obligation is that should the MORTGAGOR perform the obligation to pay the hereinabove cited indebtedness of____________________________________ (PHP______________) together with accrued interest thereon, this chattel mortgage shall at once become null and void and of no effect whatsoever, otherwise, it shall remain in full force and effect.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That the condition of this obligation is that should the MORTGAGOR perform the obligation to pay the hereinabove cited indebtedness of ____________________________________ (PHP______________) together with accrued interest thereon, this chattel mortgage shall at once become null and void and of no effect whatsoever, otherwise, it shall remain in full force and effect.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, the parties have hereunto set their hands, this________, day of_______ 2016______ at ___________________________ Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -200,32 +215,32 @@
     $pdf->Output('chattel-mortgage.pdf', 'I');
     ob_end_flush();
 
-    function generateChattelMortgageTable(){
+    function generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName){
         $response = '<table border="0.5" width="100%" cellpadding="2" >
                         <tbody>
                         <tr>
                             <td>Make</td>
-                            <td></td>
+                            <td>'. $make .'</td>
                             <td>Motor No.</td>
-                            <td></td>
+                            <td>'. $engineNumber .'</td>
                         </tr>
                         <tr>
                             <td>Series</td>
                             <td></td>
                             <td>Serial/Chassis No.</td>
-                            <td></td>
+                            <td>'. $chassisNumber .'</td>
                         </tr>
                         <tr>
                             <td>Type of Body</td>
-                            <td></td>
+                            <td>'. $bodyTypeName .'</td>
                             <td>Plate No.</td>
-                            <td></td>
+                            <td>'. $plateNumber .'</td>
                         </tr>
                         <tr>
                             <td>Year Model</td>
-                            <td></td>
+                            <td>'. $yearModel .'</td>
                             <td>File No.</td>
-                            <td></td>
+                            <td>'. $mvFileNo .'</td>
                         </tr>
                     </tbody>
             </table>';

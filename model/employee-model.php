@@ -735,6 +735,50 @@ class EmployeeModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateContactDocumentFile
+    # Description: Updates the customer status.
+    #
+    # Parameters:
+    # - $p_contact_identification_id (int): The contact ID.
+    # - $p_id_image (string): The contact status.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactDocumentFile($p_contact_document_id, $p_document_file, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactDocumentFile (:p_contact_document_id, :p_document_file, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_document_id', $p_contact_document_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_document_file', $p_document_file, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: updateContactDocument
+    # Description: Updates the customer status.
+    #
+    # Parameters:
+    # - $p_contact_identification_id (int): The contact ID.
+    # - $p_document_file (string): The contact status.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateContactDocument($p_contact_identification_id, $p_document_file, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateContactDocument (:p_contact_identification_id, :p_document_file, :p_last_log_by)');
+        $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_document_file', $p_document_file, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -995,6 +1039,34 @@ class EmployeeModel {
         $p_contact_identification_id = $result->fetch(PDO::FETCH_ASSOC)['p_contact_identification_id'];
 
         return $p_contact_identification_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertContactDocument
+    # Description: Inserts the contact identification.
+    #
+    # Parameters:
+    # - $p_contact_id (int): The contact ID.
+    # - $p_document_type (string): The ID Number.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertContactDocument($p_contact_id, $p_document_name, $p_document_type, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertContactDocument(:p_contact_id, :p_document_name, :p_document_type, :p_last_log_by, @p_contact_document_id)');
+        $stmt->bindValue(':p_contact_id', $p_contact_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_document_name', $p_document_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_document_type', $p_document_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $result = $this->db->getConnection()->query("SELECT @p_contact_document_id AS p_contact_document_id");
+        $p_contact_document_id = $result->fetch(PDO::FETCH_ASSOC)['p_contact_document_id'];
+
+        return $p_contact_document_id;
     }
     # -------------------------------------------------------------
 
@@ -1856,6 +1928,25 @@ class EmployeeModel {
 
     # -------------------------------------------------------------
     #
+    # Function: checkContactDocumentExist
+    # Description: Checks if a attendance exists.
+    #
+    # Parameters:
+    # - $p_attendance_id (int): The attendance ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkContactDocumentExist($p_contact_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkContactDocumentExist(:p_contact_document_id)');
+        $stmt->bindValue(':p_contact_document_id', $p_contact_document_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: checkBiometricsAttendanceRecordExist
     # Description: Checks if the imported biometrics attendance record exists on the temp_attendance_import table for arranging of attendance records.
     #
@@ -1997,6 +2088,24 @@ class EmployeeModel {
     public function deleteContactIdentification($p_contact_identification_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteContactIdentification(:p_contact_identification_id)');
         $stmt->bindValue(':p_contact_identification_id', $p_contact_identification_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteContactDocument
+    # Description: Deletes the contact identification.
+    #
+    # Parameters:
+    # - $p_contact_document_idf (int): The contact identification ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteContactDocument($p_contact_document_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteContactDocument(:p_contact_document_id)');
+        $stmt->bindValue(':p_contact_document_id', $p_contact_document_id, PDO::PARAM_INT);
         $stmt->execute();
     }
     # -------------------------------------------------------------
