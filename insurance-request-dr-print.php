@@ -102,20 +102,12 @@
             $chassisNumber = $productDetails['chassis_number'] ??  '--';
             $plateNumber = $productDetails['plate_number'] ?? '--';
 
-            $productPrice = $totalDeliveryPrice;
-
             if($productCategoryID == '1' || $productCategoryID == '3'){
                 $odRate = 2.4;
             }
             else{
                 $odRate = 1.25;
             }
-
-            $odTheftPremium = $productPrice * ($odRate/100);
-            $vatPremium = $odTheftPremium * (12/100);
-            $docStamps = $odTheftPremium * (12.5/100);
-            $localGovtTax = $odTheftPremium * (0.5/100);
-            $gross = $odTheftPremium + $vatPremium + $docStamps + $localGovtTax;
         }
         else if($productType == 'Refinancing'){
             $stockNumber = $salesProposalDetails['ref_stock_no'] ??  '--';
@@ -124,6 +116,7 @@
             $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
             $fullStockNumber ='';
             $colorName ='--';
+            $odRate = 1.25;
         }
         else{
             $stockNumber = '--';
@@ -132,7 +125,14 @@
             $plateNumber = '--';
             $fullStockNumber = '--';
             $colorName = '--';
+            $odRate = 1.25;
         }
+
+        $odTheftPremium = $totalDeliveryPrice * ($odRate/100);
+            $vatPremium = $odTheftPremium * (12/100);
+            $docStamps = $odTheftPremium * (12.5/100);
+            $localGovtTax = $odTheftPremium * (0.5/100);
+            $gross = $odTheftPremium + $vatPremium + $docStamps + $localGovtTax;
     
         $salesProposalRenewalAmountDetails = $salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
         $insuranceCoverageSecondYear = $salesProposalRenewalAmountDetails['insurance_coverage_second_year'] ?? 0;
@@ -160,14 +160,8 @@
             $fourthYearInsuranceDate = '';
         }
 
-        if(!empty($releaseTo)){
-            $customerName = strtoupper($releaseTo);
-          }
-          else{
-            $customerDetails = $customerModel->getPersonalInformation($customerID);
-            $customerName = strtoupper($customerDetails['file_as']) ?? null;
-          }
-    
+        $customerDetails = $customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $address = $customerPrimaryAddress['address'] ?? null ;
         
@@ -228,6 +222,9 @@
     $pdf->Cell(40, 4, 'UNIT NO. : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, $fullStockNumber, 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
+    $pdf->Cell(40, 4, 'TO DELETE : ', 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(60, 4, $fullStockNumber, 0, 0, 'L', 0, '', 1);
+    $pdf->Ln(6);
     $pdf->Cell(40, 4, 'YR/MODEL : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, $yearModel, 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
@@ -256,7 +253,7 @@
     $pdf->Cell(100, 4, 'CHRISTIAN GENERAL MOTORS, INC.', 0, 0, 'L', 0, '', 1);
     $pdf->SetFont('times', '', 10);
     $pdf->Ln(6);
-    $pdf->writeHTML($insuranceRequestTable1, true, false, true, false, '');
+    #$pdf->writeHTML($insuranceRequestTable1, true, false, true, false, '');
     $pdf->Ln(0);
     $pdf->writeHTML($insuranceRequestTable2, true, false, true, false, '');
 
@@ -367,17 +364,17 @@
                         <tr>
                             <td>2ND YEAR COV</td>
                             <td>'. $insuranceCoverageSecondYear .'</td>
-                            <td>'. $secondYearInsuranceDate .'</td>
+                            <td>'. strtoupper($secondYearInsuranceDate) .'</td>
                         </tr>
                         <tr>
                             <td>3RD YEAR COV</td>
                             <td>'. $insuranceCoverageThirdYear .'</td>
-                            <td>'. $thirdYearInsuranceDate .'</td>
+                            <td>'. strtoupper($thirdYearInsuranceDate) .'</td>
                         </tr>
                         <tr>
                             <td>4TH YEAR COV</td>
                             <td>'. $insuranceCoverageFourthYear .'</td>
-                            <td>'. $fourthYearInsuranceDate .'</td>
+                            <td>'. strtoupper($fourthYearInsuranceDate) .'</td>
                         </tr>
                     </tbody>
             </table>';

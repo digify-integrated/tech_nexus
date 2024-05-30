@@ -242,6 +242,13 @@
             var productType = $(this).val();
             $('#delivery_price').val('');
 
+            if(productType == 'Brand New'){
+                $('#sales-proposal-tab-4').text('Brand New Details');
+            }
+            else if(productType == 'Refinancing'){
+                $('#sales-proposal-tab-4').text('Refinancing Details');
+            }
+
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
 
@@ -250,12 +257,12 @@
                     resetModalForm('sales-proposal-unit-details-form');
                     displayDetails('get sales proposal unit details');
                 }
-                else if (productType === 'Fuel') {
+               else if (productType === 'Fuel') {
                     $('#sales-proposal-tab-3').removeClass('d-none');
-                    resetModalForm('sales-proposal-fuel-details-form');
+                   // resetModalForm('sales-proposal-fuel-details-form');
                     displayDetails('get sales proposal fuel details');
                 }
-                else if (productType === 'Refinancing' || productType === 'Financing Brand New') {
+                else if (productType === 'Refinancing' || productType === 'Brand New') {
                     $('#sales-proposal-tab-4').removeClass('d-none');
                     resetModalForm('sales-proposal-refinancing-details-form');
                     displayDetails('get sales proposal refinancing details');
@@ -5026,7 +5033,8 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    
+                 displayDetails('get sales proposal fuel details');
+                 
                 }
             });
             break;
@@ -5084,9 +5092,7 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
-                    
+                complete: function(){                    
                     calculateRenewalAmount();
                 }
             });
@@ -5132,7 +5138,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
+                    //displayDetails('get sales proposal pricing computation details');
                     calculateFuelTotal();
                 }
             });
@@ -5388,10 +5394,11 @@ function displayDetails(transaction){
                             $('#compute_second_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
-                                $('#insurance_premium_second_year').attr('readonly', false); 
+                                $('#insurance_coverage_second_year').attr('readonly', false);
+                                $('#insurance_premium_second_year').attr('readonly', false);
                             }
                             else{
-                                $('#insurance_premium_second_year').attr('readonly', true); 
+                                $('#insurance_premium_second_year').attr('readonly', true);
                             }
                         }
                         else{
@@ -5402,6 +5409,7 @@ function displayDetails(transaction){
                             $('#compute_third_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
+                                $('#insurance_coverage_third_year').attr('readonly', false); 
                                 $('#insurance_premium_third_year').attr('readonly', false); 
                             }
                             else{
@@ -5416,6 +5424,7 @@ function displayDetails(transaction){
                             $('#compute_fourth_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
+                                $('#insurance_premium_second_year').attr('readonly', false); 
                                 $('#insurance_premium_fourth_year').attr('readonly', false); 
                             }
                             else{
@@ -5926,7 +5935,8 @@ function calculateRenewalAmount(){
             }
             else{
                 $('#insurance_premium_second_year').val(0);
-                $('#insurance_premium_second_year').attr('readonly', false); 
+                $('#insurance_premium_second_year').attr('readonly', false);
+                $('#insurance_coverage_second_year').attr('readonly', false);
             }
         }
         else{
@@ -5955,6 +5965,7 @@ function calculateRenewalAmount(){
             else{
                 $('#insurance_premium_third_year').val(0);
                 $('#insurance_premium_third_year').attr('readonly', false); 
+                $('#insurance_coverage_third_year').attr('readonly', false); 
             }
         }
         else{
@@ -5982,6 +5993,7 @@ function calculateRenewalAmount(){
             else{
                 $('#insurance_premium_fourth_year').val(0);
                 $('#insurance_premium_fourth_year').attr('readonly', false); 
+                $('#insurance_coverage_fourth_year').attr('readonly', false); 
             }
         }
         else{
@@ -6017,6 +6029,7 @@ function traverseTabs(direction) {
     var totalTabs = $('.nav-link').length;
     var sales_proposal_status = $('#sales_proposal_status').val();
     var sales_proposal_type = $('#sales_proposal_type').val();
+    var product_type = $('#product_type').val();
 
     var visibleTabs = $('.nav-link:not(.d-none)').length;
 
@@ -6068,6 +6081,13 @@ function traverseTabs(direction) {
             }
         }
         else if (currentIndex == 3 && direction === 'next') {
+            if(product_type == 'Brand New'){
+                $('#sales-proposal-tab-4').text('Brand New Details');
+            }
+            else{
+                $('#sales-proposal-tab-4').text('Refinancing Details');
+            }
+
             if ($('#sales-proposal-refinancing-details-form').valid()) {
                 $('#sales-proposal-refinancing-details-form').submit();
             } else {

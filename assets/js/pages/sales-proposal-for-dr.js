@@ -5388,10 +5388,11 @@ function displayDetails(transaction){
                             $('#compute_second_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
-                                $('#insurance_premium_second_year').attr('readonly', false); 
+                                $('#insurance_coverage_second_year').attr('readonly', false);
+                                $('#insurance_premium_second_year').attr('readonly', false);
                             }
                             else{
-                                $('#insurance_premium_second_year').attr('readonly', true); 
+                                $('#insurance_premium_second_year').attr('readonly', true);
                             }
                         }
                         else{
@@ -5402,6 +5403,7 @@ function displayDetails(transaction){
                             $('#compute_third_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
+                                $('#insurance_coverage_third_year').attr('readonly', false); 
                                 $('#insurance_premium_third_year').attr('readonly', false); 
                             }
                             else{
@@ -5416,6 +5418,7 @@ function displayDetails(transaction){
                             $('#compute_fourth_year').prop('checked', true);
 
                             if(product_category != '1' && product_category != '2'){
+                                $('#insurance_premium_second_year').attr('readonly', false); 
                                 $('#insurance_premium_fourth_year').attr('readonly', false); 
                             }
                             else{
@@ -5701,6 +5704,7 @@ function displayDetails(transaction){
                         $('#make').val(response.make);
                         $('#insurance_make').text(response.make);
                         $('#product_description').val(response.productDescription);
+                        $('#business_style').val(response.businessStyle);
                         $('#other-details-gatepass1').text(response.productDescription);
                         $('#other-details-gatepass2').text(response.productDescription);
                     } 
@@ -5926,7 +5930,8 @@ function calculateRenewalAmount(){
             }
             else{
                 $('#insurance_premium_second_year').val(0);
-                $('#insurance_premium_second_year').attr('readonly', false); 
+                $('#insurance_premium_second_year').attr('readonly', false);
+                $('#insurance_coverage_second_year').attr('readonly', false);
             }
         }
         else{
@@ -5955,6 +5960,7 @@ function calculateRenewalAmount(){
             else{
                 $('#insurance_premium_third_year').val(0);
                 $('#insurance_premium_third_year').attr('readonly', false); 
+                $('#insurance_coverage_third_year').attr('readonly', false); 
             }
         }
         else{
@@ -5982,6 +5988,7 @@ function calculateRenewalAmount(){
             else{
                 $('#insurance_premium_fourth_year').val(0);
                 $('#insurance_premium_fourth_year').attr('readonly', false); 
+                $('#insurance_coverage_fourth_year').attr('readonly', false); 
             }
         }
         else{

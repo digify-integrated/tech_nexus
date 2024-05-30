@@ -612,14 +612,15 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_last_log_by)');
+    public function updateSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_mv_file_no', $p_mv_file_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_make', $p_make, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_business_style', $p_business_style, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1030,14 +1031,15 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_last_log_by)');
+    public function insertSalesProposalOtherProductDetails($p_sales_proposal_id, $p_year_model, $p_cr_no, $p_mv_file_no, $p_make, $p_product_description, $p_business_style, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherProductDetails(:p_sales_proposal_id, :p_year_model, :p_cr_no, :p_mv_file_no, :p_make, :p_product_description, :p_business_style, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_year_model', $p_year_model, PDO::PARAM_STR);
         $stmt->bindValue(':p_cr_no', $p_cr_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_mv_file_no', $p_mv_file_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_make', $p_make, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_description', $p_product_description, PDO::PARAM_STR);
+        $stmt->bindValue(':p_business_style', $p_business_style, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

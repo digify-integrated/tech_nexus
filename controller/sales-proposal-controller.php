@@ -475,7 +475,14 @@ class SalesProposalController {
         if ($total > 0) {            
             $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
             $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
-            $stockNumber = 'REF'. $salesProposalNumber;
+            $productType = $salesProposalDetails['product_type'];
+            
+            if($productType == 'Brand New'){
+                $stockNumber = 'BN'. $salesProposalNumber;
+            }
+            else{
+                $stockNumber = 'REF'. $salesProposalNumber;
+            }
 
             $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
             $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
@@ -2195,6 +2202,7 @@ class SalesProposalController {
         $releaseTo = htmlspecialchars($_POST['release_to'], ENT_QUOTES, 'UTF-8');
         $productDescription = $_POST['product_description'];
         $drNumber = htmlspecialchars($_POST['dr_number'], ENT_QUOTES, 'UTF-8');
+        $businessStyle = $_POST['business_style'];
         $startDate = $this->systemModel->checkDate('empty', $_POST['actual_start_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -2210,13 +2218,13 @@ class SalesProposalController {
         $this->salesProposalModel->updateSalesProposalActualStartDate($salesProposalID, $drNumber, $releaseTo, $startDate, $userID);
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherProductDetails($salesProposalID, $yearModel, $crNo, $mvFileNo, $make, $productDescription, $businessStyle, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -3360,6 +3368,7 @@ class SalesProposalController {
                 'mvFileNo' => $salesProposalOtherChargesDetails['mv_file_no'] ?? null,
                 'make' => $salesProposalOtherChargesDetails['make'] ?? null,
                 'productDescription' => $salesProposalOtherChargesDetails['product_description'] ?? null,
+                'businessStyle' => $salesProposalOtherChargesDetails['business_style'] ?? null,
             ];
 
             echo json_encode($response);

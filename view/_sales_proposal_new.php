@@ -67,7 +67,7 @@
                 <option value="Parts">Parts</option>
                 <option value="Repair">Repair</option>
                 <option value="Rental">Rental</option>
-                <option value="Financing Brand New">Financing Brand New</option>
+                <option value="Brand New">Brand New</option>
                 <option value="Refinancing">Refinancing</option>
                 <option value="Real Estate">Real Estate</option>
               </select>

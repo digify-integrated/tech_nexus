@@ -337,13 +337,13 @@ class EmployeeController {
         $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->updatePersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, '', $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->employeeModel->insertPersonalInformation($employeeID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, '', $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, '', $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;

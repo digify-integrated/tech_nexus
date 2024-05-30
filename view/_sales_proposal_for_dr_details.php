@@ -150,7 +150,7 @@
                                 <option value="Parts">Parts</option>
                                 <option value="Repair">Repair</option>
                                 <option value="Rental">Rental</option>
-                                <option value="Financing Brand New">Financing Brand New</option>
+                                <option value="Brand New">Brand New</option>
                                 <option value="Refinancing">Refinancing</option>
                                 <option value="Real Estate">Real Estate</option>
                             </select>
@@ -1234,6 +1234,12 @@
                                 <label class="col-lg-5 col-form-label">Product Description : <span class="text-danger">*</span></label>
                                 <div class="col-lg-7">
                                     <textarea class="form-control text-uppercase" id="product_description" name="product_description" maxlength="500"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-5 col-form-label">Business Style :</label>
+                                <div class="col-lg-7">
+                                    <textarea class="form-control text-uppercase" id="business_style" name="business_style" maxlength="500"></textarea>
                                 </div>
                             </div>
                         </form>

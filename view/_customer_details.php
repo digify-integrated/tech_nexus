@@ -277,18 +277,25 @@ if($addCustomerComaker['total'] > 0){
                         </div>
                       </div>
                       <div class="form-group row">
-                      <div class="col-lg-6 mt-3 mt-lg-0">
-                        <label class="form-label">Height</label>
-                        <div class="input-group">
-                          <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
-                          <span class="input-group-text">cm</span>
+                        <div class="col-lg-6 mt-3 mt-lg-0">
+                          <label class="form-label">Height</label>
+                          <div class="input-group">
+                            <input type="number" min="0" step="0.01" class="form-control" id="height" name="height">
+                            <span class="input-group-text">cm</span>
+                          </div>
+                        </div>
+                        <div class="col-lg-6 mt-3 mt-lg-0">
+                          <label class="form-label">Weight</label>
+                          <div class="input-group">
+                            <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
+                            <span class="input-group-text">kg</span>
+                          </div>
                         </div>
                       </div>
-                      <div class="col-lg-6 mt-3 mt-lg-0">
-                        <label class="form-label">Weight</label>
-                        <div class="input-group">
-                          <input type="number" min="0" step="0.01" class="form-control" id="weight" name="weight">
-                          <span class="input-group-text">kg</span>
+                      <div class="form-group row">
+                        <div class="col-lg-6">
+                          <label class="form-label">TIN</label>
+                          <input type="text" class="form-control" id="tin" name="tin" maxlength="50" autocomplete="off">
                         </div>
                       </div>
                     </div>

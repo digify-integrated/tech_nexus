@@ -28654,7 +28654,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     margin: 0 !important;
     padding: 0 !important;
     left: 0 !important;
-    margin-top: -80% !important;
+    margin-top: -85% !important;
   }
 
   .print-area-online, .print-area-autorization, .print-area-promissory-note, .print-area-disclosure, .print-area-gatepass {
@@ -28672,7 +28672,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     margin: 0 !important;
     padding: 0 !important;
     left: 0 !important;
-    margin-top: -110% !important;
+    margin-top: -90% !important;
   }
 
   .print-area-gatepass {

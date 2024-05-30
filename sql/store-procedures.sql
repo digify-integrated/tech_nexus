@@ -4162,10 +4162,10 @@ BEGIN
     WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_tin VARCHAR(50), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, nickname, corporate_name, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, last_log_by) 
-	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_corporate_name, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_last_log_by);
+    INSERT INTO personal_information (contact_id, file_as, first_name, middle_name, last_name, suffix, nickname, corporate_name, bio, civil_status_id, gender_id, religion_id, blood_type_id, birthday, birth_place, height, weight, tin, last_log_by) 
+	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_nickname, p_corporate_name, p_bio, p_civil_status_id, p_gender_id, p_religion_id, p_blood_type_id, p_birthday, p_birth_place, p_height, p_weight, p_tin, p_last_log_by);
 END //
 
 CREATE PROCEDURE insertPartialPersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_last_log_by INT)
@@ -4174,7 +4174,7 @@ BEGIN
 	VALUES(p_contact_id, p_file_as, p_first_name, p_middle_name, p_last_name, p_suffix, p_last_log_by);
 END //
 
-CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_last_log_by INT)
+CREATE PROCEDURE updatePersonalInformation(IN p_contact_id INT, IN p_file_as VARCHAR(1000), IN p_first_name VARCHAR(300), IN p_middle_name VARCHAR(300), IN p_last_name VARCHAR(300), IN p_suffix VARCHAR(10), IN p_nickname VARCHAR(100), IN p_corporate_name VARCHAR(300), IN p_bio VARCHAR(1000), IN p_civil_status_id INT, IN p_gender_id INT, IN p_religion_id INT, IN p_blood_type_id INT, IN p_birthday DATE, IN p_birth_place VARCHAR(1000), IN p_height FLOAT, IN p_weight FLOAT, IN p_tin VARCHAR(50), IN p_last_log_by INT)
 BEGIN
 	UPDATE personal_information
     SET file_as = p_file_as,
@@ -4193,6 +4193,7 @@ BEGIN
     birth_place = p_birth_place,
     height = p_height,
     weight = p_weight,
+    tin = p_tin,
     last_log_by = p_last_log_by
     WHERE contact_id = p_contact_id;
 END //
@@ -8060,13 +8061,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, last_log_by) 
-	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_last_log_by);
+    INSERT INTO sales_proposal_other_product_details (sales_proposal_id, year_model, cr_no, mv_file_no, make, product_description, business_style, last_log_by) 
+	VALUES(p_sales_proposal_id, p_year_model, p_cr_no, p_mv_file_no, p_make, p_product_description, p_business_style, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalOtherProductDetails(IN p_sales_proposal_id INT, IN p_year_model VARCHAR(50), IN p_cr_no VARCHAR(100), IN p_mv_file_no VARCHAR(100), IN p_make VARCHAR(100), IN p_product_description VARCHAR(500), IN p_business_style VARCHAR(500), IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_other_product_details
     SET year_model = p_year_model,
@@ -8074,6 +8075,7 @@ BEGIN
     mv_file_no = p_mv_file_no,
     make = p_make,
     product_description = p_product_description,
+    business_style = p_business_style,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //

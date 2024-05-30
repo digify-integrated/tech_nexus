@@ -90,12 +90,7 @@
         $amountInWords = new NumberFormatter("en", NumberFormatter::SPELLOUT);
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
-        if(!empty($releaseTo)){
-            $customerName = strtoupper($releaseTo);
-          }
-          else{
-            $customerName = strtoupper($customerDetails['file_as']) ?? null;
-          }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;

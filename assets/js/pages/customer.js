@@ -2070,6 +2070,7 @@ function displayDetails(transaction){
                         $('#height').val(response.height);
                         $('#weight').val(response.weight);
                         $('#bio').val(response.bio);
+                        $('#tin').val(response.tin);
 
                         $('#customer_bio').text(response.bio);
                         $('#customer_name').text(response.fileAs);

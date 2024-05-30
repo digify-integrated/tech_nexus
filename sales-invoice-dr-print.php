@@ -12,6 +12,8 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/product-model.php';
+    require_once 'model/product-subcategory-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -24,6 +26,8 @@
 
     // Initialize customer model
     $customerModel = new CustomerModel($databaseModel);
+    $productModel = new ProductModel($databaseModel);
+    $productSubcategoryModel = new ProductSubcategoryModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -52,6 +56,8 @@
         $startDate = $salesProposalDetails['actual_start_date'] ?? null;
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
+        $termLength = $salesProposalDetails['term_length'] ?? null;
+        $termType = $salesProposalDetails['term_type'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -90,12 +96,8 @@
     
         $customerDetails = $customerModel->getPersonalInformation($customerID);
 
-        if(!empty($releaseTo)){
-          $customerName = strtoupper($releaseTo) ?? null;
-        }
-        else{
-          $customerName = strtoupper($customerDetails['file_as']) ?? null;
-        }
+        $customerName = strtoupper($customerDetails['file_as']) ?? null;
+        $tin = strtoupper($customerDetails['tin'] ?? '');
     
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
@@ -117,9 +119,36 @@
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
+        $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
+        $productDescription = $otherProductDetails['product_description'] ?? null;
+        $businessStyle = $otherProductDetails['business_style'] ?? null;
+
+        if($productType == 'Unit'){
+            $productDetails = $productModel->getProduct($productID);
+            $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
+
+            $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
+            $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+            $productCategoryID = $productSubcategoryDetails['product_category_id'] ?? null;
+
+            $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
+            $fullStockNumber = $productSubcategoryCode . $stockNumber;
+
+            $stockNumber = $stockNumber;
+            $engineNumber = $productDetails['engine_number'] ??  '--';
+            $chassisNumber = $productDetails['chassis_number'] ??  '--';
+            $plateNumber = $productDetails['plate_number'] ?? '--';
+        }
+        else if($productType == 'Refinancing'){
+            $stockNumber = $salesProposalDetails['ref_stock_no'] ??  '--';
+            $engineNumber = $salesProposalDetails['ref_engine_no'] ??  '--';
+            $chassisNumber = $salesProposalDetails['ref_chassis_no'] ??  '--';
+            $plateNumber = $salesProposalDetails['ref_plate_no'] ??  '--';
+            $fullStockNumber ='';
+        }
     }
 
-    $chattelMortgageTable = generateChattelMortgageTable();
+    $chattelMortgageTable = generateChattelMortgageTable($fullStockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $pnAmount);
 
     ob_start();
 
@@ -158,22 +187,24 @@
     $pdf->Cell(155, 8, 'VAT Reg. TIN: 475-157-216-001'  , 0, 0, 'L');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Ln(10);
-    $pdf->Cell(20, 8, 'SOLD TO:'  , 0, 0, 'L');
-    $pdf->Cell(110, 8, '________________________________________________________'  , 0, 0, 'L');
-    $pdf->Cell(20, 8, 'Date:'  , 0, 0, 'L');
-    $pdf->Cell(20, 8, '___________________'  , 0, 0, 'L');
+    $pdf->Cell(20, 8, 'SOLD TO:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(105, 8, $customerName  , 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(20, 8, 'Date:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(36, 8, strtoupper(date('d-M-Y')), 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Ln(8);
-    $pdf->Cell(20, 8, 'TIN:'  , 0, 0, 'L');
-    $pdf->Cell(110, 8, '________________________________________________________'  , 0, 0, 'L');
-    $pdf->Cell(20, 8, 'Terms:'  , 0, 0, 'L');
-    $pdf->Cell(20, 8, '___________________'  , 0, 0, 'L');
+    $pdf->Cell(20, 8, 'TIN:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(105, 8, $tin, 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(5, 8, '', 0, 0, 'L');
+    $pdf->Cell(20, 8, 'Terms:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(36, 8, $termLength .' '. strtoupper($termType), 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Ln(8);
-    $pdf->Cell(30, 8, 'ADDRESS:'  , 0, 0, 'L');
-    $pdf->Cell(100, 8, '____________________________________________________________________________________'  , 0, 0, 'L');
+    $pdf->Cell(30, 8, 'ADDRESS:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(156, 8, strtoupper($customerAddress), 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
     $pdf->Ln(8);
-    $pdf->Cell(30, 8, 'Business Style:'  , 0, 0, 'L');
-    $pdf->Cell(100, 8, '____________________________________________________________________________________'  , 0, 0, 'L');
-    $pdf->Ln(12);
+    $pdf->Cell(30, 8, 'Business Style:'  , 0, 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Cell(156, 8, $businessStyle, 'B', 0, 'L', 0, '', 0, false, 'T', 'B');
+    $pdf->Ln(15);
     $pdf->SetFont('times', '', 9);
     $pdf->writeHTML($chattelMortgageTable, true, false, true, false, '');
     $pdf->Ln(0);
@@ -198,7 +229,11 @@
     $pdf->Output('sales-invoice.pdf', 'I');
     ob_end_flush();
 
-    function generateChattelMortgageTable(){
+    function generateChattelMortgageTable($fullStockNumber, $productDescription, $engineNumber, $chassisNumber, $plateNumber, $pnAmount){
+        
+        $vat = ($pnAmount / 1.12) * .12;
+        $total = $pnAmount - $vat;
+        
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
                         <tbody>
                         <tr>
@@ -212,36 +247,36 @@
                             <td width="11%">Total Price</td>
                         </tr>
                         <tr>
-                            <td><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>'. $fullStockNumber .'<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></td>
+                            <td>'. $productDescription .'</td>
+                            <td>'. $engineNumber .'</td>
+                            <td>'. $chassisNumber .'</td>
+                            <td>'. $plateNumber .'</td>
+                            <td>1</td>
+                            <td>'. number_format($pnAmount, 2) .'</td>
+                            <td>'. number_format($pnAmount, 2) .'</td>
                         </tr>
                         <tr align="left">
                             <td colspan="2">VATable Sales</td>
-                            <td colspan="2"></td>
+                            <td colspan="2">'. number_format($total, 2) .'</td>
                             <td colspan="3">Total Sales (VAT Inclusive)</td>
-                            <td></td>
+                            <td>'. number_format($pnAmount, 2) .'</td>
                         </tr>
                         <tr align="left">
-                            <td colspan="2">VAT-Exempty Sales</td>
-                            <td colspan="2"></td>
+                            <td colspan="2">VAT-Exempt Sales</td>
+                            <td colspan="2">0.00</td>
                             <td colspan="3">Less: VAT</td>
-                            <td></td>
+                            <td>'. number_format($vat, 2) .'</td>
                         </tr>
                         <tr align="left">
                             <td colspan="2">Zero Rated Sales</td>
-                            <td colspan="2"></td>
+                            <td colspan="2">0.00</td>
                             <td colspan="3">Amount: Net of VAT</td>
-                            <td></td>
+                            <td>'. number_format($total, 2) .'</td>
                         </tr>
                         <tr align="left">
                             <td colspan="2">VAT AMOUNT</td>
-                            <td colspan="2"></td>
+                            <td colspan="2">'. number_format($vat, 2) .'</td>
                             <td colspan="3">Document Reference No</td>
                             <td></td>
                         </tr>

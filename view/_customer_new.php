@@ -112,6 +112,12 @@
             </div>
           </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">TIN</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="tin" name="tin" maxlength="50" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Bio</label>
             <div class="col-lg-10">
               <textarea class="form-control" id="bio" name="bio" maxlength="1000" rows="5"></textarea>

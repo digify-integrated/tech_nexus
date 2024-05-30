@@ -283,6 +283,7 @@ class CustomerController {
         $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
         $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
         $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
+        $tin = $_POST['tin'];
 
         $fileAs = $this->systemSettingModel->getSystemSetting(4)['value'];
         $fileAs = str_replace('{first_name}', $firstName, $fileAs);
@@ -301,13 +302,13 @@ class CustomerController {
         $total = $checkPersonalInformationExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->customerModel->updatePersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->customerModel->updatePersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $tin, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
         } 
         else {
-            $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+            $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $tin, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -1303,6 +1304,7 @@ class CustomerController {
         $birthPlace = htmlspecialchars($_POST['birth_place'], ENT_QUOTES, 'UTF-8');
         $height = htmlspecialchars($_POST['height'], ENT_QUOTES, 'UTF-8');
         $weight = htmlspecialchars($_POST['weight'], ENT_QUOTES, 'UTF-8');
+        $tin = $_POST['tin'];
 
         $fileAs = $this->systemSettingModel->getSystemSetting(4)['value'];
         $fileAs = str_replace('{first_name}', $firstName, $fileAs);
@@ -1328,7 +1330,7 @@ class CustomerController {
         } 
     
         $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
-        $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $userID);
+        $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $tin, $userID);
 
         $this->systemSettingModel->updateSystemSettingValue(5, $customerUniqueID, $userID);
 
@@ -2135,7 +2137,8 @@ class CustomerController {
                 'birthday' =>  $this->systemModel->checkDate('empty', $customerDetails['birthday'], '', 'm/d/Y', ''),
                 'birthPlace' => $customerDetails['birth_place'],
                 'height' => $customerDetails['height'] ?? 0,
-                'weight' => $customerDetails['weight'] ?? 0
+                'weight' => $customerDetails['weight'] ?? 0,
+                'tin' => $customerDetails['tin']
             ];
 
             echo json_encode($response);
