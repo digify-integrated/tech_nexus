@@ -305,10 +305,18 @@
                 </div>
               </div>
             </div>
+            <div class="row g-3 mt-1">
+              <div class="col-sm-12">
+                <button class="btn btn-warning me-2" type="button" id="generate-rental-billing">Rental Billing</button>
+                <button class="btn btn-info me-2" type="button" id="generate-utilities-billing">Utilities Billing</button>
+              </div>
+            </div>
             <div class="table-responsive mt-2">
                 <table id="leasing-application-repayment-table" class="table table-hover nowrap w-100 text-uppercase">
                 <thead>
                   <tr>
+                    <th class="all">
+                    </th>
                     <th>Reference</th>
                     <th>Due Date</th>
                     <th>Status</th>

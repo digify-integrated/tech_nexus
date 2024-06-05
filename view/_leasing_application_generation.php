@@ -206,6 +206,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $repaymentStatus = $leasingApplicationModel->getLoanApplicationRepaymentStatus($row['repayment_status']);
 
                     $response[] = [
+                        'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children billing-ids" type="checkbox" value="'. $leasingApplicationRepaymentID .'">',
                         'REFERENCE' =>  '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'&repayment_id='. $leasingApplicationRepaymentIDEncrypted .'">
                             '. $reference .'
                         </a>',

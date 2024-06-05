@@ -35,7 +35,7 @@
                         </div>
                         <div class="d-flex">
                             <?php
-                                if($salesProposalStatus == 'For DR'){
+                                if($salesProposalStatus == 'For DR' || $salesProposalStatus == 'Released'){
                                     echo '<div class="previous me-2 d-none" id="add-sales-proposal-pdc-manual-input-button">
                                             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-pdc-manual-input-offcanvas" aria-controls="sales-proposal-pdc-manual-input-offcanvas" id="add-sales-proposal-pdc-manual-input">Add PDC</button>
                                         </div>';

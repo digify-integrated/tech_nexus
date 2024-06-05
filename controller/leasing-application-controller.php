@@ -220,7 +220,7 @@ class LeasingApplicationController {
         $leasingApplicationRepaymentID = htmlspecialchars($_POST['leasing_application_repayment_id'], ENT_QUOTES, 'UTF-8');
         $otherChargesReferenceNumber = htmlspecialchars($_POST['other_charges_reference_number'], ENT_QUOTES, 'UTF-8');
         $otherChargesType = htmlspecialchars($_POST['other_charges_type'], ENT_QUOTES, 'UTF-8');
-        $otherChargesDueAmount = htmlspecialchars($_POST['other_charges_due_amount'], ENT_QUOTES, 'UTF-8');
+        $otherChargesDueAmount = number_format($_POST['other_charges_due_amount'], 2, '.', '');
         $otherChargesDueDate = $this->systemModel->checkDate('empty', $_POST['other_charges_due_date'], '', 'Y-m-d', '');
         $coverageStartDate = $this->systemModel->checkDate('empty', $_POST['coverage_start_date'], '', 'Y-m-d', '');
         $coverageEndDate = $this->systemModel->checkDate('empty', $_POST['coverage_end_date'], '', 'Y-m-d', '');
@@ -260,7 +260,7 @@ class LeasingApplicationController {
         $leasingApplicationRepaymentID = htmlspecialchars($_POST['leasing_application_repayment_id'], ENT_QUOTES, 'UTF-8');
         $rentPaymentMode = htmlspecialchars($_POST['rental_payment_mode'], ENT_QUOTES, 'UTF-8');
         $rentReferenceNumber = htmlspecialchars($_POST['rental_reference_number'], ENT_QUOTES, 'UTF-8');
-        $rentPaymentAmount = htmlspecialchars($_POST['rental_payment_amount'], ENT_QUOTES, 'UTF-8');
+        $rentPaymentAmount = number_format($_POST['rental_payment_amount'], 2, '.', '');
         $rentPaymentDate = $this->systemModel->checkDate('empty', $_POST['rental_payment_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -311,7 +311,7 @@ class LeasingApplicationController {
         $paymentID = htmlspecialchars($_POST['payment_id'], ENT_QUOTES, 'UTF-8');
         $otherChargesPaymentMode = htmlspecialchars($_POST['other_charges_payment_mode'], ENT_QUOTES, 'UTF-8');
         $otherChargesReferenceNumber = htmlspecialchars($_POST['other_charges_payment_reference_number'], ENT_QUOTES, 'UTF-8');
-        $otherChargesPaymentAmount = htmlspecialchars($_POST['other_charges_payment_amount'], ENT_QUOTES, 'UTF-8');
+        $otherChargesPaymentAmount = number_format($_POST['other_charges_payment_amount'], 2, '.', '');
         $otherChargesPaymentDate = $this->systemModel->checkDate('empty', $_POST['other_charges_payment_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);

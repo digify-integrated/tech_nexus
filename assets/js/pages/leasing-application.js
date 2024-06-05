@@ -119,6 +119,48 @@
             leasingApplicationRepaymentTable();
         });
 
+        var checkedBoxes = [];
+
+        $(document).on('change','.billing-ids',function() {
+            var value = $(this).val();
+            if ($(this).is(':checked')) {
+                checkedBoxes.push(value);
+            } else {
+                var index = checkedBoxes.indexOf(value);
+                if (index!== -1) {
+                    checkedBoxes.splice(index, 1);
+                }
+            }
+        });
+
+        $(document).on('click','#generate-rental-billing',function() {
+            if(checkedBoxes != ''){
+                const leasing_application_id = $('#leasing-application-id').text();
+
+                window.open('leasing-rental-billing.php?id=' + checkedBoxes + '&leasing=' + leasing_application_id, '_blank');
+            }
+            else{
+                showNotification('Generate Rental Billing Error', 'No selected repayment schedule.', 'danger');
+            }
+        });
+
+        $(document).on('click','#generate-utilities-billing',function() {
+            if(checkedBoxes != ''){
+                const leasing_application_id = $('#leasing-application-id').text();
+
+                window.open('leasing-utilities-billing.php?id=' + checkedBoxes + '&leasing=' + leasing_application_id, '_blank');
+            }
+            else{
+                showNotification('Generate Utilities Billing Error', 'No selected repayment schedule.', 'danger');
+            }
+        });
+
+        $('#leasing-application-repayment-table').on('draw.dt', function() {
+            $.each(checkedBoxes, function(index, value) {
+                $('input.billing-ids[value="' + value + '"]').prop('checked', true);
+            });
+        });
+
         $(document).on('click','#tag-for-approval',function() {
             const leasing_application_id = $('#leasing-application-id').text();
             const transaction = 'tag for approval';
@@ -584,6 +626,7 @@ function leasingRepaymentTable(datatable_name, buttons = false, show_all = false
     var settings;
 
     const column = [ 
+        { 'data' : 'CHECK_BOX' },
         { 'data' : 'REFERENCE' },
         { 'data' : 'DUE_DATE' },
         { 'data' : 'STATUS' },
@@ -600,7 +643,7 @@ function leasingRepaymentTable(datatable_name, buttons = false, show_all = false
     ];
 
     const column_definition = [
-        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
@@ -612,7 +655,8 @@ function leasingRepaymentTable(datatable_name, buttons = false, show_all = false
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
         { 'width': 'auto', 'aTargets': 11 },
-        { 'width': '10%','bSortable': false, 'aTargets': 12 }
+        { 'width': 'auto', 'aTargets': 12 },
+        { 'width': '10%','bSortable': false, 'aTargets': 13 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -635,7 +679,7 @@ function leasingRepaymentTable(datatable_name, buttons = false, show_all = false
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 0, 'asc' ]],
+        'order': [[ 1, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,

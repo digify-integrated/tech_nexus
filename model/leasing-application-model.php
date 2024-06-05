@@ -566,6 +566,26 @@ class LeasingApplicationModel {
 
     # -------------------------------------------------------------
     #
+    # Function: getAllLeasingOtherCharges
+    # Description: Retrieves the details of a leasing application.
+    #
+    # Parameters:
+    # - $p_leasing_application_id (int): The leasing application ID.
+    #
+    # Returns:
+    # - An array containing the leasing application details.
+    #
+    # -------------------------------------------------------------
+    public function getAllLeasingOtherCharges($p_leasing_application_repayment_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL getAllLeasingOtherCharges(:p_leasing_application_repayment_id)');
+        $stmt->bindValue(':p_leasing_application_repayment_id', $p_leasing_application_repayment_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: getLeasingAplicationRepaymentTotal
     # Description: Retrieves the details of a leasing application.
     #

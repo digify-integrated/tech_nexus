@@ -8644,6 +8644,12 @@ BEGIN
     WHERE leasing_other_charges_id = p_leasing_other_charges_id;
 END //
 
+CREATE PROCEDURE getAllLeasingOtherCharges(IN p_leasing_application_repayment_id INT)
+BEGIN
+	SELECT * FROM leasing_other_charges
+    WHERE leasing_application_repayment_id = p_leasing_application_repayment_id;
+END //
+
 CREATE PROCEDURE getLeasingApplicationRepayment(IN p_leasing_application_repayment_id INT)
 BEGIN
 	SELECT * FROM leasing_application_repayment
