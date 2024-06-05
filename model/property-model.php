@@ -30,10 +30,11 @@ class PropertyModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateProperty($p_property_id, $p_property_name, $p_address, $p_city_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProperty(:p_property_id, :p_property_name, :p_address, :p_city_id, :p_last_log_by)');
+    public function updateProperty($p_property_id, $p_property_name, $p_company_id, $p_address, $p_city_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProperty(:p_property_id, :p_property_name, :p_company_id, :p_address, :p_city_id, :p_last_log_by)');
         $stmt->bindValue(':p_property_id', $p_property_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_property_name', $p_property_name, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -80,10 +81,10 @@ class PropertyModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertProperty($p_property_name, $p_address, $p_city_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProperty(:p_property_name, :p_address, :p_city_id, :p_last_log_by, @p_property_id)');
+    public function insertProperty($p_property_name, $p_company_id, $p_address, $p_city_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProperty(:p_property_name, :p_company_id, :p_address, :p_city_id, :p_last_log_by, @p_property_id)');
         $stmt->bindValue(':p_property_name', $p_property_name, PDO::PARAM_STR);
-        $stmt->bindValue(':p_address', $p_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_city_id', $p_city_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();

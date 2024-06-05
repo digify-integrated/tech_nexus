@@ -7594,7 +7594,7 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel', 'Parts', 'Financing Brand New');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel', 'Parts', 'Brand New');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -7614,7 +7614,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Refinancing', 'Fuel', 'Parts', 'Financing Brand New') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Refinancing', 'Fuel', 'Parts', 'Brand New') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()
@@ -8153,19 +8153,20 @@ BEGIN
     WHERE property_id = p_property_id;
 END //
 
-CREATE PROCEDURE insertProperty(IN p_property_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT, OUT p_property_id INT)
+CREATE PROCEDURE insertProperty(IN p_property_name VARCHAR(100), IN p_company_id INT, IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT, OUT p_property_id INT)
 BEGIN
-    INSERT INTO property (property_name, address, city_id, last_log_by) 
-	VALUES(p_property_name, p_address, p_city_id, p_last_log_by);
+    INSERT INTO property (property_name, company_id, address, city_id, last_log_by) 
+	VALUES(p_property_name, p_company_id, p_address, p_city_id, p_last_log_by);
 	
     SET p_property_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateProperty(IN p_property_id INT, IN p_property_name VARCHAR(100), IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateProperty(IN p_property_id INT, IN p_property_name VARCHAR(100), IN p_company_id INT, IN p_address VARCHAR(1000), IN p_city_id INT, IN p_last_log_by INT)
 BEGIN
 	UPDATE property
     SET property_name = p_property_name,
     property_name = p_property_name,
+    company_id = p_company_id,
     address = p_address,
     city_id = p_city_id,
     last_log_by = p_last_log_by
@@ -8452,8 +8453,6 @@ BEGIN
         END IF;
     END IF;
 END //
-
-0
 
 CREATE PROCEDURE generateLeasingRepaymentTable(IN p_leasing_application_id INT)
 BEGIN

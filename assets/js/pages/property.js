@@ -393,8 +393,10 @@ function displayDetails(transaction){
                         $('#email').val(response.email);
 
                         checkOptionExist('#city_id', response.cityID, '');
+                        checkOptionExist('#company_id', response.companyID, '');
 
                         $('#city_id_label').text(response.cityName);
+                        $('#company_id_label').text(response.companyName);
                         $('#property_name_label').text(response.propertyName);
                         $('#address_label').text(response.address);
                         $('#phone_label').text(response.phone);

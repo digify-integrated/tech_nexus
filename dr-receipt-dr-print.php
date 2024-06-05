@@ -145,7 +145,7 @@ $customerAddress = '';
 
     // Add content
     $pdf->SetFont('times', '', 11);
-    $pdf->Ln(15);
+    $pdf->Ln(20);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerName), 0, 0, 'L', 0, '', 1);
     $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);

@@ -18,10 +18,17 @@
       </div>
       <div class="card-body">
         <form id="property-form" method="post" action="#">
-        <div class="form-group row">
+            <div class="form-group row">
                 <label class="col-lg-2 col-form-label">Name <span class="text-danger">*</span></label>
-                <div class="col-lg-10">
+                <div class="col-lg-4">
                     <input type="text" class="form-control" id="property_name" name="property_name" maxlength="100" autocomplete="off">
+                </div>
+                <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+                <div class="col-lg-4">
+                    <select class="form-control select2" name="company_id" id="company_id">
+                        <option value="">--</option>
+                        <?php echo $companyModel->generateCompanyOptions(); ?>
+                    </select>
                 </div>
             </div>
             <div class="form-group row">

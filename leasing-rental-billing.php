@@ -13,6 +13,11 @@
     require_once 'model/leasing-application-model.php';
     require_once 'model/tenant-model.php';
     require_once 'model/property-model.php';
+    require_once 'model/company-model.php';
+    require_once 'model/city-model.php';
+    require_once 'model/state-model.php';
+    require_once 'model/country-model.php';
+
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -24,6 +29,10 @@
     $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
     $tenantModel = new TenantModel($databaseModel);
     $propertyModel = new PropertyModel($databaseModel);
+    $companyModel = new CompanyModel($databaseModel);
+    $cityModel = new CityModel($databaseModel);
+    $stateModel = new StateModel($databaseModel);
+    $countryModel = new CountryModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -43,8 +52,27 @@
         $tenantName = strtoupper($tenantDetails['tenant_name'] ?? '');
 
         $propertyDetails = $propertyModel->getProperty($propertyID);
-        $propertyName = strtoupper($propertyDetails['address'] ?? '');
+        $propertyName = strtoupper($propertyDetails['property_name'] ?? '');
         $address = strtoupper($propertyDetails['address'] ?? '');
+
+        $companyID = $propertyDetails['company_id'] ?? '';
+        $companyDetails = $companyModel->getCompany($companyID);
+        
+        $companyName = $companyDetails['company_name'] ?? '';
+        $companyCityID = $companyDetails['cityID'] ?? null;
+        $companyAddress = $companyDetails['address'] ?? null;
+
+        $cityDetails = $cityModel->getCity($companyCityID);
+        $companyCityName = $cityDetails['city_name'] ?? null;
+        $stateID = $cityDetails['state_id'] ?? null;
+
+        $stateDetails = $stateModel->getState($stateID);
+        $companyStateName = $stateDetails['state_name'] ?? null;
+        $countryID = $stateDetails['country_id'] ?? null;
+
+        $companyCountryName = $countryModel->getCountry($countryID)['country_name'] ?? null;
+
+        $companyFullAddress = $companyAddress . ', ' . $companyCityName . ', ' . $companyStateName . ', ' . $companyCountryName;
     }
 
     $summaryTable = generateBillingSummaryTable($repaymentID, $leasingID, $initialBasicRental);
@@ -77,10 +105,10 @@
 
     // Add content
     $pdf->SetFont('times', 'B', 10.5);
-    $pdf->Cell(152, 8, 'PCG PROPERTY MANAGEMENT CORPORATION'  , 0, 0, 'L');
+    $pdf->Cell(152, 8, strtoupper($companyName) , 0, 0, 'L');
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 8);
-    $pdf->Cell(152, 8, 'KM 112, MAHARLIKA HIGHWAY, CABANATUAN CITY'  , 0, 0, 'L');
+    $pdf->Cell(152, 8, strtoupper($companyFullAddress), 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->SetFont('times', 'B', 10.5);
     $pdf->Cell(152, 8, 'RENTAL BILLING NOTICE'  , 0, 0, 'L');

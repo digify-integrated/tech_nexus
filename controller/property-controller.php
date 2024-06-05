@@ -17,6 +17,7 @@ class PropertyController {
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $companyModel;
     private $cityModel;
     private $stateModel;
     private $countryModel;
@@ -46,11 +47,12 @@ class PropertyController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PropertyModel $propertyModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(PropertyModel $propertyModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, CompanyModel $companyModel, CityModel $cityModel, StateModel $stateModel, CountryModel $countryModel, CurrencyModel $currencyModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->propertyModel = $propertyModel;
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->companyModel = $companyModel;
         $this->cityModel = $cityModel;
         $this->stateModel = $stateModel;
         $this->countryModel = $countryModel;
@@ -123,6 +125,7 @@ class PropertyController {
         $propertyName = htmlspecialchars($_POST['property_name'], ENT_QUOTES, 'UTF-8');
         $address = htmlspecialchars($_POST['address'], ENT_QUOTES, 'UTF-8');
         $cityID = htmlspecialchars($_POST['city_id'], ENT_QUOTES, 'UTF-8');
+        $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -135,13 +138,13 @@ class PropertyController {
         $total = $checkPropertyExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->propertyModel->updateProperty($propertyID, $propertyName, $address, $cityID, $userID);
+            $this->propertyModel->updateProperty($propertyID, $propertyName, $companyID, $address, $cityID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'propertyID' => $this->securityModel->encryptData($propertyID)]);
             exit;
         } 
         else {
-            $propertyID = $this->propertyModel->insertProperty($propertyName, $address, $cityID, $userID);
+            $propertyID = $this->propertyModel->insertProperty($propertyName, $companyID, $address, $cityID, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'propertyID' => $this->securityModel->encryptData($propertyID)]);
             exit;
@@ -281,7 +284,11 @@ class PropertyController {
             }
     
             $propertyDetails = $this->propertyModel->getProperty($propertyID);
+            $companyID = $propertyDetails['company_id'];
             $cityID = $propertyDetails['city_id'];
+
+            $companyDetails = $this->companyModel->getCompany($companyID);
+            $companyName = $companyDetails['company_name'] ?? null;
 
             $cityDetails = $this->cityModel->getCity($cityID);
             $cityName = $cityDetails['city_name'];
@@ -299,7 +306,9 @@ class PropertyController {
                 'propertyName' => $propertyDetails['property_name'],
                 'address' => $propertyDetails['address'],
                 'cityID' => $cityID,
-                'cityName' => $cityName
+                'cityName' => $cityName,
+                'companyID' => $companyID,
+                'companyName' => $companyName
             ];
 
             echo json_encode($response);
@@ -313,6 +322,7 @@ class PropertyController {
 require_once '../config/config.php';
 require_once '../model/database-model.php';
 require_once '../model/property-model.php';
+require_once '../model/company-model.php';
 require_once '../model/city-model.php';
 require_once '../model/state-model.php';
 require_once '../model/country-model.php';
@@ -323,6 +333,6 @@ require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PropertyController(new PropertyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new PropertyController(new PropertyModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new CompanyModel(new DatabaseModel), new CityModel(new DatabaseModel), new StateModel(new DatabaseModel), new CountryModel(new DatabaseModel), new CurrencyModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

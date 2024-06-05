@@ -44,10 +44,20 @@
                 if($propertyWriteAccess['total'] > 0){
                   echo '<div class="form-group row">
                           <label class="col-lg-2 col-form-label">Name <span class="text-danger d-none form-edit">*</span></label>
-                          <div class="col-lg-10">
+                          <div class="col-lg-4">
                             <label class="col-form-label form-details fw-normal" id="property_name_label"></label>
                             <input type="text" class="form-control d-none form-edit" id="property_name" name="property_name" maxlength="100" autocomplete="off">
                           </div>
+                          <label class="col-lg-2 col-form-label">Company ID <span class="text-danger d-none form-edit">*</span></label>
+                          <div class="col-lg-4">
+                              <label class="col-form-label form-details fw-normal" id="company_id_label"></label>
+                              <div class="d-none form-edit">
+                                  <select class="form-control select2" name="company_id" id="company_id">
+                                  <option value="">--</option>
+                                  '. $companyModel->generateCompanyOptions() .'
+                                  </select>
+                              </div>
+                            </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-lg-2 col-form-label">Address <span class="text-danger d-none form-edit">*</span></label>
@@ -72,6 +82,10 @@
                             <label class="col-lg-2 col-form-label">Name</label>
                             <div class="col-lg-10">
                                 <label class="col-form-label form-details fw-normal" id="property_name_label"></label>
+                            </div>
+                            <label class="col-lg-2 col-form-label">Company</label>
+                            <div class="col-lg-4">
+                                <label class="col-form-label form-details fw-normal" id="company_id_label"></label>
                             </div>
                         </div>
                         <div class="form-group row">

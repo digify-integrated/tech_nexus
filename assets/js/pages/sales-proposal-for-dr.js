@@ -80,6 +80,12 @@
             addSalesProposalForm();
         }
 
+        // Temporary
+        if($('#sales-proposal-pricing-computation-form').length){
+            salesProposalPricingComputationForm();
+        }
+        //-----------------
+
         if(sales_proposal_status == 'Draft'){
             if($('#sales-proposal-form').length){
                 salesProposalForm();
@@ -101,9 +107,9 @@
                 salesProposalJobOrderForm();
             }
     
-            if($('#sales-proposal-pricing-computation-form').length){
+            /*if($('#sales-proposal-pricing-computation-form').length){
                 salesProposalPricingComputationForm();
-            }
+            }*/
         }
         else{
             if($('#sales-proposal-form').length){
@@ -126,9 +132,9 @@
                 disableFormAndSelect2('sales-proposal-job-order-form');
             }
     
-            if($('#sales-proposal-pricing-computation-form').length){
+            /*if($('#sales-proposal-pricing-computation-form').length){
                 disableFormAndSelect2('sales-proposal-pricing-computation-form');
-            }
+            }*/
         }
 
         if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
@@ -6052,6 +6058,16 @@ function traverseTabs(direction) {
         nextIndex = totalTabs - 1;
     }
 
+    // Temporary
+    if (currentIndex == 5 && direction === 'next') {
+        if ($('#sales-proposal-pricing-computation-form').valid()) {
+            $('#sales-proposal-pricing-computation-form').submit();
+        } else {
+            return;
+        }
+    }
+    // ------------------
+
     if(sales_proposal_status == 'Draft'){
         if (currentIndex == 0) {
             if ($('#sales-proposal-form').valid()) {
@@ -6081,13 +6097,13 @@ function traverseTabs(direction) {
                 return;
             }
         }
-        else if (currentIndex == 5 && direction === 'next') {
+        /*else if (currentIndex == 5 && direction === 'next') {
             if ($('#sales-proposal-pricing-computation-form').valid()) {
                 $('#sales-proposal-pricing-computation-form').submit();
             } else {
                 return;
             }
-        }
+        }*/
 
         if (nextIndex == 4) {
             if($('#add-sales-proposal-job-order-button').length){
