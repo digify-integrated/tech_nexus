@@ -5,6 +5,7 @@
   require('model/customer-model.php');
   require('model/product-model.php');
   require('model/approving-officer-model.php');
+  require('model/id-type-model.php');
 
   $pageTitle = 'Sales Proposal Change Request';
   
@@ -12,6 +13,7 @@
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
+  $idTypeModel = new IDTypeModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 74, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);

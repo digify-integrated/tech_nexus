@@ -483,6 +483,67 @@
                             <input type="text" class="form-control text-uppercase" id="ref_plate_no" name="ref_plate_no" maxlength="100" autocomplete="off">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">OR/CR Number : </label>
+                            <div class="col-lg-8">
+                            <input type="text" class="form-control" id="orcr_no" name="orcr_no" maxlength="200" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">OR/CR Date : </label>
+                            <div class="col-lg-8">
+                                <div class="input-group date">
+                                <input type="text" class="form-control regular-datepicker" id="orcr_date" name="orcr_date" autocomplete="off">
+                                <span class="input-group-text">
+                                    <i class="feather icon-calendar"></i>
+                                </span>
+                                </div>
+                            </div>
+                            </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">OR/CR Expiry Date : </label>
+                            <div class="col-lg-8">
+                                <div class="input-group date">
+                                <input type="text" class="form-control regular-datepicker" id="orcr_expiry_date" name="orcr_expiry_date" autocomplete="off">
+                                <span class="input-group-text">
+                                    <i class="feather icon-calendar"></i>
+                                </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Received From : </label>
+                            <div class="col-lg-8">
+                                <input type="text" class="form-control" id="received_from" name="received_from" maxlength="500" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Received From Address : </label>
+                            <div class="col-lg-8">
+                                <input type="text" class="form-control" id="received_from_address" name="received_from_address" maxlength="1000" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Received From ID Type : </label>
+                            <div class="col-lg-8">
+                                <select class="form-control select2" name="received_from_id_type" id="received_from_id_type">
+                                    <option value="">--</option>
+                                    <?php echo $idTypeModel->generateIDTypeOptions(); ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Received From ID Number : </label>
+                            <div class="col-lg-8">
+                            <input type="text" class="form-control" id="received_from_id_number" name="received_from_id_number" maxlength="200" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-4 col-form-label">Unit Description : </label>
+                            <div class="col-lg-8">
+                            <textarea class="form-control" id="unit_description" name="unit_description" maxlength="1000" rows="3"></textarea>
+                            </div>
+                        </div>
                         </form>
                     </div>
                     <div class="tab-pane" id="v-job-order">

@@ -9,6 +9,7 @@
   require('model/unit-model.php');
   require('model/color-model.php');
   require('model/company-model.php');
+  require('model/id-type-model.php');
   
   $productModel = new ProductModel($databaseModel);
   $productCategoryModel = new ProductCategoryModel($databaseModel);
@@ -18,6 +19,7 @@
   $warehouseModel = new WarehouseModel($databaseModel);
   $unitModel = new UnitModel($databaseModel);
   $colorModel = new ColorModel($databaseModel);
+  $idTypeModel = new IDTypeModel($databaseModel);
 
   $pageTitle = 'Product';
     
@@ -108,6 +110,7 @@
 <head>
     <?php include_once('config/_title.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/select2.min.css">
+    <link rel="stylesheet" href="./assets/css/plugins/datepicker-bs5.min.css">
     <link rel="stylesheet" href="./assets/css/plugins/bootstrap-slider.min.css">
     <?php include_once('config/_required_css.php'); ?>
     <link rel="stylesheet" href="./assets/css/plugins/dataTables.bootstrap5.min.css">
@@ -183,6 +186,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/bootstrap-slider.min.js"></script>
+    <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/product.js?v=<?php echo rand(); ?>"></script>
 </body>

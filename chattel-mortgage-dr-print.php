@@ -14,6 +14,7 @@
     require_once 'model/sales-proposal-model.php';
     require_once 'model/body-type-model.php';
     require_once 'model/product-model.php';
+    require_once 'model/id-type-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -28,6 +29,7 @@
 
     // Initialize customer model
     $customerModel = new CustomerModel($databaseModel);
+    $idTypeModel = new IDTypeModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -124,15 +126,82 @@
         $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
         $make = $otherProductDetails['make'] ??  '--';
 
-        $productDetails = $productModel->getProduct($productID);
-        $bodyTypeID = $productDetails['body_type_id'];
-        $engineNumber = $productDetails['engine_number'] ?? null;
-        $chassisNumber = $productDetails['chassis_number'] ?? null;
-        $plateNumber = $productDetails['plate_number'] ?? null;
+        if($productType == 'Unit'){
+            $productDetails = $productModel->getProduct($productID);
+            $engineNumber = $productDetails['engine_number'] ?? null;
+            $chassisNumber = $productDetails['chassis_number'] ?? null;
+            $plateNumber = $productDetails['plate_number'] ?? null;
+            $bodyTypeID = $productDetails['body_type_id'];
+                
+            $getBodyType = $bodyTypeModel->getBodyType($bodyTypeID);
+            $bodyTypeName = $getBodyType['body_type_name'] ?? null;
+  
+            $orcrNo = $productDetails['orcr_no'] ?? '';
+            $receivedFrom = $productDetails['received_from'] ?? '';
+            $receivedFromAddress = $productDetails['received_from_address'] ?? '';
+            $receivedFromIDType = $productDetails['received_from_id_type'] ?? '';
+            $receivedFromIDNumber = $productDetails['received_from_id_number'] ?? '';
+            $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+            $unitDescription = $productDetails['unit_description'] ?? '';
+            $orcrDate =  $systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', '');
+            $orcrExpiryDate =  $systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+          }
+          else if($productType == 'Refinancing' || $productType == 'Brand New'){
+            $orcrNo = $salesProposalDetails['orcr_no'] ?? '';
+            $receivedFrom = $salesProposalDetails['received_from'] ?? '';
+            $receivedFromAddress = $salesProposalDetails['received_from_address'] ?? '';
+            $receivedFromIDType = $salesProposalDetails['received_from_id_type'] ?? '';
+            $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+            $receivedFromIDNumber = $salesProposalDetails['received_from_id_number'] ?? '';
+            $unitDescription = $salesProposalDetails['unit_description'] ?? '';
+            $orcrDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', '');
+            $orcrExpiryDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+            $engineNumber = $salesProposalDetails['ref_engine_no'] ?? null;
+            $chassisNumber = $salesProposalDetails['ref_chassis_no'] ?? null;
+            $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
+            $bodyTypeName = '';
+          }
 
-        $getBodyType = $bodyTypeModel->getBodyType($bodyTypeID);
-        $bodyTypeName = $getBodyType['body_type_name'] ?? null;
-
+          if($productType == 'Unit'){
+            $productDetails = $productModel->getProduct($productID);
+            $engineNumber = $productDetails['engine_number'] ?? null;
+            $chassisNumber = $productDetails['chassis_number'] ?? null;
+            $plateNumber = $productDetails['plate_number'] ?? null;
+  
+            $orcrNo = $productDetails['orcr_no'] ?? '';
+            $receivedFrom = $productDetails['received_from'] ?? '';
+            $receivedFromAddress = $productDetails['received_from_address'] ?? '';
+            $receivedFromIDType = $productDetails['received_from_id_type'] ?? '';
+            $receivedFromIDNumber = $productDetails['received_from_id_number'] ?? '';
+            $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+            $unitDescription = $productDetails['unit_description'] ?? '';
+            $orcrDate =  $systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', '');
+            $orcrExpiryDate =  $systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+          }
+          else if($productType == 'Refinancing' || $productType == 'Brand New'){
+            $orcrNo = $salesProposalDetails['orcr_no'] ?? '';
+            $receivedFrom = $salesProposalDetails['received_from'] ?? '';
+            $receivedFromAddress = $salesProposalDetails['received_from_address'] ?? '';
+            $receivedFromIDType = $salesProposalDetails['received_from_id_type'] ?? '';
+            $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+            $receivedFromIDNumber = $salesProposalDetails['received_from_id_number'] ?? '';
+            $unitDescription = $salesProposalDetails['unit_description'] ?? '';
+            $orcrDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', '');
+            $orcrExpiryDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+            $engineNumber = $salesProposalDetails['ref_engine_no'] ?? null;
+            $chassisNumber = $salesProposalDetails['ref_chassis_no'] ?? null;
+            $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
+          }
+  
+          $currentDateTime = new DateTime('now');
+          $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
+  
+          if ($currentDayOfWeek >= 6) {
+              $currentDateTime->modify('next Monday');
+          }
+  
+          $currentDate = $currentDateTime->format('F j, Y');
+  
     }
 
     $chattelMortgageTable = generateChattelMortgageTable($make, $engineNumber, $chassisNumber, $plateNumber, $yearModel, $mvFileNo, $bodyTypeName);
@@ -169,11 +238,11 @@
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'I, <b><u>'. $customerName .'</u></b> of legal age, single/married to __________________________________________________________________with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b>
-    hereinafter known as she "MORTGAGOR"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    hereinafter known as the "MORTGAGOR"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
     $pdf->MultiCell(0, 0, 'and', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(2);
-    $pdf->MultiCell(0, 0, '_____________________________________________________________________, a corporation duly organized and existing under Philippine Laws, with principal office at KM 112, Maharlika Highway, Cabanatuan City, herein represented by ___________________________________________________,
+    $pdf->MultiCell(0, 0, '<b><u>'. $receivedFrom .'</u></b>, a corporation duly organized and existing under Philippine Laws, with principal office at KM 112, Maharlika Highway, Cabanatuan City, herein represented by <b><u>'. $receivedFromAddress .'</u></b>,
     hereinafter referred to as "MORTGAGEE"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>WITHNESSETH</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
@@ -188,9 +257,9 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, the parties have hereunto set their hands, this________, day of_______ 2016______ at ___________________________ Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->Cell(90, 4, '', 'B', 0 , 'C');
+    $pdf->Cell(90, 4, $customerName, 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, '', 'B', 0, 'C');
+    $pdf->Cell(90, 4, $receivedFrom, 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'MORTGAGOR', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');

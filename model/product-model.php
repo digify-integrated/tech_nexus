@@ -45,8 +45,8 @@ class ProductModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by)');
+    public function updateProduct($p_product_id, $p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_orcr_no, $p_orcr_date, $p_orcr_expiry_date, $p_received_from, $p_received_from_address, $p_received_from_id_type, $p_received_from_id_number, $p_unit_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateProduct(:p_product_id, :p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_orcr_no, :p_orcr_date, :p_orcr_expiry_date, :p_received_from, :p_received_from_address, :p_received_from_id_type, :p_received_from_id_number, :p_unit_description, :p_last_log_by)');
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
@@ -66,6 +66,14 @@ class ProductModel {
         $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_no', $p_orcr_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_date', $p_orcr_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_expiry_date', $p_orcr_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from', $p_received_from, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_address', $p_received_from_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_type', $p_received_from_id_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_number', $p_received_from_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_unit_description', $p_unit_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -185,8 +193,8 @@ class ProductModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_last_log_by, @p_product_id)');
+    public function insertProduct($p_product_category_id, $p_product_subcategory_id, $p_company_id, $p_stock_number, $p_engine_number, $p_chassis_number, $p_plate_number, $p_description, $p_warehouse_id, $p_body_type_id, $p_length, $p_length_unit, $p_running_hours, $p_mileage, $p_color_id, $p_product_cost, $p_product_price, $p_remarks, $p_orcr_no, $p_orcr_date, $p_orcr_expiry_date, $p_received_from, $p_received_from_address, $p_received_from_id_type, $p_received_from_id_number, $p_unit_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertProduct(:p_product_category_id, :p_product_subcategory_id, :p_company_id, :p_stock_number, :p_engine_number, :p_chassis_number, :p_plate_number, :p_description, :p_warehouse_id, :p_body_type_id, :p_length, :p_length_unit, :p_running_hours, :p_mileage, :p_color_id, :p_product_cost, :p_product_price, :p_remarks, :p_orcr_no, :p_orcr_date, :p_orcr_expiry_date, :p_received_from, :p_received_from_address, :p_received_from_id_type, :p_received_from_id_number, :p_unit_description, :p_last_log_by, @p_product_id)');
         $stmt->bindValue(':p_product_category_id', $p_product_category_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_product_subcategory_id', $p_product_subcategory_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
@@ -205,6 +213,14 @@ class ProductModel {
         $stmt->bindValue(':p_product_cost', $p_product_cost, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_price', $p_product_price, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_no', $p_orcr_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_date', $p_orcr_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_expiry_date', $p_orcr_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from', $p_received_from, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_address', $p_received_from_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_type', $p_received_from_id_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_number', $p_received_from_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_unit_description', $p_unit_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

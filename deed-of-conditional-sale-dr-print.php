@@ -13,6 +13,7 @@
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
     require_once 'model/product-model.php';
+    require_once 'model/id-type-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -26,6 +27,7 @@
 
     // Initialize customer model
     $customerModel = new CustomerModel($databaseModel);
+    $idTypeModel = new IDTypeModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -122,10 +124,46 @@
         $mvFileNo = $otherProductDetails['mv_file_no'] ??  '--';
         $make = $otherProductDetails['make'] ??  '--';
 
-        $productDetails = $productModel->getProduct($productID);
-        $engineNumber = $productDetails['engine_number'] ?? null;
-        $chassisNumber = $productDetails['chassis_number'] ?? null;
-        $plateNumber = $productDetails['plate_number'] ?? null;
+        if($productType == 'Unit'){
+          $productDetails = $productModel->getProduct($productID);
+          $engineNumber = $productDetails['engine_number'] ?? null;
+          $chassisNumber = $productDetails['chassis_number'] ?? null;
+          $plateNumber = $productDetails['plate_number'] ?? null;
+
+          $orcrNo = $productDetails['orcr_no'] ?? '';
+          $receivedFrom = $productDetails['received_from'] ?? '';
+          $receivedFromAddress = $productDetails['received_from_address'] ?? '';
+          $receivedFromIDType = $productDetails['received_from_id_type'] ?? '';
+          $receivedFromIDNumber = $productDetails['received_from_id_number'] ?? '';
+          $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+          $unitDescription = $productDetails['unit_description'] ?? '';
+          $orcrDate =  $systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', '');
+          $orcrExpiryDate =  $systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+        }
+        else if($productType == 'Refinancing' || $productType == 'Brand New'){
+          $orcrNo = $salesProposalDetails['orcr_no'] ?? '';
+          $receivedFrom = $salesProposalDetails['received_from'] ?? '';
+          $receivedFromAddress = $salesProposalDetails['received_from_address'] ?? '';
+          $receivedFromIDType = $salesProposalDetails['received_from_id_type'] ?? '';
+          $receivedFromIDTypeName = $idTypeModel->getIDType($receivedFromIDType)['id_type_name'] ?? '';
+          $receivedFromIDNumber = $salesProposalDetails['received_from_id_number'] ?? '';
+          $unitDescription = $salesProposalDetails['unit_description'] ?? '';
+          $orcrDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', '');
+          $orcrExpiryDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+          $engineNumber = $salesProposalDetails['ref_engine_no'] ?? null;
+          $chassisNumber = $salesProposalDetails['ref_chassis_no'] ?? null;
+          $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
+        }
+
+        $currentDateTime = new DateTime('now');
+        $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
+
+        if ($currentDayOfWeek >= 6) {
+            $currentDateTime->modify('next Monday');
+        }
+
+        $currentMonth = $currentDateTime->format('F Y');
+        $currentDay = $currentDateTime->format('d');
     }
 
     ob_start();
@@ -159,7 +197,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'This deed, made and entered into this _______ day of ____________ at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'This deed, made and entered into this <b><u>'. strtoupper($currentDay) .'</b></u> day of <b><u>'. strtoupper($currentMonth) .'</b></u> at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(1);
     $pdf->MultiCell(0, 0, '______________________________________________________________________________________________.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -189,7 +227,7 @@
     $pdf->Cell(40, 8, 'Plate No.'  , 0, 0, 'L');
     $pdf->Cell(32, 8, ':      ' . $plateNumber, 0, 0, 'L');
     $pdf->Ln(10);
-    $pdf->MultiCell(0, 0, 'covered by Certificate of Registration No .______________________ issued by the ______________________________;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'covered by Certificate of Registration No . <b><u>'. strtoupper($orcrNo) .'</b></u> issued by the ______________________________;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That with the SELLER'. "'" .'s consent, the BUYER/ desire'. "'" .'s to acquire the said motor vehicle, subject to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);

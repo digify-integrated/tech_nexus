@@ -112,6 +112,39 @@
         $customerTelephone = !empty($customerContactInformation['telephone']) ? $customerContactInformation['telephone'] : '--';
         $customerEmail = !empty($customerContactInformation['email']) ? $customerContactInformation['email'] : '--';
 
+        if($productType == 'Unit'){
+          $productDetails = $productModel->getProduct($productID);
+
+          $orcrNo = $productDetails['orcr_no'];
+          $receivedFrom = $productDetails['received_from'];
+          $receivedFromAddress = $productDetails['received_from_address'];
+          $receivedFromIDType = $productDetails['received_from_id_type'];
+          $receivedFromIDNumber = $productDetails['received_from_id_number'];
+          $unitDescription = $productDetails['unit_description'];
+          $orcrDate =  $systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', '');
+          $orcrExpiryDate =  $systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+          $plateNumber = $productDetails['plate_number'] ?? null;
+        }
+        else if($productType == 'Refinancing' || $productType == 'Brand New'){
+          $orcrNo = $salesProposalDetails['orcr_no'];
+          $receivedFrom = $salesProposalDetails['received_from'];
+          $receivedFromAddress = $salesProposalDetails['received_from_address'];
+          $receivedFromIDType = $salesProposalDetails['received_from_id_type'];
+          $receivedFromIDNumber = $salesProposalDetails['received_from_id_number'];
+          $unitDescription = $salesProposalDetails['unit_description'];
+          $orcrDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', '');
+          $orcrExpiryDate =  $systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '');
+          $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
+        }
+
+        $currentDateTime = new DateTime('now');
+        $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
+
+        if ($currentDayOfWeek >= 6) {
+            $currentDateTime->modify('next Monday');
+        }
+
+        $currentDate = $currentDateTime->format('F j, Y');
     }
 
     ob_start();
@@ -151,12 +184,12 @@
     $pdf->Ln(0);
     $pdf->MultiCell(0, 0, '(Buyer'. "'" .'s Undertaking)', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'Ako, si  <b><u>'. $customerName .'</u></b> sapat na gulang, Pilipino,
+    $pdf->MultiCell(0, 0, 'Ako, si  <b><u>'. $customerName .'</u></b> may sapat na gulang, Pilipino,
     binata/may-asawa, at naninirahan sa <b><u>'. strtoupper($customerAddress) .'</u></b>,
     matapos na makapanumpa nang naayon sa batas, ay nagsasaad ng mga sumusunod:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng                                                                                        Cabanatuan City (kinakatawan ni_______________________________________________________) sa Conditional Sales Agreement ng isang _____________________________________________________
-    na may plakang: _____________________ Petsang: ________________________________________.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '1.Na ako ay pumasok at nakipagkasundo sa CHRISTIAN MOTOR SALES CORPORATION ng Cabanatuan City (kinakatawan ni <b><u>'. $receivedFrom .'</b></u>) sa Conditional Sales Agreement ng isang <b><u>'. $unitDescription .'</b></u>
+    na may plakang: <b><u>'. $plateNumber .'</b></u> Petsang: <b><u>'. $currentDate .'</b></u>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);
     $pdf->MultiCell(0, 0, '2. Na bilang NAKABILI (Buyer) ako ang hahawak at gagamit ng nasabing truck habang hinuhulugan ko ang pagbabayad dito.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(3);

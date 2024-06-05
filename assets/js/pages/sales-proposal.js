@@ -5161,6 +5161,16 @@ function displayDetails(transaction){
                         $('#ref_chassis_no').val(response.refChassisNo);
                         $('#ref_plate_no').val(response.refPlateNo);
 
+                        $('#orcr_no').val(response.orcrNo);
+                        $('#orcr_date').val(response.orcrDate);
+                        $('#orcr_expiry_date').val(response.orcrExpiryDate);
+                        $('#received_from').val(response.receivedFrom);
+                        $('#received_from_address').val(response.receivedFromAddress);
+                        $('#received_from_id_number').val(response.receivedFromIDNumber);
+                        $('#unit_description').val(response.unitDescription);
+                        
+                        checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
+
                         $('#summary-stock-no').text(response.refStockNo);
                         $('#summary-engine-no').text(response.refEngineNo);
                         $('#summary-chassis-no').text(response.refChassisNo);

@@ -58,18 +58,18 @@
         $companyDetails = $companyModel->getCompany($companyID);
         
         $companyName = $companyDetails['company_name'] ?? '';
-        $companyCityID = $companyDetails['cityID'] ?? null;
-        $companyAddress = $companyDetails['address'] ?? null;
+        $companyCityID = $companyDetails['city_id'];
+        $companyAddress = $companyDetails['address'];
 
         $cityDetails = $cityModel->getCity($companyCityID);
-        $companyCityName = $cityDetails['city_name'] ?? null;
-        $stateID = $cityDetails['state_id'] ?? null;
+        $companyCityName = $cityDetails['city_name'] ?? '';
+        $stateID = $cityDetails['state_id'];
 
         $stateDetails = $stateModel->getState($stateID);
-        $companyStateName = $stateDetails['state_name'] ?? null;
-        $countryID = $stateDetails['country_id'] ?? null;
+        $companyStateName = $stateDetails['state_name'] ?? '';
+        $countryID = $stateDetails['country_id'];
 
-        $companyCountryName = $countryModel->getCountry($countryID)['country_name'] ?? null;
+        $companyCountryName = $countryModel->getCountry($countryID)['country_name'] ?? '';
 
         $companyFullAddress = $companyAddress . ', ' . $companyCityName . ', ' . $companyStateName . ', ' . $companyCountryName;
     }

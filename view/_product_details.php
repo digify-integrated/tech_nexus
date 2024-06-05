@@ -222,6 +222,59 @@ if($productDeleteAccess['total'] > 0){
                     <label class="form-label">Product Cost</label>
                     <input type="number" class="form-control" id="product_cost" name="product_cost" min="0" step="0.01">
                   </div>
+                  <div class="col-lg-6">
+                    <label class="form-label">OR/CR Number</label>
+                    <input type="text" class="form-control" id="orcr_no" name="orcr_no" maxlength="200" autocomplete="off">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-lg-6">
+                    <label class="form-label">OR/CR Date</label>
+                    <div class="input-group date">
+                      <input type="text" class="form-control regular-datepicker" id="orcr_date" name="orcr_date" autocomplete="off">
+                      <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="form-label">OR/CR Expiry Date</label>
+                    <div class="input-group date">
+                      <input type="text" class="form-control regular-datepicker" id="orcr_expiry_date" name="orcr_expiry_date" autocomplete="off">
+                      <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-lg-6">
+                    <label class="form-label">Received From</label>
+                    <input type="text" class="form-control" id="received_from" name="received_from" maxlength="500" autocomplete="off">
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="form-label">Received From Address</label>
+                    <input type="text" class="form-control" id="received_from_address" name="received_from_address" maxlength="1000" autocomplete="off">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-lg-6">
+                    <label class="form-label">Received From ID Type</label>
+                    <select class="form-control select2" name="received_from_id_type" id="received_from_id_type">
+                        <option value="">--</option>
+                        '. $idTypeModel->generateIDTypeOptions() .'
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="form-label">Received From ID Number</label>
+                    <input type="text" class="form-control" id="received_from_id_number" name="received_from_id_number" maxlength="200" autocomplete="off">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-lg-12">
+                    <label class="form-label">Unit Description</label>
+                    <textarea class="form-control" id="unit_description" name="unit_description" maxlength="1000" rows="3"></textarea>
+                  </div>
                 </div>
                 <div class="form-group row">
                   <div class="col-lg-12">

@@ -6715,15 +6715,15 @@ BEGIN
     WHERE product_id = p_product_id;
 END //
 
-CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT, OUT p_product_id INT)
+CREATE PROCEDURE insertProduct(IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_last_log_by INT, OUT p_product_id INT)
 BEGIN
-    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, last_log_by) 
-	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_last_log_by);
+    INSERT INTO product (product_category_id, product_subcategory_id, company_id, stock_number, engine_number, chassis_number, plate_number, description, warehouse_id, body_type_id, length, length_unit, running_hours, mileage, color_id, product_cost, product_price, remarks, orcr_no, orcr_date, orcr_expiry_date, received_from, received_from_address, received_from_id_type, received_from_id_number, unit_description, last_log_by) 
+	VALUES(p_product_category_id, p_product_subcategory_id, p_company_id, p_stock_number, p_engine_number, p_chassis_number, p_plate_number, p_description, p_warehouse_id, p_body_type_id, p_length, p_length_unit, p_running_hours, p_mileage, p_color_id, p_product_cost, p_product_price, p_remarks, p_orcr_no, p_orcr_date, p_orcr_expiry_date, p_received_from, p_received_from_address, p_received_from_id_type, p_received_from_id_number, p_unit_description, p_last_log_by);
 	
     SET p_product_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+CREATE PROCEDURE updateProduct(IN p_product_id INT, IN p_product_category_id INT, IN p_product_subcategory_id INT, IN p_company_id INT, IN p_stock_number VARCHAR(100), IN p_engine_number VARCHAR(100), IN p_chassis_number VARCHAR(100), IN p_plate_number VARCHAR(100), IN p_description VARCHAR(1000), IN p_warehouse_id INT, IN p_body_type_id INT, IN p_length DOUBLE, IN p_length_unit INT, IN p_running_hours DOUBLE, IN p_mileage DOUBLE, IN p_color_id INT, IN p_product_cost DOUBLE, IN p_product_price DOUBLE, IN p_remarks VARCHAR(1000), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
 	UPDATE product
     SET product_category_id = p_product_category_id,
@@ -6744,6 +6744,14 @@ BEGIN
     product_cost = p_product_cost,
     product_price = p_product_price,
     remarks = p_remarks,
+    orcr_no = p_orcr_no,
+    orcr_date = p_orcr_date,
+    orcr_expiry_date = p_orcr_expiry_date,
+    received_from = p_received_from,
+    received_from_address = p_received_from_address,
+    received_from_id_type = p_received_from_id_type,
+    received_from_id_number = p_received_from_id_number,
+    unit_description = p_unit_description,
     last_log_by = p_last_log_by
     WHERE product_id = p_product_id;
 END //
@@ -7145,7 +7153,7 @@ END //
 
 CREATE PROCEDURE getCustomerPrimaryContactIdentification(IN p_contact_id INT)
 BEGIN
-	SELECT id_type_name, id_number FROM contact_identification
+	SELECT * FROM contact_identification
     LEFT OUTER JOIN id_type ON id_type.id_type_id = contact_identification.id_type_id
     WHERE contact_id = p_contact_id AND is_primary = 1;
 END //
@@ -7241,7 +7249,7 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE updateSalesProposalRefinancing(IN p_sales_proposal_id INT, IN p_ref_stock_no VARCHAR(100), IN p_ref_engine_no VARCHAR(100), IN p_ref_chassis_no VARCHAR(100), IN p_ref_plate_no VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalRefinancing(IN p_sales_proposal_id INT, IN p_ref_stock_no VARCHAR(100), IN p_ref_engine_no VARCHAR(100), IN p_ref_chassis_no VARCHAR(100), IN p_ref_plate_no VARCHAR(100), IN p_orcr_no VARCHAR(200), IN p_orcr_date DATE, IN p_orcr_expiry_date DATE, IN p_received_from VARCHAR(500), IN p_received_from_address VARCHAR(1000), IN p_received_from_id_type INT, IN p_received_from_id_number VARCHAR(200), IN p_unit_description VARCHAR(1000), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7250,6 +7258,14 @@ BEGIN
     ref_engine_no = p_ref_engine_no,
     ref_chassis_no = p_ref_chassis_no,
     ref_plate_no = p_ref_plate_no,
+    orcr_no = p_orcr_no,
+    orcr_date = p_orcr_date,
+    orcr_expiry_date = p_orcr_expiry_date,
+    received_from = p_received_from,
+    received_from_address = p_received_from_address,
+    received_from_id_type = p_received_from_id_type,
+    received_from_id_number = p_received_from_id_number,
+    unit_description = p_unit_description,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //

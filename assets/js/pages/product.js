@@ -844,12 +844,22 @@ function displayDetails(transaction){
                         $('#product_cost').val(response.productCost);
                         $('#remarks').val(response.remarks);
 
+                        $('#orcr_no').val(response.orcrNo);
+                        $('#orcr_date').val(response.orcrDate);
+                        $('#orcr_expiry_date').val(response.orcrExpiryDate);
+                        $('#received_from').val(response.receivedFrom);
+                        $('#received_from_address').val(response.receivedFromAddress);
+                        $('#received_from_id_number').val(response.receivedFromIDNumber);
+                        $('#unit_description').val(response.unitDescription);
+
                         checkOptionExist('#company_id', response.companyID, '');
                         checkOptionExist('#product_subcategory_id', response.productSubcategoryID, '');
                         checkOptionExist('#warehouse_id', response.warehouseID, '');
                         checkOptionExist('#body_type_id', response.bodyTypeID, '');
                         checkOptionExist('#color_id', response.colorID, '');
                         checkOptionExist('#length_unit', response.lengthUnit, '');
+
+                        checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
                     } 
                     else {
                         if(response.isInactive){

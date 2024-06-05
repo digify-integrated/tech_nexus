@@ -382,7 +382,7 @@ class SalesProposalController {
         if ($total > 0) {            
             $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
-            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -430,7 +430,7 @@ class SalesProposalController {
         if ($total > 0) {            
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
             $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
-            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', $userID);
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false]);
             exit;
@@ -461,6 +461,14 @@ class SalesProposalController {
         $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
         $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
         $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
+        $orcrNo = $_POST['orcr_no'];
+        $receivedFrom = $_POST['received_from'];
+        $receivedFromAddress = $_POST['received_from_address'];
+        $receivedFromIDType = $_POST['received_from_id_type'];
+        $receivedFromIDNumber = $_POST['received_from_id_number'];
+        $unitDescription = $_POST['unit_description'];
+        $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
+        $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -484,7 +492,7 @@ class SalesProposalController {
                 $stockNumber = 'REF'. $salesProposalNumber;
             }
 
-            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $userID);
+            $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
             $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
             $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
             
@@ -2912,7 +2920,15 @@ class SalesProposalController {
                 'refStockNo' => $salesProposalDetails['ref_stock_no'] ?? '--',
                 'refEngineNo' => $salesProposalDetails['ref_engine_no'] ?? 0,
                 'refChassisNo' => $salesProposalDetails['ref_chassis_no'] ?? 0,
-                'refPlateNo' => $salesProposalDetails['ref_plate_no'] ?? 0
+                'refPlateNo' => $salesProposalDetails['ref_plate_no'] ?? 0,
+                'orcrNo' => $salesProposalDetails['orcr_no'],
+                'receivedFrom' => $salesProposalDetails['received_from'],
+                'receivedFromAddress' => $salesProposalDetails['received_from_address'],
+                'receivedFromIDType' => $salesProposalDetails['received_from_id_type'],
+                'receivedFromIDNumber' => $salesProposalDetails['received_from_id_number'],
+                'unitDescription' => $salesProposalDetails['unit_description'],
+                'orcrDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['orcr_date'], '', 'm/d/Y', ''),
+                'orcrExpiryDate' =>  $this->systemModel->checkDate('empty', $salesProposalDetails['orcr_expiry_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);

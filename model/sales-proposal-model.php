@@ -135,13 +135,21 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalRefinancing($p_sales_proposal_id, $p_ref_stock_no, $p_ref_engine_no, $p_ref_chassis_no, $p_ref_plate_no, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalRefinancing(:p_sales_proposal_id, :p_ref_stock_no, :p_ref_engine_no, :p_ref_chassis_no, :p_ref_plate_no, :p_last_log_by)');
+    public function updateSalesProposalRefinancing($p_sales_proposal_id, $p_ref_stock_no, $p_ref_engine_no, $p_ref_chassis_no, $p_ref_plate_no, $p_orcr_no, $p_orcr_date, $p_orcr_expiry_date, $p_received_from, $p_received_from_address, $p_received_from_id_type, $p_received_from_id_number, $p_unit_description, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalRefinancing(:p_sales_proposal_id, :p_ref_stock_no, :p_ref_engine_no, :p_ref_chassis_no, :p_ref_plate_no, :p_orcr_no, :p_orcr_date, :p_orcr_expiry_date, :p_received_from, :p_received_from_address, :p_received_from_id_type, :p_received_from_id_number, :p_unit_description, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_ref_stock_no', $p_ref_stock_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_ref_engine_no', $p_ref_engine_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_ref_chassis_no', $p_ref_chassis_no, PDO::PARAM_STR);
         $stmt->bindValue(':p_ref_plate_no', $p_ref_plate_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_no', $p_orcr_no, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_date', $p_orcr_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_orcr_expiry_date', $p_orcr_expiry_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from', $p_received_from, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_address', $p_received_from_address, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_type', $p_received_from_id_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_received_from_id_number', $p_received_from_id_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_unit_description', $p_unit_description, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

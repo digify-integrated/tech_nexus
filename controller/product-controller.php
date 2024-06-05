@@ -143,7 +143,7 @@ class ProductController {
         $productID = isset($_POST['product_id']) ? htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8') : null;
         $productSubcategoryID = htmlspecialchars($_POST['product_subcategory_id'], ENT_QUOTES, 'UTF-8');
         $companyID = htmlspecialchars($_POST['company_id'], ENT_QUOTES, 'UTF-8');
-        $description = htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8');
+        $description = $_POST['description'];
         $stockNumber = htmlspecialchars($_POST['stock_number'], ENT_QUOTES, 'UTF-8');
         $engineNumber = htmlspecialchars($_POST['engine_number'], ENT_QUOTES, 'UTF-8');
         $chassisNumber = htmlspecialchars($_POST['chassis_number'], ENT_QUOTES, 'UTF-8');
@@ -154,10 +154,18 @@ class ProductController {
         $runningHours = htmlspecialchars($_POST['running_hours'], ENT_QUOTES, 'UTF-8');
         $mileage = htmlspecialchars($_POST['mileage'], ENT_QUOTES, 'UTF-8');
         $length = htmlspecialchars($_POST['length'], ENT_QUOTES, 'UTF-8');
-        $lengthUnit = htmlspecialchars($_POST['length_unit'], ENT_QUOTES, 'UTF-8');
+        $lengthUnit = $_POST['length_unit'];
         $productPrice = htmlspecialchars($_POST['product_price'], ENT_QUOTES, 'UTF-8');
         $productCost = htmlspecialchars($_POST['product_cost'], ENT_QUOTES, 'UTF-8');
         $remarks = htmlspecialchars($_POST['remarks'], ENT_QUOTES, 'UTF-8');
+        $orcrNo = $_POST['orcr_no'];
+        $receivedFrom = $_POST['received_from'];
+        $receivedFromAddress = $_POST['received_from_address'];
+        $receivedFromIDType = $_POST['received_from_id_type'];
+        $receivedFromIDNumber = $_POST['received_from_id_number'];
+        $unitDescription = $_POST['unit_description'];
+        $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
+        $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
 
         $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
         $productCategoryID = $productSubcategoryDetails['product_category_id'];
@@ -176,13 +184,13 @@ class ProductController {
         $total = $checkProductExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->productModel->updateProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            $this->productModel->updateProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
         } 
         else {
-            $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $userID);
+            $productID = $this->productModel->insertProduct($productCategoryID, $productSubcategoryID, $companyID, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'productID' => $this->securityModel->encryptData($productID)]);
             exit;
@@ -622,7 +630,15 @@ class ProductController {
                 'colorName' => $colorName,
                 'productCost' => $productDetails['product_cost'],
                 'productPrice' => $productDetails['product_price'],
-                'remarks' => $productDetails['remarks']
+                'remarks' => $productDetails['remarks'],
+                'orcrNo' => $productDetails['orcr_no'],
+                'receivedFrom' => $productDetails['received_from'],
+                'receivedFromAddress' => $productDetails['received_from_address'],
+                'receivedFromIDType' => $productDetails['received_from_id_type'],
+                'receivedFromIDNumber' => $productDetails['received_from_id_number'],
+                'unitDescription' => $productDetails['unit_description'],
+                'orcrDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_date'], '', 'm/d/Y', ''),
+                'orcrExpiryDate' =>  $this->systemModel->checkDate('empty', $productDetails['orcr_expiry_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);
