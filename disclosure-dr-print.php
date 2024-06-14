@@ -62,6 +62,8 @@
         $amountFinanced = $pricingComputationDetails['amount_financed'] ?? 0;
         $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
         $pnAmount = $repaymentAmount * $numberOfPayments;
+
+        
     
         $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
         $insurancePremium = $otherChargesDetails['insurance_premium'] ?? 0;
@@ -69,6 +71,7 @@
         $transferFee = $otherChargesDetails['transfer_fee'] ?? 0;
         $transactionFee = $otherChargesDetails['transaction_fee'] ?? 0;
         $docStampTax = $otherChargesDetails['doc_stamp_tax'] ?? 0;
+        $registrationFee = $otherChargesDetails['registration_fee'] ?? 0;
     
         $renewalAmountDetails = $salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
         $registrationSecondYear = $renewalAmountDetails['registration_second_year'] ?? 0;
@@ -81,7 +84,7 @@
         $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
         $totalInsuranceFee = $insurancePremiumSecondYear + $insurancePremiumThirdYear + $insurancePremiumFourthYear;
     
-        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
+        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $registrationFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 
@@ -183,7 +186,7 @@
     $pdf->Ln(8);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'd. Miscellaneous/Transaction Fee' , 0, 0, 'L');
-    $pdf->Cell(32, 8, 'P   ' . number_format(($transactionFee + $docStampTax), 2) , 0, 0, 'L');
+    $pdf->Cell(32, 8, 'P   ' . number_format(($transactionFee + $docStampTax + $registrationFee), 2) , 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(10, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(80, 8, 'e. Insurance Renewal' , 0, 0, 'L');
@@ -333,7 +336,7 @@
             $date->modify("+$iteration months")->modify('+2 months');
             break;
         case 'Semi-Annual':
-            $date->modify("+$iteration months")->modify('+5 months');
+            $date->modify("+$iteration months")->modify('+6 months');
             break;
         case 'Lumpsum':
             $date->modify("+$termLength days");

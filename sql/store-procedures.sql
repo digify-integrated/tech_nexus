@@ -7170,6 +7170,13 @@ END //
 
 /* Sales Proposal Table Stored Procedures */
 
+CREATE PROCEDURE checkSalesProposalProduct (IN p_product_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM product
+    WHERE product_id IN (SELECT product_id FROM sales_proposal where product_id = p_product_id AND sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For CI', 'For DR', 'Released'));
+END //
+
 CREATE PROCEDURE checkSalesProposalExist (IN p_sales_proposal_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -8847,6 +8854,97 @@ BEGIN
     SELECT *
     FROM internal_dr
     ORDER BY internal_dr_id;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Job Position Table Stored Procedures */
+
+CREATE PROCEDURE checkLeaveTypeExist (IN p_leave_type_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leave_type
+    WHERE leave_type_id = p_leave_type_id;
+END //
+
+CREATE PROCEDURE insertLeaveType(IN p_leave_type_name VARCHAR(100), IN p_is_paid VARCHAR(10), IN p_last_log_by INT, OUT p_leave_type_id INT)
+BEGIN
+    INSERT INTO leave_type (leave_type_name, is_paid, last_log_by) 
+	VALUES(p_leave_type_name, p_is_paid, p_last_log_by);
+	
+    SET p_leave_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLeaveType(IN p_leave_type_id INT, IN p_leave_type_name VARCHAR(100), IN p_is_paid VARCHAR(10), IN p_last_log_by INT)
+BEGIN
+	UPDATE leave_type
+    SET leave_type_name = p_leave_type_name,
+    is_paid = p_is_paid,
+    last_log_by = p_last_log_by
+    WHERE leave_type_id = p_leave_type_id;
+END //
+
+CREATE PROCEDURE deleteLeaveType(IN p_leave_type_id INT)
+BEGIN
+    DELETE FROM leave_type WHERE leave_type_id = p_leave_type_id;
+END //
+
+CREATE PROCEDURE getLeaveType(IN p_leave_type_id INT)
+BEGIN
+	SELECT * FROM leave_type
+    WHERE leave_type_id = p_leave_type_id;
+END //
+
+CREATE PROCEDURE duplicateLeaveType(IN p_leave_type_id INT, IN p_last_log_by INT, OUT p_new_leave_type_id INT)
+BEGIN
+    DECLARE p_leave_type_name VARCHAR(100);
+    DECLARE p_is_paid VARCHAR(10);
+    DECLARE p_expected_new_employees INT;
+    
+    SELECT leave_type_name, is_paid
+    INTO p_leave_type_name, p_is_paid
+    FROM leave_type 
+    WHERE leave_type_id = p_leave_type_id;
+    
+    INSERT INTO leave_type (leave_type_name, is_paid, last_log_by) 
+    VALUES(p_leave_type_name, p_is_paid, p_last_log_by);
+    
+    SET p_new_leave_type_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateLeaveTypeTable(IN p_filter_is_paid ENUM('Yes', 'No', 'All'))
+BEGIN
+    DECLARE query VARCHAR(1000);
+    DECLARE conditionList VARCHAR(500);
+
+    SET query = 'SELECT leave_type_id, leave_type_name, is_paid FROM leave_type';
+    
+    SET conditionList = ' WHERE 1';
+
+    IF p_filter_is_paid <> "" AND p_filter_is_paid <> "All" THEN
+        SET conditionList = CONCAT(conditionList, ' AND is_paid = ', p_filter_is_paid);
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+
+    SET query = CONCAT(query, ' ORDER BY leave_type_name;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE generateIncidentReport()
+BEGIN
+    select file_as, document_name, document_file, upload_date from contact_document
+    left join personal_information on personal_information.contact_id = contact_document.contact_id
+    where document_type = 'Incident Report';
+END //
+
+CREATE PROCEDURE generateLeaveTypeOptions()
+BEGIN
+	SELECT leave_type_id, leave_type_name FROM leave_type
+	ORDER BY leave_type_name;
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

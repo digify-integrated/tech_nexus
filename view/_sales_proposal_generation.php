@@ -1036,7 +1036,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $referenceNumber = $row['reference_number'];
                     $depositAmount = number_format($row['deposit_amount'], 2);
 
-                    if($salesProposalStatus == 'Draft'){
+                    if($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For DR'){
                         $action = '<div class="d-flex gap-2">
                         <button type="button" class="btn btn-icon btn-success update-sales-proposal-deposit-amount" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-deposit-amount-offcanvas" aria-controls="sales-proposal-deposit-amount-offcanvas" data-sales-proposal-deposit-amount-id="'. $salesProposalDepositAmountID .'" title="Update Amount of Deposit">
                             <i class="ti ti-edit"></i>

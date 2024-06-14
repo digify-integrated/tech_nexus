@@ -786,6 +786,7 @@
                                         <option value="Benefits and Insurance">Benefits and Insurance</option>
                                         <option value="Attendance and Leave">Attendance and Leave</option>
                                         <option value="Safety and Compliance">Safety and Compliance</option>
+                                        <option value="Incident Report">Incident Report</option>
                                         <option value="Miscellaneous">Miscellaneous</option>
                                       </select>
                                     </div>

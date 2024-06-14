@@ -1400,7 +1400,7 @@ class SalesProposalController {
         }*/
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Initial Approval', '', $userID);
-        $this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+        //$this->sendInitialApproval($approverEmail, $salesProposalNumber, $customerName, $productType, $fullStockNumber);
             
         echo json_encode(['success' => true]);
     }

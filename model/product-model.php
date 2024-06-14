@@ -368,6 +368,25 @@ class ProductModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: checkProductExist
+    # Description: Checks if a product exists.
+    #
+    # Parameters:
+    # - $p_product_id (int): The product ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSalesProposalProduct($p_product_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalProduct(:p_product_id)');
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Delete methods
     # -------------------------------------------------------------
 

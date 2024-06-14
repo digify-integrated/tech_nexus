@@ -145,22 +145,22 @@ $customerAddress = '';
 
     // Add content
     $pdf->SetFont('times', '', 11);
-    $pdf->Ln(20);
+    $pdf->Ln(25);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerName), 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(25, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(30, 4, strtoupper(date('d-M-Y')), 0, 0, 'L', 0, '', 1);
     $pdf->Cell(1, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(10, 4, $drNumber, 0, 0, 'L', 0, '', 1);
     $pdf->Ln(8);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, '-', 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(25, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(30, 4, strtoupper($createdDate), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(8);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerAddress), 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(18);
+    $pdf->Ln(22);
     $pdf->SetTextColor(255, 0, 0);
     $pdf->MultiCell(5, 4, '', 0, 'L', false, 0, '', '', true);
     $pdf->MultiCell(100, 4, '<b><u>'. $fullStockNumber .'</u></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);

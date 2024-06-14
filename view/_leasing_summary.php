@@ -7,7 +7,7 @@
             <div class="row align-items-center">
               <div class="col-sm-6">
                 <h5>Leasing List</h5>
-              </div>>
+              </div>
             </div>
           </div>
           <div class="card-body">

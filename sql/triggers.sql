@@ -4653,6 +4653,74 @@ BEGIN
     IF NEW.ci_completion_date <> OLD.ci_completion_date THEN
         SET audit_log = CONCAT(audit_log, "CI Completion Date: ", OLD.ci_completion_date, " -> ", NEW.ci_completion_date, "<br/>");
     END IF;
+
+    IF NEW.dr_number <> OLD.dr_number THEN
+        SET audit_log = CONCAT(audit_log, "DR Number: ", OLD.dr_number, " -> ", NEW.dr_number, "<br/>");
+    END IF;
+
+    IF NEW.loan_number <> OLD.loan_number THEN
+        SET audit_log = CONCAT(audit_log, "Loan Number: ", OLD.loan_number, " -> ", NEW.loan_number, "<br/>");
+    END IF;
+
+    IF NEW.released_date <> OLD.released_date THEN
+        SET audit_log = CONCAT(audit_log, "Released Date: ", OLD.released_date, " -> ", NEW.released_date, "<br/>");
+    END IF;
+
+    IF NEW.release_remarks <> OLD.release_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Release Remarks: ", OLD.release_remarks, " -> ", NEW.release_remarks, "<br/>");
+    END IF;
+
+    IF NEW.additional_job_order_confirmation <> OLD.additional_job_order_confirmation THEN
+        SET audit_log = CONCAT(audit_log, "Additional Job Order Confirmation: ", OLD.additional_job_order_confirmation, " -> ", NEW.additional_job_order_confirmation, "<br/>");
+    END IF;
+
+    IF NEW.ref_stock_no <> OLD.ref_stock_no THEN
+        SET audit_log = CONCAT(audit_log, "Refinancing/Brand New Stock Number: ", OLD.ref_stock_no, " -> ", NEW.ref_stock_no, "<br/>");
+    END IF;
+
+    IF NEW.ref_engine_no <> OLD.ref_engine_no THEN
+        SET audit_log = CONCAT(audit_log, "Refinancing/Brand New Engine Number: ", OLD.ref_engine_no, " -> ", NEW.ref_engine_no, "<br/>");
+    END IF;
+
+    IF NEW.ref_chassis_no <> OLD.ref_chassis_no THEN
+        SET audit_log = CONCAT(audit_log, "Refinancing/Brand New Chassis Number: ", OLD.ref_chassis_no, " -> ", NEW.ref_chassis_no, "<br/>");
+    END IF;
+
+    IF NEW.ref_plate_no <> OLD.ref_plate_no THEN
+        SET audit_log = CONCAT(audit_log, "Refinancing/Brand New Plate Chassis Number: ", OLD.ref_plate_no, " -> ", NEW.ref_plate_no, "<br/>");
+    END IF;
+
+    IF NEW.diesel_fuel_quantity <> OLD.diesel_fuel_quantity THEN
+        SET audit_log = CONCAT(audit_log, "Diesel Fuel Quantity: ", OLD.diesel_fuel_quantity, " -> ", NEW.diesel_fuel_quantity, "<br/>");
+    END IF;
+
+    IF NEW.diesel_price_per_liter <> OLD.diesel_price_per_liter THEN
+        SET audit_log = CONCAT(audit_log, "Diesel Price Per Liter: ", OLD.diesel_price_per_liter, " -> ", NEW.diesel_price_per_liter, "<br/>");
+    END IF;
+
+    IF NEW.regular_fuel_quantity <> OLD.regular_fuel_quantity THEN
+        SET audit_log = CONCAT(audit_log, "Regular Fuel Quantity: ", OLD.regular_fuel_quantity, " -> ", NEW.regular_fuel_quantity, "<br/>");
+    END IF;
+
+    IF NEW.regular_price_per_liter <> OLD.regular_price_per_liter THEN
+        SET audit_log = CONCAT(audit_log, "Regular Price Per Liter: ", OLD.regular_price_per_liter, " -> ", NEW.regular_price_per_liter, "<br/>");
+    END IF;
+
+    IF NEW.premium_fuel_quantity <> OLD.premium_fuel_quantity THEN
+        SET audit_log = CONCAT(audit_log, "Premium Fuel Quantity: ", OLD.premium_fuel_quantity, " -> ", NEW.premium_fuel_quantity, "<br/>");
+    END IF;
+
+    IF NEW.premium_price_per_liter <> OLD.premium_price_per_liter THEN
+        SET audit_log = CONCAT(audit_log, "Premium Price Per Liter: ", OLD.premium_price_per_liter, " -> ", NEW.premium_price_per_liter, "<br/>");
+    END IF;
+
+    IF NEW.release_to <> OLD.release_to THEN
+        SET audit_log = CONCAT(audit_log, "Release To: ", OLD.release_to, " -> ", NEW.release_to, "<br/>");
+    END IF;
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Company ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
     
     IF LENGTH(audit_log) > 0 THEN
         INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
@@ -4825,6 +4893,82 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>CI Completion Date: ", NEW.ci_completion_date);
     END IF;
 
+    IF NEW.new_engine_stencil <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>New Engine Stencil: ", NEW.new_engine_stencil);
+    END IF;
+
+    IF NEW.dr_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>DR Number: ", NEW.dr_number);
+    END IF;
+
+    IF NEW.loan_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Loan Number: ", NEW.loan_number);
+    END IF;
+
+    IF NEW.released_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Released Date: ", NEW.released_date);
+    END IF;
+
+    IF NEW.renewal_tag <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Renewal Tag: ", NEW.renewal_tag);
+    END IF;
+
+    IF NEW.release_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Release Remarks Tag: ", NEW.release_remarks);
+    END IF;
+
+    IF NEW.additional_job_order_confirmation <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Additional Job Order Confirmation: ", NEW.additional_job_order_confirmation);
+    END IF;
+
+    IF NEW.ref_stock_no <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Refinancing/Brand New Stock Number: ", NEW.ref_stock_no);
+    END IF;
+
+    IF NEW.ref_engine_no <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Refinancing/Brand New Engine Number: ", NEW.ref_engine_no);
+    END IF;
+
+    IF NEW.ref_chassis_no <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Refinancing/Brand New Chassis Number: ", NEW.ref_chassis_no);
+    END IF;
+
+    IF NEW.ref_plate_no <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Refinancing/Brand New Plate Number: ", NEW.ref_plate_no);
+    END IF;
+
+    IF NEW.diesel_fuel_quantity <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Diesel Fuel Quantity: ", NEW.diesel_fuel_quantity);
+    END IF;
+
+    IF NEW.diesel_price_per_liter <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Diesel Price Per Liter: ", NEW.diesel_price_per_liter);
+    END IF;
+
+    IF NEW.regular_fuel_quantity <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Regular Fuel Quantity: ", NEW.regular_fuel_quantity);
+    END IF;
+
+    IF NEW.regular_price_per_liter <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Regular Price Per Liter: ", NEW.regular_price_per_liter);
+    END IF;
+
+    IF NEW.premium_fuel_quantity <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Premium Fuel Quantity: ", NEW.premium_fuel_quantity);
+    END IF;
+
+    IF NEW.premium_price_per_liter <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Premium Price Per Liter: ", NEW.premium_price_per_liter);
+    END IF;
+
+    IF NEW.release_to <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Release To: ", NEW.release_to);
+    END IF;
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
 END //
@@ -4910,6 +5054,222 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('tenant', NEW.tenant_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Tenant Table Triggers */
+
+CREATE TRIGGER sales_proposal_pricing_computation_trigger_update
+AFTER UPDATE ON sales_proposal_pricing_computation
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.delivery_price <> OLD.delivery_price THEN
+        SET audit_log = CONCAT(audit_log, "Delivery Price: ", OLD.delivery_price, " -> ", NEW.delivery_price, "<br/>");
+    END IF;
+
+    IF NEW.cost_of_accessories <> OLD.cost_of_accessories THEN
+        SET audit_log = CONCAT(audit_log, "Cost of Accessories: ", OLD.cost_of_accessories, " -> ", NEW.cost_of_accessories, "<br/>");
+    END IF;
+
+    IF NEW.reconditioning_cost <> OLD.reconditioning_cost THEN
+        SET audit_log = CONCAT(audit_log, "Reconditioning Cost: ", OLD.reconditioning_cost, " -> ", NEW.reconditioning_cost, "<br/>");
+    END IF;
+
+    IF NEW.subtotal <> OLD.subtotal THEN
+        SET audit_log = CONCAT(audit_log, "Sub-Total: ", OLD.subtotal, " -> ", NEW.subtotal, "<br/>");
+    END IF;
+
+    IF NEW.downpayment <> OLD.downpayment THEN
+        SET audit_log = CONCAT(audit_log, "Downpayment: ", OLD.downpayment, " -> ", NEW.downpayment, "<br/>");
+    END IF;
+
+    IF NEW.outstanding_balance <> OLD.outstanding_balance THEN
+        SET audit_log = CONCAT(audit_log, "Outstanding Balance: ", OLD.outstanding_balance, " -> ", NEW.outstanding_balance, "<br/>");
+    END IF;
+
+    IF NEW.amount_financed <> OLD.amount_financed THEN
+        SET audit_log = CONCAT(audit_log, "Amount Financed: ", OLD.amount_financed, " -> ", NEW.amount_financed, "<br/>");
+    END IF;
+
+    IF NEW.pn_amount <> OLD.pn_amount THEN
+        SET audit_log = CONCAT(audit_log, "PN Amount: ", OLD.pn_amount, " -> ", NEW.pn_amount, "<br/>");
+    END IF;
+
+    IF NEW.repayment_amount <> OLD.repayment_amount THEN
+        SET audit_log = CONCAT(audit_log, "Repayment Amount: ", OLD.repayment_amount, " -> ", NEW.repayment_amount, "<br/>");
+    END IF;
+
+    IF NEW.interest_rate <> OLD.interest_rate THEN
+        SET audit_log = CONCAT(audit_log, "Interest Rate: ", OLD.interest_rate, " -> ", NEW.interest_rate, "<br/>");
+    END IF;
+
+    IF NEW.nominal_discount <> OLD.nominal_discount THEN
+        SET audit_log = CONCAT(audit_log, "Nominal Discount: ", OLD.nominal_discount, " -> ", NEW.nominal_discount, "<br/>");
+    END IF;
+
+    IF NEW.total_delivery_price <> OLD.total_delivery_price THEN
+        SET audit_log = CONCAT(audit_log, "Total Delivery Price: ", OLD.total_delivery_price, " -> ", NEW.total_delivery_price, "<br/>");
+    END IF;
+
+    IF NEW.add_on_charge <> OLD.add_on_charge THEN
+        SET audit_log = CONCAT(audit_log, "Add On Charge: ", OLD.add_on_charge, " -> ", NEW.add_on_charge, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_pricing_computation_trigger_insert
+AFTER INSERT ON sales_proposal_pricing_computation
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Sales Proposal Pricing Computation created. <br/>';
+
+    IF NEW.delivery_price <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Delivery Price: ", NEW.delivery_price);
+    END IF;
+
+    IF NEW.cost_of_accessories <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cost of Accessories: ", NEW.cost_of_accessories);
+    END IF;
+
+    IF NEW.reconditioning_cost <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reconditioning Cost: ", NEW.reconditioning_cost);
+    END IF;
+
+    IF NEW.subtotal <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Sub-Total: ", NEW.subtotal);
+    END IF;
+
+    IF NEW.downpayment <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Downpayment: ", NEW.downpayment);
+    END IF;
+
+    IF NEW.outstanding_balance <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Outstanding Balance: ", NEW.outstanding_balance);
+    END IF;
+
+    IF NEW.amount_financed <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Amount Financed: ", NEW.amount_financed);
+    END IF;
+
+    IF NEW.pn_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>PN Amount: ", NEW.pn_amount);
+    END IF;
+
+    IF NEW.repayment_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Repayment Amount: ", NEW.repayment_amount);
+    END IF;
+
+    IF NEW.interest_rate <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Interest Rate: ", NEW.interest_rate);
+    END IF;
+
+    IF NEW.nominal_discount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Nominal Discount: ", NEW.nominal_discount);
+    END IF;
+
+    IF NEW.total_delivery_price <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Total Delivery Price: ", NEW.total_delivery_price);
+    END IF;
+
+    IF NEW.add_on_charge <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Add On Charge: ", NEW.add_on_charge);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER sales_proposal_other_charges_trigger_update
+AFTER UPDATE ON sales_proposal_other_charges
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.insurance_coverage <> OLD.insurance_coverage THEN
+        SET audit_log = CONCAT(audit_log, "Insurance Coverage: ", OLD.insurance_coverage, " -> ", NEW.insurance_coverage, "<br/>");
+    END IF;
+
+    IF NEW.insurance_premium <> OLD.insurance_premium THEN
+        SET audit_log = CONCAT(audit_log, "Insurance Premium: ", OLD.insurance_premium, " -> ", NEW.insurance_premium, "<br/>");
+    END IF;
+
+    IF NEW.handling_fee <> OLD.handling_fee THEN
+        SET audit_log = CONCAT(audit_log, "Handling Fee: ", OLD.handling_fee, " -> ", NEW.handling_fee, "<br/>");
+    END IF;
+
+    IF NEW.transfer_fee <> OLD.transfer_fee THEN
+        SET audit_log = CONCAT(audit_log, "Transfer Fee: ", OLD.transfer_fee, " -> ", NEW.transfer_fee, "<br/>");
+    END IF;
+
+    IF NEW.registration_fee <> OLD.registration_fee THEN
+        SET audit_log = CONCAT(audit_log, "Registration Fee: ", OLD.registration_fee, " -> ", NEW.registration_fee, "<br/>");
+    END IF;
+
+    IF NEW.doc_stamp_tax <> OLD.doc_stamp_tax THEN
+        SET audit_log = CONCAT(audit_log, "Doc Stamp Tax: ", OLD.doc_stamp_tax, " -> ", NEW.doc_stamp_tax, "<br/>");
+    END IF;
+
+    IF NEW.transaction_fee <> OLD.transaction_fee THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Fee: ", OLD.transaction_fee, " -> ", NEW.transaction_fee, "<br/>");
+    END IF;
+
+    IF NEW.total_other_charges <> OLD.total_other_charges THEN
+        SET audit_log = CONCAT(audit_log, "Total Other Charges: ", OLD.total_other_charges, " -> ", NEW.total_other_charges, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_other_charges_trigger_insert
+AFTER INSERT ON sales_proposal_other_charges
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Sales Proposal Other Charges created. <br/>';
+
+    IF NEW.insurance_coverage <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Insurance Coverage: ", NEW.insurance_coverage);
+    END IF;
+
+    IF NEW.insurance_premium <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Insurance Premium: ", NEW.insurance_premium);
+    END IF;
+
+    IF NEW.handling_fee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Handling Fee: ", NEW.handling_fee);
+    END IF;
+
+    IF NEW.transfer_fee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transfer Fee: ", NEW.transfer_fee);
+    END IF;
+
+    IF NEW.registration_fee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Registration Fee: ", NEW.registration_fee);
+    END IF;
+
+    IF NEW.doc_stamp_tax <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Doc Stamp Tax: ", NEW.doc_stamp_tax);
+    END IF;
+
+    IF NEW.transaction_fee <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Fee: ", NEW.transaction_fee);
+    END IF;
+
+    IF NEW.total_other_charges <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Total Other Charges: ", NEW.total_other_charges);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal', NEW.sales_proposal_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
@@ -5281,6 +5641,48 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('contact_directory', NEW.contact_directory_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Contact Directory Table Triggers */
+
+CREATE TRIGGER leave_type_trigger_update
+AFTER UPDATE ON leave_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.leave_type_name <> OLD.leave_type_name THEN
+        SET audit_log = CONCAT(audit_log, "Leave Type: ", OLD.leave_type_name, " -> ", NEW.leave_type_name, "<br/>");
+    END IF;
+
+    IF NEW.is_paid <> OLD.is_paid THEN
+        SET audit_log = CONCAT(audit_log, "Is Paid: ", OLD.is_paid, " -> ", NEW.is_paid, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('leave_type', NEW.leave_type_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER leave_type_trigger_insert
+AFTER INSERT ON leave_type
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Leave type created. <br/>';
+
+     IF NEW.leave_type_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Type: ", NEW.leave_type_name, "<br/>");
+    END IF;
+
+     IF NEW.is_paid <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Is Paid: ", NEW.is_paid, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('leave_type', NEW.leave_type_id, audit_log, NEW.last_log_by, NOW());
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */

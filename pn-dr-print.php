@@ -67,6 +67,7 @@
         $handlingFee = $otherChargesDetails['handling_fee'] ?? 0;
         $transferFee = $otherChargesDetails['transfer_fee'] ?? 0;
         $transactionFee = $otherChargesDetails['transaction_fee'] ?? 0;
+        $registrationFee = $otherChargesDetails['registration_fee'] ?? 0;
         $docStampTax = $otherChargesDetails['doc_stamp_tax'] ?? 0;
     
         $renewalAmountDetails = $salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
@@ -80,7 +81,7 @@
         $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
         $totalInsuranceFee = $registrationSecondYear + $registrationThirdYear + $registrationFourthYear;
     
-        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
+        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $registrationFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 

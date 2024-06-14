@@ -14,13 +14,21 @@
     require_once 'model/sales-proposal-model.php';
     require_once 'model/product-model.php';
     require_once 'model/id-type-model.php';
+    require_once 'model/company-model.php';
+    require_once 'model/city-model.php';
+    require_once 'model/state-model.php';
+    require_once 'model/country-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
 
     // Initialize system model
     $productModel = new ProductModel($databaseModel);
+    $companyModel = new CompanyModel($databaseModel);
     $systemModel = new SystemModel();
+    $cityModel = new CityModel($databaseModel);
+    $stateModel = new StateModel($databaseModel);
+    $countryModel = new CountryModel($databaseModel);
 
     // Initialize sales proposal model
     $salesProposalModel = new SalesProposalModel($databaseModel);
@@ -58,6 +66,7 @@
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $termLength = $salesProposalDetails['term_length'] ?? null;
         $termType = $salesProposalDetails['term_type'] ?? null;
+        $companyID = $salesProposalDetails['company_id'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
         $unitImage = $systemModel->checkImage($salesProposalDetails['unit_image'], 'default');
         $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
@@ -66,6 +75,7 @@
         $downpayment = $pricingComputationDetails['downpayment'] ?? 0;
         $amountFinanced = $pricingComputationDetails['amount_financed'] ?? 0;
         $repaymentAmount = $pricingComputationDetails['repayment_amount'] ?? 0;
+        $interestRate = $pricingComputationDetails['interest_rate']/ $termLength;
         $pnAmount = $repaymentAmount * $numberOfPayments;
     
         $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
@@ -155,6 +165,24 @@
           $plateNumber = $salesProposalDetails['ref_plate_no'] ?? null;
         }
 
+        $companyDetails = $companyModel->getCompany($companyID);
+        
+        $companyName = $companyDetails['company_name'] ?? '';
+        $companyCityID = $companyDetails['city_id'] ?? '';
+        $companyAddress = $companyDetails['address'] ?? '';
+
+        $cityDetails = $cityModel->getCity($companyCityID);
+        $companyCityName = $cityDetails['city_name'] ?? '';
+        $stateID = $cityDetails['state_id'];
+
+        $stateDetails = $stateModel->getState($stateID);
+        $companyStateName = $stateDetails['state_name'] ?? '';
+        $countryID = $stateDetails['country_id'] ?? '';
+
+        $companyCountryName = $countryModel->getCountry($countryID)['country_name'] ?? '';
+
+        $companyFullAddress = $companyAddress . ', ' . $companyCityName . ', ' . $companyStateName . ', ' . $companyCountryName;
+
         $currentDateTime = new DateTime('now');
         $currentDayOfWeek = $currentDateTime->format('N'); // 1 (Monday) through 7 (Sunday)
 
@@ -197,15 +225,15 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'This deed, made and entered into this <b><u>'. strtoupper($currentDay) .'</b></u> day of <b><u>'. strtoupper($currentMonth) .'</b></u> at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'This deed, made and entered into this <b><u>'. strtoupper(formatDay(date('d', strtotime($currentDay)))) .'</b></u> day of <b><u>'. strtoupper($currentMonth) .'</b></u> at the City of Cabanatuan, Philippines, by and between:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(1);
-    $pdf->MultiCell(0, 0, '______________________________________________________________________________________________.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '<b><u>'. strtoupper($companyName) .'</u></b>.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'a corporation duly organized and existing under the laws of the Philippines with principal office at ________________________________________________________________, represented herein by its ________________________________________________________________, hereinafter referred to as the "SELLER"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(5);
+    $pdf->MultiCell(0, 0, 'a corporation duly organized and existing under the laws of the Philippines with principal office at <b><u>'. strtoupper($companyFullAddress) .'</u></b>, represented herein by its <b><u>'. $receivedFrom .'</u></b>, hereinafter referred to as the "SELLER"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(1);
     $pdf->MultiCell(0, 0, 'and', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '_________________________________________, of legal age, Filipino citizen, married, with postal address at _________________________________________________________, hereinafter referred to as the "BUYER"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->Ln(1);
+    $pdf->MultiCell(0, 0, '<b><u>'. $customerName .'</u></b>, of legal age, Filipino citizen, married, with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b>, hereinafter referred to as the "BUYER"', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>WITHNESSETH</b>', 0, 'C', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
@@ -231,6 +259,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'That with the SELLER'. "'" .'s consent, the BUYER/ desire'. "'" .'s to acquire the said motor vehicle, subject to the following terms and conditions:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
+    $pdf->SetFont('times', '', 9.5);
     $pdf->MultiCell(0, 0, '1. That the total purchase price is <b><u>'. strtoupper($amountInWords->format($totalPn)) .'
     (P '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine currency, buyer'. "'" .'s making a down payment of  <b><u>'. strtoupper($amountInWords->format($downpayment)) .'
     (P '. number_format($downpayment, 2) .')</u></b> PESOS, Philippine currency, upon signing of this deed, receipt of which is hereby acknowledged by SELLER and the balance payable in equal installment for a period of <b><u>'. strtoupper($amountInWords->format($termLength)) .' ('. number_format($termLength) .')</u></b>  months at the rate of <b><u>'. strtoupper($amountInWords->format($repaymentAmount)) .'
@@ -239,7 +268,7 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '2. That the unpaid balance of the purchase price shall be evidenced by a Promissory Note executed by the BUYER and delivered to the SELLER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, '3. If payment is not received by the SELLER on payment due date, a late payment charge equivalent to ________________ (_________) per month based on the amount unpaid/in arrears shall be collected until fully paid;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, '3. If payment is not received by the SELLER on payment due date, a late payment charge equivalent to <b><u>'. strtoupper($amountInWords->format($interestRate)) .' PERCENT ('. $interestRate .'%)</u></b> per month based on the amount unpaid/in arrears shall be collected until fully paid;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '4. In case of full payment prior to full term by the BUYER, a reasonable prepayment discount shall be granted to BUYER;', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);

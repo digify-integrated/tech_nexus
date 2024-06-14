@@ -5438,3 +5438,25 @@ CREATE TABLE internal_dr(
 CREATE INDEX internal_dr_index_internal_dr_id ON internal_dr(internal_dr_id);
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TABLE leave_type(
+	leave_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	leave_type_name VARCHAR(100) NOT NULL,
+	is_paid VARCHAR(10) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX leave_type_index_leave_type_id ON leave_type(leave_type_id);
+
+CREATE TABLE employee_leave_entitlement(
+	employee_leave_entitlement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    contact_id INT UNSIGNED NOT NULL,
+    leave_type_id INT UNSIGNED NOT NULL,
+    entitlement_amount INT DEFAULT 0,
+    remaining_entitlement INT,
+    leave_period_start DATE NOT NULL,
+    leave_period_end DATE NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
