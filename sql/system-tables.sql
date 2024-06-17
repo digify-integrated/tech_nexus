@@ -5460,3 +5460,16 @@ CREATE TABLE employee_leave_entitlement(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE parts_inquiry(
+    parts_inquiry_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    parts_number VARCHAR(500) NOT NULL,
+    parts_description VARCHAR(1000) NOT NULL,
+    stock DOUBLE DEFAULT 0,
+    price DOUBLE,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX parts_inquiry_index_parts_inquiry_id ON parts_inquiry(parts_inquiry_id);
+CREATE INDEX parts_inquiry_index_parts_number ON parts_inquiry(parts_number);

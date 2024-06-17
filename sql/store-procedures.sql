@@ -8948,3 +8948,74 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE checkPartsInquiryExist (IN p_parts_inquiry_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM parts_inquiry
+    WHERE parts_inquiry_id = p_parts_inquiry_id;
+END //
+
+CREATE PROCEDURE checkPartsNumberExist (IN p_parts_number VARCHAR(500))
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM parts_inquiry
+    WHERE parts_number = p_parts_number;
+END //
+
+CREATE PROCEDURE insertPartsInquiry(IN p_parts_number VARCHAR(500), IN p_parts_description VARCHAR(1000), IN p_stock DOUBLE, IN p_price DOUBLE, IN p_last_log_by INT, OUT p_parts_inquiry_id INT)
+BEGIN
+    INSERT INTO parts_inquiry (parts_number, parts_description, stock, price, last_log_by) 
+	VALUES(p_parts_number, p_parts_description, p_stock, p_price, p_last_log_by);
+
+    SET p_parts_inquiry_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updatePartsInquiry(IN p_parts_inquiry_id INT, IN p_parts_number VARCHAR(500), IN p_parts_description VARCHAR(1000), IN p_stock DOUBLE, IN p_price DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE parts_inquiry
+    SET parts_number = p_parts_number,
+    parts_description = p_parts_description,
+    stock = p_stock,
+    price = p_price,
+    last_log_by = p_last_log_by
+    WHERE parts_inquiry_id = p_parts_inquiry_id;
+END //
+
+CREATE PROCEDURE updatePartsInquiryImport(IN p_parts_inquiry_id INT, IN p_parts_number VARCHAR(500), IN p_parts_description VARCHAR(1000), IN p_stock DOUBLE, IN p_price DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE parts_inquiry
+    SET parts_number = p_parts_number,
+    parts_description = p_parts_description,
+    stock = p_stock,
+    price = p_price,
+    last_log_by = p_last_log_by
+    WHERE parts_inquiry_id = p_parts_inquiry_id;
+END //
+
+CREATE PROCEDURE updatePartsInquiryImport(IN p_parts_number VARCHAR(500), IN p_parts_description VARCHAR(1000), IN p_stock DOUBLE, IN p_price DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE parts_inquiry
+    SET parts_number = p_parts_number,
+    parts_description = p_parts_description,
+    stock = p_stock,
+    price = p_price,
+    last_log_by = p_last_log_by
+    WHERE parts_number = p_parts_number;
+END //
+
+CREATE PROCEDURE deletePartsInquiry(IN p_parts_inquiry_id INT)
+BEGIN
+    DELETE FROM parts_inquiry WHERE parts_inquiry_id = p_parts_inquiry_id;
+END //
+
+CREATE PROCEDURE getPartsInquiry(IN p_parts_inquiry_id INT)
+BEGIN
+	SELECT * FROM parts_inquiry
+    WHERE parts_inquiry_id = p_parts_inquiry_id;
+END //
+
+CREATE PROCEDURE generatePartsInquiryTable()
+BEGIN
+   SELECT * FROM parts_inquiry;
+END //

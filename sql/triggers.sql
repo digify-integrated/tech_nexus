@@ -5685,4 +5685,58 @@ BEGIN
     VALUES ('leave_type', NEW.leave_type_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE TRIGGER parts_inquiry_trigger_update
+AFTER UPDATE ON parts_inquiry
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.parts_number <> OLD.parts_number THEN
+        SET audit_log = CONCAT(audit_log, "Parts Number: ", OLD.parts_number, " -> ", NEW.parts_number, "<br/>");
+    END IF;
+
+    IF NEW.parts_description <> OLD.parts_description THEN
+        SET audit_log = CONCAT(audit_log, "Parts Description: ", OLD.parts_description, " -> ", NEW.parts_description, "<br/>");
+    END IF;
+
+    IF NEW.stock <> OLD.stock THEN
+        SET audit_log = CONCAT(audit_log, "Stock: ", OLD.stock, " -> ", NEW.stock, "<br/>");
+    END IF;
+
+    IF NEW.price <> OLD.price THEN
+        SET audit_log = CONCAT(audit_log, "Price: ", OLD.price, " -> ", NEW.price, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('parts_inquiry', NEW.parts_inquiry_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER parts_inquiry_trigger_insert
+AFTER INSERT ON parts_inquiry
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Parts inquiry created. <br/>';
+
+     IF NEW.parts_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parts Number: ", NEW.parts_number, "<br/>");
+    END IF;
+
+     IF NEW.parts_description <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Parts Description: ", NEW.parts_description, "<br/>");
+    END IF;
+
+     IF NEW.stock <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Stock: ", NEW.stock, "<br/>");
+    END IF;
+
+     IF NEW.price <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Price: ", NEW.price, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('parts_inquiry', NEW.parts_inquiry_id, audit_log, NEW.last_log_by, NOW());
+END //
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
