@@ -8949,6 +8949,22 @@ END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
 
+CREATE PROCEDURE deletePartsInquiryTable()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM parts_inquiry;
+
+    ALTER TABLE parts_inquiry AUTO_INCREMENT = 1;
+
+    COMMIT;
+END //
+
 CREATE PROCEDURE checkPartsInquiryExist (IN p_parts_inquiry_id INT)
 BEGIN
 	SELECT COUNT(*) AS total
@@ -9018,4 +9034,135 @@ END //
 CREATE PROCEDURE generatePartsInquiryTable()
 BEGIN
    SELECT * FROM parts_inquiry;
+END //
+
+
+
+CREATE PROCEDURE checkLeaveEntitlementExist (IN p_leave_entitlement_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leave_entitlement
+    WHERE leave_entitlement_id = p_leave_entitlement_id;
+END //
+
+CREATE PROCEDURE insertLeaveEntitlement(IN p_contact_id INT, IN p_leave_type_id INT, IN p_entitlement_amount DOUBLE, IN p_remaining_entitlement DOUBLE, IN p_leave_period_start DATE, IN p_leave_period_end DATE, IN p_last_log_by INT, OUT p_leave_entitlement_id INT)
+BEGIN
+    INSERT INTO leave_entitlement (contact_id, leave_type_id, entitlement_amount, remaining_entitlement, leave_period_start, leave_period_end, last_log_by) 
+	VALUES(p_contact_id, p_leave_type_id, p_entitlement_amount, p_remaining_entitlement, p_leave_period_start, p_leave_period_end, p_last_log_by);
+	
+    SET p_leave_entitlement_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLeaveEntitlement(IN p_leave_entitlement_id INT, IN p_contact_id INT, IN p_leave_type_id INT, IN p_entitlement_amount DOUBLE, IN p_remaining_entitlement DOUBLE, IN p_leave_period_start DATE, IN p_leave_period_end DATE, IN p_last_log_by INT)
+BEGIN
+	UPDATE leave_entitlement
+    SET contact_id = contact_id,
+    leave_type_id = p_leave_type_id,
+    entitlement_amount = p_entitlement_amount,
+    remaining_entitlement = p_remaining_entitlement,
+    leave_period_start = p_leave_period_start,
+    leave_period_end = p_leave_period_end,
+    last_log_by = p_last_log_by
+    WHERE leave_entitlement_id = p_leave_entitlement_id;
+END //
+
+CREATE PROCEDURE deleteLeaveEntitlement(IN p_leave_entitlement_id INT)
+BEGIN
+    DELETE FROM leave_entitlement WHERE leave_entitlement_id = p_leave_entitlement_id;
+END //
+
+CREATE PROCEDURE getLeaveEntitlement(IN p_leave_entitlement_id INT)
+BEGIN
+	SELECT * FROM leave_entitlement
+    WHERE leave_entitlement_id = p_leave_entitlement_id;
+END //
+
+CREATE PROCEDURE generateLeaveEntitlementTable()
+BEGIN
+    SELECT * FROM leave_entitlement;
+END //
+
+
+
+
+
+CREATE PROCEDURE checkLeaveApplicationExist (IN p_leave_application_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM leave_application
+    WHERE leave_application_id = p_leave_application_id;
+END //
+
+CREATE PROCEDURE insertLeaveApplication(IN p_contact_id INT, IN p_leave_type_id INT, IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_last_log_by INT, OUT p_leave_application_id INT)
+BEGIN
+    INSERT INTO leave_application (contact_id, leave_type_id, reason, leave_date, leave_start_time, leave_end_time, number_of_hours, last_log_by) 
+	VALUES(p_contact_id, p_leave_type_id, p_reason, p_leave_date, p_leave_start_time, p_leave_end_time, p_number_of_hours, p_last_log_by);
+	
+    SET p_leave_application_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateLeaveApplication(IN p_leave_application_id INT, IN p_contact_id INT, IN p_leave_type_id INT, IN p_reason VARCHAR(500), IN p_leave_date DATE, IN p_leave_start_time TIME, IN p_leave_end_time TIME, IN p_number_of_hours DOUBLE, IN p_last_log_by INT)
+BEGIN
+	UPDATE leave_application
+    SET contact_id = contact_id,
+    reason = p_reason,
+    leave_date = p_leave_date,
+    leave_start_time = p_leave_start_time,
+    leave_end_time = p_leave_end_time,
+    number_of_hours = p_number_of_hours,
+    last_log_by = p_last_log_by
+    WHERE leave_application_id = p_leave_application_id;
+END //
+
+CREATE PROCEDURE updateLeaveApplicationStatus(IN p_leave_application_id INT, IN p_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    IF p_status = 'Approved' THEN
+        UPDATE leave_application
+        SET status = p_status,
+        approval_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
+    ELSEIF p_status = 'Rejected' THEN
+        UPDATE leave_application
+        SET status = p_status,
+        rejection_date = NOW(),
+        rejection_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
+    ELSEIF p_status = 'Cancelled' THEN
+        UPDATE leave_application
+        SET status = p_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_remarks,
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
+    ELSE
+        UPDATE leave_application
+        SET status = p_status,
+        for_approval_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
+    END IF;
+END //
+
+CREATE PROCEDURE deleteLeaveApplication(IN p_leave_application_id INT)
+BEGIN
+    DELETE FROM leave_application WHERE leave_application_id = p_leave_application_id;
+END //
+
+CREATE PROCEDURE getLeaveApplication(IN p_leave_application_id INT)
+BEGIN
+	SELECT * FROM leave_application
+    WHERE leave_application_id = p_leave_application_id;
+END //
+
+CREATE PROCEDURE generateLeaveApplicationTable(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM leave_application WHERE contact_id = p_contact_id;
+END //
+
+CREATE PROCEDURE generateLeaveApprovalTable(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM leave_application 
+    WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Approval';
 END //

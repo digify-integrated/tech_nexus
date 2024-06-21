@@ -123,22 +123,11 @@ class PartsInquiryController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-    
-        $checkPartsInquiryExist = $this->partsInquiryModel->checkPartsInquiryExist($partsInquiryID);
-        $total = $checkPartsInquiryExist['total'] ?? 0;
-    
-        if ($total > 0) {
-            $this->partsInquiryModel->updatePartsInquiry($partsInquiryID, $partsNumber, $partsDescription, $stock, $price, $userID);
-            
-            echo json_encode(['success' => true, 'insertRecord' => false, 'partsInquiryID' => $this->securityModel->encryptData($partsInquiryID)]);
-            exit;
-        } 
-        else {
-            $partsInquiryID = $this->partsInquiryModel->insertPartsInquiry($partsNumber, $partsDescription, $stock, $price, $userID);
 
-            echo json_encode(['success' => true, 'insertRecord' => true, 'partsInquiryID' => $this->securityModel->encryptData($partsInquiryID)]);
-            exit;
-        }
+        $this->partsInquiryModel->updatePartsInquiry($partsInquiryID, $partsNumber, $partsDescription, $stock, $price, $userID);
+
+        echo json_encode(['success' => true, 'insertRecord' => true, 'partsInquiryID' => $this->securityModel->encryptData($partsInquiryID)]);
+        exit;
     }
     # -------------------------------------------------------------
 
@@ -211,21 +200,16 @@ class PartsInquiryController {
 
         array_shift($importData);
 
+        
+        $this->partsInquiryModel->deletePartsInquiryTable();
+
         foreach ($importData as $row) {
             $partsNumber = $row[0] ?? null;
-            $partsDescription = $row[1] ?? null;
+            $partsDescription = str_replace(',', ' ', $row[1]);
             $stock = $row[2] ?? null;
-            $price = str_replace(',', '', $row[3]);
-
-            $checkPartsNumberExist = $this->partsInquiryModel->checkPartsNumberExist($partsNumber);
-                $total = $checkPartsNumberExist['total'] ?? 0;
-
-                if ($total > 0) {
-                    $this->partsInquiryModel->updatePartsInquiryImport($partsNumber, $partsDescription, $stock, $price, $userID);
-                } 
-                else {
-                    $this->partsInquiryModel->insertPartsInquiry($partsNumber, $partsDescription, $stock, $price, $userID);
-                } 
+            $price = str_replace(',', '', $row[3] ?? null);
+    
+            $partsInquiryID = $this->partsInquiryModel->insertPartsInquiry($partsNumber, $partsDescription, $stock, $price, $userID);
         }
 
         echo json_encode(['success' => true]);

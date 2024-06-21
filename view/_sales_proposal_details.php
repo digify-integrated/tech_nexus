@@ -146,7 +146,7 @@
                         </div>';
                 }
 
-                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
+                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
                   echo '<div class="previous me-2 d-none" id="sales-proposal-cancel-button">
                           <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>
                         </div>';

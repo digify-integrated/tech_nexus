@@ -44,6 +44,13 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $drType = $row['dr_type'];
                 $drStatus = $row['dr_status'];
 
+                if($drStatus == 'Released'){
+                    $releasedDate = $systemModel->checkDate('summary', $row['release_date'], '', 'm/d/Y', '');
+                }
+                else{
+                    $releasedDate = '--';
+                }
+
                 $internalDRIDEncrypted = $securityModel->encryptData($internalDRID);
 
                 $delete = '';
@@ -61,6 +68,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         </div>',
                     'DR_TYPE' => $drType,
                     'DR_STATUS' => $drStatus,
+                    'RELEASED_DATE' => $releasedDate,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="internal-dr.php?id='. $internalDRIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

@@ -227,6 +227,7 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'RELEASE_TO' },
         { 'data' : 'DR_TYPE' },
         { 'data' : 'DR_STATUS' },
+        { 'data' : 'RELEASED_DATE' },
         { 'data' : 'ACTION' }
     ];
 
@@ -235,7 +236,8 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
-        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+        { 'width': 'auto', 'aTargets': 4 },
+        { 'width': '15%','bSortable': false, 'aTargets': 5 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

@@ -84,17 +84,17 @@
 
     // Add content
     $pdf->SetFont('times', '', 11);
-    $pdf->Ln(15);
+    $pdf->Ln(25);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($releaseTo), 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(25, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(30, 4, strtoupper(date('d-M-Y')), 0, 0, 'L', 0, '', 1);
     $pdf->Cell(1, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(10, 4, $drNumber, 0, 0, 'L', 0, '', 1);
     $pdf->Ln(8);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, '-', 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(15, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(25, 4, '     ', 0, 0 , 'L', '', 1);
     $pdf->Cell(30, 4, strtoupper(date('d-M-Y')), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(8);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);

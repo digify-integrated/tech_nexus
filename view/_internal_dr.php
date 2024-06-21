@@ -43,6 +43,7 @@
                 <th>Release To</th>
                 <th>DR Type</th>
                 <th>Interal DR Status</th>
+                <th>Released Date</th>
                 <th>Actions</th>
               </tr>
             </thead>

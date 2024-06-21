@@ -3424,21 +3424,21 @@ class SalesProposalController {
     
             $salesProposalRenewalAmountDetails = $this->salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
 
-            if($salesProposalRenewalAmountDetails['insurance_coverage_second_year'] > 0){
+            if($salesProposalRenewalAmountDetails['insurance_coverage_second_year'] ?? 0 > 0){
                 $secondYearInsuranceDate = date('F d, Y', strtotime("+1 year" , strtotime($salesProposalDetails['actual_start_date'])));
             }
             else{
                 $secondYearInsuranceDate = '';
             }
 
-            if($salesProposalRenewalAmountDetails['insurance_coverage_third_year'] > 0){
+            if($salesProposalRenewalAmountDetails['insurance_coverage_third_year'] ?? 0 > 0){
                 $thirdYearInsuranceDate = date('F d, Y', strtotime("+2 year" , strtotime($salesProposalDetails['actual_start_date'])));
             }
             else{
                 $thirdYearInsuranceDate = '';
             }
 
-            if($salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] > 0){
+            if($salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] ?? 0 > 0){
                 $fourthYearInsuranceDate = date('F d, Y', strtotime("+3 year" , strtotime($salesProposalDetails['actual_start_date'])));
             }
             else{

@@ -5449,12 +5449,12 @@ CREATE TABLE leave_type(
 
 CREATE INDEX leave_type_index_leave_type_id ON leave_type(leave_type_id);
 
-CREATE TABLE employee_leave_entitlement(
-	employee_leave_entitlement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+CREATE TABLE leave_entitlement(
+	leave_entitlement_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
     contact_id INT UNSIGNED NOT NULL,
     leave_type_id INT UNSIGNED NOT NULL,
-    entitlement_amount INT DEFAULT 0,
-    remaining_entitlement INT,
+    entitlement_amount DOUBLE DEFAULT 0,
+    remaining_entitlement DOUBLE,
     leave_period_start DATE NOT NULL,
     leave_period_end DATE NOT NULL,
     last_log_by INT UNSIGNED NOT NULL,
@@ -5473,3 +5473,24 @@ CREATE TABLE parts_inquiry(
 
 CREATE INDEX parts_inquiry_index_parts_inquiry_id ON parts_inquiry(parts_inquiry_id);
 CREATE INDEX parts_inquiry_index_parts_number ON parts_inquiry(parts_number);
+
+CREATE TABLE leave_application(
+	leave_application_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    contact_id INT UNSIGNED NOT NULL,
+    leave_type_id INT UNSIGNED NOT NULL,
+    reason VARCHAR(100),
+    leave_date DATE NOT NULL,
+    leave_start_time TIME NOT NULL,
+    leave_end_time TIME NOT NULL,
+    number_of_hours DOUBLE NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Draft',
+    application_date DATETIME DEFAULT NOW(),
+    for_approval_date DATETIME,
+    approval_date DATETIME,
+    rejection_date DATETIME,
+    cancellation_date DATETIME,
+    rejection_reason VARCHAR(500),
+    cancellation_reason VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);

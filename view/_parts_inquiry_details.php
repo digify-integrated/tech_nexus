@@ -29,10 +29,6 @@
                       <button type="submit" form="parts-inquiry-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                       <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
               }
-
-              if ($partsInquiryCreateAccess['total'] > 0) {
-                echo '<a class="btn btn-success m-r-5 form-details" href="parts-inquiry.php?new">Create</a>';
-              }
             ?>
           </div>
         </div>

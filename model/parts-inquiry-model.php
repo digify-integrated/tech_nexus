@@ -166,6 +166,23 @@ class PartsInquiryModel {
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #
+    # Function: deletePartsInquiry
+    # Description: Deletes the parts inquiry.
+    #
+    # Parameters:
+    # - $p_parts_number (int): The parts inquiry ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deletePartsInquiryTable() {
+        $stmt = $this->db->getConnection()->prepare('CALL deletePartsInquiryTable()');
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
     
     # -------------------------------------------------------------
     #   Get methods

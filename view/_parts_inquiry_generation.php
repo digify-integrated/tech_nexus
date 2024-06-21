@@ -43,6 +43,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $partsDescription = $row['parts_description'];
                 $stock = $row['stock'];
                 $price = $row['price'];
+                $uploadDate = $systemModel->checkDate('empty', $row['upload_date'], '', 'm/d/Y g:i:s a', '');
 
                 $partsInquiryIDEncrypted = $securityModel->encryptData($partsInquiryID);
 
@@ -56,11 +57,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $response[] = [
                     'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $partsInquiryID .'">',
                     'PARTS_NUMBER' => ' <div class="col">
-                                        <h6 class="mb-0">'. $partsNumber .'</h6>
-                                        <p class="text-muted f-12 mb-0">'. $partsDescription .'</p>
+                                        <h6 class="mb-0">'. strtoupper($partsNumber) .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. strtoupper($partsDescription) .'</p>
                                         </div>',
                     'STOCK' => $stock,
                     'PRICE' => number_format($price, 2),
+                    'UPLOAD_DATE' => $uploadDate,
                     'ACTION' => '<div class="d-flex gap-2">
                                     <a href="parts-inquiry.php?id='. $partsInquiryIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>

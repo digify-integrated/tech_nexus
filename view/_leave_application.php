@@ -6,26 +6,26 @@
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-sm-6">
-                <h5>Leave Entitlement</h5>
+                <h5>Leave Application</h5>
               </div>
               <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
                 <?php
-                  if($leaveEntitlementCreateAccess['total'] > 0 || $leaveEntitlementDeleteAccess['total'] > 0){
+                  if($leaveApplicationCreateAccess['total'] > 0 || $leaveApplicationDeleteAccess['total'] > 0){
                     $action = '';
                                 
-                    if($leaveEntitlementDeleteAccess['total'] > 0){
+                    if($leaveApplicationDeleteAccess['total'] > 0){
                       $action .= '<div class="btn-group m-r-10">
                                     <button type="button" class="btn btn-outline-secondary dropdown-toggle d-none action-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                      <li><button class="dropdown-item" type="button" id="delete-leave-entitlement">Delete Leave Entitlement</button></li>
+                                      <li><button class="dropdown-item" type="button" id="delete-leave-application">Delete Leave Application</button></li>
                                     </ul>
                                   </div>';
                     }
 
-                    if($leaveEntitlementCreateAccess['total'] > 0){
-                      $action .= '<a href="leave-entitlement.php?new" class="btn btn-success">Create</a>';
+                    if($leaveApplicationCreateAccess['total'] > 0){
+                      $action .= '<a href="leave-application.php?new" class="btn btn-success">Create</a>';
                     }
-                                
+
                     echo $action;
                   }
                 ?>
@@ -36,13 +36,13 @@
             <div class="row">
               <div class="col-xl-12">
                 <div class="table-responsive dt-responsive">
-                  <table id="leave-entitlement-table" class="table table-hover nowrap w-100 text-uppercase">
+                  <table id="leave-application-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
-                        <th>Employee</th>
                         <th>Leave Type</th>
-                        <th>Entitlement</th>
-                        <th>Period Covered</th>
+                        <th>Leave Date</th>
+                        <th>Application Date</th>
+                        <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>

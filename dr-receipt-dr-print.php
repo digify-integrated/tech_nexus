@@ -160,7 +160,7 @@ $customerAddress = '';
     $pdf->Ln(8);
     $pdf->Cell(18, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerAddress), 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(22);
+    $pdf->Ln(18);
     $pdf->SetTextColor(255, 0, 0);
     $pdf->MultiCell(5, 4, '', 0, 'L', false, 0, '', '', true);
     $pdf->MultiCell(100, 4, '<b><u>'. $fullStockNumber .'</u></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);

@@ -5,7 +5,7 @@
     
   $partsInquiryModel = new PartsInquiryModel($databaseModel);
 
-  $pageTitle = 'Upload Setting';
+  $pageTitle = 'Parts Inquiry';
   
   $partsInquiryReadAccess = $userModel->checkMenuItemAccessRights($user_id, 94, 'read');
   $partsInquiryCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 94, 'create');

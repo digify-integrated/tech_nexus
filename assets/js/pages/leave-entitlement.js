@@ -2,29 +2,25 @@
     'use strict';
 
     $(function() {
-        if($('#parts-inquiry-table').length){
-            partsInquiryTable('#parts-inquiry-table');
+        if($('#leave-entitlement-table').length){
+            leaveEntitlementTable('#leave-entitlement-table');
         }
 
-        if($('#parts-inquiry-form').length){
-            partsInquiryForm();
+        if($('#leave-entitlement-form').length){
+            leaveEntitlementForm();
         }
 
-        if($('#import-parts-inquiry-form').length){
-            importPartsInquiryForm();
+        if($('#leave-entitlement-id').length){
+            displayDetails('get leave entitlement details');
         }
 
-        if($('#parts-inquiry-id').length){
-            displayDetails('get parts inquiry details');
-        }
-
-        $(document).on('click','.delete-parts-inquiry',function() {
-            const parts_inquiry_id = $(this).data('parts-inquiry-id');
-            const transaction = 'delete parts inquiry';
+        $(document).on('click','.delete-leave-entitlement',function() {
+            const leave_entitlement_id = $(this).data('leave-entitlement-id');
+            const transaction = 'delete leave entitlement';
     
             Swal.fire({
-                title: 'Confirm Parts Inquiry Deletion',
-                text: 'Are you sure you want to delete this parts inquiry?',
+                title: 'Confirm Leave Entitlement Deletion',
+                text: 'Are you sure you want to delete this leave entitlement?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -36,16 +32,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/parts-inquiry-controller.php',
+                        url: 'controller/leave-entitlement-controller.php',
                         dataType: 'json',
                         data: {
-                            parts_inquiry_id : parts_inquiry_id, 
+                            leave_entitlement_id : leave_entitlement_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                showNotification('Delete Parts Inquiry Success', 'The parts inquiry has been deleted successfully.', 'success');
-                                reloadDatatable('#parts-inquiry-table');
+                                showNotification('Delete Leave Entitlement Success', 'The leave entitlement has been deleted successfully.', 'success');
+                                reloadDatatable('#leave-entitlement-table');
                             }
                             else {
                                 if (response.isInactive) {
@@ -53,11 +49,11 @@
                                     window.location = 'logout.php?logout';
                                 }
                                 else if (response.notExist) {
-                                    showNotification('Delete Parts Inquiry Error', 'The parts inquiry does not exist.', 'danger');
-                                    reloadDatatable('#parts-inquiry-table');
+                                    showNotification('Delete Leave Entitlement Error', 'The leave entitlement does not exist.', 'danger');
+                                    reloadDatatable('#leave-entitlement-table');
                                 }
                                 else {
-                                    showNotification('Delete Parts Inquiry Error', response.message, 'danger');
+                                    showNotification('Delete Leave Entitlement Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -74,20 +70,20 @@
             });
         });
 
-        $(document).on('click','#delete-parts-inquiry',function() {
-            let parts_inquiry_id = [];
-            const transaction = 'delete multiple parts inquiry';
+        $(document).on('click','#delete-leave-entitlement',function() {
+            let leave_entitlement_id = [];
+            const transaction = 'delete multiple leave entitlement';
 
             $('.datatable-checkbox-children').each((index, element) => {
                 if ($(element).is(':checked')) {
-                    parts_inquiry_id.push(element.value);
+                    leave_entitlement_id.push(element.value);
                 }
             });
     
-            if(parts_inquiry_id.length > 0){
+            if(leave_entitlement_id.length > 0){
                 Swal.fire({
-                    title: 'Confirm Multiple Parts Inquiries Deletion',
-                    text: 'Are you sure you want to delete these parts inquiries?',
+                    title: 'Confirm Multiple Leave Entitlements Deletion',
+                    text: 'Are you sure you want to delete these leave entitlements?',
                     icon: 'warning',
                     showCancelButton: !0,
                     confirmButtonText: 'Delete',
@@ -99,16 +95,16 @@
                     if (result.value) {
                         $.ajax({
                             type: 'POST',
-                            url: 'controller/parts-inquiry-controller.php',
+                            url: 'controller/leave-entitlement-controller.php',
                             dataType: 'json',
                             data: {
-                                parts_inquiry_id: parts_inquiry_id,
+                                leave_entitlement_id: leave_entitlement_id,
                                 transaction : transaction
                             },
                             success: function (response) {
                                 if (response.success) {
-                                    showNotification('Delete Parts Inquiry Success', 'The selected parts inquiries have been deleted successfully.', 'success');
-                                    reloadDatatable('#parts-inquiry-table');
+                                    showNotification('Delete Leave Entitlement Success', 'The selected leave entitlements have been deleted successfully.', 'success');
+                                        reloadDatatable('#leave-entitlement-table');
                                 }
                                 else {
                                     if (response.isInactive) {
@@ -116,7 +112,7 @@
                                         window.location = 'logout.php?logout';
                                     }
                                     else {
-                                        showNotification('Delete Parts Inquiry Error', response.message, 'danger');
+                                        showNotification('Delete Leave Entitlement Error', response.message, 'danger');
                                     }
                                 }
                             },
@@ -137,17 +133,17 @@
                 });
             }
             else{
-                showNotification('Deletion Multiple Parts Inquiry Error', 'Please select the parts inquiries you wish to delete.', 'danger');
+                showNotification('Deletion Multiple Leave Entitlement Error', 'Please select the leave entitlements you wish to delete.', 'danger');
             }
         });
 
-        $(document).on('click','#delete-parts-inquiry-details',function() {
-            const parts_inquiry_id = $('#parts-inquiry-id').text();
-            const transaction = 'delete parts inquiry';
+        $(document).on('click','#delete-leave-entitlement-details',function() {
+            const leave_entitlement_id = $('#leave-entitlement-id').text();
+            const transaction = 'delete leave entitlement';
     
             Swal.fire({
-                title: 'Confirm Parts Inquiry Deletion',
-                text: 'Are you sure you want to delete this parts inquiry?',
+                title: 'Confirm Leave Entitlement Deletion',
+                text: 'Are you sure you want to delete this leave entitlement?',
                 icon: 'warning',
                 showCancelButton: !0,
                 confirmButtonText: 'Delete',
@@ -159,16 +155,16 @@
                 if (result.value) {
                     $.ajax({
                         type: 'POST',
-                        url: 'controller/parts-inquiry-controller.php',
+                        url: 'controller/leave-entitlement-controller.php',
                         dataType: 'json',
                         data: {
-                            parts_inquiry_id : parts_inquiry_id, 
+                            leave_entitlement_id : leave_entitlement_id, 
                             transaction : transaction
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Deleted Parts Inquiry Success', 'The parts inquiry has been deleted successfully.', 'success');
-                                window.location = 'parts-inquiry.php';
+                                setNotification('Deleted Leave Entitlement Success', 'The leave entitlement has been deleted successfully.', 'success');
+                                window.location = 'leave-entitlement.php';
                             }
                             else {
                                 if (response.isInactive) {
@@ -179,7 +175,7 @@
                                     window.location = '404.php';
                                 }
                                 else {
-                                    showNotification('Delete Parts Inquiry Error', response.message, 'danger');
+                                    showNotification('Delete Leave Entitlement Error', response.message, 'danger');
                                 }
                             }
                         },
@@ -197,44 +193,46 @@
         });
 
         $(document).on('click','#discard-create',function() {
-            discardCreate('parts-inquiry.php');
+            discardCreate('leave-entitlement.php');
         });
 
         $(document).on('click','#edit-form',function() {
-            displayDetails('get parts inquiry details');
+            displayDetails('get leave entitlement details');
 
             enableForm();
+        });
+
+        $(document).on('click','#apply-filter',function() {
+            leaveEntitlementTable('#leave-entitlement-table');
         });
     });
 })(jQuery);
 
-function partsInquiryTable(datatable_name, buttons = false, show_all = false){
-    const type = 'parts inquiry table';
+function leaveEntitlementTable(datatable_name, buttons = false, show_all = false){
+    const type = 'leave entitlement table';
     var settings;
 
     const column = [ 
-        { 'data' : 'CHECK_BOX' },
-        { 'data' : 'PARTS_NUMBER' },
-        { 'data' : 'STOCK' },
-        { 'data' : 'PRICE' },
-        { 'data' : 'UPLOAD_DATE' },
+        { 'data' : 'EMPLOYEE' },
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'ENTITLEMENT' },
+        { 'data' : 'PERIOD_COVERED' },
         { 'data' : 'ACTION' }
     ];
 
     const column_definition = [
-        { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': '39%', 'aTargets': 1 },
-        { 'width': '15%', 'aTargets': 2 },
-        { 'width': '15%', 'aTargets': 3 },
-        { 'width': '15%', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
 
     settings = {
         'ajax': { 
-            'url' : 'view/_parts_inquiry_generation.php',
+            'url' : 'view/_leave_entitlement_generation.php',
             'method' : 'POST',
             'dataType': 'json',
             'data': {'type' : type},
@@ -269,35 +267,41 @@ function partsInquiryTable(datatable_name, buttons = false, show_all = false){
     $(datatable_name).dataTable(settings);
 }
 
-function partsInquiryForm(){
-    $('#parts-inquiry-form').validate({
+function leaveEntitlementForm(){
+    $('#leave-entitlement-form').validate({
         rules: {
-            parts_inquiry_id: {
+            employee_id: {
                 required: true
             },
-            stock: {
+            leave_type_id: {
                 required: true
             },
-            parts_description: {
+            entitlement_amount: {
                 required: true
             },
-            price: {
+            leave_period_start: {
                 required: true
             },
+            leave_period_end: {
+                required: true
+            }
         },
         messages: {
-            parts_inquiry_id: {
-                required: 'Please enter the part number'
+            employee_id: {
+                required: 'Please choose the employee'
             },
-            stock: {
-                required: 'Please enter the stock'
+            leave_type_id: {
+                required: 'Please choose the leave type'
             },
-            parts_description: {
-                required: 'Please enter the description'
+            entitlement_amount: {
+                required: 'Please enter the entitlement amount'
             },
-            price: {
-                required: 'Please enter the price'
+            leave_period_start: {
+                required: 'Please choose the coverage start date'
             },
+            leave_period_end: {
+                required: 'Please choose the coverage end date'
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -329,24 +333,24 @@ function partsInquiryForm(){
             }
         },
         submitHandler: function(form) {
-            const parts_inquiry_id = $('#parts-inquiry-id').text();
-            const transaction = 'save parts inquiry';
+            const leave_entitlement_id = $('#leave-entitlement-id').text();
+            const transaction = 'save leave entitlement';
         
             $.ajax({
                 type: 'POST',
-                url: 'controller/parts-inquiry-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&parts_inquiry_id=' + parts_inquiry_id,
+                url: 'controller/leave-entitlement-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&leave_entitlement_id=' + leave_entitlement_id,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-data');
                 },
                 success: function (response) {
                     if (response.success) {
-                        const notificationMessage = response.insertRecord ? 'Insert Parts Inquiry Success' : 'Update Parts Inquiry Success';
-                        const notificationDescription = response.insertRecord ? 'The parts inquiry has been inserted successfully.' : 'The parts inquiry has been updated successfully.';
+                        const notificationMessage = response.insertRecord ? 'Insert Leave Entitlement Success' : 'Update Leave Entitlement Success';
+                        const notificationDescription = response.insertRecord ? 'The leave entitlement has been inserted successfully.' : 'The leave entitlement has been updated successfully.';
                         
                         setNotification(notificationMessage, notificationDescription, 'success');
-                        window.location = 'parts-inquiry.php?id=' + response.partsInquiryID;
+                        window.location = 'leave-entitlement.php?id=' + response.leaveEntitlementID;
                     }
                     else {
                         if (response.isInactive) {
@@ -375,128 +379,44 @@ function partsInquiryForm(){
     });
 }
 
-function importPartsInquiryForm(){
-    $('#import-parts-inquiry-form').validate({
-        rules: {
-            import_file: {
-                required: true
-            }
-        },
-        messages: {
-            import_file: {
-                required: 'Please choose the import file'
-            }
-        },
-        errorPlacement: function (error, element) {
-            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
-              error.insertAfter(element.next('.select2-container'));
-            }
-            else if (element.parent('.input-group').length) {
-              error.insertAfter(element.parent());
-            }
-            else {
-              error.insertAfter(element);
-            }
-        },
-        highlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
-            }
-            else {
-              inputElement.addClass('is-invalid');
-            }
-        },
-        unhighlight: function(element) {
-            var inputElement = $(element);
-            if (inputElement.hasClass('select2-hidden-accessible')) {
-              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
-            }
-            else {
-              inputElement.removeClass('is-invalid');
-            }
-        },
-        submitHandler: function(form) {
-            const transaction = 'save parts inquiry import';
-            var formData = new FormData(form);
-            formData.append('transaction', transaction);
-        
-            $.ajax({
-                type: 'POST',
-                url: 'controller/parts-inquiry-controller.php',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                beforeSend: function() {
-                    disableFormSubmitButton('submit-load-file');
-                },
-                success: function (response) {
-                    if (response.success) {
-                        setNotification('Parts Inquiry Load Success', 'The parts inquiry has been loaded successfully.', 'success');
-                        window.location.reload();
-                    }
-                    else {
-                        if (response.isInactive) {
-                            setNotification('User Inactive', response.message, 'danger');
-                            window.location = 'logout.php?logout';
-                        }
-                        else {
-                            showNotification('Transaction Error', response.message, 'danger');
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                    if (xhr.responseText) {
-                        fullErrorMessage += `, Response: ${xhr.responseText}`;
-                    }
-                    showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    enableFormSubmitButton('submit-load-file', 'Submit');
-                }
-            });
-        
-            return false;
-        }
-    });
-}
-
 function displayDetails(transaction){
     switch (transaction) {
-        case 'get parts inquiry details':
-            const parts_inquiry_id = $('#parts-inquiry-id').text();
+        case 'get leave entitlement details':
+            const leave_entitlement_id = $('#leave-entitlement-id').text();
             
             $.ajax({
-                url: 'controller/parts-inquiry-controller.php',
+                url: 'controller/leave-entitlement-controller.php',
                 method: 'POST',
                 dataType: 'json',
                 data: {
-                    parts_inquiry_id : parts_inquiry_id, 
+                    leave_entitlement_id : leave_entitlement_id, 
                     transaction : transaction
                 },
                 beforeSend: function() {
-                    resetForm('parts-inquiry-form');
+                    resetForm('leave-entitlement-form');
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#parts_number').val(response.partsNumber);
-                        $('#parts_description').val(response.partsDescription);
-                        $('#stock').val(response.stock);
-                        $('#price').val(response.price);
+                        $('#leave_entitlement_id').val(leave_entitlement_id);
+                        $('#entitlement_amount').val(response.entitlementAmount);
+                        $('#leave_period_start').val(response.leavePeriodStart);
+                        $('#leave_period_end').val(response.leavePeriodEnd);
 
-                        $('#parts_number_label').text(response.partsNumber);
-                        $('#parts_description_label').text(response.partsDescription);
-                        $('#stock_label').text(response.stock);
-                        $('#price_label').text(response.price);
+                        checkOptionExist('#employee_id', response.contactID, '');
+                        checkOptionExist('#leave_type_id', response.leaveTypeID, '');
+
+                        $('#employee_id_label').text(response.employeeName);
+                        $('#leave_type_id_label').text(response.leaveTypeName);
+                        $('#entitlement_amount_label').text(response.entitlementAmount);
+                        $('#leave_period_start_label').text(response.leavePeriodStart);
+                        $('#leave_period_end_label').text(response.leavePeriodEnd);
                     } 
                     else {
                         if(response.isInactive){
                             window.location = 'logout.php?logout';
                         }
                         else{
-                            showNotification('Get Parts Inquiry Details Error', response.message, 'danger');
+                            showNotification('Get Leave Entitlement Details Error', response.message, 'danger');
                         }
                     }
                 },

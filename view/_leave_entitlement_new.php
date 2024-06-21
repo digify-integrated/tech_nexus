@@ -23,7 +23,7 @@
             <div class="col-lg-10">
                 <select class="form-control select2" name="employee_id" id="employee_id">
                     <option value="">--</option>
-                    <?php echo $employeeModel->generateEmployeeOptions('all'); ?>
+                    <?php echo $employeeModel->generateEmployeeOptions('active employee'); ?>
                 </select>
             </div>
           </div>
@@ -35,7 +35,7 @@
                     <?php echo $leaveTypeModel->generateLeaveTypeOptions(); ?>
                 </select>
             </div>
-            <label class="col-lg-2 col-form-label">Entitlement <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Entitlement (in hours) <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="entitlement_amount" name="entitlement_amount" min="1">
             </div>

@@ -12,6 +12,7 @@
     require_once 'model/system-model.php';
     require_once 'model/customer-model.php';
     require_once 'model/sales-proposal-model.php';
+    require_once 'model/id-type-model.php';
 
     // Initialize database model
     $databaseModel = new DatabaseModel();
@@ -24,6 +25,7 @@
 
     // Initialize customer model
     $customerModel = new CustomerModel($databaseModel);
+    $idTypeModel = new IDTypeModel($databaseModel);
 
     if(isset($_GET['id'])){
         if(empty($_GET['id'])){
@@ -81,7 +83,7 @@
         $insurancePremiumFourthYear = $renewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
         $totalInsuranceFee = $registrationSecondYear + $registrationThirdYear + $registrationFourthYear;
     
-        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $registrationFee + $transactionFee + $totalRenewalFee + $totalInsuranceFee + $docStampTax;
+        $totalCharges = $insurancePremium + $handlingFee + $transferFee + $registrationFee + $transactionFee + $docStampTax;
         
         $totalDeposit = $salesProposalModel->getSalesProposalAmountOfDepositTotal($salesProposalID);
 
@@ -96,10 +98,25 @@
         $comakerDetails = $customerModel->getPersonalInformation($comakerID);
         $comakerName = strtoupper($comakerDetails['file_as']) ?? null;    
     
+        $customerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($customerID);
+        $customeridTypeID = $customerPrimaryID['id_type_name'] ?? '';
+        $customeridNumber = $customerPrimaryID['id_number'] ?? '';
+
         $customerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($customerID);
         $customerAddress = $customerPrimaryAddress['address'] . ', ' . $customerPrimaryAddress['city_name'] . ', ' . $customerPrimaryAddress['state_name'] . ', ' . $customerPrimaryAddress['country_name'];
     
         $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
+    
+        $comakerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($comakerID);
+        $comakeridTypeID = $customerPrimaryID['id_type_name'] ?? '';
+        $comakeridNumber = $customerPrimaryID['id_number'] ?? '';
+
+        if(!empty($comakerID)){
+          $comakerIDNumber = $comakeridTypeID . ' - ' . $comakeridNumber;
+        }
+        else{
+          $comakerIDNumber = '';
+        }
     
         if(!empty($comakerPrimaryAddress['address'])){
           $comakerAddress = $comakerPrimaryAddress['address'] . ', ' . $comakerPrimaryAddress['city_name'] . ', ' . $comakerPrimaryAddress['state_name'] . ', ' . $comakerPrimaryAddress['country_name'];
@@ -166,6 +183,15 @@
     $pdf->Cell(90, 8, 'MAKER', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
     $pdf->Cell(90, 8, 'CO-MAKER', 0, 0, 'C');
+
+    $pdf->Ln(15);
+    $pdf->Cell(90, 4, strtoupper($customeridTypeID) . ' - ' . strtoupper($customeridNumber), 'B', 0, 'C', 0, '', 1);
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 4, strtoupper($comakerIDNumber), 'B', 0, 'C', 0, '', 1);
+    $pdf->Ln(5);
+    $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L', '', 1);
+    $pdf->Cell(90, 8, 'ID NUMBER', 0, 0, 'C');
 
     $pdf->Ln(15);
     $pdf->Cell(90, 4, strtoupper($customerAddress), 'B', 0, 'L', 0, '', 1);

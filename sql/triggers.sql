@@ -5740,3 +5740,209 @@ BEGIN
 END //
 
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE TRIGGER leave_entitlement_trigger_update
+AFTER UPDATE ON leave_entitlement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contact_id <> OLD.contact_id THEN
+        SET audit_log = CONCAT(audit_log, "Contact ID: ", OLD.contact_id, " -> ", NEW.contact_id, "<br/>");
+    END IF;
+
+    IF NEW.leave_type_id <> OLD.leave_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Leave Type ID: ", OLD.leave_type_id, " -> ", NEW.leave_type_id, "<br/>");
+    END IF;
+
+    IF NEW.entitlement_amount <> OLD.entitlement_amount THEN
+        SET audit_log = CONCAT(audit_log, "Entitlement: ", OLD.entitlement_amount, " -> ", NEW.entitlement_amount, "<br/>");
+    END IF;
+
+    IF NEW.remaining_entitlement <> OLD.remaining_entitlement THEN
+        SET audit_log = CONCAT(audit_log, "Remaining Entitlement: ", OLD.remaining_entitlement, " -> ", NEW.remaining_entitlement, "<br/>");
+    END IF;
+
+    IF NEW.leave_period_start <> OLD.leave_period_start THEN
+        SET audit_log = CONCAT(audit_log, "Leave Period Start: ", OLD.leave_period_start, " -> ", NEW.leave_period_start, "<br/>");
+    END IF;
+
+    IF NEW.leave_period_end <> OLD.leave_period_end THEN
+        SET audit_log = CONCAT(audit_log, "Leave Period End: ", OLD.leave_period_end, " -> ", NEW.leave_period_end, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('leave_entitlement', NEW.leave_entitlement_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER leave_entitlement_trigger_insert
+AFTER INSERT ON leave_entitlement
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Leave entitlement created. <br/>';
+
+     IF NEW.contact_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact ID: ", NEW.contact_id, "<br/>");
+    END IF;
+
+     IF NEW.leave_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Type ID: ", NEW.leave_type_id, "<br/>");
+    END IF;
+
+     IF NEW.entitlement_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Entitlement: ", NEW.entitlement_amount, "<br/>");
+    END IF;
+
+     IF NEW.remaining_entitlement <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remaining Entitlement: ", NEW.remaining_entitlement, "<br/>");
+    END IF;
+
+     IF NEW.leave_period_start <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Period Start: ", NEW.leave_period_start, "<br/>");
+    END IF;
+
+     IF NEW.leave_period_end <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Period End: ", NEW.leave_period_end, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('leave_entitlement', NEW.leave_entitlement_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+
+
+CREATE TRIGGER leave_application_trigger_update
+AFTER UPDATE ON leave_application
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.contact_id <> OLD.contact_id THEN
+        SET audit_log = CONCAT(audit_log, "Contact ID: ", OLD.contact_id, " -> ", NEW.contact_id, "<br/>");
+    END IF;
+
+    IF NEW.leave_type_id <> OLD.leave_type_id THEN
+        SET audit_log = CONCAT(audit_log, "Leave Type ID: ", OLD.leave_type_id, " -> ", NEW.leave_type_id, "<br/>");
+    END IF;
+
+    IF NEW.reason <> OLD.reason THEN
+        SET audit_log = CONCAT(audit_log, "Reason: ", OLD.reason, " -> ", NEW.reason, "<br/>");
+    END IF;
+
+    IF NEW.leave_date <> OLD.leave_date THEN
+        SET audit_log = CONCAT(audit_log, "Leave Date: ", OLD.leave_date, " -> ", NEW.leave_date, "<br/>");
+    END IF;
+
+    IF NEW.leave_start_time <> OLD.leave_start_time THEN
+        SET audit_log = CONCAT(audit_log, "Leave Start Time: ", OLD.leave_start_time, " -> ", NEW.leave_start_time, "<br/>");
+    END IF;
+
+    IF NEW.leave_end_time <> OLD.leave_end_time THEN
+        SET audit_log = CONCAT(audit_log, "Leave End Time: ", OLD.leave_end_time, " -> ", NEW.leave_end_time, "<br/>");
+    END IF;
+
+    IF NEW.number_of_hours <> OLD.number_of_hours THEN
+        SET audit_log = CONCAT(audit_log, "Number Of Hours: ", OLD.number_of_hours, " -> ", NEW.number_of_hours, "<br/>");
+    END IF;
+
+    IF NEW.status <> OLD.status THEN
+        SET audit_log = CONCAT(audit_log, "Number Of Hours: ", OLD.status, " -> ", NEW.status, "<br/>");
+    END IF;
+
+    IF NEW.application_date <> OLD.application_date THEN
+        SET audit_log = CONCAT(audit_log, "Application Date: ", OLD.application_date, " -> ", NEW.application_date, "<br/>");
+    END IF;
+
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.approval_date, " -> ", NEW.approval_date, "<br/>");
+    END IF;
+
+    IF NEW.rejection_date <> OLD.rejection_date THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Date: ", OLD.rejection_date, " -> ", NEW.rejection_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.rejection_reason <> OLD.rejection_reason THEN
+        SET audit_log = CONCAT(audit_log, "Rejection Date: ", OLD.rejection_reason, " -> ", NEW.rejection_reason, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('leave_application', NEW.leave_application_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER leave_application_trigger_insert
+AFTER INSERT ON leave_application
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Leave application created. <br/>';
+
+     IF NEW.contact_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Contact ID: ", NEW.contact_id, "<br/>");
+    END IF;
+
+     IF NEW.leave_type_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Type ID: ", NEW.leave_type_id, "<br/>");
+    END IF;
+
+     IF NEW.reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reason: ", NEW.reason, "<br/>");
+    END IF;
+
+     IF NEW.leave_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Date: ", NEW.leave_date, "<br/>");
+    END IF;
+
+     IF NEW.leave_start_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave Start Time: ", NEW.leave_start_time, "<br/>");
+    END IF;
+
+     IF NEW.leave_end_time <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Leave End Time: ", NEW.leave_end_time, "<br/>");
+    END IF;
+
+     IF NEW.number_of_hours <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Number Of Hours: ", NEW.number_of_hours, "<br/>");
+    END IF;
+
+     IF NEW.status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Status: ", NEW.status, "<br/>");
+    END IF;
+
+     IF NEW.application_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Application Date: ", NEW.application_date, "<br/>");
+    END IF;
+
+     IF NEW.approval_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Date: ", NEW.approval_date, "<br/>");
+    END IF;
+
+     IF NEW.rejection_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rejection Date: ", NEW.rejection_date, "<br/>");
+    END IF;
+
+     IF NEW.cancellation_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+     IF NEW.rejection_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Rejection Reason: ", NEW.rejection_reason, "<br/>");
+    END IF;
+
+     IF NEW.cancellation_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Reason: ", NEW.cancellation_reason, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('leave_application', NEW.leave_application_id, audit_log, NEW.last_log_by, NOW());
+END //
