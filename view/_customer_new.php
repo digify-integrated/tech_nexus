@@ -19,6 +19,16 @@
       <div class="card-body">
         <form id="add-customer-form" method="post" action="#">
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Contact Type <span class="text-danger">*</span></label>
+            <div class="col-lg-10">
+              <select class="form-control select2" name="contact_type" id="contact_type">
+                <option value="">--</option>
+                <option value="1">Indvidual</option>
+                <option value="0">Corporate</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">First Name <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
@@ -49,7 +59,7 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Birthday <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Birthday</label>
             <div class="col-lg-4">
               <div class="input-group date">
                 <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
@@ -58,20 +68,20 @@
                 </span>
               </div>
             </div>
-            <label class="col-lg-2 col-form-label">Birth Place <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Birth Place</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Gender <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Gender</label>
             <div class="col-lg-4">
               <select class="form-control select2" name="gender" id="gender">
                 <option value="">--</option>
                 <?php echo $genderModel->generateGenderOptions(); ?>
               </select>
             </div>
-            <label class="col-lg-2 col-form-label">Civil Status <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Civil Status</label>
             <div class="col-lg-4">
               <select class="form-control select2" name="civil_status" id="civil_status">
                 <option value="">--</option>

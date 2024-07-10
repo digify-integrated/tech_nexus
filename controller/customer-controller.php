@@ -1289,6 +1289,7 @@ class CustomerController {
         }
     
         $userID = $_SESSION['user_id'];
+        $contactType = htmlspecialchars($_POST['contact_type'], ENT_QUOTES, 'UTF-8');
         $firstName = htmlspecialchars($_POST['first_name'], ENT_QUOTES, 'UTF-8');
         $middleName = htmlspecialchars($_POST['middle_name'], ENT_QUOTES, 'UTF-8');
         $lastName = htmlspecialchars($_POST['last_name'], ENT_QUOTES, 'UTF-8');
@@ -1329,7 +1330,7 @@ class CustomerController {
             exit;
         } 
     
-        $customerID = $this->customerModel->insertCustomer($customerUniqueID, $userID);
+        $customerID = $this->customerModel->insertCustomer($customerUniqueID, $contactType, $userID);
         $this->customerModel->insertPersonalInformation($customerID, $fileAs, $firstName, $middleName, $lastName, $suffix, $nickname, $corporateName, $bio, $civilStatus, $gender, $religion, $bloodType, $birthday, $birthPlace, $height, $weight, $tin, $userID);
 
         $this->systemSettingModel->updateSystemSettingValue(5, $customerUniqueID, $userID);

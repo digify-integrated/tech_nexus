@@ -419,9 +419,10 @@ class CustomerModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertCustomer($p_customer_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertCustomer(:p_customer_id, :p_last_log_by, @p_contact_id)');
+    public function insertCustomer($p_customer_id, $p_is_individual, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertCustomer(:p_customer_id, :p_is_individual, :p_last_log_by, @p_contact_id)');
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_is_individual', $p_is_individual, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

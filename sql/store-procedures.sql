@@ -7011,10 +7011,10 @@ BEGIN
     AND contact_id NOT IN (SELECT comaker_id FROM contact_comaker WHERE contact_id = p_contact_id);
 END //
 
-CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_last_log_by INT, OUT p_contact_id INT)
+CREATE PROCEDURE insertCustomer(IN p_customer_id INT, IN p_is_individual INT, IN p_last_log_by INT, OUT p_contact_id INT)
 BEGIN
-   INSERT INTO contact (customer_id, is_customer, last_log_by) 
-	VALUES(p_customer_id, 1, p_last_log_by);
+   INSERT INTO contact (customer_id, is_customer, is_individual, last_log_by) 
+	VALUES(p_customer_id, 1, p_is_individual, p_last_log_by);
 	
     SET p_contact_id = LAST_INSERT_ID();
 END //

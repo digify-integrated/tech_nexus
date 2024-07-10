@@ -200,6 +200,16 @@ if($addCustomerComaker['total'] > 0){
                 <div class="col-lg-12">
                   <form id="personal-information-form" method="post" action="#">
                     <div class="form-group row">
+                      <div class="col-lg-12">
+                        <label class="form-label">Contact Type <span class="text-danger">*</span></label>
+                        <select class="form-control select2" name="contact_type" id="contact_type">
+                          <option value="">--</option>
+                          <option value="1">Indvidual</option>
+                          <option value="0">Corporate</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group row">
                       <div class="col-lg-6">
                         <label class="form-label">First Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="first_name" name="first_name" maxlength="300" autocomplete="off">
@@ -231,7 +241,7 @@ if($addCustomerComaker['total'] > 0){
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6 mt-3 mt-lg-0">
-                        <label class="form-label">Birthday <span class="text-danger">*</span></label>
+                        <label class="form-label">Birthday</label>
                         <div class="input-group date">
                           <input type="text" class="form-control regular-datepicker" id="birthday" name="birthday" autocomplete="off">
                           <span class="input-group-text">
@@ -240,20 +250,20 @@ if($addCustomerComaker['total'] > 0){
                         </div>
                       </div>
                       <div class="col-lg-6">
-                        <label class="form-label">Birth Place <span class="text-danger">*</span></label>
+                        <label class="form-label">Birth Place</label>
                         <input type="text" class="form-control" id="birth_place" name="birth_place" maxlength="1000" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group row">
                       <div class="col-lg-6 mt-3 mt-lg-0">
-                        <label class="form-label">Gender <span class="text-danger">*</span></label>
+                        <label class="form-label">Gender</label>
                         <select class="form-control offcanvas-select2" name="gender" id="gender">
                           <option value="">--</option>
                           '. $genderModel->generateGenderOptions() .'
                         </select>
                       </div>
                       <div class="col-lg-6">
-                        <label class="form-label">Civil Status <span class="text-danger">*</span></label>
+                        <label class="form-label">Civil Status</label>
                         <select class="form-control offcanvas-select2" name="civil_status" id="civil_status">
                           <option value="">--</option>
                           '. $civilStatusModel->generateCivilStatusOptions() .'

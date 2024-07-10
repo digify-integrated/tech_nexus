@@ -240,7 +240,6 @@
 
         $(document).on('change','#product_type',function() {
             var productType = $(this).val();
-            $('#delivery_price').val('');
 
             if(productType == 'Brand New'){
                 $('#sales-proposal-tab-4').text('Brand New Details');
@@ -1147,22 +1146,7 @@
         }
 
         if($('#sales-proposal-id').length){
-            displayDetails('get sales proposal basic details');    
-
-            displayDetails('get sales proposal unit details');
-            displayDetails('get sales proposal fuel details');
-            displayDetails('get sales proposal refinancing details');
-
-            if($('#sales-proposal-tab-12').length){
-                displayDetails('get comaker details');
-            }
-                    
-            displayDetails('get sales proposal pricing computation details');
-            displayDetails('get sales proposal other charges details');
-            displayDetails('get sales proposal renewal amount details');
-            displayDetails('get sales proposal confirmation details');
-                    
-            calculateRenewalAmount();
+            displayDetails('get sales proposal basic details');
         }
 
         $(document).on('click','#apply-filter',function() {
@@ -3068,9 +3052,6 @@ function salesProposalPricingComputationForm(){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -5034,7 +5015,9 @@ function displayDetails(transaction){
                 },
                 complete: function(){
                  displayDetails('get sales proposal fuel details');
-                 
+                 displayDetails('get sales proposal other charges details');
+                 displayDetails('get sales proposal confirmation details');
+                 displayDetails('get sales proposal pricing computation details');
                 }
             });
             break;
@@ -5138,7 +5121,6 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    //displayDetails('get sales proposal pricing computation details');
                     calculateFuelTotal();
                 }
             });

@@ -108,6 +108,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $tenantDetails = $tenantModel->getTenant($tenantID);
                     $tenantName = $tenantDetails['tenant_name'];
+                    $contactPerson = $tenantDetails['contact_person'];
 
                     $propertyDetails = $propertyModel->getProperty($propertyID);
                     $propertyName = $propertyDetails['property_name'];
@@ -142,7 +143,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
                     $response[] = [
                         'TENANT_NAME' => '<a href="leasing-summary.php?id='. $leasingApplicationIDEncrypted .'">
-                            '. $tenantName .'
+                                         <div class="row">
+                                        <div class="col">
+                                        <h6 class="mb-0">'. $tenantName .'</h6>
+                                        <p class="f-12 mb-0">'. $contactPerson .'</p>
+                                        </div>
+                                    </div>
                         </a>',
                         'PROPERTY_NAME' => $propertyName,
                         'UNPAID_RENTAL' => number_format($unpaidRental, 2),

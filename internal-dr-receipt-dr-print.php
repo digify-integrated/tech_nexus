@@ -105,7 +105,7 @@
     $pdf->SetTextColor(0, 0, 0);
     $pdf->Image($unitImage, 80, 67, 45, 45, '', '', '', true, 150, '', false, false, 1, false, false, false, false);
     $pdf->Ln(5);
-    $pdf->SetFont('times', '', 8);
+    $pdf->SetFont('times', '', 10);
     $pdf->MultiCell(60, 4, $productDescription, 0, 'L', false, 0, '', '', true);
     $pdf->SetFont('times', '', 11);
     $pdf->MultiCell(20, 4, '', 0, 'L', false, 0, '', '', true);

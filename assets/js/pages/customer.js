@@ -1124,6 +1124,9 @@ function customerComakerSummary(){
 function addCustomerForm(){
     $('#add-customer-form').validate({
         rules: {
+            contact_type: {
+                required: true
+            },
             first_name: {
                 required: true
             },
@@ -1131,19 +1134,38 @@ function addCustomerForm(){
                 required: true
             },
             birthday: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             birth_place: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             gender: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             civil_status: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
         },
         messages: {
+            contact_type: {
+                required: 'Please choose the contact type'
+            },
             first_name: {
                 required: 'Please enter the first name'
             },
@@ -1251,6 +1273,9 @@ function addCustomerForm(){
 function personalInformationForm(){
     $('#personal-information-form').validate({
         rules: {
+            contact_type: {
+                required: true
+            },
             first_name: {
                 required: true
             },
@@ -1258,19 +1283,38 @@ function personalInformationForm(){
                 required: true
             },
             birthday: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             birth_place: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             gender: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
             civil_status: {
-                required: true
+                required: {
+                    depends: function(element) {
+                        return $("select[name='contact_type']").val() === '1';
+                    }
+                }
             },
         },
         messages: {
+            contact_type: {
+                required: 'Please choose the contact type'
+            },
             first_name: {
                 required: 'Please enter the first name'
             },

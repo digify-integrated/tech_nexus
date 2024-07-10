@@ -50,7 +50,7 @@
                           </div>
                           <label class="col-lg-2 col-form-label">Contact Person <span class="text-danger d-none form-edit">*</span></label>
                           <div class="col-lg-4">
-                            <label class="col-form-label form-details fw-normal" id="tenant_name_label"></label>
+                            <label class="col-form-label form-details fw-normal" id="contact_person_label"></label>
                             <input type="text" class="form-control d-none form-edit" id="contact_person" name="contact_person" maxlength="500" autocomplete="off">
                           </div>
                         </div>

@@ -246,7 +246,6 @@
 
         $(document).on('change','#product_type',function() {
             var productType = $(this).val();
-            $('#delivery_price').val('');
 
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
@@ -3067,9 +3066,6 @@ function salesProposalPricingComputationForm(){
                         fullErrorMessage += ', Response: ${xhr.responseText}';
                     }
                     showErrorDialog(fullErrorMessage);
-                },
-                complete: function() {
-                    displayDetails('get sales proposal pricing computation details');
                 }
             });
         
@@ -5032,7 +5028,7 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    
+                    displayDetails('get sales proposal other charges details');
                 }
             });
             break;
