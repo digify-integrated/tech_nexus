@@ -1084,6 +1084,33 @@ class SalesProposalModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: insertSalesProposalRepayment
+    # Description: Inserts the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_job_order_number (string): The job order number.
+    # - $p_job_order_date (string): The job order date.
+    # - $p_particulars (string): The particulars.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertSalesProposalRepayment($p_sales_proposal_id, $p_reference, $p_due_date, $p_due_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalRepayment(:p_sales_proposal_id, :p_reference, :p_due_date, :p_due_amount, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_reference', $p_reference, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_date', $p_due_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_due_amount', $p_due_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Check exist methods
     # -------------------------------------------------------------
 
@@ -1313,6 +1340,24 @@ class SalesProposalModel {
     # -------------------------------------------------------------
     public function deleteSalesProposal($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL deleteSalesProposal(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: deleteSalesProposalRepayment
+    # Description: Deletes the sales proposal.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function deleteSalesProposalRepayment($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL deleteSalesProposalRepayment(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
     }

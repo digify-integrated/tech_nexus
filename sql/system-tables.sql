@@ -5494,3 +5494,21 @@ CREATE TABLE leave_application(
     last_log_by INT UNSIGNED NOT NULL,
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
+
+CREATE TABLE sales_proposal_repayment (
+    sales_proposal_repayment_id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_proposal_id INT UNSIGNED NOT NULL,
+    reference VARCHAR(200) NOT NULL,
+    due_date DATE NOT NULL,
+    due_amount DOUBLE NOT NULL,
+    paid_due DOUBLE NOT NULL DEFAULT 0,
+    unpaid_due DOUBLE NOT NULL DEFAULT 0,
+    penalty DOUBLE NOT NULL DEFAULT 0,
+    unpaid_penalty DOUBLE NOT NULL DEFAULT 0,
+    paid_penalty DOUBLE NOT NULL DEFAULT 0,
+    other_charges DOUBLE NOT NULL DEFAULT 0,
+    unpaid_other_charges DOUBLE NOT NULL DEFAULT 0,
+    paid_other_charges DOUBLE NOT NULL DEFAULT 0,
+    repayment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    last_log_by INT UNSIGNED NOT NULL
+);

@@ -527,6 +527,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $salesProposalID = $row['sales_proposal_id'];
                     $customerID = $row['customer_id'];
                     $salesProposalNumber = $row['sales_proposal_number'];
+                    $loanNumber = $row['loan_number'];
                     $productType = $row['product_type'];
                     $productID = $row['product_id'];
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
@@ -544,6 +545,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
     
                     $response[] = [
                         'SALES_PROPOSAL_NUMBER' => $salesProposalNumber,
+                        'LOAN_NUMBER' => $loanNumber,
                         'CUSTOMER' => '<div class="col">
                                             <h6 class="mb-0">'. $customerName .'</h6>
                                             <p class="f-12 mb-0">'. $corporateName .'</p>

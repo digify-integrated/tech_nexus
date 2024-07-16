@@ -257,6 +257,9 @@ class SalesProposalController {
                 case 'tag for release':
                     $this->tagSalesProposalAsReleased();
                     break;
+                case 'generate schedule':
+                    $this->generateSchedule();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -326,11 +329,106 @@ class SalesProposalController {
             exit;
         } 
         else {
+            $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+            $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
+            $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
+            $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
+            $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+            $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
+            $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
+            $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
+            $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
+            $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
+
+            $dieselFuelQuantity = htmlspecialchars($_POST['diesel_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+            $dieselPricePerLiter = htmlspecialchars($_POST['diesel_price_per_liter'], ENT_QUOTES, 'UTF-8');
+            $regularFuelQuantity = htmlspecialchars($_POST['regular_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+            $regularPricePerliter = htmlspecialchars($_POST['regular_price_per_liter'], ENT_QUOTES, 'UTF-8');
+            $premiumFuelQuantity = htmlspecialchars($_POST['premium_fuel_quantity'], ENT_QUOTES, 'UTF-8');
+            $premiumPricePerliter = htmlspecialchars($_POST['premium_price_per_liter'], ENT_QUOTES, 'UTF-8');
+
+            $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
+            $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
+            $refPlateNo = htmlspecialchars($_POST['ref_plate_no'], ENT_QUOTES, 'UTF-8');
+            $orcrNo = $_POST['orcr_no'];
+            $receivedFrom = $_POST['received_from'];
+            $receivedFromAddress = $_POST['received_from_address'];
+            $receivedFromIDType = $_POST['received_from_id_type'];
+            $receivedFromIDNumber = $_POST['received_from_id_number'];
+            $unitDescription = $_POST['unit_description'];
+            $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
+            $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
+
+            $deliverPrice = htmlspecialchars($_POST['delivery_price'], ENT_QUOTES, 'UTF-8');
+            $nominalDiscount = htmlspecialchars($_POST['nominal_discount'], ENT_QUOTES, 'UTF-8');
+            $addOnCharge = htmlspecialchars($_POST['add_on_charge'], ENT_QUOTES, 'UTF-8');
+            $totalDeliveryPrice = htmlspecialchars($_POST['total_delivery_price'], ENT_QUOTES, 'UTF-8');
+            $costOfAccessories = htmlspecialchars($_POST['cost_of_accessories'], ENT_QUOTES, 'UTF-8');
+            $reconditioningCost = htmlspecialchars($_POST['reconditioning_cost'], ENT_QUOTES, 'UTF-8');
+            $subtotal = htmlspecialchars($_POST['subtotal'], ENT_QUOTES, 'UTF-8');
+            $downpayment = htmlspecialchars($_POST['downpayment'], ENT_QUOTES, 'UTF-8');
+            $outstandingBalance = htmlspecialchars($_POST['outstanding_balance'], ENT_QUOTES, 'UTF-8');
+            $amountFinanced = htmlspecialchars($_POST['amount_financed'], ENT_QUOTES, 'UTF-8');
+            $pnAmount = htmlspecialchars($_POST['pn_amount'], ENT_QUOTES, 'UTF-8');
+            $repaymentAmount = htmlspecialchars($_POST['repayment_amount'], ENT_QUOTES, 'UTF-8');
+            $interestRate = htmlspecialchars($_POST['interest_rate'], ENT_QUOTES, 'UTF-8');
+
+            $insuranceCoverage = htmlspecialchars($_POST['insurance_coverage'], ENT_QUOTES, 'UTF-8');
+            $insurancePremium = htmlspecialchars($_POST['insurance_premium'], ENT_QUOTES, 'UTF-8');
+            $handlingFee = htmlspecialchars($_POST['handling_fee'], ENT_QUOTES, 'UTF-8');
+            $transferFee = htmlspecialchars($_POST['transfer_fee'], ENT_QUOTES, 'UTF-8');
+            $registrationFee = htmlspecialchars($_POST['registration_fee'], ENT_QUOTES, 'UTF-8');
+            $docStampTax = htmlspecialchars($_POST['doc_stamp_tax'], ENT_QUOTES, 'UTF-8');
+            $transactionFee = htmlspecialchars($_POST['transaction_fee'], ENT_QUOTES, 'UTF-8');
+            $totalOtherCharges = htmlspecialchars($_POST['total_other_charges'], ENT_QUOTES, 'UTF-8');
+
+            $registrationSecondYear = htmlspecialchars($_POST['registration_second_year'], ENT_QUOTES, 'UTF-8');
+            $registrationThirdYear = htmlspecialchars($_POST['registration_third_year'], ENT_QUOTES, 'UTF-8');
+            $registrationFourthYear = htmlspecialchars($_POST['registration_fourth_year'], ENT_QUOTES, 'UTF-8');
+            $insuranceCoverageSecondYear = htmlspecialchars($_POST['insurance_coverage_second_year'], ENT_QUOTES, 'UTF-8');
+            $insuranceCoverageThirdYear = htmlspecialchars($_POST['insurance_coverage_third_year'], ENT_QUOTES, 'UTF-8');
+            $insuranceCoverageFourthYear = htmlspecialchars($_POST['insurance_coverage_fourth_year'], ENT_QUOTES, 'UTF-8');
+            $insurancePremiumSecondYear = htmlspecialchars($_POST['insurance_premium_second_year'], ENT_QUOTES, 'UTF-8');
+            $insurancePremiumThirdYear = htmlspecialchars($_POST['insurance_premium_third_year'], ENT_QUOTES, 'UTF-8');
+            $insurancePremiumFourthYear = htmlspecialchars($_POST['insurance_premium_fourth_year'], ENT_QUOTES, 'UTF-8');
+
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
             $salesProposalID = $this->salesProposalModel->insertSalesProposal($salesProposalNumber, $customerID, $comakerID, $productType, $transactionType, $financingInstitution, $referredBy, $releaseDate, $startDate, $firstDueDate, $termLength, $termType, $numberOfPayments, $paymentFrequency, $remarks, $userID, $initialApprovingOfficer, $finalApprovingOfficer, $renewalTag, $commissionAmount, $companyID, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(6, $salesProposalNumber, $userID);
+
+            if($productType == 'Unit'){
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, $productID, $forRegistration, $withCR, $forTransfer, $forChangeColor, $newColor, $forChangeBody, $newBody, $forChangeEngine, $newEngine, $userID);
+                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
+                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+            }
+            else if($productType == 'Fuel'){
+                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, $dieselFuelQuantity, $dieselPricePerLiter, $regularFuelQuantity, $regularPricePerliter, $premiumFuelQuantity, $premiumPricePerliter, $userID);
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, '', '', '', '', '', '', '', '', '', '', '', '', $userID);
+            }
+            else if($productType == 'Brand New' || $productType == 'Refinancing' || $productType == 'Restructure'){
+                if($productType == 'Brand New'){
+                    $stockNumber = 'BN'. $salesProposalNumber;
+                }
+                else if($productType == 'Restructure'){
+                    $stockNumber = 'RES'. $salesProposalNumber;
+                }
+                else{
+                    $stockNumber = 'REF'. $salesProposalNumber;
+                }
+
+                $this->salesProposalModel->updateSalesProposalRefinancing($salesProposalID, $stockNumber, $refEngineNo, $refChassisNo, $refPlateNo, $orcrNo, $orcrDate, $orcrExpiryDate, $receivedFrom, $receivedFromAddress, $receivedFromIDType, $receivedFromIDNumber, $unitDescription, $userID);
+                $this->salesProposalModel->updateSalesProposalUnit($salesProposalID, '', '', '', '', '', '', '', '', '', '', $userID);
+                $this->salesProposalModel->updateSalesProposalFuel($salesProposalID, '', '', '', '', '', '', $userID);
+            }
+
+            $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
+
+            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+
+            $this->salesProposalModel->insertSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'customerID' => $this->securityModel->encryptData($customerID), 'salesProposalID' => $this->securityModel->encryptData($salesProposalID)]);
             exit;
@@ -359,12 +457,12 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
         $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
-        $forRegistration = htmlspecialchars($_POST['for_registration'], ENT_QUOTES, 'UTF-8');
-        $withCR = htmlspecialchars($_POST['with_cr'], ENT_QUOTES, 'UTF-8');
-        $forTransfer = htmlspecialchars($_POST['for_transfer'], ENT_QUOTES, 'UTF-8');
-        $forChangeColor = htmlspecialchars($_POST['for_change_color'], ENT_QUOTES, 'UTF-8');
+        $forRegistration = 'Yes';
+        $withCR = 'Yes';
+        $forTransfer = 'Yes';
+        $forChangeColor = 'Yes';
         $newColor = htmlspecialchars($_POST['new_color'], ENT_QUOTES, 'UTF-8');
-        $forChangeBody = htmlspecialchars($_POST['for_change_body'], ENT_QUOTES, 'UTF-8');
+        $forChangeBody = 'Yes';
         $newBody = htmlspecialchars($_POST['new_body'], ENT_QUOTES, 'UTF-8');
         $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
         $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
@@ -487,6 +585,9 @@ class SalesProposalController {
             
             if($productType == 'Brand New'){
                 $stockNumber = 'BN'. $salesProposalNumber;
+            }
+            else if($productType == 'Restructure'){
+                $stockNumber = 'RES'. $salesProposalNumber;
             }
             else{
                 $stockNumber = 'REF'. $salesProposalNumber;
@@ -2618,6 +2719,71 @@ class SalesProposalController {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: generateSchedule
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function generateSchedule() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $this->salesProposalModel->deleteSalesProposalRepayment($salesProposalID);
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+
+        $loanNumber = $salesProposalDetails['loan_number'];
+        $startDate = $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'Y-m-d', '');
+        $termLength = $salesProposalDetails['term_length'] ?? 0;
+        $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
+        $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
+
+        $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+        $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
+
+        for ($i = 0; $i < $numberOfPayments; $i++) {
+            $dueDate = $this->calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
+
+            if(($i + 1) >= 1 && ($i + 1) <= 9){
+                $extension = '0' . ($i + 1);
+            }
+            else{
+                $extension = ($i + 1);
+            }
+
+            $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Get details methods
     # -------------------------------------------------------------
 
@@ -3536,7 +3702,7 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function sendInitialApproval($email, $sales_proposal_number, $client_name, $product_type, $stock_number) {
+    public function sendInitialApproval($email, $sales_proposal_number, $client_name, $productType, $stock_number) {
         $emailSetting = $this->emailSettingModel->getEmailSetting(1);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
@@ -3546,7 +3712,7 @@ class SalesProposalController {
         $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
         $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
-        $emailBody = str_replace('{PRODUCT_TYPE}', $product_type, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $productType, $emailBody);
         $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
 
         $message = file_get_contents('../email-template/default-email.html');
@@ -3583,7 +3749,7 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function sendFinalApproval($email, $sales_proposal_number, $client_name, $product_type, $stock_number) {
+    public function sendFinalApproval($email, $sales_proposal_number, $client_name, $productType, $stock_number) {
         $emailSetting = $this->emailSettingModel->getEmailSetting(1);
         $mailFromName = $emailSetting['mail_from_name'] ?? null;
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
@@ -3593,7 +3759,7 @@ class SalesProposalController {
         $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
         $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
-        $emailBody = str_replace('{PRODUCT_TYPE}', $product_type, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $productType, $emailBody);
         $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
 
         $message = file_get_contents('../email-template/default-email.html');
@@ -3605,6 +3771,8 @@ class SalesProposalController {
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
+        $mailer->addAddress('p.saulo@christianmotors.ph');
+        $mailer->addAddress('pm.vicente@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     

@@ -14,19 +14,23 @@
                  </button>
                  <ul class="dropdown-menu dropdown-menu-end">';
              
-                  if ($leaveApplicationDeleteAccess['total'] > 0) {
+                  if ($leaveApplicationDeleteAccess['total'] > 0 && $status == 'Draft') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-leave-application-details">Delete Leave Application</button></li>';
                   }
                               
                   if ($leaveApplicationForApproval['total'] > 0 && $status == 'Draft') {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-leave-application-for-approval">For Approval</button></li>';
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-leave-application-for-recommendation">For Recommendation</button></li>';
+                  }
+
+                  if ($leaveApplicationForRecommendation['total'] > 0 && $status == 'For Recommendation') {
+                    $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-leave-application-recommendation">Recommend</button></li>';
                   }
                               
                   if ($leaveApplicationApprove['total'] > 0 && $status == 'For Approval') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-leave-application-approve">Approve</button></li>';
                   }
                               
-                  if ($leaveApplicationReject['total'] > 0 && $status == 'For Approval') {
+                  if ($leaveApplicationReject['total'] > 0 && ($status == 'For Approval' ||  $status == 'For Recommendation')) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#leave-application-reject-offcanvas" aria-controls="leave-application-reject-offcanvas" id="leave-application-reject" id="tag-leave-application-reject">Reject</button></li>';
                   }
                               
@@ -39,7 +43,7 @@
                       
                   echo $dropdown;
 
-                  if ($leaveApplicationWriteAccess['total'] > 0) {
+                  if ($leaveApplicationWriteAccess['total'] > 0 && $status == 'Draft') {
                       echo '<button type="submit" class="btn btn-info form-details" id="edit-form">Edit</button>
                           <button type="submit" form="leave-application-form" class="btn btn-success form-edit d-none" id="submit-data">Save</button>
                           <button type="button" id="discard-update" class="btn btn-outline-danger form-edit d-none">Discard</button>';
@@ -182,7 +186,7 @@
       </div>
       <div class="row">
         <div class="col-lg-12">
-          <button type="submit" class="btn btn-primary" id="submit-leave-application-cancel" form="leave-application-cancel-form">Submit</button>
+          <button type="submit" class="btn btn-primary" id="submit-leave-application-reject" form="leave-application-cancel-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

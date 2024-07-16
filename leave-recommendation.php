@@ -7,13 +7,13 @@
   $leaveApplicationModel = new LeaveApplicationModel($databaseModel);
   $leaveTypeModel = new LeaveTypeModel($databaseModel);
 
-  $pageTitle = 'Leave Application';
+  $pageTitle = 'Leave Recommendation';
     
-  $leaveApplicationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'read');
-  $leaveApplicationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'create');
-  $leaveApplicationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'write');
-  $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'delete');
-  $leaveApplicationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'duplicate');
+  $leaveApplicationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 95, 'read');
+  $leaveApplicationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 95, 'create');
+  $leaveApplicationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 95, 'write');
+  $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 95, 'delete');
+  $leaveApplicationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 95, 'duplicate');
   
   $leaveApplicationForRecommendation = $userModel->checkSystemActionAccessRights($user_id, 152);
   $leaveApplicationForApproval = $userModel->checkSystemActionAccessRights($user_id, 148);
@@ -28,7 +28,7 @@
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: leave-application.php');
+      header('location: leave-recommendation.php');
       exit;
     }
 
@@ -82,7 +82,7 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Employee</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="leave-application.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="leave-recommendation.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($leaveApplicationID)){
                             echo '<li class="breadcrumb-item" id="leave-application-id">'. $leaveApplicationID .'</li>';
@@ -104,13 +104,13 @@
         </div>
         <?php
           if($newRecord && $leaveApplicationCreateAccess['total'] > 0){
-            require_once('view/_leave_application_new.php');
+            require_once('view/_leave_recommendation_new.php');
           }
           else if(!empty($leaveApplicationID) && $leaveApplicationWriteAccess['total'] > 0){
             require_once('view/_leave_application_details.php');
           }
           else{
-            require_once('view/_leave_approval.php');
+            require_once('view/_leave_recommendation.php');
           }
         ?>
       </div>

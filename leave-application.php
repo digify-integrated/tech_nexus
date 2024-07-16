@@ -15,6 +15,7 @@
   $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 92, 'delete');
   $leaveApplicationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 92, 'duplicate');
   
+  $leaveApplicationForRecommendation = $userModel->checkSystemActionAccessRights($user_id, 152);
   $leaveApplicationForApproval = $userModel->checkSystemActionAccessRights($user_id, 148);
   $leaveApplicationApprove = $userModel->checkSystemActionAccessRights($user_id, 149);
   $leaveApplicationReject = $userModel->checkSystemActionAccessRights($user_id, 150);

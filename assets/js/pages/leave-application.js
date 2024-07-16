@@ -10,6 +10,10 @@
             leaveApprovalTable('#leave-approval-table');
         }
 
+        if($('#leave-recommendation-table').length){
+            leaveRecommendationTable('#leave-recommendation-table');
+        }
+
         if($('#leave-application-form').length){
             leaveApplicationForm();
         }
@@ -204,16 +208,16 @@
             });
         });
 
-        $(document).on('click','#tag-leave-application-for-approval',function() {
+        $(document).on('click','#tag-leave-application-for-recommendation',function() {
             const leave_application_id = $('#leave-application-id').text();
-            const transaction = 'leave application for approval';
+            const transaction = 'leave application for recommendation';
     
             Swal.fire({
-                title: 'Confirm Tagging Leave Application For Approval',
-                text: 'Are you sure you want to tag this leave application for approval?',
+                title: 'Confirm Tagging Leave Application For Recommendation',
+                text: 'Are you sure you want to tag this leave application for recommendation?',
                 icon: 'warning',
                 showCancelButton: !0,
-                confirmButtonText: 'For Approval',
+                confirmButtonText: 'For Recommendation',
                 cancelButtonText: 'Cancel',
                 confirmButtonClass: 'btn btn-info mt-2',
                 cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
@@ -230,7 +234,62 @@
                         },
                         success: function (response) {
                             if (response.success) {
-                                setNotification('Leave Application For Approval Success', 'The leave application has been tagged for approval.', 'success');
+                                setNotification('Leave Application For Recommendation Success', 'The leave application has been tagged for recommendation.', 'success');
+                                window.location.reload();
+                            }
+                            else {
+                                if (response.isInactive) {
+                                    setNotification('User Inactive', response.message, 'danger');
+                                    window.location = 'logout.php?logout';
+                                }
+                                else if (response.notExist) {
+                                    window.location = '404.php';
+                                }
+                                else {
+                                    showNotification('Delete Leave Application Error', response.message, 'danger');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                            if (xhr.responseText) {
+                                fullErrorMessage += `, Response: ${xhr.responseText}`;
+                            }
+                            showErrorDialog(fullErrorMessage);
+                        }
+                    });
+                    return false;
+                }
+            });
+        });
+
+        $(document).on('click','#tag-leave-application-recommendation',function() {
+            const leave_application_id = $('#leave-application-id').text();
+            const transaction = 'leave application recommendation';
+    
+            Swal.fire({
+                title: 'Confirm Tagging Leave Application Recommendation',
+                text: 'Are you sure you want to tag this leave application as recommended?',
+                icon: 'warning',
+                showCancelButton: !0,
+                confirmButtonText: 'Recommended',
+                cancelButtonText: 'Cancel',
+                confirmButtonClass: 'btn btn-success mt-2',
+                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                buttonsStyling: !1
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'controller/leave-application-controller.php',
+                        dataType: 'json',
+                        data: {
+                            leave_application_id : leave_application_id, 
+                            transaction : transaction
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                setNotification('Leave Application Recommendation Success', 'The leave application has been tagged as recommended.', 'success');
                                 window.location.reload();
                             }
                             else {
@@ -391,6 +450,65 @@ function leaveApplicationTable(datatable_name, buttons = false, show_all = false
 
 function leaveApprovalTable(datatable_name, buttons = false, show_all = false){
     const type = 'leave approval table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'LEAVE_TYPE' },
+        { 'data' : 'LEAVE_DATE' },
+        { 'data' : 'APPLICATION_DATE' },
+        { 'data' : 'STATUS' },
+        { 'data' : 'ACTION' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': '15%','bSortable': false, 'aTargets': 4 }
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_leave_application_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'asc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function leaveRecommendationTable(datatable_name, buttons = false, show_all = false){
+    const type = 'leave recommendation table';
     var settings;
 
     const column = [ 

@@ -7194,6 +7194,14 @@ BEGIN
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
+CREATE PROCEDURE insertSalesProposalRepayment(IN p_sales_proposal_id INT, IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_due_amount DOUBLE, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    INSERT INTO sales_proposal_repayment (sales_proposal_id, reference, due_date, due_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_reference, p_due_date, p_due_amount, p_last_log_by);
+END //
+
 CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
@@ -7485,6 +7493,11 @@ BEGIN
     DELETE FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE deleteSalesProposalRepayment(IN p_sales_proposal_id INT)
+BEGIN
+    DELETE FROM sales_proposal_repayment WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE getSalesProposal(IN p_sales_proposal_id INT)
 BEGIN
 	SELECT * FROM sales_proposal
@@ -7637,7 +7650,7 @@ END //
 
 CREATE PROCEDURE generateSalesProposalForDRTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Refinancing', 'Fuel', 'Parts', 'Brand New') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
+   SELECT * FROM sales_proposal WHERE sales_proposal_status = 'For DR' AND (product_type IN ('Refinancing', 'Fuel', 'Parts', 'Brand New', 'Restructure') OR (outgoing_checklist IS NOT NULL AND (((product_type = 'Unit' OR product_type = 'Repair') AND unit_image IS NOT NULL) OR (product_type != 'Unit' AND product_type != 'Repair'))));
 END //
 
 CREATE PROCEDURE generateForDrSalesProposalOptions()
@@ -9122,6 +9135,18 @@ BEGIN
         approval_date = NOW(),
         last_log_by = p_last_log_by
         WHERE leave_application_id = p_leave_application_id;
+    ELSEIF p_status = 'Recommended' THEN
+        UPDATE leave_application
+        SET status = p_status,
+        recommendation_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
+    ELSEIF p_status = 'For Recommendation' THEN
+        UPDATE leave_application
+        SET status = p_status,
+        for_recommendation_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE leave_application_id = p_leave_application_id;
     ELSEIF p_status = 'Rejected' THEN
         UPDATE leave_application
         SET status = p_status,
@@ -9161,8 +9186,43 @@ BEGIN
     SELECT * FROM leave_application WHERE contact_id = p_contact_id;
 END //
 
-CREATE PROCEDURE generateLeaveApprovalTable(IN p_contact_id INT)
+CREATE PROCEDURE generateLeaveApprovalTable()
 BEGIN
     SELECT * FROM leave_application 
-    WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Approval';
+    WHERE status = 'For Approval';
+END //
+
+CREATE PROCEDURE generateLeaveRecommendationTable(IN p_contact_id INT)
+BEGIN
+    SELECT * FROM leave_application 
+    WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Recommendation';
+END //
+
+CREATE PROCEDURE generateLoanRepaymentsTable(IN p_repayment_status VARCHAR(20), IN p_due_start_date DATE, IN p_due_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM sales_proposal_repayment';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_due_start_date IS NOT NULL AND p_due_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND due_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_due_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_due_end_date));
+    END IF;
+
+    IF p_repayment_status IS NOT NULL AND p_repayment_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND repayment_status IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_repayment_status));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY reference ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
 END //

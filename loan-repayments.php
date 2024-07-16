@@ -1,53 +1,40 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  require('model/leave-application-model.php');
-  require('model/leave-type-model.php');
+ # require('model/loan-repayments-model.php');
 
-  $leaveApplicationModel = new LeaveApplicationModel($databaseModel);
-  $leaveTypeModel = new LeaveTypeModel($databaseModel);
+  #$loanRepaymentsModel = new LoanRepaymentsModel($databaseModel);
 
-  $pageTitle = 'Leave Application';
+  $pageTitle = 'Leave Entitlement';
     
-  $leaveApplicationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'read');
-  $leaveApplicationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'create');
-  $leaveApplicationWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'write');
-  $leaveApplicationDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'delete');
-  $leaveApplicationDuplicateAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'duplicate');
-  
-  $leaveApplicationForRecommendation = $userModel->checkSystemActionAccessRights($user_id, 152);
-  $leaveApplicationForApproval = $userModel->checkSystemActionAccessRights($user_id, 148);
-  $leaveApplicationApprove = $userModel->checkSystemActionAccessRights($user_id, 149);
-  $leaveApplicationReject = $userModel->checkSystemActionAccessRights($user_id, 150);
-  $leaveApplicationCancel = $userModel->checkSystemActionAccessRights($user_id, 151);
+  $loanRepaymentsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
+  $loanRepaymentsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
+  $loanRepaymentsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
+  $loanRepaymentsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
 
-  if ($leaveApplicationReadAccess['total'] == 0) {
+  if ($loanRepaymentsReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: leave-application.php');
+      header('location: loan-repayments.php');
       exit;
     }
 
-    $leaveApplicationID = $securityModel->decryptData($_GET['id']);
+    $loanRepaymentsID = $securityModel->decryptData($_GET['id']);
 
-    $checkLeaveApplicationExist = $leaveApplicationModel->checkLeaveApplicationExist($leaveApplicationID);
-    $total = $checkLeaveApplicationExist['total'] ?? 0;
+    $checkLoanRepaymentsExist = $loanRepaymentsModel->checkLoanRepaymentsExist($loanRepaymentsID);
+    $total = $checkLoanRepaymentsExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
-
-    $leaveApplicationDetails = $leaveApplicationModel->getLeaveApplication($leaveApplicationID);
-    $status = $leaveApplicationDetails['status'];
-    $leaveDate = $leaveApplicationDetails['leave_date'];
   }
   else{
-    $leaveApplicationID = null;
+    $loanRepaymentsID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -81,11 +68,11 @@
               <div class="col-md-12">
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item">Employee</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="leave-application.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item">Sales Proposal</li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="loan-repayments.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($leaveApplicationID)){
-                            echo '<li class="breadcrumb-item" id="leave-application-id">'. $leaveApplicationID .'</li>';
+                        if(!$newRecord && !empty($loanRepaymentsID)){
+                            echo '<li class="breadcrumb-item" id="loan-repayments-id">'. $loanRepaymentsID .'</li>';
                         }
 
                         if($newRecord){
@@ -103,14 +90,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $leaveApplicationCreateAccess['total'] > 0){
-            require_once('view/_leave_application_new.php');
+          if($newRecord && $loanRepaymentsCreateAccess['total'] > 0){
+            require_once('view/_loan_repayments_new.php');
           }
-          else if(!empty($leaveApplicationID) && $leaveApplicationWriteAccess['total'] > 0){
-            require_once('view/_leave_application_details.php');
+          else if(!empty($loanRepaymentsID) && $loanRepaymentsWriteAccess['total'] > 0){
+            require_once('view/_loan_repayments_details.php');
           }
           else{
-            require_once('view/_leave_approval.php');
+            require_once('view/_loan_repayments.php');
           }
         ?>
       </div>
@@ -129,7 +116,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/leave-application.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/loan-repayments.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

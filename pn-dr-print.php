@@ -108,8 +108,8 @@
         $comakerPrimaryAddress = $customerModel->getCustomerPrimaryAddress($comakerID);
     
         $comakerPrimaryID = $customerModel->getCustomerPrimaryContactIdentification($comakerID);
-        $comakeridTypeID = $customerPrimaryID['id_type_name'] ?? '';
-        $comakeridNumber = $customerPrimaryID['id_number'] ?? '';
+        $comakeridTypeID = $comakerPrimaryID['id_type_name'] ?? '';
+        $comakeridNumber = $comakerPrimaryID['id_number'] ?? '';
 
         if(!empty($comakerID)){
           $comakerIDNumber = $comakeridTypeID . ' - ' . $comakeridNumber;

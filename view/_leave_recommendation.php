@@ -6,7 +6,7 @@
           <div class="card-header">
             <div class="row align-items-center">
               <div class="col-sm-6">
-                <h5>Leave Approval</h5>
+                <h5>Leave Recommendation</h5>
               </div>
             </div>
           </div>
@@ -14,7 +14,7 @@
             <div class="row">
               <div class="col-xl-12">
                 <div class="table-responsive dt-responsive">
-                  <table id="leave-approval-table" class="table table-hover nowrap w-100 text-uppercase">
+                  <table id="leave-recommendation-table" class="table table-hover nowrap w-100 text-uppercase">
                     <thead>
                       <tr>
                         <th>Leave Type</th>

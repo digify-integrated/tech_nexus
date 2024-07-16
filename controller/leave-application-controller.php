@@ -66,8 +66,11 @@ class LeaveApplicationController {
                 case 'save leave application':
                     $this->saveLeaveApplication();
                     break;
-                case 'leave application for approval':
-                    $this->leaveApplicationForApproval();
+                case 'leave application for recommendation':
+                    $this->leaveApplicationForRecommendation();
+                    break;
+                case 'leave application recommendation':
+                    $this->leaveApplicationRecommendation();
                     break;
                 case 'leave application approved':
                     $this->leaveApplicationApproval();
@@ -155,7 +158,7 @@ class LeaveApplicationController {
 
     # -------------------------------------------------------------
     #
-    # Function: leaveApplicationForApproval
+    # Function: leaveApplicationForRecommendation
     # Description: 
     # Updates the existing leave application if it exists; otherwise, inserts a new leave application.
     #
@@ -164,7 +167,49 @@ class LeaveApplicationController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function leaveApplicationForApproval() {
+    public function leaveApplicationForRecommendation() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $leaveApplicationID = isset($_POST['leave_application_id']) ? htmlspecialchars($_POST['leave_application_id'], ENT_QUOTES, 'UTF-8') : null;
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLeaveApplicationExist = $this->leaveApplicationModel->checkLeaveApplicationExist($leaveApplicationID);
+        $total = $checkLeaveApplicationExist['total'] ?? 0;
+     
+        if ($total > 0) {
+            $this->leaveApplicationModel->updateLeaveApplicationStatus($leaveApplicationID, 'For Recommendation', '', $userID);
+
+            echo json_encode(['success' => true]);
+        } 
+        else {
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: leaveApplicationRecommendation
+    # Description: 
+    # Updates the existing leave application if it exists; otherwise, inserts a new leave application.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function leaveApplicationRecommendation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }

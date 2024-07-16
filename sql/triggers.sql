@@ -5811,8 +5811,6 @@ BEGIN
     VALUES ('leave_entitlement', NEW.leave_entitlement_id, audit_log, NEW.last_log_by, NOW());
 END //
 
-
-
 CREATE TRIGGER leave_application_trigger_update
 AFTER UPDATE ON leave_application
 FOR EACH ROW
@@ -5945,4 +5943,118 @@ BEGIN
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('leave_application', NEW.leave_application_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER sales_proposal_repayment_trigger_update
+AFTER UPDATE ON sales_proposal_repayment
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.reference <> OLD.reference THEN
+        SET audit_log = CONCAT(audit_log, "Reference: ", OLD.reference, " -> ", NEW.reference, "<br/>");
+    END IF;
+
+    IF NEW.due_date <> OLD.due_date THEN
+        SET audit_log = CONCAT(audit_log, "Due Date: ", OLD.due_date, " -> ", NEW.due_date, "<br/>");
+    END IF;
+
+    IF NEW.due_amount <> OLD.due_amount THEN
+        SET audit_log = CONCAT(audit_log, "Due Amount: ", OLD.due_amount, " -> ", NEW.due_amount, "<br/>");
+    END IF;
+
+    IF NEW.paid_due <> OLD.paid_due THEN
+        SET audit_log = CONCAT(audit_log, "Paid Due: ", OLD.paid_due, " -> ", NEW.paid_due, "<br/>");
+    END IF;
+
+    IF NEW.unpaid_due <> OLD.unpaid_due THEN
+        SET audit_log = CONCAT(audit_log, "Unpaid Due: ", OLD.unpaid_due, " -> ", NEW.unpaid_due, "<br/>");
+    END IF;
+
+    IF NEW.penalty <> OLD.penalty THEN
+        SET audit_log = CONCAT(audit_log, "Penalty: ", OLD.penalty, " -> ", NEW.penalty, "<br/>");
+    END IF;
+
+    IF NEW.unpaid_penalty <> OLD.unpaid_penalty THEN
+        SET audit_log = CONCAT(audit_log, "Unpaid Penalty: ", OLD.unpaid_penalty, " -> ", NEW.unpaid_penalty, "<br/>");
+    END IF;
+
+    IF NEW.other_charges <> OLD.other_charges THEN
+        SET audit_log = CONCAT(audit_log, "Other Charges: ", OLD.other_charges, " -> ", NEW.other_charges, "<br/>");
+    END IF;
+
+    IF NEW.unpaid_other_charges <> OLD.unpaid_other_charges THEN
+        SET audit_log = CONCAT(audit_log, "Unpaid Other Charges: ", OLD.unpaid_other_charges, " -> ", NEW.unpaid_other_charges, "<br/>");
+    END IF;
+
+    IF NEW.paid_other_charges <> OLD.paid_other_charges THEN
+        SET audit_log = CONCAT(audit_log, "Paid Other Charges: ", OLD.paid_other_charges, " -> ", NEW.paid_other_charges, "<br/>");
+    END IF;
+
+    IF NEW.repayment_status <> OLD.repayment_status THEN
+        SET audit_log = CONCAT(audit_log, "Repayment Status: ", OLD.repayment_status, " -> ", NEW.repayment_status, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('sales_proposal_repayment', NEW.sales_proposal_repayment_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER sales_proposal_repayment_trigger_insert
+AFTER INSERT ON sales_proposal_repayment
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Loan Repayment created. <br/>';
+
+     IF NEW.reference <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference: ", NEW.reference, "<br/>");
+    END IF;
+
+     IF NEW.due_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Due Date: ", NEW.due_date, "<br/>");
+    END IF;
+
+     IF NEW.due_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Due Amount: ", NEW.due_amount, "<br/>");
+    END IF;
+
+     IF NEW.paid_due <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Paid Due: ", NEW.paid_due, "<br/>");
+    END IF;
+
+     IF NEW.unpaid_due <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Due: ", NEW.unpaid_due, "<br/>");
+    END IF;
+
+     IF NEW.penalty <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Penalty: ", NEW.penalty, "<br/>");
+    END IF;
+
+     IF NEW.unpaid_penalty <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Penalty: ", NEW.unpaid_penalty, "<br/>");
+    END IF;
+
+     IF NEW.paid_penalty <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Paid Penalty: ", NEW.paid_penalty, "<br/>");
+    END IF;
+
+     IF NEW.other_charges <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Other Charges: ", NEW.other_charges, "<br/>");
+    END IF;
+
+     IF NEW.unpaid_other_charges <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Other Charges: ", NEW.unpaid_other_charges, "<br/>");
+    END IF;
+
+     IF NEW.paid_other_charges <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Paid Other Charges: ", NEW.paid_other_charges, "<br/>");
+    END IF;
+
+     IF NEW.repayment_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Repayment Status: ", NEW.repayment_status, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('sales_proposal_repayment', NEW.sales_proposal_repayment_id, audit_log, NEW.last_log_by, NOW());
 END //

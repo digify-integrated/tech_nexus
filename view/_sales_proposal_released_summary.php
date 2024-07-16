@@ -1,5 +1,7 @@
 <?php
     $hidden = '';
+
+    $generatePDC = $userModel->checkSystemActionAccessRights($user_id, 153);
 ?>
 <div class="row">
     <div class="col-md-3">
@@ -49,6 +51,14 @@
                                     </div>';
                                 }
 
+                                if($salesProposalStatus == 'Released'){
+                                    if($generatePDC['total'] > 0){
+                                        echo '<div class="previous me-2">
+                                                <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#generate-pdc-offcanvas" aria-controls="generate-pdc-offcanvas">Generate Repayment PDC</button>
+                                            </div>';
+                                    }
+                                  }
+                                  
                                 if(!empty($startDate) && !empty($drNumber) && $salesProposalStatus == 'For DR'){
                                     echo '<div class="previous me-2">
                                             <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-tag-as-released-offcanvas" aria-controls="sales-proposal-tag-as-released-offcanvas" >Release</button>
@@ -1581,3 +1591,44 @@
     </div>
   </div>
 </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="generate-pdc-offcanvas" aria-labelledby="generate-pdc-offcanvas-label">
+        <div class="offcanvas-header">
+            <h2 id="generate-pdc-offcanvas-label" style="margin-bottom:-0.5rem">Repayment PDC Generation</h2>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="pdc-generation-form" method="post" action="#">
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="no_of_pdc">Number of PDC <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="no_of_pdc" name="no_of_pdc" min="1" step="1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12 mt-3 mt-lg-0">
+                                <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Bank/Branch</label>
+                                <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pdc-manual-input" form="sales-proposal-pdc-manual-input-form">Submit</button>
+                    <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<div>

@@ -62,6 +62,7 @@
                 <thead>
                 <tr>
                     <th>OS Number</th>
+                    <th>Loan Number</th>
                     <th>Customer</th>
                     <th>Product Type</th>
                     <th>Stock</th>

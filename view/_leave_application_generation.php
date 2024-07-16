@@ -82,10 +82,10 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
 
             echo json_encode($response);
         break;
-        case 'leave approval table':
+        case 'leave recommendation table':
             $contactID = $_SESSION['contact_id'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveApprovalTable(:contactID)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveRecommendationTable(:contactID)');
             $sql->bindValue(':contactID', $contactID, PDO::PARAM_INT);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
@@ -114,7 +114,48 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'APPLICATION_DATE' => $applicationDate,
                     'STATUS' => $status,
                     'ACTION' => '<div class="d-flex gap-2">
-                                    <a href="leave-application.php?id='. $leaveApplicationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                    <a href="leave-recommendation.php?id='. $leaveApplicationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
+                                        <i class="ti ti-eye"></i>
+                                    </a>
+                                </div>'
+                    ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+        case 'leave approval table':
+            $contactID = $_SESSION['contact_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generateLeaveApprovalTable()');
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $leaveApplicationID = $row['leave_application_id'];
+                $status = $row['status'];
+                $leaveTypeID = $row['leave_type_id'];
+                $leaveDate = $systemModel->checkDate('empty', $row['leave_date'], '', 'm/d/Y', '');
+                $leaveStartTime = $systemModel->checkDate('empty', $row['leave_start_time'], '', 'h:i a', '');
+                $leaveEndTime = $systemModel->checkDate('empty', $row['leave_end_time'], '', 'h:i a', '');
+                $applicationDate = $systemModel->checkDate('empty', $row['application_date'], '', 'm/d/Y', '');
+
+                $leaveApplicationIDEncrypted = $securityModel->encryptData($leaveApplicationID);
+
+                $leaveTypeDetails = $leaveTypeModel->getLeaveType($leaveTypeID);
+                $leaveTypeName = $leaveTypeDetails['leave_type_name'] ?? null;
+
+                $response[] = [
+                    'LEAVE_TYPE' => $leaveTypeName,
+                    'LEAVE_DATE' => ' <div class="col">
+                                        <h6 class="mb-0">'. $leaveDate .'</h6>
+                                        <p class="text-muted f-12 mb-0">'. $leaveStartTime . ' - ' . $leaveEndTime .'</p>
+                                        </div>',
+                    'APPLICATION_DATE' => $applicationDate,
+                    'STATUS' => $status,
+                    'ACTION' => '<div class="d-flex gap-2">
+                                    <a href="leave-approval.php?id='. $leaveApplicationIDEncrypted .'" class="btn btn-icon btn-primary" title="View Details">
                                         <i class="ti ti-eye"></i>
                                     </a>
                                 </div>'

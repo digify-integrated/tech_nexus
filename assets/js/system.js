@@ -52,6 +52,23 @@
             });
         }
 
+        if ($('.currency').length) {
+            $('.currency').each(function() {
+                IMask(this, {
+                    mask: Number,
+                    scale: 2,
+                    signed: false,
+                    thousandsSeparator: ',',
+                    padFractionalZeros: true,
+                    normalizeZeros: true,
+                    radix: '.',
+                    mapToRadix: ['.'],
+                    prefix: '$ ',
+                    lazy: false
+                });
+            });
+        }
+
         if($('.offcanvas-select2').length){
             $('.offcanvas-select2').each(function() {
                 $(this).select2({
@@ -1097,4 +1114,8 @@ function colorReferenceTable(datatable_name, buttons = false, show_all = false){
     destroyDatatable(datatable_name);
 
     $(datatable_name).dataTable(settings);
+}
+
+function parseCurrency(value) {
+    return parseFloat(value.replace(/,/g, '')) || 0;
 }
