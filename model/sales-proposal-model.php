@@ -1099,12 +1099,42 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalRepayment($p_sales_proposal_id, $p_reference, $p_due_date, $p_due_amount, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalRepayment(:p_sales_proposal_id, :p_reference, :p_due_date, :p_due_amount, :p_last_log_by)');
+    public function insertSalesProposalRepayment($p_sales_proposal_id, $p_loan_number, $p_reference, $p_due_date, $p_due_amount, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalRepayment(:p_sales_proposal_id, :p_loan_number, :p_reference, :p_due_date, :p_due_amount, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference', $p_reference, PDO::PARAM_STR);
         $stmt->bindValue(':p_due_date', $p_due_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_due_amount', $p_due_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertPDCCollection
+    # Description: Inserts the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_job_order_number (string): The job order number.
+    # - $p_job_order_date (string): The job order date.
+    # - $p_particulars (string): The particulars.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertPDCCollection($p_sales_proposal_id, $p_loan_number, $p_payment_amount, $p_check_number, $p_check_date, $p_bank_branch, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCCollection(:p_sales_proposal_id, :p_loan_number, :p_payment_amount, :p_check_number, :p_check_date, :p_bank_branch, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -1127,6 +1157,25 @@ class SalesProposalModel {
     # -------------------------------------------------------------
     public function checkSalesProposalExist($p_sales_proposal_id) {
         $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalExist(:p_sales_proposal_id)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: checkSalesProposalRepaymentExist
+    # Description: Checks if a sales proposal exists.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function checkSalesProposalRepaymentExist($p_sales_proposal_id) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkSalesProposalRepaymentExist(:p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);

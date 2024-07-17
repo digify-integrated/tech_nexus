@@ -257,8 +257,8 @@ class SalesProposalController {
                 case 'tag for release':
                     $this->tagSalesProposalAsReleased();
                     break;
-                case 'generate schedule':
-                    $this->generateSchedule();
+                case 'generate PDC':
+                    $this->generatePDC();
                     break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
@@ -2720,7 +2720,7 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
-    # Function: generateSchedule
+    # Function: generatePDC
     # Description: 
     # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
     #
@@ -2729,7 +2729,7 @@ class SalesProposalController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function generateSchedule() {
+    public function generatePDC() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -2737,6 +2737,9 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $noOfPDC = htmlspecialchars($_POST['no_of_pdc'], ENT_QUOTES, 'UTF-8');
+        $firstCheckNumber = htmlspecialchars($_POST['first_check_number'], ENT_QUOTES, 'UTF-8');
+        $bankBranch = htmlspecialchars($_POST['bank_branch'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2753,8 +2756,6 @@ class SalesProposalController {
             exit;
         }
 
-        $this->salesProposalModel->deleteSalesProposalRepayment($salesProposalID);
-
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
 
         $loanNumber = $salesProposalDetails['loan_number'];
@@ -2763,20 +2764,40 @@ class SalesProposalController {
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
 
-        $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
-        $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
+        if($noOfPDC <= $numberOfPayments){
+            $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
+            $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
+    
+            for ($i = 0; $i < $numberOfPayments; $i++) {
+                $dueDate = $this->calculateDueDate($startDate, $paymentFrequency, ($i + 1));
+    
+                if(($i + 1) >= 1 && ($i + 1) <= 9){
+                    $extension = '0' . ($i + 1);
+                }
+                else{
+                    $extension = ($i + 1);
+                }
 
-        for ($i = 0; $i < $numberOfPayments; $i++) {
-            $dueDate = $this->calculateDueDate($startDate, $termLength, $paymentFrequency, $i + 1);
+                if($i < $noOfPDC){
+                    if($i == 0){
+                        $checkNumber = $firstCheckNumber;
+                    }
+                    else{
+                        $checkNumber = $checkNumber + 1;
+                    }
+                }
+                else{
+                    $checkNumber = 'LACKING-' . $loanNumber . ' - ' . ($extension);
+                }
 
-            if(($i + 1) >= 1 && ($i + 1) <= 9){
-                $extension = '0' . ($i + 1);
+                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $userID);
+                
+                $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
             }
-            else{
-                $extension = ($i + 1);
-            }
-
-            $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
+        }
+        else{
+            echo json_encode(['success' => false, 'exceedPDC' =>  true]);
+            exit;
         }
             
         echo json_encode(['success' => true]);

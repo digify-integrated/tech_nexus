@@ -5945,6 +5945,236 @@ BEGIN
     VALUES ('leave_application', NEW.leave_application_id, audit_log, NEW.last_log_by, NOW());
 END //
 
+CREATE TRIGGER loan_collections_trigger_update
+AFTER UPDATE ON loan_collections
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.loan_number <> OLD.loan_number THEN
+        SET audit_log = CONCAT(audit_log, "Loan Number: ", OLD.loan_number, " -> ", NEW.loan_number, "<br/>");
+    END IF;
+
+    IF NEW.mode_of_payment <> OLD.mode_of_payment THEN
+        SET audit_log = CONCAT(audit_log, "Mode of Payment: ", OLD.mode_of_payment, " -> ", NEW.mode_of_payment, "<br/>");
+    END IF;
+
+    IF NEW.payment_details <> OLD.payment_details THEN
+        SET audit_log = CONCAT(audit_log, "Payment Details: ", OLD.payment_details, " -> ", NEW.payment_details, "<br/>");
+    END IF;
+
+    IF NEW.payment_amount <> OLD.payment_amount THEN
+        SET audit_log = CONCAT(audit_log, "Payment Amount: ", OLD.payment_amount, " -> ", NEW.payment_amount, "<br/>");
+    END IF;
+
+    IF NEW.collection_status <> OLD.collection_status THEN
+        SET audit_log = CONCAT(audit_log, "Status: ", OLD.collection_status, " -> ", NEW.collection_status, "<br/>");
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
+    END IF;
+
+    IF NEW.alpha <> OLD.alpha THEN
+        SET audit_log = CONCAT(audit_log, "Alpha: ", OLD.alpha, " -> ", NEW.alpha, "<br/>");
+    END IF;
+
+    IF NEW.check_date <> OLD.check_date THEN
+        SET audit_log = CONCAT(audit_log, "Check Date: ", OLD.check_date, " -> ", NEW.check_date, "<br/>");
+    END IF;
+
+    IF NEW.check_number <> OLD.check_number THEN
+        SET audit_log = CONCAT(audit_log, "Check Number: ", OLD.check_number, " -> ", NEW.check_number, "<br/>");
+    END IF;
+
+    IF NEW.bank_branch <> OLD.bank_branch THEN
+        SET audit_log = CONCAT(audit_log, "Bank Branch: ", OLD.bank_branch, " -> ", NEW.bank_branch, "<br/>");
+    END IF;
+
+    IF NEW.or_number <> OLD.or_number THEN
+        SET audit_log = CONCAT(audit_log, "OR Number: ", OLD.or_number, " -> ", NEW.or_number, "<br/>");
+    END IF;
+
+    IF NEW.or_date <> OLD.or_date THEN
+        SET audit_log = CONCAT(audit_log, "OR Date: ", OLD.or_date, " -> ", NEW.or_date, "<br/>");
+    END IF;
+
+    IF NEW.payment_date <> OLD.payment_date THEN
+        SET audit_log = CONCAT(audit_log, "Payment Date: ", OLD.payment_date, " -> ", NEW.payment_date, "<br/>");
+    END IF;
+
+    IF NEW.transaction_date <> OLD.transaction_date THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Date: ", OLD.transaction_date, " -> ", NEW.transaction_date, "<br/>");
+    END IF;
+
+    IF NEW.onhold_date <> OLD.onhold_date THEN
+        SET audit_log = CONCAT(audit_log, "On Hold Date: ", OLD.onhold_date, " -> ", NEW.onhold_date, "<br/>");
+    END IF;
+
+    IF NEW.onhold_reason <> OLD.onhold_reason THEN
+        SET audit_log = CONCAT(audit_log, "On Hold Reason: ", OLD.onhold_reason, " -> ", NEW.onhold_reason, "<br/>");
+    END IF;
+
+    IF NEW.for_deposit_date <> OLD.for_deposit_date THEN
+        SET audit_log = CONCAT(audit_log, "For Deposit Date: ", OLD.for_deposit_date, " -> ", NEW.for_deposit_date, "<br/>");
+    END IF;
+
+    IF NEW.redeposit_date <> OLD.redeposit_date THEN
+        SET audit_log = CONCAT(audit_log, "Re-Deposit Date: ", OLD.redeposit_date, " -> ", NEW.redeposit_date, "<br/>");
+    END IF;
+
+    IF NEW.clear_date <> OLD.clear_date THEN
+        SET audit_log = CONCAT(audit_log, "Clear Date: ", OLD.clear_date, " -> ", NEW.clear_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_date <> OLD.cancellation_date THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Date: ", OLD.cancellation_date, " -> ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+    IF NEW.cancellation_reason <> OLD.cancellation_reason THEN
+        SET audit_log = CONCAT(audit_log, "Cancellation Reason: ", OLD.cancellation_reason, " -> ", NEW.cancellation_reason, "<br/>");
+    END IF;
+
+    IF NEW.reversal_date <> OLD.reversal_date THEN
+        SET audit_log = CONCAT(audit_log, "Reversal Date: ", OLD.reversal_date, " -> ", NEW.reversal_date, "<br/>");
+    END IF;
+
+    IF NEW.pulled_out_date <> OLD.pulled_out_date THEN
+        SET audit_log = CONCAT(audit_log, "Pulled-Out Date: ", OLD.pulled_out_date, " -> ", NEW.pulled_out_date, "<br/>");
+    END IF;
+
+    IF NEW.pulled_out_reason <> OLD.pulled_out_reason THEN
+        SET audit_log = CONCAT(audit_log, "Pulled-Out Reason: ", OLD.pulled_out_reason, " -> ", NEW.pulled_out_reason, "<br/>");
+    END IF;
+
+    IF NEW.reversal_reason <> OLD.reversal_reason THEN
+        SET audit_log = CONCAT(audit_log, "Reversal Reason: ", OLD.reversal_reason, " -> ", NEW.reversal_reason, "<br/>");
+    END IF;
+
+    IF NEW.reversal_remarks <> OLD.reversal_remarks THEN
+        SET audit_log = CONCAT(audit_log, "Reversal Remarks: ", OLD.reversal_remarks, " -> ", NEW.reversal_remarks, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('loan_collections', NEW.loan_collection_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER loan_collections_trigger_insert
+AFTER INSERT ON loan_collections
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Loan Collections created. <br/>';
+
+     IF NEW.loan_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference: ", NEW.loan_number, "<br/>");
+    END IF;
+
+     IF NEW.mode_of_payment <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mode of Payment: ", NEW.mode_of_payment, "<br/>");
+    END IF;
+
+     IF NEW.payment_details <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Payment Details: ", NEW.payment_details, "<br/>");
+    END IF;
+
+     IF NEW.payment_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Payment Amount: ", NEW.payment_amount, "<br/>");
+    END IF;
+
+     IF NEW.collection_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Status: ", NEW.collection_status, "<br/>");
+    END IF;
+
+     IF NEW.reference_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference Number: ", NEW.reference_number, "<br/>");
+    END IF;
+
+     IF NEW.alpha <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Alpha: ", NEW.alpha, "<br/>");
+    END IF;
+
+     IF NEW.check_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Date: ", NEW.check_date, "<br/>");
+    END IF;
+
+     IF NEW.check_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Check Number: ", NEW.check_number, "<br/>");
+    END IF;
+
+     IF NEW.bank_branch <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Bank Branch: ", NEW.bank_branch, "<br/>");
+    END IF;
+
+     IF NEW.or_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>OR Number: ", NEW.or_number, "<br/>");
+    END IF;
+
+     IF NEW.or_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>OR Date: ", NEW.or_date, "<br/>");
+    END IF;
+
+     IF NEW.payment_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Payment Date: ", NEW.payment_date, "<br/>");
+    END IF;
+
+     IF NEW.transaction_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Date: ", NEW.transaction_date, "<br/>");
+    END IF;
+
+     IF NEW.onhold_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On Hold Date: ", NEW.onhold_date, "<br/>");
+    END IF;
+
+     IF NEW.onhold_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>On Hold Reason: ", NEW.onhold_reason, "<br/>");
+    END IF;
+
+     IF NEW.for_deposit_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>For Deposit Date: ", NEW.for_deposit_date, "<br/>");
+    END IF;
+
+     IF NEW.redeposit_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Re-Deposit Date: ", NEW.redeposit_date, "<br/>");
+    END IF;
+
+     IF NEW.clear_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Clear Date: ", NEW.clear_date, "<br/>");
+    END IF;
+
+     IF NEW.cancellation_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Date: ", NEW.cancellation_date, "<br/>");
+    END IF;
+
+     IF NEW.cancellation_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cancellation Reason: ", NEW.cancellation_reason, "<br/>");
+    END IF;
+
+     IF NEW.reversal_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reversal Date: ", NEW.reversal_date, "<br/>");
+    END IF;
+
+     IF NEW.pulled_out_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Pulled-Out Date: ", NEW.pulled_out_date, "<br/>");
+    END IF;
+
+     IF NEW.pulled_out_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Pulled-Out Reason: ", NEW.pulled_out_reason, "<br/>");
+    END IF;
+
+     IF NEW.reversal_reason <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reversal Reason : ", NEW.reversal_reason, "<br/>");
+    END IF;
+
+     IF NEW.reversal_remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reversal Remarks: ", NEW.reversal_remarks, "<br/>");
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('loan_collections', NEW.loan_collection_id, audit_log, NEW.last_log_by, NOW());
+END //
+
 CREATE TRIGGER sales_proposal_repayment_trigger_update
 AFTER UPDATE ON sales_proposal_repayment
 FOR EACH ROW
@@ -5961,38 +6191,6 @@ BEGIN
 
     IF NEW.due_amount <> OLD.due_amount THEN
         SET audit_log = CONCAT(audit_log, "Due Amount: ", OLD.due_amount, " -> ", NEW.due_amount, "<br/>");
-    END IF;
-
-    IF NEW.paid_due <> OLD.paid_due THEN
-        SET audit_log = CONCAT(audit_log, "Paid Due: ", OLD.paid_due, " -> ", NEW.paid_due, "<br/>");
-    END IF;
-
-    IF NEW.unpaid_due <> OLD.unpaid_due THEN
-        SET audit_log = CONCAT(audit_log, "Unpaid Due: ", OLD.unpaid_due, " -> ", NEW.unpaid_due, "<br/>");
-    END IF;
-
-    IF NEW.penalty <> OLD.penalty THEN
-        SET audit_log = CONCAT(audit_log, "Penalty: ", OLD.penalty, " -> ", NEW.penalty, "<br/>");
-    END IF;
-
-    IF NEW.unpaid_penalty <> OLD.unpaid_penalty THEN
-        SET audit_log = CONCAT(audit_log, "Unpaid Penalty: ", OLD.unpaid_penalty, " -> ", NEW.unpaid_penalty, "<br/>");
-    END IF;
-
-    IF NEW.other_charges <> OLD.other_charges THEN
-        SET audit_log = CONCAT(audit_log, "Other Charges: ", OLD.other_charges, " -> ", NEW.other_charges, "<br/>");
-    END IF;
-
-    IF NEW.unpaid_other_charges <> OLD.unpaid_other_charges THEN
-        SET audit_log = CONCAT(audit_log, "Unpaid Other Charges: ", OLD.unpaid_other_charges, " -> ", NEW.unpaid_other_charges, "<br/>");
-    END IF;
-
-    IF NEW.paid_other_charges <> OLD.paid_other_charges THEN
-        SET audit_log = CONCAT(audit_log, "Paid Other Charges: ", OLD.paid_other_charges, " -> ", NEW.paid_other_charges, "<br/>");
-    END IF;
-
-    IF NEW.repayment_status <> OLD.repayment_status THEN
-        SET audit_log = CONCAT(audit_log, "Repayment Status: ", OLD.repayment_status, " -> ", NEW.repayment_status, "<br/>");
     END IF;
     
     IF LENGTH(audit_log) > 0 THEN
@@ -6017,42 +6215,6 @@ BEGIN
 
      IF NEW.due_amount <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Due Amount: ", NEW.due_amount, "<br/>");
-    END IF;
-
-     IF NEW.paid_due <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Paid Due: ", NEW.paid_due, "<br/>");
-    END IF;
-
-     IF NEW.unpaid_due <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Due: ", NEW.unpaid_due, "<br/>");
-    END IF;
-
-     IF NEW.penalty <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Penalty: ", NEW.penalty, "<br/>");
-    END IF;
-
-     IF NEW.unpaid_penalty <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Penalty: ", NEW.unpaid_penalty, "<br/>");
-    END IF;
-
-     IF NEW.paid_penalty <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Paid Penalty: ", NEW.paid_penalty, "<br/>");
-    END IF;
-
-     IF NEW.other_charges <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Other Charges: ", NEW.other_charges, "<br/>");
-    END IF;
-
-     IF NEW.unpaid_other_charges <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Unpaid Other Charges: ", NEW.unpaid_other_charges, "<br/>");
-    END IF;
-
-     IF NEW.paid_other_charges <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Paid Other Charges: ", NEW.paid_other_charges, "<br/>");
-    END IF;
-
-     IF NEW.repayment_status <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Repayment Status: ", NEW.repayment_status, "<br/>");
     END IF;
 
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 

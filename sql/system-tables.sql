@@ -5495,20 +5495,45 @@ CREATE TABLE leave_application(
     FOREIGN KEY (last_log_by) REFERENCES users(user_id)
 );
 
+CREATE TABLE loan_collections (
+    loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_proposal_id INT UNSIGNED NOT NULL,
+    loan_number VARCHAR(100) NOT NULL,
+    mode_of_payment VARCHAR(100) NOT NULL, /* Cash, Online, PDC */
+    payment_details VARCHAR(100) NOT NULL,
+    payment_amount DOUBLE NOT NULL,
+    collection_status VARCHAR(50) DEFAULT 'Pending', /* Pending, Cleared, On-Hold, Reversed, Cancelled, Redeposit, For Deposit, Pulled-Out */
+    reference_number VARCHAR(200),
+    alpha VARCHAR(100),
+    check_date DATE,
+    check_number VARCHAR(100),
+    bank_branch VARCHAR(200),
+    or_number VARCHAR(100),
+    or_date DATE,
+    payment_date DATE,
+    transaction_date DATE,
+    onhold_date DATE,
+    onhold_reason VARCHAR(500),
+    for_deposit_date DATE,
+    redeposit_date DATE,
+    clear_date DATE,
+    cancellation_date DATE,
+    cancellation_reason VARCHAR(500),
+    reversal_date DATE,
+    pulled_out_date DATE,
+    pulled_out_reason VARCHAR(500),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    reversal_reason VARCHAR(100),
+    reversal_remarks VARCHAR(500),
+    last_log_by INT UNSIGNED NOT NULL
+);
+
 CREATE TABLE sales_proposal_repayment (
     sales_proposal_repayment_id INT AUTO_INCREMENT PRIMARY KEY,
     sales_proposal_id INT UNSIGNED NOT NULL,
+    loan_number VARCHAR(100) NOT NULL,
     reference VARCHAR(200) NOT NULL,
     due_date DATE NOT NULL,
     due_amount DOUBLE NOT NULL,
-    paid_due DOUBLE NOT NULL DEFAULT 0,
-    unpaid_due DOUBLE NOT NULL DEFAULT 0,
-    penalty DOUBLE NOT NULL DEFAULT 0,
-    unpaid_penalty DOUBLE NOT NULL DEFAULT 0,
-    paid_penalty DOUBLE NOT NULL DEFAULT 0,
-    other_charges DOUBLE NOT NULL DEFAULT 0,
-    unpaid_other_charges DOUBLE NOT NULL DEFAULT 0,
-    paid_other_charges DOUBLE NOT NULL DEFAULT 0,
-    repayment_status VARCHAR(20) NOT NULL DEFAULT 'Unpaid',
     last_log_by INT UNSIGNED NOT NULL
 );

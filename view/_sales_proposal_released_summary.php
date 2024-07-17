@@ -52,7 +52,10 @@
                                 }
 
                                 if($salesProposalStatus == 'Released'){
-                                    if($generatePDC['total'] > 0){
+                                    $salesProposalRepaymentExist = $salesProposalModel->checkSalesProposalRepaymentExist($salesProposalID);
+                                    $repaymentTotal = $salesProposalRepaymentExist['total'] ?? 0;
+
+                                    if($generatePDC['total'] > 0 && $repaymentTotal == 0){
                                         echo '<div class="previous me-2">
                                                 <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#generate-pdc-offcanvas" aria-controls="generate-pdc-offcanvas">Generate Repayment PDC</button>
                                             </div>';
@@ -1681,7 +1684,7 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
-                                <label class="form-label">Bank/Branch</label>
+                                <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
                             </div>
                         </div>
@@ -1690,7 +1693,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <button type="submit" class="btn btn-primary" id="submit-sales-proposal-pdc-manual-input" form="sales-proposal-pdc-manual-input-form">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="submit-pdc-generation" form="pdc-generation-form">Submit</button>
                     <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
                 </div>
             </div>

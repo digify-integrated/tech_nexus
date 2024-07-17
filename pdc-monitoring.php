@@ -1,32 +1,32 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
- # require('model/loan-repayments-model.php');
+  #require('model/loan-collections-model.php');
 
-  #$loanRepaymentsModel = new LoanRepaymentsModel($databaseModel);
+  #$loanCollectionsModel = new LoanCollectionsModel($databaseModel);
 
-  $pageTitle = 'Leave Entitlement';
+  $pageTitle = 'PDC Monitoring';
     
-  $loanRepaymentsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
-  $loanRepaymentsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
-  $loanRepaymentsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
-  $loanRepaymentsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
+  $pdcMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
+  $pdcMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
+  $pdcMonitoringWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
+  $pdcMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
 
-  if ($loanRepaymentsReadAccess['total'] == 0) {
+  if ($pdcMonitoringReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
 
   if(isset($_GET['id'])){
     if(empty($_GET['id'])){
-      header('location: loan-repayments.php');
+      header('location: loan-collections.php');
       exit;
     }
 
-    $loanRepaymentsID = $securityModel->decryptData($_GET['id']);
+    $pdcMonitoringID = $securityModel->decryptData($_GET['id']);
 
-    $checkLoanRepaymentsExist = $loanRepaymentsModel->checkLoanRepaymentsExist($loanRepaymentsID);
-    $total = $checkLoanRepaymentsExist['total'] ?? 0;
+    $checkLoanCollectionsExist = $loanCollectionsModel->checkLoanCollectionsExist($pdcMonitoringID);
+    $total = $checkLoanCollectionsExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
@@ -34,7 +34,7 @@
     }
   }
   else{
-    $loanRepaymentsID = null;
+    $pdcMonitoringID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -69,10 +69,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="loan-repayments.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="loan-collections.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($loanRepaymentsID)){
-                            echo '<li class="breadcrumb-item" id="loan-repayments-id">'. $loanRepaymentsID .'</li>';
+                        if(!$newRecord && !empty($pdcMonitoringID)){
+                            echo '<li class="breadcrumb-item" id="loan-collections-id">'. $pdcMonitoringID .'</li>';
                         }
 
                         if($newRecord){
@@ -90,14 +90,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $loanRepaymentsCreateAccess['total'] > 0){
-            require_once('view/_loan_repayments_new.php');
+          if($newRecord && $pdcMonitoringCreateAccess['total'] > 0){
+            require_once('view/_pdc_monitoring_new.php');
           }
-          else if(!empty($loanRepaymentsID) && $loanRepaymentsWriteAccess['total'] > 0){
-            require_once('view/_loan_repayments_details.php');
+          else if(!empty($pdcMonitoringID) && $pdcMonitoringWriteAccess['total'] > 0){
+            require_once('view/_pdc_monitoring_details.php');
           }
           else{
-            require_once('view/_loan_repayments.php');
+            require_once('view/_pdc_monitoring.php');
           }
         ?>
       </div>
@@ -116,7 +116,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/loan-repayments.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/loan-collections.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

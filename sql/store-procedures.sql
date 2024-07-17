@@ -7184,6 +7184,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE checkSalesProposalRepaymentExist (IN p_sales_proposal_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM sales_proposal_repayment
+    WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
 CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
@@ -7194,12 +7201,20 @@ BEGIN
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertSalesProposalRepayment(IN p_sales_proposal_id INT, IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_due_amount DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalRepayment(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_reference VARCHAR(200), IN p_due_date DATE, IN p_due_amount DOUBLE, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal_repayment (sales_proposal_id, reference, due_date, due_amount, last_log_by) 
-	VALUES(p_sales_proposal_id, p_reference, p_due_date, p_due_amount, p_last_log_by);
+    INSERT INTO sales_proposal_repayment (sales_proposal_id, loan_number, reference, due_date, due_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_reference, p_due_date, p_due_amount, p_last_log_by);
+END //
+
+CREATE PROCEDURE insertPDCCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_payment_amount DOUBLE, IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_bank_branch VARCHAR(200), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, mode_of_payment, payment_details, alpha, payment_amount, check_number, check_date, bank_branch, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, 'Check', 'Acct Amort', 'Repayment', p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
@@ -7491,11 +7506,6 @@ END //
 CREATE PROCEDURE deleteSalesProposal(IN p_sales_proposal_id INT)
 BEGIN
     DELETE FROM sales_proposal WHERE sales_proposal_id = p_sales_proposal_id;
-END //
-
-CREATE PROCEDURE deleteSalesProposalRepayment(IN p_sales_proposal_id INT)
-BEGIN
-    DELETE FROM sales_proposal_repayment WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
 CREATE PROCEDURE getSalesProposal(IN p_sales_proposal_id INT)

@@ -1192,60 +1192,9 @@
             }
         });
 
-        $(document).on('click','#generate-schedule',function() {
-            const sales_proposal_id = $('#sales-proposal-id').text();
-            const transaction = 'generate schedule';
-    
-            Swal.fire({
-                title: 'Confirm Repayment Schedule Generation',
-                text: 'Are you sure you want to generate the repayment schedule of this sales proposal?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Generate',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/sales-proposal-controller.php',
-                        dataType: 'json',
-                        data: {
-                            sales_proposal_id : sales_proposal_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Repayment Schedule Generation Success', 'The repayment schedule of this sales proposal has been generated successfully.', 'success');
-                                window.location.reload();
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Repayment Schedule Generation Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
+        if($('#pdc-generation-form').length){
+            generatePDCForm();
+        }
     });
 })(jQuery);
 
@@ -5005,6 +4954,105 @@ function salesProposalReleaseForm(){
                 complete: function() {
                     enableFormSubmitButton('submit-other-product-details-data', 'Submit');
                     displayDetails('get sales proposal other product details');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function generatePDCForm(){
+    $('#pdc-generation-form').validate({
+        rules: {
+            no_of_pdc: {
+                required: true
+            },
+            first_check_number: {
+                required: true
+            },
+            bank_branch: {
+                required: true
+            },
+        },
+        messages: {
+            no_of_pdc: {
+                required: 'Please enter the number of PDC'
+            },
+            first_check_number: {
+                required: 'Please enter the first check number'
+            },
+            bank_branch: {
+                required: 'Please enter the bank/branch'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const sales_proposal_id = $('#sales-proposal-id').text();
+            const transaction = 'generate PDC';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/sales-proposal-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&sales_proposal_id=' + sales_proposal_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-pdc-generation');
+                },
+                success: function (response) {
+                    if (!response.success) {
+                        if (response.exceedPDC) {
+                            showNotification('Generate PDC Error', 'The number of PDC exceed the number of payments.', 'danger');
+                            enableFormSubmitButton('submit-pdc-generation', 'Submit');
+                        }
+                        else if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                            enableFormSubmitButton('submit-pdc-generation', 'Submit');
+                        }
+                    }
+                    else{
+                        setNotification('Generate PDC Success', 'The PDC has been generated successfully.', 'success');
+                        window.location.reload();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
                 }
             });
         
