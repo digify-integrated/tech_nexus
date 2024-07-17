@@ -1119,3 +1119,30 @@ function colorReferenceTable(datatable_name, buttons = false, show_all = false){
 function parseCurrency(value) {
     return parseFloat(value.replace(/,/g, '')) || 0;
 }
+
+function encryptCommission(number) {
+    // Define the mapping
+    const mapping = {
+        '1': 'C',
+        '2': 'O',
+        '3': 'M',
+        '4': 'E',
+        '5': 'A',
+        '6': 'N',
+        '7': 'D',
+        '8': 'B',
+        '9': 'U',
+        '0': 'Y'
+    };
+    
+    // Convert the number to a string to iterate over each digit
+    const numberStr = number.toString().replace(/,/g, ''); // Remove commas if any
+    let encryptedStr = '';
+    
+    // Map each digit to its corresponding character
+    for (let char of numberStr) {
+        encryptedStr += mapping[char];
+    }
+    
+    return encryptedStr;
+}

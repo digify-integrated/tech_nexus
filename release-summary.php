@@ -6,6 +6,7 @@
   require('model/customer-model.php');
   require('model/product-model.php');
   require('model/approving-officer-model.php');
+  require('model/id-type-model.php');
 
   $pageTitle = 'Release Summary';
   
@@ -13,6 +14,7 @@
   $approvingOfficerModel = new ApprovingOfficerModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
+  $idTypeModel = new IDTypeModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 85, 'read');
   $allSalesProposalCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 85, 'create');
@@ -247,6 +249,7 @@
     <script src="./assets/js/plugins/dataTables.bootstrap5.min.js"></script>
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
+    <script src="./assets/js/plugins/imask.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
     <script src="./assets/js/pages/sales-proposal-for-dr.js?v=<?php echo rand(); ?>"></script>
 </body>

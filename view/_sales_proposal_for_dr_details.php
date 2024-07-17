@@ -93,8 +93,8 @@
                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
                     </div>
                     <div class="tab-pane show active" id="v-basic-details">
-                        <form id="sales-proposal-form" method="post" action="#">
                         <input type="hidden" id="sales_proposal_status" value="<?php echo $salesProposalStatus; ?>">
+                        <form id="sales-proposal-form" method="post" action="#">
                         <input type="hidden" id="sales_proposal_type" value="details">
                         <div class="row">
                             <div class="col-lg-6">
@@ -1005,7 +1005,7 @@
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>DIESEL FUEL QUANTITY</b></small><br/><span id="summary-diesel-fuel-quantity"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>REGULAR FUEL QUANTITY</b></small><br/><span id="summary-regular-fuel-quantity"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>PREMIUM FUEL QUANTITY</b></small><br/><span id="summary-premium-fuel-quantity"></span></td>
-                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"></td>
+                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>COMMISSION</b></small><br/><span id="summary-commission"></span></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>

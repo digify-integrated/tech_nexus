@@ -4755,6 +4755,8 @@ function displayDetails(transaction){
                         if($('#term_length_2').length){
                             $('#term_length_2').val(response.termLength);
                         }
+
+                        $('#summary-commission').text(encryptCommission(response.commissionAmount));
                        
                         checkOptionExist('#renewal_tag', response.renewalTag, '');
                         checkOptionExist('#product_type', response.productType, '');

@@ -300,7 +300,7 @@ class SalesProposalController {
         $financingInstitution = htmlspecialchars($_POST['financing_institution'], ENT_QUOTES, 'UTF-8');
         $comakerID = htmlspecialchars($_POST['comaker_id'], ENT_QUOTES, 'UTF-8');
         $referredBy = htmlspecialchars($_POST['referred_by'], ENT_QUOTES, 'UTF-8');
-        $commissionAmount = htmlspecialchars($_POST['commission_amount'], ENT_QUOTES, 'UTF-8');
+        $commissionAmount = str_replace(',', '', $_POST['commission_amount']);
         $releaseDate = $this->systemModel->checkDate('empty', $_POST['release_date'], '', 'Y-m-d', '');
         $startDate = $this->systemModel->checkDate('empty', $_POST['start_date'], '', 'Y-m-d', '');
         $termLength = htmlspecialchars($_POST['term_length'], ENT_QUOTES, 'UTF-8');
@@ -340,12 +340,12 @@ class SalesProposalController {
             $forChangeEngine = htmlspecialchars($_POST['for_change_engine'], ENT_QUOTES, 'UTF-8');
             $newEngine = htmlspecialchars($_POST['new_engine'], ENT_QUOTES, 'UTF-8');
 
-            $dieselFuelQuantity = htmlspecialchars($_POST['diesel_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-            $dieselPricePerLiter = htmlspecialchars($_POST['diesel_price_per_liter'], ENT_QUOTES, 'UTF-8');
-            $regularFuelQuantity = htmlspecialchars($_POST['regular_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-            $regularPricePerliter = htmlspecialchars($_POST['regular_price_per_liter'], ENT_QUOTES, 'UTF-8');
-            $premiumFuelQuantity = htmlspecialchars($_POST['premium_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-            $premiumPricePerliter = htmlspecialchars($_POST['premium_price_per_liter'], ENT_QUOTES, 'UTF-8');
+            $dieselFuelQuantity = str_replace(',', '', $_POST['diesel_fuel_quantity']);
+            $dieselPricePerLiter = str_replace(',', '', $_POST['diesel_price_per_liter']);
+            $regularFuelQuantity = str_replace(',', '', $_POST['regular_fuel_quantity']);
+            $regularPricePerliter = str_replace(',', '', $_POST['regular_price_per_liter']);
+            $premiumFuelQuantity = str_replace(',', '', $_POST['premium_fuel_quantity']);
+            $premiumPricePerliter = str_replace(',', '', $_POST['premium_price_per_liter']);
 
             $refEngineNo = htmlspecialchars($_POST['ref_engine_no'], ENT_QUOTES, 'UTF-8');
             $refChassisNo = htmlspecialchars($_POST['ref_chassis_no'], ENT_QUOTES, 'UTF-8');
@@ -359,38 +359,38 @@ class SalesProposalController {
             $orcrDate = $this->systemModel->checkDate('empty', $_POST['orcr_date'], '', 'Y-m-d', '');
             $orcrExpiryDate = $this->systemModel->checkDate('empty', $_POST['orcr_expiry_date'], '', 'Y-m-d', '');
 
-            $deliverPrice = htmlspecialchars($_POST['delivery_price'], ENT_QUOTES, 'UTF-8');
-            $nominalDiscount = htmlspecialchars($_POST['nominal_discount'], ENT_QUOTES, 'UTF-8');
-            $addOnCharge = htmlspecialchars($_POST['add_on_charge'], ENT_QUOTES, 'UTF-8');
-            $totalDeliveryPrice = htmlspecialchars($_POST['total_delivery_price'], ENT_QUOTES, 'UTF-8');
-            $costOfAccessories = htmlspecialchars($_POST['cost_of_accessories'], ENT_QUOTES, 'UTF-8');
-            $reconditioningCost = htmlspecialchars($_POST['reconditioning_cost'], ENT_QUOTES, 'UTF-8');
-            $subtotal = htmlspecialchars($_POST['subtotal'], ENT_QUOTES, 'UTF-8');
-            $downpayment = htmlspecialchars($_POST['downpayment'], ENT_QUOTES, 'UTF-8');
-            $outstandingBalance = htmlspecialchars($_POST['outstanding_balance'], ENT_QUOTES, 'UTF-8');
-            $amountFinanced = htmlspecialchars($_POST['amount_financed'], ENT_QUOTES, 'UTF-8');
-            $pnAmount = htmlspecialchars($_POST['pn_amount'], ENT_QUOTES, 'UTF-8');
-            $repaymentAmount = htmlspecialchars($_POST['repayment_amount'], ENT_QUOTES, 'UTF-8');
-            $interestRate = htmlspecialchars($_POST['interest_rate'], ENT_QUOTES, 'UTF-8');
+            $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
+            $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
+            $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
+            $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
+            $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
+            $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
+            $subtotal = str_replace(',', '', $_POST['subtotal']);
+            $downpayment = str_replace(',', '', $_POST['downpayment']);
+            $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
+            $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
+            $pnAmount = str_replace(',', '', $_POST['pn_amount']);
+            $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
+            $interestRate = str_replace(',', '', $_POST['interest_rate']);
 
-            $insuranceCoverage = htmlspecialchars($_POST['insurance_coverage'], ENT_QUOTES, 'UTF-8');
-            $insurancePremium = htmlspecialchars($_POST['insurance_premium'], ENT_QUOTES, 'UTF-8');
-            $handlingFee = htmlspecialchars($_POST['handling_fee'], ENT_QUOTES, 'UTF-8');
-            $transferFee = htmlspecialchars($_POST['transfer_fee'], ENT_QUOTES, 'UTF-8');
-            $registrationFee = htmlspecialchars($_POST['registration_fee'], ENT_QUOTES, 'UTF-8');
-            $docStampTax = htmlspecialchars($_POST['doc_stamp_tax'], ENT_QUOTES, 'UTF-8');
-            $transactionFee = htmlspecialchars($_POST['transaction_fee'], ENT_QUOTES, 'UTF-8');
-            $totalOtherCharges = htmlspecialchars($_POST['total_other_charges'], ENT_QUOTES, 'UTF-8');
+            $insuranceCoverage = str_replace(',', '', $_POST['insurance_coverage']);
+            $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
+            $handlingFee = str_replace(',', '', $_POST['handling_fee']);
+            $transferFee = str_replace(',', '', $_POST['transfer_fee']);
+            $registrationFee = str_replace(',', '', $_POST['registration_fee']);
+            $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
+            $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
+            $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
 
-            $registrationSecondYear = htmlspecialchars($_POST['registration_second_year'], ENT_QUOTES, 'UTF-8');
-            $registrationThirdYear = htmlspecialchars($_POST['registration_third_year'], ENT_QUOTES, 'UTF-8');
-            $registrationFourthYear = htmlspecialchars($_POST['registration_fourth_year'], ENT_QUOTES, 'UTF-8');
-            $insuranceCoverageSecondYear = htmlspecialchars($_POST['insurance_coverage_second_year'], ENT_QUOTES, 'UTF-8');
-            $insuranceCoverageThirdYear = htmlspecialchars($_POST['insurance_coverage_third_year'], ENT_QUOTES, 'UTF-8');
-            $insuranceCoverageFourthYear = htmlspecialchars($_POST['insurance_coverage_fourth_year'], ENT_QUOTES, 'UTF-8');
-            $insurancePremiumSecondYear = htmlspecialchars($_POST['insurance_premium_second_year'], ENT_QUOTES, 'UTF-8');
-            $insurancePremiumThirdYear = htmlspecialchars($_POST['insurance_premium_third_year'], ENT_QUOTES, 'UTF-8');
-            $insurancePremiumFourthYear = htmlspecialchars($_POST['insurance_premium_fourth_year'], ENT_QUOTES, 'UTF-8');
+            $registrationSecondYear = str_replace(',', '', $_POST['registration_second_year']);
+            $registrationThirdYear = str_replace(',', '', $_POST['registration_third_year']);
+            $registrationFourthYear = str_replace(',', '', $_POST['registration_fourth_year']);
+            $insuranceCoverageSecondYear = str_replace(',', '', $_POST['insurance_coverage_second_year']);
+            $insuranceCoverageThirdYear = str_replace(',', '', $_POST['insurance_coverage_third_year']);
+            $insuranceCoverageFourthYear = str_replace(',', '', $_POST['insurance_coverage_fourth_year']);
+            $insurancePremiumSecondYear = str_replace(',', '', $_POST['insurance_premium_second_year']);
+            $insurancePremiumThirdYear = str_replace(',', '', $_POST['insurance_premium_third_year']);
+            $insurancePremiumFourthYear = str_replace(',', '', $_POST['insurance_premium_fourth_year']);
 
             $salesProposalNumber = $this->systemSettingModel->getSystemSetting(6)['value'] + 1;
 
@@ -508,12 +508,12 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $contactID = $_SESSION['contact_id'] ?? 1;
         $salesProposalID = isset($_POST['sales_proposal_id']) ? $_POST['sales_proposal_id'] : null;
-        $dieselFuelQuantity = htmlspecialchars($_POST['diesel_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-        $dieselPricePerLiter = htmlspecialchars($_POST['diesel_price_per_liter'], ENT_QUOTES, 'UTF-8');
-        $regularFuelQuantity = htmlspecialchars($_POST['regular_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-        $regularPricePerliter = htmlspecialchars($_POST['regular_price_per_liter'], ENT_QUOTES, 'UTF-8');
-        $premiumFuelQuantity = htmlspecialchars($_POST['premium_fuel_quantity'], ENT_QUOTES, 'UTF-8');
-        $premiumPricePerliter = htmlspecialchars($_POST['premium_price_per_liter'], ENT_QUOTES, 'UTF-8');
+        $dieselFuelQuantity = str_replace(',', '', $_POST['diesel_fuel_quantity']);
+        $dieselPricePerLiter = str_replace(',', '', $_POST['diesel_price_per_liter']);
+        $regularFuelQuantity = str_replace(',', '', $_POST['regular_fuel_quantity']);
+        $regularPricePerliter = str_replace(',', '', $_POST['regular_price_per_liter']);
+        $premiumFuelQuantity = str_replace(',', '', $_POST['premium_fuel_quantity']);
+        $premiumPricePerliter = str_replace(',', '', $_POST['premium_price_per_liter']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2195,19 +2195,19 @@ class SalesProposalController {
     
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $deliverPrice = htmlspecialchars($_POST['delivery_price'], ENT_QUOTES, 'UTF-8');
-        $nominalDiscount = htmlspecialchars($_POST['nominal_discount'], ENT_QUOTES, 'UTF-8');
-        $addOnCharge = htmlspecialchars($_POST['add_on_charge'], ENT_QUOTES, 'UTF-8');
-        $totalDeliveryPrice = htmlspecialchars($_POST['total_delivery_price'], ENT_QUOTES, 'UTF-8');
-        $costOfAccessories = htmlspecialchars($_POST['cost_of_accessories'], ENT_QUOTES, 'UTF-8');
-        $reconditioningCost = htmlspecialchars($_POST['reconditioning_cost'], ENT_QUOTES, 'UTF-8');
-        $subtotal = htmlspecialchars($_POST['subtotal'], ENT_QUOTES, 'UTF-8');
-        $downpayment = htmlspecialchars($_POST['downpayment'], ENT_QUOTES, 'UTF-8');
-        $outstandingBalance = htmlspecialchars($_POST['outstanding_balance'], ENT_QUOTES, 'UTF-8');
-        $amountFinanced = htmlspecialchars($_POST['amount_financed'], ENT_QUOTES, 'UTF-8');
-        $pnAmount = htmlspecialchars($_POST['pn_amount'], ENT_QUOTES, 'UTF-8');
-        $repaymentAmount = htmlspecialchars($_POST['repayment_amount'], ENT_QUOTES, 'UTF-8');
-        $interestRate = htmlspecialchars($_POST['interest_rate'], ENT_QUOTES, 'UTF-8');
+        $deliverPrice = str_replace(',', '', $_POST['delivery_price']);
+            $nominalDiscount = str_replace(',', '', $_POST['nominal_discount']);
+            $addOnCharge = str_replace(',', '', $_POST['add_on_charge']);
+            $totalDeliveryPrice = str_replace(',', '', $_POST['total_delivery_price']);
+            $costOfAccessories = str_replace(',', '', $_POST['cost_of_accessories']);
+            $reconditioningCost = str_replace(',', '', $_POST['reconditioning_cost']);
+            $subtotal = str_replace(',', '', $_POST['subtotal']);
+            $downpayment = str_replace(',', '', $_POST['downpayment']);
+            $outstandingBalance = str_replace(',', '', $_POST['outstanding_balance']);
+            $amountFinanced = str_replace(',', '', $_POST['amount_financed']);
+            $pnAmount = str_replace(',', '', $_POST['pn_amount']);
+            $repaymentAmount = str_replace(',', '', $_POST['repayment_amount']);
+            $interestRate = str_replace(',', '', $_POST['interest_rate']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2252,14 +2252,14 @@ class SalesProposalController {
     
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $insuranceCoverage = htmlspecialchars($_POST['insurance_coverage'], ENT_QUOTES, 'UTF-8');
-        $insurancePremium = htmlspecialchars($_POST['insurance_premium'], ENT_QUOTES, 'UTF-8');
-        $handlingFee = htmlspecialchars($_POST['handling_fee'], ENT_QUOTES, 'UTF-8');
-        $transferFee = htmlspecialchars($_POST['transfer_fee'], ENT_QUOTES, 'UTF-8');
-        $registrationFee = htmlspecialchars($_POST['registration_fee'], ENT_QUOTES, 'UTF-8');
-        $docStampTax = htmlspecialchars($_POST['doc_stamp_tax'], ENT_QUOTES, 'UTF-8');
-        $transactionFee = htmlspecialchars($_POST['transaction_fee'], ENT_QUOTES, 'UTF-8');
-        $totalOtherCharges = htmlspecialchars($_POST['total_other_charges'], ENT_QUOTES, 'UTF-8');
+        $insuranceCoverage = str_replace(',', '', $_POST['insurance_coverage']);
+            $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
+            $handlingFee = str_replace(',', '', $_POST['handling_fee']);
+            $transferFee = str_replace(',', '', $_POST['transfer_fee']);
+            $registrationFee = str_replace(',', '', $_POST['registration_fee']);
+            $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
+            $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
+            $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2359,15 +2359,15 @@ class SalesProposalController {
     
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
-        $registrationSecondYear = htmlspecialchars($_POST['registration_second_year'], ENT_QUOTES, 'UTF-8');
-        $registrationThirdYear = htmlspecialchars($_POST['registration_third_year'], ENT_QUOTES, 'UTF-8');
-        $registrationFourthYear = htmlspecialchars($_POST['registration_fourth_year'], ENT_QUOTES, 'UTF-8');
-        $insuranceCoverageSecondYear = htmlspecialchars($_POST['insurance_coverage_second_year'], ENT_QUOTES, 'UTF-8');
-        $insuranceCoverageThirdYear = htmlspecialchars($_POST['insurance_coverage_third_year'], ENT_QUOTES, 'UTF-8');
-        $insuranceCoverageFourthYear = htmlspecialchars($_POST['insurance_coverage_fourth_year'], ENT_QUOTES, 'UTF-8');
-        $insurancePremiumSecondYear = htmlspecialchars($_POST['insurance_premium_second_year'], ENT_QUOTES, 'UTF-8');
-        $insurancePremiumThirdYear = htmlspecialchars($_POST['insurance_premium_third_year'], ENT_QUOTES, 'UTF-8');
-        $insurancePremiumFourthYear = htmlspecialchars($_POST['insurance_premium_fourth_year'], ENT_QUOTES, 'UTF-8');
+        $registrationSecondYear = str_replace(',', '', $_POST['registration_second_year']);
+            $registrationThirdYear = str_replace(',', '', $_POST['registration_third_year']);
+            $registrationFourthYear = str_replace(',', '', $_POST['registration_fourth_year']);
+            $insuranceCoverageSecondYear = str_replace(',', '', $_POST['insurance_coverage_second_year']);
+            $insuranceCoverageThirdYear = str_replace(',', '', $_POST['insurance_coverage_third_year']);
+            $insuranceCoverageFourthYear = str_replace(',', '', $_POST['insurance_coverage_fourth_year']);
+            $insurancePremiumSecondYear = str_replace(',', '', $_POST['insurance_premium_second_year']);
+            $insurancePremiumThirdYear = str_replace(',', '', $_POST['insurance_premium_third_year']);
+            $insurancePremiumFourthYear = str_replace(',', '', $_POST['insurance_premium_fourth_year']);
     
         $user = $this->userModel->getUserByID($userID);
     

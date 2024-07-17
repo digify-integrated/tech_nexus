@@ -81,9 +81,9 @@
         }
 
         // Temporary
-        if($('#sales-proposal-pricing-computation-form').length){
+        /*if($('#sales-proposal-pricing-computation-form').length){
             salesProposalPricingComputationForm();
-        }
+        }*/
         //-----------------
 
         if(sales_proposal_status == 'Draft'){
@@ -107,9 +107,9 @@
                 salesProposalJobOrderForm();
             }
     
-            /*if($('#sales-proposal-pricing-computation-form').length){
+            if($('#sales-proposal-pricing-computation-form').length){
                 salesProposalPricingComputationForm();
-            }*/
+            }
         }
         else{
             if($('#sales-proposal-form').length){
@@ -132,9 +132,9 @@
                 disableFormAndSelect2('sales-proposal-job-order-form');
             }
     
-            /*if($('#sales-proposal-pricing-computation-form').length){
+            if($('#sales-proposal-pricing-computation-form').length){
                 disableFormAndSelect2('sales-proposal-pricing-computation-form');
-            }*/
+            }
         }
 
         if(sales_proposal_status == 'Draft' || sales_proposal_status == 'For DR'){
@@ -163,6 +163,7 @@
                 disableFormAndSelect2('sales-proposal-renewal-amount-form');
             }
         }
+
         if(sales_proposal_status == 'For DR'){
             if($('#sales-proposal-other-product-details-form').length){
                 salesProposalOtherProductDetailsForm(); 
@@ -247,6 +248,16 @@
         $(document).on('change','#product_type',function() {
             var productType = $(this).val();
 
+            if(productType == 'Brand New'){
+                $('#sales-proposal-tab-4').text('Brand New Details');
+            }
+            else if(productType == 'Refinancing'){
+                $('#sales-proposal-tab-4').text('Refinancing Details');
+            }
+            else if(productType == 'Restructure'){
+                $('#sales-proposal-tab-4').text('Restructure Details');
+            }
+
             if($('#sales-proposal-tab-2').length && $('#sales-proposal-tab-3').length && $('#sales-proposal-tab-4').length){
                 $('#sales-proposal-tab-2, #sales-proposal-tab-3, #sales-proposal-tab-4').addClass('d-none');
 
@@ -255,12 +266,12 @@
                     resetModalForm('sales-proposal-unit-details-form');
                     displayDetails('get sales proposal unit details');
                 }
-                else if (productType === 'Fuel') {
+               else if (productType === 'Fuel') {
                     $('#sales-proposal-tab-3').removeClass('d-none');
-                    resetModalForm('sales-proposal-fuel-details-form');
+                   // resetModalForm('sales-proposal-fuel-details-form');
                     displayDetails('get sales proposal fuel details');
                 }
-                else if (productType === 'Refinancing' || productType === 'Financing Brand New') {
+                else if (productType === 'Refinancing' || productType === 'Restructure' || productType === 'Brand New') {
                     $('#sales-proposal-tab-4').removeClass('d-none');
                     resetModalForm('sales-proposal-refinancing-details-form');
                     displayDetails('get sales proposal refinancing details');
@@ -383,7 +394,7 @@
             calculateFuelTotal();
         });
 
-        $(document).on('change','#delivery_price',function() {
+       $(document).on('change','#delivery_price',function() {
             calculateTotalDeliveryPrice();
             calculateRenewalAmount();
         });
@@ -5032,6 +5043,9 @@ function displayDetails(transaction){
                         $('#dr_number').val(response.drNumber);
                         $('#release_to').val(response.releaseTo);
                         $('#actual_start_date').val(response.actualStartDate);
+
+                        
+                        $('#summary-commission').text(encryptCommission(response.commissionAmount));
                         
                         if($('#term_length_2').length){
                             $('#term_length_2').val(response.termLength);
@@ -5085,7 +5099,11 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    displayDetails('get sales proposal other charges details');
+                 displayDetails('get sales proposal fuel details');
+                 displayDetails('get sales proposal other charges details');
+                 displayDetails('get sales proposal confirmation details');
+                 displayDetails('get sales proposal pricing computation details');
+                 displayDetails('get sales proposal renewal amount details');
                 }
             });
             break;
@@ -5137,9 +5155,7 @@ function displayDetails(transaction){
                     }
                     showErrorDialog(fullErrorMessage);
                 },
-                complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
-                    
+                complete: function(){                    
                     calculateRenewalAmount();
                 }
             });
@@ -5185,7 +5201,6 @@ function displayDetails(transaction){
                     showErrorDialog(fullErrorMessage);
                 },
                 complete: function(){
-                    displayDetails('get sales proposal pricing computation details');
                     calculateFuelTotal();
                 }
             });
@@ -5207,6 +5222,16 @@ function displayDetails(transaction){
                         $('#ref_engine_no').val(response.refEngineNo);
                         $('#ref_chassis_no').val(response.refChassisNo);
                         $('#ref_plate_no').val(response.refPlateNo);
+
+                        $('#orcr_no').val(response.orcrNo);
+                        $('#orcr_date').val(response.orcrDate);
+                        $('#orcr_expiry_date').val(response.orcrExpiryDate);
+                        $('#received_from').val(response.receivedFrom);
+                        $('#received_from_address').val(response.receivedFromAddress);
+                        $('#received_from_id_number').val(response.receivedFromIDNumber);
+                        $('#unit_description').val(response.unitDescription);
+                        
+                        checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
 
                         $('#summary-stock-no').text(response.refStockNo);
                         $('#summary-engine-no').text(response.refEngineNo);
@@ -5394,65 +5419,134 @@ function displayDetails(transaction){
                 }
             });
             break;
-            case 'get sales proposal renewal amount details':
-                var sales_proposal_id = $('#sales-proposal-id').text();
-                
-                $.ajax({
-                    url: 'controller/sales-proposal-controller.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        sales_proposal_id : sales_proposal_id, 
-                        transaction : transaction
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            $('#registration_second_year').val(response.registrationSecondYear);
-                            $('#registration_third_year').val(response.registrationThirdYear);
-                            $('#registration_fourth_year').val(response.registrationFourthYear);
-                            
-                            if(response.insuranceCoverageSecondYear > 0){
-                                $('#compute_second_year').prop('checked', true);
+        case 'get sales proposal renewal amount details':
+            var sales_proposal_id = $('#sales-proposal-id').text();
+            
+            $.ajax({
+                url: 'controller/sales-proposal-controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    sales_proposal_id : sales_proposal_id, 
+                    transaction : transaction
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#registration_second_year').val(response.registrationSecondYear);
+                        $('#registration_third_year').val(response.registrationThirdYear);
+                        $('#registration_fourth_year').val(response.registrationFourthYear);
+                        $('#insurance_coverage_second_year').val(response.insuranceCoverageSecondYear);
+                        $('#insurance_coverage_third_year').val(response.insuranceCoverageThirdYear);
+                        $('#insurance_coverage_fourth_year').val(response.insuranceCoverageFourthYear);
+                        $('#insurance_premium_second_year').val(response.insurancePremiumSecondYear);
+                        $('#insurance_premium_third_year').val(response.insurancePremiumThirdYear);
+                        $('#insurance_premium_fourth_year').val(response.insurancePremiumFourthYear);
+
+                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
+                        $('#summary-registration-second-year').text(response.registrationSecondYearSummary);
+                        $('#summary-registration-third-year').text(response.registrationThirdYearSummary);
+                        $('#summary-registration-fourth-year').text(response.registrationFourthYearSummary);
+                        $('#summary-insurance-coverage-second-year').text(response.insuranceCoverageSecondYearSummary);
+                        $('#2nd_year_coverage').text(response.insuranceCoverageSecondYearSummary);
+                        $('#summary-insurance-coverage-third-year').text(response.insuranceCoverageThirdYearSummary);
+                        $('#3rd_year_coverage').text(response.insuranceCoverageThirdYearSummary);
+                        $('#summary-insurance-coverage-fourth-year').text(response.insuranceCoverageFourthYearSummary);
+                        $('#4th_year_coverage').text(response.insuranceCoverageFourthYearSummary);
+                        $('#summary-insurance-premium-second-year').text(response.insurancePremiumSecondYearSummary);
+                        $('#summary-insurance-premium-third-year').text(response.insurancePremiumThirdYearSummary);
+                        $('#summary-insurance-premium-fourth-year').text(response.insurancePremiumFourthYearSummary);
+
+                        $('#2nd_year_date').text(response.secondYearInsuranceDate);
+                        $('#3rd_year_date').text(response.thirdYearInsuranceDate);
+                        $('#4th_year_date').text(response.fourthYearInsuranceDate);
+
+                        var product_category = $('#product_category').val();
+                        var product_type = $('#product_type').val();
+
+                        if(response.insuranceCoverageSecondYear > 0){
+                            $('#compute_second_year').prop('checked', true);
+
+                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
+                                $('#insurance_coverage_second_year').attr('readonly', true);
+                                $('#insurance_premium_second_year').attr('readonly', true);
                             }
                             else{
-                                $('#compute_second_year').prop('checked', false);
-                            }
-    
-                            if(response.insuranceCoverageThirdYear > 0){
-                                $('#compute_third_year').prop('checked', true);
+                                if(product_category != '1' && product_category != '2'){
+                                    $('#insurance_coverage_second_year').attr('readonly', false);
+                                    $('#insurance_premium_second_year').attr('readonly', false);
+                                }
+                                else{
+                                    $('#insurance_coverage_second_year').attr('readonly', true);
+                                    $('#insurance_premium_second_year').attr('readonly', true);
+                                }
+                            }                            
+                        }
+                        else{
+                            $('#compute_second_year').prop('checked', false);
+                        }
+
+                        if(response.insuranceCoverageThirdYear > 0){
+                            $('#compute_third_year').prop('checked', true);
+
+                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
+                                $('#insurance_coverage_third_year').attr('readonly', true);
+                                $('#insurance_premium_third_year').attr('readonly', true);
                             }
                             else{
-                                $('#compute_third_year').prop('checked', false);
-                            }
-    
-                            if(response.insuranceCoverageFourthYear > 0){
-                                $('#compute_fourth_year').prop('checked', true);
-                            }
-                            else{
-                                $('#compute_fourth_year').prop('checked', false);
-                            }
-                        } 
-                        else {
-                            if(response.isInactive){
-                                window.location = 'logout.php?logout';
-                            }
-                            else{
-                                showNotification('Get Sales Proposal Renewal Amount Details Error', response.message, 'danger');
+                                if(product_category != '1' && product_category != '2'){
+                                    $('#insurance_coverage_third_year').attr('readonly', false); 
+                                    $('#insurance_premium_third_year').attr('readonly', false); 
+                                }
+                                else{
+                                    $('#insurance_coverage_third_year').attr('readonly', true); 
+                                    $('#insurance_premium_third_year').attr('readonly', true); 
+                                }
                             }
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
-                        if (xhr.responseText) {
-                            fullErrorMessage += ', Response: ${xhr.responseText}';
+                        else{
+                            $('#compute_third_year').prop('checked', false);
                         }
-                            showErrorDialog(fullErrorMessage);
-                    },
-                    complete: function(){
-                        calculateRenewalAmount();
+
+                        if(response.insuranceCoverageFourthYear > 0){
+                            $('#compute_fourth_year').prop('checked', true);
+
+                            if(product_type == 'Refinancing' || product_type == 'Restructure'){
+                                $('#insurance_premium_fourth_year').attr('readonly', true);
+                                $('#insurance_premium_fourth_year').attr('readonly', true);
+                            }
+                            else{
+                                if(product_category != '1' && product_category != '2'){
+                                    $('#insurance_premium_fourth_year').attr('readonly', false); 
+                                    $('#insurance_premium_fourth_year').attr('readonly', false); 
+                                }
+                                else{
+                                    $('#insurance_premium_fourth_year').attr('readonly', true); 
+                                    $('#insurance_premium_fourth_year').attr('readonly', true); 
+                                }
+                            }                            
+                        }
+                        else{
+                            $('#compute_fourth_year').prop('checked', false);
+                        }
+                    } 
+                    else {
+                        if(response.isInactive){
+                            window.location = 'logout.php?logout';
+                        }
+                        else{
+                            showNotification('Get Sales Proposal Renewal Amount Details Error', response.message, 'danger');
+                        }
                     }
-                });
-                break;
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = 'XHR status: ${status}, Error: ${error}';
+                    if (xhr.responseText) {
+                        fullErrorMessage += ', Response: ${xhr.responseText}';
+                    }
+                        showErrorDialog(fullErrorMessage);
+                }
+            });
+            break;
         case 'get sales proposal deposit amount details':
             var sales_proposal_deposit_amount_id = sessionStorage.getItem('sales_proposal_deposit_amount_id');
         
@@ -5710,7 +5804,6 @@ function displayDetails(transaction){
                         $('#make').val(response.make);
                         $('#insurance_make').text(response.make);
                         $('#product_description').val(response.productDescription);
-                        $('#business_style').val(response.businessStyle);
                         $('#other-details-gatepass1').text(response.productDescription);
                         $('#other-details-gatepass2').text(response.productDescription);
                     } 
@@ -6151,13 +6244,13 @@ function traverseTabs(direction) {
     }
 
     // Temporary
-    if (currentIndex == 5 && direction === 'next') {
+    /*if (currentIndex == 5 && direction === 'next') {
         if ($('#sales-proposal-pricing-computation-form').valid()) {
             $('#sales-proposal-pricing-computation-form').submit();
         } else {
             return;
         }
-    }
+    }*/
     // ------------------
 
     if(sales_proposal_status == 'Draft'){
@@ -6189,13 +6282,13 @@ function traverseTabs(direction) {
                 return;
             }
         }
-        /*else if (currentIndex == 5 && direction === 'next') {
+        else if (currentIndex == 5 && direction === 'next') {
             if ($('#sales-proposal-pricing-computation-form').valid()) {
                 $('#sales-proposal-pricing-computation-form').submit();
             } else {
                 return;
             }
-        }*/
+        }
 
         if (nextIndex == 4) {
             if($('#add-sales-proposal-job-order-button').length){
