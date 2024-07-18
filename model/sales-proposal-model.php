@@ -1832,9 +1832,9 @@ class SalesProposalModel {
     }
     # -------------------------------------------------------------
 
-    # -------------------------------------------------------------
+     # -------------------------------------------------------------
     #
-    # Function: generateForDrSalesProposalOptions
+    # Function: generateLoanAccountOptions
     # Description: Generates the sales proposal tagged for DR.
     #
     # Parameters:None
@@ -1842,17 +1842,21 @@ class SalesProposalModel {
     # Returns: String.
     #
     # -------------------------------------------------------------
-    public function generateAmortizationSchedule() {
-        $response = '
-        <table border="0.5" width="100%" cellpadding="2" align="center">
-            <thead>
-                <tr>
-                    <th width="33.33%"><b>DUE DATE</b></th>
-                    <th width="33.33%"><b>AMOUNT DUE</b></th>
-                    <th width="33.33%"><b>OUTSTANDING BALANCE</b></th>
-                </tr>
-            </thead>
-            <tbody>';
+    public function generateLoanAccountOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLoanAccountOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $salesProposalID = $row['sales_proposal_id'];
+            $loanNumber = $row['loan_number'];
+            $fileAs = strtoupper($row['file_as']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($loanNumber, ENT_QUOTES) . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+        }
+
+        return $htmlOptions;
     }
     # -------------------------------------------------------------
 }

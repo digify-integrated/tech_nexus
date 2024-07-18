@@ -5499,12 +5499,11 @@ CREATE TABLE loan_collections (
     loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
     sales_proposal_id INT UNSIGNED NOT NULL,
     loan_number VARCHAR(100) NOT NULL,
-    mode_of_payment VARCHAR(100) NOT NULL, /* Cash, Online, PDC */
+    mode_of_payment VARCHAR(100) NOT NULL, /* Cash, Online, Check */
     payment_details VARCHAR(100) NOT NULL,
     payment_amount DOUBLE NOT NULL,
-    collection_status VARCHAR(50) DEFAULT 'Pending', /* Pending, Cleared, On-Hold, Reversed, Cancelled, Redeposit, For Deposit, Pulled-Out */
+    collection_status VARCHAR(50) DEFAULT 'Pending', /* Pending, Cleared/, Deposited, On-Hold, Reversed, Cancelled, Redeposit, For Deposit/, Pulled-Out */
     reference_number VARCHAR(200),
-    alpha VARCHAR(100),
     check_date DATE,
     check_number VARCHAR(100),
     bank_branch VARCHAR(200),
@@ -5514,8 +5513,10 @@ CREATE TABLE loan_collections (
     transaction_date DATE,
     onhold_date DATE,
     onhold_reason VARCHAR(500),
+    deposit_date DATE,
     for_deposit_date DATE,
     redeposit_date DATE,
+    new_deposit_date DATE,
     clear_date DATE,
     cancellation_date DATE,
     cancellation_reason VARCHAR(500),

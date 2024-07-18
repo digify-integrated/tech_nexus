@@ -1,18 +1,29 @@
 <?php
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
-  #require('model/loan-collections-model.php');
+  require('model/sales-proposal-model.php');
+  require('model/pdc-management-model.php');
 
-  #$loanCollectionsModel = new LoanCollectionsModel($databaseModel);
+  $salesProposalModel = new SalesProposalModel($databaseModel);
+  $pdcManagementModel = new PDCManagementModel($databaseModel);
 
-  $pageTitle = 'PDC Monitoring';
+  $pageTitle = 'PDC Management';
     
-  $pdcMonitoringReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
-  $pdcMonitoringCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
-  $pdcMonitoringWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
-  $pdcMonitoringDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
+  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
+  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
+  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
+  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
 
-  if ($pdcMonitoringReadAccess['total'] == 0) {
+  $tagPDCAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
+  $tagPDCOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
+  $tagPDCAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
+  $tagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
+  $tagPDCAsRedeposit = $userModel->checkSystemActionAccessRights($user_id, 158);
+  $tagPDCAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
+  $tagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
+  $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
+
+  if ($pdcManagementReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
@@ -23,9 +34,9 @@
       exit;
     }
 
-    $pdcMonitoringID = $securityModel->decryptData($_GET['id']);
+    $pdcManagementID = $securityModel->decryptData($_GET['id']);
 
-    $checkLoanCollectionsExist = $loanCollectionsModel->checkLoanCollectionsExist($pdcMonitoringID);
+    $checkLoanCollectionsExist = $loanCollectionsModel->checkLoanCollectionsExist($pdcManagementID);
     $total = $checkLoanCollectionsExist['total'] ?? 0;
 
     if($total == 0){
@@ -34,7 +45,7 @@
     }
   }
   else{
-    $pdcMonitoringID = null;
+    $pdcManagementID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -71,8 +82,8 @@
                     <li class="breadcrumb-item">Sales Proposal</li>
                     <li class="breadcrumb-item" aria-current="page"><a href="loan-collections.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($pdcMonitoringID)){
-                            echo '<li class="breadcrumb-item" id="loan-collections-id">'. $pdcMonitoringID .'</li>';
+                        if(!$newRecord && !empty($pdcManagementID)){
+                            echo '<li class="breadcrumb-item" id="loan-collections-id">'. $pdcManagementID .'</li>';
                         }
 
                         if($newRecord){
@@ -90,14 +101,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $pdcMonitoringCreateAccess['total'] > 0){
-            require_once('view/_pdc_monitoring_new.php');
+          if($newRecord && $pdcManagementCreateAccess['total'] > 0){
+            require_once('view/_pdc_management_new.php');
           }
-          else if(!empty($pdcMonitoringID) && $pdcMonitoringWriteAccess['total'] > 0){
-            require_once('view/_pdc_monitoring_details.php');
+          else if(!empty($pdcManagementID) && $pdcManagementWriteAccess['total'] > 0){
+            require_once('view/_pdc_management_details.php');
           }
           else{
-            require_once('view/_pdc_monitoring.php');
+            require_once('view/_pdc_management.php');
           }
         ?>
       </div>
@@ -116,7 +127,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/loan-collections.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/pdc-management.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>
