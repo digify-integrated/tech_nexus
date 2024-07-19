@@ -5053,6 +5053,7 @@ function generatePDCForm(){
                         fullErrorMessage += `, Response: ${xhr.responseText}`;
                     }
                     showErrorDialog(fullErrorMessage);
+                    enableFormSubmitButton('submit-pdc-generation', 'Submit');
                 }
             });
         

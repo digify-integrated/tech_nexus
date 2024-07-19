@@ -2509,10 +2509,9 @@ class CustomerModel {
     # Returns: String.
     #
     # -------------------------------------------------------------
-    public function generateCustomerOptions($p_generate_type, $p_reference_id = null) {
-        $stmt = $this->db->getConnection()->prepare('CALL generateCustomerOptions(:p_generate_type, :p_reference_id)');
+    public function generateCustomerOptions($p_generate_type) {
+        $stmt = $this->db->getConnection()->prepare('CALL generateCustomerOptions(:p_generate_type)');
         $stmt->bindValue(':p_generate_type', $p_generate_type, PDO::PARAM_STR);
-        $stmt->bindValue(':p_reference_id', $p_reference_id, PDO::PARAM_STR);
         $stmt->execute();
         $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -2521,9 +2520,9 @@ class CustomerModel {
         $htmlOptions = '';
         foreach ($options as $row) {
             $contactID = $row['contact_id'];
-            $fileAs = $row['file_as'];
+            $fileAs = strtoupper($row['file_as']);
 
-            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . htmlspecialchars($fileAs, ENT_QUOTES) .'</option>';
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . $fileAs .'</option>';
         }
 
         return $htmlOptions;

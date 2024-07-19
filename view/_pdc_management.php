@@ -130,6 +130,9 @@
                     echo $action;
                   }
                 ?>
+                <button type="button" class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#import-offcanvas" aria-controls="import-offcanvas">
+                  Import
+                </button>
                 <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>
@@ -148,9 +151,11 @@
                     </th>
                     <th>Loan Number</th>
                     <th>Customer</th>
+                    <th>Product</th>
                     <th>Payment Details</th>
                     <th>Check Number</th>
                     <th>Check Date</th>
+                    <th>Redeposit Date</th>
                     <th>Payment Amount</th>
                     <th>Bank/Branch</th>
                     <th>Status</th>
@@ -166,3 +171,31 @@
     </div>
   </div>
 </div>
+
+<div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="import-offcanvas" aria-labelledby="import-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="import-offcanvas-label" style="margin-bottom:-0.5rem">Import PDC</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="import-form" method="post" action="#">
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Import File <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="import_file" name="import_file">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-import" form="import-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>

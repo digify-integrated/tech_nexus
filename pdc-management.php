@@ -3,9 +3,13 @@
   require('config/_check_user_active.php');
   require('model/sales-proposal-model.php');
   require('model/pdc-management-model.php');
+  require('model/customer-model.php');
+  require('model/product-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $pdcManagementModel = new PDCManagementModel($databaseModel);
+  $productModel = new ProductModel($databaseModel);
+  $customerModel = new CustomerModel($databaseModel);
 
   $pageTitle = 'PDC Management';
     
@@ -22,6 +26,7 @@
   $tagPDCAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
   $tagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
   $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
+  $tagClearedPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 161);
 
   if ($pdcManagementReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -36,13 +41,16 @@
 
     $pdcManagementID = $securityModel->decryptData($_GET['id']);
 
-    $checkLoanCollectionsExist = $loanCollectionsModel->checkLoanCollectionsExist($pdcManagementID);
-    $total = $checkLoanCollectionsExist['total'] ?? 0;
+    $checkLoanCollectionExist = $pdcManagementModel->checkLoanCollectionExist($pdcManagementID);
+    $total = $checkLoanCollectionExist['total'] ?? 0;
 
     if($total == 0){
       header('location: 404.php');
       exit;
     }
+
+    $pdcManagementDetails = $pdcManagementModel->getPDCManagement($pdcManagementID);
+    $collectionStatus = $pdcManagementDetails['collection_status'];
   }
   else{
     $pdcManagementID = null;
@@ -80,10 +88,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="loan-collections.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="pdc-management.php"><?php echo $pageTitle; ?></a></li>
                     <?php
                         if(!$newRecord && !empty($pdcManagementID)){
-                            echo '<li class="breadcrumb-item" id="loan-collections-id">'. $pdcManagementID .'</li>';
+                            echo '<li class="breadcrumb-item" id="loan-collection-id">'. $pdcManagementID .'</li>';
                         }
 
                         if($newRecord){

@@ -19,13 +19,44 @@
       <div class="card-body">
         <form id="pdc-management-form" method="post" action="#">
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Loan <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-              <select class="form-control select2" name="loan_number" id="loan_number">
+            <label class="col-lg-2 col-form-label">PDC Type</label>
+            <div class="col-lg-10">
+              <select class="form-control select2" name="pdc_type" id="pdc_type">
                 <option value="">--</option>
-                <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                <option value="Loan">Loan</option>
+                <option value="Product">Product</option>
+                <option value="Customer">Customer</option>
                </select>
             </div>
+          </div>
+          <div id="loan_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Loan <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
+                  <option value="">--</option>
+                  <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                </select>
+              </div>  
+            </div>
+            <div id="product_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Product <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <select class="form-control select2" name="product_id" id="product_id">
+                  <option value="">--</option>
+                  <?php echo $productModel->generateInStockProductOptions(); ?>
+                </select>
+              </div>
+            </div>
+            <div id="customer_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Customer <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <select class="form-control select2" name="customer_id" id="customer_id">
+                  <option value="">--</option>
+                  <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                </select>
+              </div>
+            </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payment Details <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <select class="form-control select2" name="payment_details" id="payment_details">
@@ -47,12 +78,12 @@
                     <option value="Transfer Fee">Transfer Fee</option>
                 </select>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Check Number <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="check_number" name="check_number" maxlength="100" autocomplete="off">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Check Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <div class="input-group date">
@@ -62,12 +93,12 @@
                     </span>
                 </div>
             </div>
-          </div>
-          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01">
             </div>
+          </div>
+          <div class="form-group row">
             <label class="col-lg-2 col-form-label">Bank/Branch <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">

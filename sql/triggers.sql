@@ -5955,6 +5955,14 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "Loan Number: ", OLD.loan_number, " -> ", NEW.loan_number, "<br/>");
     END IF;
 
+    IF NEW.product_id <> OLD.product_id THEN
+        SET audit_log = CONCAT(audit_log, "Product ID: ", OLD.product_id, " -> ", NEW.product_id, "<br/>");
+    END IF;
+
+    IF NEW.customer_id <> OLD.customer_id THEN
+        SET audit_log = CONCAT(audit_log, "Customer ID: ", OLD.customer_id, " -> ", NEW.customer_id, "<br/>");
+    END IF;
+
     IF NEW.mode_of_payment <> OLD.mode_of_payment THEN
         SET audit_log = CONCAT(audit_log, "Mode of Payment: ", OLD.mode_of_payment, " -> ", NEW.mode_of_payment, "<br/>");
     END IF;
@@ -5973,10 +5981,6 @@ BEGIN
 
     IF NEW.reference_number <> OLD.reference_number THEN
         SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
-    END IF;
-
-    IF NEW.alpha <> OLD.alpha THEN
-        SET audit_log = CONCAT(audit_log, "Alpha: ", OLD.alpha, " -> ", NEW.alpha, "<br/>");
     END IF;
 
     IF NEW.check_date <> OLD.check_date THEN
@@ -6071,6 +6075,14 @@ BEGIN
         SET audit_log = CONCAT(audit_log, "<br/>Reference: ", NEW.loan_number, "<br/>");
     END IF;
 
+     IF NEW.product_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Product ID: ", NEW.product_id, "<br/>");
+    END IF;
+
+     IF NEW.customer_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Customer ID: ", NEW.customer_id, "<br/>");
+    END IF;
+
      IF NEW.mode_of_payment <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Mode of Payment: ", NEW.mode_of_payment, "<br/>");
     END IF;
@@ -6089,10 +6101,6 @@ BEGIN
 
      IF NEW.reference_number <> '' THEN
         SET audit_log = CONCAT(audit_log, "<br/>Reference Number: ", NEW.reference_number, "<br/>");
-    END IF;
-
-     IF NEW.alpha <> '' THEN
-        SET audit_log = CONCAT(audit_log, "<br/>Alpha: ", NEW.alpha, "<br/>");
     END IF;
 
      IF NEW.check_date <> '' THEN

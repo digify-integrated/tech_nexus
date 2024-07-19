@@ -1127,10 +1127,11 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertPDCCollection($p_sales_proposal_id, $p_loan_number, $p_payment_amount, $p_check_number, $p_check_date, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPDCCollection(:p_sales_proposal_id, :p_loan_number, :p_payment_amount, :p_check_number, :p_check_date, :p_bank_branch, :p_last_log_by)');
+    public function insertPDCCollection($p_sales_proposal_id, $p_loan_number, $p_customer_id, $p_payment_amount, $p_check_number, $p_check_date, $p_bank_branch, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCCollection(:p_sales_proposal_id, :p_loan_number, :p_customer_id, :p_payment_amount, :p_check_number, :p_check_date, :p_bank_branch, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);

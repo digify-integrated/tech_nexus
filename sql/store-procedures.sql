@@ -2,6 +2,8 @@ DELIMITER //
 
 /* Users Table Stored Procedures */
 
+
+
 CREATE PROCEDURE checkUserExist(IN p_user_id INT, IN p_email VARCHAR(255))
 BEGIN
 	SELECT COUNT(*) AS total
@@ -7207,35 +7209,44 @@ CREATE PROCEDURE insertSalesProposalRepayment(IN p_sales_proposal_id INT, IN p_l
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal_repayment (sales_proposal_id, loan_number, reference, payment_date, due_date, due_amount, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_reference, p_due_date, p_due_date, p_due_amount, p_last_log_by);
+    INSERT INTO sales_proposal_repayment (sales_proposal_id, loan_number, reference, due_date, due_amount, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_reference, p_due_date, p_due_amount, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertPDCCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_payment_amount DOUBLE, IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_bank_branch VARCHAR(200), IN p_last_log_by INT)
+CREATE PROCEDURE insertPDCCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_customer_id INT, IN p_payment_amount DOUBLE, IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_bank_branch VARCHAR(200), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, 'Check', 'Acct Amort', p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, payment_date, bank_branch, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_customer_id, 'Check', 'Acct Amort', 'Loan', p_payment_amount, p_check_number, p_check_date, p_check_date, p_bank_branch, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE getPDCManagement(IN p_loan_collection_id INT)
+BEGIN
+	SELECT * FROM loan_collections
+    WHERE loan_collection_id = p_loan_collection_id;
+END //
+
+CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_last_log_by INT)
+CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
 	UPDATE loan_collections
     SET sales_proposal_id = p_sales_proposal_id,
     loan_number = p_loan_number,
+    product_id = p_product_id,
+    customer_id = p_customer_id,
+    pdc_type = p_pdc_type,
     check_number = p_check_number,
     check_date = p_check_date,
     payment_amount = p_payment_amount,
@@ -9269,10 +9280,15 @@ BEGIN
     SET conditionList = ' WHERE mode_of_payment = "Check"';
     
     IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL THEN
-        SET conditionList = CONCAT(conditionList, ' AND check_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ' OR (collection_status = "Redeposit" AND redeposit_date BETWEEN )');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
     IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
@@ -9296,7 +9312,7 @@ BEGIN
         SET collection_status = p_collection_status,
         clear_date = NOW(),
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status = 'Deposited';
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN ('Deposited', 'Redeposit');
     ELSEIF p_collection_status = 'Deposited' THEN
         UPDATE loan_collections
         SET collection_status = p_collection_status,
@@ -9348,4 +9364,59 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
     END IF;
+END //
+
+
+CREATE PROCEDURE generateCustomerOptions(IN p_generate_type VARCHAR(50))
+BEGIN
+	IF p_generate_type = 'active customer' THEN
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1 AND contact_status = "Active") ORDER BY file_as;
+    ELSE
+        SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1) ORDER BY file_as;
+    END IF;
+END //
+
+CREATE PROCEDURE insertImportPDC(IN sales_proposal_id INT, IN loan_number VARCHAR(100), IN product_id INT, IN customer_id INT, IN pdc_type VARCHAR(20), IN payment_details VARCHAR(100), IN payment_amount DOUBLE, IN collection_status VARCHAR(50), IN check_date DATE, IN check_number VARCHAR(100), IN bank_branch VARCHAR(200), IN payment_date DATE, IN transaction_date DATE, IN onhold_date DATE, IN onhold_reason VARCHAR(500), IN deposit_date DATE, IN for_deposit_date DATE, IN redeposit_date DATE, IN new_deposit_date DATE, IN clear_date DATE, IN cancellation_date DATE, IN cancellation_reason VARCHAR(500), IN reversal_date DATE, IN pulled_out_date DATE, IN pulled_out_reason VARCHAR(500), IN reversal_reason VARCHAR(100), IN reversal_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, collection_status, check_date, check_number, bank_branch, payment_date, transaction_date, onhold_date, onhold_reason, deposit_date, for_deposit_date, redeposit_date, new_deposit_date, clear_date, cancellation_date, cancellation_reason, reversal_date, pulled_out_date, pulled_out_reason, reversal_reason, reversal_remarks, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_collection_status, p_check_date, p_check_number, p_bank_branch, p_payment_date, p_transaction_date, p_onhold_date, p_onhold_reason, p_deposit_date, p_for_deposit_date, p_redeposit_date, p_new_deposit_date, p_clear_date, p_cancellation_date, p_cancellation_reason, p_reversal_date, p_pulled_out_date, p_pulled_out_reason, p_reversal_reason, p_reversal_remarks, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateImportPDC(IN loan_collection_id INT, IN sales_proposal_id INT, IN loan_number VARCHAR(100), IN product_id INT, IN customer_id INT, IN pdc_type VARCHAR(20), IN payment_details VARCHAR(100), IN payment_amount DOUBLE, IN collection_status VARCHAR(50), IN check_date DATE, IN check_number VARCHAR(100), IN bank_branch VARCHAR(200), IN payment_date DATE, IN transaction_date DATE, IN onhold_date DATE, IN onhold_reason VARCHAR(500), IN deposit_date DATE, IN for_deposit_date DATE, IN redeposit_date DATE, IN new_deposit_date DATE, IN clear_date DATE, IN cancellation_date DATE, IN cancellation_reason VARCHAR(500), IN reversal_date DATE, IN pulled_out_date DATE, IN pulled_out_reason VARCHAR(500), IN reversal_reason VARCHAR(100), IN reversal_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE loan_collections
+    SET sales_proposal_id = p_sales_proposal_id, 
+    loan_number = loan_number, 
+    product_id = product_id, 
+    customer_id =customer_id, 
+    pdc_type = pdc_type, 
+    mode_of_payment = mode_of_payment, 
+    payment_details = payment_details, 
+    payment_amount = payment_amount, 
+    collection_status = collection_status, 
+    check_date = check_date, 
+    check_number = check_number, 
+    bank_branch = bank_branch, 
+    payment_date = payment_date, 
+    transaction_date = transaction_date, 
+    onhold_date = onhold_date, 
+    onhold_reason = onhold_reason, 
+    deposit_date = deposit_date, 
+    for_deposit_date = for_deposit_date, 
+    redeposit_date = redeposit_date, 
+    new_deposit_date = new_deposit_date, 
+    clear_date = clear_date, 
+    cancellation_date = cancellation_date, 
+    cancellation_reason = cancellation_reason, 
+    reversal_date = reversal_date, 
+    pulled_out_date = pulled_out_date, 
+    pulled_out_reason = pulled_out_reason, 
+    reversal_reason = reversal_reason, 
+    reversal_remarks = reversal_remarks,
+    last_log_by = p_last_log_by
+    WHERE loan_collection_id = p_loan_collection_id;
 END //

@@ -2759,6 +2759,7 @@ class SalesProposalController {
         $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
 
         $loanNumber = $salesProposalDetails['loan_number'];
+        $customerID = $salesProposalDetails['customer_id'];
         $startDate = $this->systemModel->checkDate('empty', $salesProposalDetails['actual_start_date'], '', 'Y-m-d', '');
         $termLength = $salesProposalDetails['term_length'] ?? 0;
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
@@ -2790,7 +2791,7 @@ class SalesProposalController {
                     $checkNumber = 'LACKING-' . $loanNumber . ' - ' . ($extension);
                 }
 
-                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $userID);
+                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $customerID, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $userID);
                 
                 $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
             }

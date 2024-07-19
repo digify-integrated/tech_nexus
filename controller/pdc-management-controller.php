@@ -91,6 +91,24 @@ class PDCManagementController {
                 case 'tag multiple pdc as cleared':
                     $this->tagMultiplePDCAsCleared();
                     break;
+                case 'tag pdc as on-hold':
+                    $this->tagPDCAsOnHold();
+                    break;
+                case 'tag pdc as cancelled':
+                    $this->tagPDCAsCancel();
+                    break;
+                case 'tag pdc as pulled-out':
+                    $this->tagPDCAsPulledOut();
+                    break;
+                case 'tag pdc as redeposit':
+                    $this->tagPDCAsRedeposit();
+                    break;
+                case 'tag pdc as reversed':
+                    $this->tagPDCAsReversed();
+                    break;
+                case 'save pdc import':
+                    $this->saveImportPDC();
+                    break;
                 default:
                     echo json_encode(['success' => false, 'message' => 'Invalid transaction.']);
                     break;
@@ -116,7 +134,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -125,7 +143,7 @@ class PDCManagementController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionsID);
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
         if($total === 0){
@@ -133,7 +151,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'Deposited', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -157,7 +175,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsIDs = $_POST['loan_collection_id'];
+        $loanCollectionIDs = $_POST['loan_collection_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -166,8 +184,8 @@ class PDCManagementController {
             exit;
         }
 
-        foreach($loanCollectionsIDs as $loanCollectionsID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'Deposited', '', '', '', $userID);
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -192,7 +210,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -201,7 +219,7 @@ class PDCManagementController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionsID);
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
         if($total === 0){
@@ -209,7 +227,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'For Deposit', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -233,7 +251,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsIDs = $_POST['loan_collection_id'];
+        $loanCollectionIDs = $_POST['loan_collection_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -242,8 +260,8 @@ class PDCManagementController {
             exit;
         }
 
-        foreach($loanCollectionsIDs as $loanCollectionsID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'For Deposit', '', '', '', $userID);
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -268,7 +286,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -277,7 +295,7 @@ class PDCManagementController {
             exit;
         }
     
-        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionsID);
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
         if($total === 0){
@@ -285,7 +303,218 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'Cleared', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagPDCAsOnHold
+    # Description: 
+    # Tag the pdc as deposited if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagPDCAsOnHold() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $onHoldReason = $_POST['on_hold_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
+        $total = $checkLoanCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagPDCAsCancel
+    # Description: 
+    # Tag the pdc as deposited if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagPDCAsCancel() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $cancellationReason = $_POST['cancellation_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
+        $total = $checkLoanCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagPDCAsPulledOut
+    # Description: 
+    # Tag the pdc as deposited if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagPDCAsPulledOut() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $pulledOutReason = $_POST['pulled_out_reason'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
+        $total = $checkLoanCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagPDCAsRedeposit
+    # Description: 
+    # Tag the pdc as deposited if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagPDCAsRedeposit() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $redepositDate = $this->systemModel->checkDate('empty', $_POST['redeposit_date'], '', 'Y-m-d', '');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
+        $total = $checkLoanCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Redeposit', '', '', $redepositDate, $userID);
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: tagPDCAsReversed
+    # Description: 
+    # Tag the pdc as deposited if it exists; otherwise, return an error message.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagPDCAsReversed() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $reversalReason = $_POST['reversal_reason'];
+        $reversalRemarks = $_POST['reversal_remarks'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
+        $total = $checkLoanCollectionExist['total'] ?? 0;
+
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+    
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -309,7 +538,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionsIDs = $_POST['loan_collection_id'];
+        $loanCollectionIDs = $_POST['loan_collection_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -318,8 +547,8 @@ class PDCManagementController {
             exit;
         }
 
-        foreach($loanCollectionsIDs as $loanCollectionsID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionsID, 'Cleared', '', '', '', $userID);
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -349,7 +578,10 @@ class PDCManagementController {
     
         $userID = $_SESSION['user_id'];
         $loanCollectionID = isset($_POST['loan_collection_id']) ? htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8') : null;
-        $salesProposalID = htmlspecialchars($_POST['loan_number'], ENT_QUOTES, 'UTF-8');
+        $pdcType = htmlspecialchars($_POST['pdc_type'], ENT_QUOTES, 'UTF-8');
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+        $productID = htmlspecialchars($_POST['product_id'], ENT_QUOTES, 'UTF-8');
+        $customerID = htmlspecialchars($_POST['customer_id'], ENT_QUOTES, 'UTF-8');
         $paymentDetails = $_POST['payment_details'];
         $checkNumber = $_POST['check_number'];
         $paymentAmount = $_POST['payment_amount'];
@@ -366,21 +598,32 @@ class PDCManagementController {
         $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loanCollectionID);
         $total = $checkLoanCollectionExist['total'] ?? 0;
 
-        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
-        $loanNumber = $salesProposalDetails['loan_number'];
+        if($pdcType == 'Loan'){
+            $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+            $loanNumber = $salesProposalDetails['loan_number'];
+            $customerID = $salesProposalDetails['customer_id'];
+        }
+        else{
+            $loanNumber = '';
+        }
     
         if ($total > 0) {
-            $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
+            $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;
         } 
         else {
-            $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($salesProposalID, $checkNumber);
-            $total = $checkLoanCollectionConflict['total'] ?? 0;
+            if($pdcType == 'Loan'){
+                $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($salesProposalID, $checkNumber);
+                $total = $checkLoanCollectionConflict['total'] ?? 0;
+            }
+            else{
+                $total = 0;
+            }
 
             if ($total == 0) {
-                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
+                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
 
                 echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
                 exit;
@@ -395,42 +638,6 @@ class PDCManagementController {
 
     # -------------------------------------------------------------
     #   Update methods
-    # -------------------------------------------------------------
-
-    # -------------------------------------------------------------
-    #
-    # Function: updateMailPassword
-    # Description: 
-    # Handles the update of the password.
-    #
-    # Parameters: None
-    #
-    # Returns: Array
-    #
-    # -------------------------------------------------------------
-    public function updateMailPassword() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return;
-        }
-    
-        $userID = $_SESSION['user_id'];
-        $pdcManagementID = htmlspecialchars($_POST['email_setting_id'], ENT_QUOTES, 'UTF-8');
-        $newPassword = htmlspecialchars($_POST['new_password'], ENT_QUOTES, 'UTF-8');
-        $encryptedPassword = $this->securityModel->encryptData($newPassword);
-    
-        $user = $this->userModel->getUserByID($userID);
-        $isActive = $user['is_active'] ?? 0;
-    
-        if (!$isActive) {
-            echo json_encode(['success' => false, 'isInactive' => true]);
-            exit;
-        }
-
-        $this->pdcManagementModel->updateMailPassword($pdcManagementID, $encryptedPassword, $userID);
-    
-        echo json_encode(['success' => true]);
-        exit;
-    }
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
@@ -454,7 +661,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $pdcManagementID = htmlspecialchars($_POST['email_setting_id'], ENT_QUOTES, 'UTF-8');
+        $pdcManagementID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -495,7 +702,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $pdcManagementIDs = $_POST['email_setting_id'];
+        $pdcManagementIDs = $_POST['loan_collection_id'];
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -534,7 +741,7 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $pdcManagementID = htmlspecialchars($_POST['email_setting_id'], ENT_QUOTES, 'UTF-8');
+        $pdcManagementID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -578,9 +785,9 @@ class PDCManagementController {
             return;
         }
     
-        if (isset($_POST['email_setting_id']) && !empty($_POST['email_setting_id'])) {
+        if (isset($_POST['loan_collection_id']) && !empty($_POST['loan_collection_id'])) {
             $userID = $_SESSION['user_id'];
-            $pdcManagementID = $_POST['email_setting_id'];
+            $loanCollectionID = $_POST['loan_collection_id'];
     
             $user = $this->userModel->getUserByID($userID);
     
@@ -589,31 +796,166 @@ class PDCManagementController {
                 exit;
             }
     
-            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($pdcManagementID);
-            $smtpAuth = $pdcManagementDetails['smtp_auth'];
-            $smtoAutoTLS = $pdcManagementDetails['smtp_auto_tls'];
-            $smtpAuthName = ($smtpAuth == 0) ? 'False' : 'True';
-            $smtoAutoTLSName = ($smtoAutoTLS == 0) ? 'False' : 'True';
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
 
             $response = [
                 'success' => true,
-                'pdcManagementName' => $pdcManagementDetails['email_setting_name'],
-                'pdcManagementDescription' => $pdcManagementDetails['email_setting_description'],
-                'mailHost' => $pdcManagementDetails['mail_host'],
-                'port' => $pdcManagementDetails['port'],
-                'smtpAuth' => $smtpAuth,
-                'smtoAutoTLS' => $smtoAutoTLS,
-                'smtpAuthName' => $smtpAuthName,
-                'smtoAutoTLSName' => $smtoAutoTLSName,
-                'mailUsername' => $pdcManagementDetails['mail_username'],
-                'mailEncryption' => $pdcManagementDetails['mail_encryption'],
-                'mailFromName' => $pdcManagementDetails['mail_from_name'],
-                'mailFromEmail' => $pdcManagementDetails['mail_from_email']
+                'salesProposalID' => $pdcManagementDetails['sales_proposal_id'],
+                'productID' => $pdcManagementDetails['product_id'],
+                'customerID' => $pdcManagementDetails['customer_id'],
+                'pdcType' => $pdcManagementDetails['pdc_type'],
+                'paymentDetails' => $pdcManagementDetails['payment_details'],
+                'paymentAmount' => $pdcManagementDetails['payment_amount'],
+                'checkNumber' => $pdcManagementDetails['check_number'],
+                'bankBranch' => $pdcManagementDetails['bank_branch'],
+                'checkDate' =>  $this->systemModel->checkDate('empty', $pdcManagementDetails['check_date'], '', 'm/d/Y', '')
             ];
 
             echo json_encode($response);
             exit;
         }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: saveImportProduct
+    # Description: 
+    # Save the imported product for loading.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function saveImportProduct() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        $importFileFileName = $_FILES['import_file']['name'];
+        $importFileFileSize = $_FILES['import_file']['size'];
+        $importFileFileError = $_FILES['import_file']['error'];
+        $importFileTempName = $_FILES['import_file']['tmp_name'];
+        $importFileFileExtension = explode('.', $importFileFileName);
+        $importFileActualFileExtension = strtolower(end($importFileFileExtension));
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(8);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(8);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($importFileActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($importFileTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the import file.']);
+            exit;
+        }
+        
+        if($importFileFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($importFileFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The import file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $this->productModel->deleteTempProduct();
+
+        $importData = array_map('str_getcsv', file($importFileTempName));
+
+        array_shift($importData);
+
+        foreach ($importData as $row) {
+            $loan_collection_id = htmlspecialchars($row[0], ENT_QUOTES, 'UTF-8');
+            $sales_proposal_id = htmlspecialchars($row[1], ENT_QUOTES, 'UTF-8');
+            $loan_number = htmlspecialchars($row[2], ENT_QUOTES, 'UTF-8');
+            $product_id = htmlspecialchars($row[3], ENT_QUOTES, 'UTF-8');
+            $customer_id = htmlspecialchars($row[4], ENT_QUOTES, 'UTF-8');
+            $pdc_type = htmlspecialchars($row[5], ENT_QUOTES, 'UTF-8');
+            $payment_details = htmlspecialchars($row[6], ENT_QUOTES, 'UTF-8');
+            $payment_amount = htmlspecialchars($row[7], ENT_QUOTES, 'UTF-8');
+            $collection_status = htmlspecialchars($row[8], ENT_QUOTES, 'UTF-8');
+            $check_date = $this->systemModel->checkDate('empty', $row[9], '', 'Y-m-d', '');
+            $check_number = htmlspecialchars($row[10], ENT_QUOTES, 'UTF-8');
+            $bank_branch = $row[11];
+            $payment_date = $this->systemModel->checkDate('empty', $row[12], '', 'Y-m-d', '');
+            $transaction_date = $this->systemModel->checkDate('empty', $row[13], '', 'Y-m-d', '');
+            $onhold_date = $this->systemModel->checkDate('empty', $row[14], '', 'Y-m-d', '');
+            $onhold_reason = $row[15];
+            $deposit_date = $this->systemModel->checkDate('empty', $row[16], '', 'Y-m-d', '');
+            $for_deposit_date = $this->systemModel->checkDate('empty', $row[17], '', 'Y-m-d', '');
+            $redeposit_date = $this->systemModel->checkDate('empty', $row[18], '', 'Y-m-d', '');
+            $new_deposit_date = $this->systemModel->checkDate('empty', $row[19], '', 'Y-m-d', '');
+            $clear_date = $this->systemModel->checkDate('empty', $row[20], '', 'Y-m-d', '');
+            $cancellation_date = $this->systemModel->checkDate('empty', $row[21], '', 'Y-m-d', '');
+            $cancellation_reason = $row[22];
+            $reversal_date = $this->systemModel->checkDate('empty', $row[23], '', 'Y-m-d', '');
+            $pulled_out_date = $this->systemModel->checkDate('empty', $row[24], '', 'Y-m-d', '');
+            $pulled_out_reason = $row[25];
+            $reversal_reason = $row[26];
+            $reversal_remarks = $row[27];
+
+            if(!empty($loan_collection_id)){
+                $checkLoanCollectionExist = $this->pdcManagementModel->checkLoanCollectionExist($loan_collection_id);
+                $total = $checkLoanCollectionExist['total'] ?? 0;
+
+                if($total > 0){
+                    $this->pdcManagementModel->updateImportPDC($loan_collection_id, $sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
+                }
+                else{
+                    if($pdcType == 'Loan'){
+                        $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $checkNumber);
+                        $total = $checkLoanCollectionConflict['total'] ?? 0;
+                    }
+                    else{
+                        $total = 0;
+                    }
+    
+                    if($total == 0){
+                        $this->pdcManagementModel->insertImportPDC($sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
+                    }
+                }
+            }
+            else{
+                if($pdcType == 'Loan'){
+                    $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $checkNumber);
+                    $total = $checkLoanCollectionConflict['total'] ?? 0;
+                }
+                else{
+                    $total = 0;
+                }
+
+                if($total == 0){
+                    $this->producpdcManagementModelModel->insertImportPDC($sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
+                }
+            }
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
     }
     # -------------------------------------------------------------
 }

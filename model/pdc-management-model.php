@@ -28,11 +28,14 @@ class PDCManagementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by)');
+    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
@@ -84,10 +87,13 @@ class PDCManagementModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by, @p_loan_collection_id)');
+    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by, @p_loan_collection_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
@@ -100,6 +106,99 @@ class PDCManagementModel {
         $p_loan_collection_id = $result->fetch(PDO::FETCH_ASSOC)['p_loan_collection_id'];
 
         return $p_loan_collection_id;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertPDCManagement
+    # Description: Inserts the pdc management.
+    #
+    # Parameters:
+    # - $p_product_category_name (string): The pdc management name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function updateImportPDC($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_payment_details, $p_payment_amount, $p_collection_status, $p_check_date, $p_check_number, $p_bank_branch, $p_payment_date, $p_transaction_date, $p_onhold_date, $p_onhold_reason, $p_deposit_date, $p_for_deposit_date, $p_redeposit_date, $p_new_deposit_date, $p_clear_date, $p_cancellation_date, $p_cancellation_reason, $p_reversal_date, $p_pulled_out_date, $p_pulled_out_reason, $p_reversal_reason, $p_reversal_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateImportPDC(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_payment_details, :p_payment_amount, :p_collection_status, :p_check_date, :p_check_number, :p_bank_branch, :p_payment_date, :p_transaction_date, :p_onhold_date, :p_onhold_reason, :p_deposit_date, :p_for_deposit_date, :p_redeposit_date, :p_new_deposit_date, :p_clear_date, :p_cancellation_date, :p_cancellation_reason, :p_reversal_date, :p_pulled_out_date, :p_pulled_out_reason, :p_reversal_reason, :p_reversal_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_details', $p_payment_details, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_collection_status', $p_collection_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_date', $p_transaction_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_onhold_date', $p_onhold_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_onhold_reason', $p_onhold_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_deposit_date', $p_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_deposit_date', $p_for_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_redeposit_date', $p_redeposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_new_deposit_date', $p_new_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_clear_date', $p_clear_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_date', $p_cancellation_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_reason', $p_cancellation_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_date', $p_reversal_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pulled_out_date', $p_pulled_out_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pulled_out_reason', $p_pulled_out_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_reason', $p_reversal_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_remarks', $p_reversal_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertPDCManagement
+    # Description: Inserts the pdc management.
+    #
+    # Parameters:
+    # - $p_product_category_name (string): The pdc management name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function insertImportPDC($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_payment_details, $p_payment_amount, $p_collection_status, $p_check_date, $p_check_number, $p_bank_branch, $p_payment_date, $p_transaction_date, $p_onhold_date, $p_onhold_reason, $p_deposit_date, $p_for_deposit_date, $p_redeposit_date, $p_new_deposit_date, $p_clear_date, $p_cancellation_date, $p_cancellation_reason, $p_reversal_date, $p_pulled_out_date, $p_pulled_out_reason, $p_reversal_reason, $p_reversal_remarks, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertImportPDC(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_payment_details, :p_payment_amount, :p_collection_status, :p_check_date, :p_check_number, :p_bank_branch, :p_payment_date, :p_transaction_date, :p_onhold_date, :p_onhold_reason, :p_deposit_date, :p_for_deposit_date, :p_redeposit_date, :p_new_deposit_date, :p_clear_date, :p_cancellation_date, :p_cancellation_reason, :p_reversal_date, :p_pulled_out_date, :p_pulled_out_reason, :p_reversal_reason, :p_reversal_remarks, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_pdc_type', $p_pdc_type, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_details', $p_payment_details, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_collection_status', $p_collection_status, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_payment_date', $p_payment_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_date', $p_transaction_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_onhold_date', $p_onhold_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_onhold_reason', $p_onhold_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_deposit_date', $p_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_for_deposit_date', $p_for_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_redeposit_date', $p_redeposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_new_deposit_date', $p_new_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_clear_date', $p_clear_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_date', $p_cancellation_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_cancellation_reason', $p_cancellation_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_date', $p_reversal_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pulled_out_date', $p_pulled_out_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_pulled_out_reason', $p_pulled_out_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_reason', $p_reversal_reason, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reversal_remarks', $p_reversal_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
     }
     # -------------------------------------------------------------
 

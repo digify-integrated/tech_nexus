@@ -5497,8 +5497,11 @@ CREATE TABLE leave_application(
 
 CREATE TABLE loan_collections (
     loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
-    sales_proposal_id INT UNSIGNED NOT NULL,
-    loan_number VARCHAR(100) NOT NULL,
+    sales_proposal_id INT UNSIGNED,
+    loan_number VARCHAR(100),
+    product_id INT UNSIGNED,
+    customer_id INT UNSIGNED,
+    pdc_type VARCHAR(20), /* Loan, Product, Customer */
     mode_of_payment VARCHAR(100) NOT NULL, /* Cash, Online, Check */
     payment_details VARCHAR(100) NOT NULL,
     payment_amount DOUBLE NOT NULL,

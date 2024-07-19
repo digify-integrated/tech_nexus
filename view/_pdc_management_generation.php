@@ -6,6 +6,7 @@ require_once '../model/user-model.php';
 require_once '../model/employee-model.php';
 require_once '../model/sales-proposal-model.php';
 require_once '../model/customer-model.php';
+require_once '../model/product-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
 
@@ -14,6 +15,7 @@ $systemModel = new SystemModel();
 $userModel = new UserModel($databaseModel, $systemModel);
 $employeeModel = new EmployeeModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
+$productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
 $securityModel = new SecurityModel();
 
@@ -50,19 +52,23 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $loanCollectionID = $row['loan_collection_id'];
                 $salesProposalID = $row['sales_proposal_id'];
                 $loanNumber = $row['loan_number'];
+                $customerID = $row['customer_id'];
+                $productID = $row['product_id'];
                 $paymentDetails = $row['payment_details'];
                 $checkNumber = $row['check_number'];
                 $paymentAmount = $row['payment_amount'];
                 $bankBranch = $row['bank_branch'];
                 $collectionStatus = $row['collection_status'];
                 $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
-
-                $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID);
-                $customerID = $salesProposalDetails['customer_id'] ?? null;
+                $redepositDate = $systemModel->checkDate('empty', $row['redeposit_date'], '', 'm/d/Y', '');
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;
                 $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
 
                 $statusClasses = [
                     'Pending' => 'info',
@@ -89,13 +95,15 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     'LOAN_NUMBER' => ' <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
                                         '. $loanNumber .'
                                     </a>',
-                    'CUSTOMER' => '<div class="col">
+                    'CUSTOMER' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details"><div class="col">
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
-                                                </div>',
+                                                </div></a>',
+                    'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . ' - ' . $productName . '</a>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,
+                    'REDEPOSIT_DATE' => $redepositDate,
                     'PAYMENT_AMOUNT' => number_format($paymentAmount, 2),
                     'BANK_BRANCH' => $bankBranch,
                     'STATUS' => $badge,
