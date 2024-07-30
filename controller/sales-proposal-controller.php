@@ -2503,6 +2503,27 @@ class SalesProposalController {
             case 'Daily':
                 $date->modify("+$iteration days");
                 break;
+                break;
+            default:
+                break;
+        }
+        return $date->format('Y-m-d');
+    }
+
+    private function calculateDueDate2($startDate, $frequency, $iteration, $term) {
+        $date = new DateTime($startDate);
+        switch ($frequency) {
+            case 'Monthly':
+                $date->modify("+$iteration months");
+                break;
+            case 'Yearly':
+                $date->modify("+$iteration years");
+                break;
+            case 'Daily':
+                $date->modify("+$iteration days");
+            case 'Lumpsum':
+                $date->modify("+$term days");
+                break;
             default:
                 break;
         }
@@ -2738,8 +2759,9 @@ class SalesProposalController {
         $contactID = $_SESSION['contact_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $noOfPDC = htmlspecialchars($_POST['no_of_pdc'], ENT_QUOTES, 'UTF-8');
-        $firstCheckNumber = htmlspecialchars($_POST['first_check_number'], ENT_QUOTES, 'UTF-8');
-        $bankBranch = htmlspecialchars($_POST['bank_branch'], ENT_QUOTES, 'UTF-8');
+        $firstCheckNumber = htmlspecialchars($_POST['pdc_first_check_number'], ENT_QUOTES, 'UTF-8');
+        $bankBranch = htmlspecialchars($_POST['pdc_bank_branch'], ENT_QUOTES, 'UTF-8');
+        $accountNumber = htmlspecialchars($_POST['pdc_account_number'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2770,7 +2792,7 @@ class SalesProposalController {
             $repaymentAmount = $salesProposalPricingComputationDetails['repayment_amount'] ?? 0;
     
             for ($i = 0; $i < $numberOfPayments; $i++) {
-                $dueDate = $this->calculateDueDate($startDate, $paymentFrequency, ($i + 1));
+                $dueDate = $this->calculateDueDate2($startDate, $paymentFrequency, ($i + 1), $termLength);
     
                 if(($i + 1) >= 1 && ($i + 1) <= 9){
                     $extension = '0' . ($i + 1);
@@ -2791,10 +2813,12 @@ class SalesProposalController {
                     $checkNumber = 'LACKING-' . $loanNumber . ' - ' . ($extension);
                 }
 
-                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $customerID, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $userID);
+                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $customerID, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $accountNumber, $userID);
                 
                 $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
             }
+
+            $this->salesProposalModel->insertPDCManualInputCollection($salesProposalID, $loanNumber, $customerID, $userID);
         }
         else{
             echo json_encode(['success' => false, 'exceedPDC' =>  true]);

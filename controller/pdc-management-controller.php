@@ -16,6 +16,9 @@ class PDCManagementController {
     private $pdcManagementModel;
     private $salesProposalModel;
     private $userModel;
+    private $uploadSettingModel;
+    private $fileExtensionModel;
+    private $systemSettingModel;
     private $securityModel;
     private $systemModel;
 
@@ -34,10 +37,13 @@ class PDCManagementController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(PDCManagementModel $pdcManagementModel, SalesProposalModel $salesProposalModel, UserModel $userModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(PDCManagementModel $pdcManagementModel, SalesProposalModel $salesProposalModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SystemSettingModel $systemSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->pdcManagementModel = $pdcManagementModel;
         $this->salesProposalModel = $salesProposalModel;
         $this->userModel = $userModel;
+        $this->uploadSettingModel = $uploadSettingModel;
+        $this->fileExtensionModel = $fileExtensionModel;
+        $this->systemSettingModel = $systemSettingModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -151,7 +157,9 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $userID);
+        $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
+
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -185,7 +193,9 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $userID);
+            $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
+
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -227,7 +237,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -261,7 +271,7 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', $userID);
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -303,7 +313,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -345,7 +355,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -387,7 +397,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -429,7 +439,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -471,7 +481,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Redeposit', '', '', $redepositDate, $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Redeposit', '', '', $redepositDate, '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -514,7 +524,9 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $userID);
+        $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
+
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -548,7 +560,7 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', $userID);
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '', $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -586,6 +598,8 @@ class PDCManagementController {
         $checkNumber = $_POST['check_number'];
         $paymentAmount = $_POST['payment_amount'];
         $bankBranch = $_POST['bank_branch'];
+        $remarks = $_POST['remarks'];
+        $accountNumber = $_POST['account_number'];
         $checkDate = $this->systemModel->checkDate('empty', $_POST['check_date'], '', 'Y-m-d', '');
     
         $user = $this->userModel->getUserByID($userID);
@@ -608,10 +622,24 @@ class PDCManagementController {
         }
     
         if ($total > 0) {
-            $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
+            if($pdcType == 'Loan'){
+                $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($salesProposalID, $checkNumber);
+                $total = $checkLoanCollectionConflict['total'] ?? 0;
+            }
+            else{
+                $total = 0;
+            }
+
+            if ($total == 0) {
+                $this->pdcManagementModel->updatePDCManagement($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $userID);
             
-            echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
-            exit;
+                echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
+                exit;
+            }
+            else{
+                echo json_encode(['success' => false, 'checkConflict' => true]);
+                exit;
+            }
         } 
         else {
             if($pdcType == 'Loan'){
@@ -623,7 +651,7 @@ class PDCManagementController {
             }
 
             if ($total == 0) {
-                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $userID);
+                $loanCollectionID = $this->pdcManagementModel->insertPDCManagement($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $checkNumber, $checkDate, $paymentAmount, $paymentDetails, $bankBranch, $remarks, $accountNumber, $userID);
 
                 echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
                 exit;
@@ -808,6 +836,8 @@ class PDCManagementController {
                 'paymentAmount' => $pdcManagementDetails['payment_amount'],
                 'checkNumber' => $pdcManagementDetails['check_number'],
                 'bankBranch' => $pdcManagementDetails['bank_branch'],
+                'remarks' => $pdcManagementDetails['remarks'],
+                'accountNumber' => $pdcManagementDetails['account_number'],
                 'checkDate' =>  $this->systemModel->checkDate('empty', $pdcManagementDetails['check_date'], '', 'm/d/Y', '')
             ];
 
@@ -819,7 +849,7 @@ class PDCManagementController {
 
     # -------------------------------------------------------------
     #
-    # Function: saveImportProduct
+    # Function: saveImportPDC
     # Description: 
     # Save the imported product for loading.
     #
@@ -828,7 +858,7 @@ class PDCManagementController {
     # Returns: Array
     #
     # -------------------------------------------------------------
-    public function saveImportProduct() {
+    public function saveImportPDC() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
@@ -882,8 +912,6 @@ class PDCManagementController {
             exit;
         }
 
-        $this->productModel->deleteTempProduct();
-
         $importData = array_map('str_getcsv', file($importFileTempName));
 
         array_shift($importData);
@@ -926,8 +954,8 @@ class PDCManagementController {
                     $this->pdcManagementModel->updateImportPDC($loan_collection_id, $sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
                 }
                 else{
-                    if($pdcType == 'Loan'){
-                        $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $checkNumber);
+                    if($pdc_type == 'Loan'){
+                        $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $check_number);
                         $total = $checkLoanCollectionConflict['total'] ?? 0;
                     }
                     else{
@@ -940,8 +968,8 @@ class PDCManagementController {
                 }
             }
             else{
-                if($pdcType == 'Loan'){
-                    $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $checkNumber);
+                if($pdc_type == 'Loan'){
+                    $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $check_number);
                     $total = $checkLoanCollectionConflict['total'] ?? 0;
                 }
                 else{
@@ -949,7 +977,7 @@ class PDCManagementController {
                 }
 
                 if($total == 0){
-                    $this->producpdcManagementModelModel->insertImportPDC($sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
+                    $this->pdcManagementModel->insertImportPDC($sales_proposal_id, $loan_number, $product_id, $customer_id, $pdc_type, $payment_details, $payment_amount, $collection_status, $check_date, $check_number, $bank_branch, $payment_date, $transaction_date, $onhold_date, $onhold_reason, $deposit_date, $for_deposit_date, $redeposit_date, $new_deposit_date, $clear_date, $cancellation_date, $cancellation_reason, $reversal_date, $pulled_out_date, $pulled_out_reason, $reversal_reason, $reversal_remarks, $userID);
                 }
             }
         }
@@ -967,8 +995,11 @@ require_once '../model/pdc-management-model.php';
 require_once '../model/user-model.php';
 require_once '../model/security-model.php';
 require_once '../model/sales-proposal-model.php';
+require_once '../model/upload-setting-model.php';
+require_once '../model/file-extension-model.php';
+require_once '../model/system-setting-model.php';
 require_once '../model/system-model.php';
 
-$controller = new PDCManagementController(new PDCManagementModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new SecurityModel(), new SystemModel());
+$controller = new PDCManagementController(new PDCManagementModel(new DatabaseModel), new SalesProposalModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SystemSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>

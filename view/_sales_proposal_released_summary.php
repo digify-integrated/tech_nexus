@@ -1679,13 +1679,19 @@
                         <div class="form-group row">
                             <div class="col-lg-12 mt-3 mt-lg-0">
                                 <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
+                                <input type="number" class="form-control" id="pdc_first_check_number" name="pdc_first_check_number" min="1" step="1">
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
                                 <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="pdc_bank_branch" name="pdc_bank_branch" maxlength="200" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="pdc_account_number" name="pdc_account_number" maxlength="100" autocomplete="off">
                             </div>
                         </div>
                     </form>

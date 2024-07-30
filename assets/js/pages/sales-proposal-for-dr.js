@@ -4974,6 +4974,9 @@ function generatePDCForm(){
             bank_branch: {
                 required: true
             },
+            account_number: {
+                required: true
+            },
         },
         messages: {
             no_of_pdc: {
@@ -4984,6 +4987,9 @@ function generatePDCForm(){
             },
             bank_branch: {
                 required: 'Please enter the bank/branch'
+            },
+            account_number: {
+                required: 'Please enter the account number'
             },
         },
         errorPlacement: function (error, element) {

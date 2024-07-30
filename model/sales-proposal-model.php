@@ -1127,8 +1127,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertPDCCollection($p_sales_proposal_id, $p_loan_number, $p_customer_id, $p_payment_amount, $p_check_number, $p_check_date, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPDCCollection(:p_sales_proposal_id, :p_loan_number, :p_customer_id, :p_payment_amount, :p_check_number, :p_check_date, :p_bank_branch, :p_last_log_by)');
+    public function insertPDCCollection($p_sales_proposal_id, $p_loan_number, $p_customer_id, $p_payment_amount, $p_check_number, $p_check_date, $p_bank_branch, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCCollection(:p_sales_proposal_id, :p_loan_number, :p_customer_id, :p_payment_amount, :p_check_number, :p_check_date, :p_bank_branch, :p_account_number, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
@@ -1136,6 +1136,33 @@ class SalesProposalModel {
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: insertPDCManualInputCollection
+    # Description: Inserts the sales proposal additional job order.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    # - $p_job_order_number (string): The job order number.
+    # - $p_job_order_date (string): The job order date.
+    # - $p_particulars (string): The particulars.
+    # - $p_cost (double): The cost.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function insertPDCManualInputCollection($p_sales_proposal_id, $p_loan_number, $p_customer_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManualInputCollection(:p_sales_proposal_id, :p_loan_number, :p_customer_id, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

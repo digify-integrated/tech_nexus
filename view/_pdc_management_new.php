@@ -103,6 +103,16 @@
             <div class="col-lg-4">
               <input type="text" class="form-control" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
             </div>
+            <label class="col-lg-2 col-form-label">Account Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="account_number" name="account_number" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Remarks</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="500"></textarea>
+            </div>
           </div>
         </form>
       </div>

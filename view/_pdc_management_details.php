@@ -57,7 +57,7 @@
 
                   if ($pdcManagementWriteAccess['total'] > 0 && $collectionStatus == 'Pending') {
                     echo '<button type="submit" form="pdc-management-form" class="btn btn-success" id="submit-data">Save</button>
-                          <button type="button" id="discard-update" class="btn btn-outline-danger me-2">Discard</button>';
+                      <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
                   }
 
                   if ($pdcManagementCreateAccess['total'] > 0) {
@@ -159,6 +159,16 @@
             <label class="col-lg-2 col-form-label">Bank/Branch <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
+            </div>
+            <label class="col-lg-2 col-form-label">Account Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="account_number" name="account_number" maxlength="100" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Remarks</label>
+            <div class="col-lg-10">
+              <textarea class="form-control" id="remarks" name="remarks" maxlength="500" <?php echo $disabled; ?>></textarea>
             </div>
           </div>
         </form>

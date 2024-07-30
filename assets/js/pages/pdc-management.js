@@ -623,6 +623,23 @@
                     break;
             }
         });
+
+        $(document).on('click','#print',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('pdc-print.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print PDC Error', 'No selected pdc.', 'danger');
+            }
+        });
     });
 })(jQuery);
 
@@ -630,37 +647,62 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     const type = 'pdc management table';
     var filter_check_date_start_date = $('#filter_check_date_start_date').val();
     var filter_check_date_end_date = $('#filter_check_date_end_date').val();
+
+    var filter_redeposit_date_start_date = $('#filter_redeposit_date_start_date').val();
+    var filter_redeposit_date_end_date = $('#filter_redeposit_date_end_date').val();
+
+    var filter_onhold_date_start_date = $('#filter_onhold_date_start_date').val();
+    var filter_onhold_date_end_date = $('#filter_onhold_date_end_date').val();
+
+    var filter_for_deposit_date_start_date = $('#filter_for_deposit_date_start_date').val();
+    var filter_for_deposit_date_end_date = $('#filter_for_deposit_date_end_date').val();
+
+    var filter_deposit_date_start_date = $('#filter_deposit_date_start_date').val();
+    var filter_deposit_date_end_date = $('#filter_deposit_date_end_date').val();
+
+    var filter_reversed_date_start_date = $('#filter_reversed_date_start_date').val();
+    var filter_reversed_date_end_date = $('#filter_reversed_date_end_date').val();
+
+    var filter_pulled_out_date_start_date = $('#filter_pulled_out_date_start_date').val();
+    var filter_pulled_out_date_end_date = $('#filter_pulled_out_date_end_date').val();
+
+    var filter_cancellation_date_start_date = $('#filter_cancellation_date_start_date').val();
+    var filter_cancellation_date_end_date = $('#filter_cancellation_date_end_date').val();
+
+    var filter_clear_date_start_date = $('#filter_clear_date_start_date').val();
+    var filter_clear_date_end_date = $('#filter_clear_date_end_date').val();
+
     var filter_pdc_management_status = $('.pdc-management-status-filter:checked').val();
     var settings;
 
     const column = [ 
         { 'data' : 'CHECK_BOX' },
-        { 'data' : 'LOAN_NUMBER' },
-        { 'data' : 'CUSTOMER' },
-        { 'data' : 'PRODUCT' },
-        { 'data' : 'PAYMENT_DETAILS' },
-        { 'data' : 'CHECK_NUMBER' },
+        { 'data' : 'ACTION' },
         { 'data' : 'CHECK_DATE' },
         { 'data' : 'REDEPOSIT_DATE' },
+        { 'data' : 'CHECK_NUMBER' },
         { 'data' : 'PAYMENT_AMOUNT' },
         { 'data' : 'BANK_BRANCH' },
+        { 'data' : 'PAYMENT_DETAILS' },
         { 'data' : 'STATUS' },
-        { 'data' : 'ACTION' }
+        { 'data' : 'LOAN_NUMBER' },
+        { 'data' : 'CUSTOMER' },
+        { 'data' : 'PRODUCT' }
     ];
 
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
-        { 'width': 'auto', 'aTargets': 1 },
+        { 'width': '15%','bSortable': false, 'aTargets': 1 },
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': '5%', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
         { 'width': 'auto', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
-        { 'width': '15%','bSortable': false, 'aTargets': 11 }
+        { 'width': 'auto', 'aTargets': 11 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -670,7 +712,27 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
             'url' : 'view/_pdc_management_generation.php',
             'method' : 'POST',
             'dataType': 'json',
-            'data': {'type' : type, 'filter_check_date_start_date' : filter_check_date_start_date, 'filter_check_date_end_date' : filter_check_date_end_date, 'filter_pdc_management_status' : filter_pdc_management_status},
+            'data': {'type' : type, 
+                'filter_check_date_start_date' : filter_check_date_start_date, 
+                'filter_check_date_end_date' : filter_check_date_end_date, 
+                'filter_redeposit_date_start_date' : filter_redeposit_date_start_date, 
+                'filter_redeposit_date_end_date' : filter_redeposit_date_end_date, 
+                'filter_onhold_date_start_date' : filter_onhold_date_start_date, 
+                'filter_onhold_date_end_date' : filter_onhold_date_end_date, 
+                'filter_for_deposit_date_start_date' : filter_for_deposit_date_start_date, 
+                'filter_for_deposit_date_end_date' : filter_for_deposit_date_end_date, 
+                'filter_deposit_date_start_date' : filter_deposit_date_start_date, 
+                'filter_deposit_date_end_date' : filter_deposit_date_end_date, 
+                'filter_reversed_date_start_date' : filter_reversed_date_start_date, 
+                'filter_reversed_date_end_date' : filter_reversed_date_end_date, 
+                'filter_pulled_out_date_start_date' : filter_pulled_out_date_start_date, 
+                'filter_pulled_out_date_end_date' : filter_pulled_out_date_end_date, 
+                'filter_cancellation_date_start_date' : filter_cancellation_date_start_date, 
+                'filter_cancellation_date_end_date' : filter_cancellation_date_end_date, 
+                'filter_clear_date_start_date' : filter_clear_date_start_date, 
+                'filter_clear_date_end_date' : filter_clear_date_end_date, 
+                'filter_pdc_management_status' : filter_pdc_management_status
+            },
             'dataSrc' : '',
             'error': function(xhr, status, error) {
                 var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
@@ -680,7 +742,7 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
                 showErrorDialog(fullErrorMessage);
             }
         },
-        'order': [[ 1, 'asc' ]],
+        'order': [[ 2, 'asc' ]],
         'columns' : column,
         'columnDefs': column_definition,
         'lengthMenu': length_menu,
@@ -1409,6 +1471,8 @@ function displayDetails(transaction){
                         $('#check_date').val(response.checkDate);
                         $('#payment_amount').val(response.paymentAmount);
                         $('#bank_branch').val(response.bankBranch);
+                        $('#remarks').val(response.remarks);
+                        $('#account_number').val(response.accountNumber);
 
                         checkOptionExist('#pdc_type', response.pdcType, '');
                         checkOptionExist('#sales_proposal_id', response.salesProposalID, '');

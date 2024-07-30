@@ -299,7 +299,7 @@ class ProductController {
             $checkColorExist = $this->colorModel->checkColorExist($colorID)['total'] ?? 0;
 
             if($checkProductCategoryExist == 0){
-                $productSubCategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubcategoryID);
+                $productSubCategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productCategoryID);
                 $productCategoryID = $productSubCategoryDetails['product_category_id'] ?? null;
             }
 
@@ -311,9 +311,11 @@ class ProductController {
                 $colorID = null;
             }
 
-            if(!empty($productCategoryID) && !empty($productSubcategoryID) && !empty($companyID) && !empty($description) && !empty($warehouseID) && $checkProductSubcategoryExist > 0 && $checkCompanyExist > 0 && $checkWarehouseExist > 0){
+            /*if(!empty($productCategoryID) && !empty($productSubcategoryID) && !empty($companyID) && !empty($description) && !empty($warehouseID) && $checkProductSubcategoryExist > 0 && $checkCompanyExist > 0 && $checkWarehouseExist > 0){
                 $this->productModel->insertImportProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks);
-            }
+            }*/
+
+            $this->productModel->insertImportProduct($productID, $productCategoryID, $productSubcategoryID, $companyID, $productStatus, $stockNumber, $engineNumber, $chassisNumber, $plateNumber, $description, $warehouseID, $bodyTypeID, $length, $lengthUnit, $runningHours, $mileage, $colorID, $productCost, $productPrice, $remarks);
         }
 
         echo json_encode(['success' => true]);

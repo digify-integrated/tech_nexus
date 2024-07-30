@@ -98,7 +98,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $productCategoryName = $productCategoryDetails['product_category_name'];
 
                     $productSubcategoryDetails = $productSubcategoryModel->getProductSubcategory($productSubategoryID);
-                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'];
+                    $productSubcategoryName = $productSubcategoryDetails['product_subcategory_name'] ?? null;
                    
                     $productIDEncrypted = $securityModel->encryptData($productID);
 

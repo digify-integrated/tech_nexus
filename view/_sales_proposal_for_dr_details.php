@@ -1691,6 +1691,12 @@
                                 <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <div class="col-lg-12">
+                                <label class="form-label">Account Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="account_number" name="account_number" maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

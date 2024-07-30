@@ -28,8 +28,8 @@ class PDCManagementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by)');
+    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
@@ -41,6 +41,8 @@ class PDCManagementModel {
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_details', $p_payment_details, PDO::PARAM_STR);
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -87,8 +89,8 @@ class PDCManagementModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_last_log_by, @p_loan_collection_id)');
+    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_last_log_by, @p_loan_collection_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
@@ -99,6 +101,8 @@ class PDCManagementModel {
         $stmt->bindValue(':p_payment_amount', $p_payment_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_payment_details', $p_payment_details, PDO::PARAM_STR);
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
+        $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 

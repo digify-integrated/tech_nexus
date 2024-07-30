@@ -5,7 +5,7 @@ $deleteProductButton = '';
 
 $checkSalesProposalProduct = $productModel->checkSalesProposalProduct($productID);
 
-if($productWriteAccess['total'] > 0 && $checkSalesProposalProduct['total'] == 0){
+if($productWriteAccess['total'] > 0 && $checkSalesProposalProduct['total'] == 0 && $productStatus != 'Sold'){
     $updateProductButton = '<div class="col-4">
                                 <div class="d-grid">
                                     <button class="btn btn-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-offcanvas" aria-controls="update-product-offcanvas" id="update-product">Update Product</button>
@@ -13,7 +13,7 @@ if($productWriteAccess['total'] > 0 && $checkSalesProposalProduct['total'] == 0)
                             </div>';
 }
 
-if($updateProductImage['total'] > 0 && $checkSalesProposalProduct['total'] == 0){
+if($updateProductImage['total'] > 0 && $checkSalesProposalProduct['total'] == 0 && $productStatus != 'Sold'){
   $updateProductImageButton = '<div class="col-4">
                                   <div class="d-grid">
                                     <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#update-product-image-offcanvas" aria-controls="update-product-image-offcanvas" id="update-product-image">Update Image</button>

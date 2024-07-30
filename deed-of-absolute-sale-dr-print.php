@@ -201,11 +201,10 @@
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->MultiCell(0, 0, 'That I <b><u>'. strtoupper($receivedFrom) .'</u></b>, with postal at <b><u>'. strtoupper($receivedFromAddress) .'</u></b> for and in consideration 
-    the amount of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto <b><u>'. $customerName .'</u></b> with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b> his/her successors and assigns that certain motor vehicle which is particularly described as follows:
-    ', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    #$pdf->MultiCell(0, 0, 'That I <b><u>'. strtoupper($receivedFrom) .'</u></b>, with postal at <b><u>'. strtoupper($receivedFromAddress) .'</u></b> for and in consideration the amount of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto <b><u>'. $customerName .'</u></b> with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b> his/her successors and assigns that certain motor vehicle which is particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That I _______________________________________________________________________, with postal at <b><u>'. strtoupper($receivedFromAddress) .'</u></b> for and in consideration the amount of __________________  (PHP ___________) PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto _______________________________________________________________ with postal address at ______________________________________________________________________ his/her successors and assigns that certain motor vehicle which is particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->Cell(20, 8, 'MAKE'  , 0, 0, 'L');
+    /*$pdf->Cell(20, 8, 'MAKE'  , 0, 0, 'L');
     $pdf->Cell(32, 8, ':      ' . $make , 0, 0, 'L');
     $pdf->Cell(40, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(30, 8, 'CHASSIS NO.'  , 0, 0, 'L');
@@ -224,6 +223,26 @@
     $pdf->Cell(35, 8, '       '  , 0, 0, 'L');
     $pdf->Cell(30, 8, 'MV FILE NO.'  , 0, 0, 'L');
     $pdf->Cell(32, 8, ':      ' . $mvFileNo, 0, 0, 'L');
+    $pdf->Cell(30, 8, '       '  , 0, 0, 'L');*/
+    $pdf->Cell(20, 8, 'MAKE'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' , 0, 0, 'L');
+    $pdf->Cell(40, 8, '       '  , 0, 0, 'L');
+    $pdf->Cell(30, 8, 'CHASSIS NO.'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' , 0, 0, 'L');
+    $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
+    $pdf->Ln(5);
+    $pdf->Cell(20, 8, 'SERIES'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ', 0, 0, 'L');
+    $pdf->Cell(40, 8, '       '  , 0, 0, 'L');
+    $pdf->Cell(30, 8, 'PLATE NO.'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' , 0, 0, 'L');
+    $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
+    $pdf->Ln(5);
+    $pdf->Cell(25, 8, 'ENGINE NO.'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' , 0, 0, 'L');
+    $pdf->Cell(35, 8, '       '  , 0, 0, 'L');
+    $pdf->Cell(30, 8, 'MV FILE NO.'  , 0, 0, 'L');
+    $pdf->Cell(32, 8, ':      ' , 0, 0, 'L');
     $pdf->Cell(30, 8, '       '  , 0, 0, 'L');
     $pdf->Ln(10);
     $pdf->MultiCell(0, 0, 'Of which the property said corporation is/l am the absolute owner:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
@@ -237,9 +256,12 @@
     $pdf->MultiCell(0, 0, 'IN WITNESS WHEREOF, I have here unto affixed my hand this______________________________ day of
     _________, 20_______ in______________________________________________, Philippines.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
-    $pdf->Cell(90, 4, $customerName, 'B', 0 , 'C');
+    /*$pdf->Cell(90, 4, $customerName, 'B', 0 , 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(90, 4, strtoupper($receivedFrom), 'B', 0, 'C');
+    $pdf->Cell(90, 4, strtoupper($receivedFrom), 'B', 0, 'C');*/
+    $pdf->Cell(90, 4, '', 'B', 0 , 'C');
+    $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
+    $pdf->Cell(90, 4, '', 'B', 0, 'C');
     $pdf->Ln(5);
     $pdf->Cell(90, 8, 'VENDEE', 0, 0, 'C');
     $pdf->Cell(10, 4, '     ', 0, 0 , 'L');
@@ -271,23 +293,29 @@
     $pdf->Cell(40, 8, 'Date/Place Issued', 0, 0, 'C');
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10.5);
-    $pdf->Cell(40, 8, strtoupper($receivedFrom), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($receivedFrom), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Cell(20, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(40, 8, strtoupper($receivedFromIDTypeName), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($receivedFromIDTypeName), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Cell(20, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(40, 8, strtoupper($receivedFromIDNumber), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($receivedFromIDNumber), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10.5);
-    $pdf->Cell(40, 8, strtoupper($customerName), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($customerName), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Cell(20, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(40, 8, strtoupper($customerIDTypeName), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($customerIDTypeName), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Cell(20, 4, '     ', 0, 0 , 'L');
-    $pdf->Cell(40, 8, strtoupper($customerIDNumber), 0, 0, 'C');
+    #$pdf->Cell(40, 8, strtoupper($customerIDNumber), 0, 0, 'C');
+    $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
     $pdf->Ln(20);
     $pdf->MultiCell(0, 0, 'Known to me and to me known to be the same persons who executed the foregoing instrument and acknowledgement to me that the same are their fee act and voluntary deed.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);

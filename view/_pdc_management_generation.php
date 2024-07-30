@@ -38,12 +38,53 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
         case 'pdc management table':
             $filterCheckDateStartDate = $systemModel->checkDate('empty', $_POST['filter_check_date_start_date'], '', 'Y-m-d', '');
             $filterCheckDateEndDate = $systemModel->checkDate('empty', $_POST['filter_check_date_end_date'], '', 'Y-m-d', '');
+
+            $filterRedepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_redeposit_date_start_date'], '', 'Y-m-d', '');
+            $filterRedepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_redeposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterOnHoldDateStartDate = $systemModel->checkDate('empty', $_POST['filter_onhold_date_start_date'], '', 'Y-m-d', '');
+            $filterOnHoldDateEndDate = $systemModel->checkDate('empty', $_POST['filter_onhold_date_end_date'], '', 'Y-m-d', '');
+
+            $filterForDepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_for_deposit_date_start_date'], '', 'Y-m-d', '');
+            $filterForDepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_for_deposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterDepositDateStartDate = $systemModel->checkDate('empty', $_POST['filter_deposit_date_start_date'], '', 'Y-m-d', '');
+            $filterDepositDateEndDate = $systemModel->checkDate('empty', $_POST['filter_deposit_date_end_date'], '', 'Y-m-d', '');
+
+            $filterReversedDateStartDate = $systemModel->checkDate('empty', $_POST['filter_reversed_date_start_date'], '', 'Y-m-d', '');
+            $filterReversedDateEndDate = $systemModel->checkDate('empty', $_POST['filter_reversed_date_end_date'], '', 'Y-m-d', '');
+
+            $filterPulledOutDateStartDate = $systemModel->checkDate('empty', $_POST['filter_pulled_out_date_start_date'], '', 'Y-m-d', '');
+            $filterPulledOutDateEndDate = $systemModel->checkDate('empty', $_POST['filter_pulled_out_date_end_date'], '', 'Y-m-d', '');
+
+            $filterCancellationDateStartDate = $systemModel->checkDate('empty', $_POST['filter_cancellation_date_start_date'], '', 'Y-m-d', '');
+            $filterCancellationDateEndDate = $systemModel->checkDate('empty', $_POST['filter_cancellation_date_end_date'], '', 'Y-m-d', '');
+
+            $filterClearDateStartDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_start_date'], '', 'Y-m-d', '');
+            $filterClearDateEndDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_end_date'], '', 'Y-m-d', '');
+            
             $filterPDCManagementStatus = $_POST['filter_pdc_management_status'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
             $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterCheckDateStartDate', $filterCheckDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterCheckDateEndDate', $filterCheckDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateStartDate', $filterRedepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterRedepositDateEndDate', $filterRedepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterOnHoldDateStartDate', $filterOnHoldDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterOnHoldDateEndDate', $filterOnHoldDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterForDepositDateStartDate', $filterForDepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterForDepositDateEndDate', $filterForDepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterDepositDateStartDate', $filterDepositDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterDepositDateEndDate', $filterDepositDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReversedDateStartDate', $filterReversedDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReversedDateEndDate', $filterReversedDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPulledOutDateStartDate', $filterPulledOutDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterPulledOutDateEndDate', $filterPulledOutDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCancellationDateStartDate', $filterCancellationDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterCancellationDateEndDate', $filterCancellationDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterClearDateStartDate', $filterClearDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterClearDateEndDate', $filterClearDateEndDate, PDO::PARAM_STR);
             $sql->execute();
             $options = $sql->fetchAll(PDO::FETCH_ASSOC);
             $sql->closeCursor();
@@ -91,7 +132,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $loanCollectionIDEncrypted = $securityModel->encryptData($loanCollectionID);
 
                 $response[] = [
-                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children" type="checkbox" value="'. $loanCollectionID .'">',
+                    'CHECK_BOX' => '<input class="form-check-input datatable-checkbox-children pdc-id" type="checkbox" value="'. $loanCollectionID .'">',
                     'LOAN_NUMBER' => ' <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">
                                         '. $loanNumber .'
                                     </a>',
@@ -99,7 +140,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                                     <h6 class="mb-0">'. $customerName .'</h6>
                                                     <p class="f-12 mb-0">'. $corporateName .'</p>
                                                 </div></a>',
-                    'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . ' - ' . $productName . '</a>',
+                    'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details">' . $stockNumber . '<br/>' . $productName . '</a>',
                     'PAYMENT_DETAILS' => $paymentDetails,
                     'CHECK_NUMBER' => $checkNumber,
                     'CHECK_DATE' => $checkDate,

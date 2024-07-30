@@ -1,8 +1,8 @@
 <div class="row">
   <div class="col-lg-12">
     <div class="ecom-wrapper">
-      <div class="offcanvas-xxl offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
-        <div class="offcanvas-body p-0 sticky-xxl-top">
+      <div class="offcanvas offcanvas-start ecom-offcanvas" tabindex="-1" id="filter-canvas">
+        <div class="offcanvas-body p-0 sticky-top">
           <div id="ecom-filter" class="show collapse collapse-horizontal">
             <div class="ecom-filter">
               <div class="card">
@@ -22,8 +22,112 @@
                         <div class="collapse show" id="check-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Redeposit Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_redeposit_date_start_date" id="filter_redeposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_redeposit_date_end_date" id="filter_redeposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          On-Hold Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_onhold_date_start_date" id="filter_onhold_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_onhold_date_end_date" id="filter_onhold_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          For Deposit Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_for_deposit_date_start_date" id="filter_for_deposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_for_deposit_date_end_date" id="filter_for_deposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Deposit Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_deposit_date_start_date" id="filter_deposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_deposit_date_end_date" id="filter_deposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Reversed Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_reversed_date_start_date" id="filter_reversed_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_reversed_date_end_date" id="filter_reversed_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Pulled-Out Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_pulled_out_date_start_date" id="filter_pulled_out_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_pulled_out_date_end_date" id="filter_pulled_out_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Cancellation Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_cancellation_date_start_date" id="filter_cancellation_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_cancellation_date_end_date" id="filter_cancellation_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Clear Date
+                        </a>
+                        <div class="collapse show" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_clear_date_start_date" id="filter_clear_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_clear_date_end_date" id="filter_clear_date_end_date" placeholder="End Date">
                             </div>
                           </div>
                         </div>
@@ -36,11 +140,11 @@
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
-                                <input class="form-check-input pdc-management-status-filter" type="radio" name="pdc-management-status-filter" id="pdc-management-status-all" value="" checked />
+                                <input class="form-check-input pdc-management-status-filter" type="radio" name="pdc-management-status-filter" id="pdc-management-status-all" value="" />
                                 <label class="form-check-label" for="pdc-management-status-all">All</label>
                               </div>
                               <div class="form-check my-2">
-                                <input class="form-check-input pdc-management-status-filter" type="radio" name="pdc-management-status-filter" id="pdc-management-status-pending" value="Pending" />
+                                <input class="form-check-input pdc-management-status-filter" type="radio" name="pdc-management-status-filter" id="pdc-management-status-pending" value="Pending" checked/>
                                 <label class="form-check-label" for="pdc-management-status-pending">Pending</label>
                               </div>
                               <div class="form-check my-2">
@@ -130,10 +234,13 @@
                     echo $action;
                   }
                 ?>
+                <button type="button" class="btn btn-warning" id="print">
+                  Print
+                </button>
                 <button type="button" class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#import-offcanvas" aria-controls="import-offcanvas">
                   Import
                 </button>
-                <button type="button" class="d-xxl-none btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
+                <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>
               </div>
@@ -141,7 +248,7 @@
           </div>
           <div class="card-body">
             <div class="table-responsive dt-responsive">
-              <table id="pdc-management-table" class="table table-hover nowrap w-100 text-uppercase">
+              <table id="pdc-management-table" class="table table-hover text-wrap w-100 text-uppercase">
                 <thead>
                   <tr>
                     <th class="all">
@@ -149,17 +256,17 @@
                         <input class="form-check-input" id="datatable-checkbox" type="checkbox">
                       </div>
                     </th>
+                    <th>Actions</th>
+                    <th>Check Date</th>
+                    <th>Redeposit Date</th>
+                    <th>Check Number</th>
+                    <th>Payment Amount</th>
+                    <th>Bank/Branch</th>
+                    <th>Payment Details</th>
+                    <th>Status</th>
                     <th>Loan Number</th>
                     <th>Customer</th>
                     <th>Product</th>
-                    <th>Payment Details</th>
-                    <th>Check Number</th>
-                    <th>Check Date</th>
-                    <th>Redeposit Date</th>
-                    <th>Payment Amount</th>
-                    <th>Bank/Branch</th>
-                    <th>Status</th>
-                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
