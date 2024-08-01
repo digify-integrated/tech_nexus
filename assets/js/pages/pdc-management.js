@@ -18,6 +18,10 @@
             pdcCancelForm();
         }
 
+        if($('#mass-pdc-cancel-form').length){
+            massPDCCancelForm();
+        }
+
         if($('#pdc-pulled-out-form').length){
             pdcPulledOutForm();
         }
@@ -28,6 +32,10 @@
 
         if($('#pdc-reverse-form').length){
             pdcReverseForm();
+        }
+
+        if($('#mass-pdc-reverse-form').length){
+            massPDCReverseForm();
         }
 
         if($('#import-form').length){
@@ -803,6 +811,9 @@ function pdcManagementForm(){
             payment_amount: {
                 required: true
             },
+            company_id: {
+                required: true
+            },
             bank_branch: {
                 required: true
             }
@@ -831,6 +842,9 @@ function pdcManagementForm(){
             },
             payment_amount: {
                 required: 'Please enter the payment amount'
+            },
+            company_id: {
+                required: 'Please choose the company'
             },
             bank_branch: {
                 required: 'Please enter the bank/branch'
@@ -995,6 +1009,99 @@ function pdcOnHoldForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-pdc-on-hold', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function massPDCCancelForm(){
+    $('#mass-pdc-cancel-form').validate({
+        rules: {
+            cancellation_reason: {
+                required: true
+            },
+        },
+        messages: {
+            cancellation_reason: {
+                required: 'Please enter the cancellation reason'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let loan_collection_id = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    loan_collection_id.push(element.value);
+                }
+            });
+
+            const transaction = 'tag multiple pdc as cancelled';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/pdc-management-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'PDC Cancel Success';
+                        const notificationDescription = 'The PDC has been tag as cancelled successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#pdc-management-table');
+                        $('#pdc-cancel-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    toggleHideActionDropdown();
                 }
             });
         
@@ -1361,6 +1468,105 @@ function pdcReverseForm(){
     });
 }
 
+function massPDCReverseForm(){
+    $('#mass-pdc-reverse-form').validate({
+        rules: {
+            reversal_reason: {
+                required: true
+            },
+            reversal_remarks: {
+                required: true
+            },
+        },
+        messages: {
+            reversal_reason: {
+                required: 'Please enter the reversal reason'
+            },
+            reversal_remarks: {
+                required: 'Please enter the reversal remarks'
+            },
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let loan_collection_id = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    loan_collection_id.push(element.value);
+                }
+            });
+
+            const transaction = 'tag multiple pdc as reversed';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/pdc-management-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'PDC Reversed Success';
+                        const notificationDescription = 'The PDC has been tag as reversed successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#pdc-management-table');
+                        $('#pdc-reverse-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    toggleHideActionDropdown();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
 function importForm(){
     $('#import-form').validate({
         rules: {
@@ -1479,6 +1685,7 @@ function displayDetails(transaction){
                         checkOptionExist('#product_id', response.productID, '');
                         checkOptionExist('#customer_id', response.customerID, '');
                         checkOptionExist('#payment_details', response.paymentDetails, '');
+                        checkOptionExist('#company_id', response.companyID, '');
                     } 
                     else {
                         if(response.isInactive){

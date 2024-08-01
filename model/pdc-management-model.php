@@ -28,8 +28,8 @@ class PDCManagementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_last_log_by)');
+    public function updatePDCManagement($p_loan_collection_id, $p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updatePDCManagement(:p_loan_collection_id, :p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
@@ -43,6 +43,7 @@ class PDCManagementModel {
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -61,13 +62,14 @@ class PDCManagementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateLoanCollectionStatus($p_loan_collection_id, $p_collection_status, $p_reason, $p_remarks, $p_new_deposit_date, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLoanCollectionStatus(:p_loan_collection_id, :p_collection_status, :p_reason, :p_remarks, :p_new_deposit_date, :p_last_log_by)');
+    public function updateLoanCollectionStatus($p_loan_collection_id, $p_collection_status, $p_reason, $p_remarks, $p_new_deposit_date, $p_reference_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLoanCollectionStatus(:p_loan_collection_id, :p_collection_status, :p_reason, :p_remarks, :p_new_deposit_date, :p_reference_number, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_collection_status', $p_collection_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_new_deposit_date', $p_new_deposit_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -89,8 +91,8 @@ class PDCManagementModel {
     # Returns: String
     #
     # -------------------------------------------------------------
-    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_last_log_by, @p_loan_collection_id)');
+    public function insertPDCManagement($p_sales_proposal_id, $p_loan_number, $p_product_id, $p_customer_id, $p_pdc_type, $p_check_number, $p_check_date, $p_payment_amount, $p_payment_details, $p_bank_branch, $p_remarks, $p_account_number, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertPDCManagement(:p_sales_proposal_id, :p_loan_number, :p_product_id, :p_customer_id, :p_pdc_type, :p_check_number, :p_check_date, :p_payment_amount, :p_payment_details, :p_bank_branch, :p_remarks, :p_account_number, :p_company_id, :p_last_log_by, @p_loan_collection_id)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_loan_number', $p_loan_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_product_id', $p_product_id, PDO::PARAM_INT);
@@ -103,6 +105,7 @@ class PDCManagementModel {
         $stmt->bindValue(':p_bank_branch', $p_bank_branch, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
 
@@ -240,8 +243,9 @@ class PDCManagementModel {
     # Returns: The result of the query as an associative array.
     #
     # -------------------------------------------------------------
-    public function checkLoanCollectionConflict($p_sales_proposal_id, $p_check_number) {
-        $stmt = $this->db->getConnection()->prepare('CALL checkLoanCollectionConflict(:p_sales_proposal_id, :p_check_number)');
+    public function checkLoanCollectionConflict($p_loan_collection_id,$p_sales_proposal_id, $p_check_number) {
+        $stmt = $this->db->getConnection()->prepare('CALL checkLoanCollectionConflict(:p_loan_collection_id, :p_sales_proposal_id, :p_check_number)');
+        $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_check_number', $p_check_number, PDO::PARAM_STR);
         $stmt->execute();

@@ -4,12 +4,12 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>PDC Management</h5>
+            <h5>Collections</h5>
           </div>
           <?php
-            if ($pdcManagementCreateAccess['total'] > 0) {
+            if ($collectionsCreateAccess['total'] > 0) {
                echo '<div class="col-md-6 text-sm-end mt-3 mt-sm-0">
-                      <button type="submit" form="pdc-management-form" class="btn btn-success form-edit" id="submit-data">Save</button>
+                      <button type="submit" form="collections-form" class="btn btn-success form-edit" id="submit-data">Save</button>
                       <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>
                     </div>';
             }
@@ -17,9 +17,18 @@
         </div>
       </div>
       <div class="card-body">
-        <form id="pdc-management-form" method="post" action="#">
-          <div class="form-group row">
-            <label class="col-lg-2 col-form-label">PDC Type</label>
+        <form id="collections-form" method="post" action="#">
+            <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Mode of Payment <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <select class="form-control select2" name="mode_of_payment" id="mode_of_payment">
+                <option value="">--</option>
+                <option value="Cash">Cash</option>
+                <option value="Online Deposit">Online Deposit</option>
+                <option value="GCash">GCash</option>
+               </select>
+            </div>
+            <label class="col-lg-2 col-form-label">Collection Type <span class="text-danger">*</span></label>
             <div class="col-lg-4">
               <select class="form-control select2" name="pdc_type" id="pdc_type">
                 <option value="">--</option>
@@ -28,15 +37,8 @@
                 <option value="Customer">Customer</option>
                </select>
             </div>
-            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
-              <div class="col-lg-4">
-                <select class="form-control select2" name="company_id" id="company_id">
-                  <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
-                </select>
-              </div>  
           </div>
-          <div id="loan_field" class="form-group row field d-none">
+            <div id="loan_field" class="form-group row field d-none">
               <label class="col-lg-2 col-form-label">Loan <span class="text-danger">*</span></label>
               <div class="col-lg-10">
                 <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
@@ -64,6 +66,13 @@
               </div>
             </div>
           <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+              <div class="col-lg-4">
+                <select class="form-control select2" name="company_id" id="company_id">
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>  
             <label class="col-lg-2 col-form-label">Payment Details <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <select class="form-control select2" name="payment_details" id="payment_details">
@@ -85,34 +94,49 @@
                     <option value="Transfer Fee">Transfer Fee</option>
                 </select>
             </div>
-            <label class="col-lg-2 col-form-label">Check Number <span class="text-danger">*</span></label>
+          </div>
+          
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="check_number" name="check_number" maxlength="100" autocomplete="off">
+                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01">
+            </div>
+            <label class="col-lg-2 col-form-label">Reference Number</label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Check Date <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">OR Number <span class="text-danger">*</span></label>
+            <div class="col-lg-4">
+              <input type="text" class="form-control" id="or_number" name="or_number" maxlength="100" autocomplete="off">
+            </div>
+            <label class="col-lg-2 col-form-label">OR Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
                 <div class="input-group date">
-                    <input type="text" class="form-control regular-datepicker" id="check_date" name="check_date" autocomplete="off">
+                    <input type="text" class="form-control regular-datepicker" id="or_date" name="or_date" autocomplete="off">
                     <span class="input-group-text">
                         <i class="feather icon-calendar"></i>
                     </span>
                 </div>
             </div>
-            <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
-            <div class="col-lg-4">
-                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01">
-            </div>
           </div>
           <div class="form-group row">
-            <label class="col-lg-2 col-form-label">Bank/Branch <span class="text-danger">*</span></label>
+            <label class="col-lg-2 col-form-label">Payment Date <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                <div class="input-group date">
+                    <input type="text" class="form-control regular-datepicker" id="payment_date" name="payment_date" autocomplete="off">
+                    <span class="input-group-text">
+                        <i class="feather icon-calendar"></i>
+                    </span>
+                </div>
             </div>
-            <label class="col-lg-2 col-form-label">Account Number</label>
+            <label class="col-lg-2 col-form-label">Deposited To <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-              <input type="text" class="form-control" id="account_number" name="account_number" maxlength="100" autocomplete="off">
+              <select class="form-control select2" name="deposited_to" id="deposited_to">
+                <option value="">--</option>
+                <?php echo $bankModel->generateBankOptions(); ?>
+               </select>
             </div>
           </div>
           <div class="form-group row">

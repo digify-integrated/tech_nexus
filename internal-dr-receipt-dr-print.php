@@ -101,11 +101,13 @@
     $pdf->Cell(100, 4, strtoupper($releaseAddress), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(18);
     $pdf->SetTextColor(255, 0, 0);
+    $pdf->MultiCell(10, 4, '', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
     $pdf->MultiCell(100, 4, '<b><u>'. $stockNumber .'</u></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
     $pdf->SetTextColor(0, 0, 0);
-    $pdf->Image($unitImage, 80, 67, 45, 45, '', '', '', true, 150, '', false, false, 1, false, false, false, false);
+    $pdf->Image($unitImage, 85, 67, 45, 45, '', '', '', true, 150, '', false, false, 1, false, false, false, false);
     $pdf->Ln(5);
     $pdf->SetFont('times', '', 10);
+    $pdf->MultiCell(10, 4, '', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
     $pdf->MultiCell(60, 4, $productDescription, 0, 'L', false, 0, '', '', true);
     $pdf->SetFont('times', '', 11);
     $pdf->MultiCell(20, 4, '', 0, 'L', false, 0, '', '', true);
@@ -118,11 +120,11 @@
 
 
     
-    $pdf->Ln(27);
+    $pdf->Ln(35);
     $pdf->Cell(100, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(15, 4, '', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(80, 4, 'CHECKED BY: ______________________', 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(18);
+    $pdf->Ln(15);
     $pdf->SetFont('times', '', 7);
     $pdf->SetTextColor(255, 0, 0);
     $pdf->Cell(67, 4, '', 0, 0, 'L', 0, '', 1);

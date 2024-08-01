@@ -7227,17 +7227,57 @@ BEGIN
     WHERE loan_collection_id = p_loan_collection_id;
 END //
 
-CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE getCollections(IN p_loan_collection_id INT)
+BEGIN
+	SELECT * FROM loan_collections
+    WHERE loan_collection_id = p_loan_collection_id;
+END //
+
+CREATE PROCEDURE insertPDCManagement(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, remarks, account_number, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_remarks, p_account_number, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, bank_branch, remarks, account_number, company_id, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, 'Check', p_payment_details, p_payment_amount, p_check_number, p_check_date, p_bank_branch, p_remarks, p_account_number, p_company_id, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), p_last_log_by);
+
+    SET p_loan_collection_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE loan_collections
+    SET sales_proposal_id = p_sales_proposal_id,
+    loan_number = p_loan_number,
+    product_id = p_product_id,
+    customer_id = p_customer_id,
+    pdc_type = p_pdc_type,
+    mode_of_payment = p_mode_of_payment,
+    or_number = p_or_number,
+    or_date = p_or_date,
+    payment_amount = p_payment_amount,
+    reference_number = p_reference_number,
+    payment_date = p_payment_date,
+    payment_details = p_payment_details,
+    company_id = p_company_id,
+    deposited_to = p_deposited_to,
+    remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE loan_collection_id = p_loan_collection_id;
+END //
+
+CREATE PROCEDURE updatePDCManagement(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_payment_amount DOUBLE, IN p_payment_details VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_remarks VARCHAR(500), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7254,9 +7294,11 @@ BEGIN
     bank_branch = p_bank_branch,
     remarks = p_remarks,
     account_number = p_account_number,
+    company_id = p_company_id,
     last_log_by = p_last_log_by
     WHERE loan_collection_id = p_loan_collection_id;
 END //
+
 
 CREATE PROCEDURE checkLoanCollectionExist (IN p_loan_collection_id INT)
 BEGIN
@@ -7266,11 +7308,18 @@ BEGIN
 END //
 
 
-CREATE PROCEDURE checkLoanCollectionConflict (IN p_sales_proposal_id INT, IN p_check_number VARCHAR(100))
+CREATE PROCEDURE checkLoanCollectionConflict (IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_check_number VARCHAR(100))
 BEGIN
-	SELECT COUNT(*) AS total
-    FROM loan_collections
-    WHERE sales_proposal_id = p_sales_proposal_id AND check_number = p_check_number;
+    IF p_loan_collection_id IS NOT NULL AND p_loan_collection_id <> '' THEN
+            SELECT COUNT(*) AS total
+            FROM loan_collections
+            WHERE loan_collection_id != p_loan_collection_id AND sales_proposal_id = p_sales_proposal_id AND check_number = p_check_number;
+        ELSE
+            SELECT COUNT(*) AS total
+            FROM loan_collections
+            WHERE sales_proposal_id = p_sales_proposal_id AND check_number = p_check_number;
+        END IF;
+    END //	
 END //
 
 CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
@@ -7962,13 +8011,13 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
-CREATE PROCEDURE insertSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE insertSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_insurance_premium_discount DOUBLE, IN p_insurance_premium_subtotal DOUBLE, IN p_handling_fee_discount DOUBLE, IN p_handling_fee_subtotal DOUBLE, IN p_transfer_fee_discount DOUBLE, IN p_transfer_fee_subtotal DOUBLE, IN p_doc_stamp_tax_discount DOUBLE, IN p_doc_stamp_tax_subtotal DOUBLE, IN p_transaction_fee_discount DOUBLE, IN p_transaction_fee_subtotal DOUBLE, IN p_last_log_by INT)
 BEGIN
-    INSERT INTO sales_proposal_other_charges (sales_proposal_id, insurance_coverage, insurance_premium, handling_fee, transfer_fee, registration_fee, doc_stamp_tax, transaction_fee, total_other_charges, last_log_by) 
-	VALUES(p_sales_proposal_id, p_insurance_coverage, p_insurance_premium, p_handling_fee, p_transfer_fee, p_registration_fee, p_doc_stamp_tax, p_transaction_fee, p_total_other_charges, p_last_log_by);
+    INSERT INTO sales_proposal_other_charges (sales_proposal_id, insurance_coverage, insurance_premium, handling_fee, transfer_fee, registration_fee, doc_stamp_tax, transaction_fee, total_other_charges, insurance_premium_discount, insurance_premium_subtotal, handling_fee_discount, handling_fee_subtotal, transfer_fee_discount, transfer_fee_subtotal, doc_stamp_tax_discount, doc_stamp_tax_subtotal, transaction_fee_discount, transaction_fee_subtotal, last_log_by) 
+	VALUES(p_sales_proposal_id, p_insurance_coverage, p_insurance_premium, p_handling_fee, p_transfer_fee, p_registration_fee, p_doc_stamp_tax, p_transaction_fee, p_total_other_charges, p_insurance_premium_discount, p_insurance_premium_subtotal, p_handling_fee_discount, p_handling_fee_subtotal, p_transfer_fee_discount, p_transfer_fee_subtotal, p_doc_stamp_tax_discount, p_doc_stamp_tax_subtotal, p_transaction_fee_discount, p_transaction_fee_subtotal, p_last_log_by);
 END //
 
-CREATE PROCEDURE updateSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposalOtherCharges(IN p_sales_proposal_id INT, IN p_insurance_coverage DOUBLE, IN p_insurance_premium DOUBLE, IN p_handling_fee DOUBLE, IN p_transfer_fee DOUBLE, IN p_registration_fee DOUBLE, IN p_doc_stamp_tax DOUBLE, IN p_transaction_fee DOUBLE, IN p_total_other_charges DOUBLE, IN p_insurance_premium_discount DOUBLE, IN p_insurance_premium_subtotal DOUBLE, IN p_handling_fee_discount DOUBLE, IN p_handling_fee_subtotal DOUBLE, IN p_transfer_fee_discount DOUBLE, IN p_transfer_fee_subtotal DOUBLE, IN p_doc_stamp_tax_discount DOUBLE, IN p_doc_stamp_tax_subtotal DOUBLE, IN p_transaction_fee_discount DOUBLE, IN p_transaction_fee_subtotal DOUBLE, IN p_last_log_by INT)
 BEGIN
 	UPDATE sales_proposal_other_charges
     SET insurance_coverage = p_insurance_coverage,
@@ -7979,6 +8028,16 @@ BEGIN
     doc_stamp_tax = p_doc_stamp_tax,
     transaction_fee = p_transaction_fee,
     total_other_charges = p_total_other_charges,
+    insurance_premium_discount = p_insurance_premium_discount,
+    insurance_premium_subtotal = p_insurance_premium_subtotal,
+    handling_fee_discount = p_handling_fee_discount,
+    handling_fee_subtotal = p_handling_fee_subtotal,
+    transfer_fee_discount = p_transfer_fee_discount,
+    transfer_fee_subtotal = p_transfer_fee_subtotal,
+    doc_stamp_tax_discount = p_doc_stamp_tax_discount,
+    doc_stamp_tax_subtotal = p_doc_stamp_tax_subtotal,
+    transaction_fee_discount = p_transaction_fee_discount,
+    transaction_fee_subtotal = p_transaction_fee_subtotal,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
@@ -9367,6 +9426,67 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
+CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections';
+    SET conditionList = ' WHERE mode_of_payment != "Check"';
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_payment_start_date IS NOT NULL AND p_payment_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (payment_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_payment_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_reversed_start_date IS NOT NULL AND p_reversed_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (reversal_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reversed_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_cancellation_start_date IS NOT NULL AND p_cancellation_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (cancellation_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_cancellation_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND collection_status IN (');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_pdc_management_status));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY loan_number ASC, payment_date ASC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+
+
+CREATE PROCEDURE deleteCollections(IN p_loan_collection_id INT)
+BEGIN
+    DELETE FROM loan_collections WHERE loan_collection_id = p_loan_collection_id;
+END //
+
 CREATE PROCEDURE updateLoanCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_new_deposit_date DATE, IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
     IF p_collection_status = 'Cleared' THEN
@@ -9420,6 +9540,35 @@ BEGIN
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         for_deposit_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+    ELSE
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        pulled_out_date = NOW(),
+        pulled_out_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+    END IF;
+END //
+
+CREATE PROCEDURE updateCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+    IF p_collection_status = 'Reversed' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        reversal_date = NOW(),
+        reversal_reason = p_reason,
+        reversal_remarks = p_remarks,
+        reversal_reference_number = p_reference_number,
+        reversal_reference_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Cleared');
+    ELSEIF p_collection_status = 'Cancelled' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_reason,
         last_log_by = p_last_log_by
         WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
     ELSE

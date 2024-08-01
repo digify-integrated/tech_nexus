@@ -645,60 +645,120 @@
                     </div>
                     <div class="tab-pane" id="v-other-charges">
                         <form id="sales-proposal-other-charges-form" method="post" action="#">
-                        <div class="row">
-                            <div class="col-lg-6">
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="insurance_coverage" name="insurance_coverage">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Insurance Coverage :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="insurance_coverage" name="insurance_coverage">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Insurance Premium :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="insurance_premium" name="insurance_premium" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Insurance Premium Discount :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="insurance_premium_discount" name="insurance_premium_discount">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Insurance Premium Sub-Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="insurance_premium_subtotal" name="insurance_premium_subtotal" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Handling Fee :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="handling_fee" name="handling_fee" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Handling Fee Discount :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="handling_fee_discount" name="handling_fee_discount">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Handling Fee Sub-Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="handling_fee_subtotal" name="handling_fee_subtotal" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transfer Fee :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="8000" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transfer Fee Discount :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transfer_fee_discount" name="transfer_fee_discount">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transfer Fee Sub-Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transfer_fee_subtotal" name="transfer_fee_subtotal" readonly>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="col-lg-6">
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Registration Fee :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="registration_fee" name="registration_fee">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Doc. Stamp Tax :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="doc_stamp_tax" name="doc_stamp_tax" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Doc. Stamp Tax Discount :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="doc_stamp_tax_discount" name="doc_stamp_tax_discount">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Doc. Stamp Tax Sub-Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="doc_stamp_tax_subtotal" name="doc_stamp_tax_subtotal" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transaction Fee :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transaction_fee" name="transaction_fee" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transaction Fee Discount :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transaction_fee_discount" name="transaction_fee_discount">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Transaction Fee Sub-Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="transaction_fee_subtotal" name="transaction_fee_subtotal" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-lg-5 col-form-label">Total :</label>
+                                    <div class="col-lg-7">
+                                    <input type="text" class="form-control currency" id="total_other_charges" name="total_other_charges" readonly>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Insurance Premium :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="insurance_premium" name="insurance_premium">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Handling Fee :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="handling_fee" name="handling_fee">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Transfer Fee :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee">
-                                </div>
-                            </div>
-                            </div>
-                            <div class="col-lg-6">
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Registration Fee :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="registration_fee" name="registration_fee">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Doc. Stamp Tax :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="doc_stamp_tax" name="doc_stamp_tax">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Transaction Fee :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="transaction_fee" name="transaction_fee">
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-lg-5 col-form-label">Total :</label>
-                                <div class="col-lg-7">
-                                <input type="text" class="form-control currency" id="total_other_charges" name="total_other_charges" readonly>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
                         </form>
                     </div>
                     <div class="tab-pane" id="v-renewal-amount">
@@ -980,7 +1040,7 @@
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
                                                         <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>PRODUCT TYPE</b></small><br/><span id="summary-product-type"></span></td>
-                                                        <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
+                                                        <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TRANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
                                                         <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TERM</b></small><br/><span id="summary-term"></span></td>
                                                         <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>NO. OF PAYMENTS</b></small><br/><span id="summary-no-payments"></span></td>
                                                     </tr>

@@ -2,37 +2,40 @@
   require('config/_required_php_file.php');
   require('config/_check_user_active.php');
   require('model/sales-proposal-model.php');
-  require('model/pdc-management-model.php');
+  require('model/collections-model.php');
   require('model/customer-model.php');
-  require('model/company-model.php');
   require('model/product-model.php');
+  require('model/company-model.php');
+  require('model/bank-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
-  $pdcManagementModel = new PDCManagementModel($databaseModel);
+  $collectionsModel = new CollectionsModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
-  $companyModel = new CompanyModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
+  $companyModel = new CompanyModel($databaseModel);
+  $bankModel = new BankModel($databaseModel);
 
-  $pageTitle = 'PDC Management';
+
+  $pageTitle = 'Collections';
     
-  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
-  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
-  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
-  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
+  $collectionsReadAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'read');
+  $collectionsCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'create');
+  $collectionsWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'write');
+  $collectionsDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 97, 'delete');
 
-  $tagPDCAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
-  $tagPDCOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
-  $tagPDCAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
-  $tagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
-  $tagPDCAsRedeposit = $userModel->checkSystemActionAccessRights($user_id, 158);
-  $tagPDCAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
-  $tagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
+  $tagCollectionAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
+  $tagCollectionOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
+  $tagCollectionAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
+  $tagCollectionAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
+  $tagCollectionAsRedeposit = $userModel->checkSystemActionAccessRights($user_id, 158);
+  $tagCollectionAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
+  $tagCollectionAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
   $tagClearedPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 161);
-  $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
+  $tagCollectionAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
   $massTagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 163);
   $massTagPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 164);
 
-  if ($pdcManagementReadAccess['total'] == 0) {
+  if ($collectionsReadAccess['total'] == 0) {
     header('location: 404.php');
     exit;
   }
@@ -43,9 +46,9 @@
       exit;
     }
 
-    $pdcManagementID = $securityModel->decryptData($_GET['id']);
+    $collectionsID = $securityModel->decryptData($_GET['id']);
 
-    $checkLoanCollectionExist = $pdcManagementModel->checkLoanCollectionExist($pdcManagementID);
+    $checkLoanCollectionExist = $collectionsModel->checkLoanCollectionExist($collectionsID);
     $total = $checkLoanCollectionExist['total'] ?? 0;
 
     if($total == 0){
@@ -53,11 +56,11 @@
       exit;
     }
 
-    $pdcManagementDetails = $pdcManagementModel->getPDCManagement($pdcManagementID);
-    $collectionStatus = $pdcManagementDetails['collection_status'];
+    $collectionsDetails = $collectionsModel->getCollections($collectionsID);
+    $collectionStatus = $collectionsDetails['collection_status'];
   }
   else{
-    $pdcManagementID = null;
+    $collectionsID = null;
   }
 
   $newRecord = isset($_GET['new']);
@@ -92,10 +95,10 @@
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
-                    <li class="breadcrumb-item" aria-current="page"><a href="pdc-management.php"><?php echo $pageTitle; ?></a></li>
+                    <li class="breadcrumb-item" aria-current="page"><a href="collections.php"><?php echo $pageTitle; ?></a></li>
                     <?php
-                        if(!$newRecord && !empty($pdcManagementID)){
-                            echo '<li class="breadcrumb-item" id="loan-collection-id">'. $pdcManagementID .'</li>';
+                        if(!$newRecord && !empty($collectionsID)){
+                            echo '<li class="breadcrumb-item" id="loan-collection-id">'. $collectionsID .'</li>';
                         }
 
                         if($newRecord){
@@ -113,14 +116,14 @@
           </div>
         </div>
         <?php
-          if($newRecord && $pdcManagementCreateAccess['total'] > 0){
-            require_once('view/_pdc_management_new.php');
+          if($newRecord && $collectionsCreateAccess['total'] > 0){
+            require_once('view/_collections_new.php');
           }
-          else if(!empty($pdcManagementID) && $pdcManagementWriteAccess['total'] > 0){
-            require_once('view/_pdc_management_details.php');
+          else if(!empty($collectionsID) && $collectionsWriteAccess['total'] > 0){
+            require_once('view/_collections_details.php');
           }
           else{
-            require_once('view/_pdc_management.php');
+            require_once('view/_collections.php');
           }
         ?>
       </div>
@@ -139,7 +142,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/pdc-management.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/collections.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

@@ -522,8 +522,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposalOtherCharges($p_sales_proposal_id, $p_insurance_coverage, $p_insurance_premium, $p_handling_fee, $p_transfer_fee, $p_registration_fee, $p_doc_stamp_tax, $p_transaction_fee, $p_total_other_charges, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherCharges(:p_sales_proposal_id, :p_insurance_coverage, :p_insurance_premium, :p_handling_fee, :p_transfer_fee, :p_registration_fee, :p_doc_stamp_tax, :p_transaction_fee, :p_total_other_charges, :p_last_log_by)');
+    public function updateSalesProposalOtherCharges($p_sales_proposal_id, $p_insurance_coverage, $p_insurance_premium, $p_handling_fee, $p_transfer_fee, $p_registration_fee, $p_doc_stamp_tax, $p_transaction_fee, $p_total_other_charges, $p_insurance_premium_discount, $p_insurance_premium_subtotal, $p_handling_fee_discount, $p_handling_fee_subtotal, $p_transfer_fee_discount, $p_transfer_fee_subtotal, $p_doc_stamp_tax_discount, $p_doc_stamp_tax_subtotal, $p_transaction_fee_discount, $p_transaction_fee_subtotal, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalOtherCharges(:p_sales_proposal_id, :p_insurance_coverage, :p_insurance_premium, :p_handling_fee, :p_transfer_fee, :p_registration_fee, :p_doc_stamp_tax, :p_transaction_fee, :p_total_other_charges, :p_insurance_premium_discount, :p_insurance_premium_subtotal, :p_handling_fee_discount, :p_handling_fee_subtotal, :p_transfer_fee_discount, :p_transfer_fee_subtotal, :p_doc_stamp_tax_discount, :p_doc_stamp_tax_subtotal, :p_transaction_fee_discount, :p_transaction_fee_subtotal, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_insurance_coverage', $p_insurance_coverage, PDO::PARAM_STR);
         $stmt->bindValue(':p_insurance_premium', $p_insurance_premium, PDO::PARAM_STR);
@@ -533,6 +533,16 @@ class SalesProposalModel {
         $stmt->bindValue(':p_doc_stamp_tax', $p_doc_stamp_tax, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_fee', $p_transaction_fee, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_other_charges', $p_total_other_charges, PDO::PARAM_STR);
+        $stmt->bindValue(':p_insurance_premium_discount', $p_insurance_premium_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_insurance_premium_subtotal', $p_insurance_premium_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_handling_fee_discount', $p_handling_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_handling_fee_subtotal', $p_handling_fee_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transfer_fee_discount', $p_transfer_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transfer_fee_subtotal', $p_transfer_fee_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_doc_stamp_tax_discount', $p_doc_stamp_tax_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_doc_stamp_tax_subtotal', $p_doc_stamp_tax_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_fee_discount', $p_transaction_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_fee_subtotal', $p_transaction_fee_subtotal, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -943,8 +953,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposalOtherCharges($p_sales_proposal_id, $p_insurance_coverage, $p_insurance_premium, $p_handling_fee, $p_transfer_fee, $p_registration_fee, $p_doc_stamp_tax, $p_transaction_fee, $p_total_other_charges, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherCharges(:p_sales_proposal_id, :p_insurance_coverage, :p_insurance_premium, :p_handling_fee, :p_transfer_fee, :p_registration_fee, :p_doc_stamp_tax, :p_transaction_fee, :p_total_other_charges, :p_last_log_by)');
+    public function insertSalesProposalOtherCharges($p_sales_proposal_id, $p_insurance_coverage, $p_insurance_premium, $p_handling_fee, $p_transfer_fee, $p_registration_fee, $p_doc_stamp_tax, $p_transaction_fee, $p_total_other_charges, $p_insurance_premium_discount, $p_insurance_premium_subtotal, $p_handling_fee_discount, $p_handling_fee_subtotal, $p_transfer_fee_discount, $p_transfer_fee_subtotal, $p_doc_stamp_tax_discount, $p_doc_stamp_tax_subtotal, $p_transaction_fee_discount, $p_transaction_fee_subtotal, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposalOtherCharges(:p_sales_proposal_id, :p_insurance_coverage, :p_insurance_premium, :p_handling_fee, :p_transfer_fee, :p_registration_fee, :p_doc_stamp_tax, :p_transaction_fee, :p_total_other_charges, :p_insurance_premium_discount, :p_insurance_premium_subtotal, :p_handling_fee_discount, :p_handling_fee_subtotal, :p_transfer_fee_discount, :p_transfer_fee_subtotal, :p_doc_stamp_tax_discount, :p_doc_stamp_tax_subtotal, :p_transaction_fee_discount, :p_transaction_fee_subtotal, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_insurance_coverage', $p_insurance_coverage, PDO::PARAM_STR);
         $stmt->bindValue(':p_insurance_premium', $p_insurance_premium, PDO::PARAM_STR);
@@ -954,6 +964,16 @@ class SalesProposalModel {
         $stmt->bindValue(':p_doc_stamp_tax', $p_doc_stamp_tax, PDO::PARAM_STR);
         $stmt->bindValue(':p_transaction_fee', $p_transaction_fee, PDO::PARAM_STR);
         $stmt->bindValue(':p_total_other_charges', $p_total_other_charges, PDO::PARAM_STR);
+        $stmt->bindValue(':p_insurance_premium_discount', $p_insurance_premium_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_insurance_premium_subtotal', $p_insurance_premium_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_handling_fee_discount', $p_handling_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_handling_fee_subtotal', $p_handling_fee_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transfer_fee_discount', $p_transfer_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transfer_fee_subtotal', $p_transfer_fee_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_doc_stamp_tax_discount', $p_doc_stamp_tax_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_doc_stamp_tax_subtotal', $p_doc_stamp_tax_subtotal, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_fee_discount', $p_transaction_fee_discount, PDO::PARAM_STR);
+        $stmt->bindValue(':p_transaction_fee_subtotal', $p_transaction_fee_subtotal, PDO::PARAM_STR);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

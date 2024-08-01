@@ -163,6 +163,7 @@ $customerAddress = '';
     $pdf->Ln(18);
     $pdf->SetTextColor(255, 0, 0);
     $pdf->MultiCell(5, 4, '', 0, 'L', false, 0, '', '', true);
+    $pdf->SetFont('times', '', 15);
     $pdf->MultiCell(100, 4, '<b><u>'. $fullStockNumber .'</u></b>', 0, 'L', false, 0, '', '', true, 0, true, true, 0);
     $pdf->SetTextColor(0, 0, 0);
     $pdf->Image($unitImage, 80, 67, 45, 45, $extension, '', '', true, 150, '', false, false, 1, false, false, false);

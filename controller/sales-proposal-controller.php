@@ -382,6 +382,17 @@ class SalesProposalController {
             $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
             $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
 
+            $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
+            $insurancePremiumSubtotal = str_replace(',', '', $_POST['insurance_premium_subtotal']);
+            $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
+            $handlingFeeSubtotal = str_replace(',', '', $_POST['handling_fee_subtotal']);
+            $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
+            $transferFeeSubtotal = str_replace(',', '', $_POST['transfer_fee_subtotal']);
+            $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
+            $docStampTaxSubtotal = str_replace(',', '', $_POST['doc_stamp_tax_subtotal']);
+            $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
+            $transactionFeeSubtotal = str_replace(',', '', $_POST['transaction_fee_subtotal']);
+
             $registrationSecondYear = str_replace(',', '', $_POST['registration_second_year']);
             $registrationThirdYear = str_replace(',', '', $_POST['registration_third_year']);
             $registrationFourthYear = str_replace(',', '', $_POST['registration_fourth_year']);
@@ -426,7 +437,7 @@ class SalesProposalController {
 
             $this->salesProposalModel->insertSalesProposalPricingComputation($salesProposalID, $deliverPrice, $costOfAccessories, $reconditioningCost, $subtotal, $downpayment, $outstandingBalance, $amountFinanced, $pnAmount, $repaymentAmount, $interestRate, $nominalDiscount, $totalDeliveryPrice, $addOnCharge, $userID);
 
-            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $insurancePremiumDiscount, $insurancePremiumSubtotal, $handlingFeeDiscount, $handlingFeeSubtotal, $transferFeeDiscount, $transferFeeSubtotal, $docStampTaxDiscount, $docStampTaxSubtotal, $transactionFeeDiscount, $transactionFeeSubtotal, $userID);
 
             $this->salesProposalModel->insertSalesProposalRenewalAmount($salesProposalID, $registrationSecondYear, $registrationThirdYear, $registrationFourthYear, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $insurancePremiumSecondYear, $insurancePremiumThirdYear, $insurancePremiumFourthYear, $userID);
 
@@ -2253,13 +2264,24 @@ class SalesProposalController {
         $userID = $_SESSION['user_id'];
         $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
         $insuranceCoverage = str_replace(',', '', $_POST['insurance_coverage']);
-            $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
-            $handlingFee = str_replace(',', '', $_POST['handling_fee']);
-            $transferFee = str_replace(',', '', $_POST['transfer_fee']);
-            $registrationFee = str_replace(',', '', $_POST['registration_fee']);
-            $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
-            $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
-            $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
+        $insurancePremium = str_replace(',', '', $_POST['insurance_premium']);
+        $handlingFee = str_replace(',', '', $_POST['handling_fee']);
+        $transferFee = str_replace(',', '', $_POST['transfer_fee']);
+        $registrationFee = str_replace(',', '', $_POST['registration_fee']);
+        $docStampTax = str_replace(',', '', $_POST['doc_stamp_tax']);
+        $transactionFee = str_replace(',', '', $_POST['transaction_fee']);
+        $totalOtherCharges = str_replace(',', '', $_POST['total_other_charges']);
+
+        $insurancePremiumDiscount = str_replace(',', '', $_POST['insurance_premium_discount']);
+        $insurancePremiumSubtotal = str_replace(',', '', $_POST['insurance_premium_subtotal']);
+        $handlingFeeDiscount = str_replace(',', '', $_POST['handling_fee_discount']);
+        $handlingFeeSubtotal = str_replace(',', '', $_POST['handling_fee_subtotal']);
+        $transferFeeDiscount = str_replace(',', '', $_POST['transfer_fee_discount']);
+        $transferFeeSubtotal = str_replace(',', '', $_POST['transfer_fee_subtotal']);
+        $docStampTaxDiscount = str_replace(',', '', $_POST['doc_stamp_tax_discount']);
+        $docStampTaxSubtotal = str_replace(',', '', $_POST['doc_stamp_tax_subtotal']);
+        $transactionFeeDiscount = str_replace(',', '', $_POST['transaction_fee_discount']);
+        $transactionFeeSubtotal = str_replace(',', '', $_POST['transaction_fee_subtotal']);
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -2272,13 +2294,13 @@ class SalesProposalController {
         $total = $checkSalesProposalPricingOtherChargesExist['total'] ?? 0;
     
         if ($total > 0) {
-            $this->salesProposalModel->updateSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+            $this->salesProposalModel->updateSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $insurancePremiumDiscount, $insurancePremiumSubtotal, $handlingFeeDiscount, $handlingFeeSubtotal, $transferFeeDiscount, $transferFeeSubtotal, $docStampTaxDiscount, $docStampTaxSubtotal, $transactionFeeDiscount, $transactionFeeSubtotal, $userID);
             
             echo json_encode(['success' => true]);
             exit;
         } 
         else {
-            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $userID);
+            $this->salesProposalModel->insertSalesProposalOtherCharges($salesProposalID, $insuranceCoverage, $insurancePremium, $handlingFee, $transferFee, $registrationFee, $docStampTax, $transactionFee, $totalOtherCharges, $insurancePremiumDiscount, $insurancePremiumSubtotal, $handlingFeeDiscount, $handlingFeeSubtotal, $transferFeeDiscount, $transferFeeSubtotal, $docStampTaxDiscount, $docStampTaxSubtotal, $transactionFeeDiscount, $transactionFeeSubtotal, $userID);
 
             echo json_encode(['success' => true]);
             exit;
@@ -3551,7 +3573,17 @@ class SalesProposalController {
                 'registrationFee' => $salesProposalOtherChargesDetails['registration_fee'] ?? 0,
                 'docStampTax' => $salesProposalOtherChargesDetails['doc_stamp_tax'] ?? 0,
                 'totalOtherCharges' => $salesProposalOtherChargesDetails['total_other_charges'] ?? 0,
-                'transactionFee' => $salesProposalOtherChargesDetails['transaction_fee'] ?? 0
+                'transactionFee' => $salesProposalOtherChargesDetails['transaction_fee'] ?? 0,
+                'insurancePremiumDiscount' => $salesProposalOtherChargesDetails['insurance_premium_discount'] ?? 0,
+                'handlingFeeDiscount' => $salesProposalOtherChargesDetails['handling_fee_discount'] ?? 0,
+                'docStampTaxDiscount' => $salesProposalOtherChargesDetails['doc_stamp_tax_discount'] ?? 0,
+                'transactionFeeDiscount' => $salesProposalOtherChargesDetails['transaction_fee_discount'] ?? 0,
+                'transferFeeDiscount' => $salesProposalOtherChargesDetails['transfer_fee_discount'] ?? 0,
+                'insurancePremiumSubtotal' => $salesProposalOtherChargesDetails['insurance_premium_subtotal'] ?? 0,
+                'handlingFeeSubtotal' => $salesProposalOtherChargesDetails['handling_fee_subtotal'] ?? 0,
+                'docStampTaxSubtotal' => $salesProposalOtherChargesDetails['doc_stamp_tax_subtotal'] ?? 0,
+                'transactionFeeSubtotal' => $salesProposalOtherChargesDetails['transaction_fee_subtotal'] ?? 0,
+                'transferFeeSubtotal' => $salesProposalOtherChargesDetails['transfer_fee_subtotal'] ?? 0,
             ];
 
             echo json_encode($response);

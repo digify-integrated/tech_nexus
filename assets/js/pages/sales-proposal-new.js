@@ -109,39 +109,48 @@
 
         $(document).on('change','#diesel_fuel_quantity',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#diesel_price_per_liter',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#regular_fuel_quantity',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#regular_price_per_liter',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#premium_fuel_quantity',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#premium_price_per_liter',function() {
             calculateFuelTotal();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#delivery_price',function() {
             calculateTotalDeliveryPrice();
             calculateRenewalAmount();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#add_on_charge',function() {
             calculateTotalDeliveryPrice();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#nominal_discount',function() {
             calculateTotalDeliveryPrice();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#term_length',function() {
@@ -150,21 +159,33 @@
 
         $(document).on('change','#interest_rate',function() {
             calculatePricingComputation();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#cost_of_accessories',function() {
             calculatePricingComputation();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#reconditioning_cost',function() {
             calculatePricingComputation();
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#downpayment',function() {
             calculatePricingComputation();
+            calculateTotalOtherCharges();
+        });
+
+        $(document).on('change','#insurance_coverage',function() {
+            calculateTotalOtherCharges();
         });
 
         $(document).on('change','#insurance_premium',function() {
+            calculateTotalOtherCharges();
+        });
+
+        $(document).on('change','#insurance_premium_discount',function() {
             calculateTotalOtherCharges();
         });
 
@@ -172,7 +193,15 @@
             calculateTotalOtherCharges();
         });
 
+        $(document).on('change','#handling_fee_discount',function() {
+            calculateTotalOtherCharges();
+        });
+
         $(document).on('change','#transfer_fee',function() {
+            calculateTotalOtherCharges();
+        });
+
+        $(document).on('change','#transfer_fee_discount',function() {
             calculateTotalOtherCharges();
         });
 
@@ -184,7 +213,15 @@
             calculateTotalOtherCharges();
         });
 
+        $(document).on('change','#doc_stamp_tax_discount',function() {
+            calculateTotalOtherCharges();
+        });
+
         $(document).on('change','#transaction_fee',function() {
+            calculateTotalOtherCharges();
+        });
+
+        $(document).on('change','#transaction_fee_discount',function() {
             calculateTotalOtherCharges();
         });
 
@@ -846,14 +883,41 @@ function calculateRenewalAmount(){
 }
 
 function calculateTotalOtherCharges(){
-    var insurance_premium = parseCurrency($("#insurance_premium").val());
-    var handling_fee = parseCurrency($("#handling_fee").val());
-    var transfer_fee = parseCurrency($("#transfer_fee").val());
-    var registration_fee = parseCurrency($("#registration_fee").val());
-    var doc_stamp_tax = parseCurrency($("#doc_stamp_tax").val());
-    var transaction_fee = parseCurrency($("#transaction_fee").val());
+    var amount_financed = parseCurrency($("#amount_financed").val());
+    var pn_amount = parseCurrency($("#pn_amount").val());
 
-    var total = insurance_premium + handling_fee + transfer_fee + registration_fee + doc_stamp_tax + transaction_fee;
+    var insurance_coverage = parseCurrency($("#insurance_coverage").val());
+    var insurance_premium = Math.round(((insurance_coverage * .025 + 2700) * 1.2526) + 1300);
+    var handling_fee = (amount_financed * 0.035) + 6000;
+    var transaction_fee = (amount_financed * 0.01) + 7000;
+    var doc_stamp_tax = Math.round(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
+
+    $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
+    $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
+    $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
+    $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
+
+    var transfer_fee = parseCurrency($("#transfer_fee").val());
+    var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
+    var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
+    var registration_fee = parseCurrency($("#registration_fee").val());
+    var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
+    var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
+    var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
+
+    var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
+    var handling_fee_subtotal = handling_fee - handling_fee_discount;
+    var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
+    var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
+    var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
+
+    $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
+    $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
+    $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+    $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
+
+    var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
 
     $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
 }
@@ -909,6 +973,7 @@ function displayDetails(transaction){
                     },
                     complete: function(){
                         calculateTotalDeliveryPrice();
+                        calculateTotalOtherCharges();
                     }
                 });
             }

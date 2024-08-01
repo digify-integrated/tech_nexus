@@ -77,7 +77,7 @@
             ?>
            <div class="form-group row">
             <label class="col-lg-2 col-form-label">PDC Type</label>
-            <div class="col-lg-10">
+            <div class="col-lg-4">
               <select class="form-control select2" name="pdc_type" id="pdc_type" <?php echo $disabled; ?>>
                 <option value="">--</option>
                 <option value="Loan">Loan</option>
@@ -85,6 +85,13 @@
                 <option value="Customer">Customer</option>
                </select>
             </div>
+            <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
+              <div class="col-lg-4">
+                <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+                  <option value="">--</option>
+                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                </select>
+              </div>  
           </div>
           <div id="loan_field" class="form-group row field d-none">
               <label class="col-lg-2 col-form-label">Loan <span class="text-danger">*</span></label>
