@@ -68,8 +68,8 @@
     // Set PDF metadata
     $pdf->SetCreator('CGMI');
     $pdf->SetAuthor('CGMI');
-    $pdf->SetTitle('PDC Print');
-    $pdf->SetSubject('PDC Print');
+    $pdf->SetTitle('Collections Print');
+    $pdf->SetSubject('Collections Print');
 
     // Set margins and auto page break
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
@@ -82,10 +82,10 @@
     $pdf->AddPage();
 
     $pdf->SetFont('times', 'B', 10.5);
-    $pdf->Cell(80, 8, 'TOTAL CHECK PAYMENTS', 0, 0, 'L');
+    $pdf->Cell(80, 8, 'TOTAL COLLECTION PAYMENTS', 0, 0, 'L');
     $pdf->Cell(80, 8, number_format($totalPDCAmount, 2), 0, 0, 'L');
     $pdf->Ln(8);
-    $pdf->Cell(80, 8, 'TOTAL RETURNED CHECKS', 0, 0, 'L');
+    $pdf->Cell(80, 8, 'TOTAL RETURNED COLLECTION', 0, 0, 'L');
     $pdf->Cell(80, 8, number_format($totalReversedPDCAmount, 2), 0, 0, 'L');
     $pdf->Ln(8);
     $pdf->Cell(80, 8, 'NET PAYMENTS', 0, 0, 'L');
@@ -100,7 +100,7 @@
 
 
     // Output the PDF to the browser
-    $pdf->Output('pdc-print.pdf', 'I');
+    $pdf->Output('collection-print.pdf', 'I');
     ob_end_flush();
 
     function generatePDC($loanCollectionID){
@@ -111,6 +111,7 @@
         require_once 'model/customer-model.php';
         require_once 'model/product-model.php';
         require_once 'model/sales-proposal-model.php';
+        require_once 'model/bank-model.php';
 
         $databaseModel = new DatabaseModel();
         $systemModel = new SystemModel();
@@ -118,6 +119,7 @@
         $customerModel = new CustomerModel($databaseModel);
         $productModel = new ProductModel($databaseModel);
         $salesProposalModel = new SalesProposalModel($databaseModel);
+        $bankModel = new BankModel($databaseModel);
 
         $loanCollectionIDs = is_array($loanCollectionID) ? $loanCollectionID : explode(',', $loanCollectionID);
         sort($loanCollectionIDs);
@@ -128,16 +130,16 @@
                                 <td>REF DATE</td>
                                 <td>REF NO</td>
                                 <td>REF AMOUNT</td>
-                                <td>CHECK DATE</td>
+                                <td>PAYMENT DATE</td>
+                                <td>TRANSACTION DATE</td>
                                 <td>CUSTOMER</td>
                                 <td>STOCK NO.</td>
                                 <td>LOAN NO</td>
+                                <td>COLLECTED FROM</td>
+                                <td>DEPOSITED TO</td>
                                 <td>PYMT DETAILS</td>
-                                <td>BANK / BRANCH</td>
-                                <td>CHECK NO</td>
-                                <td>CHECK STATUS</td>
-                                <td>FOR DEPOSIT ON</td>
-                                <td>DEPOSITED DATE</td>
+                                <td>MODE OF PAYMENT</td>
+                                <td>COLLECTION STATUS</td>
                                 <td>REMARKS</td>
                             </tr>
                         </thead>
@@ -157,12 +159,17 @@
             $loan_number = $pdcManagementDetails['loan_number'];
             $payment_details = $pdcManagementDetails['payment_details'];
             $bank_branch = $pdcManagementDetails['bank_branch'];
+            $mode_of_payment = $pdcManagementDetails['mode_of_payment'];
             $check_number = $pdcManagementDetails['check_number'];
             $remarks = $pdcManagementDetails['remarks'];
             $pdc_type = $pdcManagementDetails['pdc_type'];
-            $for_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['for_deposit_date'], '', 'm/d/Y', '');
-            $deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['deposit_date'], '', 'm/d/Y', '');
-            $check_date = $systemModel->checkDate('empty', $pdcManagementDetails['check_date'], '', 'm/d/Y', '');
+            $collected_from = $pdcManagementDetails['collected_from'];
+            $deposited_to = $pdcManagementDetails['deposited_to'];
+            $payment_date = $systemModel->checkDate('empty', $pdcManagementDetails['payment_date'], '', 'm/d/Y', '');
+            $transaction_date = $systemModel->checkDate('empty', $pdcManagementDetails['transaction_date'], '', 'm/d/Y', '');
+
+            $getBankDetails = $bankModel->getBank($deposited_to);
+            $bank_name = $getBankDetails['bank_name'];
 
             $customerDetails = $customerModel->getPersonalInformation($customer_id);
             $customerName = $customerDetails['file_as'] ?? null;
@@ -197,29 +204,18 @@
                                 <td>'. $or_date .'</td>
                                 <td>'. $or_number .'</td>
                                 <td>'. number_format($payment_amount, 2) .'</td>
-                                <td>'. $check_date .'</td>
+                                <td>'. $payment_date .'</td>
+                                <td>'. $transaction_date .'</td>
                                 <td>'. $customerName .'</td>
                                 <td>'. $stockNumber .'</td>
                                 <td>'. $loan_number .'</td>
+                                <td>'. $collected_from .'</td>
+                                <td>'. $bank_name .'</td>
                                 <td>'. $payment_details .'</td>
-                                <td>'. $bank_branch .'</td>
-                                <td>'. $check_number .'</td>
+                                <td>'. $mode_of_payment .'</td>
                                 <td>'. $collection_status .'</td>
-                                <td>'. $for_deposit_date .'</td>
-                                <td>'. $deposit_date .'</td>
                                 <td>'. $remarks .'</td>
                             </tr>';
-
-            /*if ($i == $count - 1) {
-                $response.= '<tr>
-                                    <td>DUE DATE</td>
-                                    <td>'. $from.'</td>
-                                </tr>
-                                <tr>
-                                    <td>TOTAL DUE AMOUNT</td>
-                                    <td>'. number_format($totalAmount, 2).'</td>
-                                </tr>';
-            }*/
             $i++;
         }
 
@@ -229,114 +225,4 @@
 
         return $response;
     }
-
-    /*function generateBillingTable($loanCollectionID, $leasingID, $initialBasicRental){
-        
-        require_once 'model/database-model.php';
-        require_once 'model/leasing-application-model.php';
-
-        $databaseModel = new DatabaseModel();
-        $leasingApplicationModel = new LeasingApplicationModel($databaseModel);
-
-        $loanCollectionIDs = is_array($loanCollectionID) ? $loanCollectionID : explode(',', $loanCollectionID);
-        sort($loanCollectionIDs);
-
-        $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
-                        <tbody>
-                        <tr>
-                            <td rowspan="2">BILLING MONTH</td>
-                            <td colspan="2">COVERED PERIOD</td>
-                            <td rowspan="2">MONTHLY RENTAL</td>
-                            <td rowspan="2">VAT</td>
-                            <td rowspan="2">W/TAX</td>
-                            <td rowspan="2">NET RENTAL</td>
-                            <td rowspan="2">PAID</td>
-                            <td rowspan="2">DUE AMOUNT</td>
-                        </tr>
-                        <tr>
-                            <td>FROM</td>
-                            <td>TO</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>';
-
-        $totalAmount = 0;
-        foreach ($loanCollectionIDs as $loanCollectionID) {
-            $leasingApplicationDetails = $leasingApplicationModel->getLeasingApplication($leasingID);
-            $vat = $leasingApplicationDetails['vat'];
-            $witholdingTax = $leasingApplicationDetails['witholding_tax'];
-            $initialBasicRental = $leasingApplicationDetails['initial_basic_rental'];
-
-            $leasingApplicationRepaymentDetails = $leasingApplicationModel->getLeasingApplicationRepayment($loanCollectionID);
-            $dueDate = $leasingApplicationRepaymentDetails['due_date'];
-            $month = strtoupper(date('M', strtotime($dueDate))); 
-            $year = substr(strtoupper(date('Y', strtotime($dueDate))), -2);
-            $billingMonth = date('m/d/Y', strtotime($dueDate));
-            $from = date('m/d/Y', strtotime($dueDate));
-            $to = date('m/d/Y', strtotime('+1 month', strtotime($dueDate)));
-            $unpaidRental = $leasingApplicationRepaymentDetails['unpaid_rental'];
-            $paidRental = $leasingApplicationRepaymentDetails['paid_rental'];
-            $totalRental = $paidRental + $unpaidRental;
-
-            if($vat == 'Yes' && $witholdingTax == 'Yes'){
-                $baseTotalRental = $totalRental / (1.07);
-            }
-            else if($vat == 'Yes' && $witholdingTax == 'No'){
-                $baseTotalRental = $totalRental / (1.12);
-            }
-            else if($vat == 'No' && $witholdingTax == 'Yes'){
-                $baseTotalRental = $totalRental / (1.05);
-            }
-            else{
-                $baseTotalRental = $totalRental;
-            }
-
-            if($vat == 'Yes'){
-                $vatAmount = $baseTotalRental * (0.12);
-            }
-            else{
-                $vatAmount = '0.00';
-            }
-
-            if($witholdingTax == 'Yes'){
-                $witholdingTaxAmount = ($baseTotalRental * (0.05) * -1);
-            }
-            else{
-                $witholdingTaxAmount = '0.00';
-            }
-
-            $dueAmount = $totalRental - $paidRental;
-            $totalAmount = $totalAmount + $dueAmount;
-
-            if(number_format($unpaidRental, 2, '.', '') > 0){
-                $response .= ' <tr>
-                        <td>'. $month .'-'. $year .'</td>
-                        <td>'. $from .'</td>
-                        <td>'. $to .'</td>
-                        <td>'. number_format($baseTotalRental, 2) .'</td>
-                        <td>'. number_format($vatAmount, 2) .'</td>
-                        <td>'. number_format($witholdingTaxAmount, 2) .'</td>
-                        <td>'. number_format($totalRental, 2) .'</td>
-                        <td>'. number_format($paidRental, 2) .'</td>
-                        <td>'. number_format($dueAmount, 2) .'</td>
-                    </tr>';
-            }
-        }
-
-        $response .= ' <tr>
-                            <td colspan="8" align="right"><b>TOTAL</b></td>
-                            <td><b>'. number_format($totalAmount, 2) .'</b></td>
-                        </tr>';
-
-        $response .= '
-                    </tbody>
-            </table>';
-
-        return $response;
-    }*/
 ?>

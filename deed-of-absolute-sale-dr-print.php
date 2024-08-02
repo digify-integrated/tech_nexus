@@ -202,7 +202,7 @@
     $pdf->MultiCell(0, 0, '<b>KNOW ALL MEN BY THESE PRESENTS:</b>', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     #$pdf->MultiCell(0, 0, 'That I <b><u>'. strtoupper($receivedFrom) .'</u></b>, with postal at <b><u>'. strtoupper($receivedFromAddress) .'</u></b> for and in consideration the amount of <b><u>'. strtoupper($amountInWords->format($totalPn)) .'  (PHP '. number_format($totalPn, 2) .')</u></b> PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto <b><u>'. $customerName .'</u></b> with postal address at <b><u>'. strtoupper($customerAddress) .'</u></b> his/her successors and assigns that certain motor vehicle which is particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
-    $pdf->MultiCell(0, 0, 'That I _______________________________________________________________________, with postal at <b><u>'. strtoupper($receivedFromAddress) .'</u></b> for and in consideration the amount of __________________  (PHP ___________) PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto _______________________________________________________________ with postal address at ______________________________________________________________________ his/her successors and assigns that certain motor vehicle which is particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
+    $pdf->MultiCell(0, 0, 'That I _______________________________________________________________________, with postal at ___________________________________________________________________ for and in consideration the amount of __________________  (PHP ___________) PESOS, Philippine Currency, receipt of which is hereby acknowledgement have sold, transferred, conveyed and by these presents do sell, transfer and convey unto _______________________________________________________________ with postal address at ______________________________________________________________________ his/her successors and assigns that certain motor vehicle which is particularly described as follows:', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     /*$pdf->Cell(20, 8, 'MAKE'  , 0, 0, 'L');
     $pdf->Cell(32, 8, ':      ' . $make , 0, 0, 'L');
@@ -317,7 +317,7 @@
     #$pdf->Cell(40, 8, strtoupper($customerIDNumber), 0, 0, 'C');
     $pdf->Cell(40, 8, '', 0, 0, 'C');
     $pdf->SetFont('times', '', 10.5);
-    $pdf->Ln(20);
+    $pdf->Ln(15);
     $pdf->MultiCell(0, 0, 'Known to me and to me known to be the same persons who executed the foregoing instrument and acknowledgement to me that the same are their fee act and voluntary deed.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);
     $pdf->Ln(5);
     $pdf->MultiCell(0, 0, 'This instrument, consisting of (__) pages, including the page on which this acknowledgement is written has been signed on the left margin of each and every page thereof by the concerned parties and their witnesses, and seal with my notarial seal.', 0, 'J', 0, 1, '', '', true, 0, true, true, 0);

@@ -7213,12 +7213,12 @@ BEGIN
 	VALUES(p_sales_proposal_id, p_loan_number, p_reference, p_due_date, p_due_amount, p_last_log_by);
 END //
 
-CREATE PROCEDURE insertPDCCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_customer_id INT, IN p_payment_amount DOUBLE, IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_bank_branch VARCHAR(200), IN p_account_number VARCHAR(100), IN p_last_log_by INT)
+CREATE PROCEDURE insertPDCCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_customer_id INT, IN p_payment_amount DOUBLE, IN p_check_number VARCHAR(100), IN p_check_date DATE, IN p_bank_branch VARCHAR(200), IN p_account_number VARCHAR(100), IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, payment_date, bank_branch, account_number, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_customer_id, 'Loan', 'Check', 'Acct Amort', p_payment_amount, p_check_number, p_check_date, p_check_date, p_bank_branch, p_account_number, p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, payment_date, bank_branch, account_number, company_id, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_customer_id, 'Loan', 'Check', 'Acct Amort', p_payment_amount, p_check_number, p_check_date, p_check_date, p_bank_branch, p_account_number, p_company_id, p_last_log_by);
 END //
 
 CREATE PROCEDURE getPDCManagement(IN p_loan_collection_id INT)
@@ -7243,17 +7243,17 @@ BEGIN
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_loan_collection_id INT)
+CREATE PROCEDURE insertCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT, OUT p_loan_collection_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, last_log_by) 
-	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), p_last_log_by);
+    INSERT INTO loan_collections (sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, or_number, or_date, payment_date, payment_amount, reference_number, payment_details, company_id, deposited_to, remarks, transaction_date, collection_status, collected_from, last_log_by) 
+	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
 END //
 
-CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7272,6 +7272,7 @@ BEGIN
     payment_details = p_payment_details,
     company_id = p_company_id,
     deposited_to = p_deposited_to,
+    collected_from = p_collected_from,
     remarks = p_remarks,
     last_log_by = p_last_log_by
     WHERE loan_collection_id = p_loan_collection_id;
@@ -9563,21 +9564,21 @@ BEGIN
         reversal_reference_number = p_reference_number,
         reversal_reference_date = NOW(),
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Cleared');
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Posted');
     ELSEIF p_collection_status = 'Cancelled' THEN
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         cancellation_date = NOW(),
         cancellation_reason = p_reason,
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Posted');
     ELSE
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         pulled_out_date = NOW(),
         pulled_out_reason = p_reason,
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Posted');
     END IF;
 END //
 
@@ -9589,6 +9590,11 @@ BEGIN
     ELSE
         SELECT contact_id, file_as FROM personal_information WHERE contact_id IN (SELECT contact_id FROM contact WHERE is_customer = 1) ORDER BY file_as;
     END IF;
+END //
+
+CREATE PROCEDURE generateAllContactsOptions()
+BEGIN
+	SELECT contact_id, file_as FROM personal_information ORDER BY file_as;
 END //
 
 CREATE PROCEDURE insertImportPDC(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_payment_details VARCHAR(100), IN p_payment_amount DOUBLE, IN p_collection_status VARCHAR(50), IN p_check_date DATE, IN p_check_number VARCHAR(100), IN p_bank_branch VARCHAR(200), IN p_payment_date DATE, IN p_transaction_date DATE, IN p_onhold_date DATE, IN p_onhold_reason VARCHAR(500), IN p_deposit_date DATE, IN p_for_deposit_date DATE, IN p_redeposit_date DATE, IN p_new_deposit_date DATE, IN p_clear_date DATE, IN p_cancellation_date DATE, IN p_cancellation_reason VARCHAR(500), IN p_reversal_date DATE, IN p_pulled_out_date DATE, IN p_pulled_out_reason VARCHAR(500), IN p_reversal_reason VARCHAR(100), IN p_reversal_remarks VARCHAR(500), IN p_last_log_by INT)
@@ -9636,7 +9642,7 @@ BEGIN
     WHERE loan_collection_id = p_loan_collection_id;
 END //
 
-CREATE PROCEDURE insertPDCManualInputCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_customer_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE insertPDCManualInputCollection(IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_customer_id INT, IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE p_bank_branch VARCHAR(200);
@@ -9660,8 +9666,8 @@ BEGIN
           LEAVE read_loop;
         END IF;
 
-        INSERT INTO loan_collections (sales_proposal_id, loan_number, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, payment_date, bank_branch, account_number, last_log_by) 
-        VALUES(p_sales_proposal_id, p_loan_number, p_customer_id, 'Loan', 'Check', p_payment_for, p_gross_amount, p_check_number, p_check_date, p_check_date, p_bank_branch, p_account_number, p_last_log_by);
+        INSERT INTO loan_collections (sales_proposal_id, loan_number, customer_id, pdc_type, mode_of_payment, payment_details, payment_amount, check_number, check_date, payment_date, bank_branch, account_number, company_id, last_log_by) 
+        VALUES(p_sales_proposal_id, p_loan_number, p_customer_id, 'Loan', 'Check', p_payment_for, p_gross_amount, p_check_number, p_check_date, p_check_date, p_bank_branch, p_account_number, p_company_id, p_last_log_by);
     END LOOP;
 
     CLOSE cur1;

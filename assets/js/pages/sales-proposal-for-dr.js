@@ -5005,13 +5005,13 @@ function generatePDCForm(){
             no_of_pdc: {
                 required: true
             },
-            first_check_number: {
+            pdc_first_check_number: {
                 required: true
             },
-            bank_branch: {
+            pdc_bank_branch: {
                 required: true
             },
-            account_number: {
+            pdc_account_number: {
                 required: true
             },
         },
@@ -5019,15 +5019,15 @@ function generatePDCForm(){
             no_of_pdc: {
                 required: 'Please enter the number of PDC'
             },
-            first_check_number: {
+            pdc_first_check_number: {
                 required: 'Please enter the first check number'
             },
-            bank_branch: {
+            pdc_bank_branch: {
                 required: 'Please enter the bank/branch'
             },
-            account_number: {
+            pdc_account_number: {
                 required: 'Please enter the account number'
-            },
+            }
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -5329,6 +5329,13 @@ function displayDetails(transaction){
                         $('#received_from_address').val(response.receivedFromAddress);
                         $('#received_from_id_number').val(response.receivedFromIDNumber);
                         $('#unit_description').val(response.unitDescription);
+
+                        var existingText = $('#summary-remarks').text();
+                        if (existingText) {
+                            $('#summary-remarks').text(existingText + "\n\n" + response.unitDescription);
+                        } else {
+                            $('#summary-remarks').text(response.unitDescription);
+                        }
                         
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');
 

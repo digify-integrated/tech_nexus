@@ -2531,6 +2531,35 @@ class CustomerModel {
     
     # -------------------------------------------------------------
     #
+    # Function: generateAllContactsOptions
+    # Description: Generates the customer options.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateAllContactsOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateAllContactsOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt->closeCursor();
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $contactID = $row['contact_id'];
+            $fileAs = strtoupper($row['file_as']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($contactID, ENT_QUOTES) . '">' . $fileAs .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+    
+    # -------------------------------------------------------------
+    #
     # Function: generateComakerOptions
     # Description: Generates the customer options.
     #

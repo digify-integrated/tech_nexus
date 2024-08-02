@@ -701,8 +701,8 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '15%','bSortable': false, 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': '5%', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },

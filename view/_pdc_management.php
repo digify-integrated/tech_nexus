@@ -16,127 +16,10 @@
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Check Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y'); ?>">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Redeposit Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_redeposit_date_start_date" id="filter_redeposit_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_redeposit_date_end_date" id="filter_redeposit_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          On-Hold Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_onhold_date_start_date" id="filter_onhold_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_onhold_date_end_date" id="filter_onhold_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          For Deposit Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_for_deposit_date_start_date" id="filter_for_deposit_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_for_deposit_date_end_date" id="filter_for_deposit_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Deposit Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_deposit_date_start_date" id="filter_deposit_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_deposit_date_end_date" id="filter_deposit_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Reversed Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_reversed_date_start_date" id="filter_reversed_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_reversed_date_end_date" id="filter_reversed_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Pulled-Out Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_pulled_out_date_start_date" id="filter_pulled_out_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_pulled_out_date_end_date" id="filter_pulled_out_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Cancellation Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_cancellation_date_start_date" id="filter_cancellation_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_cancellation_date_end_date" id="filter_cancellation_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Clear Date
-                        </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_clear_date_start_date" id="filter_clear_date_start_date" placeholder="Start Date">
-                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_clear_date_end_date" id="filter_clear_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pdc-management-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           PDC Status
                         </a>
-                        <div class="collapse show" id="pdc-management-status-filter-collapse">
+                        <div class="collapse " id="pdc-management-status-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <div class="form-check my-2">
@@ -179,6 +62,123 @@
                                 <input class="form-check-input pdc-management-status-filter" type="radio" name="pdc-management-status-filter" id="pdc-management-pulled-out" value="Pulled-Out" />
                                 <label class="form-check-label" for="pdc-management-pulled-out">Pulled-Out</label>
                               </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Check Date
+                        </a>
+                        <div class="collapse" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_check_date_start_date" id="filter_check_date_start_date" placeholder="Start Date" value="<?php echo date('m/d/Y'); ?>">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_check_date_end_date" id="filter_check_date_end_date" placeholder="End Date" value="<?php echo date('m/d/Y'); ?>">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Redeposit Date
+                        </a>
+                        <div class="collapse" id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_redeposit_date_start_date" id="filter_redeposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_redeposit_date_end_date" id="filter_redeposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          On-Hold Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_onhold_date_start_date" id="filter_onhold_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_onhold_date_end_date" id="filter_onhold_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          For Deposit Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_for_deposit_date_start_date" id="filter_for_deposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_for_deposit_date_end_date" id="filter_for_deposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Deposit Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_deposit_date_start_date" id="filter_deposit_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_deposit_date_end_date" id="filter_deposit_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Reversed Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_reversed_date_start_date" id="filter_reversed_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_reversed_date_end_date" id="filter_reversed_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Pulled-Out Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_pulled_out_date_start_date" id="filter_pulled_out_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_pulled_out_date_end_date" id="filter_pulled_out_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Cancellation Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_cancellation_date_start_date" id="filter_cancellation_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_cancellation_date_end_date" id="filter_cancellation_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Clear Date
+                        </a>
+                        <div class="collapse " id="check-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_clear_date_start_date" id="filter_clear_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_clear_date_end_date" id="filter_clear_date_end_date" placeholder="End Date">
                             </div>
                           </div>
                         </div>

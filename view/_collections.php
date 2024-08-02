@@ -16,10 +16,33 @@
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#collections-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Collection Status
+                        </a>
+                        <div class="collapse " id="collections-status-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <div class="form-check my-2">
+                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-status-all" value="" checked/>
+                                <label class="form-check-label" for="collections-status-all">All</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-status-posted" value="Posted" />
+                                <label class="form-check-label" for="collections-status-posted">Posted</label>
+                              </div>
+                              <div class="form-check my-2">
+                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-reversed" value="Reversed" />
+                                <label class="form-check-label" for="collections-reversed">Reversed</label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#transaction-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Transaction Date
                         </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
+                        <div class="collapse " id="transaction-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_transaction_date_start_date" id="filter_transaction_date_start_date" placeholder="Start Date">
@@ -29,10 +52,10 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#payment-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Payment Date
                         </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
+                        <div class="collapse " id="payment-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_payment_date_start_date" id="filter_payment_date_start_date" placeholder="Start Date">
@@ -42,10 +65,10 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reversed-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Reversed Date
                         </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
+                        <div class="collapse " id="reversed-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_reversed_date_start_date" id="filter_reversed_date_start_date" placeholder="Start Date">
@@ -55,45 +78,14 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#check-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#cancellation-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Cancellation Date
                         </a>
-                        <div class="collapse show" id="check-date-filter-collapse">
+                        <div class="collapse " id="cancellation-date-filter-collapse">
                           <div class="row py-3">
                             <div class="col-12">
                               <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_cancellation_date_start_date" id="filter_cancellation_date_start_date" placeholder="Start Date">
                               <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_cancellation_date_end_date" id="filter_cancellation_date_end_date" placeholder="End Date">
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                      <li class="list-group-item px-0 py-2">
-                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#collections-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
-                          Collection Status
-                        </a>
-                        <div class="collapse show" id="collections-status-filter-collapse">
-                          <div class="row py-3">
-                            <div class="col-12">
-                              <div class="form-check my-2">
-                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-status-all" value="" checked/>
-                                <label class="form-check-label" for="collections-status-all">All</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-status-pending" value="Pending" />
-                                <label class="form-check-label" for="collections-status-pending">Posted</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-cleared" value="Cleared" />
-                                <label class="form-check-label" for="collections-cleared">Cleared</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-reversed" value="Reversed" />
-                                <label class="form-check-label" for="collections-reversed">Reversed</label>
-                              </div>
-                              <div class="form-check my-2">
-                                <input class="form-check-input collections-status-filter" type="radio" name="collections-status-filter" id="collections-cancelled" value="Cancelled" />
-                                <label class="form-check-label" for="collections-cancelled">Cancelled</label>
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -137,6 +129,9 @@
                     echo $action;
                   }
                 ?>
+                <button type="button" class="btn btn-warning" id="print">
+                  Print
+                </button>
                 <button type="button" class="btn btn-warning" data-bs-toggle="offcanvas" data-bs-target="#filter-canvas">
                   Filter
                 </button>

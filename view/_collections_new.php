@@ -35,6 +35,7 @@
                 <option value="Loan">Loan</option>
                 <option value="Product">Product</option>
                 <option value="Customer">Customer</option>
+                <option value="Miscellaneous">Miscellaneous</option>
                </select>
             </div>
           </div>
@@ -61,8 +62,14 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="customer_id" id="customer_id">
                   <option value="">--</option>
-                  <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
+              </div>
+            </div>
+            <div id="miscellaneous_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Collected From <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="collected_from" name="collected_from" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
               </div>
             </div>
           <div class="form-group row">
@@ -70,7 +77,8 @@
               <div class="col-lg-4">
                 <select class="form-control select2" name="company_id" id="company_id">
                   <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                  <option value="1" selected>Christian General Motors Inc.</option>
+                  <option value="3">FUSO Tarlac</option>
                 </select>
               </div>  
             <label class="col-lg-2 col-form-label">Payment Details <span class="text-danger">*</span></label>

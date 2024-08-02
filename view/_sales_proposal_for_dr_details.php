@@ -1040,7 +1040,7 @@
                                                         <td class="text-wrap"><small style="color:#c60206"><b>CONTACT NO.</b></small><br/><span id="summary-comaker-mobile"></span></td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span></td>
+                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>REFERRED BY</b></small><br/><span id="summary-referred-by"></span> - <span id="summary-commission"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>ESTIMATED DATE OF RELEASE</b></small><br/><span id="summary-release-date"></span></td>
                                                         <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>PRODUCT TYPE</b></small><br/><span id="summary-product-type"></span></td>
                                                         <td class="text-wrap"style="vertical-align: top !important;"><small style="color:#c60206"><b>TRANSACTION TYPE</b></small><br/><span id="summary-transaction-type"></span></td>
@@ -1068,7 +1068,7 @@
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>DIESEL FUEL QUANTITY</b></small><br/><span id="summary-diesel-fuel-quantity"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>REGULAR FUEL QUANTITY</b></small><br/><span id="summary-regular-fuel-quantity"></span></td>
                                                         <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>PREMIUM FUEL QUANTITY</b></small><br/><span id="summary-premium-fuel-quantity"></span></td>
-                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b>COMMISSION</b></small><br/><span id="summary-commission"></span></td>
+                                                        <td colspan="2" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206;"><b></b></small><br/></td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="8" style="padding-bottom:0 !important;" class="text-wrap"><small><b><span style="color:#c60206; margin-right: 20px;">JOB ORDER</span> TOTAL COST  <span id="summary-job-order-total"></span></b></small><br/><br/>
@@ -1742,19 +1742,19 @@
                         <div class="form-group row">
                             <div class="col-lg-12 mt-3 mt-lg-0">
                                 <label class="form-label" for="first_check_number">First Check Number <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="first_check_number" name="first_check_number" min="1" step="1">
+                                <input type="number" class="form-control" id="pdc_first_check_number" name="pdc_first_check_number" min="1" step="1">
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
                                 <label class="form-label">Bank/Branch <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control text-uppercase" id="bank_branch" name="bank_branch" maxlength="200" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="pdc_bank_branch" name="pdc_bank_branch" maxlength="200" autocomplete="off">
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-lg-12">
                                 <label class="form-label">Account Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control text-uppercase" id="account_number" name="account_number" maxlength="100" autocomplete="off">
+                                <input type="text" class="form-control text-uppercase" id="pdc_account_number" name="pdc_account_number" maxlength="100" autocomplete="off">
                             </div>
                         </div>
                     </form>

@@ -386,6 +386,7 @@ class CollectionsController {
         $referenceNumber = $_POST['reference_number'];
         $remarks = $_POST['remarks'];
         $depositedTo = $_POST['deposited_to'];
+        $collectedFrom = $_POST['collected_from'];
         $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
         $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
     
@@ -409,13 +410,13 @@ class CollectionsController {
         }
     
         if ($total > 0) {
-            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $userID);
+            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $collectedFrom, $remarks, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;
         } 
         else {
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $userID);
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $collectedFrom, $remarks, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;

@@ -352,23 +352,50 @@
             checkOptionExist('#sales_proposal_id', '', '');
             checkOptionExist('#product_id', '', '');
             checkOptionExist('#customer_id', '', '');
+            $('#collected_from').val('');
 
             switch (pdc_type) {
                 case 'Loan':
                     $('#loan_field').removeClass('d-none');
                     checkOptionExist('#product_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    $('#collected_from').val('');
                     break;
                 case 'Product':
                     $('#product_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#customer_id', '', '');
+                    $('#collected_from').val('');
                     break;
                 case 'Customer':
                     $('#customer_field').removeClass('d-none');
                     checkOptionExist('#sales_proposal_id', '', '');
                     checkOptionExist('#product_id', '', '');
+                    $('#collected_from').val('');
                     break;
+                case 'Miscellaneous':
+                    $('#miscellaneous_field').removeClass('d-none');
+                    checkOptionExist('#sales_proposal_id', '', '');
+                    checkOptionExist('#product_id', '', '');
+                    checkOptionExist('#customer_id', '', '');
+                    break;
+            }
+        });
+
+        $(document).on('click','#print',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('collection-print.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print Collections Error', 'No selected collection.', 'danger');
             }
         });
     });
@@ -410,12 +437,12 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
     const column_definition = [
         { 'width': '1%','bSortable': false, 'aTargets': 0 },
         { 'width': '15%','bSortable': false, 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
         { 'width': 'auto', 'aTargets': 6 },
-        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 7 },
         { 'width': 'auto', 'aTargets': 8 },
         { 'width': 'auto', 'aTargets': 9 },
         { 'width': 'auto', 'aTargets': 10 },
@@ -514,6 +541,13 @@ function collectionsForm(){
                     }
                 }
             },
+            collected_from: {
+                required: {
+                    depends: function(element) {
+                        return $("select[name='pdc_type']").val() === 'Miscellaneous';
+                    }
+                }
+            },
             deposited_to: {
                 required: {
                     depends: function(element) {
@@ -556,6 +590,9 @@ function collectionsForm(){
             },
             customer_id: {
                 required: 'Please choose the customer'
+            },
+            collected_from: {
+                required: 'Please enter the collected from'
             },
             payment_details: {
                 required: 'Please choose the payment details'

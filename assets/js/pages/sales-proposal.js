@@ -4977,9 +4977,9 @@ function displayDetails(transaction){
 
                         var existingText = $('#summary-remarks').text();
                         if (existingText) {
-                            $('#summary-remarks').text(existingText + "\n \n" + response.unitDescription);
+                            $('#summary-remarks').text(existingText + "\n\n" + response.unitDescription);
                         } else {
-                            $('#summary-remarks').text(response.remarks);
+                            $('#summary-remarks').text(response.unitDescription);
                         }
                         
                         checkOptionExist('#received_from_id_type', response.receivedFromIDType, '');

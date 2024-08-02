@@ -14,22 +14,26 @@
                  </button>
                  <ul class="dropdown-menu dropdown-menu-end">';
              
-                    if ($collectionsDeleteAccess['total'] > 0 && $collectionStatus == 'Pending') {
+                    if ($collectionsDeleteAccess['total'] > 0 && $collectionStatus == 'Posted') {
                         $dropdown .= '<li><button class="dropdown-item" type="button" id="delete-collections-details">Delete Collection</button></li>';
                     }
 
-                    if (($tagCollectionAsReversed['total'] > 0 && $collectionStatus == 'Cleared')) {
+                    if (($tagCollectionAsReversed['total'] > 0 && $collectionStatus == 'Posted')) {
                         $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-collections-as-reversed-details" data-bs-toggle="offcanvas" data-bs-target="#collections-reverse-offcanvas" aria-controls="collections-reverse-offcanvas">Reverse Collection</button></li>';
                     }
+
+                    if ($tagCollectionAsCancelled['total'] > 0 && $collectionStatus == 'Posted') {
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-cancel-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-cancel-offcanvas" aria-controls="pdc-cancel-offcanvas">Cancel PDC</button></li>';
+                  }
                           
                   $dropdown .= '</ul>
                               </div>';
                       
                   echo $dropdown;
 
-                  if ($collectionsWriteAccess['total'] > 0 && $collectionStatus == 'Pending') {
+                  if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
                     echo '<button type="submit" form="collections-form" class="btn btn-success" id="submit-data">Save</button>
-                      <button type="button" id="discard-create" class="btn btn-outline-danger form-edit">Discard</button>';
+                          <button type="button" id="discard-create" class="btn btn-outline-danger me-2">Discard</button>';
                   }
 
                   if ($collectionsCreateAccess['total'] > 0) {
@@ -43,7 +47,7 @@
         <form id="collections-form" method="post" action="#">
             <?php
                 $disabled = 'disabled';
-                if($collectionsWriteAccess['total'] > 0 && $collectionStatus == 'Pending'){
+                if ($collectionsWriteAccess['total'] > 0 && strtotime($transactionDate) == strtotime(date('Y-m-d'))) {
                     $disabled = '';
                 }
             ?>
@@ -64,6 +68,7 @@
                 <option value="Loan">Loan</option>
                 <option value="Product">Product</option>
                 <option value="Customer">Customer</option>
+                <option value="Miscellaneous">Miscellaneous</option>
                </select>
             </div>
           </div>
@@ -94,12 +99,19 @@
                 </select>
               </div>
             </div>
+            <div id="miscellaneous_field" class="form-group row field d-none">
+              <label class="col-lg-2 col-form-label">Collected From <span class="text-danger">*</span></label>
+              <div class="col-lg-10">
+                <input type="text" class="form-control" id="collected_from" name="collected_from" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
+              </div>
+            </div>
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Company <span class="text-danger">*</span></label>
               <div class="col-lg-4">
-                <select class="form-control select2" name="company_id" id="company_id" <?php echo $disabled; ?>>
+                <select class="form-control select2" name="company_id" id="company_id">
                   <option value="">--</option>
-                  <?php echo $companyModel->generateCompanyOptions(); ?>
+                  <option value="1" selected>Christian General Motors Inc.</option>
+                  <option value="3">FUSO Tarlac</option>
                 </select>
               </div>  
             <label class="col-lg-2 col-form-label">Payment Details <span class="text-danger">*</span></label>

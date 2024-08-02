@@ -1047,7 +1047,7 @@ class PDCManagementController {
                 }
                 else{
                     if($pdc_type == 'Loan'){
-                        $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $check_number);
+                        $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($loan_collection_id, $sales_proposal_id, $check_number);
                         $total = $checkLoanCollectionConflict['total'] ?? 0;
                     }
                     else{
@@ -1061,7 +1061,7 @@ class PDCManagementController {
             }
             else{
                 if($pdc_type == 'Loan'){
-                    $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict($sales_proposal_id, $check_number);
+                    $checkLoanCollectionConflict = $this->pdcManagementModel->checkLoanCollectionConflict('', $sales_proposal_id, $check_number);
                     $total = $checkLoanCollectionConflict['total'] ?? 0;
                 }
                 else{

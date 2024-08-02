@@ -1941,8 +1941,6 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-
-        $loanNumber = $this->systemSettingModel->getSystemSetting(7)['value'] + 1;
     
         $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
         $total = $checkSalesProposalExist['total'] ?? 0;
@@ -1951,10 +1949,19 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
-        $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
 
-        $this->systemSettingModel->updateSystemSettingValue(7, $loanNumber, $userID);
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+
+        $loanNumber = $salesProposalDetails['loan_number'] ?? null;
+
+        if(empty($loanNumber)){
+            $loanNumber = $this->systemSettingModel->getSystemSetting(7)['value'] + 1;
+            $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
+            $this->systemSettingModel->updateSystemSettingValue(7, $loanNumber, $userID);
+        }
+        else{
+            $this->salesProposalModel->updateSalesProposalAsReleased($salesProposalID, $loanNumber, 'Released', $releaseRemarks, $userID);
+        }
             
         echo json_encode(['success' => true]);
     }
@@ -2808,6 +2815,7 @@ class SalesProposalController {
         $termLength = $salesProposalDetails['term_length'] ?? 0;
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
+        $companyID = $salesProposalDetails['company_id'] ?? null;
 
         if($noOfPDC <= $numberOfPayments){
             $salesProposalPricingComputationDetails = $this->salesProposalModel->getSalesProposalPricingComputation($salesProposalID);
@@ -2835,12 +2843,12 @@ class SalesProposalController {
                     $checkNumber = 'LACKING-' . $loanNumber . ' - ' . ($extension);
                 }
 
-                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $customerID, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $accountNumber, $userID);
+                $this->salesProposalModel->insertPDCCollection($salesProposalID, $loanNumber, $customerID, $repaymentAmount, $checkNumber, $dueDate, $bankBranch, $accountNumber, $companyID, $userID);
                 
                 $this->salesProposalModel->insertSalesProposalRepayment($salesProposalID, $loanNumber, $loanNumber . ' - ' . ($extension), $dueDate, $repaymentAmount, $userID);
             }
 
-            $this->salesProposalModel->insertPDCManualInputCollection($salesProposalID, $loanNumber, $customerID, $userID);
+            $this->salesProposalModel->insertPDCManualInputCollection($salesProposalID, $loanNumber, $customerID, $companyID, $userID);
         }
         else{
             echo json_encode(['success' => false, 'exceedPDC' =>  true]);
