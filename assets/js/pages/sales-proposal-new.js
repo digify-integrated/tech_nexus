@@ -883,43 +883,90 @@ function calculateRenewalAmount(){
 }
 
 function calculateTotalOtherCharges(){
-    var amount_financed = parseCurrency($("#amount_financed").val());
-    var pn_amount = parseCurrency($("#pn_amount").val());
+    var productType = $('#product_type').val();
 
-    var insurance_coverage = parseCurrency($("#insurance_coverage").val());
-    var insurance_premium = Math.round(((insurance_coverage * .025 + 2700) * 1.2526) + 1300);
-    var handling_fee = (amount_financed * 0.035) + 6000;
-    var transaction_fee = (amount_financed * 0.01) + 7000;
-    var doc_stamp_tax = Math.round(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
+    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair'){
+        var amount_financed = parseCurrency($("#amount_financed").val());
+        var pn_amount = parseCurrency($("#pn_amount").val());
+        var product_category = $('#product_category').val();
+    
+        var insurance_coverage = parseCurrency($("#insurance_coverage").val());
 
-    $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
-    $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
-    $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
-    $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
+        if(product_category == '1' || product_category == '3'){
+            var insurance_premium = Math.ceil((((insurance_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        }
+        else if(product_category == '2'){
+            var insurance_premium = Math.ceil((insurance_coverage * 0.025) * 1.2526);
+        }
+        else{
+           var insurance_premium = 0;
+        }
 
-    var transfer_fee = parseCurrency($("#transfer_fee").val());
-    var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
-    var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
-    var registration_fee = parseCurrency($("#registration_fee").val());
-    var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
-    var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
-    var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
+        var handling_fee = (amount_financed * 0.035) + 6000;
+        var transaction_fee = (amount_financed * 0.01) + 7000;
+        var doc_stamp_tax = Math.ceil(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
+    
+        $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
+        $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
+        $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
+        $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
+    
+        var transfer_fee = parseCurrency($("#transfer_fee").val());
+        var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
+        var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
+        var registration_fee = parseCurrency($("#registration_fee").val());
+        var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
+        var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
+        var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
+    
+        var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
+        var handling_fee_subtotal = handling_fee - handling_fee_discount;
+        var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
+        var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
+        var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
+    
+        $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
+        $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
+        $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
+    
+        var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
+    
+        $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+    
+        $('#summary-insurance-coverage').text(parseCurrency($("#insurance_coverage").val()).toLocaleString("en-US"));
+        $('#summary-insurance-premium').text(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-handing-fee').text(parseCurrency(handling_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-transfer-fee').text(parseCurrency(transfer_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-registration-fee').text(parseCurrency(registration_fee.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-doc-stamp-tax').text(parseCurrency(doc_stamp_tax_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-transaction-fee').text(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-other-charges-total').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+    }
+    else{
+        $("#insurance_premium").val('0.00');
+        $("#handling_fee").val('0.00');
+        $("#transfer_fee").val('0.00');
+        $("#transaction_fee").val('0.00');
+        $("#doc_stamp_tax").val('0.00');
 
-    var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
-    var handling_fee_subtotal = handling_fee - handling_fee_discount;
-    var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
-    var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
-    var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
+        $('#insurance_premium_subtotal').val('0.00');
+        $('#handling_fee_subtotal').val('0.00');
+        $('#doc_stamp_tax_subtotal').val('0.00');
+        $('#transaction_fee_subtotal').val('0.00');
+        $('#transfer_fee_subtotal').val('0.00');
 
-    $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
-    $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
-    $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
-
-    var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
-
-    $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-insurance-coverage').text('0.00');
+        $('#summary-insurance-premium').text('0.00');
+        $('#summary-handing-fee').text('0.00');
+        $('#summary-transfer-fee').text('0.00');
+        $('#summary-registration-fee').text('0.00');
+        $('#summary-doc-stamp-tax').text('0.00');
+        $('#summary-transaction-fee').text('0.00');
+        $('#summary-other-charges-total').text('0.00');
+    }
+    
 }
 
 function displayDetails(transaction){

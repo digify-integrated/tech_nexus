@@ -120,6 +120,9 @@ class PDCManagementController {
                 case 'tag multiple pdc as reversed':
                     $this->tagMultiplePDCAsReversed();
                     break;
+                case 'duplicate multiple cancelled pdc':
+                    $this->duplicateMultipleCancelledPDC();
+                    break;
                 case 'save pdc import':
                     $this->saveImportPDC();
                     break;
@@ -168,6 +171,8 @@ class PDCManagementController {
         $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
         $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
+
+        $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -204,6 +209,43 @@ class PDCManagementController {
             $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
             $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
+
+            $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
+        }
+            
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateMultipleCancelledPDC
+    # Description: 
+    # Delete the selected pdc managements if it exists; otherwise, skip it.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function duplicateMultipleCancelledPDC() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $loanCollectionIDs = $_POST['loan_collection_id'];
+
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+
+        foreach($loanCollectionIDs as $loanCollectionID){
+            $this->pdcManagementModel->duplicateCancelledPDC($loanCollectionID, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -362,6 +404,79 @@ class PDCManagementController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $onHoldAttachmentFileName = $_FILES['onhold_attachment']['name'];
+        $onHoldAttachmentFileSize = $_FILES['onhold_attachment']['size'];
+        $onHoldAttachmentFileError = $_FILES['onhold_attachment']['error'];
+        $onHoldAttachmentTempName = $_FILES['onhold_attachment']['tmp_name'];
+        $onHoldAttachmentFileExtension = explode('.', $onHoldAttachmentFileName);
+        $onHoldAttachmentActualFileExtension = strtolower(end($onHoldAttachmentFileExtension));
+
+        
+        $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+        $onHoldAttachment = !empty($pdcManagementDetails['onhold_attachment']) ? '.' . $pdcManagementDetails['onhold_attachment'] : null;
+
+        if(file_exists($onHoldAttachment)){
+            if (!unlink($onHoldAttachment)) {
+                echo json_encode(['success' => false, 'message' => 'On-hold attachment file cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(1);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(1);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($onHoldAttachmentActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($onHoldAttachmentTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the sales proposal form.']);
+            exit;
+        }
+        
+        if($onHoldAttachmentFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($onHoldAttachmentFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The on-hold attachment file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $onHoldAttachmentActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/onhold_attachment/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/onhold_attachment/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($onHoldAttachmentTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        
+        $this->pdcManagementModel->updateLoanCollectionOnHoldAttachment($loanCollectionID, $filePath, $userID);
     
         $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', '', $userID);
             
@@ -572,6 +687,17 @@ class PDCManagementController {
         $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
         $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, $userID);
+
+        if($reversalReason == 'Account Closed'){
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $salesProposalID = $pdcManagementDetails['sales_proposal_id'];
+            $checkDate = $pdcManagementDetails['check_date'];
+            $accountNumber = $pdcManagementDetails['account_number'];
+
+            $this->pdcManagementModel->cancelLoanCollectionClosed($salesProposalID, $checkDate, $accountNumber, $userID);
+        }
+
+        $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -930,6 +1056,11 @@ class PDCManagementController {
                 'remarks' => $pdcManagementDetails['remarks'],
                 'accountNumber' => $pdcManagementDetails['account_number'],
                 'companyID' => $pdcManagementDetails['company_id'],
+                'cancellationReason' => $pdcManagementDetails['cancellation_reason'],
+                'pulledOutReason' => $pdcManagementDetails['pulled_out_reason'],
+                'reversalReason' => $pdcManagementDetails['reversal_reason'],
+                'onholdReason' => $pdcManagementDetails['onhold_reason'],
+                'onholdAttachment' => $this->systemModel->checkImage($pdcManagementDetails['onhold_attachment'], 'default'),
                 'checkDate' =>  $this->systemModel->checkDate('empty', $pdcManagementDetails['check_date'], '', 'm/d/Y', '')
             ];
 

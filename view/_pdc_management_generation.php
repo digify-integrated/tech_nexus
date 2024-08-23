@@ -63,7 +63,17 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filterClearDateStartDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_start_date'], '', 'Y-m-d', '');
             $filterClearDateEndDate = $systemModel->checkDate('empty', $_POST['filter_clear_date_end_date'], '', 'Y-m-d', '');
             
-            $filterPDCManagementStatus = $_POST['filter_pdc_management_status'];
+            $values = $_POST['filter_pdc_management_status'];
+
+            $values_array = explode(', ', $values);
+
+            $quoted_values_array = array_map(function($value) {
+                return "'" . $value . "'";
+            }, $values_array);
+
+            $quoted_values_string = implode(', ', $quoted_values_array);
+
+            $filterPDCManagementStatus = $quoted_values_string;
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
             $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
@@ -101,7 +111,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $bankBranch = $row['bank_branch'];
                 $collectionStatus = $row['collection_status'];
                 $checkDate = $systemModel->checkDate('empty', $row['check_date'], '', 'm/d/Y', '');
-                $redepositDate = $systemModel->checkDate('empty', $row['redeposit_date'], '', 'm/d/Y', '');
+                $redepositDate = $systemModel->checkDate('empty', $row['new_deposit_date'], '', 'm/d/Y', '');
 
                 $customerDetails = $customerModel->getPersonalInformation($customerID);
                 $customerName = $customerDetails['file_as'] ?? null;

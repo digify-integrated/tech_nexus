@@ -406,6 +406,9 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
     var filter_transaction_date_start_date = $('#filter_transaction_date_start_date').val();
     var filter_transaction_date_end_date = $('#filter_transaction_date_end_date').val();
 
+    var filter_or_date_start_date = $('#filter_or_date_start_date').val();
+    var filter_or_date_end_date = $('#filter_or_date_end_date').val();
+
     var filter_payment_date_start_date = $('#filter_payment_date_start_date').val();
     var filter_payment_date_end_date = $('#filter_payment_date_end_date').val();
 
@@ -460,6 +463,8 @@ function collectionsTable(datatable_name, buttons = false, show_all = false){
             'data': {'type' : type, 
                 'filter_transaction_date_start_date' : filter_transaction_date_start_date, 
                 'filter_transaction_date_end_date' : filter_transaction_date_end_date, 
+                'filter_or_date_start_date' : filter_or_date_start_date, 
+                'filter_or_date_end_date' : filter_or_date_end_date, 
                 'filter_payment_date_start_date' : filter_payment_date_start_date, 
                 'filter_payment_date_end_date' : filter_payment_date_end_date, 
                 'filter_reversed_date_start_date' : filter_reversed_date_start_date, 

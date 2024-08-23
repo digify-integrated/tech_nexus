@@ -128,6 +128,9 @@ class SalesProposalController {
                 case 'tag for initial approval':
                     $this->tagSalesProposalForInitialApproval();
                     break;
+                case 'tag for review':
+                    $this->tagSalesProposalForReview();
+                    break;
                 case 'tag for ci':
                     $this->tagSalesProposalForCI();
                     break;
@@ -1520,6 +1523,76 @@ class SalesProposalController {
 
     # -------------------------------------------------------------
     #
+    # Function: tagSalesProposalForInitialApproval
+    # Description: 
+    # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
+    #
+    # Parameters: None
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function tagSalesProposalForReview() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return;
+        }
+    
+        $userID = $_SESSION['user_id'];
+        $contactID = $_SESSION['contact_id'];
+        $salesProposalID = htmlspecialchars($_POST['sales_proposal_id'], ENT_QUOTES, 'UTF-8');
+    
+        $user = $this->userModel->getUserByID($userID);
+    
+        if (!$user || !$user['is_active']) {
+            echo json_encode(['success' => false, 'isInactive' => true]);
+            exit;
+        }
+    
+        $checkSalesProposalExist = $this->salesProposalModel->checkSalesProposalExist($salesProposalID);
+        $total = $checkSalesProposalExist['total'] ?? 0;
+    
+        if($total === 0){
+            echo json_encode(['success' => false, 'notExist' =>  true]);
+            exit;
+        }
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $inititialApprovingOfficer = $salesProposalDetails['initial_approving_officer'];
+        $productType = $salesProposalDetails['product_type'];
+        $productID = $salesProposalDetails['product_id'];
+        $customerID = $salesProposalDetails['customer_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $productSubategoryID = $productDetails['product_subcategory_id'] ?? null;
+
+        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
+        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number'] ?? null);
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
+
+        /*$forChangeEngine = $salesProposalDetails['for_change_engine'] ?? 'No';
+        $newEngineStencil = $salesProposalDetails['new_engine_stencil'] ?? null;
+        $clientstencilImage = !empty($newEngineStencil) ? '.' . $newEngineStencil : null;
+
+        if($forChangeEngine == 'Yes' && (empty($newEngineStencil) || (!empty($newEngineStencil) && !file_exists($clientstencilImage)))){            
+            echo json_encode(['success' => false, 'emptyStencil' => true]);
+            exit;
+        }*/
+    
+        $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'For Review', '', $userID);
+        $this->sendForReview('', $salesProposalNumber, $customerName, $productType, $fullStockNumber);
+            
+        echo json_encode(['success' => true]);
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: tagSalesProposalForCI
     # Description: 
     # Updates the existing sales proposal accessories if it exists; otherwise, inserts a new sales proposal accessories.
@@ -1784,6 +1857,78 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $setToDraftFileFileName = $_FILES['set_to_draft_file']['name'];
+        $setToDraftFileFileSize = $_FILES['set_to_draft_file']['size'];
+        $setToDraftFileFileError = $_FILES['set_to_draft_file']['error'];
+        $setToDraftFileTempName = $_FILES['set_to_draft_file']['tmp_name'];
+        $setToDraftFileFileExtension = explode('.', $setToDraftFileFileName);
+        $setToDraftFileActualFileExtension = strtolower(end($setToDraftFileFileExtension));
+
+        
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $clientsetToDraftFile = !empty($salesProposalDetails['set_to_draft_file']) ? '.' . $salesProposalDetails['set_to_draft_file'] : null;
+
+        if(file_exists($clientsetToDraftFile)){
+            if (!unlink($clientsetToDraftFile)) {
+                echo json_encode(['success' => false, 'message' => 'Sales proposal file cannot be deleted due to an error.']);
+                exit;
+            }
+        }
+
+        $uploadSetting = $this->uploadSettingModel->getUploadSetting(17);
+        $maxFileSize = $uploadSetting['max_file_size'];
+
+        $uploadSettingFileExtension = $this->uploadSettingModel->getUploadSettingFileExtension(17);
+        $allowedFileExtensions = [];
+
+        foreach ($uploadSettingFileExtension as $row) {
+            $fileExtensionID = $row['file_extension_id'];
+            $fileExtensionDetails = $this->fileExtensionModel->getFileExtension($fileExtensionID);
+            $allowedFileExtensions[] = $fileExtensionDetails['file_extension_name'];
+        }
+
+        if (!in_array($setToDraftFileActualFileExtension, $allowedFileExtensions)) {
+            $response = ['success' => false, 'message' => 'The file uploaded is not supported.'];
+            echo json_encode($response);
+            exit;
+        }
+        
+        if(empty($setToDraftFileTempName)){
+            echo json_encode(['success' => false, 'message' => 'Please choose the sales proposal form.']);
+            exit;
+        }
+        
+        if($setToDraftFileFileError){
+            echo json_encode(['success' => false, 'message' => 'An error occurred while uploading the file.']);
+            exit;
+        }
+        
+        if($setToDraftFileFileSize > ($maxFileSize * 1048576)){
+            echo json_encode(['success' => false, 'message' => 'The sales proposal file exceeds the maximum allowed size of ' . $maxFileSize . ' Mb.']);
+            exit;
+        }
+
+        $fileName = $this->securityModel->generateFileName();
+        $fileNew = $fileName . '.' . $setToDraftFileActualFileExtension;
+
+        $directory = DEFAULT_SALES_PROPOSAL_RELATIVE_PATH_FILE.'/set_to_draft_file/';
+        $fileDestination = $_SERVER['DOCUMENT_ROOT'] . DEFAULT_SALES_PROPOSAL_FULL_PATH_FILE . '/set_to_draft_file/' . $fileNew;
+        $filePath = $directory . $fileNew;
+
+        $directoryChecker = $this->securityModel->directoryChecker('.' . $directory);
+
+        if(!$directoryChecker){
+            echo json_encode(['success' => false, 'message' => $directoryChecker]);
+            exit;
+        }
+
+        if(!move_uploaded_file($setToDraftFileTempName, $fileDestination)){
+            echo json_encode(['success' => false, 'message' => 'There was an error uploading your file.']);
+            exit;
+        }
+
+        $this->salesProposalModel->updateSalesProposalSetToDraft($salesProposalID, $filePath, $userID);
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Draft', $setToDraftReason, $userID);
             
@@ -2952,6 +3097,7 @@ class SalesProposalController {
                 'paymentFrequency' => $salesProposalDetails['payment_frequency'],
                 'remarks' => $salesProposalDetails['remarks'],
                 'companyID' => $salesProposalDetails['company_id'],
+                'setToDraftFile' => $salesProposalDetails['set_to_draft_file'] ?? null,
                 'initialApprovingOfficer' => $initialApprovingOfficer,
                 'finalApprovingOfficer' => $finalApprovingOfficer,
                 'createdByName' => $createdByName,
@@ -3810,6 +3956,57 @@ class SalesProposalController {
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
+        $mailer->addAddress('p.saulo@christianmotors.ph');
+        $mailer->addAddress('pm.vicente@christianmotors.ph');
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendForReview($email, $sales_proposal_number, $client_name, $productType, $stock_number) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(6);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $productType, $emailBody);
+        $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        #$mailer->addAddress('l.agulto@christianmotors.ph');
+        $mailer->addAddress('p.saulo@christianmotors.ph');
+        $mailer->addAddress('pm.vicente@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     
@@ -3857,8 +4054,6 @@ class SalesProposalController {
         
         $mailer->setFrom($mailFromEmail, $mailFromName);
         $mailer->addAddress($email);
-        $mailer->addAddress('p.saulo@christianmotors.ph');
-        $mailer->addAddress('pm.vicente@christianmotors.ph');
         $mailer->Subject = $emailSubject;
         $mailer->Body = $message;
     

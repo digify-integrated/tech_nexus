@@ -5,6 +5,7 @@
     }
 
     $generatePDC = $userModel->checkSystemActionAccessRights($user_id, 153);
+    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
 ?>
 <div class="row">
     <div class="col-md-3">
@@ -695,7 +696,7 @@
                                 <div class="form-group row">
                                     <label class="col-lg-5 col-form-label">Transfer Fee :</label>
                                     <div class="col-lg-7">
-                                    <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="8000" readonly>
+                                    <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="12000" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -860,7 +861,7 @@
                                             <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                                                 <h5 class="mb-0">New Engine Stencil </h5>
                                                 <?php
-                                                if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                                                if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
                                                     echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
                                                 }
                                                 ?>
@@ -1504,7 +1505,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <!--<div class="col-lg-6">
                                 <div class="card price-card">
                                     <div class="card-body">
                                         <div class="price-head">
@@ -1523,7 +1524,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                             <?php
                                 if($salesProposalStatus == 'Released'){
                                     echo '<div class="col-lg-6">

@@ -39,6 +39,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
             $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
 
+            $filterORDateStartDate = $systemModel->checkDate('empty', $_POST['filter_or_date_start_date'], '', 'Y-m-d', '');
+            $filterORDateEndDate = $systemModel->checkDate('empty', $_POST['filter_or_date_end_date'], '', 'Y-m-d', '');
+
             $filterPaymentDateStartDate = $systemModel->checkDate('empty', $_POST['filter_payment_date_start_date'], '', 'Y-m-d', '');
             $filterPaymentDateEndDate = $systemModel->checkDate('empty', $_POST['filter_payment_date_end_date'], '', 'Y-m-d', '');
 
@@ -50,10 +53,12 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $filterCollectionsStatus = $_POST['filter_collections_status'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterReversedDateStartDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate)');
             $sql->bindValue(':filterCollectionsStatus', $filterCollectionsStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterORDateStartDate', $filterORDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterORDateEndDate', $filterORDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterPaymentDateStartDate', $filterPaymentDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterPaymentDateEndDate', $filterPaymentDateEndDate, PDO::PARAM_STR);
             $sql->bindValue(':filterReversedDateStartDate', $filterReversedDateStartDate, PDO::PARAM_STR);

@@ -76,6 +76,28 @@ class PDCManagementModel {
     # -------------------------------------------------------------
 
     # -------------------------------------------------------------
+    #
+    # Function: updateLoanCollectionOnHoldAttachment
+    # Description: Updates the pdc management.
+    #
+    # Parameters:
+    # - $p_loan_collection_id (int): The pdc management ID.
+    # - $p_product_category_name (string): The pdc management name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateLoanCollectionOnHoldAttachment($p_loan_collection_id, $p_onhold_attachment, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLoanCollectionOnHoldAttachment(:p_loan_collection_id, :p_onhold_attachment, :p_last_log_by)');
+        $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_onhold_attachment', $p_onhold_attachment, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
     #   Insert methods
     # -------------------------------------------------------------
 
@@ -158,6 +180,48 @@ class PDCManagementModel {
         $stmt->bindValue(':p_pulled_out_reason', $p_pulled_out_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_reversal_reason', $p_reversal_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_reversal_remarks', $p_reversal_remarks, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: cancelLoanCollectionClosed
+    # Description: Inserts the pdc management.
+    #
+    # Parameters:
+    # - $p_product_category_name (string): The pdc management name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function cancelLoanCollectionClosed($p_sales_proposal_id, $p_check_date, $p_account_number, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cancelLoanCollectionClosed(:p_sales_proposal_id, :p_check_date, :p_account_number, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_check_date', $p_check_date, PDO::PARAM_STR);
+        $stmt->bindValue(':p_account_number', $p_account_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: duplicateCancelledPDC
+    # Description: Inserts the pdc management.
+    #
+    # Parameters:
+    # - $p_product_category_name (string): The pdc management name.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: String
+    #
+    # -------------------------------------------------------------
+    public function duplicateCancelledPDC($p_loan_collection_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL duplicateCancelledPDC(:p_loan_collection_id, :p_last_log_by)');
+        $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

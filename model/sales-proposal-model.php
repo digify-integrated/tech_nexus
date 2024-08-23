@@ -277,6 +277,28 @@ class SalesProposalModel {
 
     # -------------------------------------------------------------
     #
+    # Function: updateSalesProposalSetToDraft
+    # Description: Updates the sales proposal client confirmation.
+    #
+    # Parameters:
+    # - $p_sales_proposal_accessories_id (int): The sales proposal accessories ID.
+    # - $p_client_confirmation (string): The sales proposal client confirmation image.
+    # - $p_last_log_by (int): The last logged user.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    public function updateSalesProposalSetToDraft($p_sales_proposal_id, $p_sales_proposal_form, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposalSetToDraft(:p_sales_proposal_id, :p_sales_proposal_form, :p_last_log_by)');
+        $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
+        $stmt->bindValue(':p_sales_proposal_form', $p_sales_proposal_form, PDO::PARAM_STR);
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
     # Function: updateSalesProposalOutgoingChecklist
     # Description: Updates the sales proposal client confirmation.
     #
@@ -1907,6 +1929,31 @@ class SalesProposalModel {
         }
 
         return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
+    
+
+    # -------------------------------------------------------------
+    #   CRON methods
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: cronSalesProposalCancelDraft
+    # Description: Checks if a sales proposal exists.
+    #
+    # Parameters:
+    # - $p_sales_proposal_id (int): The sales proposal ID.
+    #
+    # Returns: The result of the query as an associative array.
+    #
+    # -------------------------------------------------------------
+    public function cronSalesProposalCancelDraft($p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL cronSalesProposalCancelDraft(:p_last_log_by)');
+        $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     # -------------------------------------------------------------
 }

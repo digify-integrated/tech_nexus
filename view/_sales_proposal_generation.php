@@ -530,6 +530,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                     $loanNumber = $row['loan_number'];
                     $productType = $row['product_type'];
                     $productID = $row['product_id'];
+                    $drNumber = $row['dr_number'];
                     $salesProposalStatus = $salesProposalModel->getSalesProposalStatus($row['sales_proposal_status']);
     
                     $salesProposalIDEncrypted = $securityModel->encryptData($salesProposalID);
@@ -550,6 +551,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                             <h6 class="mb-0">'. $customerName .'</h6>
                                             <p class="f-12 mb-0">'. $corporateName .'</p>
                                         </div>',
+                        'DR_NUMBER' => $drNumber,
                         'PRODUCT_TYPE' => $productType,
                         'PRODUCT' => $stockNumber,
                         'RELEASED_DATE' => $forDRDate,

@@ -7406,6 +7406,24 @@ BEGIN
     WHERE sales_proposal_id = p_sales_proposal_id;
 END //
 
+CREATE PROCEDURE cronSalesProposalCancelDraft(IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+	UPDATE sales_proposal
+        SET sales_proposal_status = 'Cancelled',
+        cancellation_date = NOW(),
+        cancellation_reason = 'Lapsed Draft',
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_status = 'Draft' 
+        AND created_date < NOW() - INTERVAL 31 DAY;
+END //
+
+CREATE PROCEDURE cronSalesProposalOverdueForCI()
+BEGIN
+   SELECT * FROM sales_proposal WHERE for_ci_date IS NOT NULL AND ci_completion_date IS NULL AND created_date < NOW() - INTERVAL 8 DAY AND sales_proposal_status NOT IN ('Draft', 'Cancelled', 'Rejected', 'For Initial Approval');
+END //
+
 CREATE PROCEDURE updateSalesProposalStatus(IN p_sales_proposal_id INT, IN p_changed_by INT, IN p_sales_proposal_status VARCHAR(50), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
@@ -7451,6 +7469,7 @@ BEGIN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         on_process_date = NOW(),
+        additional_job_order_confirmation = '',
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     ELSEIF p_sales_proposal_status = 'Ready For Release' THEN
@@ -7463,6 +7482,12 @@ BEGIN
         UPDATE sales_proposal
         SET sales_proposal_status = p_sales_proposal_status,
         for_dr_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+    ELSEIF p_sales_proposal_status = 'For Review' THEN
+        UPDATE sales_proposal
+        SET sales_proposal_status = p_sales_proposal_status,
+        for_review_date = NOW(),
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
     ELSEIF p_sales_proposal_status = 'Draft' THEN
@@ -7547,6 +7572,16 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE sales_proposal_id = p_sales_proposal_id;
 END //
+
+CREATE PROCEDURE updateSalesProposalSetToDraft(IN p_sales_proposal_id INT, IN p_set_to_draft_file VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE sales_proposal
+        SET set_to_draft_file = p_set_to_draft_file,
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id;
+END //
+
+
 
 CREATE PROCEDURE updateSalesProposalOutgoingChecklist(IN p_sales_proposal_id INT, IN p_outgoing_checklist VARCHAR(500), IN p_last_log_by INT)
 BEGIN
@@ -9333,7 +9368,7 @@ BEGIN
     WHERE contact_id IN (SELECT contact_id FROM employment_information WHERE manager_id = p_contact_id) AND status = 'For Recommendation';
 END //
 
-CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(50), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
+CREATE PROCEDURE generatePDCManagementTable(IN p_pdc_management_status VARCHAR(500), IN p_check_start_date DATE, IN p_check_end_date DATE, IN p_redeposit_start_date DATE, IN p_redeposit_end_date DATE, IN p_onhold_start_date DATE, IN p_onhold_end_date DATE, IN p_for_deposit_start_date DATE, IN p_for_deposit_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_pulled_out_start_date DATE, IN p_pulled_out_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE, IN p_clear_start_date DATE, IN p_clear_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -9341,7 +9376,19 @@ BEGIN
     SET query = 'SELECT * FROM loan_collections';
     SET conditionList = ' WHERE mode_of_payment = "Check"';
     
-    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL THEN
+    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ' OR new_deposit_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_check_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_check_start_date IS NOT NULL AND p_check_end_date IS NOT NULL AND p_redeposit_start_date IS NULL AND p_redeposit_end_date IS NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (check_date BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_check_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
@@ -9349,7 +9396,7 @@ BEGIN
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
     
-    IF p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL THEN
+    IF p_check_start_date IS NULL AND p_check_end_date IS NULL AND p_redeposit_start_date IS NOT NULL AND p_redeposit_end_date IS NOT NULL THEN
         SET conditionList = CONCAT(conditionList, ' AND (new_deposit_date BETWEEN ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_redeposit_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
@@ -9415,7 +9462,7 @@ BEGIN
 
     IF p_pdc_management_status IS NOT NULL AND p_pdc_management_status <> '' THEN
         SET conditionList = CONCAT(conditionList, ' AND collection_status IN (');
-        SET conditionList = CONCAT(conditionList, QUOTE(p_pdc_management_status));
+        SET conditionList = CONCAT(conditionList, p_pdc_management_status);
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
 
@@ -9427,7 +9474,7 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END //
 
-CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
+CREATE PROCEDURE generateCollectionsTable(IN p_pdc_management_status VARCHAR(50), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_payment_start_date DATE, IN p_payment_end_date DATE, IN p_or_start_date DATE, IN p_or_end_date DATE, IN p_reversed_start_date DATE, IN p_reversed_end_date DATE, IN p_cancellation_start_date DATE, IN p_cancellation_end_date DATE)
 BEGIN
     DECLARE query VARCHAR(5000);
     DECLARE conditionList VARCHAR(1000);
@@ -9440,6 +9487,14 @@ BEGIN
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
         SET conditionList = CONCAT(conditionList, ' AND ');
         SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_or_start_date IS NOT NULL AND p_or_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (or_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_or_end_date));
         SET conditionList = CONCAT(conditionList, ')');
     END IF;
     
@@ -9542,7 +9597,7 @@ BEGIN
         SET collection_status = p_collection_status,
         for_deposit_date = NOW(),
         last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Redeposit');
     ELSE
         UPDATE loan_collections
         SET collection_status = p_collection_status,
@@ -9551,6 +9606,16 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
     END IF;
+END //
+
+CREATE PROCEDURE cancelLoanCollectionClosed(IN p_sales_proposal_id INT, IN p_check_date DATE, IN p_account_number VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+     UPDATE loan_collections
+        SET collection_status = 'Cancelled',
+        cancellation_date = NOW(),
+        cancellation_reason = 'Account Closed',
+        last_log_by = p_last_log_by
+        WHERE sales_proposal_id = p_sales_proposal_id AND check_date >= p_check_date AND account_number = p_account_number AND collection_status IN('Pending', 'Redeposit');
 END //
 
 CREATE PROCEDURE updateCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
@@ -9672,3 +9737,428 @@ BEGIN
 
     CLOSE cur1;
 END //
+
+CREATE PROCEDURE duplicateCancelledPDC(IN p_loan_collection_id INT, IN p_last_log_by INT)
+BEGIN
+    INSERT INTO loan_collections (
+        sales_proposal_id, loan_number, product_id, customer_id, pdc_type, mode_of_payment, 
+        payment_details, payment_amount, check_number, check_date, bank_branch, remarks, 
+        account_number, company_id, last_log_by
+    )
+    SELECT 
+        sales_proposal_id, loan_number, product_id, customer_id, pdc_type, 'Check', 
+        payment_details, payment_amount, CONCAT('LACKING - ', check_number), check_date, 
+        bank_branch, remarks, account_number, company_id, p_last_log_by
+    FROM loan_collections 
+    WHERE loan_collection_id = p_loan_collection_id and collection_status = 'Cancelled';
+END //
+
+CREATE PROCEDURE updateLoanCollectionOnHoldAttachment(IN p_loan_collection_id INT, IN p_onhold_attachment VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+      UPDATE loan_collections
+        SET onhold_attachment = p_onhold_attachment,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id;
+END //
+
+
+
+
+
+
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkBrandExist (IN p_brand_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM brand
+    WHERE brand_id = p_brand_id;
+END //
+
+CREATE PROCEDURE insertBrand(IN p_brand_name VARCHAR(100), IN p_last_log_by INT, OUT p_brand_id INT)
+BEGIN
+    INSERT INTO brand (brand_name, last_log_by) 
+	VALUES(p_brand_name, p_last_log_by);
+	
+    SET p_brand_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateBrand(IN p_brand_id INT, IN p_brand_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE brand
+    SET brand_name = p_brand_name,
+    last_log_by = p_last_log_by
+    WHERE brand_id = p_brand_id;
+END //
+
+CREATE PROCEDURE deleteBrand(IN p_brand_id INT)
+BEGIN
+    DELETE FROM brand WHERE brand_id = p_brand_id;
+END //
+
+CREATE PROCEDURE getBrand(IN p_brand_id INT)
+BEGIN
+	SELECT * FROM brand
+    WHERE brand_id = p_brand_id;
+END //
+
+CREATE PROCEDURE duplicateBrand(IN p_brand_id INT, IN p_last_log_by INT, OUT p_new_brand_id INT)
+BEGIN
+    DECLARE p_brand_name VARCHAR(100);
+    
+    SELECT brand_name
+    INTO p_brand_name
+    FROM brand 
+    WHERE brand_id = p_brand_id;
+    
+    INSERT INTO brand (brand_name, last_log_by) 
+    VALUES(p_brand_name, p_last_log_by);
+    
+    SET p_new_brand_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateBrandTable()
+BEGIN
+    SELECT brand_id, brand_name
+    FROM brand
+    ORDER BY brand_id;
+END //
+
+CREATE PROCEDURE generateBrandOptions()
+BEGIN
+	SELECT brand_id, brand_name FROM brand
+	ORDER BY brand_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkMakeExist (IN p_make_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM make
+    WHERE make_id = p_make_id;
+END //
+
+CREATE PROCEDURE insertMake(IN p_make_name VARCHAR(100), IN p_last_log_by INT, OUT p_make_id INT)
+BEGIN
+    INSERT INTO make (make_name, last_log_by) 
+	VALUES(p_make_name, p_last_log_by);
+	
+    SET p_make_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateMake(IN p_make_id INT, IN p_make_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE make
+    SET make_name = p_make_name,
+    last_log_by = p_last_log_by
+    WHERE make_id = p_make_id;
+END //
+
+CREATE PROCEDURE deleteMake(IN p_make_id INT)
+BEGIN
+    DELETE FROM make WHERE make_id = p_make_id;
+END //
+
+CREATE PROCEDURE getMake(IN p_make_id INT)
+BEGIN
+	SELECT * FROM make
+    WHERE make_id = p_make_id;
+END //
+
+CREATE PROCEDURE duplicateMake(IN p_make_id INT, IN p_last_log_by INT, OUT p_new_make_id INT)
+BEGIN
+    DECLARE p_make_name VARCHAR(100);
+    
+    SELECT make_name
+    INTO p_make_name
+    FROM make 
+    WHERE make_id = p_make_id;
+    
+    INSERT INTO make (make_name, last_log_by) 
+    VALUES(p_make_name, p_last_log_by);
+    
+    SET p_new_make_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateMakeTable()
+BEGIN
+    SELECT make_id, make_name
+    FROM make
+    ORDER BY make_id;
+END //
+
+CREATE PROCEDURE generateMakeOptions()
+BEGIN
+	SELECT make_id, make_name FROM make
+	ORDER BY make_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkModelExist (IN p_model_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM model
+    WHERE model_id = p_model_id;
+END //
+
+CREATE PROCEDURE insertModel(IN p_model_name VARCHAR(100), IN p_last_log_by INT, OUT p_model_id INT)
+BEGIN
+    INSERT INTO model (model_name, last_log_by) 
+	VALUES(p_model_name, p_last_log_by);
+	
+    SET p_model_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateModel(IN p_model_id INT, IN p_model_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE model
+    SET model_name = p_model_name,
+    last_log_by = p_last_log_by
+    WHERE model_id = p_model_id;
+END //
+
+CREATE PROCEDURE deleteModel(IN p_model_id INT)
+BEGIN
+    DELETE FROM model WHERE model_id = p_model_id;
+END //
+
+CREATE PROCEDURE getModel(IN p_model_id INT)
+BEGIN
+	SELECT * FROM model
+    WHERE model_id = p_model_id;
+END //
+
+CREATE PROCEDURE duplicateModel(IN p_model_id INT, IN p_last_log_by INT, OUT p_new_model_id INT)
+BEGIN
+    DECLARE p_model_name VARCHAR(100);
+    
+    SELECT model_name
+    INTO p_model_name
+    FROM model 
+    WHERE model_id = p_model_id;
+    
+    INSERT INTO model (model_name, last_log_by) 
+    VALUES(p_model_name, p_last_log_by);
+    
+    SET p_new_model_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateModelTable()
+BEGIN
+    SELECT model_id, model_name
+    FROM model
+    ORDER BY model_id;
+END //
+
+CREATE PROCEDURE generateModelOptions()
+BEGIN
+	SELECT model_id, model_name FROM model
+	ORDER BY model_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkSupplierExist (IN p_supplier_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM supplier
+    WHERE supplier_id = p_supplier_id;
+END //
+
+CREATE PROCEDURE insertSupplier(IN p_supplier_name VARCHAR(100), IN p_last_log_by INT, OUT p_supplier_id INT)
+BEGIN
+    INSERT INTO supplier (supplier_name, last_log_by) 
+	VALUES(p_supplier_name, p_last_log_by);
+	
+    SET p_supplier_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateSupplier(IN p_supplier_id INT, IN p_supplier_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE supplier
+    SET supplier_name = p_supplier_name,
+    last_log_by = p_last_log_by
+    WHERE supplier_id = p_supplier_id;
+END //
+
+CREATE PROCEDURE deleteSupplier(IN p_supplier_id INT)
+BEGIN
+    DELETE FROM supplier WHERE supplier_id = p_supplier_id;
+END //
+
+CREATE PROCEDURE getSupplier(IN p_supplier_id INT)
+BEGIN
+	SELECT * FROM supplier
+    WHERE supplier_id = p_supplier_id;
+END //
+
+CREATE PROCEDURE duplicateSupplier(IN p_supplier_id INT, IN p_last_log_by INT, OUT p_new_supplier_id INT)
+BEGIN
+    DECLARE p_supplier_name VARCHAR(100);
+    
+    SELECT supplier_name
+    INTO p_supplier_name
+    FROM supplier 
+    WHERE supplier_id = p_supplier_id;
+    
+    INSERT INTO supplier (supplier_name, last_log_by) 
+    VALUES(p_supplier_name, p_last_log_by);
+    
+    SET p_new_supplier_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateSupplierTable()
+BEGIN
+    SELECT supplier_id, supplier_name
+    FROM supplier
+    ORDER BY supplier_id;
+END //
+
+CREATE PROCEDURE generateSupplierOptions()
+BEGIN
+	SELECT supplier_id, supplier_name FROM supplier
+	ORDER BY supplier_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkClassExist (IN p_class_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM class
+    WHERE class_id = p_class_id;
+END //
+
+CREATE PROCEDURE insertClass(IN p_class_name VARCHAR(100), IN p_last_log_by INT, OUT p_class_id INT)
+BEGIN
+    INSERT INTO class (class_name, last_log_by) 
+	VALUES(p_class_name, p_last_log_by);
+	
+    SET p_class_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateClass(IN p_class_id INT, IN p_class_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE class
+    SET class_name = p_class_name,
+    last_log_by = p_last_log_by
+    WHERE class_id = p_class_id;
+END //
+
+CREATE PROCEDURE deleteClass(IN p_class_id INT)
+BEGIN
+    DELETE FROM class WHERE class_id = p_class_id;
+END //
+
+CREATE PROCEDURE getClass(IN p_class_id INT)
+BEGIN
+	SELECT * FROM class
+    WHERE class_id = p_class_id;
+END //
+
+CREATE PROCEDURE duplicateClass(IN p_class_id INT, IN p_last_log_by INT, OUT p_new_class_id INT)
+BEGIN
+    DECLARE p_class_name VARCHAR(100);
+    
+    SELECT class_name
+    INTO p_class_name
+    FROM class 
+    WHERE class_id = p_class_id;
+    
+    INSERT INTO class (class_name, last_log_by) 
+    VALUES(p_class_name, p_last_log_by);
+    
+    SET p_new_class_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateClassTable()
+BEGIN
+    SELECT class_id, class_name
+    FROM class
+    ORDER BY class_id;
+END //
+
+CREATE PROCEDURE generateClassOptions()
+BEGIN
+	SELECT class_id, class_name FROM class
+	ORDER BY class_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* Bank Account Type Table Stored Procedures */
+
+CREATE PROCEDURE checkModeOfAcquisitionExist (IN p_mode_of_acquisition_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM mode_of_acquisition
+    WHERE mode_of_acquisition_id = p_mode_of_acquisition_id;
+END //
+
+CREATE PROCEDURE insertModeOfAcquisition(IN p_mode_of_acquisition_name VARCHAR(100), IN p_last_log_by INT, OUT p_mode_of_acquisition_id INT)
+BEGIN
+    INSERT INTO mode_of_acquisition (mode_of_acquisition_name, last_log_by) 
+	VALUES(p_mode_of_acquisition_name, p_last_log_by);
+	
+    SET p_mode_of_acquisition_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateModeOfAcquisition(IN p_mode_of_acquisition_id INT, IN p_mode_of_acquisition_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE mode_of_acquisition
+    SET mode_of_acquisition_name = p_mode_of_acquisition_name,
+    last_log_by = p_last_log_by
+    WHERE mode_of_acquisition_id = p_mode_of_acquisition_id;
+END //
+
+CREATE PROCEDURE deleteModeOfAcquisition(IN p_mode_of_acquisition_id INT)
+BEGIN
+    DELETE FROM mode_of_acquisition WHERE mode_of_acquisition_id = p_mode_of_acquisition_id;
+END //
+
+CREATE PROCEDURE getModeOfAcquisition(IN p_mode_of_acquisition_id INT)
+BEGIN
+	SELECT * FROM mode_of_acquisition
+    WHERE mode_of_acquisition_id = p_mode_of_acquisition_id;
+END //
+
+CREATE PROCEDURE duplicateModeOfAcquisition(IN p_mode_of_acquisition_id INT, IN p_last_log_by INT, OUT p_new_mode_of_acquisition_id INT)
+BEGIN
+    DECLARE p_mode_of_acquisition_name VARCHAR(100);
+    
+    SELECT mode_of_acquisition_name
+    INTO p_mode_of_acquisition_name
+    FROM mode_of_acquisition 
+    WHERE mode_of_acquisition_id = p_mode_of_acquisition_id;
+    
+    INSERT INTO mode_of_acquisition (mode_of_acquisition_name, last_log_by) 
+    VALUES(p_mode_of_acquisition_name, p_last_log_by);
+    
+    SET p_new_mode_of_acquisition_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateModeOfAcquisitionTable()
+BEGIN
+    SELECT mode_of_acquisition_id, mode_of_acquisition_name
+    FROM mode_of_acquisition
+    ORDER BY mode_of_acquisition_id;
+END //
+
+CREATE PROCEDURE generateModeOfAcquisitionOptions()
+BEGIN
+	SELECT mode_of_acquisition_id, mode_of_acquisition_name FROM mode_of_acquisition
+	ORDER BY mode_of_acquisition_name;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */

@@ -65,6 +65,19 @@
                         </div>
                       </li>
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#payment-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          OR Date
+                        </a>
+                        <div class="collapse " id="payment-date-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <input type="text" class="form-control filter-datepicker mb-3" autocomplete="off" name="filter_or_date_start_date" id="filter_or_date_start_date" placeholder="Start Date">
+                              <input type="text" class="form-control filter-datepicker" autocomplete="off" name="filter_or_date_end_date" id="filter_or_date_end_date" placeholder="End Date">
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#reversed-date-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           Reversed Date
                         </a>

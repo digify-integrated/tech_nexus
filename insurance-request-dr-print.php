@@ -59,7 +59,7 @@
         $salesProposalNumber = $salesProposalDetails['sales_proposal_number'] ?? null;
         $numberOfPayments = $salesProposalDetails['number_of_payments'] ?? null;
         $paymentFrequency = $salesProposalDetails['payment_frequency'] ?? null;
-        $startDate = $salesProposalDetails['actual_start_date'] ?? null;
+        $startDate = date('F d, Y', strtotime($salesProposalDetails['actual_start_date'] ?? null));
         $drNumber = $salesProposalDetails['dr_number'] ?? null;
         $releaseTo = $salesProposalDetails['release_to'] ?? null;
         $salesProposalStatus = $salesProposalDetails['sales_proposal_status'] ?? null;
@@ -71,6 +71,10 @@
         $maturityDate =  date('F d, Y', strtotime("+". $termLength ." " . $termType , strtotime($salesProposalDetails['actual_start_date'])));
 
         $extension = pathinfo($unitImage, PATHINFO_EXTENSION);
+
+        $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
+        $insuranceCoverage = $otherChargesDetails['insurance_coverage'] ?? 0;
+        $insurancePremium = $otherChargesDetails['insurance_premium_subtotal'] ?? 0;
         
         $otherProductDetails = $salesProposalModel->getSalesProposalOtherProductDetails($salesProposalID);
         $productDescription = $otherProductDetails['product_description'] ?? null;
@@ -138,22 +142,25 @@
         $insuranceCoverageSecondYear = $salesProposalRenewalAmountDetails['insurance_coverage_second_year'] ?? 0;
         $insuranceCoverageThirdYear = $salesProposalRenewalAmountDetails['insurance_coverage_third_year'] ?? 0;
         $insuranceCoverageFourthYear = $salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] ?? 0;
+        $insurancePremiumSecondYear = $salesProposalRenewalAmountDetails['insurance_premium_second_year'] ?? 0;
+        $insurancePremiumThirdYear = $salesProposalRenewalAmountDetails['insurance_premium_third_year'] ?? 0;
+        $insurancePremiumFourthYear = $salesProposalRenewalAmountDetails['insurance_premium_fourth_year'] ?? 0;
 
-        if($salesProposalRenewalAmountDetails['insurance_coverage_second_year'] > 0){
+        if($insuranceCoverageSecondYear > 0 && $insurancePremiumSecondYear > 0){
             $secondYearInsuranceDate = date('F d, Y', strtotime("+1 year" , strtotime($salesProposalDetails['actual_start_date'])));
         }
         else{
             $secondYearInsuranceDate = '';
         }
 
-        if($salesProposalRenewalAmountDetails['insurance_coverage_third_year'] > 0){
+        if($insuranceCoverageThirdYear > 0 && $insurancePremiumThirdYear > 0){
             $thirdYearInsuranceDate = date('F d, Y', strtotime("+2 year" , strtotime($salesProposalDetails['actual_start_date'])));
         }
         else{
             $thirdYearInsuranceDate = '';
         }
 
-        if($salesProposalRenewalAmountDetails['insurance_coverage_fourth_year'] > 0){
+        if($insuranceCoverageFourthYear > 0 && $insurancePremiumFourthYear > 0){
             $fourthYearInsuranceDate = date('F d, Y', strtotime("+3 year" , strtotime($salesProposalDetails['actual_start_date'])));
         }
         else{
@@ -174,9 +181,7 @@
     
     }
 
-    
-    $insuranceRequestTable1 = generateInsuranceRequestTable1(number_format($productPrice, 2), number_format($odRate, 2) . '%', number_format($odTheftPremium, 2), number_format($vatPremium, 2), number_format($docStamps, 2), number_format($localGovtTax, 2), number_format($gross, 2));
-    $insuranceRequestTable2 = generateInsuranceRequestTable2($startDate, $termLength, $termType, $maturityDate, number_format($productPrice, 2), $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $secondYearInsuranceDate, $thirdYearInsuranceDate, $fourthYearInsuranceDate);
+    $insuranceRequestTable2 = generateInsuranceRequestTable2($startDate, $insurancePremium, $insuranceCoverage, $insuranceCoverageSecondYear, $insurancePremiumSecondYear, $secondYearInsuranceDate, $insuranceCoverageThirdYear, $insurancePremiumThirdYear, $thirdYearInsuranceDate, $insuranceCoverageFourthYear, $insurancePremiumFourthYear, $fourthYearInsuranceDate);
 
     ob_start();
 
@@ -209,20 +214,23 @@
     $pdf->Cell(60, 4, strtoupper($drNumber), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
     $pdf->Cell(100, 4, 'CHRISTIAN GENERAL MOTORS, INC.', 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(6);
+    $pdf->Ln(10);
     $pdf->Cell(40, 4, 'NAME : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, strtoupper($customerName), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
     $pdf->Cell(40, 4, 'ADDRESS : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(100, 4, strtoupper($customerAddress), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
+    $pdf->Cell(40, 4, 'TERM : ', 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(60, 4, $termLength . ' ' . strtoupper($termType), 0, 0, 'L', 0, '', 1);
+    $pdf->Ln(6);
     $pdf->Cell(40, 4, 'INCEPTION : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, strtoupper(date('F d, Y', strtotime($startDate))), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
-    $pdf->Cell(40, 4, 'UNIT NO. : ', 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(60, 4, $fullStockNumber, 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(40, 4, 'MATURITY : ', 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(60, 4, strtoupper(date('F d, Y', strtotime($maturityDate))), 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
-    $pdf->Cell(40, 4, 'TO DELETE : ', 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(40, 4, 'UNIT NO. : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, $fullStockNumber, 0, 0, 'L', 0, '', 1);
     $pdf->Ln(6);
     $pdf->Cell(40, 4, 'YR/MODEL : ', 0, 0, 'L', 0, '', 1);
@@ -248,20 +256,19 @@
     $pdf->Ln(6);
     $pdf->Cell(40, 4, 'MORTGAGEE : ', 0, 0, 'L', 0, '', 1);
     $pdf->Cell(60, 4, 'CGMI', 0, 0, 'L', 0, '', 1);
-    $pdf->Ln(6);
+    $pdf->Ln(10);
     $pdf->SetFont('times', 'B', 10);
     $pdf->Cell(100, 4, 'CHRISTIAN GENERAL MOTORS, INC.', 0, 0, 'L', 0, '', 1);
     $pdf->SetFont('times', '', 10);
-    $pdf->Ln(6);
+    $pdf->Ln(10);
     #$pdf->writeHTML($insuranceRequestTable1, true, false, true, false, '');
-    $pdf->Ln(0);
     $pdf->writeHTML($insuranceRequestTable2, true, false, true, false, '');
 
     // Output the PDF to the browser
     $pdf->Output('insurance-request.pdf', 'I');
     ob_flush();
 
-    function generateInsuranceRequestTable1($odTheft, $odRate, $odTheftPremium, $vatPremium, $docStamps, $localGovtTax, $gross){
+    function generateInsuranceRequestTable1($odTheft, $insuranceCoverage){
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
                         <thead>
                             <tr>
@@ -344,36 +351,39 @@
         return $response;
     }
 
-    function generateInsuranceRequestTable2($startDate, $termLength, $termType, $maturityDate, $odTheft, $insuranceCoverageSecondYear, $insuranceCoverageThirdYear, $insuranceCoverageFourthYear, $secondYearInsuranceDate, $thirdYearInsuranceDate, $fourthYearInsuranceDate){
+    function generateInsuranceRequestTable2($startDate, $insurancePremium, $insuranceCoverage, $insuranceCoverageSecondYear, $insurancePremiumSecondYear, $secondYearInsuranceDate, $insuranceCoverageThirdYear, $insurancePremiumThirdYear, $thirdYearInsuranceDate, $insuranceCoverageFourthYear, $insurancePremiumFourthYear, $fourthYearInsuranceDate){
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td><b>INSURANCE COVERAGE</b></td>
+                                <td><b>INSURANCE PREMIUM</b></td>
+                                <td><b>RENEWAL DATE</b></td>
+                            </tr>
+                        </thead>
                         <tbody>
                         <tr>
-                            <td>TERM</td>
-                            <td>'. $termLength . ' ' . strtoupper($termType) .'</td>
-                            <td rowspan="2"></td>
-                        </tr>
-                        <tr>
-                            <td>MATURITY</td>
-                            <td>'. strtoupper($maturityDate) .'</td>
-                        </tr>
-                        <tr>
                             <td>1ST YEAR COV</td>
-                            <td>'. $odTheft .'</td>
-                            <td>'. strtoupper(date('F d, Y', strtotime($startDate))) .'</td>
+                            <td>'. number_format($insuranceCoverage, 2) .'</td>
+                            <td>'. number_format($insurancePremium, 2) .'</td>
+                            <td>'. strtoupper($startDate) .'</td>
                         </tr>
                         <tr>
                             <td>2ND YEAR COV</td>
-                            <td>'. $insuranceCoverageSecondYear .'</td>
+                            <td>'. number_format($insuranceCoverageSecondYear, 2) .'</td>
+                            <td>'. number_format($insurancePremiumSecondYear, 2) .'</td>
                             <td>'. strtoupper($secondYearInsuranceDate) .'</td>
                         </tr>
                         <tr>
                             <td>3RD YEAR COV</td>
-                            <td>'. $insuranceCoverageThirdYear .'</td>
+                            <td>'. number_format($insuranceCoverageThirdYear, 2) .'</td>
+                            <td>'. number_format($insurancePremiumThirdYear, 2) .'</td>
                             <td>'. strtoupper($thirdYearInsuranceDate) .'</td>
                         </tr>
                         <tr>
                             <td>4TH YEAR COV</td>
-                            <td>'. $insuranceCoverageFourthYear .'</td>
+                            <td>'. number_format($insuranceCoverageFourthYear, 2) .'</td>
+                            <td>'. number_format($insurancePremiumFourthYear, 2) .'</td>
                             <td>'. strtoupper($fourthYearInsuranceDate) .'</td>
                         </tr>
                     </tbody>

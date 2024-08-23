@@ -43,7 +43,6 @@
     $salesProposalID = null;
   }
 
-
   $newRecord = isset($_GET['new']);
 
   require('config/_interface_settings.php');

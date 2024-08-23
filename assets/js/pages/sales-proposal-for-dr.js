@@ -1325,7 +1325,7 @@ function allSalesProposalTable(datatable_name, buttons = false, show_all = false
         { 'width': '10%', 'aTargets': 3 },
         { 'width': '15%', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5},
-        { 'width': '15%', 'aTargets': 6 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 6 },
         { 'width': '10%','bSortable': false, 'aTargets': 7 }
     ];
 
@@ -1443,7 +1443,7 @@ function salesProposalDepositAmountTable(datatable_name, buttons = false, show_a
     ];
 
     const column_definition = [
-        { 'width': '25%', 'aTargets': 0 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 0 },
         { 'width': '30%', 'aTargets': 1 },
         { 'width': '30%', 'aTargets': 2 },
         { 'width': '15%','bSortable': false, 'aTargets': 3 }
@@ -1503,7 +1503,7 @@ function salesProposalAdditionalJobOrderTable(datatable_name, buttons = false, s
 
     const column_definition = [
         { 'width': '25%', 'aTargets': 0 },
-        { 'width': '15%', 'aTargets': 1 },
+        { 'width': '15%', 'type': 'date', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '30%', 'aTargets': 3 },
         { 'width': '15%','bSortable': false, 'aTargets': 4 }
@@ -1636,7 +1636,7 @@ function salesProposalForCITable(datatable_name, buttons = false, show_all = fal
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -1700,7 +1700,7 @@ function installmentSalesApprovalTable(datatable_name, buttons = false, show_all
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -1762,8 +1762,8 @@ function scheduleOfPaymentsTable(datatable_name, buttons = false, show_all = fal
     const column_definition = [
         { 'width': '5%', 'aTargets': 0 },
         { 'width': 'auto', 'aTargets': 1 },
-        { 'width': 'auto', 'aTargets': 2 },
-        { 'width': 'auto', 'aTargets': 3 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 }
     ];
 
@@ -1850,7 +1850,7 @@ function salesProposalForBankFinancingTable(datatable_name, buttons = false, sho
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -1914,7 +1914,7 @@ function salesProposalChangeRequestTable(datatable_name, buttons = false, show_a
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -1978,7 +1978,7 @@ function approvedSalesProposalTable(datatable_name, buttons = false, show_all = 
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -2042,7 +2042,7 @@ function salesProposalForDRTable(datatable_name, buttons = false, show_all = fal
         { 'width': '15%', 'aTargets': 1 },
         { 'width': '15%', 'aTargets': 2 },
         { 'width': '25%', 'aTargets': 3 },
-        { 'width': '25%', 'aTargets': 4 },
+        { 'width': '25%', 'type': 'date', 'aTargets': 4 },
         { 'width': '10%', 'aTargets': 5 },
         { 'width': '10%','bSortable': false, 'aTargets': 6 }
     ];
@@ -2097,6 +2097,7 @@ function salesProposalReleasedTable(datatable_name, buttons = false, show_all = 
         { 'data' : 'SALES_PROPOSAL_NUMBER' },
         { 'data' : 'LOAN_NUMBER' },
         { 'data' : 'CUSTOMER' },
+        { 'data' : 'DR_NUMBER' },
         { 'data' : 'PRODUCT_TYPE' },
         { 'data' : 'PRODUCT' },
         { 'data' : 'RELEASED_DATE' },
@@ -2111,8 +2112,9 @@ function salesProposalReleasedTable(datatable_name, buttons = false, show_all = 
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
         { 'width': 'auto', 'aTargets': 5 },
-        { 'width': 'auto', 'aTargets': 6 },
-        { 'width': '10%','bSortable': false, 'aTargets': 7 }
+        { 'width': 'auto', 'type': 'date', 'aTargets': 6 },
+        { 'width': 'auto', 'aTargets': 7 },
+        { 'width': '10%','bSortable': false, 'aTargets': 8 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
@@ -2182,7 +2184,7 @@ function salesProposalPDCManualInputTable(datatable_name, buttons = false, show_
     const column_definition = [
         { 'width': '14.16%', 'aTargets': 0 },
         { 'width': '14.16%', 'aTargets': 1 },
-        { 'width': '14.16%', 'aTargets': 2 },
+        { 'width': '14.16%', 'type': 'date', 'aTargets': 2 },
         { 'width': '14.16%', 'aTargets': 3 },
         { 'width': '14.16%', 'aTargets': 4 },
         { 'width': '15%','bSortable': false, 'aTargets': 5 }
@@ -4266,12 +4268,18 @@ function salesProposalSetToDraftForm(){
         rules: {
             set_to_draft_reason: {
                 required: true
-            }
+            },
+            set_to_draft_file: {
+                required: true
+            },
         },
         messages: {
             set_to_draft_reason: {
                 required: 'Please enter the set to draft reason'
-            }
+            },
+            set_to_draft_file: {
+                required: 'Please choose the set to draft file'
+            },
         },
         errorPlacement: function (error, element) {
             if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
@@ -6313,43 +6321,90 @@ function calculateRenewalAmount(){
 }
 
 function calculateTotalOtherCharges(){
-    var amount_financed = parseCurrency($("#amount_financed").val());
-    var pn_amount = parseCurrency($("#pn_amount").val());
+    var productType = $('#product_type').val();
 
-    var insurance_coverage = parseCurrency($("#insurance_coverage").val());
-    var insurance_premium = Math.round(((insurance_coverage * .025 + 2700) * 1.2526) + 1300);
-    var handling_fee = (amount_financed * 0.035) + 6000;
-    var transaction_fee = (amount_financed * 0.01) + 7000;
-    var doc_stamp_tax = Math.round(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
+    if(productType != 'Fuel' && productType != 'Parts' && productType != 'Repair'){
+        var amount_financed = parseCurrency($("#amount_financed").val());
+        var pn_amount = parseCurrency($("#pn_amount").val());
+        var product_category = $('#product_category').val();
+    
+        var insurance_coverage = parseCurrency($("#insurance_coverage").val());
 
-    $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
-    $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
-    $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
-    $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
+        if(product_category == '1' || product_category == '3'){
+            var insurance_premium = Math.ceil((((insurance_coverage * 0.025) + 2700) * 1.2526) + 1300);
+        }
+        else if(product_category == '2'){
+            var insurance_premium = Math.ceil((insurance_coverage * 0.025) * 1.2526);
+        }
+        else{
+           var insurance_premium = 0;
+        }
 
-    var transfer_fee = parseCurrency($("#transfer_fee").val());
-    var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
-    var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
-    var registration_fee = parseCurrency($("#registration_fee").val());
-    var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
-    var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
-    var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
+        var handling_fee = (amount_financed * 0.035) + 6000;
+        var transaction_fee = (amount_financed * 0.01) + 7000;
+        var doc_stamp_tax = Math.ceil(((((amount_financed-5000)/5000)*20)+40)+(pn_amount/200*1.5));
+    
+        $("#insurance_premium").val(parseCurrency(insurance_premium.toFixed(2)).toLocaleString("en-US"));
+        $("#handling_fee").val(parseCurrency(handling_fee.toFixed(2)).toLocaleString("en-US"));
+        $("#transaction_fee").val(parseCurrency(transaction_fee.toFixed(2)).toLocaleString("en-US"));
+        $("#doc_stamp_tax").val(parseCurrency(doc_stamp_tax.toFixed(2)).toLocaleString("en-US"));    
+    
+        var transfer_fee = parseCurrency($("#transfer_fee").val());
+        var insurance_premium_discount = parseCurrency($("#insurance_premium_discount").val());
+        var handling_fee_discount = parseCurrency($("#handling_fee_discount").val());
+        var registration_fee = parseCurrency($("#registration_fee").val());
+        var doc_stamp_tax_discount = parseCurrency($("#doc_stamp_tax_discount").val());
+        var transaction_fee_discount = parseCurrency($("#transaction_fee_discount").val());
+        var transfer_fee_discount = parseCurrency($("#transfer_fee_discount").val());
+    
+        var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
+        var handling_fee_subtotal = handling_fee - handling_fee_discount;
+        var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
+        var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
+        var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
+    
+        $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
+        $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
+        $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
+    
+        var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
+    
+        $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+    
+        $('#summary-insurance-coverage').text(parseCurrency($("#insurance_coverage").val()).toLocaleString("en-US"));
+        $('#summary-insurance-premium').text(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-handing-fee').text(parseCurrency(handling_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-transfer-fee').text(parseCurrency(transfer_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-registration-fee').text(parseCurrency(registration_fee.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-doc-stamp-tax').text(parseCurrency(doc_stamp_tax_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-transaction-fee').text(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-other-charges-total').text(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+    }
+    else{
+        $("#insurance_premium").val('0.00');
+        $("#handling_fee").val('0.00');
+        $("#transfer_fee").val('0.00');
+        $("#transaction_fee").val('0.00');
+        $("#doc_stamp_tax").val('0.00');
 
-    var insurance_premium_subtotal = insurance_premium - insurance_premium_discount;
-    var handling_fee_subtotal = handling_fee - handling_fee_discount;
-    var doc_stamp_tax_subtotal = doc_stamp_tax - doc_stamp_tax_discount;
-    var transaction_fee_subtotal = transaction_fee - transaction_fee_discount;
-    var transfer_fee_subtotal = transfer_fee - transfer_fee_discount;
+        $('#insurance_premium_subtotal').val('0.00');
+        $('#handling_fee_subtotal').val('0.00');
+        $('#doc_stamp_tax_subtotal').val('0.00');
+        $('#transaction_fee_subtotal').val('0.00');
+        $('#transfer_fee_subtotal').val('0.00');
 
-    $('#insurance_premium_subtotal').val(parseCurrency(insurance_premium_subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#handling_fee_subtotal').val(handling_fee_subtotal.toFixed(2));
-    $('#doc_stamp_tax_subtotal').val(doc_stamp_tax_subtotal.toFixed(2));
-    $('#transaction_fee_subtotal').val(parseCurrency(transaction_fee_subtotal.toFixed(2)).toLocaleString("en-US"));
-    $('#transfer_fee_subtotal').val(transfer_fee_subtotal.toFixed(2));
-
-    var total = insurance_premium_subtotal + handling_fee_subtotal + transfer_fee_subtotal + registration_fee + doc_stamp_tax_subtotal + transaction_fee_subtotal;
-
-    $('#total_other_charges').val(parseCurrency(total.toFixed(2)).toLocaleString("en-US"));
+        $('#summary-insurance-coverage').text('0.00');
+        $('#summary-insurance-premium').text('0.00');
+        $('#summary-handing-fee').text('0.00');
+        $('#summary-transfer-fee').text('0.00');
+        $('#summary-registration-fee').text('0.00');
+        $('#summary-doc-stamp-tax').text('0.00');
+        $('#summary-transaction-fee').text('0.00');
+        $('#summary-other-charges-total').text('0.00');
+    }
+    
 }
 
 function traverseTabs(direction) {

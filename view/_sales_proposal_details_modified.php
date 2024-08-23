@@ -22,7 +22,7 @@
             </div>
             <div class="d-flex">
               <?php
-                if($salesProposalStatus == 'Proceed' && $tagSalesProposalForOnProcess['total'] > 0){
+                if(($salesProposalStatus == 'Proceed' || $salesProposalStatus == 'Ready For Release' || $salesProposalStatus == 'For DR') && $tagSalesProposalForOnProcess['total'] > 0){
                   echo '<div class="previous me-2 d-none" id="on-process-sales-proposal-button">
                           <button class="btn btn-info" id="on-process-sales-proposal">On-Process</button>
                         </div>';

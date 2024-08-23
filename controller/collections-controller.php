@@ -410,13 +410,13 @@ class CollectionsController {
         }
     
         if ($total > 0) {
-            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $collectedFrom, $remarks, $userID);
+            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $collectedFrom, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;
         } 
         else {
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $collectedFrom, $remarks, $userID);
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $collectedFrom, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;

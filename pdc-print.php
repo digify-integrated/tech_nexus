@@ -82,20 +82,21 @@
     $pdf->AddPage();
 
     $pdf->SetFont('times', 'B', 10.5);
-    $pdf->Cell(80, 8, 'TOTAL CHECK PAYMENTS', 0, 0, 'L');
-    $pdf->Cell(80, 8, number_format($totalPDCAmount, 2), 0, 0, 'L');
+    $pdf->Cell(80, 8, 'TOTAL CHECK PAYMENTS', 1, 0, 'L'); // 1 = border
+    $pdf->Cell(80, 8, number_format($totalPDCAmount, 2), 1, 0, 'L'); // 1 = border
     $pdf->Ln(8);
-    $pdf->Cell(80, 8, 'TOTAL RETURNED CHECKS', 0, 0, 'L');
-    $pdf->Cell(80, 8, number_format($totalReversedPDCAmount, 2), 0, 0, 'L');
+    $pdf->Cell(80, 8, 'TOTAL RETURNED CHECKS', 1, 0, 'L'); // 1 = border
+    $pdf->Cell(80, 8, number_format($totalReversedPDCAmount, 2), 1, 0, 'L'); // 1 = border
     $pdf->Ln(8);
-    $pdf->Cell(80, 8, 'NET PAYMENTS', 0, 0, 'L');
-    $pdf->Cell(80, 8, number_format($netPayments, 2), 0, 0, 'L');
-    $pdf->Ln(12);
-  
-    $pdf->Cell(80, 8, 'PREPARED BY', 0, 0, 'L', 0, '', 1);
-    $pdf->Cell(80, 8, $createdByName, 0, 0, 'L', 0, '', 1);
+    $pdf->Cell(80, 8, 'NET PAYMENTS', 1, 0, 'L'); // 1 = border
+    $pdf->Cell(80, 8, number_format($netPayments, 2), 1, 0, 'L'); // 1 = border
+    $pdf->Ln(8);
+
+    $pdf->Cell(80, 8, 'PREPARED BY', 1, 0, 'L', 0, '', 1); // 1 = border
+    $pdf->Cell(80, 8, $createdByName, 1, 0, 'L', 0, '', 1); // 1 = border
     $pdf->Ln(15);
 
+    $pdf->SetFont('times', '', 10.5);
     $pdf->writeHTML($summaryTable, true, false, true, false, '');
 
 
@@ -125,20 +126,19 @@
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
                         <thead>
                             <tr>
-                                <td>REF DATE</td>
-                                <td>REF NO</td>
-                                <td>REF AMOUNT</td>
-                                <td>CHECK DATE</td>
-                                <td>CUSTOMER</td>
-                                <td>STOCK NO.</td>
-                                <td>LOAN NO</td>
-                                <td>PYMT DETAILS</td>
-                                <td>BANK / BRANCH</td>
-                                <td>CHECK NO</td>
-                                <td>CHECK STATUS</td>
-                                <td>FOR DEPOSIT ON</td>
-                                <td>DEPOSITED DATE</td>
-                                <td>REMARKS</td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF DATE</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF NO.</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF AMOUNT</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK DATE</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>BANK / BRANCH</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK NO.</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK STATUS</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>FOR DEPOSIT ON</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
                             </tr>
                         </thead>
                         <tbody>';
@@ -160,6 +160,7 @@
             $check_number = $pdcManagementDetails['check_number'];
             $remarks = $pdcManagementDetails['remarks'];
             $pdc_type = $pdcManagementDetails['pdc_type'];
+            $new_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['new_deposit_date'], '', 'm/d/Y', '');
             $for_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['for_deposit_date'], '', 'm/d/Y', '');
             $deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['deposit_date'], '', 'm/d/Y', '');
             $check_date = $systemModel->checkDate('empty', $pdcManagementDetails['check_date'], '', 'm/d/Y', '');
@@ -205,8 +206,7 @@
                                 <td>'. $bank_branch .'</td>
                                 <td>'. $check_number .'</td>
                                 <td>'. $collection_status .'</td>
-                                <td>'. $for_deposit_date .'</td>
-                                <td>'. $deposit_date .'</td>
+                                <td>'. $new_deposit_date .'</td>
                                 <td>'. $remarks .'</td>
                             </tr>';
 

@@ -64,6 +64,7 @@
                     <th>OS Number</th>
                     <th>Loan Number</th>
                     <th>Customer</th>
+                    <th>DR Number</th>
                     <th>Product Type</th>
                     <th>Stock</th>
                     <th>Release Date</th>

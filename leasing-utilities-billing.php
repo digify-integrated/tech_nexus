@@ -157,6 +157,7 @@
                         <tbody>
                         <tr>
                             <td rowspan="2">TYPE</td>
+                            <td rowspan="2">REFERRENCE</td>
                             <td colspan="2">COVERED PERIOD</td>
                             <td rowspan="2">BILLED AMOUNT</td>
                             <td rowspan="2">DUE PAID</td>
@@ -182,6 +183,7 @@
 
             foreach($otherChargesDetails as $otherCharges){
                 $dueAmount = $otherCharges['due_amount'];
+                $referenceNumber = $otherCharges['reference_number'];
                 $duePaid = $otherCharges['due_paid'];
                 $otherChargesType = $otherCharges['other_charges_type'];
                 $coverageStartDate = $otherCharges['coverage_start_date'];
@@ -197,6 +199,7 @@
                 if(number_format($dueAmount, 2, '.', '') > 0){
                     $response .= ' <tr>
                             <td>'. strtoupper($otherChargesType) .'</td>
+                            <td>'. strtoupper($referenceNumber) .'</td>
                             <td>'. $from .'</td>
                             <td>'. $to .'</td>
                             <td>'. number_format($total, 2) .'</td>
@@ -208,7 +211,7 @@
         }
 
         $response .= ' <tr>
-                            <td colspan="5" align="right"><b>TOTAL</b></td>
+                            <td colspan="6" align="right"><b>TOTAL</b></td>
                             <td><b>'. number_format($totalAmount, 2) .'</b></td>
                         </tr>';
 

@@ -79,7 +79,6 @@
     }
 
     $salesProposalDetails = $salesProposalModel->getSalesProposal($salesProposalID); 
-    $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
     $customerID = $salesProposalDetails['customer_id'];
     $comakerID = $salesProposalDetails['comaker_id'] ?? null;
     $productID = $salesProposalDetails['product_id'] ?? null;
@@ -172,7 +171,6 @@
   else{
     $salesProposalID = null;
   }
-
 
   $newRecord = isset($_GET['new']);
 

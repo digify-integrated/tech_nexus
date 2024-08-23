@@ -42,6 +42,8 @@
                 </th>
                 <th>Release To</th>
                 <th>DR Type</th>
+                <th>DR Number</th>
+                <th>Stock No.</th>
                 <th>Interal DR Status</th>
                 <th>Released Date</th>
                 <th>Actions</th>

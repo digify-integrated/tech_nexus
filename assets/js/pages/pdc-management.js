@@ -604,6 +604,73 @@
             }
         });
 
+        $(document).on('click','#duplicate-cancelled-pdc',function() {
+            let loan_collection_id = [];
+            const transaction = 'duplicate multiple cancelled pdc';
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    loan_collection_id.push(element.value);
+                }
+            });
+    
+            if(loan_collection_id.length > 0){
+                Swal.fire({
+                    title: 'Confirm Multiple PDC Duplication',
+                    text: 'Are you sure you want to duplicate these PDC?',
+                    icon: 'info',
+                    showCancelButton: !0,
+                    confirmButtonText: 'Duplicate',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonClass: 'btn btn-success mt-2',
+                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
+                    buttonsStyling: !1
+                }).then(function(result) {
+                    if (result.value) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'controller/pdc-management-controller.php',
+                            dataType: 'json',
+                            data: {
+                                loan_collection_id: loan_collection_id,
+                                transaction : transaction
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    showNotification('Duplication PDC Success', 'The selected PDC have been duplicated successfully.', 'success');
+                                    reloadDatatable('#pdc-management-table');
+                                }
+                                else {
+                                    if (response.isInactive) {
+                                        setNotification('User Inactive', response.message, 'danger');
+                                        window.location = 'logout.php?logout';
+                                    }
+                                    else {
+                                        showNotification('Duplication PDC Error', response.message, 'danger');
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                                if (xhr.responseText) {
+                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                                }
+                                showErrorDialog(fullErrorMessage);
+                            },
+                            complete: function(){
+                                toggleHideActionDropdown();
+                            }
+                        });
+                        
+                        return false;
+                    }
+                });
+            }
+            else{
+                showNotification('Multiple PDC Duplication Error', 'Please select the PDC you wish to duplicate.', 'danger');
+            }
+        });
+
         $(document).on('change','#pdc_type',function() {
             var pdc_type = $(this).val();
 
@@ -648,6 +715,45 @@
                 showNotification('Print PDC Error', 'No selected pdc.', 'danger');
             }
         });
+
+        $(document).on('click','#print-acknowledgement',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('pdc-acknowledgement-print.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print PDC Acknowledgement Error', 'No selected pdc.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-check',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('check_print.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print Check Error', 'No selected pdc.', 'danger');
+            }
+        });
+
+        $(document).on('click','#print-check-details',function() {
+            const loan_collection_id = $('#loan-collection-id').text();
+                window.open('check_print.php?id=' + loan_collection_id, '_blank');
+        });
     });
 })(jQuery);
 
@@ -680,7 +786,13 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
     var filter_clear_date_start_date = $('#filter_clear_date_start_date').val();
     var filter_clear_date_end_date = $('#filter_clear_date_end_date').val();
 
-    var filter_pdc_management_status = $('.pdc-management-status-filter:checked').val();
+    var pdc_filter_values = [];
+
+    $('.pdc-management-status-filter:checked').each(function() {
+        pdc_filter_values.push($(this).val());
+    });
+
+    var filter_pdc_management_status = pdc_filter_values.join(', ');
     var settings;
 
     const column = [ 
@@ -935,10 +1047,16 @@ function pdcOnHoldForm(){
             on_hold_reason: {
                 required: true
             },
+            onhold_attachment: {
+                required: true
+            },
         },
         messages: {
             on_hold_reason: {
                 required: 'Please enter the on-hold reason'
+            },
+            onhold_attachment: {
+                required: 'Please choose the on-hold attachment'
             }
         },
         errorPlacement: function (error, element) {
@@ -973,11 +1091,17 @@ function pdcOnHoldForm(){
         submitHandler: function(form) {
             const loan_collection_id = $('#loan-collection-id').text();
             const transaction = 'tag pdc as on-hold';
+
+            var formData = new FormData(form);
+            formData.append('loan_collection_id', loan_collection_id);
+            formData.append('transaction', transaction);
         
             $.ajax({
                 type: 'POST',
                 url: 'controller/pdc-management-controller.php',
-                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 beforeSend: function() {
                     disableFormSubmitButton('submit-pdc-on-hold');
@@ -1679,6 +1803,13 @@ function displayDetails(transaction){
                         $('#bank_branch').val(response.bankBranch);
                         $('#remarks').val(response.remarks);
                         $('#account_number').val(response.accountNumber);
+
+                        $('#cancellation_reason_remarks').val(response.cancellationReason);
+                        $('#pulled_out_reason_remarks').val(response.pulledOutReason);
+                        $('#reversal_reason_remarks').val(response.reversalReason);
+                        $('#onhold_reason_remarks').val(response.onholdReason);
+
+                        document.getElementById('onhold_attachment_file').src = response.onholdAttachment;
 
                         checkOptionExist('#pdc_type', response.pdcType, '');
                         checkOptionExist('#sales_proposal_id', response.salesProposalID, '');

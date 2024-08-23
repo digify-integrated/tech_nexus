@@ -65,12 +65,12 @@
         $pnAmount = $repaymentAmount * $numberOfPayments;
     
         $otherChargesDetails = $salesProposalModel->getSalesProposalOtherCharges($salesProposalID);
-        $insurancePremium = $otherChargesDetails['insurance_premium'] ?? 0;
-        $handlingFee = $otherChargesDetails['handling_fee'] ?? 0;
-        $transferFee = $otherChargesDetails['transfer_fee'] ?? 0;
-        $transactionFee = $otherChargesDetails['transaction_fee'] ?? 0;
+        $insurancePremium = $otherChargesDetails['insurance_premium_subtotal'] ?? 0;
+        $handlingFee = $otherChargesDetails['handling_fee_subtotal'] ?? 0;
+        $transferFee = $otherChargesDetails['transfer_fee_subtotal'] ?? 0;
+        $transactionFee = $otherChargesDetails['transaction_fee_subtotal'] ?? 0;
         $registrationFee = $otherChargesDetails['registration_fee'] ?? 0;
-        $docStampTax = $otherChargesDetails['doc_stamp_tax'] ?? 0;
+        $docStampTax = $otherChargesDetails['doc_stamp_tax_subtotal'] ?? 0;
     
         $renewalAmountDetails = $salesProposalModel->getSalesProposalRenewalAmount($salesProposalID);
         $registrationSecondYear = $renewalAmountDetails['registration_second_year'] ?? 0;

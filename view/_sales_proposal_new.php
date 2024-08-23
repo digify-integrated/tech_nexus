@@ -701,7 +701,7 @@
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label">Transfer Fee :</label>
                 <div class="col-lg-7">
-                  <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="8000" readonly>
+                  <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="12000" readonly>
                 </div>
               </div>
               <div class="form-group row">

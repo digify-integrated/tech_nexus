@@ -49,6 +49,8 @@
                   if ($tagPDCAsDeposited['total'] > 0 && $collectionStatus == 'For Deposit') {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-deposited-details">Deposited PDC</button></li>';
                   }
+
+                  $dropdown .= '<li><button class="dropdown-item" type="button" id="print-check-details">Print Check</button></li>';
                           
                   $dropdown .= '</ul>
                               </div>';
@@ -178,6 +180,36 @@
               <textarea class="form-control" id="remarks" name="remarks" maxlength="500" <?php echo $disabled; ?>></textarea>
             </div>
           </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Reversal Reason</label>
+            <div class="col-lg-10">
+            <textarea class="form-control" id="reversal_reason_remarks" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Cancellation Reason</label>
+            <div class="col-lg-10">
+            <textarea class="form-control" id="cancellation_reason_remarks" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">Pulled Out Reason</label>
+            <div class="col-lg-10">
+            <textarea class="form-control" id="pulled_out_reason_remarks" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">On-hold Reason</label>
+            <div class="col-lg-10">
+            <textarea class="form-control" id="onhold_reason_remarks" readonly></textarea>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-lg-2 col-form-label">On-hold Attachment</label>
+            <div class="col-lg-10">
+            <img src="<?php echo DEFAULT_PLACEHOLDER_IMAGE; ?>" alt="On-hold Attachment" id="onhold_attachment_file" class="img-fluid rounded">
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -197,6 +229,12 @@
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">On-Hold Reason <span class="text-danger">*</span></label>
                 <textarea class="form-control" id="on_hold_reason" name="on_hold_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">On-Hold Attachment <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="onhold_attachment" name="onhold_attachment">
               </div>
             </div>
           </form>

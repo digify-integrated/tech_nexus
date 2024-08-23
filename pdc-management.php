@@ -31,6 +31,7 @@
   $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
   $massTagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 163);
   $massTagPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 164);
+  $duplicateCancelledPDC = $userModel->checkSystemActionAccessRights($user_id, 165);
 
   if ($pdcManagementReadAccess['total'] == 0) {
     header('location: 404.php');

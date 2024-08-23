@@ -42,7 +42,9 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                 $releaseTo = $row['release_to'];
                 $releaseAddress = $row['release_address'];
                 $drType = $row['dr_type'];
+                $drNumber = $row['dr_number'];
                 $drStatus = $row['dr_status'];
+                $stockNumber = $row['stock_number'];
 
                 if($drStatus == 'Released'){
                     $releasedDate = $systemModel->checkDate('summary', $row['release_date'], '', 'm/d/Y', '');
@@ -67,6 +69,8 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                         <p class="text-muted f-12 mb-0">'. $releaseAddress .'</p>
                                         </div>',
                     'DR_TYPE' => $drType,
+                    'DR_NUMBER' => $drNumber,
+                    'STOCK_NUMBER' => $stockNumber,
                     'DR_STATUS' => $drStatus,
                     'RELEASED_DATE' => $releasedDate,
                     'ACTION' => '<div class="d-flex gap-2">

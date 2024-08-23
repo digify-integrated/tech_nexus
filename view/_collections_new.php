@@ -109,7 +109,7 @@
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01">
             </div>
-            <label class="col-lg-2 col-form-label">Reference Number</label>
+            <label class="col-lg-2 col-form-label">Online Reference Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off">
             </div>

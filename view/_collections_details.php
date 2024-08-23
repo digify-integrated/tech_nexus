@@ -21,10 +21,6 @@
                     if (($tagCollectionAsReversed['total'] > 0 && $collectionStatus == 'Posted')) {
                         $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-collections-as-reversed-details" data-bs-toggle="offcanvas" data-bs-target="#collections-reverse-offcanvas" aria-controls="collections-reverse-offcanvas">Reverse Collection</button></li>';
                     }
-
-                    if ($tagCollectionAsCancelled['total'] > 0 && $collectionStatus == 'Posted') {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-cancel-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-cancel-offcanvas" aria-controls="pdc-cancel-offcanvas">Cancel PDC</button></li>';
-                  }
                           
                   $dropdown .= '</ul>
                               </div>';
@@ -95,7 +91,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="customer_id" id="customer_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
-                  <?php echo $customerModel->generateCustomerOptions('active customer'); ?>
+                  <?php echo $customerModel->generateAllContactsOptions(); ?>
                 </select>
               </div>
             </div>
@@ -142,7 +138,7 @@
             <div class="col-lg-4">
                 <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01" <?php echo $disabled; ?>>
             </div>
-            <label class="col-lg-2 col-form-label">Reference Number</label>
+            <label class="col-lg-2 col-form-label">Online Reference Number</label>
             <div class="col-lg-4">
               <input type="text" class="form-control" id="reference_number" name="reference_number" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
             </div>

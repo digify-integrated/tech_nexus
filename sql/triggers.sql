@@ -6228,3 +6228,214 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('sales_proposal_repayment', NEW.sales_proposal_repayment_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+
+CREATE TRIGGER brand_trigger_update
+AFTER UPDATE ON brand
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.brand_name <> OLD.brand_name THEN
+        SET audit_log = CONCAT(audit_log, "Brand Name: ", OLD.brand_name, " -> ", NEW.brand_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('brand', NEW.brand_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER brand_trigger_insert
+AFTER INSERT ON brand
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Brand created. <br/>';
+
+    IF NEW.brand_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Brand Name: ", NEW.brand_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('brand', NEW.brand_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER make_trigger_update
+AFTER UPDATE ON make
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.make_name <> OLD.make_name THEN
+        SET audit_log = CONCAT(audit_log, "Make Name: ", OLD.make_name, " -> ", NEW.make_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('make', NEW.make_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER make_trigger_insert
+AFTER INSERT ON make
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Make created. <br/>';
+
+    IF NEW.make_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Make Name: ", NEW.make_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('make', NEW.make_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER model_trigger_update
+AFTER UPDATE ON model
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.model_name <> OLD.model_name THEN
+        SET audit_log = CONCAT(audit_log, "Model Name: ", OLD.model_name, " -> ", NEW.model_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('model', NEW.model_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER model_trigger_insert
+AFTER INSERT ON model
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Model created. <br/>';
+
+    IF NEW.model_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Model Name: ", NEW.model_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('model', NEW.model_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER cabin_trigger_update
+AFTER UPDATE ON cabin
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.cabin_name <> OLD.cabin_name THEN
+        SET audit_log = CONCAT(audit_log, "Cabin Name: ", OLD.cabin_name, " -> ", NEW.cabin_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('cabin', NEW.cabin_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER cabin_trigger_insert
+AFTER INSERT ON cabin
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Cabin created. <br/>';
+
+    IF NEW.cabin_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Cabin Name: ", NEW.cabin_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('cabin', NEW.cabin_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER supplier_trigger_update
+AFTER UPDATE ON supplier
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.supplier_name <> OLD.supplier_name THEN
+        SET audit_log = CONCAT(audit_log, "Supplier Name: ", OLD.supplier_name, " -> ", NEW.supplier_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('supplier', NEW.supplier_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER supplier_trigger_insert
+AFTER INSERT ON supplier
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Supplier created. <br/>';
+
+    IF NEW.supplier_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Supplier Name: ", NEW.supplier_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('supplier', NEW.supplier_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER class_trigger_update
+AFTER UPDATE ON class
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.class_name <> OLD.class_name THEN
+        SET audit_log = CONCAT(audit_log, "Class Name: ", OLD.class_name, " -> ", NEW.class_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('class', NEW.class_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER class_trigger_insert
+AFTER INSERT ON class
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Class created. <br/>';
+
+    IF NEW.class_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Class Name: ", NEW.class_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('class', NEW.class_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER mode_of_acquisition_trigger_update
+AFTER UPDATE ON mode_of_acquisition
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.mode_of_acquisition_name <> OLD.mode_of_acquisition_name THEN
+        SET audit_log = CONCAT(audit_log, "Mode Of Acquisition Name: ", OLD.mode_of_acquisition_name, " -> ", NEW.mode_of_acquisition_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('mode_of_acquisition', NEW.mode_of_acquisition_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER mode_of_acquisition_trigger_insert
+AFTER INSERT ON mode_of_acquisition
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Mode of acquisition created. <br/>';
+
+    IF NEW.mode_of_acquisition_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Mode Of Acquisition Name: ", NEW.mode_of_acquisition_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('mode_of_acquisition', NEW.mode_of_acquisition_id, audit_log, NEW.last_log_by, NOW());
+END //

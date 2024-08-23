@@ -3,7 +3,7 @@
     #echo $securityModel->decryptData('BDbouHuj17TD3SsMGK%2Fyca0xxaKLmtjTP0r%2B4I8DVoM%3D');
 
     // Set initial variables
-$start_date = new DateTime('2022-01-01'); // starting date
+/*$start_date = new DateTime('2022-01-01'); // starting date
 $term = 36; // number of payments in months
 $payment_frequency = 'monthly'; // monthly payments
 $repayment = 1000; // repayment amount
@@ -36,5 +36,7 @@ echo "<tr><th>Date</th><th>Repayment Amount</th></tr>\n";
 for ($i = 0; $i < $term; $i++) {
     echo "<tr><td>". $dates[$i]. "</td><td>". number_format($amounts[$i], 2). "</td></tr>\n";
 }
-echo "</table>\n";
+echo "</table>\n";*/
+
+echo file_get_contents('email-template/default-email.html');
 ?>

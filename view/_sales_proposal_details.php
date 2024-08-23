@@ -13,6 +13,7 @@
   $tagSalesProposalForDR = $userModel->checkSystemActionAccessRights($user_id, 134);
   $approveInstallmentSales = $userModel->checkSystemActionAccessRights($user_id, 143);
   $tagChangeRequestAsComplete = $userModel->checkSystemActionAccessRights($user_id, 145);
+  $tagChangeRequestForReview = $userModel->checkSystemActionAccessRights($user_id, 166);
 
   $checkCustomerExist = $customerModel->checkCustomerExist($customerID);
   $total = $checkCustomerExist['total'] ?? 0;
@@ -69,6 +70,7 @@
     $createdDate = $systemModel->checkDate('empty', date('m/d/Y h:i:s a'), '', 'm/d/Y h:i:s a', '');
   }
   $salesProposalStatusBadge = $salesProposalModel->getSalesProposalStatus($salesProposalStatus);
+  $additionalJobOrderCount = $salesProposalModel->countSalesProposalAdditionalJobOrder($salesProposalID);
 ?>
 
 
@@ -120,7 +122,13 @@
                           </div>';
                 }
 
-                if($salesProposalStatus == 'Draft' && $forInitialApproval['total'] > 0 && !empty($clientConfirmation)){
+                if($salesProposalStatus == 'Draft' && $tagChangeRequestForReview['total'] > 0 && !empty($clientConfirmation)){
+                  echo '<div class="previous me-2 d-none" id="tag-for-review-button">
+                          <button class="btn btn-primary" id="tag-for-review">For Review</button>
+                        </div>';
+                }
+
+                if($salesProposalStatus == 'For Review' && $forInitialApproval['total'] > 0 && !empty($clientConfirmation)){
                   echo '<div class="previous me-2 d-none" id="tag-for-initial-approval-button">
                           <button class="btn btn-primary" id="tag-for-initial-approval">For Initial Approval</button>
                         </div>';
@@ -146,7 +154,7 @@
                         </div>';
                 }
 
-                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI') && $cancelSalesProposal['total'] > 0){
+                if(($salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Review') && $cancelSalesProposal['total'] > 0){
                   echo '<div class="previous me-2 d-none" id="sales-proposal-cancel-button">
                           <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-cancel-offcanvas" aria-controls="sales-proposal-cancel-offcanvas" id="sales-proposal-cancel">Cancel</button>
                         </div>';
@@ -806,7 +814,7 @@
               <div class="form-group row">
                 <label class="col-lg-5 col-form-label">Transfer Fee :</label>
                 <div class="col-lg-7">
-                  <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="8000" readonly>
+                  <input type="text" class="form-control currency" id="transfer_fee" name="transfer_fee" value="12000" readonly>
                 </div>
               </div>
               <div class="form-group row">
@@ -971,7 +979,7 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">New Engine Stencil </h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
                             echo '<button class="btn btn-info me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-new-engine-stencil-offcanvas" aria-controls="sales-proposal-new-engine-stencil-offcanvas" id="sales-proposal-new-engine-stencil">New Engine Stencil</button>';
                           }
                         ?>
@@ -994,7 +1002,7 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Client Confirmation </h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
                             echo '<button class="btn btn-success me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-client-confirmation-offcanvas" aria-controls="sales-proposal-client-confirmation-offcanvas" id="sales-proposal-client-confirmation">Client Confirmation</button>';
                           }
                         ?>
@@ -1019,7 +1027,7 @@
                       <li class="list-group-item px-0 d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Credit Advice</h5>
                         <?php
-                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft'){
+                          if($salesProposalStatus == 'For Final Approval' || $salesProposalStatus == 'For CI' || $salesProposalStatus == 'For Initial Approval' || $salesProposalStatus == 'Draft' || $salesProposalStatus == 'For Review'){
                             if($transactionType == 'Bank Financing'){
                               echo '<button class="btn btn-warning me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sales-proposal-credit-advice-offcanvas" aria-controls="sales-proposal-credit-advice-offcanvas" id="sales-proposal-credit-advice">Credit Advice</button>';
                             }
@@ -1146,12 +1154,6 @@
               </div>
             </div>
             <div class="form-group row">
-              <label class="col-lg-5 col-form-label">Set To Draft Reason :</label>
-              <div class="col-lg-7">
-                <label class="col-form-label" id="set_to_draft_reason_label"></label>
-              </div>
-            </div>
-            <div class="form-group row">
               <label class="col-lg-5 col-form-label">Rejection Reason :</label>
               <div class="col-lg-7">
                 <label class="col-form-label" id="rejection_reason_label"></label>
@@ -1161,6 +1163,18 @@
               <label class="col-lg-5 col-form-label">Cancellation Reason :</label>
               <div class="col-lg-7">
                 <label class="col-form-label" id="cancellation_reason_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Set To Draft Reason :</label>
+              <div class="col-lg-7">
+                <label class="col-form-label" id="set_to_draft_reason_label"></label>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-lg-5 col-form-label">Set To Draft File :</label>
+              <div class="col-lg-7">
+                <embed id="draft-file" width="100%" height="600" type="application/pdf" />
               </div>
             </div>
           </div>
@@ -1826,6 +1840,12 @@
               <div class="col-lg-12 mt-3 mt-lg-0">
                 <label class="form-label">Set To Draft Reason <span class="text-danger">*</span></label>
                 <textarea class="form-control" id="set_to_draft_reason" name="set_to_draft_reason" maxlength="500"></textarea>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-lg-12 mt-3 mt-lg-0">
+                <label class="form-label">Set To Draft File</label>
+                <input type="file" class="form-control" id="set_to_draft_file" name="set_to_draft_file">
               </div>
             </div>
           </form>

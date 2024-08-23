@@ -226,6 +226,8 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'data' : 'CHECK_BOX' },
         { 'data' : 'RELEASE_TO' },
         { 'data' : 'DR_TYPE' },
+        { 'data' : 'DR_NUMBER' },
+        { 'data' : 'STOCK_NUMBER' },
         { 'data' : 'DR_STATUS' },
         { 'data' : 'RELEASED_DATE' },
         { 'data' : 'ACTION' }
@@ -237,7 +239,9 @@ function internalDRTable(datatable_name, buttons = false, show_all = false){
         { 'width': 'auto', 'aTargets': 2 },
         { 'width': 'auto', 'aTargets': 3 },
         { 'width': 'auto', 'aTargets': 4 },
-        { 'width': '15%','bSortable': false, 'aTargets': 5 }
+        { 'width': 'auto', 'aTargets': 5 },
+        { 'width': 'auto', 'aTargets': 6 },
+        { 'width': '15%','bSortable': false, 'aTargets': 7 }
     ];
 
     const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];

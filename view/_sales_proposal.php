@@ -31,6 +31,10 @@
                                 <label class="form-check-label" for="sales-proposal-status-draft">Draft</label>
                               </div>
                               <div class="form-check my-2">
+                                <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-review" value="For Review" />
+                                <label class="form-check-label" for="sales-proposal-status-for-review">Draft</label>
+                              </div>
+                              <div class="form-check my-2">
                                 <input class="form-check-input sales-proposal-status-filter" type="radio" name="sales-proposal-status-filter" id="sales-proposal-status-for-initial-approval" value="For Initial Approval" />
                                 <label class="form-check-label" for="sales-proposal-status-for-initial-approval">For Initial Approval</label>
                               </div>

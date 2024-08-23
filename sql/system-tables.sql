@@ -5541,3 +5541,74 @@ CREATE TABLE sales_proposal_repayment (
     due_amount DOUBLE NOT NULL,
     last_log_by INT UNSIGNED NOT NULL
 );
+
+CREATE TABLE brand(
+	brand_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	brand_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX brand_index_brand_id ON brand(brand_id);
+
+CREATE TABLE make(
+	make_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	make_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX make_index_make_id ON make(make_id);
+
+CREATE TABLE model(
+	model_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	model_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX model_index_model_id ON model(model_id);
+
+CREATE TABLE cabin(
+	cabin_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	cabin_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX cabin_index_cabin_id ON cabin(cabin_id);
+
+CREATE TABLE supplier(
+	supplier_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	supplier_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX supplier_index_supplier_id ON supplier(supplier_id);
+
+CREATE TABLE class(
+	class_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	class_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX class_index_class_id ON class(class_id);
+
+CREATE TABLE mode_of_acquisition(
+	mode_of_acquisition_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	mode_of_acquisition_name VARCHAR(100) NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+);
+
+CREATE INDEX mode_of_acquisition_index_mode_of_acquisition_id ON mode_of_acquisition(mode_of_acquisition_id);
+
+CREATE TABLE loan_collections (
+    loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
+    transaction_date DATE NOT NULL,
+    or_number VARCHAR(100) NOT NULL,
+    or_date DATE NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL
+);
