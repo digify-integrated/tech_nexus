@@ -15,7 +15,6 @@
     require_once 'model/product-model.php';
     require_once 'model/sales-proposal-model.php';
     require_once 'model/user-model.php';
-    require_once 'model/bank-model.php';
 
     $databaseModel = new DatabaseModel();
     $systemModel = new SystemModel();
@@ -23,7 +22,6 @@
     $customerModel = new CustomerModel($databaseModel);
     $productModel = new ProductModel($databaseModel);
     $salesProposalModel = new SalesProposalModel($databaseModel);
-    $bankModel = new BankModel($databaseModel);
     $userModel = new UserModel($databaseModel, $systemModel);
     
     if(isset($_GET['id'])){
@@ -36,41 +34,30 @@
 
         $createdByDetails = $userModel->getUserByID($_SESSION['user_id']);
         $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
-        
+
         $totalPDCAmount = 0;
         $totalReversedPDCAmount = 0;
         $uniqueCheckNumbers = array();
-        $depositTotals = array();
-        
+
         foreach ($loanCollectionIDs as $loanCollectionID) {
             $pdcManagementDetails = $pdcManagementModel->getPDCManagement($loanCollectionID);
             $collection_status = $pdcManagementDetails['collection_status'];
             $payment_amount = $pdcManagementDetails['payment_amount'];
             $check_number = $pdcManagementDetails['check_number'];
-            $deposit_to = $pdcManagementDetails['deposited_to'] ?? null;
-        
-            $bankDetails = $bankModel->getBank($deposit_to);
-            $bank = $bankDetails['bank_name'] ?? null;
-        
+
             $totalPDCAmount = $totalPDCAmount + $payment_amount;
-        
+
             if($collection_status == 'Reversed'){
                 $totalReversedPDCAmount = $totalReversedPDCAmount + $payment_amount;
             }
-        
+
             if(!in_array($check_number, $uniqueCheckNumbers)){
                 $uniqueCheckNumbers[] = $check_number;
             }
-        
-            if(!isset($depositTotals[$bank])){
-                $depositTotals[$bank] = 0;
-            }
-        
-            $depositTotals[$bank] += $payment_amount;
         }
-        
+
         $uniqueCheckCount = count($uniqueCheckNumbers);
-        
+
         $netPayments = $totalPDCAmount - $totalReversedPDCAmount;
     }
 
@@ -115,13 +102,6 @@
     $pdf->Cell(80, 8, 'TOTAL NUMBER OF PDC', 1, 0, 'L'); // 1 = border
     $pdf->Cell(80, 8, number_format($uniqueCheckCount, 0), 1, 0, 'L'); // 1 = border
     $pdf->Ln(8);
-
-    foreach($depositTotals as $bank => $total){
-        $pdf->Cell(80, 8, $bank, 1, 0, 'L'); // 1 = border
-        $pdf->Cell(80, 8, number_format($total, 2), 1, 0, 'L'); // 1 = border
-        $pdf->Ln(8);
-    }
-    
 
     $pdf->Cell(80, 8, 'PREPARED BY', 1, 0, 'L', 0, '', 1); // 1 = border
     $pdf->Cell(80, 8, $createdByName, 1, 0, 'L', 0, '', 1); // 1 = border
@@ -171,6 +151,7 @@
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK STATUS</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>FOR DEPOSIT ON</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REVERSAL REASON</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
                             </tr>
                         </thead>
@@ -193,6 +174,8 @@
             $check_number = $pdcManagementDetails['check_number'];
             $remarks = $pdcManagementDetails['remarks'];
             $pdc_type = $pdcManagementDetails['pdc_type'];
+            $reversal_reason = $pdcManagementDetails['reversal_reason'];
+            $reversal_remarks = $pdcManagementDetails['reversal_remarks'];
             $new_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['new_deposit_date'], '', 'm/d/Y', '');
             $for_deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['for_deposit_date'], '', 'm/d/Y', '');
             $deposit_date = $systemModel->checkDate('empty', $pdcManagementDetails['deposit_date'], '', 'm/d/Y', '');
@@ -240,6 +223,7 @@
                 'check_no' => $check_number,
                 'check_status' => $collection_status,
                 'for_deposit_on' => $new_deposit_date,
+                'reversal_reason' => $reversal_reason . ' - ' . $reversal_remarks,
                 'remarks' => $remarks
             );
             $i++;
@@ -277,6 +261,7 @@
                                 <td>'. $row['check_no'] .'</td>
                                 <td>'. $row['check_status'] .'</td>
                                 <td>'. $row['for_deposit_on'] .'</td>
+                                <td>'. $row['reversal_reason'] .'</td>
                                 <td>'. $row['remarks'] .'</td>
                             </tr>';
         }

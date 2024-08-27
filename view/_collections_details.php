@@ -73,7 +73,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
-                  <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                  <?php echo $salesProposalModel->generateLoanCollectionsOptions(); ?>
                 </select>
               </div>  
             </div>
@@ -136,7 +136,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01" <?php echo $disabled; ?>>
+                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="0" step="0.01" <?php echo $disabled; ?>>
             </div>
             <label class="col-lg-2 col-form-label">Online Reference Number</label>
             <div class="col-lg-4">
@@ -183,6 +183,34 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <h5>Transaction History</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="transaction-history-table" class="table table-hover nowrap w-100">
+            <thead>
+              <tr>
+                <th>Transaction Type</th>
+                <th>Transaction Date</th>
+                <th>Reference Number</th>
+                <th>Reference Date</th>
+                <th>Transaction By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

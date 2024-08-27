@@ -5605,10 +5605,17 @@ CREATE TABLE mode_of_acquisition(
 
 CREATE INDEX mode_of_acquisition_index_mode_of_acquisition_id ON mode_of_acquisition(mode_of_acquisition_id);
 
-CREATE TABLE loan_collections (
-    loan_collection_id INT AUTO_INCREMENT PRIMARY KEY,
-    transaction_date DATE NOT NULL,
-    or_number VARCHAR(100) NOT NULL,
-    or_date DATE NOT NULL,
-    last_log_by INT UNSIGNED NOT NULL
-);
+CREATE TABLE loan_collections_history (
+    loan_collections_history_id INT AUTO_INCREMENT PRIMARY KEY,
+    loan_collection_id INT UNSIGNED NOT NULL,
+    mode_of_payment VARCHAR(100) NOT NULL, 
+    transaction_date DATETIME NOT NULL,
+    transaction_type VARCHAR(50) NOT NULL,
+    reference_number VARCHAR(100) NOT NULL,
+    reference_date DATE NOT NULL,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX loan_collections_history_index_loan_collections_history_id ON loan_collections_history(loan_collections_history_id);
+CREATE INDEX loan_collections_history_index_loan_collection_id ON loan_collections_history(loan_collection_id);

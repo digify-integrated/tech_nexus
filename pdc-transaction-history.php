@@ -6,34 +6,19 @@
   require('model/customer-model.php');
   require('model/company-model.php');
   require('model/product-model.php');
-  require('model/bank-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $pdcManagementModel = new PDCManagementModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $customerModel = new CustomerModel($databaseModel);
-  $bankModel = new BankModel($databaseModel);
 
-  $pageTitle = 'PDC Management';
+  $pageTitle = 'Transaction History';
     
-  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'read');
-  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'create');
-  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'write');
-  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 96, 'delete');
-
-  $tagPDCAsCleared = $userModel->checkSystemActionAccessRights($user_id, 154);
-  $tagPDCOnHold = $userModel->checkSystemActionAccessRights($user_id, 155);
-  $tagPDCAsReversed = $userModel->checkSystemActionAccessRights($user_id, 156);
-  $tagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 157);
-  $tagPDCAsRedeposit = $userModel->checkSystemActionAccessRights($user_id, 158);
-  $tagPDCAsForDeposit = $userModel->checkSystemActionAccessRights($user_id, 159);
-  $tagPDCAsPulledOut = $userModel->checkSystemActionAccessRights($user_id, 160);
-  $tagClearedPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 161);
-  $tagPDCAsDeposited = $userModel->checkSystemActionAccessRights($user_id, 162);
-  $massTagPDCAsCancelled = $userModel->checkSystemActionAccessRights($user_id, 163);
-  $massTagPDCAsReturned = $userModel->checkSystemActionAccessRights($user_id, 164);
-  $duplicateCancelledPDC = $userModel->checkSystemActionAccessRights($user_id, 165);
+  $pdcManagementReadAccess = $userModel->checkMenuItemAccessRights($user_id, 105, 'read');
+  $pdcManagementCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 105, 'create');
+  $pdcManagementWriteAccess = $userModel->checkMenuItemAccessRights($user_id, 105, 'write');
+  $pdcManagementDeleteAccess = $userModel->checkMenuItemAccessRights($user_id, 105, 'delete');
 
   if ($pdcManagementReadAccess['total'] == 0) {
     header('location: 404.php');
@@ -58,7 +43,6 @@
 
     $pdcManagementDetails = $pdcManagementModel->getPDCManagement($pdcManagementID);
     $collectionStatus = $pdcManagementDetails['collection_status'];
-    $checkDate = date('m-d-Y', strtotime($pdcManagementDetails['check_date']));
   }
   else{
     $pdcManagementID = null;
@@ -97,15 +81,6 @@
                     <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                     <li class="breadcrumb-item">Sales Proposal</li>
                     <li class="breadcrumb-item" aria-current="page"><a href="pdc-management.php"><?php echo $pageTitle; ?></a></li>
-                    <?php
-                        if(!$newRecord && !empty($pdcManagementID)){
-                            echo '<li class="breadcrumb-item" id="loan-collection-id">'. $pdcManagementID .'</li>';
-                        }
-
-                        if($newRecord){
-                            echo '<li class="breadcrumb-item">New</li>';
-                        }
-                  ?>
                 </ul>
               </div>
               <div class="col-md-12">
@@ -117,15 +92,7 @@
           </div>
         </div>
         <?php
-          if($newRecord && $pdcManagementCreateAccess['total'] > 0){
-            require_once('view/_pdc_management_new.php');
-          }
-          else if(!empty($pdcManagementID) && $pdcManagementWriteAccess['total'] > 0){
-            require_once('view/_pdc_management_details.php');
-          }
-          else{
-            require_once('view/_pdc_management.php');
-          }
+             require_once('view/_pdc_management_transaction_history.php');
         ?>
       </div>
     </section>
@@ -143,7 +110,7 @@
     <script src="./assets/js/plugins/sweetalert2.all.min.js"></script>
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/pdc-management.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/pdc-transaction-history.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

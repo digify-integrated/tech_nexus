@@ -16,6 +16,22 @@
                   <div class="card-body">
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item px-0 py-2">
+                        <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pdc-management-default-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
+                          Default Group Filter
+                        </a>
+                        <div class="collapse show" id="pdc-management-default-filter-collapse">
+                          <div class="row py-3">
+                            <div class="col-12">
+                              <select class="form-control" id="default-filter">
+                                <option value="">--</option>
+                                <option value="For Deposit">For Deposit</option>
+                                <option value="Deposited">Deposited</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li class="list-group-item px-0 py-2">
                         <a class="btn border-0 px-0 text-start w-100" data-bs-toggle="collapse" href="#pdc-management-status-filter-collapse"><div class="float-end"><i class="ti ti-chevron-down"></i></div>
                           PDC Status
                         </a>
@@ -209,7 +225,7 @@
                     }
 
                     if($tagPDCAsDeposited['total'] > 0){
-                      $action .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-deposited">Tag As Deposited</button></li>';
+                      $action .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-deposited-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-deposited-offcanvas" aria-controls="pdc-deposited-offcanvas">Tag As Deposited</button></li>';
                     }
 
                     if($tagPDCAsForDeposit['total'] > 0){
@@ -247,6 +263,7 @@
                     <a class="dropdown-item" href="javascript:void(0);" id="print-acknowledgement">Print Acknowledgment</a> 
                     <a class="dropdown-item" href="javascript:void(0);" id="print">Print Report</a> 
                     <a class="dropdown-item" href="javascript:void(0);" id="print-check">Print Check</a>
+                    <a class="dropdown-item" href="javascript:void(0);" id="print-reversal">Print Reversal</a>
                   </div>
                 <button type="button" class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#import-offcanvas" aria-controls="import-offcanvas">
                   Import
@@ -365,6 +382,37 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-pdc-reverse" form="mass-pdc-reverse-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="pdc-deposited-offcanvas" aria-labelledby="pdc-deposited-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="pdc-deposited-offcanvas-label" style="margin-bottom:-0.5rem">For Deposit PDC</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="mass-pdc-deposited-form" method="post" action="#">
+            <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                    <label class="form-label">Deposit To <span class="text-danger">*</span></label>
+                    <select class="form-control offcanvas-select2" name="deposit_to" id="deposit_to">
+                      <option value="">--</option>
+                      <?php echo $bankModel->generateBankOptions(); ?>
+                    </select>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-pdc-deposited" form="mass-pdc-deposited-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

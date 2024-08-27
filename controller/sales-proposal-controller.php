@@ -1815,8 +1815,28 @@ class SalesProposalController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
+
+        $salesProposalDetails = $this->salesProposalModel->getSalesProposal($salesProposalID);
+        $salesProposalNumber = $salesProposalDetails['sales_proposal_number'];
+        $finalApprovingOfficer = $salesProposalDetails['final_approving_officer'];
+        $productType = $salesProposalDetails['product_type'];
+        $productID = $salesProposalDetails['product_id'];
+        $customerID = $salesProposalDetails['customer_id'];
+
+        $customerDetails = $this->customerModel->getPersonalInformation($customerID);
+        $customerName = strtoupper($customerDetails['file_as'] ?? null);
+
+        $productDetails = $this->productModel->getProduct($productID);
+        $productSubategoryID = $productDetails['product_subcategory_id'];
+
+        $productSubcategoryDetails = $this->productSubcategoryModel->getProductSubcategory($productSubategoryID);
+        $productSubcategoryCode = $productSubcategoryDetails['product_subcategory_code'] ?? null;
+
+        $stockNumber = str_replace($productSubcategoryCode, '', $productDetails['stock_number']);
+        $fullStockNumber = $productSubcategoryCode . $stockNumber;
     
         $this->salesProposalModel->updateSalesProposalStatus($salesProposalID, $contactID, 'Proceed', $finalApprovalRemarks, $userID);
+        $this->sendProceed('', $salesProposalNumber, $customerName, $productType, $fullStockNumber);
             
         echo json_encode(['success' => true]);
     }
@@ -4038,6 +4058,53 @@ class SalesProposalController {
         $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
 
         $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(4);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);
+        $emailBody = str_replace('{CLIENT_NAME}', $client_name, $emailBody);
+        $emailBody = str_replace('{PRODUCT_TYPE}', $productType, $emailBody);
+        $emailBody = str_replace('{STOCK_NUMBER}', $stock_number, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress($email);
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendProceed($email, $sales_proposal_number, $client_name, $productType, $stock_number) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(7);
         $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
         $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
         $emailBody = str_replace('{SALES_PROPOSAL_NUMBER}', $sales_proposal_number, $emailBody);

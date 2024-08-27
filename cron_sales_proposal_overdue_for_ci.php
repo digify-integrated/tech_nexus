@@ -34,6 +34,7 @@ $sql = $databaseModel->getConnection()->prepare('CALL cronSalesProposalOverdueFo
 $sql->execute();
 $options = $sql->fetchAll(PDO::FETCH_ASSOC);
 $sql->closeCursor();
+$count = count($options);
 
 foreach ($options as $row) {
     $customerID = $row['customer_id'];
@@ -106,18 +107,21 @@ $mailer->addAddress('l.agulto@christianmotors.ph');
 $mailer->Subject = $emailSubject;
 $mailer->Body = $message;
 
-try {
-    if ($mailer->send()) {
-        file_put_contents($log_file, "Email sent successfully at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
-        echo "Email sent successfully";
-    } else {
-        file_put_contents($log_file, "Failed to send email. Error: " . $mailer->ErrorInfo . " at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
-        echo "Failed to send email. Error: " . $mailer->ErrorInfo;
+if($count > 0){
+    try {
+        if ($mailer->send()) {
+            file_put_contents($log_file, "Email sent successfully at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
+            echo "Email sent successfully";
+        } else {
+            file_put_contents($log_file, "Failed to send email. Error: " . $mailer->ErrorInfo . " at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
+            echo "Failed to send email. Error: " . $mailer->ErrorInfo;
+        }
+    } catch (Exception $e) {
+        file_put_contents($log_file, "Exception occurred: " . $e->getMessage() . " at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
+        echo "Exception occurred: " . $e->getMessage();
     }
-} catch (Exception $e) {
-    file_put_contents($log_file, "Exception occurred: " . $e->getMessage() . " at " . date("Y-m-d H:i:s") . "\n", FILE_APPEND);
-    echo "Exception occurred: " . $e->getMessage();
 }
+
 
 // Close database connections
 $databaseModel->getConnection()->close();

@@ -1932,6 +1932,35 @@ class SalesProposalModel {
     }
     # -------------------------------------------------------------
 
+    # -------------------------------------------------------------
+    #
+    # Function: generateLoanCollectionsOptions
+    # Description: Generates the sales proposal tagged for DR.
+    #
+    # Parameters:None
+    #
+    # Returns: String.
+    #
+    # -------------------------------------------------------------
+    public function generateLoanCollectionsOptions() {
+        $stmt = $this->db->getConnection()->prepare('CALL generateLoanCollectionsOptions()');
+        $stmt->execute();
+        $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $htmlOptions = '';
+        foreach ($options as $row) {
+            $salesProposalID = $row['sales_proposal_id'];
+            $loanNumber = $row['loan_number'];
+            $fileAs = strtoupper($row['file_as']);
+            $stockNumber = strtoupper($row['stock_number']);
+
+            $htmlOptions .= '<option value="' . htmlspecialchars($salesProposalID, ENT_QUOTES) . '">' . htmlspecialchars($loanNumber, ENT_QUOTES) . ' - ' . $stockNumber . ' - '. htmlspecialchars($fileAs, ENT_QUOTES)  .'</option>';
+        }
+
+        return $htmlOptions;
+    }
+    # -------------------------------------------------------------
+
     
 
     # -------------------------------------------------------------

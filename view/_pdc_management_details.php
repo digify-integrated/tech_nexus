@@ -38,7 +38,8 @@
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-redeposit-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-redeposit-offcanvas" aria-controls="pdc-redeposit-offcanvas">Redeposit PDC</button></li>';
                   }
 
-                  if ($tagPDCAsForDeposit['total'] > 0 && $collectionStatus == 'Pending') {
+                  $currentDate = date('m-d-Y');
+                  if ($tagPDCAsForDeposit['total'] > 0 && $collectionStatus == 'Pending' && $checkDate <= $currentDate) {
                       $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-for-deposit-details">For Deposit PDC</button></li>';
                   }
 
@@ -47,7 +48,7 @@
                   }
 
                   if ($tagPDCAsDeposited['total'] > 0 && $collectionStatus == 'For Deposit') {
-                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-deposited-details">Deposited PDC</button></li>';
+                      $dropdown .= '<li><button class="dropdown-item" type="button" id="tag-pdc-as-deposited-details" data-bs-toggle="offcanvas" data-bs-target="#pdc-deposited-offcanvas" aria-controls="pdc-deposited-offcanvas">Deposited PDC</button></li>';
                   }
 
                   $dropdown .= '<li><button class="dropdown-item" type="button" id="print-check-details">Print Check</button></li>';
@@ -100,7 +101,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id" <?php echo $disabled; ?>>
                   <option value="">--</option>
-                  <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                  <?php echo $salesProposalModel->generateLoanCollectionsOptions(); ?>
                 </select>
               </div>  
             </div>
@@ -211,6 +212,34 @@
             </div>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-12">
+            <h5>Transaction History</h5>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="transaction-history-table" class="table table-hover nowrap w-100">
+            <thead>
+              <tr>
+                <th>Transaction Type</th>
+                <th>Transaction Date</th>
+                <th>Reference Number</th>
+                <th>Reference Date</th>
+                <th>Transaction By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -352,6 +381,37 @@
       <div class="row">
         <div class="col-lg-12">
           <button type="submit" class="btn btn-primary" id="submit-pdc-reverse" form="pdc-reverse-form">Submit</button>
+          <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="pdc-deposited-offcanvas" aria-labelledby="pdc-deposited-offcanvas-label">
+      <div class="offcanvas-header">
+        <h2 id="pdc-deposited-offcanvas-label" style="margin-bottom:-0.5rem">Deposit PDC</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+    <div class="offcanvas-body">
+      <div class="row">
+        <div class="col-lg-12">
+          <form id="pdc-deposited-form" method="post" action="#">
+            <div class="form-group row">
+                <div class="col-lg-12 mt-3 mt-lg-0">
+                    <label class="form-label">Deposit To <span class="text-danger">*</span></label>
+                    <select class="form-control offcanvas-select2" name="deposit_to" id="deposit_to">
+                      <option value="">--</option>
+                      <?php echo $bankModel->generateBankOptions(); ?>
+                    </select>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <button type="submit" class="btn btn-primary" id="submit-pdc-deposited" form="pdc-deposited-form">Submit</button>
           <button class="btn btn-light-danger" data-bs-dismiss="offcanvas"> Close </button>
         </div>
       </div>

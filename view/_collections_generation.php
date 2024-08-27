@@ -53,7 +53,7 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $filterCollectionsStatus = $_POST['filter_collections_status'];
 
-            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterReversedDateStartDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate)');
+            $sql = $databaseModel->getConnection()->prepare('CALL generateCollectionsTable(:filterCollectionsStatus, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterPaymentDateStartDate, :filterPaymentDateEndDate, :filterORDateStartDate, :filterORDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate)');
             $sql->bindValue(':filterCollectionsStatus', $filterCollectionsStatus, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
             $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);

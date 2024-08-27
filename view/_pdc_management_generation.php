@@ -9,6 +9,7 @@ require_once '../model/customer-model.php';
 require_once '../model/product-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require_once '../model/pdc-management-model.php';
 
 $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
@@ -17,6 +18,7 @@ $employeeModel = new EmployeeModel($databaseModel);
 $customerModel = new CustomerModel($databaseModel);
 $productModel = new ProductModel($databaseModel);
 $salesProposalModel = new SalesProposalModel($databaseModel);
+$pdcManagementModel = new PDCManagementModel($databaseModel);
 $securityModel = new SecurityModel();
 
 if(isset($_POST['type']) && !empty($_POST['type'])){
@@ -65,15 +67,21 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
             
             $values = $_POST['filter_pdc_management_status'];
 
-            $values_array = explode(', ', $values);
+            if(!empty($values)){
 
-            $quoted_values_array = array_map(function($value) {
-                return "'" . $value . "'";
-            }, $values_array);
-
-            $quoted_values_string = implode(', ', $quoted_values_array);
-
-            $filterPDCManagementStatus = $quoted_values_string;
+                $values_array = explode(', ', $values);
+    
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterPDCManagementStatus = $quoted_values_string;
+            }
+            else{
+                $filterPDCManagementStatus = null;
+            }
 
             $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTable(:filterPDCManagementStatus, :filterCheckDateStartDate, :filterCheckDateEndDate, :filterRedepositDateStartDate, :filterRedepositDateEndDate, :filterOnHoldDateStartDate, :filterOnHoldDateEndDate, :filterForDepositDateStartDate, :filterForDepositDateEndDate, :filterDepositDateStartDate, :filterDepositDateEndDate, :filterReversedDateStartDate, :filterReversedDateEndDate, :filterPulledOutDateStartDate, :filterPulledOutDateEndDate, :filterCancellationDateStartDate, :filterCancellationDateEndDate, :filterClearDateStartDate, :filterClearDateEndDate)');
             $sql->bindValue(':filterPDCManagementStatus', $filterPDCManagementStatus, PDO::PARAM_STR);
@@ -164,6 +172,167 @@ if(isset($_POST['type']) && !empty($_POST['type'])){
                                     </a>
                                 </div>'
                     ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: transaction history table
+        # Description:
+        # Generates the transaction history table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'transaction history table':            
+            $loanCollectionID = $_POST['loan_collection_id'];
+
+            $sql = $databaseModel->getConnection()->prepare('CALL generatePDCManagementTransactionHistoryTable(:loanCollectionID)');
+            $sql->bindValue(':loanCollectionID', $loanCollectionID, PDO::PARAM_INT);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $loanCollectionsHistoryID = $row['loan_collections_history_id'];
+                $loanCollectionID = $row['loan_collection_id'];
+                $transactionType = $row['transaction_type'];
+                $referenceNumber = $row['reference_number'];
+                $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y h:i:s A', '');
+                $referenceDate = $systemModel->checkDate('empty', $row['reference_date'], '', 'm/d/Y', '');
+
+                $createdByDetails = $userModel->getUserByID($row['last_log_by']);
+                $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
+                $response[] = [
+                    'TRANSACTION_TYPE' => $transactionType,
+                    'TRANSACTION_DATE' => $transactionDate,
+                    'REFERENCE_NUMBER' => $referenceNumber,
+                    'REFERENCE_DATE' => $referenceDate,
+                    'REFERENCE_DATE' => $referenceDate,
+                    'TRANSACTION_BY' => $createdByName
+                ];
+            }
+
+            echo json_encode($response);
+        break;
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
+        #
+        # Type: all transaction history table
+        # Description:
+        # Generates all of the transaction history table.
+        #
+        # Parameters: None
+        #
+        # Returns: Array
+        #
+        # -------------------------------------------------------------
+        case 'all transaction history table':
+            $filterTransactionDateStartDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_start_date'], '', 'Y-m-d', '');
+            $filterTransactionDateEndDate = $systemModel->checkDate('empty', $_POST['filter_transaction_date_end_date'], '', 'Y-m-d', '');
+
+            $filterReferenceDateStartDate = $systemModel->checkDate('empty', $_POST['filter_reference_date_start_date'], '', 'Y-m-d', '');
+            $filterReferenceDateEndDate = $systemModel->checkDate('empty', $_POST['filter_reference_date_end_date'], '', 'Y-m-d', '');
+            
+            $values = $_POST['filter_transaction_type'];
+            $values2 = $_POST['filter_mode_of_payment'];
+
+            if(!empty($values)){
+                $values_array = explode(', ', $values);
+
+                $quoted_values_array = array_map(function($value) {
+                    return "'" . $value . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterTransactionType = $quoted_values_string;
+            }
+            else{
+                $filterTransactionType = null;
+            }
+
+            if(!empty($values2)){
+                $values_array = explode(', ', $values2);
+
+                $quoted_values_array = array_map(function($values2) {
+                    return "'" . $values2 . "'";
+                }, $values_array);
+    
+                $quoted_values_string = implode(', ', $quoted_values_array);
+    
+                $filterModeOfPayment = $quoted_values_string;
+            }
+            else{
+                $filterModeOfPayment = null;
+            }
+            
+            $sql = $databaseModel->getConnection()->prepare('CALL generateAllPDCManagementTransactionHistoryTable(:filterTransactionType, :filterModeOfPayment, :filterTransactionDateStartDate, :filterTransactionDateEndDate, :filterReferenceDateStartDate, :filterReferenceDateEndDate)');
+            $sql->bindValue(':filterTransactionType', $filterTransactionType, PDO::PARAM_STR);
+            $sql->bindValue(':filterModeOfPayment', $filterModeOfPayment, PDO::PARAM_STR);
+            $sql->bindValue(':filterTransactionDateStartDate', $filterTransactionDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterTransactionDateEndDate', $filterTransactionDateEndDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReferenceDateStartDate', $filterReferenceDateStartDate, PDO::PARAM_STR);
+            $sql->bindValue(':filterReferenceDateEndDate', $filterReferenceDateEndDate, PDO::PARAM_STR);
+            $sql->execute();
+            $options = $sql->fetchAll(PDO::FETCH_ASSOC);
+            $sql->closeCursor();
+
+            foreach ($options as $row) {
+                $loanCollectionsHistoryID = $row['loan_collections_history_id'];
+                $loanCollectionID = $row['loan_collection_id'];
+                $transactionType = $row['transaction_type'];
+                $referenceNumber = $row['reference_number'];
+                $modeOfPayment = $row['mode_of_payment'];
+                $transactionDate = $systemModel->checkDate('empty', $row['transaction_date'], '', 'm/d/Y h:i:s A', '');
+                $referenceDate = $systemModel->checkDate('empty', $row['reference_date'], '', 'm/d/Y', '');
+
+                $createdByDetails = $userModel->getUserByID($row['last_log_by']);
+                $createdByName = strtoupper($createdByDetails['file_as'] ?? null);
+
+                $pdcManagementDetails = $pdcManagementModel->getPDCManagement($loanCollectionID);
+                $loanNumber = $pdcManagementDetails['loan_number'] ?? null;
+                $productID = $pdcManagementDetails['product_id'] ?? null;
+                $customerID = $pdcManagementDetails['customer_id'] ?? null;
+                $paymentDetails = $pdcManagementDetails['payment_details'] ?? null;
+                $checkNumber = $pdcManagementDetails['check_number'] ?? null;
+
+                $customerDetails = $customerModel->getPersonalInformation($customerID);
+                $customerName = $customerDetails['file_as'] ?? null;
+                $corporateName = $customerDetails['corporate_name'] ?? null;
+
+                $productDetails = $productModel->getProduct($productID);
+                $productName = $productDetails['description'] ?? null;
+                $stockNumber = $productDetails['stock_number'] ?? null;
+
+                $loanCollectionIDEncrypted = $securityModel->encryptData($loanCollectionID);
+
+                $response[] = [
+                    'LOAN_NUMBER' => ' <a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details" target="_blank">
+                                        '. $loanNumber .'
+                                    </a>',
+                    'CUSTOMER' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details" target="_blank"><div class="col">
+                                                    <h6 class="mb-0">'. $customerName .'</h6>
+                                                    <p class="f-12 mb-0">'. $corporateName .'</p>
+                                                </div></a>',
+                    'PRODUCT' => '<a href="pdc-management.php?id='. $loanCollectionIDEncrypted .'" title="View Details" target="_blank">' . $stockNumber . '<br/>' . $productName . '</a>',
+                    'PAYMENT_DETAILS' => $paymentDetails,
+                    'CHECK_NUMBER' => $checkNumber,
+                    'MODE_OF_PAYMENT' => $modeOfPayment,
+                    'TRANSACTION_TYPE' => $transactionType,
+                    'TRANSACTION_DATE' => $transactionDate,
+                    'REFERENCE_NUMBER' => $referenceNumber,
+                    'REFERENCE_DATE' => $referenceDate,
+                    'REFERENCE_DATE' => $referenceDate,
+                    'TRANSACTION_BY' => $createdByName
+                ];
             }
 
             echo json_encode($response);

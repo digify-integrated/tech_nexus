@@ -6,6 +6,10 @@
             pdcManagementTable('#pdc-management-table');
         }
 
+        if($('#transaction-history-table').length){
+            transactionHistoryTable('#transaction-history-table');
+        }
+
         if($('#pdc-management-form').length){
             pdcManagementForm();
         }
@@ -20,6 +24,14 @@
 
         if($('#mass-pdc-cancel-form').length){
             massPDCCancelForm();
+        }
+
+        if($('#pdc-deposited-form').length){
+            pdcDepositedForm();
+        }
+
+        if($('#mass-pdc-deposited-form').length){
+            massPDCDepositedForm();
         }
 
         if($('#pdc-pulled-out-form').length){
@@ -238,126 +250,22 @@
             pdcManagementTable('#pdc-management-table');
         });
 
-        $(document).on('click','#tag-pdc-as-deposited-details',function() {
-            const loan_collection_id = $('#loan-collection-id').text();
-            const transaction = 'tag pdc as deposited';
+        $(document).on('change','#default-filter',function() {
+            var selectValue = $(this).val();
     
-            Swal.fire({
-                title: 'Confirm PDC As Deposited',
-                text: 'Are you sure you want to tag these PDC as deposited?',
-                icon: 'warning',
-                showCancelButton: !0,
-                confirmButtonText: 'Deposited',
-                cancelButtonText: 'Cancel',
-                confirmButtonClass: 'btn btn-success mt-2',
-                cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                buttonsStyling: !1
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        type: 'POST',
-                        url: 'controller/pdc-management-controller.php',
-                        dataType: 'json',
-                        data: {
-                            loan_collection_id : loan_collection_id, 
-                            transaction : transaction
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                setNotification('Tag PDC As Deposited Success', 'The PDC have been tagged as deposited successfully.', 'success');
-                                window.location.reload();
-                            }
-                            else {
-                                if (response.isInactive) {
-                                    setNotification('User Inactive', response.message, 'danger');
-                                    window.location = 'logout.php?logout';
-                                }
-                                else if (response.notExist) {
-                                    window.location = '404.php';
-                                }
-                                else {
-                                    showNotification('Tag PDC As Deposited Error', response.message, 'danger');
-                                }
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                            if (xhr.responseText) {
-                                fullErrorMessage += `, Response: ${xhr.responseText}`;
-                            }
-                            showErrorDialog(fullErrorMessage);
-                        }
-                    });
-                    return false;
-                }
-            });
-        });
-
-        $(document).on('click','#tag-pdc-as-deposited',function() {
-            let loan_collection_id = [];
-            const transaction = 'tag multiple pdc as deposited';
-
-            $('.datatable-checkbox-children').each((index, element) => {
-                if ($(element).is(':checked')) {
-                    loan_collection_id.push(element.value);
-                }
-            });
-    
-            if(loan_collection_id.length > 0){
-                Swal.fire({
-                    title: 'Confirm Multiple PDC As Deposited',
-                    text: 'Are you sure you want to tag these PDC as deposited?',
-                    icon: 'info',
-                    showCancelButton: !0,
-                    confirmButtonText: 'Deposited',
-                    cancelButtonText: 'Cancel',
-                    confirmButtonClass: 'btn btn-success mt-2',
-                    cancelButtonClass: 'btn btn-secondary ms-2 mt-2',
-                    buttonsStyling: !1
-                }).then(function(result) {
-                    if (result.value) {
-                        $.ajax({
-                            type: 'POST',
-                            url: 'controller/pdc-management-controller.php',
-                            dataType: 'json',
-                            data: {
-                                loan_collection_id: loan_collection_id,
-                                transaction : transaction
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    showNotification('Tag PDC As Deposited Success', 'The selected PDC have been tagged as deposited successfully.', 'success');
-                                    reloadDatatable('#pdc-management-table');
-                                }
-                                else {
-                                    if (response.isInactive) {
-                                        setNotification('User Inactive', response.message, 'danger');
-                                        window.location = 'logout.php?logout';
-                                    }
-                                    else {
-                                        showNotification('Tag PDC As Deposited Error', response.message, 'danger');
-                                    }
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
-                                if (xhr.responseText) {
-                                    fullErrorMessage += `, Response: ${xhr.responseText}`;
-                                }
-                                showErrorDialog(fullErrorMessage);
-                            },
-                            complete: function(){
-                                toggleHideActionDropdown();
-                            }
-                        });
-                        
-                        return false;
-                    }
-                });
+            // Uncheck all checkboxes
+            $('.pdc-management-status-filter').prop('checked', false);
+            
+            if(selectValue === '') {
+                $('#pdc-management-status-pending').prop('checked', true);
+                $('#pdc-management-status-redeposit').prop('checked', true);
+            } else if(selectValue === 'For Deposit') {
+                $('#pdc-management-status-for-deposit').prop('checked', true);
+            } else if(selectValue === 'Deposited') {
+                $('#pdc-management-status-deposited').prop('checked', true);
             }
-            else{
-                showNotification('Tagging Multiple PDC As Deposited Error', 'Please select the PDC you wish to tag as desposited.', 'danger');
-            }
+            
+            pdcManagementTable('#pdc-management-table');
         });
 
         $(document).on('click','#tag-pdc-as-for-deposit-details',function() {
@@ -750,6 +658,23 @@
             }
         });
 
+        $(document).on('click','#print-reversal',function() {
+            var checkedBoxes = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    checkedBoxes.push(element.value);
+                }
+            });
+
+            if(checkedBoxes != ''){
+                window.open('pdc-print-reversal.php?id=' + checkedBoxes, '_blank');
+            }
+            else{
+                showNotification('Print Check Error', 'No selected pdc.', 'danger');
+            }
+        });
+
         $(document).on('click','#print-check-details',function() {
             const loan_collection_id = $('#loan-collection-id').text();
                 window.open('check_print.php?id=' + loan_collection_id, '_blank');
@@ -873,6 +798,66 @@ function pdcManagementTable(datatable_name, buttons = false, show_all = false){
             'loadingRecords': 'Just a moment while we fetch your data...'
         }
     };
+
+    if (buttons) {
+        settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
+        settings.buttons = ['csv', 'excel', 'pdf'];
+    }
+
+    destroyDatatable(datatable_name);
+
+    $(datatable_name).dataTable(settings);
+}
+
+function transactionHistoryTable(datatable_name, buttons = false, show_all = false){
+    const loan_collection_id = $('#loan-collection-id').text();
+    const type = 'transaction history table';
+    var settings;
+
+    const column = [ 
+        { 'data' : 'TRANSACTION_TYPE' },
+        { 'data' : 'TRANSACTION_DATE' },
+        { 'data' : 'REFERENCE_NUMBER' },
+        { 'data' : 'REFERENCE_DATE' },
+        { 'data' : 'TRANSACTION_BY' }
+    ];
+
+    const column_definition = [
+        { 'width': 'auto', 'aTargets': 0 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 1 },
+        { 'width': 'auto', 'aTargets': 2 },
+        { 'width': 'auto', 'type': 'date', 'aTargets': 3},
+        { 'width': 'auto', 'aTargets': 4}
+    ];
+
+    const length_menu = show_all ? [[-1], ['All']] : [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']];
+
+    settings = {
+        'ajax': { 
+            'url' : 'view/_pdc_management_generation.php',
+            'method' : 'POST',
+            'dataType': 'json',
+            'data': {'type' : type, 'loan_collection_id' : loan_collection_id},
+            'dataSrc' : '',
+            'error': function(xhr, status, error) {
+                var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                if (xhr.responseText) {
+                    fullErrorMessage += `, Response: ${xhr.responseText}`;
+                }
+                showErrorDialog(fullErrorMessage);
+            }
+        },
+        'order': [[ 1, 'desc' ]],
+        'columns' : column,
+        'columnDefs': column_definition,
+        'lengthMenu': length_menu,
+        'language': {
+            'emptyTable': 'No data found',
+            'searchPlaceholder': 'Search...',
+            'search': '',
+            'loadingRecords': 'Just a moment while we fetch your data...'
+        }
+    }
 
     if (buttons) {
         settings.dom = "<'row'<'col-sm-3'l><'col-sm-6 text-center mb-2'B><'col-sm-3'f>>" +  "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>";
@@ -1133,6 +1118,187 @@ function pdcOnHoldForm(){
                 },
                 complete: function() {
                     enableFormSubmitButton('submit-pdc-on-hold', 'Submit');
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function massPDCDepositedForm(){
+    $('#mass-pdc-deposited-form').validate({
+        rules: {
+            deposit_to: {
+                required: true
+            },
+        },
+        messages: {
+            deposit_to: {
+                required: 'Please choose the deposit to'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            let loan_collection_id = [];
+
+            $('.datatable-checkbox-children').each((index, element) => {
+                if ($(element).is(':checked')) {
+                    loan_collection_id.push(element.value);
+                }
+            });
+
+            const transaction = 'tag multiple pdc as deposited';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/pdc-management-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'PDC Deposited Success';
+                        const notificationDescription = 'The PDC has been tag as deposited successfully.';
+                        
+                        showNotification(notificationMessage, notificationDescription, 'success');
+                        reloadDatatable('#pdc-management-table');
+                        $('#pdc-deposited-offcanvas').offcanvas('hide');
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function(){
+                    toggleHideActionDropdown();
+                }
+            });
+        
+            return false;
+        }
+    });
+}
+
+function pdcDepositedForm(){
+    $('#pdc-deposited-form').validate({
+        rules: {
+            deposit_to: {
+                required: true
+            },
+        },
+        messages: {
+            deposit_to: {
+                required: 'Please choose the deposit to'
+            }
+        },
+        errorPlacement: function (error, element) {
+            if (element.hasClass('select2') || element.hasClass('modal-select2') || element.hasClass('offcanvas-select2')) {
+              error.insertAfter(element.next('.select2-container'));
+            }
+            else if (element.parent('.input-group').length) {
+              error.insertAfter(element.parent());
+            }
+            else {
+              error.insertAfter(element);
+            }
+        },
+        highlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').addClass('is-invalid');
+            }
+            else {
+              inputElement.addClass('is-invalid');
+            }
+        },
+        unhighlight: function(element) {
+            var inputElement = $(element);
+            if (inputElement.hasClass('select2-hidden-accessible')) {
+              inputElement.next().find('.select2-selection__rendered').removeClass('is-invalid');
+            }
+            else {
+              inputElement.removeClass('is-invalid');
+            }
+        },
+        submitHandler: function(form) {
+            const loan_collection_id = $('#loan-collection-id').text();
+            const transaction = 'tag pdc as deposited';
+        
+            $.ajax({
+                type: 'POST',
+                url: 'controller/pdc-management-controller.php',
+                data: $(form).serialize() + '&transaction=' + transaction + '&loan_collection_id=' + loan_collection_id,
+                dataType: 'json',
+                beforeSend: function() {
+                    disableFormSubmitButton('submit-pdc-cancel');
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const notificationMessage = 'PDC Deposited Success';
+                        const notificationDescription = 'The PDC has been tag as deposited successfully.';
+                        
+                        setNotification(notificationMessage, notificationDescription, 'success');
+                        window.location.reload();
+                    }
+                    else {
+                        if (response.isInactive) {
+                            setNotification('User Inactive', response.message, 'danger');
+                            window.location = 'logout.php?logout';
+                        }
+                        else {
+                            showNotification('Transaction Error', response.message, 'danger');
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    var fullErrorMessage = `XHR status: ${status}, Error: ${error}`;
+                    if (xhr.responseText) {
+                        fullErrorMessage += `, Response: ${xhr.responseText}`;
+                    }
+                    showErrorDialog(fullErrorMessage);
+                },
+                complete: function() {
+                    enableFormSubmitButton('submit-pdc-cancel', 'Submit');
                 }
             });
         

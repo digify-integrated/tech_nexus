@@ -41,7 +41,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
                   <option value="">--</option>
-                  <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                  <?php echo $salesProposalModel->generateLoanCollectionsOptions(); ?>
                 </select>
               </div>  
             </div>

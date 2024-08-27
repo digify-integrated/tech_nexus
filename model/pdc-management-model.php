@@ -62,14 +62,15 @@ class PDCManagementModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateLoanCollectionStatus($p_loan_collection_id, $p_collection_status, $p_reason, $p_remarks, $p_new_deposit_date, $p_reference_number, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateLoanCollectionStatus(:p_loan_collection_id, :p_collection_status, :p_reason, :p_remarks, :p_new_deposit_date, :p_reference_number, :p_last_log_by)');
+    public function updateLoanCollectionStatus($p_loan_collection_id, $p_collection_status, $p_reason, $p_remarks, $p_new_deposit_date, $p_reference_number, $p_deposited_to, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateLoanCollectionStatus(:p_loan_collection_id, :p_collection_status, :p_reason, :p_remarks, :p_new_deposit_date, :p_reference_number, :p_deposited_to, :p_last_log_by)');
         $stmt->bindValue(':p_loan_collection_id', $p_loan_collection_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_collection_status', $p_collection_status, PDO::PARAM_STR);
         $stmt->bindValue(':p_reason', $p_reason, PDO::PARAM_STR);
         $stmt->bindValue(':p_remarks', $p_remarks, PDO::PARAM_STR);
         $stmt->bindValue(':p_new_deposit_date', $p_new_deposit_date, PDO::PARAM_STR);
         $stmt->bindValue(':p_reference_number', $p_reference_number, PDO::PARAM_STR);
+        $stmt->bindValue(':p_deposited_to', $p_deposited_to, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
         $stmt->execute();
     }

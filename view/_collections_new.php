@@ -44,7 +44,7 @@
               <div class="col-lg-10">
                 <select class="form-control select2" name="sales_proposal_id" id="sales_proposal_id">
                   <option value="">--</option>
-                  <?php echo $salesProposalModel->generateLoanAccountOptions(); ?>
+                  <?php echo $salesProposalModel->generateLoanCollectionsOptions(); ?>
                 </select>
               </div>  
             </div>
@@ -69,7 +69,7 @@
             <div id="miscellaneous_field" class="form-group row field d-none">
               <label class="col-lg-2 col-form-label">Collected From <span class="text-danger">*</span></label>
               <div class="col-lg-10">
-                <input type="text" class="form-control" id="collected_from" name="collected_from" maxlength="200" autocomplete="off" <?php echo $disabled; ?>>
+                <input type="text" class="form-control" id="collected_from" name="collected_from" maxlength="200" autocomplete="off">
               </div>
             </div>
           <div class="form-group row">
@@ -107,7 +107,7 @@
           <div class="form-group row">
             <label class="col-lg-2 col-form-label">Payment Amount <span class="text-danger">*</span></label>
             <div class="col-lg-4">
-                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="1" step="0.01">
+                <input type="number" class="form-control" id="payment_amount" name="payment_amount" min="0" step="0.01">
             </div>
             <label class="col-lg-2 col-form-label">Online Reference Number</label>
             <div class="col-lg-4">

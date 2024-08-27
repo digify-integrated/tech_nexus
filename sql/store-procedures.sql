@@ -7251,6 +7251,9 @@ BEGIN
 	VALUES(p_sales_proposal_id, p_loan_number, p_product_id, p_customer_id, p_pdc_type, p_mode_of_payment, p_or_number, p_or_date, p_payment_date, p_payment_amount, p_reference_number, p_payment_details, p_company_id, p_deposited_to, p_remarks, NOW(), 'Posted', p_collected_from, p_last_log_by);
 
     SET p_loan_collection_id = LAST_INSERT_ID();
+
+    INSERT INTO loan_collections_history (loan_collection_id, mode_of_payment, transaction_date, transaction_type, reference_number, reference_date, last_log_by) 
+    VALUES(p_loan_collection_id, p_mode_of_payment, NOW(), 'Posted', p_or_number, p_or_date, p_last_log_by);
 END //
 
 CREATE PROCEDURE updateCollection(IN p_loan_collection_id INT, IN p_sales_proposal_id INT, IN p_loan_number VARCHAR(100), IN p_product_id INT, IN p_customer_id INT, IN p_pdc_type VARCHAR(20), IN p_mode_of_payment VARCHAR(100), IN p_or_number VARCHAR(100), IN p_or_date DATE, IN p_payment_date DATE, IN p_payment_amount DOUBLE, IN p_reference_number VARCHAR(200), IN p_payment_details VARCHAR(100), IN p_company_id INT, IN p_deposited_to INT, IN p_remarks VARCHAR(500), IN p_collected_from VARCHAR(200), IN p_last_log_by INT)
@@ -7818,6 +7821,16 @@ BEGIN
 	SELECT sales_proposal_id, loan_number, file_as
     FROM sales_proposal
     LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
+    WHERE sales_proposal_status = 'Released'
+    ORDER BY loan_number ASC;
+END //
+
+CREATE PROCEDURE generateLoanCollectionsOptions()
+BEGIN
+	SELECT sales_proposal_id, loan_number, file_as, stock_number
+    FROM sales_proposal
+    LEFT OUTER JOIN personal_information ON personal_information.contact_id = sales_proposal.customer_id
+    LEFT OUTER JOIN product ON product.product_id = sales_proposal.product_id
     WHERE sales_proposal_status = 'Released'
     ORDER BY loan_number ASC;
 END //
@@ -9543,70 +9556,7 @@ BEGIN
     DELETE FROM loan_collections WHERE loan_collection_id = p_loan_collection_id;
 END //
 
-CREATE PROCEDURE updateLoanCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_new_deposit_date DATE, IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
-BEGIN
-    IF p_collection_status = 'Cleared' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        clear_date = NOW(),
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN ('Deposited', 'Redeposit');
-    ELSEIF p_collection_status = 'Deposited' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        deposit_date = NOW(),
-        transaction_date = NOW(),
-        or_number = p_reference_number,
-        or_date = NOW(),
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status = 'For Deposit';
-    ELSEIF p_collection_status = 'On-Hold' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        onhold_date = NOW(),
-        onhold_reason = p_reason,
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'For Deposit', 'Redeposit');
-    ELSEIF p_collection_status = 'Reversed' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        reversal_date = NOW(),
-        reversal_reason = p_reason,
-        reversal_remarks = p_remarks,
-        reversal_reference_number = p_reference_number,
-        reversal_reference_date = NOW(),
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Cleared', 'Deposited');
-    ELSEIF p_collection_status = 'Cancelled' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        cancellation_date = NOW(),
-        cancellation_reason = p_reason,
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Redeposit');
-    ELSEIF p_collection_status = 'Redeposit' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        redeposit_date = NOW(),
-        new_deposit_date = p_new_deposit_date,
-        payment_date = p_new_deposit_date,
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('On-Hold', 'Reversed');
-    ELSEIF p_collection_status = 'For Deposit' THEN
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        for_deposit_date = NOW(),
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Redeposit');
-    ELSE
-        UPDATE loan_collections
-        SET collection_status = p_collection_status,
-        pulled_out_date = NOW(),
-        pulled_out_reason = p_reason,
-        last_log_by = p_last_log_by
-        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
-    END IF;
-END //
+
 
 CREATE PROCEDURE cancelLoanCollectionClosed(IN p_sales_proposal_id INT, IN p_check_date DATE, IN p_account_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
@@ -9621,6 +9571,9 @@ END //
 CREATE PROCEDURE updateCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_reference_number VARCHAR(100), IN p_last_log_by INT)
 BEGIN
     IF p_collection_status = 'Reversed' THEN
+        INSERT INTO loan_collections_history (loan_collection_id, mode_of_payment, transaction_date, transaction_type, reference_number, reference_date, last_log_by) 
+        VALUES(p_loan_collection_id, (SELECT mode_of_payment FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), NOW(), 'Reversed', (SELECT or_number FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), (SELECT or_date FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), p_last_log_by);
+
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         reversal_date = NOW(),
@@ -9631,6 +9584,9 @@ BEGIN
         last_log_by = p_last_log_by
         WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Posted');
     ELSEIF p_collection_status = 'Cancelled' THEN
+        INSERT INTO loan_collections_history (loan_collection_id, mode_of_payment, transaction_date, transaction_type, reference_number, reference_date, last_log_by) 
+        VALUES(p_loan_collection_id, (SELECT mode_of_payment FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), NOW(), 'Cancelled', (SELECT or_number FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), (SELECT or_date FROM loan_collections WHERE loan_collection_id = p_loan_collection_id), p_last_log_by);
+
         UPDATE loan_collections
         SET collection_status = p_collection_status,
         cancellation_date = NOW(),
@@ -10161,4 +10117,130 @@ BEGIN
 	ORDER BY mode_of_acquisition_name;
 END //
 
+
+
 /* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE updateLoanCollectionStatus(IN p_loan_collection_id INT, IN p_collection_status VARCHAR(50), IN p_reason VARCHAR(100), IN p_remarks VARCHAR(500), IN p_new_deposit_date DATE, IN p_reference_number VARCHAR(100), IN p_deposited_to INT, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+    IF p_collection_status = 'Cleared' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        clear_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN ('Deposited', 'Redeposit');
+    ELSEIF p_collection_status = 'Deposited' THEN
+        INSERT INTO loan_collections_history (loan_collection_id, mode_of_payment, transaction_date, transaction_type, reference_number, reference_date, last_log_by) 
+	    VALUES(p_loan_collection_id, 'Check', NOW(), 'Deposited', p_reference_number, NOW(), p_last_log_by);
+
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        deposit_date = NOW(),
+        transaction_date = NOW(),
+        or_number = p_reference_number,
+        deposited_to = p_deposited_to,
+        or_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status = 'For Deposit';
+    ELSEIF p_collection_status = 'On-Hold' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        onhold_date = NOW(),
+        onhold_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'For Deposit', 'Redeposit');
+    ELSEIF p_collection_status = 'Reversed' THEN
+        INSERT INTO loan_collections_history (loan_collection_id, mode_of_payment, transaction_date, transaction_type, reference_number, reference_date, last_log_by) 
+	    VALUES(p_loan_collection_id, 'Check', NOW(), 'Reversed', p_reference_number, NOW(), p_last_log_by);
+
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        reversal_date = NOW(),
+        reversal_reason = p_reason,
+        reversal_remarks = p_remarks,
+        reversal_reference_number = p_reference_number,
+        reversal_reference_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Cleared', 'Deposited');
+    ELSEIF p_collection_status = 'Cancelled' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        cancellation_date = NOW(),
+        cancellation_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Redeposit');
+    ELSEIF p_collection_status = 'Redeposit' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        redeposit_date = NOW(),
+        new_deposit_date = p_new_deposit_date,
+        payment_date = p_new_deposit_date,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('On-Hold', 'Reversed');
+    ELSEIF p_collection_status = 'For Deposit' THEN
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        for_deposit_date = NOW(),
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending', 'Redeposit');
+    ELSE
+        UPDATE loan_collections
+        SET collection_status = p_collection_status,
+        pulled_out_date = NOW(),
+        pulled_out_reason = p_reason,
+        last_log_by = p_last_log_by
+        WHERE loan_collection_id = p_loan_collection_id AND collection_status IN('Pending');
+    END IF;
+END //
+
+CREATE PROCEDURE generatePDCManagementTransactionHistoryTable(IN p_loan_collection_id INT)
+BEGIN
+	SELECT * FROM loan_collections_history
+	ORDER BY transaction_date DESC;
+END //
+
+CREATE PROCEDURE generateAllPDCManagementTransactionHistoryTable(IN p_transaction_type VARCHAR(500), IN p_mode_of_payment VARCHAR(500), IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_reference_start_date DATE, IN p_reference_end_date DATE)
+BEGIN
+	DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT * FROM loan_collections_history';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (DATE(transaction_date) BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_reference_start_date IS NOT NULL AND p_reference_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (reference_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reference_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_reference_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_transaction_type IS NOT NULL AND p_transaction_type <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND transaction_type IN (');
+        SET conditionList = CONCAT(conditionList, p_transaction_type);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    IF p_mode_of_payment IS NOT NULL AND p_mode_of_payment <> '' THEN
+        SET conditionList = CONCAT(conditionList, ' AND mode_of_payment IN (');
+        SET conditionList = CONCAT(conditionList, p_mode_of_payment);
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY transaction_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //

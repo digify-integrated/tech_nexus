@@ -152,6 +152,7 @@ class PDCManagementController {
     
         $userID = $_SESSION['user_id'];
         $loanCollectionID = htmlspecialchars($_POST['loan_collection_id'], ENT_QUOTES, 'UTF-8');
+        $depositTo = htmlspecialchars($_POST['deposit_to'], ENT_QUOTES, 'UTF-8');
     
         $user = $this->userModel->getUserByID($userID);
     
@@ -170,7 +171,7 @@ class PDCManagementController {
     
         $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);
 
         $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
             
@@ -196,7 +197,9 @@ class PDCManagementController {
         }
     
         $userID = $_SESSION['user_id'];
-        $loanCollectionIDs = $_POST['loan_collection_id'];
+        $loanCollectionID = $_POST['loan_collection_id'];
+        $loanCollectionIDs = explode(',', $loanCollectionID);
+        $depositTo = htmlspecialchars($_POST['deposit_to'], ENT_QUOTES, 'UTF-8');
 
         $user = $this->userModel->getUserByID($userID);
     
@@ -208,7 +211,7 @@ class PDCManagementController {
         foreach($loanCollectionIDs as $loanCollectionID){
             $referenceNumber = $this->systemSettingModel->getSystemSetting(9)['value'] + 1;
 
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $userID);
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Deposited', '', '', '', $referenceNumber, $depositTo, $userID);
 
             $this->systemSettingModel->updateSystemSettingValue(9, $referenceNumber, $userID);
         }
@@ -287,7 +290,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -320,8 +323,15 @@ class PDCManagementController {
             exit;
         }
 
+        $currentDate = date('m-d-Y');
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', $userID);
+
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $checkDate = date('m-d-Y', strtotime($pdcManagementDetails['check_date']));
+
+            if($checkDate <= $currentDate){
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'For Deposit', '', '', '', '', '', $userID);
+            }
         }
             
         echo json_encode(['success' => true]);
@@ -363,7 +373,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -478,7 +488,7 @@ class PDCManagementController {
         
         $this->pdcManagementModel->updateLoanCollectionOnHoldAttachment($loanCollectionID, $filePath, $userID);
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'On-Hold', $onHoldReason, '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -520,7 +530,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -547,16 +557,31 @@ class PDCManagementController {
         $loanCollectionID = $_POST['loan_collection_id']; 
         $loanCollectionIDs = explode(',', $loanCollectionID);
         $cancellationReason = $_POST['cancellation_reason'];
-
+        
         $user = $this->userModel->getUserByID($userID);
-    
+            
         if (!$user || !$user['is_active']) {
             echo json_encode(['success' => false, 'isInactive' => true]);
             exit;
         }
-
+        
+        $loanNumbers = [];
+        
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', '', $userID);
+            $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
+            $loanNumber = $pdcManagementDetails['loan_number'] ?? null;
+        
+            $loanNumbers[] = $loanNumber;
+        }
+        
+        $uniqueLoanNumbers = array_filter(array_unique($loanNumbers));
+        
+        if(count($uniqueLoanNumbers) > 1){
+            // If the gathered loanCollectionIDs have different loanNumber, don't execute the update code
+        } else {
+            foreach($loanCollectionIDs as $loanCollectionID){
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cancelled', $cancellationReason, '', '', '', '', $userID);
+            }
         }
             
         echo json_encode(['success' => true]);
@@ -599,7 +624,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Pulled-Out', $pulledOutReason, '', '', '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -641,7 +666,7 @@ class PDCManagementController {
             exit;
         }
     
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Redeposit', '', '', $redepositDate, '', $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Redeposit', '', '', $redepositDate, '', '', $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -686,7 +711,7 @@ class PDCManagementController {
     
         $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, $userID);
+        $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, '', $userID);
 
         if($reversalReason == 'Account Closed'){
             $pdcManagementDetails = $this->pdcManagementModel->getPDCManagement($loanCollectionID);
@@ -740,7 +765,7 @@ class PDCManagementController {
             if($total > 0){
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
-                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, $userID);
+                $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, '', $userID);
             }
         }
             
@@ -776,7 +801,7 @@ class PDCManagementController {
         }
 
         foreach($loanCollectionIDs as $loanCollectionID){
-            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '', $userID);
+            $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Cleared', '', '', '', '','', $userID);
         }
             
         echo json_encode(['success' => true]);

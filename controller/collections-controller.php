@@ -551,6 +551,7 @@ class CollectionsController {
                 'companyID' => $collectionsDetails['company_id'],
                 'referenceNumber' => $collectionsDetails['reference_number'],
                 'depositedTo' => $collectionsDetails['deposited_to'],
+                'collectedFrom' => $collectionsDetails['collected_from'],
                 'orDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['or_date'], '', 'm/d/Y', ''),
                 'paymentDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['payment_date'], '', 'm/d/Y', ''),
             ];
