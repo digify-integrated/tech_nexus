@@ -20,6 +20,8 @@ class DocumentController {
     private $userModel;
     private $uploadSettingModel;
     private $fileExtensionModel;
+    private $emailSettingModel;
+    private $notificationSettingModel;
     private $securityModel;
     private $systemModel;
 
@@ -44,7 +46,7 @@ class DocumentController {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function __construct(DatabaseModel $databaseModel, DocumentModel $documentModel, DocumentCategoryModel $documentCategoryModel, EmployeeModel $employeeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, SecurityModel $securityModel, SystemModel $systemModel) {
+    public function __construct(DatabaseModel $databaseModel, DocumentModel $documentModel, DocumentCategoryModel $documentCategoryModel, EmployeeModel $employeeModel, UserModel $userModel, UploadSettingModel $uploadSettingModel, FileExtensionModel $fileExtensionModel, EmailSettingModel $emailSettingModel, NotificationSettingModel $notificationSettingModel, SecurityModel $securityModel, SystemModel $systemModel) {
         $this->databaseModel = $databaseModel;
         $this->documentModel = $documentModel;
         $this->documentCategoryModel = $documentCategoryModel;
@@ -52,6 +54,8 @@ class DocumentController {
         $this->userModel = $userModel;
         $this->uploadSettingModel = $uploadSettingModel;
         $this->fileExtensionModel = $fileExtensionModel;
+        $this->emailSettingModel = $emailSettingModel;
+        $this->notificationSettingModel = $notificationSettingModel;
         $this->securityModel = $securityModel;
         $this->systemModel = $systemModel;
     }
@@ -700,6 +704,8 @@ class DocumentController {
         $isConfidential = $documentDetails['is_confidential'];
         $documentPassword = $documentDetails['document_password'];
         $documentStatus = $documentDetails['document_status'];
+        
+        $documentName = $documentDetails['document_name'];
     
         if($isConfidential == 'Yes' && empty($documentPassword)){
             echo json_encode(['success' => false, 'isConfidential' =>  true]);
@@ -712,9 +718,95 @@ class DocumentController {
         }
 
         $this->documentModel->updateDocumentStatus($documentID, 'Published', $userID);
+        $this->sendPublish($documentID, $documentName);
             
         echo json_encode(['success' => true]);
         exit;
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: sendOTP
+    # Description: 
+    # Sends an OTP (One-Time Password) to the user's email address.
+    #
+    # Parameters: 
+    # - $email (string): The email address of the user.
+    # - $otp (string): The OTP generated.
+    #
+    # Returns: Array
+    #
+    # -------------------------------------------------------------
+    public function sendPublish($documentID, $documentName) {
+        $documentIDEncrypted = $this->securityModel->encryptData($documentID);
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailFromName = $emailSetting['mail_from_name'] ?? null;
+        $mailFromEmail = $emailSetting['mail_from_email'] ?? null;
+
+        $notificationSettingDetails = $this->notificationSettingModel->getNotificationSetting(8);
+        $emailSubject = $notificationSettingDetails['email_notification_subject'] ?? null;
+        $emailSubject = str_replace('{DOCUMENT_NAME}', $documentName, $emailSubject);
+        $emailBody = $notificationSettingDetails['email_notification_body'] ?? null;
+        $emailBody = str_replace('{DOCUMENT_NAME}', $documentName, $emailBody);
+        $emailBody = str_replace('{DOCUMENT_LINK}', $documentIDEncrypted, $emailBody);
+
+        $message = file_get_contents('../email-template/default-email.html');
+        $message = str_replace('{EMAIL_SUBJECT}', $emailSubject, $message);
+        $message = str_replace('{EMAIL_CONTENT}', $emailBody, $message);
+    
+        $mailer = new PHPMailer\PHPMailer\PHPMailer();
+        $this->configureSMTP($mailer);
+        
+        $mailer->setFrom($mailFromEmail, $mailFromName);
+        $mailer->addAddress('p.saulo@christianmotors.ph');
+        $mailer->addAddress('glenbonita@christianmotors.ph');
+        $mailer->addAddress('christianbaguisa@christianmotors.ph');
+        $mailer->addAddress('k.baguisa@christianmotors.ph');
+        $mailer->addAddress('mdsoniga.fuso@christianmotors.ph');
+        $mailer->addAddress('i.bernabe@christianmotors.ph');
+        $mailer->addAddress('j.dechavez@christianmotors.ph');
+        $mailer->Subject = $emailSubject;
+        $mailer->Body = $message;
+    
+        if ($mailer->send()) {
+            return true;
+        }
+        else {
+            return 'Failed to send initial approval email. Error: ' . $mailer->ErrorInfo;
+        }
+    }
+    # -------------------------------------------------------------
+
+    # -------------------------------------------------------------
+    #
+    # Function: configureSMTP
+    # Description: 
+    # Sets the SMTP configuration
+    #
+    # Parameters: 
+    # - $mailer (array): The PHP mailer.
+    #
+    # Returns: None
+    #
+    # -------------------------------------------------------------
+    private function configureSMTP($mailer, $isHTML = true) {
+        $emailSetting = $this->emailSettingModel->getEmailSetting(1);
+        $mailHost = $emailSetting['mail_host'] ?? MAIL_HOST;
+        $smtpAuth = empty($emailSetting['smtp_auth']) ? false : true;
+        $mailUsername = $emailSetting['mail_username'] ?? MAIL_USERNAME;
+        $mailPassword = !empty($password) ? $this->securityModel->decryptData($emailSetting['mail_password']) : MAIL_PASSWORD;
+        $mailEncryption = $emailSetting['mail_encryption'] ?? MAIL_SMTP_SECURE;
+        $port = $emailSetting['port'] ?? MAIL_PORT;
+        
+        $mailer->isSMTP();
+        $mailer->isHTML(true);
+        $mailer->Host = $mailHost;
+        $mailer->SMTPAuth = $smtpAuth;
+        $mailer->Username = $mailUsername;
+        $mailer->Password = $mailPassword;
+        $mailer->SMTPSecure = $mailEncryption;
+        $mailer->Port = $port;
     }
     # -------------------------------------------------------------
 
@@ -1006,7 +1098,12 @@ require_once '../model/upload-setting-model.php';
 require_once '../model/file-extension-model.php';
 require_once '../model/security-model.php';
 require_once '../model/system-model.php';
+require_once '../model/notification-setting-model.php';
+require_once '../model/email-setting-model.php';
+require '../assets/libs/PHPMailer/src/PHPMailer.php';
+require '../assets/libs/PHPMailer/src/Exception.php';
+require '../assets/libs/PHPMailer/src/SMTP.php';
 
-$controller = new DocumentController(new DatabaseModel(), new DocumentModel(new DatabaseModel), new DocumentCategoryModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new SecurityModel(), new SystemModel());
+$controller = new DocumentController(new DatabaseModel(), new DocumentModel(new DatabaseModel), new DocumentCategoryModel(new DatabaseModel), new EmployeeModel(new DatabaseModel), new UserModel(new DatabaseModel, new SystemModel), new UploadSettingModel(new DatabaseModel), new FileExtensionModel(new DatabaseModel), new EmailSettingModel(new DatabaseModel), new NotificationSettingModel(new DatabaseModel), new SecurityModel(), new SystemModel());
 $controller->handleRequest();
 ?>
