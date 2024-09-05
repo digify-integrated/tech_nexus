@@ -300,7 +300,26 @@ class CollectionsController {
     
         $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
+        $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+        $paymentAmount = $collectionsDetails['payment_amount'];
+        $companyID = $collectionsDetails['company_id'];
+
+        if($companyID == 1){
+            $systemSettingID = 11;
+        }
+        else if($companyID == 2){
+            $systemSettingID = 12;
+        }
+        else{
+            $systemSettingID = 13;
+        }        
+
+        $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
+
         $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
+                    
+        $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
+        $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -343,7 +362,26 @@ class CollectionsController {
             if($total > 0){
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
+                $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+                $paymentAmount = $collectionsDetails['payment_amount'];
+                $companyID = $collectionsDetails['company_id'];
+
+                if($companyID == 1){
+                    $systemSettingID = 11;
+                }
+                else if($companyID == 2){
+                    $systemSettingID = 12;
+                }
+                else{
+                    $systemSettingID = 13;
+                }
+        
+                $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
+        
                 $this->collectionsModel->updateCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, $referenceNumber, $userID);
+                            
+                $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
+                $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
             }
         }
             
@@ -386,7 +424,7 @@ class CollectionsController {
         $referenceNumber = $_POST['reference_number'];
         $remarks = $_POST['remarks'];
         $depositedTo = $_POST['deposited_to'];
-        $collectedFrom = $_POST['collected_from'];
+        $miscellaneousClientID = $_POST['miscellaneous_client_id'];
         $orDate = $this->systemModel->checkDate('empty', $_POST['or_date'], '', 'Y-m-d', '');
         $paymentDate = $this->systemModel->checkDate('empty', $_POST['payment_date'], '', 'Y-m-d', '');
     
@@ -410,13 +448,27 @@ class CollectionsController {
         }
     
         if ($total > 0) {
-            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $collectedFrom, $userID);
+            $this->collectionsModel->updateCollection($loanCollectionID, $salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
             
             echo json_encode(['success' => true, 'insertRecord' => false, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;
         } 
         else {
-            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $collectedFrom, $userID);
+            if($companyID == 1){
+                $systemSettingID = 11;
+            }
+            else if($companyID == 2){
+                $systemSettingID = 12;
+            }
+            else{
+                $systemSettingID = 13;
+            }
+            
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] + $paymentAmount;
+
+            $loanCollectionID = $this->collectionsModel->insertCollection($salesProposalID, $loanNumber, $productID, $customerID, $pdcType, $modeOfPayment, $orNumber, $orDate, $paymentDate, $paymentAmount, $referenceNumber, $paymentDetails, $companyID, $depositedTo, $remarks, $miscellaneousClientID, $userID);
+                    
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
 
             echo json_encode(['success' => true, 'insertRecord' => true, 'loanCollectionID' => $this->securityModel->encryptData($loanCollectionID)]);
             exit;
@@ -461,8 +513,26 @@ class CollectionsController {
             echo json_encode(['success' => false, 'notExist' =>  true]);
             exit;
         }
-    
+
+        $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+        $paymentAmount = $collectionsDetails['payment_amount'];
+        $companyID = $collectionsDetails['company_id'];
+
+            if($companyID == 1){
+                $systemSettingID = 11;
+            }
+            else if($companyID == 2){
+                $systemSettingID = 12;
+            }
+            else{
+                $systemSettingID = 13;
+            }
+
+        $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
+
         $this->collectionsModel->deleteCollections($collectionsID);
+                    
+        $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
             
         echo json_encode(['success' => true]);
         exit;
@@ -496,7 +566,25 @@ class CollectionsController {
         }
 
         foreach($collectionsIDs as $collectionsID){
+            $collectionsDetails = $this->collectionsModel->getCollections($loanCollectionID);
+            $paymentAmount = $collectionsDetails['payment_amount'];
+            $companyID = $collectionsDetails['company_id'];
+
+            if($companyID == 1){
+                $systemSettingID = 11;
+            }
+            else if($companyID == 2){
+                $systemSettingID = 12;
+            }
+            else{
+                $systemSettingID = 13;
+            }
+    
+            $onhandBalance = $this->systemSettingModel->getSystemSetting($systemSettingID)['value'] - $paymentAmount;
+    
             $this->collectionsModel->deleteCollections($collectionsID);
+                        
+            $this->systemSettingModel->updateSystemSettingValue($systemSettingID, $onhandBalance, $userID);
         }
             
         echo json_encode(['success' => true]);
@@ -551,7 +639,7 @@ class CollectionsController {
                 'companyID' => $collectionsDetails['company_id'],
                 'referenceNumber' => $collectionsDetails['reference_number'],
                 'depositedTo' => $collectionsDetails['deposited_to'],
-                'collectedFrom' => $collectionsDetails['collected_from'],
+                'miscellaneousClientID' => $collectionsDetails['miscellaneous_client_id'],
                 'orDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['or_date'], '', 'm/d/Y', ''),
                 'paymentDate' =>  $this->systemModel->checkDate('empty', $collectionsDetails['payment_date'], '', 'm/d/Y', ''),
             ];

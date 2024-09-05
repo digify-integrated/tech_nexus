@@ -7195,12 +7195,12 @@ END //
 
 
 
-CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
+CREATE PROCEDURE insertSalesProposal(IN p_sales_proposal_number VARCHAR(100), IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_created_by INT, IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT, OUT p_sales_proposal_id INT)
 BEGIN
     SET time_zone = '+08:00';
 
-    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, commission_amount, company_id, last_log_by) 
-	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_commission_amount, p_company_id, p_last_log_by);
+    INSERT INTO sales_proposal (sales_proposal_number, customer_id, comaker_id, product_type, transaction_type, financing_institution, referred_by, release_date, start_date, first_due_date, term_length, term_type, number_of_payments, payment_frequency, remarks, created_by, created_date, initial_approving_officer, final_approving_officer, renewal_tag, application_source_id, commission_amount, company_id, last_log_by) 
+	VALUES(p_sales_proposal_number, p_customer_id, p_comaker_id, p_product_type, p_transaction_type, p_financing_institution, p_referred_by, p_release_date, p_start_date, p_first_due_date, p_term_length, p_term_type, p_number_of_payments, p_payment_frequency, p_remarks, p_created_by, NOW(), p_initial_approving_officer, p_final_approving_officer, p_renewal_tag, p_application_source_id, p_commission_amount, p_company_id, p_last_log_by);
 	
     SET p_sales_proposal_id = LAST_INSERT_ID();
 END //
@@ -7326,7 +7326,7 @@ BEGIN
     END //	
 END //
 
-CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
+CREATE PROCEDURE updateSalesProposal(IN p_sales_proposal_id INT, IN p_customer_id INT, IN p_comaker_id INT, IN p_product_type VARCHAR(100), IN p_transaction_type VARCHAR(100), IN p_financing_institution VARCHAR(200), IN p_referred_by VARCHAR(100), IN p_release_date DATE, IN p_start_date DATE, IN p_first_due_date DATE, IN p_term_length INT, IN p_term_type VARCHAR(20), IN p_number_of_payments INT, IN p_payment_frequency VARCHAR(20), IN p_remarks VARCHAR(500), IN p_initial_approving_officer INT, IN p_final_approving_officer INT, IN p_renewal_tag VARCHAR(10), IN p_application_source_id INT, IN p_commission_amount DOUBLE, IN p_company_id INT, IN p_last_log_by INT)
 BEGIN
     SET time_zone = '+08:00';
     
@@ -7349,6 +7349,7 @@ BEGIN
     initial_approving_officer = p_initial_approving_officer,
     final_approving_officer = p_final_approving_officer,
     renewal_tag = p_renewal_tag,
+    application_source_id = p_application_source_id,
     company_id = p_company_id,
     last_log_by = p_last_log_by
     WHERE sales_proposal_id = p_sales_proposal_id;
@@ -7784,7 +7785,17 @@ END //
 
 CREATE PROCEDURE generateApprovedSalesProposalTable()
 BEGIN
-   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Fuel', 'Parts', 'Brand New');
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Proceed', 'On-Process', 'Ready For Release', 'For DR') AND product_type NOT IN ('Refinancing', 'Parts', 'Brand New');
+END //
+
+CREATE PROCEDURE generateReleasedSalesProposalTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Released');
+END //
+
+CREATE PROCEDURE generateIncomingSalesProposalTable()
+BEGIN
+   SELECT * FROM sales_proposal WHERE sales_proposal_status IN ('Draft', 'For Review', 'For Initial Approval', 'For Final Approval', 'For CI');
 END //
 
 CREATE PROCEDURE generateSalesProposalForCITable()
@@ -10198,6 +10209,7 @@ END //
 CREATE PROCEDURE generatePDCManagementTransactionHistoryTable(IN p_loan_collection_id INT)
 BEGIN
 	SELECT * FROM loan_collections_history
+    WHERE loan_collection_id = p_loan_collection_id
 	ORDER BY transaction_date DESC;
 END //
 
@@ -10243,4 +10255,287 @@ BEGIN
     PREPARE stmt FROM query;
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE checkApplicationSourceExist (IN p_application_source_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM application_source
+    WHERE application_source_id = p_application_source_id;
+END //
+
+CREATE PROCEDURE insertApplicationSource(IN p_application_source_name VARCHAR(100), IN p_last_log_by INT, OUT p_application_source_id INT)
+BEGIN
+    INSERT INTO application_source (application_source_name, last_log_by) 
+	VALUES(p_application_source_name, p_last_log_by);
+	
+    SET p_application_source_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateApplicationSource(IN p_application_source_id INT, IN p_application_source_name VARCHAR(100), IN p_last_log_by INT)
+BEGIN
+	UPDATE application_source
+    SET application_source_name = p_application_source_name,
+    last_log_by = p_last_log_by
+    WHERE application_source_id = p_application_source_id;
+END //
+
+CREATE PROCEDURE deleteApplicationSource(IN p_application_source_id INT)
+BEGIN
+    DELETE FROM application_source WHERE application_source_id = p_application_source_id;
+END //
+
+CREATE PROCEDURE getApplicationSource(IN p_application_source_id INT)
+BEGIN
+	SELECT * FROM application_source
+    WHERE application_source_id = p_application_source_id;
+END //
+
+CREATE PROCEDURE duplicateApplicationSource(IN p_application_source_id INT, IN p_last_log_by INT, OUT p_new_application_source_id INT)
+BEGIN
+    DECLARE p_application_source_name VARCHAR(100);
+    
+    SELECT application_source_name
+    INTO p_application_source_name
+    FROM application_source 
+    WHERE application_source_id = p_application_source_id;
+    
+    INSERT INTO application_source (application_source_name, last_log_by) 
+    VALUES(p_application_source_name, p_last_log_by);
+    
+    SET p_new_application_source_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE generateApplicationSourceTable()
+BEGIN
+    SELECT application_source_id, application_source_name
+    FROM application_source
+    ORDER BY application_source_id;
+END //
+
+CREATE PROCEDURE generateApplicationSourceOptions()
+BEGIN
+	SELECT application_source_id, application_source_name FROM application_source
+	ORDER BY application_source_name;
+END //
+
+/* Body Type Table Stored Procedures */
+
+CREATE PROCEDURE checkDepositsExist (IN p_deposits_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM deposits
+    WHERE deposits_id = p_deposits_id;
+END //
+
+CREATE PROCEDURE insertDeposits(IN p_company_id INT, IN p_deposit_amount DOUBLE, IN p_deposit_date DATE, IN p_deposited_to INT, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT, OUT p_deposits_id INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    INSERT INTO deposits (company_id, deposit_amount, deposit_date, deposited_to, reference_number, remarks, last_log_by) 
+	VALUES(p_company_id,p_deposit_amount, p_deposit_date, p_deposited_to, p_reference_number, p_remarks, p_last_log_by);
+	
+    SET p_deposits_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateDeposits(IN p_deposits_id INT, IN p_deposit_amount DOUBLE, IN p_deposit_date DATE, IN p_deposited_to INT, IN p_reference_number VARCHAR(100), IN p_remarks VARCHAR(500), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+	UPDATE deposits
+    SET deposits_name = p_deposits_name,
+        deposit_amount = p_deposit_amount,
+        deposit_date = p_deposit_date,
+        deposited_to = p_deposited_to,
+        reference_number = p_reference_number,
+        remarks = p_remarks,
+    last_log_by = p_last_log_by
+    WHERE deposits_id = p_deposits_id;
+END //
+
+CREATE PROCEDURE deleteDeposits(IN p_deposits_id INT)
+BEGIN
+    DELETE FROM deposits WHERE deposits_id = p_deposits_id;
+END //
+
+CREATE PROCEDURE getDeposits(IN p_deposits_id INT)
+BEGIN
+	SELECT * FROM deposits
+    WHERE deposits_id = p_deposits_id;
+END //
+
+CREATE PROCEDURE generateDepositsTable()
+BEGIN
+    SELECT deposits_id, deposits_name, deposit_amount, deposit_date, deposited_to, reference_number, remarks
+    FROM deposits
+    ORDER BY deposits_id;
+END //
+
+CREATE PROCEDURE generateDepositsTable( IN p_transaction_start_date DATE, IN p_transaction_end_date DATE, IN p_deposit_start_date DATE, IN p_deposit_end_date DATE)
+BEGIN
+    DECLARE query VARCHAR(5000);
+    DECLARE conditionList VARCHAR(1000);
+
+    SET query = 'SELECT deposits_id, deposit_amount, deposit_date, deposited_to, reference_number, transaction_date, remarks FROM deposits';
+    SET conditionList = ' WHERE 1';
+    
+    IF p_transaction_start_date IS NOT NULL AND p_transaction_end_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (transaction_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_transaction_end_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+    
+    IF p_deposit_start_date IS NOT NULL AND p_deposit_start_date IS NOT NULL THEN
+        SET conditionList = CONCAT(conditionList, ' AND (deposit_date BETWEEN ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_start_date));
+        SET conditionList = CONCAT(conditionList, ' AND ');
+        SET conditionList = CONCAT(conditionList, QUOTE(p_deposit_start_date));
+        SET conditionList = CONCAT(conditionList, ')');
+    END IF;
+
+    SET query = CONCAT(query, conditionList);
+    SET query = CONCAT(query, ' ORDER BY deposit_date DESC;');
+
+    PREPARE stmt FROM query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE checkTravelAuthorizationExist (IN p_travel_form_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM travel_authorization
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE insertTravelAuthorization(IN p_travel_form_id INT, IN p_destination VARCHAR(500), IN p_mode_of_transportation VARCHAR(500), IN p_purpose_of_travel VARCHAR(500), IN p_authorization_departure_date DATE, IN p_authorization_return_date DATE, IN p_accomodation_details VARCHAR(1000), IN p_toll_fee DOUBLE, IN p_accomodation DOUBLE, IN p_meals DOUBLE, IN p_other_expenses DOUBLE, IN p_total_estimated_cost DOUBLE, IN p_additional_comments VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    INSERT INTO travel_authorization (travel_form_id, destination, mode_of_transportation, purpose_of_travel, authorization_departure_date, authorization_return_date, accomodation_details, toll_fee, accomodation, meals, other_expenses, total_estimated_cost, additional_comments, last_log_by) 
+	VALUES(p_travel_form_id, p_destination, p_mode_of_transportation, p_purpose_of_travel, p_authorization_departure_date, p_authorization_return_date, p_accomodation_details, p_toll_fee, p_accomodation, p_meals, p_other_expenses, p_total_estimated_cost, p_additional_comments, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateTravelAuthorization(IN p_travel_form_id INT, IN p_destination VARCHAR(500), IN p_mode_of_transportation VARCHAR(500), IN p_purpose_of_travel VARCHAR(500), IN p_authorization_departure_date DATE, IN p_authorization_return_date DATE, IN p_accomodation_details VARCHAR(1000), IN p_toll_fee DOUBLE, IN p_accomodation DOUBLE, IN p_meals DOUBLE, IN p_other_expenses DOUBLE, IN p_total_estimated_cost DOUBLE, IN p_additional_comments VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+	UPDATE travel_authorization
+    SET destination = p_destination,
+        mode_of_transportation = p_mode_of_transportation,
+        purpose_of_travel = p_purpose_of_travel,
+        authorization_departure_date = p_authorization_departure_date,
+        authorization_return_date = p_authorization_return_date,
+        accomodation_details = p_accomodation_details,
+        toll_fee = p_toll_fee,
+        accomodation = p_accomodation,
+        meals = p_meals,
+        other_expenses = p_other_expenses,
+        total_estimated_cost = p_total_estimated_cost,
+        additional_comments = p_additional_comments,
+        last_log_by = p_last_log_by
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE getTravelAuthorization(IN p_travel_form_id INT)
+BEGIN
+	SELECT * FROM travel_authorization
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+CREATE PROCEDURE checkGatePassExist (IN p_travel_form_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM gate_pass
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE insertGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    INSERT INTO gate_pass (travel_form_id, p_name_of_driver, contact_number, vehicle_type, plate_number, department_id, gate_pass_departure_date, odometer_reading, remarks, last_log_by) 
+	VALUES(p_travel_form_id, p_name_of_driver, p_contact_number, p_vehicle_type, p_plate_number, p_department_id, p_gate_pass_departure_date, p_odometer_reading, p_remarks, p_last_log_by);
+END //
+
+CREATE PROCEDURE updateGatePass(IN p_travel_form_id INT, IN p_name_of_driver VARCHAR(500), IN p_contact_number VARCHAR(50), IN p_vehicle_type VARCHAR(200), IN p_plate_number VARCHAR(200), IN p_department_id INT, IN p_gate_pass_departure_date DATE, IN p_odometer_reading VARCHAR(200), IN p_remarks VARCHAR(1000), IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+	UPDATE gate_pass
+    SET name_of_driver = p_name_of_driver,
+        contact_number = p_contact_number,
+        vehicle_type = p_vehicle_type,
+        plate_number = p_plate_number,
+        department_id = p_department_id,
+        gate_pass_departure_date = p_gate_pass_departure_date,
+        odometer_reading = p_odometer_reading,
+        remarks = p_remarks,
+        last_log_by = p_last_log_by
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE getGatePass(IN p_travel_form_id INT)
+BEGIN
+	SELECT * FROM gate_pass
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
+
+CREATE PROCEDURE checkTravelFormExist (IN p_travel_form_id INT)
+BEGIN
+	SELECT COUNT(*) AS total
+    FROM travel_form
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE insertTravelForm(IN p_checked_by INT, IN p_approval_by INT, IN p_last_log_by INT, OUT p_travel_form_id INT)
+BEGIN
+    SET time_zone = '+08:00';
+    
+    INSERT INTO travel_form (checked_by, approval_by, last_log_by) 
+	VALUES(p_checked_by, p_approval_by, p_last_log_by);
+	
+    SET p_travel_form_id = LAST_INSERT_ID();
+END //
+
+CREATE PROCEDURE updateTravelForm(IN p_travel_form_id INT, IN p_checked_by INT, IN p_approval_by INT, IN p_last_log_by INT)
+BEGIN
+    SET time_zone = '+08:00';
+
+	UPDATE travel_form
+    SET checked_by = p_checked_by,
+        approval_by = p_approval_by,
+        last_log_by = p_last_log_by
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE deleteTravelForm(IN p_travel_form_id INT)
+BEGIN
+    DELETE FROM travel_form WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE getTravelForm(IN p_travel_form_id INT)
+BEGIN
+	SELECT * FROM travel_form
+    WHERE travel_form_id = p_travel_form_id;
+END //
+
+CREATE PROCEDURE generateTravelFormTable()
+BEGIN
+    SELECT travel_form_id, checked_by, approval_by, travel_form_status
+    FROM travel_form
+    ORDER BY travel_form_id;
 END //

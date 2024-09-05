@@ -7,6 +7,7 @@
   require('model/product-model.php');
   require('model/company-model.php');
   require('model/bank-model.php');
+  require('model/miscellaneous-client-model.php');
 
   $salesProposalModel = new SalesProposalModel($databaseModel);
   $collectionsModel = new CollectionsModel($databaseModel);
@@ -14,6 +15,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $companyModel = new CompanyModel($databaseModel);
   $bankModel = new BankModel($databaseModel);
+  $miscellaneousClientModel = new MiscellaneousClientModel($databaseModel);
 
 
   $pageTitle = 'Collections';

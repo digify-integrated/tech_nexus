@@ -6,6 +6,7 @@
   require('model/product-model.php');
   require('model/approving-officer-model.php');
   require('model/id-type-model.php');
+  require('model/application-source-model.php');
 
   $pageTitle = 'Approved Sales Proposal';
   
@@ -14,6 +15,7 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+  $applicationSourceModel = new ApplicationSourceModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 76, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
@@ -174,7 +176,7 @@
     <script src="./assets/js/plugins/datepicker-full.min.js"></script>
     <script src="./assets/js/plugins/imask.min.js"></script>
     <script src="./assets/js/plugins/select2.min.js?v=<?php echo rand(); ?>"></script>
-    <script src="./assets/js/pages/sales-proposal.js?v=<?php echo rand(); ?>"></script>
+    <script src="./assets/js/pages/sales-proposal-approved.js?v=<?php echo rand(); ?>"></script>
 </body>
 
 </html>

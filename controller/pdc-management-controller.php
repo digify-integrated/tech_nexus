@@ -766,6 +766,8 @@ class PDCManagementController {
                 $referenceNumber = $this->systemSettingModel->getSystemSetting(10)['value'] + 1;
 
                 $this->pdcManagementModel->updateLoanCollectionStatus($loanCollectionID, 'Reversed', $reversalReason, $reversalRemarks, '', $referenceNumber, '', $userID);
+                
+                $this->systemSettingModel->updateSystemSettingValue(10, $referenceNumber, $userID);
             }
         }
             

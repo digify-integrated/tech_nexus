@@ -262,8 +262,8 @@
                   <div class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 43px);" data-popper-placement="bottom-start">
                     <a class="dropdown-item" href="javascript:void(0);" id="print-acknowledgement">Print Acknowledgment</a> 
                     <a class="dropdown-item" href="javascript:void(0);" id="print">Print Report</a> 
-                    <a class="dropdown-item" href="javascript:void(0);" id="print-check">Print Check</a>
                     <a class="dropdown-item" href="javascript:void(0);" id="print-reversal">Print Reversal</a>
+                    <a class="dropdown-item" href="javascript:void(0);" id="print-check">Print Check</a>
                   </div>
                 <button type="button" class="btn btn-info" data-bs-toggle="offcanvas" data-bs-target="#import-offcanvas" aria-controls="import-offcanvas">
                   Import

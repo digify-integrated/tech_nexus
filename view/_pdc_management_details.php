@@ -143,6 +143,7 @@
                     <option value="Registration Renewal">Registration Renewal</option>
                     <option value="Transaction Fee">Transaction Fee</option>
                     <option value="Transfer Fee">Transfer Fee</option>
+                    <option value="Rental">Rental</option>
                 </select>
             </div>
             <label class="col-lg-2 col-form-label">Check Number <span class="text-danger">*</span></label>

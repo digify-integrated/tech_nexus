@@ -139,20 +139,20 @@
         $response = '<table border="0.5" width="100%" cellpadding="2" align="center">
                         <thead>
                             <tr>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF DATE</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF NO.</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REF AMOUNT</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK DATE</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>BANK / BRANCH</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK NO.</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK STATUS</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>FOR DEPOSIT ON</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REVERSAL REASON</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
+                                <td style="background-color: green;"><b>REF DATE</b></td>
+                                <td style="background-color: green;"><b>REF NO.</b></td>
+                                <td style="background-color: green;"><b>REF AMOUNT</b></td>
+                                <td style="background-color: green;"><b>CHECK DATE</b></td>
+                                <td style="background-color: green;"><b>CUSTOMER</b></td>
+                                <td style="background-color: green;"><b>STOCK NO.</b></td>
+                                <td style="background-color: green;"><b>LOAN NO.</b></td>
+                                <td style="background-color: green;"><b>PYMT DETAILS</b></td>
+                                <td style="background-color: green;"><b>BANK / BRANCH</b></td>
+                                <td style="background-color: green;"><b>CHECK NO.</b></td>
+                                <td style="background-color: green;"><b>CHECK STATUS</b></td>
+                                <td style="background-color: green;"><b>FOR DEPOSIT ON</b></td>
+                                <td style="background-color: green;"><b>REVERSAL REASON</b></td>
+                                <td style="background-color: green;"><b>REMARKS</b></td>
                             </tr>
                         </thead>
                         <tbody>';

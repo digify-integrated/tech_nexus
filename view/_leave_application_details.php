@@ -4,7 +4,7 @@
       <div class="card-header">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h5>Leave Application</h5>
+            <h5><?php echo $pageTitle; ?></h5>
           </div>
           <div class="col-md-6 text-sm-end mt-3 mt-sm-0">
             <?php                            

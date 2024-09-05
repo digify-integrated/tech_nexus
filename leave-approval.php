@@ -7,7 +7,7 @@
   $leaveApplicationModel = new LeaveApplicationModel($databaseModel);
   $leaveTypeModel = new LeaveTypeModel($databaseModel);
 
-  $pageTitle = 'Leave Application';
+  $pageTitle = 'Leave Approval';
     
   $leaveApplicationReadAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'read');
   $leaveApplicationCreateAccess = $userModel->checkMenuItemAccessRights($user_id, 93, 'create');

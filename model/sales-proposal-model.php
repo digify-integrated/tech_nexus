@@ -43,8 +43,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function updateSalesProposal($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_commission_amount, $p_company_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_commission_amount, :p_company_id, :p_last_log_by)');
+    public function updateSalesProposal($p_sales_proposal_id, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL updateSalesProposal(:p_sales_proposal_id, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_last_log_by)');
         $stmt->bindValue(':p_sales_proposal_id', $p_sales_proposal_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
@@ -63,6 +63,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_STR);
         $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_STR);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
+        $stmt->bindValue(':p_application_source_id', $p_application_source_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);
@@ -807,8 +808,8 @@ class SalesProposalModel {
     # Returns: None
     #
     # -------------------------------------------------------------
-    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_commission_amount, $p_company_id, $p_last_log_by) {
-        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_commission_amount, :p_company_id, :p_last_log_by, @p_sales_proposal_id)');
+    public function insertSalesProposal($p_sales_proposal_number, $p_customer_id, $p_comaker_id, $p_product_type, $p_transaction_type, $p_financing_institution, $p_referred_by, $p_release_date, $p_start_date, $p_first_due_date, $p_term_length, $p_term_type, $p_number_of_payments, $p_payment_frequency, $p_remarks, $p_created_by, $p_initial_approving_officer, $p_final_approving_officer, $p_renewal_tag, $p_application_source_id, $p_commission_amount, $p_company_id, $p_last_log_by) {
+        $stmt = $this->db->getConnection()->prepare('CALL insertSalesProposal(:p_sales_proposal_number, :p_customer_id, :p_comaker_id, :p_product_type, :p_transaction_type, :p_financing_institution, :p_referred_by, :p_release_date, :p_start_date, :p_first_due_date, :p_term_length, :p_term_type, :p_number_of_payments, :p_payment_frequency, :p_remarks, :p_created_by, :p_initial_approving_officer, :p_final_approving_officer, :p_renewal_tag, :p_application_source_id, :p_commission_amount, :p_company_id, :p_last_log_by, @p_sales_proposal_id)');
         $stmt->bindValue(':p_sales_proposal_number', $p_sales_proposal_number, PDO::PARAM_STR);
         $stmt->bindValue(':p_customer_id', $p_customer_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_comaker_id', $p_comaker_id, PDO::PARAM_INT);
@@ -828,6 +829,7 @@ class SalesProposalModel {
         $stmt->bindValue(':p_initial_approving_officer', $p_initial_approving_officer, PDO::PARAM_INT);
         $stmt->bindValue(':p_final_approving_officer', $p_final_approving_officer, PDO::PARAM_INT);
         $stmt->bindValue(':p_renewal_tag', $p_renewal_tag, PDO::PARAM_STR);
+        $stmt->bindValue(':p_application_source_id', $p_application_source_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_commission_amount', $p_commission_amount, PDO::PARAM_STR);
         $stmt->bindValue(':p_company_id', $p_company_id, PDO::PARAM_INT);
         $stmt->bindValue(':p_last_log_by', $p_last_log_by, PDO::PARAM_INT);

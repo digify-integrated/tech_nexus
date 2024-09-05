@@ -69,7 +69,10 @@
             <div id="miscellaneous_field" class="form-group row field d-none">
               <label class="col-lg-2 col-form-label">Collected From <span class="text-danger">*</span></label>
               <div class="col-lg-10">
-                <input type="text" class="form-control" id="collected_from" name="collected_from" maxlength="200" autocomplete="off">
+                <select class="form-control select2" name="miscellaneous_client_id" id="miscellaneous_client_id">+
+                <option value="">--</option>
+                  <?php echo $miscellaneousClientModel->generateMiscellaneousClientOptions(); ?>
+                </select>
               </div>
             </div>
           <div class="form-group row">
@@ -78,6 +81,7 @@
                 <select class="form-control select2" name="company_id" id="company_id">
                   <option value="">--</option>
                   <option value="1" selected>Christian General Motors Inc.</option>
+                  <option value="2">NE Truck Builders</option>
                   <option value="3">FUSO Tarlac</option>
                 </select>
               </div>  
@@ -100,6 +104,7 @@
                     <option value="Registration Renewal">Registration Renewal</option>
                     <option value="Transaction Fee">Transaction Fee</option>
                     <option value="Transfer Fee">Transfer Fee</option>
+                    <option value="Rental">Rental</option>
                 </select>
             </div>
           </div>

@@ -5619,3 +5619,75 @@ CREATE TABLE loan_collections_history (
 
 CREATE INDEX loan_collections_history_index_loan_collections_history_id ON loan_collections_history(loan_collections_history_id);
 CREATE INDEX loan_collections_history_index_loan_collection_id ON loan_collections_history(loan_collection_id);
+
+CREATE TABLE deposits (
+    deposits_id INT AUTO_INCREMENT PRIMARY KEY,
+    company_id INT UNSIGNED NOT NULL,
+    deposit_amount DOUBLE NOT NULL,
+    deposit_date DATE NOT NULL,
+    deposited_to INT NOT NULL,
+    transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    reference_number VARCHAR(100) NOT NULL,
+    remarks VARCHAR(500),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX deposits_index_deposits_id ON deposits(deposits_id);
+
+CREATE TABLE travel_form (
+    travel_form_id INT AUTO_INCREMENT PRIMARY KEY,
+    checked_by INT UNSIGNED NOT NULL,
+    checked_date DATETIME,
+    approval_by INT UNSIGNED NOT NULL,
+    approval_date DATETIME,
+    travel_form_status VARCHAR(100) DEFAULT 'Draft',
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX travel_form_index_travel_form_id ON travel_form(travel_form_id);
+
+CREATE TABLE travel_authorization (
+    travel_authorization_id INT AUTO_INCREMENT PRIMARY KEY,
+    travel_form_id INT,
+    destination VARCHAR(500),
+    mode_of_transportation VARCHAR(500),
+    purpose_of_travel VARCHAR(500),
+    authorization_departure_date DATE,
+    authorization_return_date DATE,
+    accomodation_details VARCHAR(1000),
+    toll_fee DOUBLE,
+    accomodation DOUBLE,
+    meals DOUBLE,
+    other_expenses DOUBLE,
+    total_estimated_cost DOUBLE,
+    additional_comments VARCHAR(1000),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX travel_authorization_index_travel_authorization_id ON travel_authorization(travel_authorization_id);
+CREATE INDEX travel_authorization_index_travel_form_id ON travel_authorization(travel_form_id);
+
+CREATE TABLE travel_gate_pass (
+    gate_pass_id INT AUTO_INCREMENT PRIMARY KEY,
+    travel_form_id INT,
+    name_of_driver VARCHAR(500),
+    contact_number VARCHAR(50),
+    vehicle_type VARCHAR(200),
+    plate_number VARCHAR(200),
+    department_id INT,
+    gate_pass_departure_date DATE,
+    odometer_reading VARCHAR(200),
+    remarks VARCHAR(1000),
+	created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_log_by INT UNSIGNED NOT NULL,
+    FOREIGN KEY (last_log_by) REFERENCES users(user_id)
+); 
+
+CREATE INDEX travel_authorization_index_travel_authorization_id ON travel_authorization(travel_authorization_id);
+CREATE INDEX travel_authorization_index_travel_form_id ON travel_authorization(travel_form_id);

@@ -4,6 +4,7 @@ require('model/database-model.php');
 require('model/sales-proposal-model.php');
 require('model/security-model.php');
 require('model/system-model.php');
+require('model/customer-model.php');
 require('model/notification-setting-model.php');
 require('model/email-setting-model.php');
 require ('assets/libs/PHPMailer/src/PHPMailer.php');
@@ -17,6 +18,7 @@ $databaseModel = new DatabaseModel();
 $systemModel = new SystemModel();
 $securityModel = new SecurityModel();
 $salesProposalModel = new SalesProposalModel($databaseModel);
+$customerModel = new CustomerModel($databaseModel);
 $emailSettingModel = new EmailSettingModel(new DatabaseModel);
 $notificationSettingModel = new NotificationSettingModel(new DatabaseModel);
 
@@ -24,6 +26,7 @@ $table = '<table border="1" cellspacing="0" cellpadding="5">
             <thead>
                 <tr>
                     <td>Sales Proposal Number</td>
+                    <td>Customer Name</td>
                     <td>For CI Date</td>
                     <td>Status</td>
                 </tr>
@@ -42,6 +45,9 @@ foreach ($options as $row) {
     $salesProposalNumber = $row['sales_proposal_number'];
     $forCIDate = $systemModel->checkDate('summary', $row['for_ci_date'], '', 'F d, Y', '');
 
+    $customerDetails = $customerModel->getPersonalInformation($customerID);
+    $customerName = $customerDetails['file_as'] ?? null;
+
     $today = date('Y-m-d');
     $overdueDate = $row['for_ci_date'];
     $diff = date_diff(date_create($overdueDate), date_create($today));
@@ -53,6 +59,7 @@ foreach ($options as $row) {
                     <td><a href="cgmids.com/sales-proposal-for-ci.php?customer='. $securityModel->encryptData($customerID) .'&id='. $salesProposalIDEncrypted .'">
                                                     '. $salesProposalNumber .'
                                                 </a></td>
+                    <td>'. $customerName .'</td>
                     <td>'. $forCIDate .'</td>
                     <td>Overdue by '. $daysOverdue  .' days</td>
                 </tr>';

@@ -71,6 +71,15 @@
                 </div>
               </div>
               <div class="form-group row">
+                <label class="col-lg-5 col-form-label">Application Source : <span class="text-danger">*</span></label>
+                <div class="col-lg-7">
+                  <select class="form-control select2" name="application_source_id" id="application_source_id">
+                    <option value="">--</option>
+                    <?php echo $applicationSourceModel->generateApplicationSourceOptions(); ?>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-lg-5 col-form-label">Company : <span class="text-danger">*</span></label>
                 <div class="col-lg-7">
                   <select class="form-control select2" name="company_id" id="company_id">
@@ -129,14 +138,14 @@
                   <input type="text" class="form-control text-uppercase" id="referred_by" name="referred_by" maxlength="100" autocomplete="off">
                 </div>
               </div>
+            </div>
+            <div class="col-lg-6">
               <div class="form-group row">
-                <label class="col-lg-5 col-form-label">Commission Amount : <span class="text-danger">*</span></label>
-                <div class="col-lg-7">
+                <label class="col-lg-6 col-form-label">Commission Amount : <span class="text-danger">*</span></label>
+                <div class="col-lg-6">
                   <input type="text" class="form-control currency" id="commission_amount" name="commission_amount">
                 </div>
               </div>
-            </div>
-            <div class="col-lg-6">
               <div class="form-group row">
                 <label class="col-lg-6 col-form-label">Estimated Date of Release : <span class="text-danger">*</span></label>
                 <div class="col-lg-6">

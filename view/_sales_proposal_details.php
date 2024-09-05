@@ -193,7 +193,8 @@
                 }
 
                 echo '<div class="previous me-2 d-none" id="print-button">
-                          <a href="javascript:window.print()" class="btn btn-outline-info me-1" id="print">Print</a>
+                          <a href="javascript:void(0)" class="btn btn-outline-info me-1" id="print">Print</a>
+                          <a href="javascript:void(0)" class="btn btn-outline-info me-1" id="print2">Print w/o Computation</a>
                       </div>';
               ?>
               <div class="previous me-2">
@@ -265,6 +266,15 @@
                         <option value="">--</option>
                         <option value="New">New</option>
                         <option value="Renewal">Renewal</option>
+                      </select>
+                    </div>
+                  </div>
+              <div class="form-group row">
+                    <label class="col-lg-5 col-form-label">Application Source : <span class="text-danger">*</span></label>
+                    <div class="col-lg-7">
+                      <select class="form-control select2" name="application_source_id" id="application_source_id">
+                        <option value="">--</option>
+                        <?php echo $applicationSourceModel->generateApplicationSourceOptions(); ?>
                       </select>
                     </div>
                   </div>
@@ -1244,7 +1254,7 @@
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <tr>
+                                                    <tr id="pricing-computation-block">
                                                         <td colspan="4" style="vertical-align: top !important;" class="text-wrap"><small style="color:#c60206"><b>PRICING COMPUTATION:</b></small><br/>
                                                             <div class="row pb-0 mb-0">
                                                                 <div class="col-lg-12">
@@ -1322,7 +1332,7 @@
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <tr>
+                                                    <tr id="amortization-block">
                                                         <td colspan="4" style="vertical-align: top !important;" class="text-wrap">
                                                             <small><b>FOR REFERRAL TO FINANCING, PLEASE COMPUTE MO AMORTIZATION:</b></small><br/><br/>
                                                             <small style="color:#c60206"><b>AMORTIZATION NET</b></small><br/><span class="text-sm" id="summary-repayment-amount"></span><br/><br/>

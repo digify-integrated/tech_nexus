@@ -6439,3 +6439,173 @@ BEGIN
     INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
     VALUES ('mode_of_acquisition', NEW.mode_of_acquisition_id, audit_log, NEW.last_log_by, NOW());
 END //
+
+CREATE TRIGGER application_source_trigger_update
+AFTER UPDATE ON application_source
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.application_source_name <> OLD.application_source_name THEN
+        SET audit_log = CONCAT(audit_log, "Application Source Name: ", OLD.application_source_name, " -> ", NEW.application_source_name, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('application_source', NEW.application_source_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER application_source_trigger_insert
+AFTER INSERT ON application_source
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Application source created. <br/>';
+
+    IF NEW.application_source_name <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Application Source Name: ", NEW.application_source_name);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('application_source', NEW.application_source_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER deposits_trigger_update
+AFTER UPDATE ON deposits
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.company_id <> OLD.company_id THEN
+        SET audit_log = CONCAT(audit_log, "Deposit ID: ", OLD.company_id, " -> ", NEW.company_id, "<br/>");
+    END IF;
+
+    IF NEW.deposit_amount <> OLD.deposit_amount THEN
+        SET audit_log = CONCAT(audit_log, "Deposit Amount: ", OLD.deposit_amount, " -> ", NEW.deposit_amount, "<br/>");
+    END IF;
+
+    IF NEW.deposit_date <> OLD.deposit_date THEN
+        SET audit_log = CONCAT(audit_log, "Deposit Date: ", OLD.deposit_date, " -> ", NEW.deposit_date, "<br/>");
+    END IF;
+
+    IF NEW.deposited_to <> OLD.deposited_to THEN
+        SET audit_log = CONCAT(audit_log, "Deposited To: ", OLD.deposited_to, " -> ", NEW.deposited_to, "<br/>");
+    END IF;
+
+    IF NEW.transaction_date <> OLD.transaction_date THEN
+        SET audit_log = CONCAT(audit_log, "Transaction Date: ", OLD.transaction_date, " -> ", NEW.transaction_date, "<br/>");
+    END IF;
+
+    IF NEW.reference_number <> OLD.reference_number THEN
+        SET audit_log = CONCAT(audit_log, "Reference Number: ", OLD.reference_number, " -> ", NEW.reference_number, "<br/>");
+    END IF;
+
+    IF NEW.remarks <> OLD.remarks THEN
+        SET audit_log = CONCAT(audit_log, "Remarks: ", OLD.remarks, " -> ", NEW.remarks, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('deposits', NEW.deposits_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER deposits_trigger_insert
+AFTER INSERT ON deposits
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Deposits created. <br/>';
+
+    IF NEW.deposit_amount <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Deposit Amount: ", NEW.deposit_amount);
+    END IF;
+
+    IF NEW.company_id <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Company ID: ", NEW.company_id);
+    END IF;
+
+    IF NEW.deposit_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Deposit Date: ", NEW.deposit_date);
+    END IF;
+
+    IF NEW.deposited_to <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Deposited To: ", NEW.deposited_to);
+    END IF;
+
+    IF NEW.transaction_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Transaction Date: ", NEW.transaction_date);
+    END IF;
+
+    IF NEW.reference_number <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Reference Number: ", NEW.reference_number);
+    END IF;
+
+    IF NEW.remarks <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Remarks: ", NEW.remarks);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('deposits', NEW.deposits_id, audit_log, NEW.last_log_by, NOW());
+END //
+
+CREATE TRIGGER travel_form_trigger_update
+AFTER UPDATE ON travel_form
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT '';
+
+    IF NEW.checked_by <> OLD.checked_by THEN
+        SET audit_log = CONCAT(audit_log, "Checked By: ", OLD.checked_by, " -> ", NEW.checked_by, "<br/>");
+    END IF;
+
+    IF NEW.checked_date <> OLD.checked_date THEN
+        SET audit_log = CONCAT(audit_log, "Checked Date: ", OLD.checked_date, " -> ", NEW.checked_date, "<br/>");
+    END IF;
+
+    IF NEW.approval_by <> OLD.approval_by THEN
+        SET audit_log = CONCAT(audit_log, "Approval By: ", OLD.approval_by, " -> ", NEW.approval_by, "<br/>");
+    END IF;
+
+    IF NEW.approval_date <> OLD.approval_date THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.approval_date, " -> ", NEW.approval_date, "<br/>");
+    END IF;
+
+    IF NEW.travel_form_status <> OLD.travel_form_status THEN
+        SET audit_log = CONCAT(audit_log, "Approval Date: ", OLD.travel_form_status, " -> ", NEW.travel_form_status, "<br/>");
+    END IF;
+    
+    IF LENGTH(audit_log) > 0 THEN
+        INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+        VALUES ('travel_form', NEW.travel_form_id, audit_log, NEW.last_log_by, NOW());
+    END IF;
+END //
+
+CREATE TRIGGER travel_form_trigger_insert
+AFTER INSERT ON travel_form
+FOR EACH ROW
+BEGIN
+    DECLARE audit_log TEXT DEFAULT 'Travel form created. <br/>';
+
+    IF NEW.checked_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Checked By: ", NEW.checked_by);
+    END IF;
+
+    IF NEW.checked_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Checked Date: ", NEW.checked_date);
+    END IF;
+
+    IF NEW.approval_by <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval By: ", NEW.approval_by);
+    END IF;
+
+    IF NEW.approval_date <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Approval Date: ", NEW.approval_date);
+    END IF;
+
+    IF NEW.travel_form_status <> '' THEN
+        SET audit_log = CONCAT(audit_log, "<br/>Travel Form Status: ", NEW.travel_form_status);
+    END IF;
+
+    INSERT INTO audit_log (table_name, reference_id, log, changed_by, changed_at) 
+    VALUES ('travel_form', NEW.travel_form_id, audit_log, NEW.last_log_by, NOW());
+END //

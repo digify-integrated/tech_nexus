@@ -610,7 +610,7 @@ function collectionsForm(){
                     }
                 }
             },
-            collected_from: {
+            miscellaneous_client_id: {
                 required: {
                     depends: function(element) {
                         return $("select[name='pdc_type']").val() === 'Miscellaneous';
@@ -660,7 +660,7 @@ function collectionsForm(){
             customer_id: {
                 required: 'Please choose the customer'
             },
-            collected_from: {
+            miscellaneous_client_id: {
                 required: 'Please enter the collected from'
             },
             payment_details: {
@@ -1168,8 +1168,7 @@ function displayDetails(transaction){
                         checkOptionExist('#customer_id', response.customerID, '');
                         checkOptionExist('#payment_details', response.paymentDetails, '');
                         checkOptionExist('#deposited_to', response.depositedTo, '');
-                        
-                        $('#collected_from').val(response.collectedFrom);
+                        checkOptionExist('#miscellaneous_client_id', response.miscellaneousClientID, '');
                     } 
                     else {
                         if(response.isInactive){

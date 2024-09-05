@@ -2255,6 +2255,9 @@ function addSalesProposalForm(){
             product_type: {
                 required: true
             },
+            application_source_id: {
+                required: true
+            },
             transaction_type: {
                 required: true
             },
@@ -2306,6 +2309,9 @@ function addSalesProposalForm(){
             },
             company_id: {
                 required: 'Please choose the company'
+            },
+            application_source_id: {
+                required: 'Please choose the application source'
             },
             transaction_type: {
                 required: 'Please choose the transaction type'

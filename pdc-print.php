@@ -79,7 +79,7 @@
     ob_start();
 
     // Create TCPDF instance
-    $pdf = new TCPDF('P', 'mm', array( 330.2,215.9), true, 'UTF-8', false);
+    $pdf = new TCPDF('P', 'mm', array( 215.9, 330.2), true, 'UTF-8', false);
 
     // Disable header and footer
     $pdf->setPrintHeader(false);
@@ -162,13 +162,13 @@
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REF DATE</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REF NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REF AMOUNT</b></td>
+                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK DATE</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CUSTOMER</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>STOCK NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>LOAN NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>PYMT DETAILS</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>BANK / BRANCH</b></td>
-                                <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK NO.</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>CHECK STATUS</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>FOR DEPOSIT ON</b></td>
                                 <td style="background-color: rgba(220, 38, 38, .8);"><b>REMARKS</b></td>
@@ -231,13 +231,13 @@
                 'ref_date' => $or_date,
                 'ref_no' => $or_number,
                 'ref_amount' => $payment_amount,
+                'check_no' => $check_number,
                 'check_date' => $check_date,
                 'customer' => $customerName,
                 'stock_no' => $stockNumber,
                 'loan_no' => $loan_number,
                 'pymt_details' => $payment_details,
                 'bank_branch' => $bank_branch,
-                'check_no' => $check_number,
                 'check_status' => $collection_status,
                 'for_deposit_on' => $new_deposit_date,
                 'remarks' => $remarks
@@ -268,13 +268,13 @@
                                 <td>'. $row['ref_date'] .'</td>
                                 <td>'. $row['ref_no'] .'</td>
                                 <td>'. number_format($row['ref_amount'], 2) .'</td>
+                                <td>'. $row['check_no'] .'</td>
                                 <td>'. $row['check_date'] .'</td>
                                 <td>'. $row['customer'] .'</td>
                                 <td>'. $row['stock_no'] .'</td>
                                 <td>'. $row['loan_no'] .'</td>
                                 <td>'. $row['pymt_details'] .'</td>
                                 <td>'. $row['bank_branch'] .'</td>
-                                <td>'. $row['check_no'] .'</td>
                                 <td>'. $row['check_status'] .'</td>
                                 <td>'. $row['for_deposit_on'] .'</td>
                                 <td>'. $row['remarks'] .'</td>

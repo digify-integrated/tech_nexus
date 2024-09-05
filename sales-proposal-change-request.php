@@ -14,6 +14,9 @@
   $customerModel = new CustomerModel($databaseModel);
   $productModel = new ProductModel($databaseModel);
   $idTypeModel = new IDTypeModel($databaseModel);
+
+  require('model/application-source-model.php');
+  $applicationSourceModel = new ApplicationSourceModel($databaseModel);
     
   $allSalesProposalReadAccess = $userModel->checkMenuItemAccessRights($user_id, 74, 'read');
   $addSalesProposal = $userModel->checkSystemActionAccessRights($user_id, 117);
